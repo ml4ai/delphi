@@ -1,3 +1,0 @@
-\frac { d n _ { S } } { d t } = - \frac { \alpha n _ { S } } { V } n _ { I }
-\frac { d n _ { I } } { d t } = \Big ( \frac { \alpha n _ { S } } { V } - \beta \Big ) \, n _ { I }
-\frac { d n _ { R } } { d t } = \beta n _ { I }

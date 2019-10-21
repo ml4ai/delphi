@@ -3,6 +3,7 @@ import sys
 import json
 from uuid import uuid4
 from datetime import datetime
+from pathlib import Path
 import subprocess as sp
 import xml.etree.ElementTree as ET
 
@@ -47,7 +48,8 @@ app = Flask(__name__)
 app.config.from_object(__name__)
 codemirror = CodeMirror(app)
 
-SOURCE_FILES = "/Users/phein/Google Drive/ASKE-AutoMATES/Data/source_model_files"
+SOURCE_FILES = os.environ["MODEL_FILES"]
+sys.path.insert(0, os.path.join(SOURCE_FILES, "code/"))
 
 
 @app.route("/")
@@ -70,52 +72,39 @@ def get_saved_materials():
     })
 
 
-@app.route("/get_GrFN", methods=["POST"])
-def get_GrFN():
-    model_name = request.form["model_json"]
-    return NotImplemented
-    form = MyForm()
-    code = form.source_code.data
-    app.code = code
-    if code == "":
-        return render_template("index.html", form=form)
-    lines = [
-        line.replace("\r", "") + "\n"
-        for line in [line for line in code.split("\n")]
-        if line != ""
-    ]
+@app.route("/process_text_and_code", methods=["POST"])
+def process_text_and_code():
+    fortran_file = request.form["source_code"]
+    basename = fortran_file[:-2]
+    pdf_file = request.form["document"]
+    conf_file = get_conf_file(pdf_file)
 
-    # dir_name = str(uuid4())
-    # os.mkdir(f"/tmp/automates/input_code/{dir_name}")
-    # input_code_tmpfile = f"/tmp/automates/input_code/{dir_name}/{orig_file}.f"
-    filename = f"input_code_{str(uuid4()).replace('-', '_')}"
-    input_code_tmpfile = f"/tmp/automates/{filename}.f"
-    with open(input_code_tmpfile, "w") as f:
-        f.write(preprocessor.process(lines))
+    fortran_path = os.path.join(SOURCE_FILES, "code", fortran_file)
+    norm_json_path = os.path.join(SOURCE_FILES, "code", f"{basename}.json")
+    if os.path.isfile(norm_json_path):
+        os.remove(norm_json_path)
 
-    lambdas = f"{filename}_lambdas"
-    lambdas_path = f"/tmp/automates/{lambdas}.py"
-    G = GroundedFunctionNetwork.from_fortran_file(input_code_tmpfile,
-                                                  tmpdir="/tmp/automates/")
-
-    graphJSON, layout = get_grfn_surface_plot(G)
-
-    scopeTree_elementsJSON = to_cyjs_grfn(G)
-    CAG = G.to_CAG()
-    program_analysis_graph_elementsJSON = to_cyjs_cag(CAG)
-
-    os.remove(input_code_tmpfile)
-    os.remove(f"/tmp/automates/{lambdas}.py")
-
-    return render_template(
-        "index.html",
-        form=form,
-        code=app.code,
-        scopeTree_elementsJSON=scopeTree_elementsJSON,
-        graphJSON=graphJSON,
-        layout=layout,
-        program_analysis_graph_elementsJSON=program_analysis_graph_elementsJSON,
-    )
+    GroundedFunctionNetwork.from_fortran_file(fortran_path, save_file=True)
+    cur_dir = os.getcwd()
+    os.chdir(os.path.join(os.environ["AUTOMATES_LOC"], "text_reading/"))
+    sp.run([
+        "sbt",
+        "-Dconfig.file=" + os.path.join(SOURCE_FILES, "configs", conf_file),
+        'runMain org.clulab.aske.automates.apps.ExtractAndAlign'
+    ])
+    os.chdir(cur_dir)
+    tr_json_path = os.path.join(SOURCE_FILES, "models", f"{basename}_with_groundings.json")
+    norm_json_path = os.path.join(SOURCE_FILES, "models", f"{basename}.json")
+    if os.path.isfile(norm_json_path):
+        os.remove(norm_json_path)
+    if os.path.isfile(tr_json_path):
+        os.rename(tr_json_path, norm_json_path)
+    grfn = json.load(open(norm_json_path, "r"))
+    return jsonify({
+        "link_data": {str(k): v for k, v in make_link_tables(grfn).items()},
+        "models": [f for f in os.listdir(os.path.join(SOURCE_FILES, "models"))
+                   if f.endswith(".json")]
+    })
 
 
 @app.route("/model_comparison")
@@ -166,13 +155,24 @@ def model_comparison():
 @app.route("/get_link_table", methods=["POST"])
 def get_link_table():
     model_name = request.form["model_json"]
-    grfn = json.load(open(f"{SOURCE_FILES}/models/{model_name}"))
+    grfn = json.load(open(os.path.join(SOURCE_FILES, "models", model_name)))
     return jsonify({str(k): v for k, v in make_link_tables(grfn).items()})
 
 
 @app.route('/upload_doc', methods=["POST"])
 def upload_doc():
     return NotImplemented
+
+
+def get_conf_file(doc_file):
+    if "ASCE" in doc_file:
+        return os.path.join(SOURCE_FILES, "configs", "petasce.conf")
+    elif doc_file.startswith("ideal_sir"):
+        return os.path.join(SOURCE_FILES, "configs", "SIR-simple.conf")
+    elif doc_file.startswith("sir_gillespie"):
+        return os.path.join(SOURCE_FILES, "configs", "gillespie.conf")
+    else:
+        raise RuntimeError(f"Config file not specified for: {doc_file}")
 
 
 def main():

@@ -139,8 +139,6 @@ bmi_config.txt
 *.png
 *.pdf
 *.Icon
-!delphi/apps/ModelExplorer/static/source_model_files/docs/*
-
 # VSCode
 .vscode/
 

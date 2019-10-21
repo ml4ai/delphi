@@ -12,11 +12,8 @@ var EDITOR = CodeMirror.fromTextArea(document.getElementById("code-viewer-area")
 );
 
 // Check for PDF object support
-if(PDFObject.supportsPDFs){
-  console.log("Yay, this browser supports inline PDFs.");
-} else {
-  console.log("Boo, inline PDFs are not supported by this browser");
-}
+var pdf_support = (PDFObject.supportsPDFs) ? "DOES" : "DOES NOT";
+console.log("This browser " + pdf_support + " support inline PDFs.");
 
 $(function() {
   /**
@@ -101,20 +98,15 @@ $(function() {
   });
 
   $("#model-gen-button").on("click", (e) => {
-    var pdf_name = get_model_pdf(CURR_MODEL);
-    PDFObject.embed(SOURCE_FILES + "docs/" + SOURCE_DOC, "#document-viewer", {height: "700px", pdfOpenParams: { view: 'FitV', page: '2' }});
-    $.get(SOURCE_FILES + "code/" + SOURCE_CODE, (code) => {
-      EDITOR.getDoc().setValue(code);
-    });
-
-    json_model = SOURCE_CODE.replace(".f", ".json");
+    $("#model-load-modal").modal("toggle");
+    $("#model-gen-button").addClass("disabled");
     $.ajax({
-      url: '/get_link_table',
-      data: { model_json: json_model },
-      type: 'POST',
+      url: "/process_text_and_code",
+      data: {source_code: SOURCE_CODE, document: SOURCE_DOC},
+      type: "POST",
       success: function(data) {
         $("#grounding-accordian").empty();
-        _.forEach(data, (rows, var_id) => {
+        _.forEach(data["link_data"], (rows, var_id) => {
           var variable_name_comps = _.split(var_id.replace(/'/g, "")
                                                   .replace("(", "")
                                                   .replace(")", ""), ", ");
@@ -144,13 +136,36 @@ $(function() {
             });
           }
         });
-      },
-      error: (error) => { console.log(error); }
-    });
 
-    // $.getJSON("/get_Grfn", {}, (data) => {
-    //
-    // });
+        $("#model-list").empty();
+        _.forEach(data["models"], function(model_file) {
+          var model_name = model_file.replace(".json", "");
+          $("#model-list").append("<a id=model-" + model_name + " class=\"list-group-item list-group-item-action\" role=\"tab\" data-toggle=\"list\">" + model_name + "</a>");
+        });
+        $("#model-list a").on("click", (e) => {
+          e.preventDefault();
+          $("#model-list a").removeClass("active");
+          $(e.target).addClass("active");
+          CURR_MODEL = $(e.target).text();
+          $("#model-view-button").removeClass("disabled");
+          $("#source-file-list a").removeClass("active");
+          $("#document-list a").removeClass("active");
+          SOURCE_DOC = null;
+          SOURCE_CODE = null;
+          $("#model-gen-button").addClass("disabled");
+        });
+        var pdf_name = get_model_pdf(CURR_MODEL);
+        PDFObject.embed(SOURCE_FILES + "docs/" + SOURCE_DOC, "#document-viewer", {height: "700px", pdfOpenParams: { view: 'FitV', page: '2' }});
+        $.get(SOURCE_FILES + "code/" + SOURCE_CODE, (code) => {
+          EDITOR.getDoc().setValue(code);
+        });
+        $("#model-load-modal").modal("toggle");
+      },
+      error: function(data) {
+        console.log(err);
+        $("#model-load-modal").modal("toggle");
+      }
+    });
   });
 
   /**
@@ -202,10 +217,6 @@ $(function() {
       },
       error: (error) => { console.log(error); }
     });
-
-    // $.getJSON("/get_Grfn", {}, (data) => {
-    //
-    // });
   });
 
   $("#model-comp-button").on("click", (e) => {

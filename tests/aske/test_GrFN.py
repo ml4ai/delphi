@@ -34,11 +34,6 @@ def sir_simple_grfn():
 
 
 @pytest.fixture
-def sir_gillespie_grfn():
-    return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/Gillespie-SIR.f")
-
-
-@pytest.fixture
 def sir_gillespie_inline_grfn():
     return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/SIR-Gillespie-SD_inline.f")
 
@@ -111,14 +106,6 @@ def test_sir_simple_creation(sir_simple_grfn):
     assert len(F) == 5
 
 
-def test_gillespie_creation(sir_gillespie_grfn):
-    assert isinstance(sir_gillespie_grfn, GroundedFunctionNetwork)
-    G = sir_gillespie_grfn.to_agraph()
-    G.draw('Gillespie-SIR--GrFN.pdf', prog='dot')
-    CAG = sir_gillespie_grfn.to_CAG_agraph()
-    CAG.draw('Gillespie-SIR--CAG.pdf', prog='dot')
-
-
 def test_sir_gillespie_inline_creation(sir_gillespie_inline_grfn):
     assert isinstance(sir_gillespie_inline_grfn, GroundedFunctionNetwork)
     G = sir_gillespie_inline_grfn.to_agraph()
@@ -139,7 +126,7 @@ def test_linking_graph():
     grfn = json.load(open("tests/data/program_analysis/SIR-simple_with_groundings.json", "r"))
     tables = linking.make_link_tables(grfn)
     linking.print_table_data(tables)
-    assert len(tables.keys()) == 207
+    assert len(tables.keys()) == 11
 
 
 @pytest.mark.skip("Need to update to latest JSON")
