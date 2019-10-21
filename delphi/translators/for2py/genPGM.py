@@ -191,6 +191,8 @@ class GrFNGenerator(object):
         # with another. We need to update all function
         # argument domains for arrays
         self.array_arg_domain = {}
+        # Holds list of modules that program references
+        self.modules = {}
 
         self.gensym_tag_map = {
             "container": 'c',
@@ -241,19 +243,10 @@ class GrFNGenerator(object):
             This function generates the GrFN structure by parsing through the
             python AST
         """
-        # DEBUG
-        print ("node:")
-        print ("    ", node, "\n")
-        if isinstance(node, list):
-             print (dump_ast(node[0]))
-        else:
-             print (dump_ast(node))
         # Look for code that is not inside any function.
         if state.function_name is None and not any(
                 isinstance(node, t) for t in self.types
         ):
-            # DEBUG
-            print ("1")
             # If the node is of instance ast.Call, it is the starting point
             # of the system.
             if isinstance(node, ast.Call):
@@ -265,10 +258,7 @@ class GrFNGenerator(object):
             elif isinstance(node, ast.If):
                 return self.gen_grfn(node.body, state, "start")
             else:
-                # DEBUG
-                print ("1d")
                 node_name = node.__repr__().split()[0][2:]
-                print ("node_name: ", node_name)
                 if (
                         node_name != "ast.Import" and
                         node_name != "ast.ImportFrom"
@@ -277,24 +267,15 @@ class GrFNGenerator(object):
                 else:
                     return []
         elif isinstance(node, list):
-            # DEBUG
-            print ("2")
             return self.process_list(node, state, call_source)
         elif any(isinstance(node, node_type) for node_type in
                  UNNECESSARY_TYPES):
-            # DEBUG
-            print ("3")
             return self.process_unnecessary_types(node, state, call_source)
         else:
-            # DEBUG
-            print ("4")
             node_name = node.__repr__().split()[0][2:]
             if self.process_grfn.get(node_name):
-                # DEBUG
-                print ("4a")
                 return self.process_grfn[node_name](node, state, call_source)
             else:
-                print ("4b")
                 return self.process_nomatch(node, state, call_source)
 
     def process_list(self, node, state, call_source):
@@ -2081,9 +2062,6 @@ class GrFNGenerator(object):
             ast.AnnAssign. This tag appears when a variable has been assigned
             with an annotation e.g. x: int = 5, y: List[float] = [None], etc.
         """
-        # DEBUG
-        print ("In process_annotated_assign")
-
         # Get the sources and targets of the annotated assignment
         sources = self.gen_grfn(node.value, state, "annassign")
         targets = self.gen_grfn(node.target, state, "annassign")
@@ -2110,10 +2088,6 @@ class GrFNGenerator(object):
             return []
 
         grfn = {"functions": [], "variables": [], "containers": []}
-
-        # DEBUG
-        print ("grfn:")
-        print ("    ", grfn, "\n")
 
         # Only a single target appears in the current version. The `for` loop
         # seems unnecessary but will be required when multiple targets start
@@ -2185,9 +2159,6 @@ class GrFNGenerator(object):
             grfn["functions"].append(fn)
             grfn["variables"].append(variable_spec)
 
-        # DEBUG
-        print ("grfn:")
-        print ("    ", grfn, "\n")
         return [grfn]
 
     def process_assign(self, node, state, *_):
@@ -2397,8 +2368,6 @@ class GrFNGenerator(object):
         grfn_list = []
         for cur in node.body:
             grfn = self.gen_grfn(cur, state, "module")
-            # DEBUG
-            print ("cur-grfn: ", cur, " - ", grfn)
             grfn_list += grfn
         merged_grfn = [self._merge_dictionary(grfn_list)]
 
@@ -2980,7 +2949,13 @@ class GrFNGenerator(object):
         if variable in self.arrays:
             domain_dictionary = self.arrays[variable]
         else:
-            variable_type = state.variable_types[variable]
+            # DEBUG
+            print ("state.variable_types: ", state.variable_types)
+            if variable in state.variable_types[variable]:
+                variable_type = state.variable_types[variable]
+            else:
+                pass
+                # TODO
             if variable in self.variable_map and \
                     self.variable_map[variable]["parameter"]:
                 is_mutable = True
@@ -3694,6 +3669,13 @@ def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
         # Calling the `get_index` function in `mod_index_generator.py` to
         # map all variables and objects in the various files
         module_mapper = get_index(xml_file)
+
+    # DEBUG
+    print ("module_mapper:")
+    print ("    ", module_mapper, "\n")
+    main_program = module_mapper[0]["modules"][-1]
+    module_variable_types = module_mapper[0]["symbol_types"]
+
 
     for index, ast_string in enumerate(ast_list):
         lambda_file = python_list[index][:-3] + "_" + lambda_tail
