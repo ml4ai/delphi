@@ -241,10 +241,19 @@ class GrFNGenerator(object):
             This function generates the GrFN structure by parsing through the
             python AST
         """
+        # DEBUG
+        print ("node:")
+        print ("    ", node, "\n")
+        if isinstance(node, list):
+             print (dump_ast(node[0]))
+        else:
+             print (dump_ast(node))
         # Look for code that is not inside any function.
         if state.function_name is None and not any(
                 isinstance(node, t) for t in self.types
         ):
+            # DEBUG
+            print ("1")
             # If the node is of instance ast.Call, it is the starting point
             # of the system.
             if isinstance(node, ast.Call):
@@ -256,17 +265,36 @@ class GrFNGenerator(object):
             elif isinstance(node, ast.If):
                 return self.gen_grfn(node.body, state, "start")
             else:
-                return []
+                if call_source == "module":
+                    node_name = node.__repr__().split()[0][2:]
+                    if self.process_grfn.get(node_name):
+                        # DEBUG
+                        print ("4a")
+                        return self.process_grfn[node_name](node, state, call_source)
+                    else:
+                        print ("4b")
+                        return self.process_nomatch(node, state, call_source)
+                else:
+                    return []
         elif isinstance(node, list):
+            # DEBUG
+            print ("2")
             return self.process_list(node, state, call_source)
         elif any(isinstance(node, node_type) for node_type in
                  UNNECESSARY_TYPES):
+            # DEBUG
+            print ("3")
             return self.process_unnecessary_types(node, state, call_source)
         else:
+            # DEBUG
+            print ("4")
             node_name = node.__repr__().split()[0][2:]
             if self.process_grfn.get(node_name):
+                # DEBUG
+                print ("4a")
                 return self.process_grfn[node_name](node, state, call_source)
             else:
+                print ("4b")
                 return self.process_nomatch(node, state, call_source)
 
     def process_list(self, node, state, call_source):
@@ -2053,6 +2081,9 @@ class GrFNGenerator(object):
             ast.AnnAssign. This tag appears when a variable has been assigned
             with an annotation e.g. x: int = 5, y: List[float] = [None], etc.
         """
+        # DEBUG
+        print ("In process_annotated_assign")
+
         # Get the sources and targets of the annotated assignment
         sources = self.gen_grfn(node.value, state, "annassign")
         targets = self.gen_grfn(node.target, state, "annassign")
@@ -2079,6 +2110,10 @@ class GrFNGenerator(object):
             return []
 
         grfn = {"functions": [], "variables": [], "containers": []}
+
+        # DEBUG
+        print ("grfn:")
+        print ("    ", grfn, "\n")
 
         # Only a single target appears in the current version. The `for` loop
         # seems unnecessary but will be required when multiple targets start
@@ -2149,6 +2184,10 @@ class GrFNGenerator(object):
 
             grfn["functions"].append(fn)
             grfn["variables"].append(variable_spec)
+
+        # DEBUG
+        print ("grfn:")
+        print ("    ", grfn, "\n")
         return [grfn]
 
     def process_assign(self, node, state, *_):
@@ -2357,6 +2396,8 @@ class GrFNGenerator(object):
         """
         grfn_list = []
         for cur in node.body:
+            # DEBUG
+            print ("cur: ", cur)
             grfn = self.gen_grfn(cur, state, "module")
             grfn_list += grfn
         merged_grfn = [self._merge_dictionary(grfn_list)]
@@ -3441,6 +3482,7 @@ def create_grfn_dict(
         mode_mapper_dict: list,
         original_file: str,
         save_file=False,
+        module_file_exist=False,
 ) -> Dict:
     """
         Create a Python dict representing the GrFN, with additional metadata for
@@ -3459,10 +3501,24 @@ def create_grfn_dict(
     generator.fortran_file = original_file
 
     try:
-        filename_regex = re.compile(r"(.*)\..*$")
-        name_match = re.match(filename_regex, file_name)
-        assert name_match, f"Can't match filename to any format: {file_name}"
-        file_name = name_match.group(1)
+        filename_regex = re.compile(r"(?P<path>.*/)(?P<filename>.*).py")
+        file_match = re.match(filename_regex, file_name)
+        assert file_match, f"Can't match filename to any format: {file_name}"
+
+        path = file_match.group("path")
+        filename = file_match.group("filename")
+
+        file_name = path+filename
+        if module_file_exist:
+            module_file_name = file_name
+            org_file = get_original_file_name(original_file)
+            file_name = path + org_file
+            # DEBUG
+            print ("In create_grfn_dict function - module_file_name: ", module_file_name)
+        else:
+            file_name = path+filename
+            # DEBUG
+            print ("In create_grfn_dict function - file_name: ", file_name)
         with open(f"{file_name}_variables_pickle", "rb") as f:
             variable_map = pickle.load(f)
         generator.variable_map = variable_map
@@ -3470,7 +3526,6 @@ def create_grfn_dict(
         raise For2PyError(f"Unable to read file {file_name}.")
 
     grfn = generator.gen_grfn(asts, state, "")[0]
-
 
     # If the GrFN has a `start` node, it will refer to the name of the
     # PROGRAM module which will be the entry point of the GrFN.
@@ -3513,7 +3568,10 @@ def create_grfn_dict(
 
     # View the PGM file that will be used to build a scope tree
     if save_file:
-        json.dump(grfn, open(file_name[:file_name.rfind(".")] + ".json", "w"))
+        if module_file_exist:
+            json.dump(grfn, open(module_file_name[:module_file_name.rfind(".")] + ".json", "w"))
+        else:
+            json.dump(grfn, open(file_name[:file_name.rfind(".")] + ".json", "w"))
 
     return grfn
 
@@ -3588,16 +3646,28 @@ def generate_system_def(python_list: List[str], component_list: List[str]):
 
 
 def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
-                  original_file: str, print_ast_flag=False):
+                  original_file_path: str, print_ast_flag=False):
     """
         This function takes in the list of python files to convert into GrFN 
         and generates each file's AST along with starting the GrFN generation
         process. 
     """
 
+    module_file_exist = False
+
     module_mapper = {}
     grfn_filepath_list = []
     ast_list = get_asts_from_files(python_list, print_ast_flag)
+
+    # DEBUG
+    print ("ast_list:")
+    print ("    ", ast_list, "\n")
+
+    # DEBUG
+    print ("In genPGM.py - python_list:")
+    print ("    ", python_list, "\n")
+    print ("original_file - original_file:")
+    print ("    ", original_file_path, "\n")
 
     # Regular expression to identify the path and name of all python files
     filename_regex = re.compile(r"(?P<path>.*/)(?P<filename>.*).py")
@@ -3617,14 +3687,20 @@ def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
             xml_file = f"{path}rectified_{filename}.xml"
             # Calling the `get_index` function in `mod_index_generator.py` to
             # map all variables and objects in the various files
-            module_mapper = get_index(xml_file)
+        else:
+            module_file_exist = True
+            file_name = get_original_file_name(original_file_path)
+            xml_file = f"{path}rectified_{file_name}.xml"
+        # Calling the `get_index` function in `mod_index_generator.py` to
+        # map all variables and objects in the various files
+        module_mapper = get_index(xml_file)
 
     for index, ast_string in enumerate(ast_list):
         lambda_file = python_list[index][:-3] + "_" + lambda_tail
         grfn_file = python_list[index][:-3] + "_" + grfn_tail
         grfn_dict = create_grfn_dict(
             lambda_file, [ast_string], python_list[index], module_mapper,
-            original_file
+            original_file_path, True, module_file_exist
         )
         grfn_filepath_list.append(grfn_file)
         # Write each GrFN JSON into a file
@@ -3635,6 +3711,9 @@ def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
     # GrFN files related to the system.
     generate_system_def(python_list, grfn_filepath_list)
 
+def get_original_file_name (original_file_path):
+    original_file = original_file_path.split('/')
+    return original_file[-1].split('.')[0]
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
