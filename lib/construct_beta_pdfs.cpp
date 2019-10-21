@@ -1,11 +1,12 @@
 #include "AnalysisGraph.hpp"
 #include "itertools.hpp"
 #include <sqlite3.h>
+
 using namespace std;
+using namespace delphi::utils;
 
 AdjectiveResponseMap
 construct_adjective_response_map(size_t n_kernels = DEFAULT_N_SAMPLES) {
-  using utils::hasKey;
   sqlite3* db;
   int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
 
@@ -22,7 +23,7 @@ construct_adjective_response_map(size_t n_kernels = DEFAULT_N_SAMPLES) {
     string adjective =
         string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2)));
     double response = sqlite3_column_double(stmt, 6);
-    if (hasKey(adjective_response_map, adjective)) {
+    if (in(adjective_response_map, adjective)) {
       adjective_response_map[adjective] = {response};
     }
     else {
@@ -39,8 +40,6 @@ construct_adjective_response_map(size_t n_kernels = DEFAULT_N_SAMPLES) {
 }
 
 void AnalysisGraph::construct_beta_pdfs() {
-  using utils::get;
-  using utils::lmap;
 
   double sigma_X = 1.0;
   double sigma_Y = 1.0;
@@ -55,7 +54,7 @@ void AnalysisGraph::construct_beta_pdfs() {
   marginalized_responses =
       KDE(marginalized_responses).resample(DEFAULT_N_SAMPLES);
 
-  for (auto e : edges()) {
+  for (auto e : this->edges()) {
     vector<double> all_thetas = {};
 
     for (Statement stmt : this->graph[e].evidence) {
@@ -78,13 +77,11 @@ void AnalysisGraph::construct_beta_pdfs() {
       }
     }
 
-    // TODO: Why kde is optional in struct Edge?
-    // It seems all the edges get assigned with a kde
     this->graph[e].kde = KDE(all_thetas);
 
     // Initialize the initial β for this edge
     // TODO: Decide the correct way to initialize this
-    this->graph[e].beta = this->graph[e].kde.value().mu;
+    this->graph[e].beta = this->graph[e].kde.mu;
   }
 }
 

@@ -1,12 +1,24 @@
 import sys
 import pandas as pd
+from functools import partial
+
+
+dtype_dict = {
+    "Variable": str,
+    "Country": str,
+    "Unit": str,
+    "Year": int,
+    "Value": float,
+}
+
+read_csv = partial(pd.read_csv, sep="\t", dtype=dtype_dict, index_col=False)
+
 
 def combine_data(outputFile):
-    dtype_dict = {"Month": int, "Variable": str, "Country" : str, "Unit" : str, "Year":int, "Value": float}
-    fao_df = pd.read_csv("data/fao_data.tsv", sep="\t", dtype=dtype_dict)
+    fao_df = read_csv("data/fao_data.tsv")
     fao_df["Source"] = "FAO"
 
-    wdi_df = pd.read_csv("data/wdi_data.tsv", sep="\t", dtype=dtype_dict)
+    wdi_df = read_csv("data/wdi_data.tsv")
     wdi_df["Source"] = "WDI"
 
     wdi_df["Unit"] = (
@@ -27,7 +39,6 @@ def combine_data(outputFile):
     ind_cols = ["Variable", "Unit", "Source", "Country"]
     fao_wdi_df = pd.concat([fao_df, wdi_df], sort=True)
 
-
     fao_wdi_df = (
         fao_wdi_df.reset_index()
         .melt(id_vars=ind_cols, var_name="Year", value_name="Value")
@@ -38,7 +49,7 @@ def combine_data(outputFile):
     # for three years - 2010, 2011, 2012
 
     for c in fao_wdi_df.columns:
-        if isinstance(c,str):
+        if isinstance(c, str):
             if "-" in c:
                 print(c)
                 years = c.split("-")
@@ -52,49 +63,59 @@ def combine_data(outputFile):
         "data/raw/wm_12_month_evaluation/south_sudan_data_conflict.tsv",
         index_col=False,
         sep="\t",
+        dtype=dtype_dict,
     )
-    fewsnet_df = pd.read_csv(
-        "data/indicator_data_fewsnet.tsv", index_col=False, sep="\t"
-    )
+    fewsnet_df = read_csv("data/indicator_data_fewsnet.tsv")
     fewsnet_df = fewsnet_df[(fewsnet_df.Value <= 5) & (fewsnet_df.Value >= 1)]
-    climis_unicef_ieconomics_df = pd.read_csv(
-        "data/indicator_data_climis_unicef_ieconomics.tsv",
-        index_col=False,
-        sep="\t",
-    )
-    dssat_df = pd.read_csv(
-        "data/indicator_data_dssat.tsv", index_col=False, sep="\t"
+
+    climis_unicef_ieconomics_df = read_csv(
+        "data/indicator_data_climis_unicef_ieconomics.tsv", thousands=","
     )
 
-    unhcr_df = pd.read_csv(
-        "data/indicator_data_UNHCR.tsv", index_col=False, sep="\t"
+    dssat_df = read_csv("data/indicator_data_dssat.tsv")
+
+    unhcr_df = read_csv("data/indicator_data_UNHCR.tsv")
+
+    migration1_df = read_csv("data/south_sudan_migration_data_secondary.tsv")
+
+    WHO1_df = pd.read_csv(
+        "data/WHO-data1.csv", index_col=False, dtype=dtype_dict
+    )
+    WHO2_df = pd.read_csv(
+        "data/WHO-data2.csv", index_col=False, dtype=dtype_dict
+    )
+    WHO3_df = pd.read_csv(
+        "data/WHO-data3.csv", index_col=False, dtype=dtype_dict
     )
 
-    migration1_df = pd.read_csv(
-        "data/south_sudan_ReachJongleiJan_migration_data_old.tsv", index_col=False, sep="\t"
+    IMF_df = pd.read_csv(
+        "data/IMF-data.csv", index_col=False, dtype=dtype_dict
     )
 
-    migration2_df = pd.read_csv(
-        "data/south_sudan_54660_migration_data_old.tsv", index_col=False, sep="\t"
+    WFP_df = pd.read_csv(
+        "data/WFP-data.csv", index_col=False, dtype=dtype_dict
     )
 
-    migration3_df = pd.read_csv(
-        "data/south_sudan_62801_migration_data_old.tsv", index_col=False, sep="\t"
+    acled1_df = pd.read_csv(
+        "data/acled-data1.csv", index_col=False, dtype=dtype_dict
+    )
+    acled2_df = pd.read_csv(
+        "data/acled-data2.csv", index_col=False, dtype=dtype_dict
+    )
+    acled3_df = pd.read_csv(
+        "data/acled-data3.csv", index_col=False, dtype=dtype_dict
     )
 
-    migration4_df = pd.read_csv(
-        "data/south_sudan_62803_migration_data_old.tsv", index_col=False, sep="\t"
+    World_Bank_df = pd.read_csv(
+        "data/World-Bank-data.csv", index_col=False, dtype=dtype_dict
     )
 
-    migration5_df = pd.read_csv(
-        "data/south_sudan_63604_migration_data_old.tsv", index_col=False, sep="\t"
+    dssat_oct2019_eval_data_df = read_csv('data/dssat_data_oct2019_eval.tsv')
+    
+    IOM_DTM1_df = pd.read_csv(
+        "data/IOM-DTM-data1.csv", index_col=False, dtype=dtype_dict
     )
-
-    migration6_df = pd.read_csv(
-        "data/south_sudan_UNHCR_migration_data_old.tsv", index_col=False, sep="\t"
-    )
-
-
+    
     combined_df = pd.concat(
         [
             fao_wdi_df,
@@ -104,20 +125,25 @@ def combine_data(outputFile):
             dssat_df,
             unhcr_df,
             migration1_df,
-            migration2_df,
-            migration3_df,
-            migration4_df,
-            migration5_df,
-            migration6_df,
+            WHO1_df,
+            WHO2_df,
+            WHO3_df,
+            IMF_df,
+            WFP_df,
+            acled1_df,
+            acled2_df,
+            acled3_df,
+            World_Bank_df,
+            dssat_oct2019_eval_data_df,
+            IOM_DTM1_df,
         ],
         sort=True,
     ).dropna(subset=["Value"])
     combined_df.Variable = combined_df.Variable.str.strip()
-    combined_df.to_csv(
-        outputFile, sep="\t", index=False
-    )
+    combined_df.to_csv(outputFile, sep="\t", index=False)
     with open("data/indicator_flat_list.txt", "w") as f:
         f.write("\n".join(set(combined_df.Variable)))
+
 
 if __name__ == "__main__":
     combine_data(sys.argv[1])

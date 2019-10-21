@@ -1,26 +1,31 @@
 #include "AnalysisGraph.hpp"
 #include "data.hpp"
-#include "tqdm.hpp"
-#include <boost/algorithm/string.hpp>
+#include "spdlog/spdlog.h"
 #include <boost/range/algorithm/for_each.hpp>
-#include <boost/algorithm/string.hpp>
-#include <cmath>
 #include <range/v3/all.hpp>
 #include <sqlite3.h>
-#include <type_traits>
 
 using namespace std;
-using boost::for_each;
-using boost::make_iterator_range;
-using boost::adaptors::transformed;
-using fmt::print, fmt::format;
-using tq::tqdm;
 using namespace fmt::literals;
+using namespace delphi::utils;
+using spdlog::debug, spdlog::error, spdlog::info;
+
+using boost::for_each, boost::graph_traits, boost::clear_vertex,
+    boost::remove_vertex;
+using Eigen::VectorXd;
+using fmt::print, fmt::format;
 using spdlog::debug;
 using spdlog::error;
 using spdlog::warn;
 
-typedef multimap<pair<int, int>, pair<int, int>>::iterator MMAPIterator;
+// Forward declarations
+class Node;
+class Indicator;
+
+const double TAU = 1;
+const double tuning_param = 0.0001;
+
+typedef multimap<pair<int, int>, pair<int, int>>::iterator MMapIterator;
 
 size_t AnalysisGraph::num_vertices() {
   return boost::num_vertices(this->graph);
@@ -28,69 +33,150 @@ size_t AnalysisGraph::num_vertices() {
 
 size_t AnalysisGraph::num_edges() { return boost::num_edges(this->graph); }
 
-Node& AnalysisGraph::operator[](int index) { return this->graph[index]; }
+int AnalysisGraph::get_vertex_id(string concept) {
+  try {
+    return this->name_to_vertex.at(concept);
+  }
+  catch (const out_of_range& oor) {
+    throw out_of_range("Concept \"{}\" not in CAG!"_format(concept));
+  }
+}
+
+Node& AnalysisGraph::operator[](int v) { return this->graph[v]; }
 
 Node& AnalysisGraph::operator[](string node_name) {
-  return (*this)[this->name_to_vertex.at(node_name)];
+  return (*this)[this->get_vertex_id(node_name)];
 }
 
-auto AnalysisGraph::successors(int i) {
-  return make_iterator_range(boost::adjacent_vertices(i, this->graph));
+vector<Node> AnalysisGraph::get_successor_list(string node) {
+  vector<Node> successors = {};
+  for (int successor : this->successors(node)) {
+    successors.push_back((*this)[successor]);
+  }
+  return successors;
 }
 
-void AnalysisGraph::map_concepts_to_indicators(int n_indicators) {
+vector<Node> AnalysisGraph::get_predecessor_list(string node) {
+  vector<Node> predecessors = {};
+  for (int predecessor : this->predecessors(node)) {
+    predecessors.push_back((*this)[predecessor]);
+  }
+  return predecessors;
+}
+
+
+int AnalysisGraph::get_degree(int vertex_id) {
+  return boost::in_degree(vertex_id, this->graph) +
+         boost::out_degree(vertex_id, this->graph);
+}
+
+void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
+                                               string country) {
+  spdlog::set_level(spdlog::level::debug);
   sqlite3* db;
   int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
   if (rc) {
-    throw("Could not open db. Do you have the DELPHI_DB "
-          "environment correctly set to point to the Delphi database?");
+    throw runtime_error(
+        "Could not open db. Do you have the DELPHI_DB "
+        "environment correctly set to point to the Delphi database?");
   }
   sqlite3_stmt* stmt;
-  string query_base =
-      "select Source, Indicator from concept_to_indicator_mapping ";
+  string query_base = "select Indicator from concept_to_indicator_mapping ";
   string query;
-  for (Node& node : this->nodes()) {
-    query = query_base + "where `Concept` like " + "'" + node.name + "'";
+
+  // Check if there are any data values for an indicator for this country.
+  auto has_data = [&](string indicator) {
+    query =
+        "select `Value` from indicator where `Variable` like '{0}' and `Country` like '{1}'"_format(
+            indicator, country);
     rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
-    node.clear_indicators();
-    bool ind_not_found = false;
+    rc = sqlite3_step(stmt) == SQLITE_ROW;
+    sqlite3_reset(stmt);
+    return rc;
+  };
+
+  auto get_indicator_source = [&](string indicator) {
+    query =
+        "select `Source` from indicator where `Variable` like '{0}' and `Country` like '{1}' limit 1"_format(
+            indicator, country);
+    rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
+    rc = sqlite3_step(stmt);
+    string source =
+        string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
+    sqlite3_reset(stmt);
+    return source;
+  };
+
+  for (Node& node : this->nodes()) {
+    node.clear_indicators(); // Clear pre-existing attached indicators
+
+    query = "{0} where `Concept` like '{1}' order by `Score` desc"_format(
+        query_base, node.name);
+    rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
+
+    vector<string> matches = {};
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+      matches.push_back(
+          string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0))));
+    }
+    sqlite3_reset(stmt);
+
+    string ind_name, ind_source;
+
     for (int i = 0; i < n_indicators; i++) {
-      string ind_name, ind_source;
-      do {
-        rc = sqlite3_step(stmt);
-        if (rc == SQLITE_ROW) {
-          ind_source = string(
-              reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
-          ind_name = string(
-              reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
-        }
-        else {
-          ind_not_found = true;
+      bool at_least_one_indicator_found = false;
+      for (string indicator : matches) {
+        if (!in(this->indicators_in_CAG, indicator) and has_data(indicator)) {
+          node.add_indicator(indicator, get_indicator_source(indicator));
+          this->indicators_in_CAG.insert(indicator);
+          at_least_one_indicator_found = true;
           break;
         }
-      } while (this->indicators_in_CAG.find(ind_name) !=
-               this->indicators_in_CAG.end());
-
-      if (!ind_not_found) {
-        node.add_indicator(ind_name, ind_source);
-        this->indicators_in_CAG.insert(ind_name);
       }
-      else {
-        print("No more indicators were found, only {0} indicators attached to "
-              "{1}",
-              i,
-              node.name);
-        break;
+      if (!at_least_one_indicator_found) {
+        debug("No suitable indicators found for concept '{0}' for country "
+              "'{1}', please select "
+              "one manually.",
+              node.name,
+              country);
       }
     }
-    sqlite3_finalize(stmt);
   }
-  sqlite3_close(db);
+  rc = sqlite3_finalize(stmt);
+  rc = sqlite3_close(db);
+}
+
+void AnalysisGraph::set_indicator(string concept,
+                                  string indicator,
+                                  string source) {
+  if (in(this->indicators_in_CAG, indicator)) {
+    debug("{0} already exists in Causal Analysis Graph, Indicator {0} was "
+          "not added to Concept {1}.",
+          indicator,
+          concept);
+    return;
+  }
+  (*this)[concept].add_indicator(indicator, source);
+  this->indicators_in_CAG.insert(indicator);
+}
+
+void AnalysisGraph::delete_indicator(string concept, string indicator) {
+  (*this)[concept].delete_indicator(indicator);
+  this->indicators_in_CAG.erase(indicator);
+}
+
+void AnalysisGraph::delete_all_indicators(string concept) {
+  (*this)[concept].clear_indicators();
+}
+
+void AnalysisGraph::set_derivative(string concept, double derivative) {
+  int v = this->get_vertex_id(concept);
+  this->s0[2 * v + 1] = derivative;
 }
 
 void AnalysisGraph::initialize_random_number_generator() {
   // Define the random number generator
-  // All the places we need random numbers, share this generator
+  // All the places we need random numbers share this generator
 
   this->rand_num_generator = RNG::rng()->get_RNG();
 
@@ -99,72 +185,6 @@ void AnalysisGraph::initialize_random_number_generator() {
 
   // Normal distrubution used to perturb β
   this->norm_dist = normal_distribution<double>(0.0, 1.0);
-}
-
-void AnalysisGraph::parameterize(string country,
-                                 string state,
-                                 string county,
-                                 int year,
-                                 int month,
-                                 map<string, string> units) {
-  double stdev, mean;
-  for (Node& node : this->nodes()) {
-    for (auto& [name, i] : node.indicator_names) {
-      Indicator& indicator = node.indicators[i];
-      try {
-        if (units.find(name) != units.end()) {
-          indicator.set_unit(units[name]);
-          vector<double> data = get_data_value(name,
-                                               country,
-                                               state,
-                                               county,
-                                               year,
-                                               month,
-                                               units[name],
-                                               this->data_heuristic);
-          if (data.empty()) {
-            mean = 0;
-          }
-          else {
-            mean = utils::mean(data);
-          }
-          indicator.set_mean(mean);
-        }
-        else {
-          indicator.set_default_unit();
-          vector<double> data = get_data_value(name,
-                                               country,
-                                               state,
-                                               county,
-                                               year,
-                                               month,
-                                               units[name],
-                                               this->data_heuristic);
-          if (data.empty()) {
-            mean = 0;
-          }
-          else {
-            mean = utils::mean(data);
-          }
-          indicator.set_mean(mean);
-        }
-        stdev = 0.1 * abs(indicator.get_mean());
-        if (stdev == 0) {
-          stdev = 1;
-        }
-        indicator.set_stdev(stdev);
-      }
-      catch (logic_error& le) {
-        error("AnalysisGraph::parameterize()\n"
-              "\tReading data for:\n"
-              "\t\tConcept: {0}\n"
-              "\t\tIndicator: {1}\n",
-              node.name,
-              name);
-        rethrow_exception(current_exception());
-      }
-    }
-  }
 }
 
 void AnalysisGraph::allocate_A_beta_factors() {
@@ -177,74 +197,6 @@ void AnalysisGraph::allocate_A_beta_factors() {
         vector<shared_ptr<Tran_Mat_Cell>>(num_verts));
   }
 }
-
-void AnalysisGraph::get_subgraph(int vert,
-                                 unordered_set<int>& vertices_to_keep,
-                                 int cutoff,
-                                 bool inward) {
-
-  // Mark the current vertex visited
-  (*this)[vert].visited = true;
-  vertices_to_keep.insert(vert);
-
-  if (cutoff != 0) {
-    cutoff--;
-
-    // Recursively process all the vertices adjacent to the current vertex
-    if (inward) {
-      for_each(this->predecessors(vert), [&](int v) {
-        if (!(*this)[v].visited) {
-          this->get_subgraph(v, vertices_to_keep, cutoff, inward);
-        }
-      });
-    }
-    else {
-      for_each(this->successors(vert), [&](int v) {
-        if (!(*this)[v].visited) {
-          this->get_subgraph(v, vertices_to_keep, cutoff, inward);
-        }
-      });
-    }
-  }
-
-  // Mark the current vertex unvisited
-  (*this)[vert].visited = false;
-};
-
-void AnalysisGraph::get_subgraph_between(int start,
-                                         int end,
-                                         vector<int>& path,
-                                         unordered_set<int>& vertices_to_keep,
-                                         int cutoff) {
-
-  // Mark the current vertex visited
-  (*this)[start].visited = true;
-
-  // Add this vertex to the path
-  path.push_back(start);
-
-  // If current vertex is the destination vertex, then
-  //   we have found one path.
-  //   Add this cell to the Tran_Mat_Object that is tracking
-  //   this transition matrix cell.
-  if (start == end) {
-    vertices_to_keep.insert(path.begin(), path.end());
-  }
-  else if (cutoff != 0) {
-    cutoff--;
-
-    // Recursively process all the vertices adjacent to the current vertex
-    for_each(this->successors(start), [&](int v) {
-      if (!(*this)[v].visited) {
-        this->get_subgraph_between(v, end, path, vertices_to_keep, cutoff);
-      }
-    });
-  }
-
-  // Remove current vertex from the path and make it unvisited
-  path.pop_back();
-  (*this)[start].visited = false;
-};
 
 void AnalysisGraph::find_all_paths_between(int start,
                                            int end,
@@ -307,127 +259,6 @@ void AnalysisGraph::find_all_paths_between_util(int start,
   (*this)[start].visited = false;
 };
 
-void AnalysisGraph::set_default_initial_state() {
-  // Let vertices of the CAG be v = 0, 1, 2, 3, ...
-  // Then,
-  //    indexes 2*v keeps track of the state of each variable v
-  //    indexes 2*v+1 keeps track of the state of ∂v/∂t
-  int num_verts = this->num_vertices();
-  int num_els = num_verts * 2;
-
-  this->s0 = Eigen::VectorXd(num_els);
-  this->s0.setZero();
-
-  for (int i = 0; i < num_els; i += 2) {
-    this->s0(i) = 1.0;
-  }
-}
-
-int AnalysisGraph::get_vertex_id_for_concept(string concept, string caller) {
-  int vert_id = -1;
-
-  try {
-    vert_id = this->name_to_vertex.at(concept);
-  }
-  catch (const out_of_range& oor) {
-    error("AnalysisGraph::{0}\n"
-          "The concept {1} is not in the CAG!",
-          caller,
-          concept);
-    rethrow_exception(current_exception());
-  }
-
-  return vert_id;
-}
-
-int AnalysisGraph::get_degree(int vertex_id) {
-  return boost::in_degree(vertex_id, this->graph) +
-         boost::out_degree(vertex_id, this->graph);
-}
-
-void AnalysisGraph::remove_node(int node_id) {
-  // Delete all the edges incident to this node
-  boost::clear_vertex(node_id, this->graph);
-
-  // Remove the vetex
-  boost::remove_vertex(node_id, this->graph);
-
-  // Update the internal meta-data
-  for (int vert_id : this->node_indices()) {
-    this->name_to_vertex[(*this)[vert_id].name] = vert_id;
-  }
-}
-
-AnalysisGraph AnalysisGraph::from_json_file(string filename,
-                                            double belief_score_cutoff,
-                                            double grounding_score_cutoff,
-                                            string ontology) {
-  auto json_data = utils::load_json(filename);
-  debug("Loading INDRA statements JSON file.");
-
-  AnalysisGraph G;
-
-  unordered_map<string, int> name_to_vertex = {};
-
-  debug("Processing INDRA statements...");
-  for (auto stmt : tqdm(json_data)) {
-    if (stmt["type"] == "Influence") {
-      auto subj_ground = stmt["subj"]["concept"]["db_refs"][ontology][0][1];
-      auto obj_ground = stmt["obj"]["concept"]["db_refs"][ontology][0][1];
-      bool grounding_check = (subj_ground >= grounding_score_cutoff) and
-                             (obj_ground >= grounding_score_cutoff);
-      if (grounding_check) {
-        auto subj = stmt["subj"]["concept"]["db_refs"]["WM"][0][0];
-        auto obj = stmt["obj"]["concept"]["db_refs"]["WM"][0][0];
-        if (!subj.is_null() and !obj.is_null()) {
-          if (stmt["belief"] < belief_score_cutoff) {
-            continue;
-          }
-          string subj_str = subj.get<string>();
-          string obj_str = obj.get<string>();
-
-          if (subj_str.compare(obj_str) != 0) { // Guard against self loops
-            // Add the nodes to the graph if they are not in it already
-            for (string name : {subj_str, obj_str}) {
-              G.add_node(name);
-            }
-
-            // Add the edge to the graph if it is not in it already
-            for (auto evidence : stmt["evidence"]) {
-              auto annotations = evidence["annotations"];
-              auto subj_adjectives = annotations["subj_adjectives"];
-              auto obj_adjectives = annotations["obj_adjectives"];
-              auto subj_adjective =
-                  (!subj_adjectives.is_null() and subj_adjectives.size() > 0)
-                      ? subj_adjectives[0]
-                      : "None";
-              auto obj_adjective =
-                  (obj_adjectives.size() > 0) ? obj_adjectives[0] : "None";
-              auto subj_polarity = annotations["subj_polarity"];
-              auto obj_polarity = annotations["obj_polarity"];
-
-              if (subj_polarity.is_null()) {
-                subj_polarity = 1;
-              }
-              if (obj_polarity.is_null()) {
-                obj_polarity = 1;
-              }
-              string subj_adj_str = subj_adjective.get<string>();
-              string obj_adj_str = subj_adjective.get<string>();
-              auto causal_fragment =
-                  CausalFragment({subj_adj_str, subj_polarity, subj_str},
-                                 {obj_adj_str, obj_polarity, obj_str});
-              G.add_edge(causal_fragment);
-            }
-          }
-        }
-      }
-    }
-  }
-  G.initialize_random_number_generator();
-  return G;
-}
-
 void AnalysisGraph::clear_state() {
   this->A_beta_factors.clear();
 
@@ -437,88 +268,6 @@ void AnalysisGraph::clear_state() {
 
   // Clear the set of all the β dependent cells
   this->beta_dependent_cells.clear();
-}
-
-AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
-                                                      bool inward,
-                                                      int depth) {
-  int vert_id =
-      this->get_vertex_id_for_concept(concept, "get_subgraph_for_concept()");
-
-  // Mark all the vertices are not visited
-  for_each(this->nodes(), [](Node& node) { node.visited = false; });
-
-  int num_verts = this->num_vertices();
-
-  unordered_set<int> vertices_to_keep = unordered_set<int>();
-  unordered_set<string> vertices_to_remove;
-
-  this->get_subgraph(vert_id, vertices_to_keep, depth, inward);
-
-  if (vertices_to_keep.size() == 0) {
-    warn("AnalysisGraph::get_subgraph_for_concept()\n"
-         "WARNING: Returning an empty CAG!\n");
-  }
-
-  // Determine the vertices to be removed
-  for (int vert_id : this->node_indices()) {
-    if (vertices_to_keep.find(vert_id) == vertices_to_keep.end()) {
-      vertices_to_remove.insert((*this)[vert_id].name);
-    }
-  }
-
-  // Make a copy of current AnalysisGraph
-  // TODO: We have to make sure that we are making a deep copy.
-  //       Test so far does not show suspicious behavior
-  AnalysisGraph G_sub = *this;
-  G_sub.remove_nodes(vertices_to_remove);
-  G_sub.clear_state();
-
-  return G_sub;
-}
-
-AnalysisGraph AnalysisGraph::get_subgraph_for_concept_pair(
-    string source_concept, string target_concept, int cutoff) {
-
-  int src_id = this->get_vertex_id_for_concept(source_concept,
-                                         "get_subgraph_for_concept_pair()");
-  int tgt_id = this->get_vertex_id_for_concept(target_concept,
-                                         "get_subgraph_for_concept_pair()");
-
-  unordered_set<int> vertices_to_keep;
-  unordered_set<string> vertices_to_remove;
-  vector<int> path;
-
-  // Mark all the vertices are not visited
-  for_each(this->node_indices(), [&](int v) { (*this)[v].visited = false; });
-
-  this->get_subgraph_between(src_id, tgt_id, path, vertices_to_keep, cutoff);
-
-  if (vertices_to_keep.size() == 0) {
-    warn("AnalysisGraph::get_subgraph_for_concept_pair(): "
-         "There are no paths of length <= {0} from "
-         "source concept {1} --to-> target concept {2}. "
-         "Returning an empty CAG!",
-         cutoff,
-         source_concept,
-         target_concept);
-  }
-
-  // Determine the vertices to be removed
-  for (int vert_id : this->node_indices()) {
-    if (vertices_to_keep.find(vert_id) == vertices_to_keep.end()) {
-      vertices_to_remove.insert((*this)[vert_id].name);
-    }
-  }
-
-  // Make a copy of current AnalysisGraph
-  // TODO: We have to make sure that we are making a deep copy.
-  //       Test so far does not show suspicious behavior
-  AnalysisGraph G_sub = *this;
-  G_sub.remove_nodes(vertices_to_remove);
-  G_sub.clear_state();
-
-  return G_sub;
 }
 
 void AnalysisGraph::prune(int cutoff) {
@@ -542,12 +291,11 @@ void AnalysisGraph::prune(int cutoff) {
         pair<int, int> edge = make_pair(src, tgt);
 
         // edge ≡ β
-        if (this->beta2cell.find(edge) != this->beta2cell.end()) {
+        if (in(this->beta2cell, edge)) {
           // There is a direct edge src --> tgt
           // Remove that edge
           boost::remove_edge(src, tgt, this->graph);
         }
-        //}
       }
     }
   }
@@ -555,22 +303,21 @@ void AnalysisGraph::prune(int cutoff) {
   this->find_all_paths();
 }
 
+void AnalysisGraph::remove_node(int node_id) {
+  // Delete all the edges incident to this node
+  clear_vertex(node_id, this->graph);
+
+  // Remove the vertex
+  remove_vertex(node_id, this->graph);
+
+  // Update the internal meta-data
+  for (int vert_id : this->node_indices()) {
+    this->name_to_vertex.at((*this)[vert_id].name) = vert_id;
+  }
+}
+
 void AnalysisGraph::remove_node(string concept) {
-  auto node_to_remove = this->name_to_vertex.extract(concept);
-
-  if (node_to_remove) // Concept is in the CAG
-  {
-    // Note: This is an overlaoded private method that takes in a vertex id
-    this->remove_node(node_to_remove.mapped());
-
-    // Recalculate all the directed simple paths
-  }
-  else // indicator_old is not attached to this node
-  {
-    warn("AnalysisGraph::remove_vertex(): "
-         "\tConcept: {} not present in the CAG!\n",
-         concept);
-  }
+  this->remove_node(this->get_vertex_id(concept));
 }
 
 void AnalysisGraph::remove_nodes(unordered_set<string> concepts) {
@@ -579,8 +326,8 @@ void AnalysisGraph::remove_nodes(unordered_set<string> concepts) {
   for (string concept : concepts) {
     auto node_to_remove = this->name_to_vertex.extract(concept);
 
-    if (node_to_remove) // Concept is in the CAG
-    {
+    // Concept is in the CAG
+    if (node_to_remove) {
       // Note: This is an overlaoded private method that takes in a vertex id
       this->remove_node(node_to_remove.mapped());
     }
@@ -592,7 +339,7 @@ void AnalysisGraph::remove_nodes(unordered_set<string> concepts) {
 
   if (invalid_concepts.size() > 0) {
     // There were some invalid concepts
-    error("AnalysisGraph::remove_vertex()\n"
+    error("AnalysisGraph::remove_nodes()\n"
           "\tThe following concepts were not present in the CAG!\n");
     for (string invalid_concept : invalid_concepts) {
       cerr << "\t\t" << invalid_concept << endl;
@@ -601,84 +348,52 @@ void AnalysisGraph::remove_nodes(unordered_set<string> concepts) {
 }
 
 void AnalysisGraph::remove_edge(string src, string tgt) {
-  int src_id = -1;
-  int tgt_id = -1;
-
-  try {
-    src_id = this->name_to_vertex.at(src);
-  }
-  catch (const out_of_range& oor) {
-    error("AnalysisGraph::remove_edge: Source vertex {} is not in the CAG!",
-          src);
-    return;
-  }
-
-  try {
-    tgt_id = this->name_to_vertex.at(tgt);
-  }
-  catch (const out_of_range& oor) {
-    error("AnalysisGraph::remove_edge: \n"
-          "\tTarget vertex {} is not in the CAG!",
-          tgt);
-    return;
-  }
-
-  pair<int, int> edge = make_pair(src_id, tgt_id);
-
-  // edge ≡ β
-  if (this->beta2cell.find(edge) == this->beta2cell.end()) {
-    cerr << "AnalysisGraph::remove_edge" << endl;
-    cerr << "\tThere is no edge from " << src << " to " << tgt << " in the CAG!"
-         << endl;
-    return;
-  }
-
   // Remove the edge
-  boost::remove_edge(src_id, tgt_id, this->graph);
+  boost::remove_edge(
+      this->get_vertex_id(src), this->get_vertex_id(tgt), this->graph);
 }
 
 void AnalysisGraph::remove_edges(vector<pair<string, string>> edges) {
-
   vector<pair<int, int>> edge_ids = vector<pair<int, int>>(edges.size());
 
   set<string> invalid_sources;
   set<string> invalid_targets;
   set<pair<string, string>> invalid_edges;
 
-  transform(edges.begin(),
-            edges.end(),
-            edge_ids.begin(),
-            [this](pair<string, string> edge) {
-              int src_id;
-              int tgt_id;
+  std::transform(edges.begin(),
+                 edges.end(),
+                 edge_ids.begin(),
+                 [this](pair<string, string> edge) {
+                   int src_id;
+                   int tgt_id;
 
-              // Flag invalid source vertices
-              try {
-                src_id = this->name_to_vertex.at(edge.first);
-              }
-              catch (const out_of_range& oor) {
-                src_id = -1;
-              }
+                   // Flag invalid source vertices
+                   try {
+                     src_id = this->get_vertex_id(edge.first);
+                   }
+                   catch (const out_of_range& oor) {
+                     src_id = -1;
+                   }
 
-              // Flag invalid target vertices
-              try {
-                tgt_id = this->name_to_vertex.at(edge.second);
-              }
-              catch (const out_of_range& oor) {
-                tgt_id = -1;
-              }
+                   // Flag invalid target vertices
+                   try {
+                     tgt_id = this->get_vertex_id(edge.second);
+                   }
+                   catch (const out_of_range& oor) {
+                     tgt_id = -1;
+                   }
 
-              // Flag invalid edges
-              if (src_id != -1 && tgt_id != -1) {
-                pair<int, int> edge_id = make_pair(src_id, tgt_id);
+                   // Flag invalid edges
+                   if (src_id != -1 && tgt_id != -1) {
+                     pair<int, int> edge_id = make_pair(src_id, tgt_id);
 
-                if (this->beta2cell.find(edge_id) == this->beta2cell.end()) {
-                  src_id = -2;
-                }
-              }
+                     if (in(this->beta2cell, edge_id)) {
+                       src_id = -2;
+                     }
+                   }
 
-              return make_pair(src_id, tgt_id);
-            });
+                   return make_pair(src_id, tgt_id);
+                 });
 
   bool has_invalid_sources = false;
   bool has_invalid_targets = false;
@@ -737,119 +452,6 @@ void AnalysisGraph::remove_edges(vector<pair<string, string>> edges) {
     }
   }
 }
-pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph(bool simplified_labels,
-                                                 int label_depth) {
-  using delphi::gv::set_property, delphi::gv::add_node;
-  using namespace ranges::views;
-  using ranges::end, ranges::to;
-  using ranges::views::slice, ranges::views::replace;
-
-  Agraph_t* G = agopen(const_cast<char*>("G"), Agdirected, NULL);
-  GVC_t* gvc;
-  gvc = gvContext();
-
-  // Set global properties
-  set_property(G, AGNODE, "shape", "rectangle");
-  set_property(G, AGNODE, "style", "rounded");
-  set_property(G, AGNODE, "color", "maroon");
-
-#if defined __APPLE__
-  set_property(G, AGNODE, "fontname", "Gill Sans");
-#else
-  set_property(G, AGNODE, "fontname", "Helvetica");
-#endif
-
-  Agnode_t* src;
-  Agnode_t* trgt;
-  Agedge_t* edge;
-
-  string source_label;
-  string target_label;
-
-  // Add CAG links
-  for (auto e : this->edges()) {
-    string source_name = this->graph[boost::source(e, this->graph)].name;
-    string target_name = this->graph[boost::target(e, this->graph)].name;
-
-    // TODO Implement a refined version of this that checks for set size
-    // equality, a la the Python implementation (i.e. check if the length of
-    // the nodeset is the same as the length of the set of simplified labels).
-
-    string source_label, target_label;
-
-    if (simplified_labels == true) {
-      source_label = source_name | split('/') | slice(end - label_depth, end) |
-                     join('/') | replace('_', ' ') | to<string>();
-      target_label = target_name | split('/') | slice(end - label_depth, end) |
-                     join('/') | replace('_', ' ') | to<string>();
-    }
-    else {
-      source_label = source_name;
-      target_label = target_name;
-    }
-
-    src = add_node(G, source_name);
-    set_property(src, "label", source_label);
-
-    trgt = add_node(G, target_name);
-    set_property(trgt, "label", target_label);
-
-    edge = agedge(G, src, trgt, 0, true);
-  }
-
-  // Add concepts, indicators, and link them.
-  for (Node& node : this->nodes()) {
-    string concept_name = node.name;
-    for (auto indicator : node.indicators) {
-      src = add_node(G, concept_name);
-      trgt = add_node(G, indicator.name);
-      set_property(
-          trgt, "label", indicator.name + "\nSource: " + indicator.source);
-      set_property(trgt, "style", "rounded,filled");
-      set_property(trgt, "fillcolor", "lightblue");
-
-      edge = agedge(G, src, trgt, 0, true);
-    }
-  }
-  gvLayout(gvc, G, "dot");
-  return make_pair(G, gvc);
-}
-
-/** Output the graph in DOT format */
-string AnalysisGraph::to_dot() {
-  auto [G, gvc] = this->to_agraph();
-
-  stringstream sstream;
-  stringbuf* sstream_buffer;
-  streambuf* original_cout_buffer;
-
-  // Back up original cout buffer
-  original_cout_buffer = cout.rdbuf();
-  sstream_buffer = sstream.rdbuf();
-
-  // Redirect cout to sstream
-  cout.rdbuf(sstream_buffer);
-
-  gvRender(gvc, G, "dot", stdout);
-  agclose(G);
-  gvFreeContext(gvc);
-
-  // Restore cout's original buffer
-  cout.rdbuf(original_cout_buffer);
-
-  // Return the string with the graph in DOT format
-  return sstream.str();
-}
-
-void AnalysisGraph::to_png(string filename,
-                           bool simplified_labels,
-                           int label_depth) {
-  auto [G, gvc] = this->to_agraph(simplified_labels, label_depth);
-  gvRenderFilename(gvc, G, "png", const_cast<char*>(filename.c_str()));
-  gvFreeLayout(gvc, G);
-  agclose(G);
-  gvFreeContext(gvc);
-}
 
 AnalysisGraph
 AnalysisGraph::from_causal_fragments(vector<CausalFragment> causal_fragments) {
@@ -874,36 +476,67 @@ AnalysisGraph::from_causal_fragments(vector<CausalFragment> causal_fragments) {
   return G;
 }
 
-Edge& AnalysisGraph::edge(int i, int j) {
-  return this->graph[boost::edge(i, j, this->graph).first];
+Edge& AnalysisGraph::edge(int source, int target) {
+  return this->graph[boost::edge(source, target, this->graph).first];
+}
+
+Edge& AnalysisGraph::edge(int source, string target) {
+  return this->graph
+      [boost::edge(source, this->get_vertex_id(target), this->graph).first];
+}
+
+Edge& AnalysisGraph::edge(string source, int target) {
+  return this->graph
+      [boost::edge(this->get_vertex_id(source), target, this->graph).first];
+}
+
+Edge& AnalysisGraph::edge(string source, string target) {
+  return this->graph[boost::edge(this->get_vertex_id(source),
+                                 this->get_vertex_id(target),
+                                 this->graph)
+                         .first];
+}
+
+Edge& AnalysisGraph::edge(EdgeDescriptor e) { return this->graph[e]; }
+
+pair<EdgeDescriptor, bool> AnalysisGraph::add_edge(int source, int target) {
+  return boost::add_edge(source, target, this->graph);
+}
+
+pair<EdgeDescriptor, bool> AnalysisGraph::add_edge(int source, string target) {
+  return boost::add_edge(source, this->get_vertex_id(target), this->graph);
+}
+
+pair<EdgeDescriptor, bool> AnalysisGraph::add_edge(string source, int target) {
+  return boost::add_edge(this->get_vertex_id(source), target, this->graph);
+}
+
+pair<EdgeDescriptor, bool> AnalysisGraph::add_edge(string source,
+                                                   string target) {
+  return boost::add_edge(this->get_vertex_id(source),
+                         this->get_vertex_id(target),
+                         this->graph);
 }
 
 void AnalysisGraph::merge_nodes(string concept_1,
                                 string concept_2,
                                 bool same_polarity) {
-
-  int vertex_to_remove = this->get_vertex_id_for_concept(concept_1, "merge_nodes()");
-  int vertex_to_keep = this->get_vertex_id_for_concept(concept_2, "merge_nodes()");
-
-  for (int predecessor : this->predecessors(vertex_to_remove)) {
-
-    Edge edge_to_remove = this->edge(predecessor, vertex_to_remove);
-
+  for (int predecessor : this->predecessors(concept_1)) {
+    Edge& edge_to_remove = this->edge(predecessor, concept_1);
+    vector<Statement>& evidence_move = edge_to_remove.evidence;
     if (!same_polarity) {
       for (Statement stmt : edge_to_remove.evidence) {
         stmt.object.polarity = -stmt.object.polarity;
       }
     }
 
-    // Add the edge   predecessor --> vertex_to_keep
-    auto edge_to_keep =
-        boost::add_edge(predecessor, vertex_to_keep, this->graph).first;
+    // Add the edge predecessor --> vertex_to_keep
+    auto edge_to_keep = this->add_edge(predecessor, concept_2).first;
 
     // Move all the evidence from vertex_delete to the
     // newly created (or existing) edge
     // predecessor --> vertex_to_keep
-    vector<Statement>& evidence_keep = this->graph[edge_to_keep].evidence;
-    vector<Statement>& evidence_move = edge_to_remove.evidence;
+    vector<Statement>& evidence_keep = this->edge(edge_to_keep).evidence;
 
     evidence_keep.resize(evidence_keep.size() + evidence_move.size());
 
@@ -912,27 +545,26 @@ void AnalysisGraph::merge_nodes(string concept_1,
          evidence_keep.end() - evidence_move.size());
   }
 
-  for (int successor : this->successors(vertex_to_remove)) {
+  for (int successor : this->successors(concept_1)) {
 
     // Get the edge descripter for
     //                   vertex_to_remove --> successor
-    Edge edge_to_remove = this->edge(vertex_to_remove, successor);
+    Edge& edge_to_remove = this->edge(concept_1, successor);
+    vector<Statement>& evidence_move = edge_to_remove.evidence;
 
     if (!same_polarity) {
       for (Statement stmt : edge_to_remove.evidence) {
-        stmt.object.polarity = -stmt.object.polarity;
+        stmt.subject.polarity = -stmt.subject.polarity;
       }
     }
 
     // Add the edge   successor --> vertex_to_keep
-    auto edge_to_keep =
-        boost::add_edge(vertex_to_keep, successor, this->graph).first;
+    auto edge_to_keep = this->add_edge(concept_2, successor).first;
 
     // Move all the evidence from vertex_delete to the
     // newly created (or existing) edge
     // vertex_to_keep --> successor
-    vector<Statement>& evidence_keep = this->graph[edge_to_keep].evidence;
-    vector<Statement>& evidence_move = edge_to_remove.evidence;
+    vector<Statement>& evidence_keep = this->edge(edge_to_keep).evidence;
 
     evidence_keep.resize(evidence_keep.size() + evidence_move.size());
 
@@ -942,8 +574,24 @@ void AnalysisGraph::merge_nodes(string concept_1,
   }
 
   // Remove vertex_to_remove from the CAG
-  // Note: This is an overlaoded private method that takes in a vertex id
-  this->remove_node(vertex_to_remove);
+  // Note: This is an overloaded private method that takes in a vertex id
+  this->remove_node(concept_1);
+}
+
+void AnalysisGraph::set_default_initial_state() {
+  // Let vertices of the CAG be v = 0, 1, 2, 3, ...
+  // Then,
+  //    indexes 2*v keeps track of the state of each variable v
+  //    indexes 2*v+1 keeps track of the state of ∂v/∂t
+  int num_verts = this->num_vertices();
+  int num_els = num_verts * 2;
+
+  this->s0 = VectorXd(num_els);
+  this->s0.setZero();
+
+  for (int i = 0; i < num_els; i += 2) {
+    this->s0(i) = 1.0;
+  }
 }
 
 void AnalysisGraph::set_log_likelihood() {
@@ -967,7 +615,7 @@ void AnalysisGraph::set_log_likelihood() {
           const double& value = observed_state[v][i][j];
           // Even indices of latent_state keeps track of the state of each
           // vertex
-          double log_likelihood_component = this->log_normpdf(
+          double log_likelihood_component = log_normpdf(
               value, this->current_latent_state[2 * v] * ind.mean, ind.stdev);
           this->log_likelihood += log_likelihood_component;
         }
@@ -1022,15 +670,15 @@ void AnalysisGraph::print_nodes() {
 
 void AnalysisGraph::print_edges() {
   for_each(edges(), [&](auto e) {
-    cout << "(" << boost::source(e, this->graph) << ", "
-         << boost::target(e, this->graph) << ")" << endl;
+    cout << "(" << (*this)[boost::source(e, this->graph)].name << ", "
+         << (*this)[boost::target(e, this->graph)].name << ")" << endl;
   });
 }
 
 void AnalysisGraph::print_indicators() {
   for (int v : this->node_indices()) {
     cout << v << ":" << (*this)[v].name << endl;
-    for (auto [name, vert] : (*this)[v].indicator_names) {
+    for (auto [name, vert] : (*this)[v].nameToIndexMap) {
       cout << "\t"
            << "indicator " << vert << ": " << name << endl;
     }
@@ -1078,6 +726,9 @@ void AnalysisGraph::print_A_beta_factors() {
 
 vector<vector<vector<double>>> AnalysisGraph::get_observed_state_from_data(
     int year, int month, string country, string state, string county) {
+  using ranges::to;
+  using ranges::views::transform;
+
   int num_verts = this->num_vertices();
 
   // Access
@@ -1087,29 +738,25 @@ vector<vector<vector<double>>> AnalysisGraph::get_observed_state_from_data(
   for (int v = 0; v < num_verts; v++) {
     vector<Indicator>& indicators = (*this)[v].indicators;
 
-    observed_state[v] = vector<vector<double>>(indicators.size());
+    for (auto& ind : indicators) {
+      auto vals = get_data_value(ind.get_name(),
+                                 country,
+                                 state,
+                                 county,
+                                 year,
+                                 month,
+                                 ind.get_unit(),
+                                 this->data_heuristic);
 
-    transform(indicators.begin(),
-              indicators.end(),
-              observed_state[v].begin(),
-              [&](Indicator ind) {
-                // get_data_value() is defined in data.hpp
-                return get_data_value(ind.get_name(),
-                                      country,
-                                      state,
-                                      county,
-                                      year,
-                                      month,
-                                      ind.get_unit(),
-                                      this->data_heuristic);
-              });
+      observed_state[v].push_back(vals);
+    }
   }
 
   return observed_state;
 }
 
 void AnalysisGraph::add_node(string concept) {
-  if (!utils::hasKey(this->name_to_vertex, concept)) {
+  if (!in(this->name_to_vertex, concept)) {
     int v = boost::add_vertex(this->graph);
     this->name_to_vertex[concept] = v;
     (*this)[v].name = concept;
@@ -1149,15 +796,13 @@ void AnalysisGraph::change_polarity_of_edge(string source_concept,
                                             int source_polarity,
                                             string target_concept,
                                             int target_polarity) {
-  int src_id = this->get_vertex_id_for_concept(source_concept,
-                                               "change_polarity_of_edge");
-  int tgt_id = this->get_vertex_id_for_concept(target_concept,
-                                               "change_polarity_of_edge");
+  int src_id = this->get_vertex_id(source_concept);
+  int tgt_id = this->get_vertex_id(target_concept);
 
-  pair<int, int> edg = make_pair(src_id, tgt_id);
+  pair<int, int> edge = make_pair(src_id, tgt_id);
 
   // edge ≡ β
-  if (this->beta2cell.find(edg) != this->beta2cell.end()) {
+  if (in(this->beta2cell, edge)) {
     // There is a edge from src_concept to tgt_concept
     // get that edge object
     auto e = boost::edge(src_id, tgt_id, this->graph).first;
@@ -1169,18 +814,18 @@ void AnalysisGraph::change_polarity_of_edge(string source_concept,
 // Given an edge (source, target vertex ids - i.e. a β ≡ ∂target/∂source),
 // print all the transition matrix cells that are dependent on it.
 void AnalysisGraph::print_cells_affected_by_beta(int source, int target) {
-  typedef multimap<pair<int, int>, pair<int, int>>::iterator MMAPIterator;
+  typedef multimap<pair<int, int>, pair<int, int>>::iterator MMapIterator;
 
   pair<int, int> beta = make_pair(source, target);
 
-  pair<MMAPIterator, MMAPIterator> beta_dept_cells =
+  pair<MMapIterator, MMapIterator> beta_dept_cells =
       this->beta2cell.equal_range(beta);
 
   cout << endl
        << "Cells of A afected by beta_(" << source << ", " << target << ")"
        << endl;
 
-  for (MMAPIterator it = beta_dept_cells.first; it != beta_dept_cells.second;
+  for (MMapIterator it = beta_dept_cells.first; it != beta_dept_cells.second;
        it++) {
     cout << "(" << it->second.first * 2 << ", " << it->second.second * 2 + 1
          << ") ";
@@ -1251,7 +896,7 @@ void AnalysisGraph::set_observed_state_sequence_from_data(int start_year,
   this->observed_state_sequence.clear();
 
   // Access
-  // [ timestep ][ veretx ][ indicator ]
+  // [ timestep ][ vertex ][ indicator ]
   this->observed_state_sequence = ObservedStateSequence(this->n_timesteps);
 
   int year = start_year;
@@ -1292,11 +937,57 @@ void AnalysisGraph::set_initial_latent_state_from_observed_state_sequence() {
         next_ind_value = 0;
       }
       else {
-        next_ind_value = utils::mean(this->observed_state_sequence[1][v][i]);
+        next_ind_value =
+            delphi::utils::mean(this->observed_state_sequence[1][v][i]);
       }
       next_state_values.push_back(next_ind_value / ind_mean);
     }
-    double diff = utils::mean(next_state_values) - this->s0(2 * v);
+    double diff = delphi::utils::mean(next_state_values) - this->s0(2 * v);
+    this->s0(2 * v + 1) = diff;
+  }
+}
+
+void AnalysisGraph::set_initial_latent_from_end_of_training() {
+  using delphi::utils::mean;
+  int num_verts = this->num_vertices();
+
+  this->set_default_initial_state();
+
+  for (int v = 0; v < num_verts; v++) {
+    vector<Indicator>& indicators = (*this)[v].indicators;
+    vector<double> state_values;
+    for (int i = 0; i < indicators.size(); i++) {
+      Indicator& ind = indicators[i];
+
+      double last_ind_value;
+      if (this->observed_state_sequence[this->observed_state_sequence.size() -
+                                        1][v][i]
+              .empty()) {
+        last_ind_value = 0.;
+      }
+      else {
+        last_ind_value = mean(
+            this->observed_state_sequence[this->observed_state_sequence.size() -
+                                          1][v][i]);
+      }
+      double prev_ind_value;
+      if (this->observed_state_sequence[this->observed_state_sequence.size() -
+                                        2][v][i]
+              .empty()) {
+        prev_ind_value = 0.;
+      }
+      else {
+        prev_ind_value = mean(
+            this->observed_state_sequence[this->observed_state_sequence.size() -
+                                          2][v][i]);
+      }
+      while (prev_ind_value == 0.) {
+        prev_ind_value = this->norm_dist(this->rand_num_generator);
+      }
+      state_values.push_back((last_ind_value - prev_ind_value) /
+                             prev_ind_value);
+    }
+    double diff = mean(state_values);
     this->s0(2 * v + 1) = diff;
   }
 }
@@ -1312,34 +1003,33 @@ void AnalysisGraph::set_random_initial_latent_state() {
 }
 
 void AnalysisGraph::init_betas_to(InitialBeta ib) {
-  using boost::graph_traits;
   switch (ib) {
   // Initialize the initial β for this edge
   // Note: I am repeating the loop within each case for efficiency.
   // If we embed the switch withn the for loop, there will be less code
   // but we will evaluate the switch for each iteration through the loop
   case InitialBeta::ZERO:
-    for (graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
+    for (EdgeDescriptor e : this->edges()) {
       graph[e].beta = 0;
     }
     break;
   case InitialBeta::ONE:
-    for (graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
+    for (EdgeDescriptor e : this->edges()) {
       graph[e].beta = 1.0;
     }
     break;
   case InitialBeta::HALF:
-    for (graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
+    for (EdgeDescriptor e : this->edges()) {
       graph[e].beta = 0.5;
     }
     break;
   case InitialBeta::MEAN:
-    for (graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
-      graph[e].beta = graph[e].kde.value().mu;
+    for (EdgeDescriptor e : this->edges()) {
+      graph[e].beta = graph[e].kde.mu;
     }
     break;
   case InitialBeta::RANDOM:
-    for (graph_traits<DiGraph>::edge_descriptor e : this->edges()) {
+    for (EdgeDescriptor e : this->edges()) {
       // this->uni_dist() gives a random number in range [0, 1]
       // Multiplying by 2 scales the range to [0, 2]
       // Sustracting 1 moves the range to [-1, 1]
@@ -1355,28 +1045,26 @@ void AnalysisGraph::sample_predicted_latent_state_sequences(
     int total_timesteps) {
   this->n_timesteps = prediction_timesteps;
 
-  int num_verts = this->num_vertices();
-
   // Allocate memory for prediction_latent_state_sequences
   this->predicted_latent_state_sequences.clear();
-  this->predicted_latent_state_sequences = vector<vector<Eigen::VectorXd>>(
+  this->predicted_latent_state_sequences = vector<vector<VectorXd>>(
       this->res,
-      vector<Eigen::VectorXd>(this->n_timesteps,
-                              Eigen::VectorXd(num_verts * 2)));
+      vector<VectorXd>(this->n_timesteps, VectorXd(this->num_vertices() * 2)));
 
   for (int samp = 0; samp < this->res; samp++) {
-    int pred_step = initial_prediction_step;
-    for (int ts = 0; ts < this->n_timesteps; ts++) {
+    for (int t = 0; t < this->n_timesteps; t++) {
       const Eigen::MatrixXd& A_t =
-          pred_step * this->transition_matrix_collection[samp];
-      this->predicted_latent_state_sequences[samp][ts] = A_t.exp() * this->s0;
-      pred_step++;
+          tuning_param * t * this->transition_matrix_collection[samp];
+      this->predicted_latent_state_sequences[samp][t] = A_t.exp() * this->s0;
     }
   }
 }
 
 void AnalysisGraph::
     generate_predicted_observed_state_sequences_from_predicted_latent_state_sequences() {
+  using ranges::to;
+  using ranges::views::transform;
+
   // Allocate memory for observed_state_sequences
   this->predicted_observed_state_sequences.clear();
   this->predicted_observed_state_sequences =
@@ -1386,15 +1074,13 @@ void AnalysisGraph::
                                          vector<vector<double>>()));
 
   for (int samp = 0; samp < this->res; samp++) {
-    vector<Eigen::VectorXd>& sample =
-        this->predicted_latent_state_sequences[samp];
+    vector<VectorXd>& sample = this->predicted_latent_state_sequences[samp];
 
-    transform(sample.begin(),
-              sample.end(),
-              this->predicted_observed_state_sequences[samp].begin(),
-              [this](Eigen::VectorXd latent_state) {
-                return this->sample_observed_state(latent_state);
-              });
+    this->predicted_observed_state_sequences[samp] =
+        sample | transform([this](VectorXd latent_state) {
+          return this->sample_observed_state(latent_state);
+        }) |
+        to<vector>();
   }
 }
 
@@ -1408,12 +1094,13 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
     throw "Model not yet trained";
   }
 
+  // Check for sensible ranges.
   if (start_year < this->training_range.first.first ||
       (start_year == this->training_range.first.first &&
        start_month < this->training_range.first.second)) {
-    print("The initial prediction date can't be before the\n"
-          "inital training date. Defaulting initial prediction date\n"
-          "to initial training date.");
+    warn("The initial prediction date can't be before the "
+         "inital training date. Defaulting initial prediction date "
+         "to initial training date.");
     start_year = this->training_range.first.first;
     start_month = this->training_range.first.first;
   }
@@ -1423,7 +1110,7 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
    *   ____________________________________________
    *  |                                            |
    *  v                                            v
-   * start trainig                                 end prediction
+   * start training                          end prediction
    *  |--------------------------------------------|
    *  :           |--------------------------------|
    *  :         start prediction                   :
@@ -1448,8 +1135,8 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
   this->pred_range.clear();
   this->pred_range = vector<string>(this->pred_timesteps);
 
-  for (int ts = 0; ts < this->pred_timesteps; ts++) {
-    this->pred_range[ts] = to_string(year) + "-" + to_string(month);
+  for (int t = 0; t < this->pred_timesteps; t++) {
+    this->pred_range[t] = to_string(year) + "-" + to_string(month);
 
     if (month == 12) {
       year++;
@@ -1461,7 +1148,7 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
   }
 
   this->sample_predicted_latent_state_sequences(
-      this->pred_timesteps, pred_init_timestep, total_timesteps);
+      this->pred_timesteps, 0, total_timesteps);
   this->generate_predicted_observed_state_sequences_from_predicted_latent_state_sequences();
 
   return make_tuple(
@@ -1479,7 +1166,7 @@ FormattedPredictionResult AnalysisGraph::format_prediction_result() {
   for (int samp = 0; samp < this->res; samp++) {
     for (int ts = 0; ts < this->pred_timesteps; ts++) {
       for (auto [vert_name, vert_id] : this->name_to_vertex) {
-        for (auto [ind_name, ind_id] : (*this)[vert_id].indicator_names) {
+        for (auto [ind_name, ind_id] : (*this)[vert_id].nameToIndexMap) {
           result[samp][ts][vert_name][ind_name] =
               this->predicted_observed_state_sequences[samp][ts][vert_id]
                                                       [ind_id];
@@ -1504,7 +1191,7 @@ vector<vector<double>> AnalysisGraph::prediction_to_array(string indicator) {
   // a map from indicator names to vertices they are attached to.
   // This is just a quick and dirty implementation
   for (auto [v_name, v_id] : this->name_to_vertex) {
-    for (auto [i_name, i_id] : (*this)[v_id].indicator_names) {
+    for (auto [i_name, i_id] : (*this)[v_id].nameToIndexMap) {
       if (indicator.compare(i_name) == 0) {
         vert_id = v_id;
         ind_id = i_id;
@@ -1534,8 +1221,8 @@ void AnalysisGraph::generate_synthetic_latent_state_sequence() {
 
   // Allocate memory for synthetic_latent_state_sequence
   this->synthetic_latent_state_sequence.clear();
-  this->synthetic_latent_state_sequence = vector<Eigen::VectorXd>(
-      this->n_timesteps, Eigen::VectorXd(num_verts * 2));
+  this->synthetic_latent_state_sequence =
+      vector<VectorXd>(this->n_timesteps, VectorXd(num_verts * 2));
 
   this->synthetic_latent_state_sequence[0] = this->s0;
 
@@ -1547,17 +1234,19 @@ void AnalysisGraph::generate_synthetic_latent_state_sequence() {
 
 void AnalysisGraph::
     generate_synthetic_observed_state_sequence_from_synthetic_latent_state_sequence() {
+  using ranges::to;
+  using ranges::views::transform;
   // Allocate memory for observed_state_sequences
   this->test_observed_state_sequence.clear();
   this->test_observed_state_sequence = PredictedObservedStateSequence(
       this->n_timesteps, vector<vector<double>>());
 
-  transform(this->synthetic_latent_state_sequence.begin(),
-            this->synthetic_latent_state_sequence.end(),
-            this->test_observed_state_sequence.begin(),
-            [this](Eigen::VectorXd latent_state) {
-              return this->sample_observed_state(latent_state);
-            });
+  this->test_observed_state_sequence =
+      this->synthetic_latent_state_sequence |
+      transform([this](VectorXd latent_state) {
+        return this->sample_observed_state(latent_state);
+      }) |
+      to<vector>();
 }
 
 pair<PredictedObservedStateSequence, Prediction>
@@ -1572,7 +1261,6 @@ AnalysisGraph::test_inference_with_synthetic_data(int start_year,
                                                   string county,
                                                   map<string, string> units,
                                                   InitialBeta initial_beta) {
-
   synthetic_data_experiment = true;
 
   this->n_timesteps = this->calculate_num_timesteps(
@@ -1610,7 +1298,9 @@ AnalysisGraph::test_inference_with_synthetic_data(int start_year,
 }
 
 vector<vector<double>>
-AnalysisGraph::sample_observed_state(Eigen::VectorXd latent_state) {
+AnalysisGraph::sample_observed_state(VectorXd latent_state) {
+  using ranges::to;
+  using ranges::views::transform;
   int num_verts = this->num_vertices();
 
   assert(num_verts == latent_state.size() / 2);
@@ -1627,33 +1317,30 @@ AnalysisGraph::sample_observed_state(Eigen::VectorXd latent_state) {
     // scaled by the value of the latent state that caused this observation.
     // TODO: Question - Is ind.mean * latent_state[ 2*v ] correct?
     //                  Shouldn't it be ind.mean + latent_state[ 2*v ]?
-    transform(indicators.begin(),
-              indicators.end(),
-              observed_state[v].begin(),
-              [&](Indicator ind) {
-                normal_distribution<double> gaussian(
-                    ind.mean * latent_state[2 * v], ind.stdev);
+    observed_state[v] = indicators | transform([&](Indicator ind) {
+                          normal_distribution<double> gaussian(
+                              ind.mean * latent_state[2 * v], ind.stdev);
 
-                return gaussian(this->rand_num_generator);
-              });
+                          return gaussian(this->rand_num_generator);
+                        }) |
+                        to<vector>();
   }
 
   return observed_state;
 }
 
-void AnalysisGraph::update_transition_matrix_cells(
-    boost::graph_traits<DiGraph>::edge_descriptor e) {
+void AnalysisGraph::update_transition_matrix_cells(EdgeDescriptor e) {
   pair<int, int> beta =
       make_pair(boost::source(e, this->graph), boost::target(e, this->graph));
 
-  pair<MMAPIterator, MMAPIterator> beta_dept_cells =
+  pair<MMapIterator, MMapIterator> beta_dept_cells =
       this->beta2cell.equal_range(beta);
 
   // TODO: I am introducing this to implement calculate_Δ_log_prior
   // Remember the cells of A that got changed and their previous values
   // this->A_cells_changed.clear();
 
-  for (MMAPIterator it = beta_dept_cells.first; it != beta_dept_cells.second;
+  for (MMapIterator it = beta_dept_cells.first; it != beta_dept_cells.second;
        it++) {
     int& row = it->second.first;
     int& col = it->second.second;
@@ -1673,7 +1360,7 @@ void AnalysisGraph::sample_from_proposal() {
   // Randomly pick an edge ≡ β
   boost::iterator_range edge_it = this->edges();
 
-  vector<boost::graph_traits<DiGraph>::edge_descriptor> e(1);
+  vector<EdgeDescriptor> e(1);
   sample(
       edge_it.begin(), edge_it.end(), e.begin(), 1, this->rand_num_generator);
 
@@ -1688,25 +1375,12 @@ void AnalysisGraph::sample_from_proposal() {
 }
 
 void AnalysisGraph::set_current_latent_state(int ts) {
-  const Eigen::MatrixXd& A_t = ts * this->A_original;
+  const Eigen::MatrixXd& A_t = tuning_param * ts * this->A_original;
   this->current_latent_state = A_t.exp() * this->s0;
 }
 
-double AnalysisGraph::log_normpdf(double x, double mean, double sd) {
-  double var = pow(sd, 2);
-  double log_denom = -0.5 * log(2 * M_PI) - log(sd);
-  double log_nume = pow(x - mean, 2) / (2 * var);
-
-  return log_denom - log_nume;
-}
-
 double AnalysisGraph::calculate_delta_log_prior() {
-  // If kde of an edge is truely optional ≡ there are some
-  // edges without a kde assigned, we should not access it
-  // using .value() (In the case of kde being missing, this
-  // will throw an exception). We should follow a process
-  // similar to Tran_Mat_Cell::sample_from_prior
-  KDE& kde = this->graph[this->previous_beta.first].kde.value();
+  KDE& kde = this->graph[this->previous_beta.first].kde;
 
   // We have to return: log( p( β_new )) - log( p( β_old ))
   return kde.logpdf(this->graph[this->previous_beta.first].beta) -
@@ -1720,7 +1394,7 @@ void AnalysisGraph::revert_back_to_previous_state() {
 
   // Reset the transition matrix cells that were changed
   // TODO: Can we change the transition matrix only when the sample is
-  // accpeted?
+  // accepted?
   this->update_transition_matrix_cells(this->previous_beta.first);
 }
 
@@ -1741,85 +1415,5 @@ void AnalysisGraph::sample_from_posterior() {
   if (acceptance_probability < this->uni_dist(this->rand_num_generator)) {
     // Reject the sample
     this->revert_back_to_previous_state();
-  }
-}
-
-void AnalysisGraph::set_indicator(string concept,
-                                  string indicator,
-                                  string source) {
-  if (this->indicators_in_CAG.find(indicator) !=
-      this->indicators_in_CAG.end()) {
-    print("{0} already exists in Casual Analysis Graph, Indicator {0} was "
-          "not added to Concept {1}.",
-          indicator,
-          concept);
-    return;
-  }
-  try {
-    (*this)[concept].add_indicator(indicator, source);
-    this->indicators_in_CAG.insert(indicator);
-  }
-  catch (const out_of_range& oor) {
-    error("Error: AnalysisGraph::set_indicator()\n"
-          "\tConcept: {0} is not in the CAG\n"
-          "\tIndicator: {1} with Source: {2}"
-          "\tCannot be added\n",
-          concept,
-          indicator,
-          source);
-  }
-}
-
-void AnalysisGraph::delete_indicator(string concept, string indicator) {
-  try {
-    (*this)[concept].delete_indicator(indicator);
-    this->indicators_in_CAG.erase(indicator);
-  }
-  catch (const out_of_range& oor) {
-    error("Error: AnalysisGraph::delete_indicator()\n"
-          "\tConcept: {0} is not in the CAG\n"
-          "\tIndicator: {1} cannot be deleted",
-          concept,
-          indicator);
-  }
-}
-
-void AnalysisGraph::delete_all_indicators(string concept) {
-  try {
-    (*this)[concept].clear_indicators();
-  }
-  catch (const out_of_range& oor) {
-    error("Error: AnalysisGraph::delete_indicator()\n"
-          "\tConcept: {} is not in the CAG\n"
-          "\tIndicators cannot be deleted",
-          concept);
-  }
-}
-
-void AnalysisGraph::replace_indicator(string concept,
-                                      string indicator_old,
-                                      string indicator_new,
-                                      string source) {
-
-  if (this->indicators_in_CAG.find(indicator_new) !=
-      this->indicators_in_CAG.end()) {
-    warn("{0} already exists in Causal Analysis Graph, Indicator {0} did "
-         "not replace Indicator {1} for Concept {2}.",
-         indicator_new,
-         indicator_old,
-         concept);
-    return;
-  }
-  try {
-    (*this)[concept].replace_indicator(indicator_old, indicator_new, source);
-    this->indicators_in_CAG.insert(indicator_new);
-    this->indicators_in_CAG.erase(indicator_old);
-  }
-  catch (const out_of_range& oor) {
-    error("AnalysisGraph::replace_indicator()\n"
-          "\tConcept: {0} is not in the CAG\n"
-          "\tIndicator: {1} cannot be replaced",
-          concept,
-          indicator_old);
   }
 }

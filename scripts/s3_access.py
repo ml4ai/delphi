@@ -14,6 +14,7 @@ aws_secret_access_key = WMUSER_SECRET_KEY
 
 """
 
+import argparse
 import boto3
 import requests
 
@@ -27,9 +28,28 @@ session = boto3.Session(profile_name=profile)
 s3 = session.resource("s3")
 s3_client = session.client("s3")
 bucket = s3.Bucket(bucket_name)
-objects = bucket.objects.filter(Prefix="indra_models")
 
-# S3 key for the file you want to download
-s3_key = "indra_models/dart-20190905-stmts-location_and_time/statements.json"
 
-bucket.download_file(s3_key, "statements.json")
+
+parser = argparse.ArgumentParser(
+    description="Script to interact with the World Modelers AWS S3 bucket"
+)
+
+group = parser.add_mutually_exclusive_group()
+group.add_argument("--list", help="Display list of INDRA statement corpuses",
+        action="store_true")
+
+group.add_argument("--download", help="key of item you want to download")
+
+parser.add_argument("-o","--output", help="Name of file to write to", default="data/statements.json")
+
+args = parser.parse_args()
+
+if args.list:
+    objects = bucket.objects.filter(Prefix="indra_models")
+    for x in objects:
+        print(x.key)
+
+if args.download:
+    bucket.download_file(args.download, args.output)
+

@@ -9,7 +9,7 @@ from pprint import pprint
 from glob import glob
 from typing import List, Dict
 from delphi.utils.shell import cd
-from delphi.paths import data_dir, south_sudan_data
+from delphi.paths import south_sudan_data
 from delphi.utils.fp import grouper
 from functools import partial
 from itertools import groupby
@@ -159,7 +159,7 @@ def process_climis_crop_production_data(data_dir: str):
         "Crops_EstimatedProductionConsumptionBalance*.csv"
     )
     state_county_df = pd.read_csv(
-        f"data/south_sudan_data_fewsnet.tsv", skipinitialspace=True
+        f"data/indicator_data_fewsnet.tsv", skipinitialspace=True
     )
     combined_records = []
 
@@ -495,7 +495,7 @@ if __name__ == "__main__":
         "Country",
     ]
 
-    data_dir = str(data_dir / "raw" / "wm_12_month_evaluation")
+    data_dir = "data/raw/wm_12_month_evaluation"
     df = create_combined_table(data_dir, columns)
     df["Year"] = df["Year"].astype(int)
     df.to_csv(sys.argv[1], index=False, sep="\t")

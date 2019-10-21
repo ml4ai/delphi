@@ -10,7 +10,7 @@ addons:
 
 env:
   global:
-    CACHE_IMAGE: pauldhein/project-containers
+    CACHE_IMAGE: ml4ailab/delphi
 
 before_install:
   - docker pull $CACHE_IMAGE:latest

@@ -2,13 +2,14 @@
 
 #include <fmt/core.h>
 #include <iostream>
-#include <nlohmann/json.hpp>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
-namespace utils {
+namespace delphi::utils {
 
-using std::cout, std::endl, std::vector, std::string, 
-    std::unordered_map;
+using std::cout, std::endl, std::vector, std::string, std::unordered_map,
+    std::unordered_set;
 
 template <class T> void printVec(vector<T> xs) {
   for (T x : xs) {
@@ -16,14 +17,14 @@ template <class T> void printVec(vector<T> xs) {
   }
 }
 
-template <class Key, class Value>
-bool hasKey(unordered_map<Key, Value> umap, Key key) {
-  return umap.count(key) != 0;
+template <class AssociativeContainer, class Value>
+bool in(AssociativeContainer container, Value value) {
+  return container.count(value) != 0;
 }
 
-template <class Key, class Value>
-Value get(unordered_map<Key, Value> umap, Key key, Value default_value) {
-  return hasKey(umap, key) ? umap[key] : default_value;
+template <class AssociativeContainer, class Key, class Value>
+Value get(AssociativeContainer container, Key key, Value default_value) {
+  return in(container, key) ? container[key] : default_value;
 }
 
 template <class V, class Iterable> vector<V> list(Iterable xs) {
@@ -42,8 +43,6 @@ template <class F, class V> vector<V> lmap(F f, vector<V> vec) {
   return transformed_vector;
 }
 
-nlohmann::json load_json(string filename);
-
 /**
  * Returns the square of a number.
  */
@@ -54,10 +53,11 @@ double sqr(double x);
  */
 double sum(std::vector<double> v);
 
-
 /**
  * Returns the arithmetic mean of a vector of doubles.
  */
 double mean(std::vector<double> v);
 
-} // namespace utils
+double log_normpdf(double x, double mean, double sd);
+
+} // namespace delphi::utils
