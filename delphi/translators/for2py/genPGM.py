@@ -119,7 +119,7 @@ class GrFNGenerator(object):
         # argument domains for arrays
         self.array_arg_domain = {}
         # Holds list of modules that program references
-        self.modules = {}
+        self.module_variable_types = {}
 
         self.gensym_tag_map = {
             "container": 'c',
@@ -2967,11 +2967,11 @@ class GrFNGenerator(object):
         else:
             # DEBUG
             print ("state.variable_types: ", state.variable_types)
-            if variable in state.variable_types[variable]:
+            print ("self.module_variable_types: ", self.module_variable_types)
+            if variable in state.variable_types:
                 variable_type = state.variable_types[variable]
-            else:
-                pass
-                # TODO
+            elif variable in self.module_variable_types:
+                variable_type = self.module_variable_types[variable][1]
             if variable in self.variable_map and \
                     self.variable_map[variable]["parameter"]:
                 is_mutable = True
@@ -3512,9 +3512,12 @@ def create_grfn_dict(
         with open(f"{file_name}_variables_pickle", "rb") as f:
             variable_map = pickle.load(f)
         generator.variable_map = variable_map
+        # DEBUG
+        print ("generator.variable_map: ", generator.variable_map)
     except IOError:
         raise For2PyError(f"Unable to read file {file_name}.")
 
+    generator.module_variable_types = mode_mapper_dict[0]["symbol_types"]
     grfn = generator.gen_grfn(asts, state, "")[0]
 
     # If the GrFN has a `start` node, it will refer to the name of the
@@ -3689,8 +3692,7 @@ def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
     print ("module_mapper:")
     print ("    ", module_mapper, "\n")
     main_program = module_mapper[0]["modules"][-1]
-    module_variable_types = module_mapper[0]["symbol_types"]
-
+    # module_variable_types = module_mapper[0]["symbol_types"]
 
     for index, ast_string in enumerate(ast_list):
         lambda_file = python_list[index][:-3] + "_" + lambda_tail
