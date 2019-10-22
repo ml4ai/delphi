@@ -3520,7 +3520,7 @@ def create_grfn_dict(
                 # include in the module paths
                 number_of_modules = len(mode_mapper_dict[0]["modules"]) - 1
                 for i in range(0, number_of_modules):
-                    module_path = path + mode_mapper_dict[0]["modules"][i] + "_GrFN.json"
+                    module_path = path + "m_" + mode_mapper_dict[0]["modules"][i] + "_GrFN.json"
                     module_paths.append(module_path)
         with open(f"{file_name}_variables_pickle", "rb") as f:
             variable_map = pickle.load(f)
