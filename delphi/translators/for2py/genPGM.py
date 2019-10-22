@@ -122,6 +122,8 @@ class GrFNGenerator(object):
         self.module_variable_types = {}
         # Holds the list of declared subprograms in modules
         self.module_subprograms = []
+        # List of module file paths for import  in system.json
+        self.module_paths = []
 
         self.gensym_tag_map = {
             "container": 'c',
@@ -3474,6 +3476,7 @@ def create_grfn_dict(
         original_file: str,
         save_file=False,
         module_file_exist=False,
+        module_paths=[]
 ) -> Dict:
     """
         Create a Python dict representing the GrFN, with additional metadata for
@@ -3499,6 +3502,9 @@ def create_grfn_dict(
         path = file_match.group("path")
         filename = file_match.group("filename")
 
+        # Since we do not have separate variable pickle file
+        # for m_*.py, we need to use the original program pickle
+        # file that module resides.
         file_name = path+filename
         if module_file_exist:
             module_file_name = file_name
@@ -3506,16 +3512,29 @@ def create_grfn_dict(
             file_name = path + org_file
         else:
             file_name = path+filename
+            # If a size of mode_mapper_dict[0]["modules"] is greater 1,
+            # it indicates that there are modules in the same file.
+            if len(mode_mapper_dict[0]["modules"]) > 1:
+                # Since last element is always the program module,
+                # we don't count. So, it's modules[n-1] that we have to
+                # include in the module paths
+                number_of_modules = len(mode_mapper_dict[0]["modules"]) - 1
+                for i in range(0, number_of_modules):
+                    module_path = path + mode_mapper_dict[0]["modules"][i] + ".py"
+                    module_paths.append(module_path)
         with open(f"{file_name}_variables_pickle", "rb") as f:
             variable_map = pickle.load(f)
         generator.variable_map = variable_map
     except IOError:
         raise For2PyError(f"Unable to read file {file_name}.")
 
+    # Extract variables with type that are declared in module
     generator.module_variable_types = mode_mapper_dict[0]["symbol_types"]
+    # Extract functions (and subroutines) declared in module
     for module in mode_mapper_dict[0]["subprograms"]:
         for subp in mode_mapper_dict[0]["subprograms"][module]:
             generator.module_subprograms.append(subp)
+
     grfn = generator.gen_grfn(asts, state, "")[0]
 
     # If the GrFN has a `start` node, it will refer to the name of the
@@ -3614,7 +3633,7 @@ def get_system_name(pyfile_list: List[str]):
     return system_name, path
 
 
-def generate_system_def(python_list: List[str], component_list: List[str]):
+def generate_system_def(python_list: List[str], component_list: List[str], module_paths: List[str]):
     """
         This function generates the system definition for the system under
         analysis and writes this to the main system file.
@@ -3627,6 +3646,7 @@ def generate_system_def(python_list: List[str], component_list: List[str]):
             "file_path": component,
             "imports": []
         })
+    grfn_components[0]["imports"] = module_paths
     with open(system_filename, "w") as system_file:
         system_def = {
             "date_created": f"{datetime.utcnow().isoformat('T')}Z",
@@ -3677,13 +3697,13 @@ def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
         module_mapper = get_index(xml_file)
 
     main_program = module_mapper[0]["modules"][-1]
-
+    module_paths = []
     for index, ast_string in enumerate(ast_list):
         lambda_file = python_list[index][:-3] + "_" + lambda_tail
         grfn_file = python_list[index][:-3] + "_" + grfn_tail
         grfn_dict = create_grfn_dict(
             lambda_file, [ast_string], python_list[index], module_mapper,
-            original_file_path, True, module_file_exist
+            original_file_path, True, module_file_exist, module_paths
         )
         grfn_filepath_list.append(grfn_file)
         # Write each GrFN JSON into a file
@@ -3692,7 +3712,8 @@ def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
 
     # Finally, write the <systems.json> file which gives a mapping of all the
     # GrFN files related to the system.
-    generate_system_def(python_list, grfn_filepath_list)
+    if not module_file_exist:
+        generate_system_def(python_list, grfn_filepath_list, module_paths)
 
 def get_original_file_name (original_file_path):
     original_file = original_file_path.split('/')
