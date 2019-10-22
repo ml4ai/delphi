@@ -112,8 +112,6 @@ class ModuleGenerator(object):
                 if var in self.symbols[module]:
                     self.symbol_type[var] = [module, self.variable_types[var]]
 
-        print ("    + mod_index_generator.py: symbol_type : ", self.symbol_type)
-
     def parse_tree(self, root) -> bool:
         """
             This function parses the XML tree of a Fortran file and tracks
@@ -146,19 +144,14 @@ class ModuleGenerator(object):
                 self.modules.append(item.attrib["name"].lower())
 
             elif item.tag.lower() == "type":
-                # DEBUG
-                print ("    + mod_index_generator.py: <type>", item.attrib)
                 variable_type = item.attrib["name"].lower()
             elif item.tag.lower() == "variable":
-                # DEBUG
-                print ("    + mod_index_generator.py: <variable>", item.attrib)
                 if item.attrib.get("name"):
                     if not self.current_context:
                         self.current_context = self.main
                     self.public.setdefault(self.current_context, []).append(
                         item.attrib["name"].lower())
                     self.variable_types[item.attrib["name"].lower()] = variable_type
-                    print ("    + mod_index_generator.py: self.public", self.public)
 
             elif item.tag.lower() in ["subroutine", "function"]:
                 if not self.current_context:
