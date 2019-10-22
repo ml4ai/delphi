@@ -120,6 +120,8 @@ class GrFNGenerator(object):
         self.array_arg_domain = {}
         # Holds list of modules that program references
         self.module_variable_types = {}
+        # Holds the list of declared subprograms in modules
+        self.module_subprograms = []
 
         self.gensym_tag_map = {
             "container": 'c',
@@ -1800,8 +1802,11 @@ class GrFNGenerator(object):
                 container_id_name = assign_function["name"]
                 function_type = assign_function["type"]
             else:
-                container_id_name = self.function_argument_map[function_name][
-                    "name"]
+                if function_name in self.function_argument_map:
+                    container_id_name = self.function_argument_map[function_name][
+                        "name"]
+                elif function_name in self.module_subprograms:
+                    container_id_name = function_name
                 function_type = "container"
 
             function = {
@@ -2965,9 +2970,6 @@ class GrFNGenerator(object):
         if variable in self.arrays:
             domain_dictionary = self.arrays[variable]
         else:
-            # DEBUG
-            print ("state.variable_types: ", state.variable_types)
-            print ("self.module_variable_types: ", self.module_variable_types)
             if variable in state.variable_types:
                 variable_type = state.variable_types[variable]
             elif variable in self.module_variable_types:
@@ -3503,21 +3505,18 @@ def create_grfn_dict(
             module_file_name = file_name
             org_file = get_original_file_name(original_file)
             file_name = path + org_file
-            # DEBUG
-            print ("In create_grfn_dict function - module_file_name: ", module_file_name)
         else:
             file_name = path+filename
-            # DEBUG
-            print ("In create_grfn_dict function - file_name: ", file_name)
         with open(f"{file_name}_variables_pickle", "rb") as f:
             variable_map = pickle.load(f)
         generator.variable_map = variable_map
-        # DEBUG
-        print ("generator.variable_map: ", generator.variable_map)
     except IOError:
         raise For2PyError(f"Unable to read file {file_name}.")
 
     generator.module_variable_types = mode_mapper_dict[0]["symbol_types"]
+    for module in mode_mapper_dict[0]["subprograms"]:
+        for subp in mode_mapper_dict[0]["subprograms"][module]:
+            generator.module_subprograms.append(subp)
     grfn = generator.gen_grfn(asts, state, "")[0]
 
     # If the GrFN has a `start` node, it will refer to the name of the
@@ -3652,16 +3651,6 @@ def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
     grfn_filepath_list = []
     ast_list = get_asts_from_files(python_list, print_ast_flag)
 
-    # DEBUG
-    print ("ast_list:")
-    print ("    ", ast_list, "\n")
-
-    # DEBUG
-    print ("In genPGM.py - python_list:")
-    print ("    ", python_list, "\n")
-    print ("original_file - original_file:")
-    print ("    ", original_file_path, "\n")
-
     # Regular expression to identify the path and name of all python files
     filename_regex = re.compile(r"(?P<path>.*/)(?P<filename>.*).py")
 
@@ -3688,11 +3677,7 @@ def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
         # map all variables and objects in the various files
         module_mapper = get_index(xml_file)
 
-    # DEBUG
-    print ("module_mapper:")
-    print ("    ", module_mapper, "\n")
     main_program = module_mapper[0]["modules"][-1]
-    # module_variable_types = module_mapper[0]["symbol_types"]
 
     for index, ast_string in enumerate(ast_list):
         lambda_file = python_list[index][:-3] + "_" + lambda_tail
