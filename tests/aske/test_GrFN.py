@@ -6,8 +6,8 @@ import sys
 import numpy as np
 
 from delphi.GrFN.networks import GroundedFunctionNetwork
-from delphi.GrFN.linking import make_link_tables
-from delphi.translators.GrFN2WiringDiagram.translate import to_wiring_diagram
+import delphi.GrFN.linking as linking
+import delphi.translators.GrFN2WiringDiagram.translate as GrFN2WD
 
 data_dir = "tests/data/GrFN/"
 sys.path.insert(0, "tests/data/program_analysis")
@@ -99,7 +99,7 @@ def test_sir_simple_creation(sir_simple_grfn):
     CAG = sir_simple_grfn.to_CAG_agraph()
     CAG.draw('SIR-simple--CAG.pdf', prog='dot')
     lambdas = importlib.__import__(f"SIR-simple_lambdas")
-    (D, I, S, F) = to_wiring_diagram(sir_simple_grfn, lambdas)
+    (D, I, S, F) = GrFN2WD.to_wiring_diagram(sir_simple_grfn, lambdas)
     assert len(D) == 3
     assert len(I) == 3
     assert len(S) == 9
@@ -123,9 +123,10 @@ def test_sir_gillespie_ms_creation(sir_gillespie_ms_grfn):
 
 
 def test_linking_graph():
-    grfn = json.load(open("tests/data/program_analysis/SIR-Gillespie-SD_GrFN_with_groundings.json", "r"))
-    tables = make_link_tables(grfn)
-    assert len(tables.keys()) == 207
+    grfn = json.load(open("tests/data/program_analysis/SIR-simple_with_groundings.json", "r"))
+    tables = linking.make_link_tables(grfn)
+    linking.print_table_data(tables)
+    assert len(tables.keys()) == 11
 
 
 @pytest.mark.skip("Need to update to latest JSON")

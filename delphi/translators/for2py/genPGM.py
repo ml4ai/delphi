@@ -860,7 +860,7 @@ class GrFNGenerator(object):
             # which means it did not have a defined value above the loop
             # body) and is not a function argument (since they have an index
             # of -1 as well but have a defined value)
-            if not (state.last_definitions[input_var] == -1 and input_var 
+            if not (state.last_definitions[input_var] == -1 and input_var
             not in
                     self.function_argument_map[main_function_name][
                         "argument_list"]
@@ -3186,7 +3186,7 @@ class GrFNGenerator(object):
 
         Args:
             node: The node referring to the array.
-           
+
         Returns:
             (list) index: Formed array index.
         """
@@ -3528,7 +3528,7 @@ def create_grfn_dict(
 
     # View the PGM file that will be used to build a scope tree
     if save_file:
-        json.dump(grfn, open(file_name[:file_name.rfind(".")] + ".json", "w"))
+        json.dump(grfn, open(file_name + ".json", "w"))
 
     return grfn
 
@@ -3605,9 +3605,9 @@ def generate_system_def(python_list: List[str], component_list: List[str]):
 def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
                   original_file: str, print_ast_flag=False):
     """
-        This function takes in the list of python files to convert into GrFN 
+        This function takes in the list of python files to convert into GrFN
         and generates each file's AST along with starting the GrFN generation
-        process. 
+        process.
     """
 
     module_mapper = {}

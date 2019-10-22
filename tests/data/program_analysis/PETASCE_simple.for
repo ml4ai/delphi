@@ -1,3 +1,31 @@
+********************************************************************************
+!     PETASCE VARIABLES:
+********************************************************************************
+! ALBEDO    Reflectance of soil-crop surface (fraction)
+! TMAX      Maximum daily temperature (�C)
+! TMIN      Minimum daily temperature (�C)
+! MSALB     Soil albedo with mulch and soil water effects (fraction)
+! SRAD      Solar radiation (MJ/m2-d)
+! XHLAI     Leaf area index (m2[leaf] / m2[ground])
+! EO        Potential evapotranspiration rate (mm/d)
+! G         Soil heat flux density term (MJ/m2/d)
+! PATM      = 101300.0
+! PSYCON    Psychrometric constant (Pa/K)
+! TAVG      Average daily temperature (�C)
+! TDEW      Dewpoint temperature (�C)
+! TK4       Temperature to 4th power ((oK)**4)
+! CANHT     Canopy height (m)
+! WINDHT    Reference height for wind speed (m)
+! WIND2m    Windspeed at 2m reference height. (km/d)
+! WINDSP    Wind speed at 2m (km/d)
+! REFET     ASCE Standardized Reference Evapotranspiration (alfalfa or grass)
+! ES        Actual soil evaporation rate (mm/d)
+! MEEVP     Method of evapotranspiration ('P'=Penman,
+! XLAT      Latitude (deg.)
+! DOY       Current day of simulation (d)
+! XELEV     Field elevation (not used) (m)
+! PIE       Circumference of a circle with a diameter of 1
+!-----------------------------------------------------------------------
       SUBROUTINE PETASCE(
      &        CANHT, DOY, MSALB, MEEVP, SRAD, TDEW,       !Input
      &        TMAX, TMIN, WINDHT, WINDRUN, XHLAI,         !Input
