@@ -133,7 +133,7 @@ class GrFNGenerator(object):
             "integer": "integer",
             "string": "string",
             "bool": "boolean",
-            "array": "array",
+            "Array": "Array",
         }
 
         # The binops dictionary holds operators for all the arithmetic and
@@ -162,6 +162,7 @@ class GrFNGenerator(object):
             "list": "array",
             "bool": "bool",
             "file_handle": "fh",
+            "Array": "Array",
         }
 
         # Arithmetic operator dictionary
@@ -296,7 +297,6 @@ class GrFNGenerator(object):
         """
         return_value = []
         return_list = []
-
         local_last_definitions = state.last_definitions.copy()
         local_next_definitions = state.next_definitions.copy()
         local_variable_types = state.variable_types.copy()
@@ -2906,7 +2906,6 @@ class GrFNGenerator(object):
             index = state.last_definitions[variable]
         elif variable in self.arrays:
             index = 0
-
         domain = self.get_domain_dictionary(variable, state)
         # Since we need to update the domain of arrays that
         # were passed to a function once the program actually
