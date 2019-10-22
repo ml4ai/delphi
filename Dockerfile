@@ -42,6 +42,8 @@ WORKDIR /repo/delphi
 RUN pip install cython
 RUN pip install cmake
 RUN pip install futures
+RUN git checkout CodeX-update
+RUn git pull
 RUN pip install -e .[test,docs]
 RUN rm -rf build/
 RUN make extensions

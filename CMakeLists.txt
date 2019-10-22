@@ -39,7 +39,7 @@ else()
   find_package(spdlog 1.4.1 REQUIRED)
 endif()
 
-find_package(PythonInterp REQUIRED)
+find_package(Python3 REQUIRED)
 
 set(PYBIND11_PYTHON_VERSION "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
 set(PYBIND11_CPP_STANDARD -std=c++17)
