@@ -4,7 +4,6 @@
 #include <boost/range/algorithm/for_each.hpp>
 #include <range/v3/all.hpp>
 #include <sqlite3.h>
-#include "dbg.h"
 
 using namespace std;
 using namespace fmt::literals;
@@ -318,11 +317,9 @@ void AnalysisGraph::remove_node(int node_id) {
 }
 
 /*
- * This is a buggy refactoring of the remove_node method.
+ * The refactoring of the remove_node() method was buggy.
+ * It caused AnalysisGraph to crash.
  * I replaced it with the previous implementation
-void AnalysisGraph::remove_node(string concept) {
-  this->remove_node(this->get_vertex_id(concept));
-}
 */
 void AnalysisGraph::remove_node(string concept) {
     auto node_to_remove = this->name_to_vertex.extract(concept);
