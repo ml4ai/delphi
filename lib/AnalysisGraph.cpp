@@ -4,6 +4,7 @@
 #include <boost/range/algorithm/for_each.hpp>
 #include <range/v3/all.hpp>
 #include <sqlite3.h>
+#include "dbg.h"
 
 using namespace std;
 using namespace fmt::literals;
@@ -316,8 +317,25 @@ void AnalysisGraph::remove_node(int node_id) {
   }
 }
 
+/*
+ * This is a buggy refactoring of the remove_node method.
+ * I replaced it with the previous implementation
 void AnalysisGraph::remove_node(string concept) {
   this->remove_node(this->get_vertex_id(concept));
+}
+*/
+void AnalysisGraph::remove_node(string concept) {
+    auto node_to_remove = this->name_to_vertex.extract(concept);
+
+      if (node_to_remove) // Concept is in the CAG
+      {
+        // Note: This is an overlaoded private method that takes in a vertex id
+        this->remove_node(node_to_remove.mapped());
+      }
+      else // The concept is not in the graph
+      {
+        throw out_of_range("Concept \"{}\" not in CAG!"_format(concept));
+      }
 }
 
 void AnalysisGraph::remove_nodes(unordered_set<string> concepts) {
@@ -521,6 +539,10 @@ pair<EdgeDescriptor, bool> AnalysisGraph::add_edge(string source,
 void AnalysisGraph::merge_nodes(string concept_1,
                                 string concept_2,
                                 bool same_polarity) {
+  // Check whetehr concept_1 and concept_2 are in the CAG
+  this->get_vertex_id(concept_1);
+  this->get_vertex_id(concept_2);
+
   for (int predecessor : this->predecessors(concept_1)) {
     Edge& edge_to_remove = this->edge(predecessor, concept_1);
     vector<Statement>& evidence_move = edge_to_remove.evidence;
