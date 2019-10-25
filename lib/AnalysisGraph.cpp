@@ -73,14 +73,14 @@ int AnalysisGraph::get_degree(int vertex_id) {
 void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
                                                string country) {
   spdlog::set_level(spdlog::level::debug);
-  sqlite3* db;
+  sqlite3* db = nullptr;
   int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
-  if (rc) {
+  if (rc != SQLITE_OK) {
     throw runtime_error(
         "Could not open db. Do you have the DELPHI_DB "
         "environment correctly set to point to the Delphi database?");
   }
-  sqlite3_stmt* stmt;
+  sqlite3_stmt* stmt = nullptr;
   string query_base = "select Indicator from concept_to_indicator_mapping ";
   string query;
 
@@ -91,7 +91,8 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
             indicator, country);
     rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
     rc = sqlite3_step(stmt) == SQLITE_ROW;
-    sqlite3_reset(stmt);
+    sqlite3_finalize(stmt);
+    stmt = nullptr;
     return rc;
   };
 
@@ -103,7 +104,8 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
     rc = sqlite3_step(stmt);
     string source =
         string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
-    sqlite3_reset(stmt);
+    sqlite3_finalize(stmt);
+    stmt = nullptr;
     return source;
   };
 
@@ -119,7 +121,8 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
       matches.push_back(
           string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0))));
     }
-    sqlite3_reset(stmt);
+    sqlite3_finalize(stmt);
+    stmt = nullptr;
 
     string ind_name, ind_source;
 
@@ -144,6 +147,8 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
   }
   rc = sqlite3_finalize(stmt);
   rc = sqlite3_close(db);
+  stmt = nullptr;
+  db = nullptr;
 }
 
 void AnalysisGraph::set_indicator(string concept,
