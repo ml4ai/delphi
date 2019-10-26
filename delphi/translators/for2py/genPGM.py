@@ -122,7 +122,7 @@ class GrFNGenerator(object):
         self.module_variable_types = {}
         # Holds the list of declared subprograms in modules
         self.module_subprograms = []
-        # List of module file paths for import  in system.json
+        # List of module file paths for import in system.json
         self.module_paths = []
 
         self.gensym_tag_map = {
@@ -3647,13 +3647,16 @@ def generate_system_def(python_list: List[str], component_list: List[str], modul
             "imports": []
         })
     grfn_components[0]["imports"] = module_paths
+    systems_def = []
     with open(system_filename, "w") as system_file:
         system_def = {
             "date_created": f"{datetime.utcnow().isoformat('T')}Z",
             "name": system_name,
             "components": grfn_components
         }
-        system_file.write(json.dumps(system_def, indent=2))
+
+        systems_def.append(system_def)
+        system_file.write(json.dumps({"systems":systems_def}, indent=2))
 
 
 def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
