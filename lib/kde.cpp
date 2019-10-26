@@ -15,12 +15,14 @@ using boost::lambda::_1;
 using namespace delphi::utils;
 
 double sample_from_normal(
+    std::mt19937 rng,
     double mu = 0.0, /**< The mean of the distribution.*/
     double sd = 1.0  /**< The standard deviation of the distribution.*/
 ) {
-  mt19937 gen = RNG::rng()->get_RNG();
+  //mt19937 gen = RNG::rng()->get_RNG();
   normal_distribution<> d{mu, sd};
-  return d(gen);
+  //return d(gen);
+  return d(rng);
 }
 
 KDE::KDE(std::vector<double> v) : dataset(v) {
@@ -35,11 +37,11 @@ KDE::KDE(std::vector<double> v) : dataset(v) {
   bw = pow(4 * pow(stdev, 5) / (3 * N), 1 / 5);
 }
 
-vector<double> KDE::resample(int n_samples) {
+vector<double> KDE::resample(std::mt19937 rng, int n_samples) {
   vector<double> samples;
   for (int i : irange(0, n_samples)) {
-    double element = select_random_element(dataset);
-    samples.push_back(sample_from_normal(element, bw));
+    double element = select_random_element(rng, dataset);
+    samples.push_back(sample_from_normal(rng, element, bw));
   }
   return samples;
 }

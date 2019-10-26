@@ -6,7 +6,7 @@ using namespace std;
 using namespace delphi::utils;
 
 AdjectiveResponseMap
-construct_adjective_response_map(size_t n_kernels = DEFAULT_N_SAMPLES) {
+construct_adjective_response_map(std::mt19937 rng, size_t n_kernels = DEFAULT_N_SAMPLES) {
   sqlite3* db = nullptr;
   int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
 
@@ -32,7 +32,7 @@ construct_adjective_response_map(size_t n_kernels = DEFAULT_N_SAMPLES) {
   }
 
   for (auto& [k, v] : adjective_response_map) {
-    v = KDE(v).resample(n_kernels);
+    v = KDE(v).resample(rng, n_kernels);
   }
   sqlite3_finalize(stmt);
   sqlite3_close(db);
@@ -41,11 +41,11 @@ construct_adjective_response_map(size_t n_kernels = DEFAULT_N_SAMPLES) {
   return adjective_response_map;
 }
 
-void AnalysisGraph::construct_beta_pdfs() {
+void AnalysisGraph::construct_beta_pdfs(std::mt19937 rng) {
 
   double sigma_X = 1.0;
   double sigma_Y = 1.0;
-  AdjectiveResponseMap adjective_response_map = construct_adjective_response_map();
+  AdjectiveResponseMap adjective_response_map = construct_adjective_response_map(rng);
   vector<double> marginalized_responses;
   for (auto [adjective, responses] : adjective_response_map) {
     for (auto response : responses) {
@@ -54,7 +54,7 @@ void AnalysisGraph::construct_beta_pdfs() {
   }
 
   marginalized_responses =
-      KDE(marginalized_responses).resample(DEFAULT_N_SAMPLES);
+      KDE(marginalized_responses).resample(rng, DEFAULT_N_SAMPLES);
 
   for (auto e : this->edges()) {
     vector<double> all_thetas = {};

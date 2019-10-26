@@ -19,14 +19,14 @@ void AnalysisGraph::train_model(int start_year,
                                 InitialBeta initial_beta,
                                 bool use_heuristic) {
 
-  this->construct_beta_pdfs();
+  this->initialize_random_number_generator();
+  this->construct_beta_pdfs(this->rand_num_generator);
   this->find_all_paths();
   this->data_heuristic = use_heuristic;
 
   this->n_timesteps = this->calculate_num_timesteps(
       start_year, start_month, end_year, end_month);
   this->res = res;
-  this->initialize_random_number_generator();
   this->init_betas_to(initial_beta);
   this->sample_initial_transition_matrix_from_prior();
   this->parameterize(country, state, county, start_year, start_month, units);
@@ -75,5 +75,6 @@ void AnalysisGraph::train_model(int start_year,
   }
 
   this->trained = true;
+  RNG::release_instance();
   return;
 }

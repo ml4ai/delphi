@@ -404,7 +404,7 @@ class AnalysisGraph {
                             2 * get_vertex_id(source_vertex_name) + 1);
   }
 
-  void construct_beta_pdfs();
+  void construct_beta_pdfs(std::mt19937 rng);
 
   AnalysisGraph
   find_all_paths_for_concept(std::string concept, int depth, bool reverse);

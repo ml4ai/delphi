@@ -492,7 +492,7 @@ AnalysisGraph::from_causal_fragments(vector<CausalFragment> causal_fragments) {
       G.add_edge(cf);
     }
   }
-  G.initialize_random_number_generator();
+  //G.initialize_random_number_generator();
   return G;
 }
 
