@@ -26,11 +26,6 @@ void RNG::set_seed(int seed) {
 int RNG::get_seed() { return this->random_seed; }
 
 std::mt19937 RNG::get_RNG() { 
-  /*
-  if (!m_pInstance) {
-    this->m_pInstance = new RNG();
-  }
-  */
   // Track users
   add_ref();
 

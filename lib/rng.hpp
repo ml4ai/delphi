@@ -12,7 +12,7 @@ public:
 
 private:
   RNG();
-  //~RNG(){};
+  ~RNG(){};
   RNG(RNG const &);
   RNG &operator=(RNG const &);
   static RNG *m_pInstance;

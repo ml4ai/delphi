@@ -162,7 +162,8 @@ PYBIND11_MODULE(DelphiPython, m) {
            "indicator"_a)
       .def("set_derivative", &AnalysisGraph::set_derivative)
       .def("set_default_initial_state",
-           &AnalysisGraph::set_default_initial_state);
+           &AnalysisGraph::set_default_initial_state)
+      .def("set_random_seed", &AnalysisGraph::set_random_seed);
 
   py::class_<RV>(m, "RV")
       .def(py::init<std::string>())
@@ -191,11 +192,6 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def("get_aggregation_method", &Indicator::get_aggregation_method)
       .def("get_timeseries", &Indicator::get_timeseries)
       .def("get_samples", &Indicator::get_samples);
-
-  py::class_<RNG>(m, "RNG")
-      .def_static("rng", &RNG::rng)
-      .def("set_seed", &RNG::set_seed, "seed"_a)
-      .def("get_seed", &RNG::get_seed);
 
   py::class_<Node>(m, "Node")
       .def_readwrite("name", &Node::name)

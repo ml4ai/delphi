@@ -27,6 +27,11 @@ const double tuning_param = 0.0001;
 
 typedef multimap<pair<int, int>, pair<int, int>>::iterator MMapIterator;
 
+void AnalysisGraph::set_random_seed(int seed) {
+  this->rng_instance = RNG::rng();
+  this->rng_instance->set_seed(seed);
+}
+
 size_t AnalysisGraph::num_vertices() {
   return boost::num_vertices(this->graph);
 }
