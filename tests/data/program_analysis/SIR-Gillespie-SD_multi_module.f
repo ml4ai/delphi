@@ -2,9 +2,9 @@ C     Fortranification of AMIDOL's SIR-Gillespie.py
 ********************************************************************************
       module update_mvar
          implicit none
-         integer, parameter :: Tmax = 100
       contains
          subroutine update_mean_var(MeanS, VarS, k, n, runs)
+         integer, parameter :: Tmax = 100
          double precision, dimension(0:Tmax) :: MeanS, VarS
          integer k, n, runs
 
@@ -47,19 +47,16 @@ C     totalRuns     Total number of trajectories to generate for the analysis
 C     dt       next inter-event time
 ********************************************************************************
       module mod_gillespie
-          implicit none
+          use update_mvar
+      contains
+          subroutine gillespie(S0, I0, R0, MeanS, MeanI, MeanR, VarS,
+     &                         VarI, VarR)
+          integer S0, I0, R0
           integer, parameter :: Tmax = 100
           integer, parameter :: total_runs = 1000
           double precision, parameter :: gamma = 1.0/3.0
           double precision, parameter :: rho = 2.0
           double precision, parameter :: beta = rho * gamma !
-      contains
-          subroutine gillespie(S0, I0, R0, MeanS, MeanI, MeanR, VarS,  &
-                               VarI, VarR)
-
-          use update_mvar
-
-          integer S0, I0, R0
           double precision, dimension(0:Tmax) :: MeanS, MeanI, MeanR
           double precision, dimension(0:Tmax) :: VarS, VarI, VarR
           integer, dimension(0:Tmax) :: samples
@@ -98,7 +95,8 @@ C     dt       next inter-event time
 
                 ! Calculate all measures up to the current time t using
                 ! Welford's one pass algorithm
-                do while (sample_idx < Tmax .and. t > samples(sample_idx))
+                do while (sample_idx < Tmax .and. 
+     &                    t > samples(sample_idx))
                    sample = samples(sample_idx)
                    call update_mean_var(MeanS, VarS, sample, n_S, runs)
                    call update_mean_var(MeanI, VarI, sample, n_I, runs)
@@ -135,11 +133,11 @@ C     dt       next inter-event time
       end module mod_gillespie
 
       program main
+      use mod_gillespie
       integer, parameter :: S0 = 500, I0 = 10, R0 = 0, Tmax = 100
       double precision, dimension(0:Tmax) :: MeanS, MeanI, MeanR
       double precision, dimension(0:Tmax) :: VarS, VarI, VarR
 
-      use mod_gillespie
       call gillespie(S0, I0, R0, MeanS, MeanI, MeanR, VarS, VarI, VarR)
 
       end program main
