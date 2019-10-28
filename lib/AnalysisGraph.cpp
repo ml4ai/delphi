@@ -27,6 +27,11 @@ const double tuning_param = 0.0001;
 
 typedef multimap<pair<int, int>, pair<int, int>>::iterator MMapIterator;
 
+void AnalysisGraph::set_random_seed(int seed) {
+  this->rng_instance = RNG::rng();
+  this->rng_instance->set_seed(seed);
+}
+
 size_t AnalysisGraph::num_vertices() {
   return boost::num_vertices(this->graph);
 }
@@ -73,14 +78,14 @@ int AnalysisGraph::get_degree(int vertex_id) {
 void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
                                                string country) {
   spdlog::set_level(spdlog::level::debug);
-  sqlite3* db;
+  sqlite3* db = nullptr;
   int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
-  if (rc) {
+  if (rc != SQLITE_OK) {
     throw runtime_error(
         "Could not open db. Do you have the DELPHI_DB "
         "environment correctly set to point to the Delphi database?");
   }
-  sqlite3_stmt* stmt;
+  sqlite3_stmt* stmt = nullptr;
   string query_base = "select Indicator from concept_to_indicator_mapping ";
   string query;
 
@@ -91,7 +96,8 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
             indicator, country);
     rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
     rc = sqlite3_step(stmt) == SQLITE_ROW;
-    sqlite3_reset(stmt);
+    sqlite3_finalize(stmt);
+    stmt = nullptr;
     return rc;
   };
 
@@ -103,7 +109,8 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
     rc = sqlite3_step(stmt);
     string source =
         string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
-    sqlite3_reset(stmt);
+    sqlite3_finalize(stmt);
+    stmt = nullptr;
     return source;
   };
 
@@ -119,7 +126,8 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
       matches.push_back(
           string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0))));
     }
-    sqlite3_reset(stmt);
+    sqlite3_finalize(stmt);
+    stmt = nullptr;
 
     string ind_name, ind_source;
 
@@ -144,6 +152,8 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
   }
   rc = sqlite3_finalize(stmt);
   rc = sqlite3_close(db);
+  stmt = nullptr;
+  db = nullptr;
 }
 
 void AnalysisGraph::set_indicator(string concept,
@@ -316,8 +326,23 @@ void AnalysisGraph::remove_node(int node_id) {
   }
 }
 
+/*
+ * The refactoring of the remove_node() method was buggy.
+ * It caused AnalysisGraph to crash.
+ * I replaced it with the previous implementation
+*/
 void AnalysisGraph::remove_node(string concept) {
-  this->remove_node(this->get_vertex_id(concept));
+    auto node_to_remove = this->name_to_vertex.extract(concept);
+
+      if (node_to_remove) // Concept is in the CAG
+      {
+        // Note: This is an overlaoded private method that takes in a vertex id
+        this->remove_node(node_to_remove.mapped());
+      }
+      else // The concept is not in the graph
+      {
+        throw out_of_range("Concept \"{}\" not in CAG!"_format(concept));
+      }
 }
 
 void AnalysisGraph::remove_nodes(unordered_set<string> concepts) {
@@ -472,7 +497,7 @@ AnalysisGraph::from_causal_fragments(vector<CausalFragment> causal_fragments) {
       G.add_edge(cf);
     }
   }
-  G.initialize_random_number_generator();
+  //G.initialize_random_number_generator();
   return G;
 }
 
@@ -521,6 +546,10 @@ pair<EdgeDescriptor, bool> AnalysisGraph::add_edge(string source,
 void AnalysisGraph::merge_nodes(string concept_1,
                                 string concept_2,
                                 bool same_polarity) {
+  // Check whetehr concept_1 and concept_2 are in the CAG
+  this->get_vertex_id(concept_1);
+  this->get_vertex_id(concept_2);
+
   for (int predecessor : this->predecessors(concept_1)) {
     Edge& edge_to_remove = this->edge(predecessor, concept_1);
     vector<Statement>& evidence_move = edge_to_remove.evidence;
@@ -1262,6 +1291,7 @@ AnalysisGraph::test_inference_with_synthetic_data(int start_year,
                                                   map<string, string> units,
                                                   InitialBeta initial_beta) {
   synthetic_data_experiment = true;
+  this->initialize_random_number_generator();
 
   this->n_timesteps = this->calculate_num_timesteps(
       start_year, start_month, end_year, end_month);
@@ -1294,6 +1324,7 @@ AnalysisGraph::test_inference_with_synthetic_data(int start_year,
       this->test_observed_state_sequence,
       this->generate_prediction(start_year, start_month, end_year, end_month));
 
+  RNG::release_instance();
   synthetic_data_experiment = false;
 }
 

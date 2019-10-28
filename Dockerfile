@@ -24,9 +24,13 @@ RUN echo  'alias python=python3' >> ~/.bashrc
 WORKDIR /data
 # Download SQLite3 database containing model parameterization data.
 RUN curl -O http://vanga.sista.arizona.edu/delphi_data/delphi.db
+RUN curl -O http://vanga.sista.arizona.edu/delphi_data/model_files.tar.gz
 
 # Set the environment variable DELPHI_DB to point to the SQLite3 database.
 ENV DELPHI_DB=/data/delphi.db
+ENV MODEL_FILES=/data/source_model_files
+ENV AUTOMATES_LOC=/fake/path/for/now
+ENV EMB_LOC=/fake/path/for/now
 
 # Build the delphi testing environment
 ENV CC=gcc-9

@@ -135,11 +135,10 @@ bmi_config.txt
 *.pkl
 
 # Automatically generated dotfiles, pngs, and pdfs (do git add -f to override)
-
 *.dot
 *.png
 *.pdf
-
+*.Icon
 # VSCode
 .vscode/
 

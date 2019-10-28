@@ -21,7 +21,7 @@ vector<double> get_data_value(string indicator,
   using spdlog::debug, spdlog::error, spdlog::info;
   spdlog::set_level(spdlog::level::warn);
 
-  sqlite3* db;
+  sqlite3* db = nullptr;
 
   vector<double> vals = {};
 
@@ -32,7 +32,7 @@ vector<double> get_data_value(string indicator,
         "environment correctly set to point to the Delphi database?");
   }
 
-  sqlite3_stmt* stmt;
+  sqlite3_stmt* stmt = nullptr;
 
   string query =
       "select Unit, Value from indicator where `Variable` like '{}'"_format(
@@ -54,7 +54,8 @@ vector<double> get_data_value(string indicator,
               "countries for given axes (Default Setting)\n",
               country);
       }
-      sqlite3_reset(stmt);
+      sqlite3_finalize(stmt);
+      stmt = nullptr;
     }
   }
 
@@ -70,7 +71,8 @@ vector<double> get_data_value(string indicator,
             "of the country level (Default Setting)\n",
             state);
     }
-    sqlite3_reset(stmt);
+    sqlite3_finalize(stmt);
+    stmt = nullptr;
   }
 
   if (!county.empty()) {
@@ -85,7 +87,8 @@ vector<double> get_data_value(string indicator,
             "of the state level (Default Setting)\n",
             county);
     }
-    sqlite3_reset(stmt);
+    sqlite3_finalize(stmt);
+    stmt = nullptr;
   }
 
   if (!unit.empty()) {
@@ -96,7 +99,8 @@ vector<double> get_data_value(string indicator,
       query = check_q;
     }
     else {
-      sqlite3_reset(stmt);
+      sqlite3_finalize(stmt);
+      stmt = nullptr;
       debug("Could not find data for unit {}. Using first unit in "
             "alphabetical order (Default Setting)\n",
             unit);
@@ -109,7 +113,8 @@ vector<double> get_data_value(string indicator,
             string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
         units.push_back(ind_unit);
       }
-      sqlite3_reset(stmt);
+      sqlite3_finalize(stmt);
+      stmt = nullptr;
       if (!units.empty()) {
         sort(units.begin(), units.end());
         query = "{0} and `Unit` is '{1}'"_format(query, units.front());
@@ -119,7 +124,8 @@ vector<double> get_data_value(string indicator,
       }
     }
   }
-  sqlite3_reset(stmt);
+  sqlite3_finalize(stmt);
+  stmt = nullptr;
 
   if (!(year == -1)) {
     check_q = "{0} and `Year` is '{1}'"_format(query, year);
@@ -133,7 +139,8 @@ vector<double> get_data_value(string indicator,
             "over all years (Default Setting)\n",
             county);
     }
-    sqlite3_reset(stmt);
+    sqlite3_finalize(stmt);
+    stmt = nullptr;
   }
 
   if (!(month == 0)) {
@@ -148,7 +155,8 @@ vector<double> get_data_value(string indicator,
             "over all months (Default Setting)\n",
             county);
     }
-    sqlite3_reset(stmt);
+    sqlite3_finalize(stmt);
+    stmt = nullptr;
   }
 
   double value;
@@ -158,7 +166,8 @@ vector<double> get_data_value(string indicator,
     value = sqlite3_column_double(stmt, 1);
     vals.push_back(value);
   }
-  sqlite3_reset(stmt);
+  sqlite3_finalize(stmt);
+  stmt = nullptr;
 
   if (vals.empty() and use_heuristic) {
     string final_query =
@@ -170,10 +179,13 @@ vector<double> get_data_value(string indicator,
       value = value / 12;
       vals.push_back(value);
     }
-    sqlite3_reset(stmt);
+    sqlite3_finalize(stmt);
+    stmt = nullptr;
   }
 
   rc = sqlite3_finalize(stmt);
   rc = sqlite3_close(db);
+  stmt = nullptr;
+  db = nullptr;
   return vals;
 }

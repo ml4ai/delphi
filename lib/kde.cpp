@@ -15,10 +15,10 @@ using boost::lambda::_1;
 using namespace delphi::utils;
 
 double sample_from_normal(
+    std::mt19937 gen,
     double mu = 0.0, /**< The mean of the distribution.*/
     double sd = 1.0  /**< The standard deviation of the distribution.*/
 ) {
-  mt19937 gen = RNG::rng()->get_RNG();
   normal_distribution<> d{mu, sd};
   return d(gen);
 }
@@ -35,12 +35,27 @@ KDE::KDE(std::vector<double> v) : dataset(v) {
   bw = pow(4 * pow(stdev, 5) / (3 * N), 1 / 5);
 }
 
-vector<double> KDE::resample(int n_samples) {
+vector<double> KDE::resample(int n_samples, std::mt19937 gen) {
   vector<double> samples;
   for (int i : irange(0, n_samples)) {
-    double element = select_random_element(dataset);
-    samples.push_back(sample_from_normal(element, bw));
+    double element = select_random_element(dataset, gen);
+    samples.push_back(sample_from_normal(gen, element, bw));
   }
+  return samples;
+}
+
+/*
+ * TODO: Remove this method
+ * This method was introduced to make the old test code happy
+ * when the signature of resample() was updated to fix memory
+ * leaks.
+ * After updating the old test code, this method shoudl be
+ * removed from here and DelphiPython.cpp
+ */
+vector<double> KDE::resample(int n_samples) {
+  std::mt19937 gen = RNG::rng()->get_RNG();
+  vector<double> samples = this->resample(n_samples, gen);
+  RNG::release_instance();
   return samples;
 }
 

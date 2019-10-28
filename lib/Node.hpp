@@ -89,5 +89,12 @@ class Node {
     this->indicators.clear();
     this->nameToIndexMap.clear();
   }
+
+  void print_indicators() {
+    for (auto [ind, id] : this->nameToIndexMap) {
+      std::cout << ind << " -> " << id << std::endl;
+    }
+    std::cout << std::endl;
+  }
 };
 
