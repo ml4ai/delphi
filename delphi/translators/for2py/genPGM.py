@@ -3654,7 +3654,9 @@ def generate_system_def(python_list: List[str], component_list: List[str], modul
             "file_path": component,
             "imports": []
         })
-    grfn_components[0]["imports"] = module_paths
+    for module in module_paths:
+        for path in module_paths[module]:
+            grfn_components[0]["imports"].append(path)
     system_def = {
         "date_created": f"{datetime.utcnow().isoformat('T')}Z",
         "name": system_name,
@@ -3720,11 +3722,7 @@ def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
             lambda_file, [ast_string], python_list[index], module_mapper,
             original_file_path, True, module_file_exist, module_import_paths
         )
-        # DEBUG
         if module_file_exist:
-            print ("    * file_name: ", file_name)
-            print ("    * python_list[index][:-3]: ", python_list[index][:-3])
-            print ("    * path: ", path)
             main_python_file = path + file_name + ".py"
             python_list[index] = main_python_file
         grfn_filepath_list.append(grfn_file)
@@ -3732,9 +3730,6 @@ def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
         with open(grfn_file, "w") as file_handle:
             file_handle.write(json.dumps(grfn_dict, sort_keys=True, indent=2))
     
-    # DEBUG
-    print ("    * python_list: ", python_list)
-    print ("    * grfn_filepath_list: ", grfn_filepath_list, "\n")
     # Finally, write the <systems.json> file which gives a mapping of all the
     # GrFN files related to the system.
     generate_system_def(python_list, grfn_filepath_list, module_import_paths)
