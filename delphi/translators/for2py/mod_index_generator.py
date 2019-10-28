@@ -94,6 +94,8 @@ class ModuleGenerator(object):
             This function populates the `self.imports` dictionary which holds
             all the private variables defined in each module.
         """
+        # DEBUG
+        print ("    - self.uses: ", self.uses, "\n")
         for module in self.uses:
             for use_item in self.uses[module]:
                 for key in use_item:
@@ -154,10 +156,15 @@ class ModuleGenerator(object):
                     self.variable_types[item.attrib["name"].lower()] = variable_type
 
             elif item.tag.lower() in ["subroutine", "function"]:
+                # DEBUG
+                print ("    - item.attrib: ", item.attrib)
+                print ("    - self.main: ", self.main)
+                print ("    - 1. self.current_context: ", self.current_context)
                 if not self.current_context:
                     self.current_context = self.main
                 self.subprograms.setdefault(self.current_context, []).append(
                     item.attrib["name"].lower())
+                self.current_context = item.attrib["name"].lower()
 
             elif item.tag.lower() == "declaration":
                 # This function parses the <declaration> tag of the XML and
@@ -189,7 +196,8 @@ class ModuleGenerator(object):
                             if innerChild.tag.lower() == "name":
                                 only_symbols.append(innerChild.attrib[
                                                         "id"].lower())
-
+                # DEBUG
+                print ("    - 2. self.current_context: ", self.current_context)
                 if not self.current_context:
                     self.current_context = self.main
                 self.uses.setdefault(self.current_context, []).append({
