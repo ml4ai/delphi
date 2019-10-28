@@ -133,15 +133,14 @@ def generate_rectified_xml(ofp_xml: str, rectified_file, tester_call):
 
     rectified_xml = rectify.buildNewASTfromXMLString(ofp_xml)
 
-    if not tester_call:
-        rectified_tree = ET.ElementTree(rectified_xml)
-        try:
-            rectified_file_handle = open(rectified_file, 'w')
-            rectified_file_handle.close()
-        except IOError:
-            assert False, f"Failed to write to {rectified_file}."
+    rectified_tree = ET.ElementTree(rectified_xml)
+    try:
+        rectified_file_handle = open(rectified_file, 'w')
+        rectified_file_handle.close()
+    except IOError:
+        assert False, f"Failed to write to {rectified_file}."
 
-        rectified_tree.write(rectified_file)
+    rectified_tree.write(rectified_file)
 
     return rectified_xml
 
@@ -220,31 +219,31 @@ def generate_python_src(
                 Script: <pyTranslate.py>"
         )
 
-        output_list = []
-        for item in python_source:
-            if item[2] == "module":
-                module_file = f"{temp_dir}/m_{item[1].lower()}.py"
-                try:
-                    with open(module_file, "w") as f:
-                        output_list.append("m_" + item[1].lower() + ".py")
-                        f.write(item[0])
-                except IOError:
-                    assert False, f"Unable to write to {module_file}."
-                python_files.append(module_file)
-            else:
-                try:
-                    with open(python_files[0], "w") as f:
-                        output_list.append(python_files[0])
-                        f.write(item[0])
-                except IOError:
-                    assert False, f"Unable to write to {python_file_name}."
+    output_list = []
+    for item in python_source:
+        if item[2] == "module":
+            module_file = f"{temp_dir}/m_{item[1].lower()}.py"
+            try:
+                with open(module_file, "w") as f:
+                    output_list.append("m_" + item[1].lower() + ".py")
+                    f.write(item[0])
+            except IOError:
+                assert False, f"Unable to write to {module_file}."
+            python_files.append(module_file)
+        else:
+            try:
+                with open(python_files[0], "w") as f:
+                    output_list.append(python_files[0])
+                    f.write(item[0])
+            except IOError:
+                assert False, f"Unable to write to {python_file_name}."
 
-        try:
-            with open(output_file, "w") as f:
-                for fileName in output_list:
-                    f.write(fileName + " ")
-        except IOError:
-            assert False, f"Unable to write to {output_file}."
+    try:
+        with open(output_file, "w") as f:
+            for fileName in output_list:
+                f.write(fileName + " ")
+    except IOError:
+        assert False, f"Unable to write to {output_file}."
 
     return python_source
 
@@ -272,6 +271,7 @@ def generate_grfn(
         dict: A dictionary of generated GrFN.
     """
 
+    
     print(
         "+Generating GrFN files: Func: <create_grfn_dict>, Script: "
         "<genPGM.py>"
