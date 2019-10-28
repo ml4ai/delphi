@@ -21,14 +21,17 @@ Author: Terrence J. Lim
 """
 
 import os
+import re
 import sys
 import ast
+import json
 import argparse
 import pickle
 import delphi.paths
 import ntpath as np
 import subprocess as sp
 import xml.etree.ElementTree as ET
+from delphi.translators.for2py.mod_index_generator import get_index
 
 from delphi.translators.for2py import (
     preprocessor,
@@ -269,35 +272,73 @@ def generate_grfn(
         dict: A dictionary of generated GrFN.
     """
 
-    if not tester_call:
-        print(
-            "+Generating GrFN files: Func: <create_grfn_dict>, Script: "
-            "<genPGM.py>"
-        )
-        # Since process_files function invokes create_grfn_dict
-        # function, we only have to call process_files in case
-        # of non-test mode.
-        genPGM.process_files(
-                [python_filename], "GrFN.json",
-                "lambdas.py", original_fortran_file,
-                False
-        )
-    else:
-        module_paths = []
-        asts = [ast.parse(python_source_string)]
-        grfn_dictionary = genPGM.create_grfn_dict(
-            lambdas_file_suffix, asts, python_filename, mode_mapper_dictionary,
-            original_fortran_file, save_file=True
-        )
-        del grfn_dictionary["date_created"]
-        for item in grfn_dictionary["variables"]:
-            if "gensym" in item:
-                del item["gensym"]
-        for item in grfn_dictionary["containers"]:
-            if "gensym" in item:
-                del item["gensym"]
+    print(
+        "+Generating GrFN files: Func: <create_grfn_dict>, Script: "
+        "<genPGM.py>"
+    )
 
-        return grfn_dictionary
+    module_file_exist = False
+    module_paths = []
+    grfn_filepath_list = []
+
+    # Regular expression to identify the path and name of all python files
+    filename_regex = re.compile(r"(?P<path>.*/)(?P<filename>.*).py")
+
+    # First, find the main python file in order to populate the module
+    # mapper
+    file_match = re.match(filename_regex, python_filename)
+    assert file_match, "Invalid filename."
+
+    path = file_match.group("path")
+    filename = file_match.group("filename")
+
+    # Ignore all python files of modules created by `pyTranslate.py`
+    # since these module files do not contain a corresponding XML file.
+    if not filename.startswith("m_"):
+        xml_file = f"{path}rectified_{filename}.xml"
+        # Calling the `get_index` function in `mod_index_generator.py` to
+        # map all variables and objects in the various files
+    else:
+        module_file_exist = True 
+        file_name = genPGM.get_original_file_name(original_fortran_file)
+        xml_file = f"{path}rectified_{file_name}.xml"
+
+    # Calling the `get_index` function in `mod_index_generator.py` to
+    # map all variables and objects in the various files
+    module_mapper = get_index(xml_file)
+    main_program = module_mapper[0]["modules"][-1]
+    module_import_paths = {}
+
+    asts = [ast.parse(python_source_string)]
+
+    lambda_file = python_filename[:-3] + "_lambda.py"
+    grfn_file = python_filename[:-3] + "_GrFN.json"
+
+    grfn_dict = genPGM.create_grfn_dict(
+        lambdas_file_suffix, asts, python_filename, module_mapper,
+        original_fortran_file, True, module_file_exist, module_import_paths
+    )
+
+    if module_file_exist:
+        python_filename = path + file_name + ".py"
+    grfn_filepath_list.append(grfn_file)
+
+    del grfn_dict["date_created"]
+    for item in grfn_dict["variables"]:
+        if "gensym" in item:
+            del item["gensym"]
+    for item in grfn_dict["containers"]:
+        if "gensym" in item:
+            del item["gensym"]
+
+    genPGM.generate_system_def([python_filename], grfn_filepath_list, module_import_paths)
+
+    if tester_call:
+        return grfn_dict
+    else:
+        # Write each GrFN JSON into a file
+        with open(grfn_file, "w") as file_handle:
+            file_handle.write(json.dumps(grfn_dict, sort_keys=True, indent=2))
 
 def parse_args():
     """This function is for a safe command line
@@ -353,13 +394,13 @@ def check_classpath():
             ):
                 found = True
                 break
-        if not found:
-            not_found.append(jar_file)
+            if not found:
+                not_found.append(jar_file)
 
-    if not_found:
-        sys.stderr.write("ERROR: JAR files not found via CLASSPATH:\n")
-        sys.stderr.write(f" {','.join(not_found)}\n")
-        sys.exit(1)
+        if not_found:
+            sys.stderr.write("ERROR: JAR files not found via CLASSPATH:\n")
+            sys.stderr.write(f" {','.join(not_found)}\n")
+            sys.exit(1)
 
 
 def indent(elem, level=0):
@@ -544,27 +585,15 @@ def fortran_to_grfn(
     if tester_call:
         os.remove(preprocessed_fortran_file)
 
-    if not network_test:
-        return (
-            python_source,
-            lambdas_suffix,
-            json_suffix,
-            translated_python_files,
-            mode_mapper_dict,
-            original_fortran_file,
-        )
-    else:
-        #  TODO: This is related to networks.py and subsequent GrFN
-        #  generation. Change the python_src index from [0][0] to incorporate
-        #  all modules after all GrFN features have been added
-        return (
-            python_source[0][0],
-            lambdas_suffix,
-            json_suffix,
-            base,
-            mode_mapper_dict,
-            original_fortran_file
-        )
+    return (
+        python_source,
+        lambdas_suffix,
+        json_suffix,
+        translated_python_files,
+        base,
+        mode_mapper_dict,
+        original_fortran_file
+    )
 
 
 if __name__ == "__main__":
@@ -573,6 +602,7 @@ if __name__ == "__main__":
         lambdas_file,
         json_file,
         python_files,
+        base,
         mode_mapper_dict,
         original_fortran_file
     ) = fortran_to_grfn()
