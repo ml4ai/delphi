@@ -3,6 +3,8 @@
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+//#include <chrono>
+//#include <boost/random/mersenne_twister.hpp>
 
 #include "AnalysisGraph.hpp"
 
@@ -79,7 +81,9 @@ PYBIND11_MODULE(DelphiPython, m) {
            "label_depth"_a = 1,
            "node_to_highlight"_a = "",
            "rankdir"_a = "TB")
-      .def("construct_beta_pdfs", &AnalysisGraph::construct_beta_pdfs)
+      //.def("construct_beta_pdfs", &AnalysisGraph::construct_beta_pdfs)
+      //.def("construct_beta_pdfs", py::overload_cast<>(&AnalysisGraph::construct_beta_pdfs)
+      .def("construct_beta_pdfs", (void (AnalysisGraph::*)()) &AnalysisGraph::construct_beta_pdfs)
       .def("add_node", &AnalysisGraph::add_node, "concept"_a)
       .def("remove_node",
            py::overload_cast<string>(&AnalysisGraph::remove_node), "concept"_a)
@@ -210,7 +214,7 @@ PYBIND11_MODULE(DelphiPython, m) {
 
   py::class_<KDE>(m, "KDE")
       .def(py::init<vector<double>>())
-      .def("resample", &KDE::resample)
+      .def("resample", py::overload_cast<int>(&KDE::resample))
       .def("pdf",
            py::overload_cast<double>(&KDE::pdf),
            "Evaluate pdf for a single value")

@@ -5,6 +5,7 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/range/numeric.hpp>
+#include <chrono>
 
 /**
  * Returns a randomly selected element of a vector.
@@ -44,7 +45,8 @@ class KDE {
   // Not sure this is the correct way to do it.
   double mu;
 
-  std::vector<double> resample(std::mt19937 rng, int n_samples);
+  std::vector<double> resample(int n_samples, std::mt19937 rng = std::mt19937(std::chrono::high_resolution_clock::now().time_since_epoch().count()));
+  std::vector<double> resample(int n_samples);
   double pdf(double x);
   std::vector<double> pdf(std::vector<double> v);
   double logpdf(double x);

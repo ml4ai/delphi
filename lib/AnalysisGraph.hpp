@@ -407,6 +407,7 @@ class AnalysisGraph {
   }
 
   void construct_beta_pdfs(std::mt19937 rng);
+  void construct_beta_pdfs();
 
   AnalysisGraph
   find_all_paths_for_concept(std::string concept, int depth, bool reverse);

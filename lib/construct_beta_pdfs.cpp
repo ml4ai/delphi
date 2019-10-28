@@ -32,7 +32,7 @@ construct_adjective_response_map(std::mt19937 rng, size_t n_kernels = DEFAULT_N_
   }
 
   for (auto& [k, v] : adjective_response_map) {
-    v = KDE(v).resample(rng, n_kernels);
+    v = KDE(v).resample(n_kernels, rng);
   }
   sqlite3_finalize(stmt);
   sqlite3_close(db);
@@ -54,7 +54,7 @@ void AnalysisGraph::construct_beta_pdfs(std::mt19937 rng) {
   }
 
   marginalized_responses =
-      KDE(marginalized_responses).resample(rng, DEFAULT_N_SAMPLES);
+      KDE(marginalized_responses).resample(DEFAULT_N_SAMPLES, rng);
 
   for (auto e : this->edges()) {
     vector<double> all_thetas = {};
@@ -85,5 +85,11 @@ void AnalysisGraph::construct_beta_pdfs(std::mt19937 rng) {
     // TODO: Decide the correct way to initialize this
     this->graph[e].beta = this->graph[e].kde.mu;
   }
+}
+
+void AnalysisGraph::construct_beta_pdfs() {
+  std::mt19937 rng = RNG::rng()->get_RNG();
+  this->construct_beta_pdfs(rng);
+  RNG::release_instance();
 }
 

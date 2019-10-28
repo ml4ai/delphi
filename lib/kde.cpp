@@ -37,12 +37,19 @@ KDE::KDE(std::vector<double> v) : dataset(v) {
   bw = pow(4 * pow(stdev, 5) / (3 * N), 1 / 5);
 }
 
-vector<double> KDE::resample(std::mt19937 rng, int n_samples) {
+vector<double> KDE::resample(int n_samples, std::mt19937 rng) {
   vector<double> samples;
   for (int i : irange(0, n_samples)) {
     double element = select_random_element(rng, dataset);
     samples.push_back(sample_from_normal(rng, element, bw));
   }
+  return samples;
+}
+
+vector<double> KDE::resample(int n_samples) {
+  std::mt19937 rng = RNG::rng()->get_RNG();
+  vector<double> samples = this->resample(n_samples, rng);
+  RNG::release_instance();
   return samples;
 }
 
