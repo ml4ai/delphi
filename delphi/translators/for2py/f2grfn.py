@@ -52,6 +52,7 @@ OFP_JAR_FILES = [
 """OFP_JAR_FILES is a list of JAR files used by the Open Fortran Parser (OFP).
 """
 
+GENERATED_FILE_PATHS = []
 
 def generate_ofp_xml(preprocessed_fortran_file, ofp_file, tester_call):
     """ This function executes Java command to run open
@@ -102,6 +103,7 @@ def generate_ofp_xml(preprocessed_fortran_file, ofp_file, tester_call):
             assert False, f"Failed to write to {ofp_file}."
 
         tree.write(ofp_file)
+        GENERATED_FILE_PATHS.append(ofp_file)
 
     return ofp_xml
 
@@ -141,6 +143,7 @@ def generate_rectified_xml(ofp_xml: str, rectified_file, tester_call):
         assert False, f"Failed to write to {rectified_file}."
 
     rectified_tree.write(rectified_file)
+    GENERATED_FILE_PATHS.append(rectified_file)
 
     return rectified_xml
 
@@ -334,6 +337,9 @@ def generate_grfn(
     genPGM.generate_system_def([python_filename], grfn_filepath_list, module_import_paths)
 
     if tester_call:
+        for filepath in GENERATED_FILE_PATHS:
+            if os.path.isfile(filepath):
+                os.remove(filepath)
         return grfn_dict
     else:
         # Write each GrFN JSON into a file
@@ -556,12 +562,14 @@ def fortran_to_grfn(
     except IOError:
         assert False, "Unable to write tofile: {preprocessed_fortran_file}"
 
+    GENERATED_FILE_PATHS.append(preprocessed_fortran_file)
+
     # Generate OFP XML from preprocessed fortran
     ofp_xml = generate_ofp_xml(
         preprocessed_fortran_file, ofp_file, tester_call
     )
 
-    # Rectify and generate a new xml from OFP XML
+    # Recify and generate a new xml from OFP XML
     rectified_tree = generate_rectified_xml(
         ofp_xml, rectified_xml_file, tester_call
     )
@@ -575,15 +583,15 @@ def fortran_to_grfn(
     output_dict = generate_outputdict(
         rectified_tree, preprocessed_fortran_file, pickle_file, tester_call
     )
-
+    GENERATED_FILE_PATHS.append(pickle_file)
     # Create a python source file
     python_source = generate_python_src(
         output_dict, translated_python_files, output_file, variable_map_file,
         temp_dir, tester_call
     )
-
-    if tester_call:
-        os.remove(preprocessed_fortran_file)
+    GENERATED_FILE_PATHS.append(output_file)
+    for py_file in translated_python_files:
+        GENERATED_FILE_PATHS.append(py_file)
 
     return (
         python_source,
