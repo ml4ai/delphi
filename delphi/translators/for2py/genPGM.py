@@ -18,6 +18,7 @@ from collections import OrderedDict
 from itertools import chain, product
 import operator
 import uuid
+import os.path
 
 class GrFNState:
     def __init__(
@@ -3666,7 +3667,7 @@ def generate_system_def(python_list: List[str], component_list: List[str], modul
         analysis and writes this to the main system file.
     """
     (system_name, path) = get_system_name(python_list)
-    system_filename = f"{path}/system.json"
+    system_filepath = f"{path}/system.json"
     grfn_components = []
     for component in component_list:
         grfn_components.append({
@@ -3674,16 +3675,22 @@ def generate_system_def(python_list: List[str], component_list: List[str], modul
             "imports": []
         })
     grfn_components[0]["imports"] = module_paths
-    systems_def = []
-    with open(system_filename, "w") as system_file:
-        system_def = {
-            "date_created": f"{datetime.utcnow().isoformat('T')}Z",
-            "name": system_name,
-            "components": grfn_components
-        }
+    system_def = {
+        "date_created": f"{datetime.utcnow().isoformat('T')}Z",
+        "name": system_name,
+        "components": grfn_components
+    }
+    if os.path.isfile(system_filepath):
+        with open(system_filepath, "r") as f:
+            systems_def = json.load(f)
+            # DEBUG
+            print (" * systems_def: ", systems_def)
+            systems_def['systems'].append(system_def)
+    else:
+        systems_def = {'systems': [system_def]}
 
-        systems_def.append(system_def)
-        system_file.write(json.dumps({"systems":systems_def}, indent=2))
+    with open(system_filepath, "w") as system_file:
+        system_file.write(json.dumps(systems_def, indent=2))
 
 
 def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
