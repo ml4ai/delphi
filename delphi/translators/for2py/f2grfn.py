@@ -283,6 +283,7 @@ def generate_grfn(
                 False
         )
     else:
+        module_paths = []
         asts = [ast.parse(python_source_string)]
         grfn_dictionary = genPGM.create_grfn_dict(
             lambdas_file_suffix, asts, python_filename, mode_mapper_dictionary,
@@ -476,6 +477,14 @@ def fortran_to_grfn(
 
     print(f"*** ALL OUTPUT FILES LIVE IN [{temp_dir}]")
 
+    # To avoid the system.json confliction between each
+    # f2grfn execution, we need to remove the system.json
+    # from the directory first.
+    system_json_path = temp_dir + "/" + "system.json"
+    if os.path.isfile(system_json_path):
+        rm_system_json = "rm " + system_json_path
+        os.system(rm_system_json)
+
     # Output files
     preprocessed_fortran_file = temp_dir + "/" + base + "_preprocessed.f"
     ofp_file = temp_dir + "/" + base + ".xml"
@@ -521,10 +530,6 @@ def fortran_to_grfn(
     generator = mod_index_generator.ModuleGenerator()
     mode_mapper_dict = generator.analyze(mode_mapper_tree)
 
-    # DEUBG
-    print ("mode_mapper_dict:")
-    print ("    ", mode_mapper_dict, "\n")
-
     # Creates a pickle file
     output_dict = generate_outputdict(
         rectified_tree, preprocessed_fortran_file, pickle_file, tester_call
@@ -535,10 +540,6 @@ def fortran_to_grfn(
         output_dict, translated_python_files, output_file, variable_map_file,
         temp_dir, tester_call
     )
-
-    # DEBUG
-    print ("translated_python_files:")
-    print ("    ", translated_python_files, "\n")
 
     if tester_call:
         os.remove(preprocessed_fortran_file)
@@ -575,11 +576,6 @@ if __name__ == "__main__":
         mode_mapper_dict,
         original_fortran_file
     ) = fortran_to_grfn()
-
-    for python_src in python_src:
-        # DEBUG
-        print ("python_source:")
-        print ("    ", python_src, "\n")
 
     # Generate GrFN file
     for python_file in python_files:
