@@ -1291,6 +1291,7 @@ AnalysisGraph::test_inference_with_synthetic_data(int start_year,
                                                   map<string, string> units,
                                                   InitialBeta initial_beta) {
   synthetic_data_experiment = true;
+  this->initialize_random_number_generator();
 
   this->n_timesteps = this->calculate_num_timesteps(
       start_year, start_month, end_year, end_month);
@@ -1323,6 +1324,7 @@ AnalysisGraph::test_inference_with_synthetic_data(int start_year,
       this->test_observed_state_sequence,
       this->generate_prediction(start_year, start_month, end_year, end_month));
 
+  RNG::release_instance();
   synthetic_data_experiment = false;
 }
 

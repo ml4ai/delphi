@@ -1,5 +1,4 @@
 #include "rng.hpp"
-#include "dbg.h"
 
 RNG::RNG() {
     std::random_device rd;
@@ -13,7 +12,6 @@ int RNG::counter = 0;
 RNG *RNG::rng() {
   if (!m_pInstance)
     m_pInstance = new RNG;
-  dbg(counter);
 
   return m_pInstance;
 }
@@ -34,17 +32,14 @@ std::mt19937 RNG::get_RNG() {
 
 void RNG::add_ref() {
   ++counter;
-  dbg(counter);
 }
 
 void RNG::release_ref() {
   --counter;
-  dbg(counter);
 }
 
 void RNG::release_instance() {
   release_ref();
-  dbg(counter);
 
   if (counter == 0 && m_pInstance != NULL) {
     delete m_pInstance;

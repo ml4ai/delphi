@@ -5,14 +5,12 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/range/numeric.hpp>
-#include <chrono>
 
 /**
  * Returns a randomly selected element of a vector.
  */
-template <class T> T select_random_element(std::mt19937 rng, std::vector<T> v) {
+template <class T> T select_random_element(std::vector<T> v, std::mt19937 gen) {
   using namespace std;
-  //mt19937 gen = RNG::rng()->get_RNG();
   T element;
   if (v.size() == 0) {
     throw "Vector is empty, so we cannot select a random element from it. "
@@ -23,8 +21,7 @@ template <class T> T select_random_element(std::mt19937 rng, std::vector<T> v) {
   }
   else {
     boost::random::uniform_int_distribution<> dist(0, v.size() - 1);
-    //element = v[dist(gen)];
-    element = v[dist(rng)];
+    element = v[dist(gen)];
   }
   return element;
 }
@@ -45,7 +42,7 @@ class KDE {
   // Not sure this is the correct way to do it.
   double mu;
 
-  std::vector<double> resample(int n_samples, std::mt19937 rng = std::mt19937(std::chrono::high_resolution_clock::now().time_since_epoch().count()));
+  std::vector<double> resample(int n_samples, std::mt19937 rng);
   std::vector<double> resample(int n_samples);
   double pdf(double x);
   std::vector<double> pdf(std::vector<double> v);
