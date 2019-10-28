@@ -83,7 +83,6 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
       }
     }
   }
-  G.initialize_random_number_generator();
   return G;
 }
 
@@ -162,7 +161,6 @@ AnalysisGraph::from_uncharted_json_dict(nlohmann::json json_data) {
     string text = stmt["evidence"][0]["text"].get<string>();
     G.add_edge(causal_fragment);
   }
-  G.initialize_random_number_generator();
   return G;
 }
 

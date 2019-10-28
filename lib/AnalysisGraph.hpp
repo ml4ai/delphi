@@ -53,6 +53,7 @@ class AnalysisGraph {
 
   public:
   AnalysisGraph() {}
+  void set_random_seed(int seed);
   Node& operator[](std::string);
   Node& operator[](int);
   Edge& edge(EdgeDescriptor);
@@ -136,6 +137,7 @@ class AnalysisGraph {
   std::unordered_map<std::string, int> name_to_vertex = {};
 
   private:
+  RNG* rng_instance;
   void clear_state();
 
   // Keeps track of indicators in CAG to ensure there are no duplicates.
@@ -404,6 +406,7 @@ class AnalysisGraph {
                             2 * get_vertex_id(source_vertex_name) + 1);
   }
 
+  void construct_beta_pdfs(std::mt19937 rng);
   void construct_beta_pdfs();
 
   AnalysisGraph
