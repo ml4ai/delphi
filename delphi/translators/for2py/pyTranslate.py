@@ -287,6 +287,8 @@ class PythonCodeGenerator(object):
             ),
         )
         self.pyStrings.append("):")
+        if printState.sep != "\n":
+            printState.sep = "\n"
         self.printAst(
             node["body"],
             printState.copy(
@@ -1200,6 +1202,8 @@ class PythonCodeGenerator(object):
                     else:
                         self.pyStrings.append(f"{var_name}: List[{varType}]")
                 else:
+                    # DEBUG
+                    print ("    - printState.functionScope: ", printState.functionScope)
                     self.pyStrings.append(
                         f"{var_name}: List[{varType}] = " f"[{initVal}]"
                     )
