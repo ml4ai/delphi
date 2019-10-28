@@ -238,11 +238,6 @@ class GrFNGenerator(object):
             This function generates the GrFN structure by parsing through the
             python AST
         """
-        # DEBUG
-        #if isinstance (node, list):
-            #print (dump_ast(node[0]))
-        #else:
-            #print (dump_ast(node))
         # Look for code that is not inside any function.
         if state.function_name is None and not any(
                 isinstance(node, t) for t in self.types
@@ -3502,11 +3497,6 @@ def create_grfn_dict(
     generator.mode_mapper = mode_mapper_dict[0]
     generator.fortran_file = original_file
 
-    # DEBUG
-    #print ("    * generator.mode_mapper:")
-    #print ("    ", generator.mode_mapper)
-    #print ("    len(imports): ", len(generator.mode_mapper["imports"]))
-
     try:
         filename_regex = re.compile(r"(?P<path>.*/)(?P<filename>.*).py")
         file_match = re.match(filename_regex, file_name)
@@ -3522,8 +3512,6 @@ def create_grfn_dict(
         if module_file_exist:
             module_file_path = file_name
             module_name = filename[2:]  # First two elements are "m_"
-            # DEBUG
-            print ("    * module_file_path-module_name: ", module_file_path, '-', module_name)
             org_file = get_original_file_name(original_file)
             file_name = path + org_file
         else:
@@ -3544,10 +3532,6 @@ def create_grfn_dict(
 
     grfn = generator.gen_grfn(asts, state, "")[0]
 
-    # DEBUG
-    print ("    * generator.mode_mapper['use_mapping']: ", generator.mode_mapper["use_mapping"])
-    print ("    * generator.module_names: ", generator.module_names)
-    print ("    * module_file_exist: ", module_file_exist)
     if len(generator.mode_mapper["use_mapping"]) > 0:
         for user, module in generator.mode_mapper["use_mapping"].items():
             if (
@@ -3557,13 +3541,9 @@ def create_grfn_dict(
                 module_paths = []
                 for import_mods in module:
                     for mod_name, target in import_mods.items():
-                        # DEBUG
-                        # print ("    * mod_name: ", mod_name)
                         module_path = path + "m_" + mod_name + "_GrFN.json"
                         module_paths.append(module_path)
                 module_import_paths[user] = module_paths
-        # DEBUG
-        print ("    * module_import_paths: ", module_import_paths, "\n")
 
     # If the GrFN has a `start` node, it will refer to the name of the
     # PROGRAM module which will be the entry point of the GrFN.
@@ -3683,8 +3663,6 @@ def generate_system_def(python_list: List[str], component_list: List[str], modul
     if os.path.isfile(system_filepath):
         with open(system_filepath, "r") as f:
             systems_def = json.load(f)
-            # DEBUG
-            print (" * systems_def: ", systems_def)
             systems_def['systems'].append(system_def)
     else:
         systems_def = {'systems': [system_def]}
@@ -3742,11 +3720,21 @@ def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
             lambda_file, [ast_string], python_list[index], module_mapper,
             original_file_path, True, module_file_exist, module_import_paths
         )
+        # DEBUG
+        if module_file_exist:
+            print ("    * file_name: ", file_name)
+            print ("    * python_list[index][:-3]: ", python_list[index][:-3])
+            print ("    * path: ", path)
+            main_python_file = path + file_name + ".py"
+            python_list[index] = main_python_file
         grfn_filepath_list.append(grfn_file)
         # Write each GrFN JSON into a file
         with open(grfn_file, "w") as file_handle:
             file_handle.write(json.dumps(grfn_dict, sort_keys=True, indent=2))
-
+    
+    # DEBUG
+    print ("    * python_list: ", python_list)
+    print ("    * grfn_filepath_list: ", grfn_filepath_list, "\n")
     # Finally, write the <systems.json> file which gives a mapping of all the
     # GrFN files related to the system.
     generate_system_def(python_list, grfn_filepath_list, module_import_paths)
