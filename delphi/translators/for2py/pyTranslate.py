@@ -1202,8 +1202,6 @@ class PythonCodeGenerator(object):
                     else:
                         self.pyStrings.append(f"{var_name}: List[{varType}]")
                 else:
-                    # DEBUG
-                    print ("    - printState.functionScope: ", printState.functionScope)
                     self.pyStrings.append(
                         f"{var_name}: List[{varType}] = " f"[{initVal}]"
                     )
