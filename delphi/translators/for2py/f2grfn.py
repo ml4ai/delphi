@@ -53,8 +53,13 @@ OFP_JAR_FILES = [
 """
 
 GENERATED_FILE_PATHS = []
+"""A list of all the file paths that were generated during f2grfn process.
+"""
+
 
 MODULE_FILE_PREFIX = "m_"
+"""Module file prefix that all generated python module files will be specified with.
+"""
 
 def generate_ofp_xml(preprocessed_fortran_file, ofp_file, tester_call):
     """ This function executes Java command to run open
@@ -365,6 +370,14 @@ def generate_grfn(
             file_handle.write(json.dumps(grfn_dict, sort_keys=True, indent=2))
 
 def is_module_file(filename):
+    """This function is to check whether the handling
+    file is a module file or not.
+    Args:
+        filename (str): Name of a file.
+    Returns:
+        (bool) True if it is a module file.
+        (bool) False, if it is not a module file.
+    """
     if filename.startswith(MODULE_FILE_PREFIX):
         return True
     else:
