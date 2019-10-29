@@ -225,14 +225,7 @@ def generate_python_src(
     output_list = []
     for item in python_source:
         if item[2] == "module":
-            module_file = f"{temp_dir}/m_{item[1].lower()}.py"
-            try:
-                with open(module_file, "w") as f:
-                    output_list.append("m_" + item[1].lower() + ".py")
-                    f.write(item[0])
-            except IOError:
-                assert False, f"Unable to write to {module_file}."
-            python_files.append(module_file)
+            module_file_generator(item, temp_dir, output_list, python_files)            
         else:
             try:
                 with open(python_files[0], "w") as f:
@@ -250,6 +243,29 @@ def generate_python_src(
 
     return python_source
 
+def module_file_generator(item, temp_dir, output_list, python_files):
+    """This function extracts a translated module from
+    the python source and generates a new separate python file.
+
+    Args:
+        item (list): A list that each element holds a translated
+        python source in string.
+        temp_dir (str): A path to the temporary directory that will
+        hold generated files.
+        output_list (list): A list that holds list of output files.
+        python_files (list): A list that holds the generated python
+        python file paths.
+    ReturnL
+        None
+    """
+    module_file = f"{temp_dir}/m_{item[1].lower()}.py"
+    try:
+        with open(module_file, "w") as f:
+            output_list.append("m_" + item[1].lower() + ".py")
+            f.write(item[0])
+    except IOError:
+        assert False, f"Unable to write to {module_file}."
+    python_files.append(module_file)
 
 def generate_grfn(
     python_source_string, python_filename, lambdas_file_suffix,
