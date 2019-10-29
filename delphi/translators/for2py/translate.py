@@ -174,6 +174,8 @@ class XML_to_JSON_translator(object):
         # This list holds the nodes of the file handles that needs to be
         # SAVEd in the python translated code.
         self.saved_filehandle = []
+        self.is_return = False
+        self.is_break = False
 
     def process_subroutine_or_program_module(self, root, state):
         """ This function should be the very first function to be called """
@@ -542,6 +544,7 @@ class XML_to_JSON_translator(object):
                         False
                     ), f"Unrecognized tag in the process_loop for 'do' type." \
                         f"{node.tag}"
+            self.search_returns(do)
             return [do]
         elif root.attrib["type"] == "do-while":
             doWhile = {"tag": "do-while"}
@@ -550,6 +553,7 @@ class XML_to_JSON_translator(object):
                     doWhile["header"] = self.parseTree(node, state)
                 elif node.tag == "body":
                     doWhile["body"] = self.parseTree(node, state)
+            self.search_returns(doWhile)
             return [doWhile]
         else:
             self.unhandled_tags.add(root.attrib["type"])
@@ -867,7 +871,8 @@ class XML_to_JSON_translator(object):
     def process_terminal(self, root, state) -> List[Dict]:
         """Handles tags that terminate the computation of a
         program unit, namely, "return", "stop", and "exit" """
-
+        if root.tag == 'exit':
+            self.is_break = True
         return [{"tag": root.tag}]
 
     """
@@ -966,6 +971,16 @@ class XML_to_JSON_translator(object):
            tag."""
         return [{"tag":root.tag}]
 
+    def search_returns(self, item):
+        for items in item["body"]:
+            if items["tag"] == 'if':
+                for if_body in items["body"]:
+                    if if_body["tag"] == 'stop':
+                        self.is_return = True
+                        break
+            if self.is_return:
+                break
+
     def parseTree(self, root, state: ParseState) -> List[Dict]:
         """
         Parses the XML ast tree recursively to generate a JSON AST
@@ -1026,8 +1041,6 @@ class XML_to_JSON_translator(object):
         for tree in trees:
             ast += self.parseTree(tree, ParseState())
 
-        # Handle loop breaks and returns
-        # ast = loop_breaks(ast)
 
         """
         Find the entry point for the Fortran file.
@@ -1072,8 +1085,12 @@ def xml_to_py(trees, fortran_file):
     translator = XML_to_JSON_translator()
     output_dict = translator.analyze(trees)
 
-    refactor_breaks = RefactorBreaks()
-    output_dict = refactor_breaks.refactor(output_dict)
+    # Only go through with the handling of breaks and returns if they are
+    # actually there
+    if translator.is_break or translator.is_return:
+        refactor_breaks = RefactorBreaks()
+        output_dict = refactor_breaks.refactor(output_dict,
+                                               translator.is_return)
 
     comments = get_comments(fortran_file)
     output_dict["comments"] = comments

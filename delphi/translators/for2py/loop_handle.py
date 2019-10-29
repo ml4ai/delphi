@@ -35,10 +35,10 @@ class RefactorBreaks(object):
         self.shifted_items = {}
         self.shifted_level = 0
 
-    def refactor(self, ast: Dict) -> Dict:
+    def refactor(self, ast: Dict, return_present: bool) -> Dict:
         body = ast["ast"][0]["body"]
-        self.search_while(body)
-
+        if return_present:
+            self.search_while(body)
         # self.search_breaks(body)
         return ast
 
@@ -69,7 +69,6 @@ class RefactorBreaks(object):
     def shift_into_ifs(self, body):
         catch_now = False
         for item in body[:]:
-            print(catch_now, item)
             if catch_now:
                 self.shifted_items[self.shifted_level] = copy.deepcopy(item)
             if item["tag"] == "if":
@@ -77,13 +76,13 @@ class RefactorBreaks(object):
                 self.shift_into_ifs(item["body"])
                 if item.get("else"):
                     self.shift_into_ifs(item["else"])
-        print('\n')
         self.shifted_level += 1
 
     def search_while(self, body):
         for item in body[:]:
             # Currently, breaks and returns are only inside the bodies of
             # `while` functions
+            # TODO They can be anywhere
             if self.return_found:
                 if item.get('tag') != "format":
                     self.new_outer.append(item)
@@ -146,6 +145,9 @@ class RefactorBreaks(object):
                 for if_body in items["body"]:
                     if if_body["tag"] == 'stop':
                         self.return_found = True
+                        break
+            if self.return_found:
+                break
 
         return self.return_found
 
