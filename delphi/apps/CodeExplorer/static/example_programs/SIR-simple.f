@@ -14,9 +14,10 @@ C     recovered   Current state dependent rate of recovery
       subroutine sir(S, I, R, beta, gamma, dt)
         implicit none
         double precision S, I, R, beta, gamma, dt
-        double precision infected, recovered
-
-        infected = (-(beta*S*I) / (S + I + R)) * dt
+        double precision infected, recovered, i_rate, N
+        i_rate = -beta*S*I
+        N = S+I+R
+        infected =  (i_rate / N) * dt
         recovered = (gamma*I) * dt
 
         S = S - infected

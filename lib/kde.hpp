@@ -9,9 +9,8 @@
 /**
  * Returns a randomly selected element of a vector.
  */
-template <class T> T select_random_element(std::vector<T> v) {
+template <class T> T select_random_element(std::vector<T> v, std::mt19937 gen) {
   using namespace std;
-  mt19937 gen = RNG::rng()->get_RNG();
   T element;
   if (v.size() == 0) {
     throw "Vector is empty, so we cannot select a random element from it. "
@@ -43,6 +42,7 @@ class KDE {
   // Not sure this is the correct way to do it.
   double mu;
 
+  std::vector<double> resample(int n_samples, std::mt19937 rng);
   std::vector<double> resample(int n_samples);
   double pdf(double x);
   std::vector<double> pdf(std::vector<double> v);
