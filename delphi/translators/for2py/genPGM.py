@@ -730,6 +730,10 @@ class GrFNGenerator(object):
         loop_check_variable = self.generate_variable_definition("IF_0",
                                                                 None,
                                                                 loop_state)
+
+        loop_state.next_definitions["#cond"] = 1
+        loop_state.last_definitions["#cond"] = 0
+
         loop_check_function_name = self.generate_function_name(
             "__condition__",
             loop_check_variable["name"],
@@ -1044,7 +1048,7 @@ class GrFNGenerator(object):
             "output": function_output,
             "updated": function_updated
         }
-        # print(loop_function)
+
         loop_container = [loop_container] + body_container_grfn
         loop_variables = body_variables_grfn + loop_variables_grfn
         grfn = {
@@ -1174,6 +1178,10 @@ class GrFNGenerator(object):
         loop_check_variable = self.generate_variable_definition("IF_0",
                                                                 None,
                                                                 loop_state)
+
+        loop_state.next_definitions["#cond"] = 1
+        loop_state.last_definitions["#cond"] = 0
+
         loop_check_function_name = self.generate_function_name(
             "__condition__",
             loop_check_variable["name"],
@@ -1554,33 +1562,30 @@ class GrFNGenerator(object):
             loop_break_variable = self.generate_variable_definition("EXIT",
                                                                     None,
                                                                     else_state)
-            loop_break_function_name = self.generate_function_name(
-                "__decision__",
-                loop_break_variable["name"],
-                None
-            )
-            loop_break_function = {
-                "function": loop_break_function_name,
-                "input": [
-                    f"@variable::{var['var']['variable']}::"
-                    f"{var['var']['index']}"
-                    for var in condition_variables
-                ],
-                "output": [
-                    f"@variable::EXIT::{exit_index}"
-                ],
-                "updated": []
-            }
-            else_grfn[0]["functions"][0] = loop_break_function
             else_grfn[0]["variables"].append(loop_break_variable)
+
+        if len(if_grfn) > 0 \
+                and isinstance(if_grfn[0]["functions"][0], str) \
+                and if_grfn[0]["functions"][0] == "insert_break":
+            # Get next def of EXIT
+            exit_index = self._get_next_definition("EXIT",
+                                                   if_state.last_definitions,
+                                                   state.next_definitions,
+                                                   0)
+            loop_break_variable = self.generate_variable_definition("EXIT",
+                                                                    None,
+                                                                    if_state)
+            if_grfn[0]["variables"].append(loop_break_variable)
 
         for spec in if_grfn:
             grfn["functions"] += spec["functions"]
             grfn["variables"] += spec["variables"]
+            grfn["containers"] += spec["containers"]
 
         for spec in else_grfn:
             grfn["functions"] += spec["functions"]
             grfn["variables"] += spec["variables"]
+            grfn["containers"] += spec["containers"]
 
         updated_definitions = [
             var
@@ -1703,6 +1708,7 @@ class GrFNGenerator(object):
             for spec in elseif_grfn:
                 grfn["functions"] += spec["functions"]
                 grfn["variables"] += spec["variables"]
+                grfn["containers"] += spec["containers"]
 
         return [grfn]
 
@@ -2127,15 +2133,22 @@ class GrFNGenerator(object):
                 if target["var"]["variable"] not in self.annotated_assigned:
                     self.annotated_assigned.append(target["var"]["variable"])
 
+                # Check if these variables are io variables. We don't maintain
+                # states for io variables. So, don't add them on the
+                # last_definitions and next_definitions dict.
+                io_match = self.check_io_variables(target["var"]["variable"])
+                if io_match:
+                    self.exclude_list.append(target["var"]["variable"])
                 # When a variable is AnnAssigned with [None] it is being
                 # declared but not defined. So, it should not be assigned an
                 # index. Having the index as -2 indicates that this variable
                 # has only been declared but never defined. The next
                 # definition of this variable should start with an index of 0
                 # though.
-                target['var']['index'] = -2
-                state.last_definitions[target['var']['variable']] = -2
-                state.next_definitions[target['var']['variable']] = 0
+                if not io_match:
+                    target['var']['index'] = -2
+                    state.last_definitions[target['var']['variable']] = -2
+                    state.next_definitions[target['var']['variable']] = 0
             return []
 
         grfn = {"functions": [], "variables": [], "containers": []}
