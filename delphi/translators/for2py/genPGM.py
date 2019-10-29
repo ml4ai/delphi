@@ -3497,6 +3497,11 @@ def create_grfn_dict(
     generator.mode_mapper = mode_mapper_dict[0]
     generator.fortran_file = original_file
 
+    # Currently, we are specifying the module file with
+    # a prefix "m_", this may be changed in the future.
+    # If it requires a change, simply modify this below prefix.
+    module_file_prefix = "m_"
+
     try:
         filename_regex = re.compile(r"(?P<path>.*/)(?P<filename>.*).py")
         file_match = re.match(filename_regex, file_name)
@@ -3511,7 +3516,8 @@ def create_grfn_dict(
         module_name = None
         if module_file_exist:
             module_file_path = file_name
-            module_name = filename[2:]  # First two elements are "m_"
+            # Ignoring the module file prefix
+            module_name = filename[len(module_file_prefix):]
             org_file = get_original_file_name(original_file)
             file_name = path + org_file
         else:
@@ -3541,7 +3547,7 @@ def create_grfn_dict(
                 module_paths = []
                 for import_mods in module:
                     for mod_name, target in import_mods.items():
-                        module_path = path + "m_" + mod_name + "_GrFN.json"
+                        module_path = path + module_file_prefix + mod_name + "_GrFN.json"
                         module_paths.append(module_path)
                 module_import_paths[user] = module_paths
 

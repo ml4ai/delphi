@@ -54,6 +54,8 @@ OFP_JAR_FILES = [
 
 GENERATED_FILE_PATHS = []
 
+MODULE_FILE_PREFIX = "m_"
+
 def generate_ofp_xml(preprocessed_fortran_file, ofp_file, tester_call):
     """ This function executes Java command to run open
     fortran parser to generate initial AST XML from
@@ -258,14 +260,15 @@ def module_file_generator(item, temp_dir, output_list, python_files):
     ReturnL
         None
     """
-    module_file = f"{temp_dir}/m_{item[1].lower()}.py"
+    module_file_name = f"{MODULE_FILE_PREFIX}{item[1].lower()}.py"
+    module_file_path = f"{temp_dir}/{module_file_name}"
     try:
-        with open(module_file, "w") as f:
-            output_list.append("m_" + item[1].lower() + ".py")
+        with open(module_file_name, "w") as f:
+            output_list.append(module_file_name)
             f.write(item[0])
     except IOError:
         assert False, f"Unable to write to {module_file}."
-    python_files.append(module_file)
+    python_files.append(module_file_path)
 
 def generate_grfn(
     python_source_string, python_filename, lambdas_file_suffix,
@@ -311,16 +314,15 @@ def generate_grfn(
     path = file_match.group("path")
     filename = file_match.group("filename")
 
+    module_file_exist = is_module_file(filename)
+
     # Ignore all python files of modules created by `pyTranslate.py`
     # since these module files do not contain a corresponding XML file.
-    if not filename.startswith("m_"):
-        xml_file = f"{path}rectified_{filename}.xml"
-        # Calling the `get_index` function in `mod_index_generator.py` to
-        # map all variables and objects in the various files
-    else:
-        module_file_exist = True 
+    if module_file_exist:
         file_name = genPGM.get_original_file_name(original_fortran_file)
         xml_file = f"{path}rectified_{file_name}.xml"
+    else:
+        xml_file = f"{path}rectified_{filename}.xml"
 
     # Calling the `get_index` function in `mod_index_generator.py` to
     # map all variables and objects in the various files
@@ -361,6 +363,12 @@ def generate_grfn(
         # Write each GrFN JSON into a file
         with open(grfn_file, "w") as file_handle:
             file_handle.write(json.dumps(grfn_dict, sort_keys=True, indent=2))
+
+def is_module_file(filename):
+    if filename.startswith(MODULE_FILE_PREFIX):
+        return True
+    else:
+        return False
 
 def parse_args():
     """This function is for a safe command line
