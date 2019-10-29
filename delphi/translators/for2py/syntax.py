@@ -334,3 +334,20 @@ F_INTRINSICS = frozenset(['abs', 'abort', 'access', 'achar', 'acos', 'acosd',
     'time', 'time8', 'tiny', 'trailz', 'transfer', 'transpose', 'trim', 'ttynam', 
     'ubound', 'ucobound', 'umask', 'unlink', 'unpack', 'verify', 'xor'])
 
+
+################################################################################
+#                                                                              #
+#                       NEGATED OPERATIONS MAPPING                             #
+#                                                                              #
+################################################################################
+
+NEGATED_OP = {
+                ".le." : ".gt.",
+                ".ge." : ".lt.",
+                ".lt." : ".ge.",
+                ".gt." : ".le.",
+                ".eq." : ".ne.",
+                ".ne." : ".eq.",
+                "<=" : ">",
+                ">=" : "<"
+              }

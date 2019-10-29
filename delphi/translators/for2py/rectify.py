@@ -25,19 +25,8 @@ import os
 import sys
 import argparse
 import xml.etree.ElementTree as ET
-from delphi.translators.for2py import For2PyError
+from delphi.translators.for2py import For2PyError, syntax
 
-# Dictionary of negated operations
-NEGATED_OP = {
-                ".le." : ".gt.",
-                ".ge." : ".lt.",
-                ".lt." : ".ge.",
-                ".gt." : ".le.",
-                ".eq." : ".ne.",
-                ".ne." : ".eq.",
-                "<=" : ">",
-                ">=" : "<"
-              }
 
 class RectifyOFPXML:
     def __init__(self):
@@ -1843,7 +1832,7 @@ class RectifyOFPXML:
                     child.tag == "operator"
                     and self.need_op_negation
             ):
-                child.attrib['operator'] = NEGATED_OP[child.attrib['operator']]
+                child.attrib['operator'] = syntax.NEGATED_OP[child.attrib['operator']]
                 self.need_op_negation = False
             cur_elem = ET.SubElement(
                 current, child.tag, child.attrib
