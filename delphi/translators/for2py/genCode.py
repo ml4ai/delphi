@@ -41,6 +41,8 @@ class genCode:
             "ast.Div": self._process_divide,
             "ast.USub": self._process_unary_subtract,
             "ast.Eq": self._process_equals_to,
+            "ast.NotEq": self._process_not_equal_to,
+            "ast.Not": self._process_not,
             "ast.LtE": self._process_less_than_or_equal_to,
             "ast.Lt": self._process_less_than,
             "ast.Gt": self._process_greater_than,
@@ -230,6 +232,16 @@ class genCode:
     @staticmethod
     def _process_equals_to(*_):
         code_string = "=="
+        return code_string
+
+    @staticmethod
+    def _process_not_equal_to(*_):
+        code_string = "!="
+        return code_string
+
+    @staticmethod
+    def _process_not(*_):
+        code_string = "not"
         return code_string
 
     @staticmethod

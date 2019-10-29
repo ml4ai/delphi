@@ -223,6 +223,7 @@ class GrFNGenerator(object):
             "ast.NameConstant": self._process_nameconstant,
             "ast.Return": self.process_return_value,
             "ast.While": self.process_while,
+            "ast.Break": self.process_break,
         }
 
     def gen_grfn(self, node, state, call_source):
@@ -744,6 +745,8 @@ class GrFNGenerator(object):
         loop_break_variable = self.generate_variable_definition("EXIT",
                                                                 None,
                                                                 loop_state)
+        loop_state.next_definitions["EXIT"] = 1
+
         loop_break_function_name = self.generate_function_name(
             "__decision__",
             loop_break_variable["name"],
@@ -827,6 +830,10 @@ class GrFNGenerator(object):
         # Get a list of all variables that were used as inputs within the
         # loop body (nested as well).
         loop_body_inputs = []
+
+        # Get only the dictionaries
+        body_functions_grfn = [item for item in body_functions_grfn if
+                               isinstance(item, dict)]
         for function in body_functions_grfn:
             if function['function']['type'] == 'lambda':
                 for ip in function['input']:
@@ -873,7 +880,8 @@ class GrFNGenerator(object):
         for item in loop_body_inputs:
             # TODO Hack for now, this should be filtered off from the code
             #  block above
-            if 'IF' not in item:
+            if 'IF' not in item and \
+                    state.last_definitions.get(item) is not None:
                 function_input.append(f"@variable::{item}::"
                                       f"{state.last_definitions[item]}")
                 container_argument.append(f"@variable::{item}::-1")
@@ -933,7 +941,9 @@ class GrFNGenerator(object):
             #  implement them.
             # TODO: Hack, this IF check should not even appear in
             #  loop_body_outputs
-            if 'IF' not in item:
+            if 'IF' not in item \
+                    and "EXIT" not in item \
+                    and state.last_definitions.get(item) is not None:
                 if state.last_definitions[item] == -2:
                     updated_index = 0
                 else:
@@ -1034,6 +1044,7 @@ class GrFNGenerator(object):
             "output": function_output,
             "updated": function_updated
         }
+        # print(loop_function)
         loop_container = [loop_container] + body_container_grfn
         loop_variables = body_variables_grfn + loop_variables_grfn
         grfn = {
@@ -1178,6 +1189,9 @@ class GrFNGenerator(object):
         loop_break_variable = self.generate_variable_definition("EXIT",
                                                                 None,
                                                                 loop_state)
+        # Increment the next definition of EXIT
+        loop_state.next_definitions["EXIT"] = 1
+
         loop_break_function_name = self.generate_function_name(
             "__decision__",
             loop_break_variable["name"],
@@ -1229,6 +1243,10 @@ class GrFNGenerator(object):
         # Get a list of all variables that were used as inputs within the
         # loop body (nested as well).
         loop_body_inputs = []
+
+        # Get only the dictionaries
+        body_functions_grfn = [item for item in body_functions_grfn if
+                               isinstance(item, dict)]
         for function in body_functions_grfn:
             if function['function']['type'] == 'lambda':
                 for ip in function['input']:
@@ -1273,7 +1291,8 @@ class GrFNGenerator(object):
         for item in loop_body_inputs:
             # TODO Hack for now, this should be filtered off from the code
             #  block above
-            if 'IF' not in item:
+            if 'IF' not in item and \
+                    state.last_definitions.get(item) is not None:
                 function_input.append(f"@variable::{item}::"
                                       f"{state.last_definitions[item]}")
                 container_argument.append(f"@variable::{item}::-1")
@@ -1333,8 +1352,10 @@ class GrFNGenerator(object):
             #  implement them.
             # TODO: Hack, this IF check should not even appear in
             #  loop_body_outputs
-            if 'IF' not in item:
-                if state.last_definitions[item] == -2:
+            if 'IF' not in item \
+                    and "EXIT" not in item \
+                    and state.last_definitions.get(item) is not None:
+                if (state.last_definitions[item] == -2) or (item == "EXIT"):
                     updated_index = 0
                 else:
                     updated_index = state.last_definitions[item] + 1
@@ -1418,7 +1439,6 @@ class GrFNGenerator(object):
         """
         # The `is_break` variable lets you know whether the if condition is
         # related to a break (return) from the function or not.
-        is_break = False
         scope_path = state.scope_path.copy()
         if len(scope_path) == 0:
             scope_path.append("@global")
@@ -1427,6 +1447,8 @@ class GrFNGenerator(object):
         grfn = {"functions": [], "variables": [], "containers": []}
         # Get the GrFN schema of the test condition of the `IF` command
         condition_sources = self.gen_grfn(node.test, state, "if")
+        condition_variables = self.get_variables(condition_sources)
+
         # The index of the IF_x_x variable will start from 0
         if state.last_definition_default in (-1, 0, -2):
             # default_if_index = state.last_definition_default + 1
@@ -1441,8 +1463,8 @@ class GrFNGenerator(object):
             state.next_definitions["#cond"] = condition_number + 1
             condition_name = f"IF_{condition_number}"
             condition_index = self.get_last_definition(condition_name,
-                                                        state.last_definitions,
-                                                        0)
+                                                       state.last_definitions,
+                                                       0)
         else:
             condition_number = self.elif_condition_number
             condition_name = f"IF_{condition_number}"
@@ -1476,7 +1498,7 @@ class GrFNGenerator(object):
             "function": function_name,
             "input": [
                 f"@variable::{src['var']['variable']}::{src['var']['index']}"
-                for src in condition_sources
+                for src in condition_variables
                 if 'var' in src
             ],
             "output": [output_variable],
@@ -1490,7 +1512,7 @@ class GrFNGenerator(object):
             function_name["name"],
             False,
             False,
-            [src["var"]['variable'] for src in condition_sources if
+            [src["var"]['variable'] for src in condition_variables if
              "var" in src],
             state,
             False
@@ -1517,13 +1539,42 @@ class GrFNGenerator(object):
         # another `if-else` block
         else_node_name = node.orelse.__repr__().split()[0][3:]
 
-        is_break = self._check_break(if_grfn)
-
         if else_node_name != "ast.If":
             else_grfn = self.gen_grfn(node.orelse, else_state, "if")
         else:
             else_grfn = []
             self.elif_condition_number = condition_number
+
+        if len(else_grfn) > 0 \
+                and isinstance(else_grfn[0]["functions"][0], str) \
+                and else_grfn[0]["functions"][0] == "insert_break":
+            # Get next def of EXIT
+            exit_index = self._get_next_definition("EXIT",
+                                                   else_state.last_definitions,
+                                                   state.next_definitions,
+                                                   0)
+            loop_break_variable = self.generate_variable_definition("EXIT",
+                                                                    None,
+                                                                    else_state)
+            loop_break_function_name = self.generate_function_name(
+                "__decision__",
+                loop_break_variable["name"],
+                None
+            )
+            loop_break_function = {
+                "function": loop_break_function_name,
+                "input": [
+                    f"@variable::{var['var']['variable']}::"
+                    f"{var['var']['index']}"
+                    for var in condition_variables
+                ],
+                "output": [
+                    f"@variable::EXIT::{exit_index}"
+                ],
+                "updated": []
+            }
+            else_grfn[0]["functions"][0] = loop_break_function
+            else_grfn[0]["variables"].append(loop_break_variable)
 
         for spec in if_grfn:
             grfn["functions"] += spec["functions"]
@@ -1536,11 +1587,11 @@ class GrFNGenerator(object):
         updated_definitions = [
             var
             for var in set(start_definitions.keys())
-                .union(if_definitions.keys())
-                .union(else_definitions.keys())
-            if var not in start_definitions
-               or if_definitions[var] != start_definitions[var]
-               or else_definitions[var] != start_definitions[var]
+            .union(if_definitions.keys())
+            .union(else_definitions.keys())
+            if var not in start_definitions or if_definitions[var] !=
+            start_definitions[var] or else_definitions[var] !=
+            start_definitions[var]
         ]
 
         # For every updated variable in the `if-else` block, get a list of
@@ -1556,6 +1607,22 @@ class GrFNGenerator(object):
                 ]
                 if version is not None
             ]
+
+        # There might be cases where a variable is only defined within an `if`
+        # or an `else` block and nowhere within the container. Example below:
+        # while (x < 5):
+        #    a = 2
+        #    if (a > 4):
+        #       a = 2
+        #    else:
+        #       x = 3
+        # Here, `x` will only have one index in `defined_versions`. We add a
+        # `-1' to this defined version
+        for updated_definitions in defined_versions:
+            if len(defined_versions[updated_definitions]) == 1:
+                defined_versions[updated_definitions] = \
+                    [-1] + defined_versions[updated_definitions]
+
         # For every updated identifier, we need one __decision__ block. So
         # iterate over all updated identifiers.
         for updated_definition in defined_versions:
@@ -2435,13 +2502,13 @@ class GrFNGenerator(object):
         return [grfn]
 
     @staticmethod
-    def _check_break(grfn_body):
+    def process_break(*_):
         """
-            This function checks if the grfn body is related to a break from
-            the function call. This happens when there is a `return` or
-            `continue`
+            Process the breaks in the file, adding an EXIT node
         """
-
+        grfn = {"functions": ['insert_break'], "variables": [], "containers":
+                []}
+        return [grfn]
 
     @staticmethod
     def process_ast(node, *_):
@@ -3357,6 +3424,23 @@ class GrFNGenerator(object):
         """
         # return list(set(input_list))
         return list(OrderedDict.fromkeys(input_list))
+
+    def get_variables(self, condition_sources):
+        variable_list = list()
+        for item in condition_sources:
+            if isinstance(item, dict) and "var" in item:
+                variable_list.append(item)
+            elif isinstance(item, list):
+                variable_list += self.get_variables(item)
+
+        # Remove any duplicate dictionaries from the list. This is done to
+        # preserve ordering.
+        # Reference: https://www.geeksforgeeks.org/
+        # python-removing-duplicate-dicts-in-list/
+        variable_list = [i for n, i in enumerate(variable_list) if
+                         i not in variable_list[n + 1:]]
+
+        return variable_list
 
 
 def get_path(file_name: str, instance: str):

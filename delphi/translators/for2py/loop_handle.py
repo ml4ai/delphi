@@ -48,7 +48,6 @@ class RefactorBreaks(object):
         self.search_while(body)
 
         # self.search_breaks(body)
-        ast["ast"][0]["body"] = body
         return ast
 
     def search_breaks(self, body):
