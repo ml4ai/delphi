@@ -1414,19 +1414,23 @@ void AnalysisGraph::sample_from_proposal() {
   }
   else if ( this->perturb_choice < 2.0 / this->choices) {
     //cout << this->A_original(1, 0) << " + " << pert << " = " << this->A_original(1, 0) + pert << endl;
+    this->prev_value = this->A_original(1, 0);
     this->A_original(1, 0) += pert;
     //cout << "Change (1, 0) by ";
   }
   else if ( this->perturb_choice < 3.0 / this->choices) {
     //cout << this->A_original(1, 1) << " + " << pert << " = " << this->A_original(1, 1) + pert << endl;
+    this->prev_value = this->A_original(1, 1);
     this->A_original(1, 1) += pert;
     //cout << "Change (1, 1) by ";
   }
   else if ( this->perturb_choice < 4.0 / this->choices) {
+    this->prev_value = this->A_original(3, 2);
     this->A_original(3, 2) += pert;
     //cout << "Change (3, 2) by ";
   }
   else if ( this->perturb_choice < 5.0 / this->choices) {
+    this->prev_value = this->A_original(3, 3);
     this->A_original(3, 3) += pert;
     //cout << "Change (3, 3) by ";
   }

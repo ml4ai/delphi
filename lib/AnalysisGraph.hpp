@@ -139,7 +139,7 @@ class AnalysisGraph {
   private:
   double perturb_choice;
   double prev_value;
-  int choices = 3;
+  int choices = 5;
 
   RNG* rng_instance;
   void clear_state();
