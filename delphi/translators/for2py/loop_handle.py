@@ -34,12 +34,14 @@ class RefactorBreaks(object):
         self.is_break = False
         self.shifted_items = {}
         self.shifted_level = 0
+        self.append_dict = {}
+        self.break_depth = None
 
     def refactor(self, ast: Dict, return_present: bool) -> Dict:
         body = ast["ast"][0]["body"]
         if return_present:
             self.search_while(body)
-        # self.search_breaks(body)
+        self.search_breaks(body)
         return ast
 
     def search_breaks(self, body):
@@ -47,36 +49,40 @@ class RefactorBreaks(object):
         for item in body:
             if item["tag"] in ["do", "do-while"]:
                 # Start the tagging process
-                self.tag_conditionals(item["body"])
-                if self.is_break:
-                    self.shift_into_ifs(item["body"])
+                self.tag_break(item["body"], 0)
+                self.append_ends(item["body"], 0)
 
-    def tag_conditionals(self, body):
-        for item in body:
+    def tag_break(self, body, if_depth):
+        for item in body[:]:
+            if self.is_break:
+                self.append_dict[if_depth] = [item]
+                body.remove(item)
             if item["tag"] == "if":
-                item["body"].append(
-                    {
-                        "tag": f"tag_{self.tag_level}"
-                    }
-                )
-                self.tag_level += 1
-                self.tag_conditionals(item["body"])
+                self.tag_break(item["body"], if_depth+1)
                 if item.get("else"):
-                    self.tag_conditionals(item["else"])
+                    self.tag_break(item["else"], if_depth+1)
             elif item["tag"] == "exit":
                 self.is_break = True
+                self.break_depth = if_depth
 
-    def shift_into_ifs(self, body):
-        catch_now = False
-        for item in body[:]:
-            if catch_now:
-                self.shifted_items[self.shifted_level] = copy.deepcopy(item)
+    def append_ends(self, body, if_depth):
+        for item in body:
             if item["tag"] == "if":
-                catch_now = True
-                self.shift_into_ifs(item["body"])
+                for key in self.append_dict:
+                    if if_depth+1 > key:
+                        item["body"] += self.append_dict[key]
+                self.append_ends(item["body"], if_depth+1)
                 if item.get("else"):
-                    self.shift_into_ifs(item["else"])
-        self.shifted_level += 1
+                    if if_depth+1 == self.break_depth:
+                        continue
+                    if len(item["else"]) == 1 and \
+                            item["else"][0]["tag"] == "if":
+                        self.append_ends(item["else"], if_depth + 1)
+                    else:
+                        for key in self.append_dict:
+                            if if_depth+1 > key:
+                                item["else"] += self.append_dict[key]
+                        self.append_ends(item["else"], if_depth + 1)
 
     def search_while(self, body):
         for item in body[:]:
