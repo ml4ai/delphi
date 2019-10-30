@@ -137,6 +137,10 @@ class AnalysisGraph {
   std::unordered_map<std::string, int> name_to_vertex = {};
 
   private:
+  double perturb_choice;
+  double prev_value;
+  int choices = 3;
+
   RNG* rng_instance;
   void clear_state();
 

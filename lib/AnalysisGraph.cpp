@@ -4,6 +4,7 @@
 #include <boost/range/algorithm/for_each.hpp>
 #include <range/v3/all.hpp>
 #include <sqlite3.h>
+#include "dbg.h"
 
 using namespace std;
 using namespace fmt::literals;
@@ -23,7 +24,7 @@ class Node;
 class Indicator;
 
 const double TAU = 1;
-const double tuning_param = 0.0001;
+const double tuning_param = 1;//0.0001;
 
 typedef multimap<pair<int, int>, pair<int, int>>::iterator MMapIterator;
 
@@ -895,7 +896,9 @@ void AnalysisGraph::sample_initial_transition_matrix_from_prior() {
   for (auto& [row, col] : this->beta_dependent_cells) {
     this->A_original(row * 2, col * 2 + 1) =
         this->A_beta_factors[row][col]->compute_cell(this->graph);
+    cout << "row: " << row*2 << "  |  col: " << col*2+1 << endl;
   }
+  cout << this->A_original << endl;
 }
 
 int AnalysisGraph::calculate_num_timesteps(int start_year,
@@ -1388,21 +1391,47 @@ void AnalysisGraph::update_transition_matrix_cells(EdgeDescriptor e) {
 }
 
 void AnalysisGraph::sample_from_proposal() {
-  // Randomly pick an edge ≡ β
-  boost::iterator_range edge_it = this->edges();
+  this->perturb_choice = this->uni_dist(this->rand_num_generator);
+  double pert = this->uni_dist(this->rand_num_generator) * 2 - 1;
 
-  vector<EdgeDescriptor> e(1);
-  sample(
-      edge_it.begin(), edge_it.end(), e.begin(), 1, this->rand_num_generator);
+  if (this->perturb_choice < 1.0 / this->choices) {
+    // Randomly pick an edge ≡ β
+    boost::iterator_range edge_it = this->edges();
 
-  // Remember the previous β
-  this->previous_beta = make_pair(e[0], this->graph[e[0]].beta);
+    vector<EdgeDescriptor> e(1);
+    sample(
+        edge_it.begin(), edge_it.end(), e.begin(), 1, this->rand_num_generator);
 
-  // Perturb the β
-  // TODO: Check whether this perturbation is accurate
-  graph[e[0]].beta += this->norm_dist(this->rand_num_generator);
+    // Remember the previous β
+    this->previous_beta = make_pair(e[0], this->graph[e[0]].beta);
 
-  this->update_transition_matrix_cells(e[0]);
+    // Perturb the β
+    // TODO: Check whether this perturbation is accurate
+    graph[e[0]].beta += this->norm_dist(this->rand_num_generator);
+
+    this->update_transition_matrix_cells(e[0]);
+    //cout << "Change beta by ";
+  }
+  else if ( this->perturb_choice < 2.0 / this->choices) {
+    //cout << this->A_original(1, 0) << " + " << pert << " = " << this->A_original(1, 0) + pert << endl;
+    this->A_original(1, 0) += pert;
+    //cout << "Change (1, 0) by ";
+  }
+  else if ( this->perturb_choice < 3.0 / this->choices) {
+    //cout << this->A_original(1, 1) << " + " << pert << " = " << this->A_original(1, 1) + pert << endl;
+    this->A_original(1, 1) += pert;
+    //cout << "Change (1, 1) by ";
+  }
+  else if ( this->perturb_choice < 4.0 / this->choices) {
+    this->A_original(3, 2) += pert;
+    //cout << "Change (3, 2) by ";
+  }
+  else if ( this->perturb_choice < 5.0 / this->choices) {
+    this->A_original(3, 3) += pert;
+    //cout << "Change (3, 3) by ";
+  }
+  //cout << pert << endl;
+  //cout << this->A_original << endl << endl;
 }
 
 void AnalysisGraph::set_current_latent_state(int ts) {
@@ -1411,22 +1440,42 @@ void AnalysisGraph::set_current_latent_state(int ts) {
 }
 
 double AnalysisGraph::calculate_delta_log_prior() {
-  KDE& kde = this->graph[this->previous_beta.first].kde;
+  if (this->perturb_choice < 1.0 / this->choices) {
+    KDE& kde = this->graph[this->previous_beta.first].kde;
 
-  // We have to return: log( p( β_new )) - log( p( β_old ))
-  return kde.logpdf(this->graph[this->previous_beta.first].beta) -
-         kde.logpdf(this->previous_beta.second);
+    // We have to return: log( p( β_new )) - log( p( β_old ))
+    return kde.logpdf(this->graph[this->previous_beta.first].beta) -
+      kde.logpdf(this->previous_beta.second);
+  }
+  
+  return 0;
 }
 
 void AnalysisGraph::revert_back_to_previous_state() {
   this->log_likelihood = this->previous_log_likelihood;
 
-  this->graph[this->previous_beta.first].beta = this->previous_beta.second;
+  if (this->perturb_choice < 1.0 / this->choices) {
+    this->graph[this->previous_beta.first].beta = this->previous_beta.second;
 
-  // Reset the transition matrix cells that were changed
-  // TODO: Can we change the transition matrix only when the sample is
-  // accepted?
-  this->update_transition_matrix_cells(this->previous_beta.first);
+    // Reset the transition matrix cells that were changed
+    // TODO: Can we change the transition matrix only when the sample is
+    // accepted?
+    this->update_transition_matrix_cells(this->previous_beta.first);
+  }
+  else if ( this->perturb_choice < 2.0 / this->choices) {
+    this->A_original(1, 0) = this->prev_value;
+    //dbg("(1, 0) rejected");
+  }
+  else if ( this->perturb_choice < 3.0 / this->choices) {
+    this->A_original(1, 1) = this->prev_value;
+    //dbg("(1, 1) rejected");
+  }
+  else if ( this->perturb_choice < 4.0 / this->choices) {
+    this->A_original(3, 2) = this->prev_value;
+  }
+  else if ( this->perturb_choice < 5.0 / this->choices) {
+    this->A_original(3, 3) = this->prev_value;
+  }
 }
 
 void AnalysisGraph::sample_from_posterior() {
@@ -1446,5 +1495,22 @@ void AnalysisGraph::sample_from_posterior() {
   if (acceptance_probability < this->uni_dist(this->rand_num_generator)) {
     // Reject the sample
     this->revert_back_to_previous_state();
+  }
+  else {
+    if (this->perturb_choice < 1.0 / this->choices) {
+      dbg("Accepted beta");
+    }
+    else if ( this->perturb_choice < 2.0 / this->choices) {
+      dbg("Accepted (1, 0)");
+    }
+    else if ( this->perturb_choice < 3.0 / this->choices) {
+      dbg("Accepted (1, 1)");
+    }
+    else if ( this->perturb_choice < 4.0 / this->choices) {
+      dbg("Accepted (3, 2)");
+    }
+    else if ( this->perturb_choice < 5.0 / this->choices) {
+      dbg("Accepted (3, 3)");
+    }
   }
 }
