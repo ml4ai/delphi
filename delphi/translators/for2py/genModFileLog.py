@@ -170,7 +170,7 @@ def mod_file_log_generator(temp_dir=None):
         temp_dir = "./tmp"
     module_log_file_path = temp_dir + "/" + module_log_file
 
-    # If module log file already exists, load the data.
+    # If module log file already exists, simply load data.
     if isfile(module_log_file_path):
         with open(module_log_file_path) as json_f:
             module_logs = json.load(json_f)
@@ -180,13 +180,17 @@ def mod_file_log_generator(temp_dir=None):
         # Structure (One-to-Many):
         #   {
         #       "__file_name__" : ["__module_name__",...,"last_modified_time"],
-        #       ...
+        #       ...,
         #   }
         file_to_mod_mapper = module_logs["file_to_mod"]
         # This will hold the module-to-file mapping, so any program that accesses
         # module log JSON file can directly access the file path with the module
         # name specified with "USE" without looping through the file_to_mod mapper.
-        # Structure (One-to-One).
+        # Structure (One-to-One):
+        #   {
+        #       "__module_name__" : "__file_path__",
+        #       ...,
+        #   }
         mod_to_file_mapper = module_logs["mod_to_file"]
     else:
         file_to_mod_mapper = {}
