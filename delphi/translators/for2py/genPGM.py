@@ -18,6 +18,7 @@ from collections import OrderedDict
 from itertools import chain, product
 import operator
 import uuid
+import os.path
 
 class GrFNState:
     def __init__(
@@ -118,6 +119,12 @@ class GrFNGenerator(object):
         # with another. We need to update all function
         # argument domains for arrays
         self.array_arg_domain = {}
+        # Holds list of modules that program references
+        self.module_variable_types = {}
+        # Holds the list of declared subprograms in modules
+        self.module_subprograms = []
+        # Holds module names
+        self.module_names = []
 
         self.gensym_tag_map = {
             "container": 'c',
@@ -129,7 +136,7 @@ class GrFNGenerator(object):
             "integer": "integer",
             "string": "string",
             "bool": "boolean",
-            "array": "array",
+            "Array": "Array",
         }
 
         # The binops dictionary holds operators for all the arithmetic and
@@ -158,6 +165,7 @@ class GrFNGenerator(object):
             "list": "array",
             "bool": "bool",
             "file_handle": "fh",
+            "Array": "Array",
         }
 
         # Arithmetic operator dictionary
@@ -246,7 +254,14 @@ class GrFNGenerator(object):
             elif isinstance(node, ast.If):
                 return self.gen_grfn(node.body, state, "start")
             else:
-                return []
+                node_name = node.__repr__().split()[0][2:]
+                if (
+                        node_name != "ast.Import" and
+                        node_name != "ast.ImportFrom"
+                ):
+                    return self.process_grfn[node_name](node, state, call_source)
+                else:
+                    return []
         elif isinstance(node, list):
             return self.process_list(node, state, call_source)
         elif any(isinstance(node, node_type) for node_type in
@@ -284,9 +299,10 @@ class GrFNGenerator(object):
             function adds these along with the identifier_spec_grfn to the
             main GrFN JSON.
         """
+        self.module_names.append(node.name)
+
         return_value = []
         return_list = []
-
         local_last_definitions = state.last_definitions.copy()
         local_next_definitions = state.next_definitions.copy()
         local_variable_types = state.variable_types.copy()
@@ -1862,8 +1878,11 @@ class GrFNGenerator(object):
                 container_id_name = assign_function["name"]
                 function_type = assign_function["type"]
             else:
-                container_id_name = self.function_argument_map[function_name][
-                    "name"]
+                if function_name in self.function_argument_map:
+                    container_id_name = self.function_argument_map[function_name][
+                        "name"]
+                elif function_name in self.module_subprograms:
+                    container_id_name = function_name
                 function_type = "container"
 
             function = {
@@ -2222,6 +2241,7 @@ class GrFNGenerator(object):
 
             grfn["functions"].append(fn)
             grfn["variables"].append(variable_spec)
+
         return [grfn]
 
     def process_assign(self, node, state, *_):
@@ -2969,7 +2989,6 @@ class GrFNGenerator(object):
             index = state.last_definitions[variable]
         elif variable in self.arrays:
             index = 0
-
         domain = self.get_domain_dictionary(variable, state)
         # Since we need to update the domain of arrays that
         # were passed to a function once the program actually
@@ -3033,7 +3052,10 @@ class GrFNGenerator(object):
         if variable in self.arrays:
             domain_dictionary = self.arrays[variable]
         else:
-            variable_type = state.variable_types[variable]
+            if variable in state.variable_types:
+                variable_type = state.variable_types[variable]
+            elif variable in self.module_variable_types:
+                variable_type = self.module_variable_types[variable][1]
             if variable in self.variable_map and \
                     self.variable_map[variable]["parameter"]:
                 is_mutable = True
@@ -3551,6 +3573,8 @@ def create_grfn_dict(
         mode_mapper_dict: list,
         original_file: str,
         save_file=False,
+        module_file_exist=False,
+        module_import_paths={},
 ) -> Dict:
     """
         Create a Python dict representing the GrFN, with additional metadata for
@@ -3568,19 +3592,59 @@ def create_grfn_dict(
     generator.mode_mapper = mode_mapper_dict[0]
     generator.fortran_file = original_file
 
+    # Currently, we are specifying the module file with
+    # a prefix "m_", this may be changed in the future.
+    # If it requires a change, simply modify this below prefix.
+    module_file_prefix = "m_"
+
     try:
-        filename_regex = re.compile(r"(.*)\..*$")
-        name_match = re.match(filename_regex, file_name)
-        assert name_match, f"Can't match filename to any format: {file_name}"
-        file_name = name_match.group(1)
+        filename_regex = re.compile(r"(?P<path>.*/)(?P<filename>.*).py")
+        file_match = re.match(filename_regex, file_name)
+        assert file_match, f"Can't match filename to any format: {file_name}"
+
+        path = file_match.group("path")
+        filename = file_match.group("filename")
+
+        # Since we do not have separate variable pickle file
+        # for m_*.py, we need to use the original program pickle
+        # file that module resides.
+        module_name = None
+        if module_file_exist:
+            module_file_path = file_name
+            # Ignoring the module file prefix
+            module_name = filename[len(module_file_prefix):]
+            org_file = get_original_file_name(original_file)
+            file_name = path + org_file
+        else:
+            file_name = path+filename
+            
         with open(f"{file_name}_variables_pickle", "rb") as f:
             variable_map = pickle.load(f)
         generator.variable_map = variable_map
     except IOError:
         raise For2PyError(f"Unable to read file {file_name}.")
 
+    # Extract variables with type that are declared in module
+    generator.module_variable_types = mode_mapper_dict[0]["symbol_types"]
+    # Extract functions (and subroutines) declared in module
+    for module in mode_mapper_dict[0]["subprograms"]:
+        for subp in mode_mapper_dict[0]["subprograms"][module]:
+            generator.module_subprograms.append(subp)
+
     grfn = generator.gen_grfn(asts, state, "")[0]
 
+    if len(generator.mode_mapper["use_mapping"]) > 0:
+        for user, module in generator.mode_mapper["use_mapping"].items():
+            if (
+                    (user in generator.module_names)
+                    or (module_name and module_name == user)
+            ):
+                module_paths = []
+                for import_mods in module:
+                    for mod_name, target in import_mods.items():
+                        module_path = path + module_file_prefix + mod_name + "_GrFN.json"
+                        module_paths.append(module_path)
+                module_import_paths[user] = module_paths
 
     # If the GrFN has a `start` node, it will refer to the name of the
     # PROGRAM module which will be the entry point of the GrFN.
@@ -3623,7 +3687,10 @@ def create_grfn_dict(
 
     # View the PGM file that will be used to build a scope tree
     if save_file:
-        json.dump(grfn, open(file_name + ".json", "w"))
+        if module_file_exist:
+            json.dump(grfn, open(module_file_path[:module_file_path.rfind(".")] + ".json", "w"))
+        else:
+            json.dump(grfn, open(file_name[:file_name.rfind(".")] + ".json", "w"))
 
     return grfn
 
@@ -3675,35 +3742,47 @@ def get_system_name(pyfile_list: List[str]):
     return system_name, path
 
 
-def generate_system_def(python_list: List[str], component_list: List[str]):
+def generate_system_def(python_list: List[str], component_list: List[str], module_paths: List[str]):
     """
         This function generates the system definition for the system under
         analysis and writes this to the main system file.
     """
     (system_name, path) = get_system_name(python_list)
-    system_filename = f"{path}/system.json"
+    system_filepath = f"{path}/system.json"
     grfn_components = []
     for component in component_list:
         grfn_components.append({
             "file_path": component,
             "imports": []
         })
-    with open(system_filename, "w") as system_file:
-        system_def = {
-            "date_created": f"{datetime.utcnow().isoformat('T')}Z",
-            "name": system_name,
-            "components": grfn_components
-        }
-        system_file.write(json.dumps(system_def, indent=2))
+    for module in module_paths:
+        for path in module_paths[module]:
+            grfn_components[0]["imports"].append(path)
+    system_def = {
+        "date_created": f"{datetime.utcnow().isoformat('T')}Z",
+        "name": system_name,
+        "components": grfn_components
+    }
+    if os.path.isfile(system_filepath):
+        with open(system_filepath, "r") as f:
+            systems_def = json.load(f)
+            systems_def['systems'].append(system_def)
+    else:
+        systems_def = {'systems': [system_def]}
+
+    with open(system_filepath, "w") as system_file:
+        system_file.write(json.dumps(systems_def, indent=2))
 
 
 def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
-                  original_file: str, print_ast_flag=False):
+                  original_file_path: str, print_ast_flag=False):
     """
         This function takes in the list of python files to convert into GrFN
         and generates each file's AST along with starting the GrFN generation
         process.
     """
+
+    module_file_exist = False
 
     module_mapper = {}
     grfn_filepath_list = []
@@ -3727,24 +3806,38 @@ def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
             xml_file = f"{path}rectified_{filename}.xml"
             # Calling the `get_index` function in `mod_index_generator.py` to
             # map all variables and objects in the various files
-            module_mapper = get_index(xml_file)
+        else:
+            module_file_exist = True
+            file_name = get_original_file_name(original_file_path)
+            xml_file = f"{path}rectified_{file_name}.xml"
+        # Calling the `get_index` function in `mod_index_generator.py` to
+        # map all variables and objects in the various files
+        module_mapper = get_index(xml_file)
 
+    main_program = module_mapper[0]["modules"][-1]
+    module_import_paths = {}
     for index, ast_string in enumerate(ast_list):
         lambda_file = python_list[index][:-3] + "_" + lambda_tail
         grfn_file = python_list[index][:-3] + "_" + grfn_tail
         grfn_dict = create_grfn_dict(
             lambda_file, [ast_string], python_list[index], module_mapper,
-            original_file
+            original_file_path, True, module_file_exist, module_import_paths
         )
+        if module_file_exist:
+            main_python_file = path + file_name + ".py"
+            python_list[index] = main_python_file
         grfn_filepath_list.append(grfn_file)
         # Write each GrFN JSON into a file
         with open(grfn_file, "w") as file_handle:
             file_handle.write(json.dumps(grfn_dict, sort_keys=True, indent=2))
-
+    
     # Finally, write the <systems.json> file which gives a mapping of all the
     # GrFN files related to the system.
-    generate_system_def(python_list, grfn_filepath_list)
+    generate_system_def(python_list, grfn_filepath_list, module_import_paths)
 
+def get_original_file_name (original_file_path):
+    original_file = original_file_path.split('/')
+    return original_file[-1].split('.')[0]
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

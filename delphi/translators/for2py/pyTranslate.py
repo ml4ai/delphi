@@ -287,6 +287,8 @@ class PythonCodeGenerator(object):
             ),
         )
         self.pyStrings.append("):")
+        if printState.sep != "\n":
+            printState.sep = "\n"
         self.printAst(
             node["body"],
             printState.copy(

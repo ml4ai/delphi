@@ -21,14 +21,17 @@ Author: Terrence J. Lim
 """
 
 import os
+import re
 import sys
 import ast
+import json
 import argparse
 import pickle
 import delphi.paths
 import ntpath as np
 import subprocess as sp
 import xml.etree.ElementTree as ET
+from delphi.translators.for2py.mod_index_generator import get_index
 
 from delphi.translators.for2py import (
     preprocessor,
@@ -49,6 +52,14 @@ OFP_JAR_FILES = [
 """OFP_JAR_FILES is a list of JAR files used by the Open Fortran Parser (OFP).
 """
 
+GENERATED_FILE_PATHS = []
+"""A list of all the file paths that were generated during f2grfn process.
+"""
+
+
+MODULE_FILE_PREFIX = "m_"
+"""Module file prefix that all generated python module files will be specified with.
+"""
 
 def generate_ofp_xml(preprocessed_fortran_file, ofp_file, tester_call):
     """ This function executes Java command to run open
@@ -99,6 +110,7 @@ def generate_ofp_xml(preprocessed_fortran_file, ofp_file, tester_call):
             assert False, f"Failed to write to {ofp_file}."
 
         tree.write(ofp_file)
+        GENERATED_FILE_PATHS.append(ofp_file)
 
     return ofp_xml
 
@@ -130,15 +142,15 @@ def generate_rectified_xml(ofp_xml: str, rectified_file, tester_call):
 
     rectified_xml = rectify.buildNewASTfromXMLString(ofp_xml)
 
-    if not tester_call:
-        rectified_tree = ET.ElementTree(rectified_xml)
-        try:
-            rectified_file_handle = open(rectified_file, 'w')
-            rectified_file_handle.close()
-        except IOError:
-            assert False, f"Failed to write to {rectified_file}."
+    rectified_tree = ET.ElementTree(rectified_xml)
+    try:
+        rectified_file_handle = open(rectified_file, 'w')
+        rectified_file_handle.close()
+    except IOError:
+        assert False, f"Failed to write to {rectified_file}."
 
-        rectified_tree.write(rectified_file)
+    rectified_tree.write(rectified_file)
+    GENERATED_FILE_PATHS.append(rectified_file)
 
     return rectified_xml
 
@@ -180,7 +192,7 @@ def generate_outputdict(
 
 
 def generate_python_src(
-    output_dictionary, python_file_name,
+    output_dictionary, python_files,
     output_file, variable_map_file, temp_dir, tester_call
 ):
     """This function generates python source file from
@@ -217,33 +229,51 @@ def generate_python_src(
                 Script: <pyTranslate.py>"
         )
 
-        output_list = []
-        for item in python_source:
-            if item[2] == "module":
-                module_file = f"{temp_dir}/m_{item[1].lower()}.py"
-                try:
-                    with open(module_file, "w") as f:
-                        output_list.append("m_" + item[1].lower() + ".py")
-                        f.write(item[0])
-                except IOError:
-                    assert False, f"Unable to write to {module_file}."
-            else:
-                try:
-                    with open(python_file_name, "w") as f:
-                        output_list.append(python_file_name)
-                        f.write(item[0])
-                except IOError:
-                    assert False, f"Unable to write to {python_file_name}."
+    output_list = []
+    for item in python_source:
+        if item[2] == "module":
+            module_file_generator(item, temp_dir, output_list, python_files)            
+        else:
+            try:
+                with open(python_files[0], "w") as f:
+                    output_list.append(python_files[0])
+                    f.write(item[0])
+            except IOError:
+                assert False, f"Unable to write to {python_file_name}."
 
-        try:
-            with open(output_file, "w") as f:
-                for fileName in output_list:
-                    f.write(fileName + " ")
-        except IOError:
-            assert False, f"Unable to write to {output_file}."
+    try:
+        with open(output_file, "w") as f:
+            for fileName in output_list:
+                f.write(fileName + " ")
+    except IOError:
+        assert False, f"Unable to write to {output_file}."
 
     return python_source
 
+def module_file_generator(item, temp_dir, output_list, python_files):
+    """This function extracts a translated module from
+    the python source and generates a new separate python file.
+
+    Args:
+        item (list): A list that each element holds a translated
+        python source in string.
+        temp_dir (str): A path to the temporary directory that will
+        hold generated files.
+        output_list (list): A list that holds list of output files.
+        python_files (list): A list that holds the generated python
+        python file paths.
+    ReturnL
+        None
+    """
+    module_file_name = f"{MODULE_FILE_PREFIX}{item[1].lower()}.py"
+    module_file_path = f"{temp_dir}/{module_file_name}"
+    try:
+        with open(module_file_name, "w") as f:
+            output_list.append(module_file_name)
+            f.write(item[0])
+    except IOError:
+        assert False, f"Unable to write to {module_file}."
+    python_files.append(module_file_path)
 
 def generate_grfn(
     python_source_string, python_filename, lambdas_file_suffix,
@@ -253,7 +283,7 @@ def generate_grfn(
 
     Args:
         python_source_string (str): A string of python code.
-        python_filename (str): A file name of generated python script.
+        python_filename (str): A generated python file name.
         lambdas_file_suffix (str): The suffix of the file name where
         lambdas will be written to.
         mode_mapper_dictionary (list): A mapper of file info (i.e. filename,
@@ -268,34 +298,90 @@ def generate_grfn(
         dict: A dictionary of generated GrFN.
     """
 
-    if not tester_call:
-        print(
-            "+Generating GrFN files: Func: <create_grfn_dict>, Script: "
-            "<genPGM.py>"
-        )
-        # Since process_files function invokes create_grfn_dict
-        # function, we only have to call process_files in case
-        # of non-test mode.
-        genPGM.process_files(
-                [python_filename], "GrFN.json",
-                "lambdas.py", original_fortran_file,
-                False
-        )
-    else:
-        asts = [ast.parse(python_source_string)]
-        grfn_dictionary = genPGM.create_grfn_dict(
-            lambdas_file_suffix, asts, python_filename, mode_mapper_dictionary,
-            original_fortran_file, save_file=True
-        )
-        del grfn_dictionary["date_created"]
-        for item in grfn_dictionary["variables"]:
-            if "gensym" in item:
-                del item["gensym"]
-        for item in grfn_dictionary["containers"]:
-            if "gensym" in item:
-                del item["gensym"]
+    
+    print(
+        "+Generating GrFN files: Func: <create_grfn_dict>, Script: "
+        "<genPGM.py>"
+    )
 
-        return grfn_dictionary
+    module_file_exist = False
+    module_paths = []
+    grfn_filepath_list = []
+
+    # Regular expression to identify the path and name of all python files
+    filename_regex = re.compile(r"(?P<path>.*/)(?P<filename>.*).py")
+
+    # First, find the main python file in order to populate the module
+    # mapper
+    file_match = re.match(filename_regex, python_filename)
+    assert file_match, "Invalid filename."
+
+    path = file_match.group("path")
+    filename = file_match.group("filename")
+
+    module_file_exist = is_module_file(filename)
+
+    # Ignore all python files of modules created by `pyTranslate.py`
+    # since these module files do not contain a corresponding XML file.
+    if module_file_exist:
+        file_name = genPGM.get_original_file_name(original_fortran_file)
+        xml_file = f"{path}rectified_{file_name}.xml"
+    else:
+        xml_file = f"{path}rectified_{filename}.xml"
+
+    # Calling the `get_index` function in `mod_index_generator.py` to
+    # map all variables and objects in the various files
+    module_mapper = get_index(xml_file)
+    main_program = module_mapper[0]["modules"][-1]
+    module_import_paths = {}
+
+    asts = [ast.parse(python_source_string)]
+
+    lambda_file = python_filename[:-3] + "_lambda.py"
+    grfn_file = python_filename[:-3] + "_GrFN.json"
+
+    grfn_dict = genPGM.create_grfn_dict(
+        lambdas_file_suffix, asts, python_filename, module_mapper,
+        original_fortran_file, True, module_file_exist, module_import_paths
+    )
+
+    if module_file_exist:
+        python_filename = path + file_name + ".py"
+    grfn_filepath_list.append(grfn_file)
+
+    del grfn_dict["date_created"]
+    for item in grfn_dict["variables"]:
+        if "gensym" in item:
+            del item["gensym"]
+    for item in grfn_dict["containers"]:
+        if "gensym" in item:
+            del item["gensym"]
+
+    genPGM.generate_system_def([python_filename], grfn_filepath_list, module_import_paths)
+
+    if tester_call:
+        for filepath in GENERATED_FILE_PATHS:
+            if os.path.isfile(filepath):
+                os.remove(filepath)
+        return grfn_dict
+    else:
+        # Write each GrFN JSON into a file
+        with open(grfn_file, "w") as file_handle:
+            file_handle.write(json.dumps(grfn_dict, sort_keys=True, indent=2))
+
+def is_module_file(filename):
+    """This function is to check whether the handling
+    file is a module file or not.
+    Args:
+        filename (str): Name of a file.
+    Returns:
+        (bool) True if it is a module file.
+        (bool) False, if it is not a module file.
+    """
+    if filename.startswith(MODULE_FILE_PREFIX):
+        return True
+    else:
+        return False
 
 def parse_args():
     """This function is for a safe command line
@@ -351,13 +437,13 @@ def check_classpath():
             ):
                 found = True
                 break
-        if not found:
-            not_found.append(jar_file)
+            if not found:
+                not_found.append(jar_file)
 
-    if not_found:
-        sys.stderr.write("ERROR: JAR files not found via CLASSPATH:\n")
-        sys.stderr.write(f" {','.join(not_found)}\n")
-        sys.exit(1)
+        if not_found:
+            sys.stderr.write("ERROR: JAR files not found via CLASSPATH:\n")
+            sys.stderr.write(f" {','.join(not_found)}\n")
+            sys.exit(1)
 
 
 def indent(elem, level=0):
@@ -475,13 +561,21 @@ def fortran_to_grfn(
 
     print(f"*** ALL OUTPUT FILES LIVE IN [{temp_dir}]")
 
+    # To avoid the system.json confliction between each
+    # f2grfn execution, we need to remove the system.json
+    # from the directory first.
+    system_json_path = temp_dir + "/" + "system.json"
+    if os.path.isfile(system_json_path):
+        rm_system_json = "rm " + system_json_path
+        os.system(rm_system_json)
+
     # Output files
     preprocessed_fortran_file = temp_dir + "/" + base + "_preprocessed.f"
     ofp_file = temp_dir + "/" + base + ".xml"
     rectified_xml_file = temp_dir + "/" + "rectified_" + base + ".xml"
     pickle_file = temp_dir + "/" + base + "_pickle"
     variable_map_file = temp_dir + "/" + base + "_variables_pickle"
-    translated_python_file = temp_dir + "/" + base + ".py"
+    translated_python_files = [temp_dir + "/" + base + ".py"]
     output_file = temp_dir + "/" + base + "_outputList.txt"
     json_suffix = temp_dir + "/" + base + ".json"
     lambdas_suffix = temp_dir + "/" + base + "_lambdas.py"
@@ -505,12 +599,14 @@ def fortran_to_grfn(
     except IOError:
         assert False, "Unable to write tofile: {preprocessed_fortran_file}"
 
+    GENERATED_FILE_PATHS.append(preprocessed_fortran_file)
+
     # Generate OFP XML from preprocessed fortran
     ofp_xml = generate_ofp_xml(
         preprocessed_fortran_file, ofp_file, tester_call
     )
 
-    # Rectify and generate a new xml from OFP XML
+    # Recify and generate a new xml from OFP XML
     rectified_tree = generate_rectified_xml(
         ofp_xml, rectified_xml_file, tester_call
     )
@@ -524,37 +620,25 @@ def fortran_to_grfn(
     output_dict = generate_outputdict(
         rectified_tree, preprocessed_fortran_file, pickle_file, tester_call
     )
-
+    GENERATED_FILE_PATHS.append(pickle_file)
     # Create a python source file
     python_source = generate_python_src(
-        output_dict, translated_python_file, output_file, variable_map_file,
+        output_dict, translated_python_files, output_file, variable_map_file,
         temp_dir, tester_call
     )
+    GENERATED_FILE_PATHS.append(output_file)
+    for py_file in translated_python_files:
+        GENERATED_FILE_PATHS.append(py_file)
 
-    if tester_call:
-        os.remove(preprocessed_fortran_file)
-
-    if not network_test:
-        return (
-            python_source,
-            lambdas_suffix,
-            json_suffix,
-            translated_python_file,
-            mode_mapper_dict,
-            original_fortran_file,
-        )
-    else:
-        #  TODO: This is related to networks.py and subsequent GrFN
-        #  generation. Change the python_src index from [0][0] to incorporate
-        #  all modules after all GrFN features have been added
-        return (
-            python_source[0][0],
-            lambdas_suffix,
-            json_suffix,
-            base,
-            mode_mapper_dict,
-            original_fortran_file
-        )
+    return (
+        python_source,
+        lambdas_suffix,
+        json_suffix,
+        translated_python_files,
+        base,
+        mode_mapper_dict,
+        original_fortran_file
+    )
 
 
 if __name__ == "__main__":
@@ -562,13 +646,15 @@ if __name__ == "__main__":
         python_src,
         lambdas_file,
         json_file,
-        python_file,
+        python_files,
+        base,
         mode_mapper_dict,
         original_fortran_file
     ) = fortran_to_grfn()
 
     # Generate GrFN file
-    grfn_dict = generate_grfn(
-        python_src[0][0], python_file, lambdas_file, mode_mapper_dict[0],
-        original_fortran_file, False
-    )
+    for python_file in python_files:
+        grfn_dict = generate_grfn(
+            python_src[0][0], python_file, lambdas_file, mode_mapper_dict[0],
+            original_fortran_file, False
+        )

@@ -63,6 +63,9 @@ class ModuleGenerator(object):
         self.subprograms = {}
         # This dictionary stores the set of symbols declared in each module.
         self.symbols = {}
+        # This dictionary stores a variable-type mapping.
+        self.variable_types = {}
+        self.symbol_type = {}
 
     def populate_symbols(self):
         """
@@ -103,6 +106,12 @@ class ModuleGenerator(object):
                             {key: use_item[key]}
                         )
 
+    def populate_symbol_types(self):
+        for var in self.variable_types:
+            for module in self.symbols:
+                if var in self.symbols[module]:
+                    self.symbol_type[var] = [module, self.variable_types[var]]
+
     def parse_tree(self, root) -> bool:
         """
             This function parses the XML tree of a Fortran file and tracks
@@ -113,6 +122,8 @@ class ModuleGenerator(object):
         for item in root.iter():
             if item.tag == "program":
                 self.main = item.attrib["name"].lower()
+
+        variable_type = None
 
         for item in root.iter():
             # Get the name of the XML file being parsed
@@ -132,18 +143,22 @@ class ModuleGenerator(object):
                 self.current_context = item.attrib["name"].lower()
                 self.modules.append(item.attrib["name"].lower())
 
+            elif item.tag.lower() == "type":
+                variable_type = item.attrib["name"].lower()
             elif item.tag.lower() == "variable":
                 if item.attrib.get("name"):
                     if not self.current_context:
                         self.current_context = self.main
                     self.public.setdefault(self.current_context, []).append(
                         item.attrib["name"].lower())
+                    self.variable_types[item.attrib["name"].lower()] = variable_type
 
             elif item.tag.lower() in ["subroutine", "function"]:
                 if not self.current_context:
                     self.current_context = self.main
                 self.subprograms.setdefault(self.current_context, []).append(
                     item.attrib["name"].lower())
+                self.current_context = item.attrib["name"].lower()
 
             elif item.tag.lower() == "declaration":
                 # This function parses the <declaration> tag of the XML and
@@ -175,7 +190,6 @@ class ModuleGenerator(object):
                             if innerChild.tag.lower() == "name":
                                 only_symbols.append(innerChild.attrib[
                                                         "id"].lower())
-
                 if not self.current_context:
                     self.current_context = self.main
                 self.uses.setdefault(self.current_context, []).append({
@@ -183,6 +197,7 @@ class ModuleGenerator(object):
                     else {item.attrib["name"].lower(): ["*"]})
 
         self.populate_symbols()
+        self.populate_symbol_types()
         self.populate_exports()
         self.populate_imports()
 
@@ -205,6 +220,7 @@ class ModuleGenerator(object):
             output_dictionary['public_objects'] = self.public
             output_dictionary['subprograms'] = self.subprograms
             output_dictionary['symbols'] = self.symbols
+            output_dictionary['symbol_types'] = self.symbol_type
 
         return [output_dictionary]
 

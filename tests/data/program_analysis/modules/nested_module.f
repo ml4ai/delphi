@@ -25,22 +25,20 @@ C   1234    2  3.1416 7753.469
 
 !-------------------------------------------------------------------------------
       MODULE MYMOD4A
-      IMPLICIT NONE
+      USE MYMOD3A    ! << Note that "use mymod3a" is now inside mymod4a
 
       INTEGER :: Y = 2
       END MODULE mymod4A
 
 !-------------------------------------------------------------------------------
       MODULE MYMOD5A
-      IMPLICIT NONE
+      USE mymod4A    ! << Note that "use mymod4a" is now inside mymod5
 
       REAL :: PI = 3.1416
       END MODULE mymod5A
 
 !-------------------------------------------------------------------------------
       PROGRAM PGM
-      USE MYMOD3A    ! << Note that "use mymod3a" is now inside mymod4a
-      USE mymod4A    ! << Note that "use mymod4a" is now inside mymod5
       USE mymod5A
 
   10   FORMAT (I7, I5, F8.4)

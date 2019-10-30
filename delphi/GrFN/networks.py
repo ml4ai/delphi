@@ -419,19 +419,25 @@ class GroundedFunctionNetwork(ComputationalGraph):
         lambdas_path,
         json_filename: str,
         stem: str,
+        python_file: str,
         fortran_file: str,
         mode_mapper_dict: list,
         save_file: bool = False
     ):
+        module_file_exist = False
+        module_import_paths = {}
+
         """Builds GrFN object from Python source code."""
         asts = [ast.parse(pySrc)]
         pgm_dict = genPGM.create_grfn_dict(
             lambdas_path,
             asts,
-            json_filename,
+            python_file,
             mode_mapper_dict,
             fortran_file,
-            save_file=save_file
+            save_file,
+            module_file_exist,
+            module_import_paths
         )
 
         lambdas = importlib.__import__(stem + "_lambdas")
@@ -448,15 +454,17 @@ class GroundedFunctionNetwork(ComputationalGraph):
             pySrc,
             lambdas_path,
             json_filename,
+            translated_python_files,
             stem,
             mode_mapper_dict,
             fortran_filename
         ) = f2grfn.fortran_to_grfn(fortran_file, True, True, str(tmpdir))
 
-        G = cls.from_python_src(pySrc, lambdas_path, json_filename, stem,
-                                fortran_file, mode_mapper_dict, save_file=save_file)
+        for python_file in translated_python_files:
+            G = cls.from_python_src(pySrc[0][0], lambdas_path, json_filename, stem, python_file,
+                                    fortran_file, mode_mapper_dict, save_file=save_file)
 
-        return G
+            return G
 
     @classmethod
     def from_fortran_src(cls, fortran_src: str, dir: str = "."):
