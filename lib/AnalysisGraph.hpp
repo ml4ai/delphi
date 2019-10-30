@@ -140,6 +140,8 @@ class AnalysisGraph {
   double perturb_choice;
   double prev_value;
   int choices = 5;
+  int row = -1;
+  int col = -1;
 
   RNG* rng_instance;
   void clear_state();

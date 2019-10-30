@@ -1393,6 +1393,8 @@ void AnalysisGraph::update_transition_matrix_cells(EdgeDescriptor e) {
 void AnalysisGraph::sample_from_proposal() {
   this->perturb_choice = this->uni_dist(this->rand_num_generator);
   double pert = this->uni_dist(this->rand_num_generator) * 2 - 1;
+  int row = -1;
+  int col = -1;
 
   if (this->perturb_choice < 1.0 / this->choices) {
     // Randomly pick an edge ≡ β
@@ -1410,32 +1412,37 @@ void AnalysisGraph::sample_from_proposal() {
     graph[e[0]].beta += this->norm_dist(this->rand_num_generator);
 
     this->update_transition_matrix_cells(e[0]);
-    //cout << "Change beta by ";
   }
-  else if ( this->perturb_choice < 2.0 / this->choices) {
-    //cout << this->A_original(1, 0) << " + " << pert << " = " << this->A_original(1, 0) + pert << endl;
-    this->prev_value = this->A_original(1, 0);
-    this->A_original(1, 0) += pert;
-    //cout << "Change (1, 0) by ";
+  else {
+    if ( this->perturb_choice < 2.0 / this->choices) {
+      row = 1;
+      col = 0;
+      //this->prev_value = this->A_original(1, 0);
+      //this->A_original(1, 0) += pert;
+    }
+    else if ( this->perturb_choice < 3.0 / this->choices) {
+      row = 1;
+      col = 1;
+      //this->prev_value = this->A_original(1, 1);
+      //this->A_original(1, 1) += pert;
+    }
+    else if ( this->perturb_choice < 4.0 / this->choices) {
+      row = 3;
+      col = 2;
+      //this->prev_value = this->A_original(3, 2);
+      //this->A_original(3, 2) += pert;
+    }
+    else if ( this->perturb_choice < 5.0 / this->choices) {
+      row = 3;
+      col = 3;
+      //this->prev_value = this->A_original(3, 3);
+      //this->A_original(3, 3) += pert;
+    }
+    this->prev_value = this->A_original(row, col);
+    this->A_original(row, col) += pert;
+    //this->A_original(row, col) = pert;
+    //this->A_original(row, col) = this->norm_dist(this->rand_num_generator);
   }
-  else if ( this->perturb_choice < 3.0 / this->choices) {
-    //cout << this->A_original(1, 1) << " + " << pert << " = " << this->A_original(1, 1) + pert << endl;
-    this->prev_value = this->A_original(1, 1);
-    this->A_original(1, 1) += pert;
-    //cout << "Change (1, 1) by ";
-  }
-  else if ( this->perturb_choice < 4.0 / this->choices) {
-    this->prev_value = this->A_original(3, 2);
-    this->A_original(3, 2) += pert;
-    //cout << "Change (3, 2) by ";
-  }
-  else if ( this->perturb_choice < 5.0 / this->choices) {
-    this->prev_value = this->A_original(3, 3);
-    this->A_original(3, 3) += pert;
-    //cout << "Change (3, 3) by ";
-  }
-  //cout << pert << endl;
-  //cout << this->A_original << endl << endl;
 }
 
 void AnalysisGraph::set_current_latent_state(int ts) {
@@ -1445,6 +1452,7 @@ void AnalysisGraph::set_current_latent_state(int ts) {
 
 double AnalysisGraph::calculate_delta_log_prior() {
   if (this->perturb_choice < 1.0 / this->choices) {
+  //if (row == -1) {
     KDE& kde = this->graph[this->previous_beta.first].kde;
 
     // We have to return: log( p( β_new )) - log( p( β_old ))
@@ -1459,6 +1467,7 @@ void AnalysisGraph::revert_back_to_previous_state() {
   this->log_likelihood = this->previous_log_likelihood;
 
   if (this->perturb_choice < 1.0 / this->choices) {
+  //if (row == -1) {
     this->graph[this->previous_beta.first].beta = this->previous_beta.second;
 
     // Reset the transition matrix cells that were changed
@@ -1466,13 +1475,16 @@ void AnalysisGraph::revert_back_to_previous_state() {
     // accepted?
     this->update_transition_matrix_cells(this->previous_beta.first);
   }
+  /*
+  else {
+    this->A_original(row, col) = this->prev_value;
+  }
+  */
   else if ( this->perturb_choice < 2.0 / this->choices) {
     this->A_original(1, 0) = this->prev_value;
-    //dbg("(1, 0) rejected");
   }
   else if ( this->perturb_choice < 3.0 / this->choices) {
     this->A_original(1, 1) = this->prev_value;
-    //dbg("(1, 1) rejected");
   }
   else if ( this->perturb_choice < 4.0 / this->choices) {
     this->A_original(3, 2) = this->prev_value;

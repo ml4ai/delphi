@@ -321,18 +321,16 @@ def mean_data_to_df(
         for i, obs in enumerate(vals):
             if len(obs) > 1:
                 mean, _, _ = stats.bayes_mvs(obs, ci)
-                '''
-                print()
-                print(i)
-                print(mean[2][1])
-                print(data_mean)
-                print()
-                '''
                 data_mean[i, 0] = mean[0]
                 data_mean[i, 1] = mean[1][0]
                 data_mean[i, 2] = mean[1][1]
+            elif len(obs) == 1:
+                #data_mean[i, 0] = np.mean(obs)
+                data_mean[i, 0] = obs[0]
+                data_mean[i, 1] = np.nan
+                data_mean[i, 2] = np.nan
             else:
-                data_mean[i, 0] = np.mean(obs)
+                data_mean[i, 0] = np.nan
                 data_mean[i, 1] = np.nan
                 data_mean[i, 2] = np.nan
 
