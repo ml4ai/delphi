@@ -618,7 +618,7 @@ def fortran_to_grfn(
     except IOError:
         assert False, "Unable to write tofile: {preprocessed_fortran_file}"
 
-    log_generated_files([preprocessed_fortran_file])
+    log_generated_files([system_json_path, preprocessed_fortran_file])
     
     # Generate OFP XML from preprocessed fortran
     ofp_xml = generate_ofp_xml(
