@@ -5,9 +5,12 @@ a log file in JSON format.
 
 Example:
         This script can be executed as below:
-        $ python genModFileLog.py -f <fortran_file_path>
+        $ python genModFileLog.py -d <root_directory> -f <log_file_name>
         
 fortran_file_path: Original input file that uses module file.
+log_file_name: User does not have to provide the name as it is default
+to "modFileLog.json", but (s)he can specify it with -f option follow by
+the file name in string.
 
 Currently, this program assumes that module files reside in
 the same directory as use program file.
@@ -33,33 +36,30 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
+        "-d",
+        "--directory",
+        nargs="+",
+        help="Root directory to begin the module scan from."
+    )
+
+    parser.add_argument(
         "-f",
         "--file",
-        nargs="+",
-        help="An input fortran file"
-    )   
+        nargs="*",
+        help="A user specified module log file name."
+    )
 
     args = parser.parse_args(sys.argv[1:])
 
-    file_path = args.file[0]
+    root_dir_path = args.directory[0]
+    if args.file is not None:
+        user_specified_log_file_name = args.file[0]
+        return root_dir_path, user_specified_log_file_name
+    else:
+        default_module_file_name = "modFileLog.json"
+        return root_dir_path, default_module_file_name
 
-    return file_path
-
-def get_directory_path(file_path):
-    """This function extracts the directory path from
-    the input file path.
-    Args:
-        file_path (str): File path.
-    Returns:
-        str: Directory path.
-    """
-    filename_regex = re.compile(r"(?P<path>.*/)(?P<filename>.*).f")
-    file_match = re.match(filename_regex, file_path)
-
-    dir_path = file_match.group("path")
-    return dir_path
-
-def get_file_list_in_directory(dir_path):
+def get_file_list_in_directory(root_dir_path):
     """This function lists all Fortran files (excluding directories)
     in the specified directory.
     Args:
@@ -69,13 +69,10 @@ def get_file_list_in_directory(dir_path):
         List: List of Fortran files.
     """
     files = []
-    for f in os.listdir(dir_path):
-        if (
-                isfile(join(dir_path, f))
-                and (f.endswith('.f')
-                    or f.endswith('.for'))
-        ):
-            files.append(f)
+    for (dir_path, dir_names, file_names) in os.walk(root_dir_path):
+        for f in file_names:
+            if f.endswith('.f') or f.endswith('.for'):
+                files += [os.path.join(dir_path, f)]
 
     return files
 
@@ -105,14 +102,15 @@ def modules_from_file(file_path, file_to_mod_mapper, mod_to_file_mapper):
             assert (
                     last_modified_time > last_modified_time_in_log
             ), "Last modified time in the log file cannot be later than on disk file's time."
-            populate_mapper(file_path, file_to_mod_mapper, mod_to_file_mappeR)
+            populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper)
     else:
-        populate_mapper(file_path, file_to_mod_mapper, mod_to_file_mappeR)
+        populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper)
 
 def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper):
     """This function populates two mappers by checking and extracting 
     module names, if exist, from the file, and map it to the file name.
     Args:
+        file_path (str): File of a path that will be scanned.
         file_to_mod_mapper (dict): Dictionary of lists that will
         hold file-to-module_name mappings.
         mod_to_file_mapper (dict): Dictionary that holds a module
@@ -120,7 +118,7 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper):
     Returns:
         None.
     """
-    with open(file_path) as f:
+    with open(file_path, encoding = "ISO-8859-1") as f:
         file_content = f.read()
     module_names = []
     # Checks if file contains "end module" or "end module",
@@ -137,7 +135,7 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper):
         module_names.extend(re.findall(r'(?i)(?<=endmodule )[^-. \n]*', file_content))
 
     file_to_mod_mapper[file_path] = module_names
-    file_to_mod_mapper[file_path].append(last_modified_time)
+    file_to_mod_mapper[file_path].append(get_file_last_modified_time(file_path))
     for mod in module_names:
         mod_to_file_mapper[mod] = [file_path]
 
@@ -154,7 +152,11 @@ def get_file_last_modified_time(file_path):
     file_stat = os.stat(file_path)
     return file_stat[8]
 
-def mod_file_log_generator(temp_dir=None):
+def mod_file_log_generator(
+        root_dir=None,
+        module_log_file_name=None,
+        tester_call=False
+):
     """This function is like a main function to invoke other functions
     to perform all checks and population of mappers. Though, loading of
     and writing to JSON file will happen in this function.
@@ -165,10 +167,10 @@ def mod_file_log_generator(temp_dir=None):
     Returns:
         None.
     """
-    module_log_file = "modFileLog.json"
-    if temp_dir == None:
-        temp_dir = "./tmp"
-    module_log_file_path = temp_dir + "/" + module_log_file
+    root_dir_path, module_log_file = parse_args()
+    if root_dir_path == None:
+        root_dir_path = "."
+    module_log_file_path = root_dir_path + "/" + module_log_file
 
     # If module log file already exists, simply load data.
     if isfile(module_log_file_path):
@@ -196,12 +198,9 @@ def mod_file_log_generator(temp_dir=None):
         file_to_mod_mapper = {}
         mod_to_file_mapper = {}
 
-    file_path = parse_args()
-    dir_path = get_directory_path(file_path)
-    files = get_file_list_in_directory(dir_path)
-    
-    for f in files:
-        file_path = dir_path + f
+    files = get_file_list_in_directory(root_dir_path)
+   
+    for file_path in files:
         modules_from_file(file_path, file_to_mod_mapper, mod_to_file_mapper)
 
     module_log = {"file_to_mod": file_to_mod_mapper, "mod_to_file": mod_to_file_mapper}
