@@ -110,7 +110,7 @@ def generate_ofp_xml(preprocessed_fortran_file, ofp_file, tester_call):
             assert False, f"Failed to write to {ofp_file}."
 
         tree.write(ofp_file)
-        GENERATED_FILE_PATHS.append(ofp_file)
+        log_generated_files([ofp_file])
 
     return ofp_xml
 
@@ -150,7 +150,7 @@ def generate_rectified_xml(ofp_xml: str, rectified_file, tester_call):
         assert False, f"Failed to write to {rectified_file}."
 
     rectified_tree.write(rectified_file)
-    GENERATED_FILE_PATHS.append(rectified_file)
+    log_generated_files([rectified_file])
 
     return rectified_xml
 
@@ -276,7 +276,7 @@ def module_file_generator(item, temp_dir, output_list, python_files):
     python_files.append(module_file_path)
 
 def generate_grfn(
-    python_source_string, python_filename, lambdas_file_suffix,
+    python_source_string, python_filename, lambdas_file,
     mode_mapper_dictionary, original_fortran_file, tester_call
 ):
     """This function generates GrFN dictionary object and file.
@@ -284,7 +284,7 @@ def generate_grfn(
     Args:
         python_source_string (str): A string of python code.
         python_filename (str): A generated python file name.
-        lambdas_file_suffix (str): The suffix of the file name where
+        lambdas_file (str): The suffix of the file name where
         lambdas will be written to.
         mode_mapper_dictionary (list): A mapper of file info (i.e. filename,
         module, and exports, etc).
@@ -337,11 +337,10 @@ def generate_grfn(
 
     asts = [ast.parse(python_source_string)]
 
-    lambda_file = python_filename[:-3] + "_lambda.py"
     grfn_file = python_filename[:-3] + "_GrFN.json"
 
     grfn_dict = genPGM.create_grfn_dict(
-        lambdas_file_suffix, asts, python_filename, module_mapper,
+        lambdas_file, asts, python_filename, module_mapper,
         original_fortran_file, True, module_file_exist, module_import_paths
     )
 
@@ -359,10 +358,9 @@ def generate_grfn(
 
     genPGM.generate_system_def([python_filename], grfn_filepath_list, module_import_paths)
 
+    log_generated_files([grfn_file, lambdas_file])
     if tester_call:
-        for filepath in GENERATED_FILE_PATHS:
-            if os.path.isfile(filepath):
-                os.remove(filepath)
+        cleanup_files(GENERATED_FILE_PATHS)
         return grfn_dict
     else:
         # Write each GrFN JSON into a file
@@ -445,6 +443,27 @@ def check_classpath():
             sys.stderr.write(f" {','.join(not_found)}\n")
             sys.exit(1)
 
+def cleanup_files(generated_file_paths):
+    """This function cleans up all generated files.
+    Args:
+        generated_file_paths (list): List of all files that were generated.
+
+    Returns:
+        None
+    """
+    for filepath in generated_file_paths:
+        if os.path.isfile(filepath):
+            os.remove(filepath)
+
+def log_generated_files(file_paths):
+    """This function will add generated files' paths
+    into the global list GENERATED_FILE_PATHS.
+    Args:
+        file_path (list): List of file paths.
+    Returns:
+        None
+    """
+    GENERATED_FILE_PATHS.extend(file_paths)
 
 def indent(elem, level=0):
     """ This function indents each level of XML.
@@ -599,8 +618,8 @@ def fortran_to_grfn(
     except IOError:
         assert False, "Unable to write tofile: {preprocessed_fortran_file}"
 
-    GENERATED_FILE_PATHS.append(preprocessed_fortran_file)
-
+    log_generated_files([system_json_path, preprocessed_fortran_file])
+    
     # Generate OFP XML from preprocessed fortran
     ofp_xml = generate_ofp_xml(
         preprocessed_fortran_file, ofp_file, tester_call
@@ -620,15 +639,15 @@ def fortran_to_grfn(
     output_dict = generate_outputdict(
         rectified_tree, preprocessed_fortran_file, pickle_file, tester_call
     )
-    GENERATED_FILE_PATHS.append(pickle_file)
+
     # Create a python source file
     python_source = generate_python_src(
         output_dict, translated_python_files, output_file, variable_map_file,
         temp_dir, tester_call
     )
-    GENERATED_FILE_PATHS.append(output_file)
-    for py_file in translated_python_files:
-        GENERATED_FILE_PATHS.append(py_file)
+    file_list = [output_file, pickle_file, variable_map_file]
+    file_list.extend(translated_python_files)
+    log_generated_files(file_list)
 
     return (
         python_source,
