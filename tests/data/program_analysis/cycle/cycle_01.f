@@ -6,12 +6,12 @@ C   Source: https://www.tutorialspoint.com/fortran/fortran_cycle.htm
       program cycle_example     
       implicit none      
 
-        integer :: i     
-       
+        integer :: i
+
         do i = 1, 20          
        
-            if (i == 5) then 
-                cycle          
+            if (i == 5) then
+                cycle
             end if         
             
             write (*, 10) i
