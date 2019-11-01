@@ -133,9 +133,9 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper):
         # These two lines will extract all module names in the file.
         module_names.extend(re.findall(r'(?i)(?<=end module )[^-. \n]*', file_content))
         module_names.extend(re.findall(r'(?i)(?<=endmodule )[^-. \n]*', file_content))
+        file_to_mod_mapper[file_path] = module_names.copy()
+        file_to_mod_mapper[file_path].append(get_file_last_modified_time(file_path))
 
-    file_to_mod_mapper[file_path] = module_names
-    file_to_mod_mapper[file_path].append(get_file_last_modified_time(file_path))
     for mod in module_names:
         mod_to_file_mapper[mod] = [file_path]
 
