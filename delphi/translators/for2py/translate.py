@@ -180,6 +180,7 @@ class XML_to_JSON_translator(object):
         self.break_index = 0
         self.cycle_index = 0
         self.return_index = 0
+        self.loop_active = False
 
     def process_subroutine_or_program_module(self, root, state):
         """ This function should be the very first function to be called """
@@ -535,6 +536,7 @@ class XML_to_JSON_translator(object):
             root.tag == "loop"
         ), f"The root must be <loop>. Current tag is {root.tag} with " \
             f"{root.attrib} attributes."
+        self.loop_active = True
         if root.attrib["type"] == "do":
             self.loop_index += 1
             do = {"tag": "do"}
@@ -548,6 +550,7 @@ class XML_to_JSON_translator(object):
                         False
                     ), f"Unrecognized tag in the process_loop for 'do' type." \
                         f"{node.tag}"
+            self.loop_active = False
             return [do]
         elif root.attrib["type"] == "do-while":
             self.loop_index += 1
@@ -557,6 +560,7 @@ class XML_to_JSON_translator(object):
                     doWhile["header"] = self.parseTree(node, state)
                 elif node.tag == "body":
                     doWhile["body"] = self.parseTree(node, state)
+            self.loop_active = False
             return [doWhile]
         else:
             self.unhandled_tags.add(root.attrib["type"])
@@ -878,15 +882,17 @@ class XML_to_JSON_translator(object):
         if root.tag == 'exit':
             self.break_index += 1
             index = self.break_index
-            self.loop_constructs.setdefault(
-                f"loop_{self.loop_index}", []).append(f"break"
-                                                      f"_{self.break_index}")
+            if self.loop_active:
+                self.loop_constructs.setdefault(
+                    f"loop", []).append(f"break"
+                                                          f"_{self.break_index}")
         elif root.tag == "stop":
             self.return_index += 1
             index = self.return_index
-            self.loop_constructs.setdefault(
-                f"loop_{self.loop_index}", []).append(f"return"
-                                                      f"_{self.return_index}")
+            if self.loop_active:
+                self.loop_constructs.setdefault(
+                    f"loop", []).append(f"return"
+                                                          f"_{self.return_index}")
         return [{"tag": root.tag, "index": index}]
 
     """
@@ -984,9 +990,10 @@ class XML_to_JSON_translator(object):
         """This function handles cycle (continue in Python)
            tag."""
         self.cycle_index += 1
-        self.loop_constructs.setdefault(
-            f"loop_{self.loop_index}", []).append(f"cycle"
-                                                  f"_{self.cycle_index}")
+        if self.loop_active:
+            self.loop_constructs.setdefault(
+                f"loop", []).append(f"cycle"
+                                                      f"_{self.cycle_index}")
         return [{"tag": root.tag, "index": self.cycle_index}]
 
     def parseTree(self, root, state: ParseState) -> List[Dict]:
