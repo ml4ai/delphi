@@ -62,13 +62,15 @@ class RefactorConstructs(object):
 
         # Parse the loop_construct dictionary for each loop backwards. We
         # will process each construct bottom-up
-        loop_index = 1
+
+        # loop_index = 1
+
         # For every loop in the body
         # TODO: Currently only for un-nested loops without returns. Does not
         #  work for nested loops with/without returns as well
         for item in body:
             if item["tag"] in ["do", "do-while"]:
-                for construct in self.loop_constructs[f"loop_{loop_index}"][
+                for construct in self.loop_constructs[f"loop"][
                                  ::-1]:
                     if 'return' in construct:
                         self.search_while(body)
