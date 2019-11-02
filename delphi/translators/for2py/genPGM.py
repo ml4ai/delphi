@@ -1581,6 +1581,7 @@ class GrFNGenerator(object):
             else_grfn[0]["variables"].append(loop_break_variable)
 
         if len(if_grfn) > 0 \
+                and len(if_grfn[0]["functions"]) > 0 \
                 and isinstance(if_grfn[0]["functions"][0], str) \
                 and if_grfn[0]["functions"][0] == "insert_break":
             # Get next def of EXIT
@@ -3714,6 +3715,7 @@ def get_asts_from_files(file_list: List[str], printast=False) -> List:
         if printast:
             # If the printAst flag is set, print the AST to console
             print(dump_ast(ast_list[-1]))
+        print(dump_ast(ast_list[-1]))
     return ast_list
 
 
