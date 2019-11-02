@@ -157,8 +157,12 @@ class RefactorConstructs(object):
 #########################################################################
 
     def search_breaks(self, body, break_state):
+        body_tmp = copy.deepcopy(body)
         self.tag_break(body, 0, break_state)
-        self.append_break(body, 0, break_state)
+        if len(break_state.break_dict) == 0:
+            body[:] = body_tmp[:]
+        else:
+            self.append_break(body, 0, break_state)
 
     def tag_break(self, body, if_depth, state):
         for item in body[:]:
