@@ -407,6 +407,13 @@ def parse_args():
         help="A temporary directory for generated files to be stored"
     )
 
+    parser.add_argument(
+        "-r",
+        "--root",
+        nargs="*",
+        help="A root dirctory to begin file scanning from"
+    )
+
     args = parser.parse_args(sys.argv[1:])
 
     fortran_file = args.file[0]
@@ -419,7 +426,12 @@ def parse_args():
     else:
         out_directory = "tmp"
 
-    return fortran_file, out_directory
+    if args.root is not None:
+        root_dir  = args.root[0]
+    else:
+        root_dir = "."
+
+    return fortran_file, out_directory, root_dir
 
 
 def check_classpath():
@@ -531,7 +543,8 @@ def fortran_to_grfn(
     if not tester_call:
         (
             original_fortran_file,
-            temp_out_dir
+            temp_out_dir,
+            root_dir
         ) = parse_args()
     # Else, for2py function gets invoked by the test
     # programs, it will be passed with an argument
