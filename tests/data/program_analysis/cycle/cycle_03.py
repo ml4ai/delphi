@@ -22,15 +22,14 @@ def odd_number():
     k[0] = 0
     while True:
         k[0] = (k[0] + 1)
-        if (k[0] == 5):
-            continue
-        if (k[0] > n[0]):
-            break
-        if ((k[0] % 2) == 0):
-            continue
-        write_list_stream = [k[0], n[0]]
-        write_line = format_10_obj.write_line(write_list_stream)
-        sys.stdout.write(write_line)
+        if (k[0] != 5):
+            if (k[0] <= n[0]):
+                if ((k[0] % 2) != 0):
+                    write_list_stream = [k[0], n[0]]
+                    write_line = format_10_obj.write_line(write_list_stream)
+                    sys.stdout.write(write_line)
+            else:
+                break
     
 
 odd_number()
