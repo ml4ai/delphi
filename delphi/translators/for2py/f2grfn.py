@@ -268,12 +268,12 @@ def module_file_generator(item, temp_dir, output_list, python_files):
     module_file_name = f"{MODULE_FILE_PREFIX}{item[1].lower()}.py"
     module_file_path = f"{temp_dir}/{module_file_name}"
     try:
-        with open(module_file_name, "w") as f:
+        with open(module_file_path, "w") as f:
             output_list.append(module_file_name)
             f.write(item[0])
     except IOError:
         assert False, f"Unable to write to {module_file}."
-    python_files.append(module_file_path)
+    python_files.insert(0, module_file_path)
 
 def generate_grfn(
     python_source_string, python_filename, lambdas_file,
@@ -683,7 +683,6 @@ if __name__ == "__main__":
         mode_mapper_dict,
         original_fortran_file
     ) = fortran_to_grfn()
-
     # Generate GrFN file
     for python_file in python_files:
         grfn_dict = generate_grfn(
