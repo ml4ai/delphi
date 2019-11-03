@@ -27,7 +27,7 @@ import xml.etree.ElementTree as ET
 from typing import List, Dict
 from collections import OrderedDict
 from delphi.translators.for2py.get_comments import get_comments
-from delphi.translators.for2py.loop_handle import RefactorBreaks
+from delphi.translators.for2py.loop_handle import RefactorConstructs
 
 
 class ParseState(object):
@@ -174,6 +174,13 @@ class XML_to_JSON_translator(object):
         # This list holds the nodes of the file handles that needs to be
         # SAVEd in the python translated code.
         self.saved_filehandle = []
+        # Dictionary to hold the different loop constructs present with a loop
+        self.loop_constructs = {}
+        self.loop_index = 0
+        self.break_index = 0
+        self.cycle_index = 0
+        self.return_index = 0
+        self.loop_active = False
 
     def process_subroutine_or_program_module(self, root, state):
         """ This function should be the very first function to be called """
@@ -338,7 +345,6 @@ class XML_to_JSON_translator(object):
             root.tag == "type"
         ), f"The root must be <type>. Current tag is {root.tag} with " \
             f"{root.attrib} attributes."
-        declared_type = {}
         derived_type = []
         if (
             root.text
@@ -359,7 +365,7 @@ class XML_to_JSON_translator(object):
                         "type": root.attrib["name"],
                         "is_derived_type": is_derived_type,
                         "keyword2": keyword2,
-                    }
+                        }
                     declared_type["value"] = self.parseTree(node, state)
                     return [declared_type]
                 elif node.tag == "derived-types":
@@ -530,7 +536,9 @@ class XML_to_JSON_translator(object):
             root.tag == "loop"
         ), f"The root must be <loop>. Current tag is {root.tag} with " \
             f"{root.attrib} attributes."
+        self.loop_active = True
         if root.attrib["type"] == "do":
+            self.loop_index += 1
             do = {"tag": "do"}
             for node in root:
                 if node.tag == "header":
@@ -542,14 +550,17 @@ class XML_to_JSON_translator(object):
                         False
                     ), f"Unrecognized tag in the process_loop for 'do' type." \
                         f"{node.tag}"
+            self.loop_active = False
             return [do]
         elif root.attrib["type"] == "do-while":
+            self.loop_index += 1
             doWhile = {"tag": "do-while"}
             for node in root:
                 if node.tag == "header":
                     doWhile["header"] = self.parseTree(node, state)
                 elif node.tag == "body":
                     doWhile["body"] = self.parseTree(node, state)
+            self.loop_active = False
             return [doWhile]
         else:
             self.unhandled_tags.add(root.attrib["type"])
@@ -867,8 +878,22 @@ class XML_to_JSON_translator(object):
     def process_terminal(self, root, state) -> List[Dict]:
         """Handles tags that terminate the computation of a
         program unit, namely, "return", "stop", and "exit" """
-
-        return [{"tag": root.tag}]
+        index = 0
+        if root.tag == 'exit':
+            self.break_index += 1
+            index = self.break_index
+            if self.loop_active:
+                self.loop_constructs.setdefault(
+                    f"loop", []).append(f"break"
+                                                          f"_{self.break_index}")
+        elif root.tag == "stop":
+            self.return_index += 1
+            index = self.return_index
+            if self.loop_active:
+                self.loop_constructs.setdefault(
+                    f"loop", []).append(f"return"
+                                                          f"_{self.return_index}")
+        return [{"tag": root.tag, "index": index}]
 
     """
         This function handles <format> tag.
@@ -964,7 +989,12 @@ class XML_to_JSON_translator(object):
     def process_continue(self, root, state) -> List[Dict]:
         """This function handles cycle (continue in Python)
            tag."""
-        return [{"tag":root.tag}]
+        self.cycle_index += 1
+        if self.loop_active:
+            self.loop_constructs.setdefault(
+                f"loop", []).append(f"cycle"
+                                                      f"_{self.cycle_index}")
+        return [{"tag": root.tag, "index": self.cycle_index}]
 
     def parseTree(self, root, state: ParseState) -> List[Dict]:
         """
@@ -1026,9 +1056,6 @@ class XML_to_JSON_translator(object):
         for tree in trees:
             ast += self.parseTree(tree, ParseState())
 
-        # Handle loop breaks and returns
-        # ast = loop_breaks(ast)
-
         """
         Find the entry point for the Fortran file.
         The entry point for a conventional Fortran file is always the PROGRAM
@@ -1072,8 +1099,12 @@ def xml_to_py(trees, fortran_file):
     translator = XML_to_JSON_translator()
     output_dict = translator.analyze(trees)
 
-    refactor_breaks = RefactorBreaks()
-    output_dict = refactor_breaks.refactor(output_dict)
+    # Only go through with the handling of breaks and returns if they are
+    # actually there
+    if len(translator.loop_constructs) > 0:
+        refactor_breaks = RefactorConstructs()
+        output_dict = refactor_breaks.refactor(output_dict,
+                                               translator.loop_constructs)
 
     comments = get_comments(fortran_file)
     output_dict["comments"] = comments
