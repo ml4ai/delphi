@@ -24,9 +24,10 @@ import re
 import os
 import sys
 import argparse
+import json
 import xml.etree.ElementTree as ET
-from delphi.translators.for2py import For2PyError, syntax
-
+from delphi.translators.for2py import For2PyError, syntax, f2grfn
+from os.path import isfile, join
 
 class RectifyOFPXML:
     def __init__(self):
@@ -184,7 +185,9 @@ class RectifyOFPXML:
         self.caller_arr_arguments = {}
         # Set to true if handling <call>
         self.call_function = False
-
+        self.original_fortran_file_abs_path = None
+        self.module_log_file_path = None
+        self.module_files_to_process = []
 
     #################################################################
     #                                                               #
@@ -2542,6 +2545,25 @@ class RectifyOFPXML:
         <use>
         </use>
         """
+        assert (
+            isfile(self.module_log_file_path)
+        ), f"Module log file path must exist."
+
+        with open(self.module_log_file_path) as json_f:
+            module_logs = json.load(json_f)
+        
+        file_to_mod_mapper = module_logs["file_to_mod"]
+        mod_to_file_mapper = module_logs["mod_to_file"]
+        
+        use_module = root.attrib['name']
+        use_module_file_path = mod_to_file_mapper[use_module]
+        if use_module_file_path[0] != self.original_fortran_file_abs_path:
+            self.module_files_to_process.append(use_module_file_path[0])
+        else:
+            # If module resides in the same file, we don't have to do anything.
+            # Handling for this case is alreadyd implemented in genPGM.py
+            pass
+
         for child in root:
             self.clean_attrib(child)
             if child.tag == "use-stmt" or child.tag == "only":
@@ -4661,7 +4683,7 @@ def indent(elem, level=0):
             elem.tail = i
 
 
-def buildNewASTfromXMLString(xmlString: str) -> ET.Element:
+def buildNewASTfromXMLString(xmlString: str, original_fortran_file: str, module_log_file_path: str) -> ET.Element:
     """This function process OFP generated XML and generates
     a rectified version by recursively calling the appropriate
     functions.
@@ -4672,10 +4694,13 @@ def buildNewASTfromXMLString(xmlString: str) -> ET.Element:
     Returns:
         ET object: A reconstructed element object.
     """
+    XMLCreator = RectifyOFPXML()
+    # We need the absolute path of Fortran file to lookup in the modLogFile.json
+    XMLCreator.original_fortran_file_abs_path = os.path.abspath(original_fortran_file)
+    XMLCreator.module_log_file_path = module_log_file_path
     traverse = 1
 
     ofpAST = ET.XML(xmlString)
-    XMLCreator = RectifyOFPXML()
     # A root of the new AST
     newRoot = ET.Element(ofpAST.tag, ofpAST.attrib)
     # First add the root to the new AST list
@@ -4709,7 +4734,7 @@ def buildNewASTfromXMLString(xmlString: str) -> ET.Element:
         if not XMLCreator.continue_elimination:
             XMLCreator.need_goto_elimination = False
 
-    return newRoot
+    return newRoot, XMLCreator.module_files_to_process
 
 
 def parse_args():
