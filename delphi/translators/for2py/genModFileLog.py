@@ -71,9 +71,11 @@ def get_file_list_in_directory(root_dir_path):
     files = []
     for (dir_path, dir_names, file_names) in os.walk(root_dir_path):
         for f in file_names:
-            if f.endswith('.f') or f.endswith('.for'):
+            if (
+                    "_preprocessed" not in f
+                    and (f.endswith('.f') or f.endswith('.for'))
+            ):
                 files += [os.path.join(dir_path, f)]
-
     return files
 
 def modules_from_file(file_path, file_to_mod_mapper, mod_to_file_mapper):
@@ -153,9 +155,8 @@ def get_file_last_modified_time(file_path):
     return file_stat[8]
 
 def mod_file_log_generator(
-        root_dir=None,
+        root_dir_path=None,
         module_log_file_name=None,
-        tester_call=False
 ):
     """This function is like a main function to invoke other functions
     to perform all checks and population of mappers. Though, loading of
@@ -167,10 +168,9 @@ def mod_file_log_generator(
     Returns:
         None.
     """
-    root_dir_path, module_log_file = parse_args()
     if root_dir_path == None:
         root_dir_path = "."
-    module_log_file_path = root_dir_path + "/" + module_log_file
+    module_log_file_path = root_dir_path + "/" + module_log_file_name
 
     # If module log file already exists, simply load data.
     if isfile(module_log_file_path):
@@ -208,5 +208,8 @@ def mod_file_log_generator(
     with open(module_log_file_path, 'w+') as json_f:
         json_f.write(json.dumps(module_log, indent=2))
 
+    return module_log_file_path
+
 if __name__ == "__main__":
-    mod_file_log_generator()
+    root_dir_path, module_log_file = parse_args()
+    log_file_path = mod_file_log_generator(root_dir_path, module_log_file)
