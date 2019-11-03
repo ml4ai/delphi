@@ -2556,7 +2556,7 @@ class RectifyOFPXML:
         mod_to_file_mapper = module_logs["mod_to_file"]
         
         use_module = root.attrib['name']
-        use_module_file_path = mod_to_file_mapper[use_module]
+        use_module_file_path = mod_to_file_mapper[use_module.lower()]
         if use_module_file_path[0] != self.original_fortran_file_abs_path:
             self.module_files_to_process.append(use_module_file_path[0])
         else:
