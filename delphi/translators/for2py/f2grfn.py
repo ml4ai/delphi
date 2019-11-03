@@ -200,7 +200,6 @@ def generate_outputdict(
                 pickle.dump(output_dictionary, f)
         except IOError:
             assert False, f"Failed to write to {pickle_file}."
-
     return output_dictionary
 
 
@@ -228,7 +227,7 @@ def generate_python_src(
     Returns:
         str: A string of generated python code.
     """
-
+    
     (python_source, variable_map) = pyTranslate.create_python_source_list(
      output_dictionary)
 
@@ -290,7 +289,8 @@ def module_file_generator(item, temp_dir, output_list, python_files):
 
 def generate_grfn(
     python_source_string, python_filename, lambdas_file,
-    mode_mapper_dictionary, original_fortran_file, tester_call
+    mode_mapper_dictionary, original_fortran_file, tester_call,
+    mod_log_file_path
 ):
     """This function generates GrFN dictionary object and file.
 
@@ -344,7 +344,7 @@ def generate_grfn(
 
     # Calling the `get_index` function in `mod_index_generator.py` to
     # map all variables and objects in the various files
-    module_mapper = get_index(xml_file)
+    module_mapper = get_index(xml_file, mod_log_file_path)
     main_program = module_mapper[0]["modules"][-1]
     module_import_paths = {}
 
@@ -554,7 +554,7 @@ def fortran_to_grfn(
     temp_dir=None,
     root_dir_path=".",
     module_file_name=MODULE_FILE_NAME,
-    recurse=False,
+    processing_modules=False,
 ):
     """This function invokes other appropriate functions
     to process and generate objects to translate fortran
@@ -588,7 +588,7 @@ def fortran_to_grfn(
 
     # If, for2py runs manually by the user, which receives
     # the path to the file via command line argument.
-    if not tester_call and not recurse:
+    if not tester_call and not processing_modules:
         (
             original_fortran_file,
             temp_out_dir,
@@ -680,19 +680,30 @@ def fortran_to_grfn(
     )
 
     if module_files_to_process:
+        processing_modules = True
         for target_module_file in module_files_to_process:
-            fortran_to_grfn(target_module_file, tester_call, network_test, temp_dir, root_dir, module_file, True)
+            fortran_to_grfn(target_module_file, tester_call, network_test, temp_dir, root_dir, module_file, processing_modules)
+        processing_modules = False
 
+    # DEBUG
+    print ("    * f2grfn - original_fortran_file: ", original_fortran_file)
     # Generate separate list of modules file
     mode_mapper_tree = rectified_tree
     generator = mod_index_generator.ModuleGenerator()
-    mode_mapper_dict = generator.analyze(mode_mapper_tree)
+    mode_mapper_dict = generator.analyze(mode_mapper_tree, module_log_file_path)
+
+    # DEBUG
+    print ("    * processing_modules: ", processing_modules)
+    if processing_modules:
+        # DEBUG
+        print ("    * mode_mapper_dict: ", mode_mapper_dict[0])
+        print ("    * module_log_file_path: ", module_log_file_path)
+        genModFileLog.update_mod_info_json(module_log_file_path, mode_mapper_dict[0])
 
     # Creates a pickle file
     output_dict = generate_outputdict(
         rectified_tree, preprocessed_fortran_file, pickle_file, tester_call
     )
-
     # Create a python source file
     python_source = generate_python_src(
         output_dict, translated_python_files, output_file, variable_map_file,
@@ -709,7 +720,8 @@ def fortran_to_grfn(
         translated_python_files,
         base,
         mode_mapper_dict,
-        original_fortran_file
+        original_fortran_file,
+        module_log_file_path,
     )
 
 
@@ -721,11 +733,12 @@ if __name__ == "__main__":
         python_files,
         base,
         mode_mapper_dict,
-        original_fortran_file
+        original_fortran_file,
+        mod_log_file_path,
     ) = fortran_to_grfn()
     # Generate GrFN file
     for python_file in python_files:
         grfn_dict = generate_grfn(
             python_src[0][0], python_file, lambdas_file, mode_mapper_dict[0],
-            original_fortran_file, False
+            original_fortran_file, False, mod_log_file_path
         )
