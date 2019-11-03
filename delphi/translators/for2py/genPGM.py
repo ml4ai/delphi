@@ -3650,12 +3650,14 @@ def create_grfn_dict(
     # PROGRAM module which will be the entry point of the GrFN.
     if grfn.get("start"):
         grfn["start"] = [grfn["start"][0]]
-    else:
+    elif generator.function_definitions:
         # TODO: The `grfn_spec` mentions this to be null (None) but it looks
         #  like `networks.py` requires a certain function. Finalize after
         #  `networks.py` is completed.
         # grfn["start"] = None
         grfn["start"] = [generator.function_definitions[-1]]
+    else:
+        grfn["start"] = None
 
     # Add the placeholder to enter the grounding and link hypothesis information
     grfn["grounding"] = []
