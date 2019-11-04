@@ -295,7 +295,7 @@ def module_file_generator(item, temp_dir, output_list, python_files):
 def generate_grfn(
     python_source_string, python_filename, lambdas_file,
     mode_mapper_dictionary, original_fortran_file, tester_call,
-    mod_log_file_path
+    mod_log_file_path, processing_modules
 ):
     """This function generates GrFN dictionary object and file.
 
@@ -373,7 +373,6 @@ def generate_grfn(
     for item in grfn_dict["containers"]:
         if "gensym" in item:
             del item["gensym"]
-
     genPGM.generate_system_def([python_filename], grfn_filepath_list, module_import_paths)
 
     log_generated_files([grfn_file, lambdas_file])
@@ -637,7 +636,7 @@ def fortran_to_grfn(
     # f2grfn execution, we need to remove the system.json
     # from the directory first.
     system_json_path = temp_dir + "/" + "system.json"
-    if os.path.isfile(system_json_path):
+    if os.path.isfile(system_json_path) and not processing_modules:
         rm_system_json = "rm " + system_json_path
         os.system(rm_system_json)
 
@@ -733,12 +732,11 @@ def fortran_to_grfn(
             original_fortran_file,
             module_log_file_path,
         )
-
     # Generate GrFN file
     for python_file in translated_python_files:
         grfn_dict = generate_grfn(
             python_source[0][0], python_file, lambdas_file_path, mode_mapper_dict[0],
-            original_fortran_file, False, module_log_file_path
+            original_fortran_file, False, module_log_file_path, processing_modules
         )
 
 if __name__ == "__main__":
