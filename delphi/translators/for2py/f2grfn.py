@@ -32,6 +32,7 @@ import ntpath as np
 import subprocess as sp
 import xml.etree.ElementTree as ET
 from delphi.translators.for2py.mod_index_generator import get_index
+from os.path import isfile
 
 from delphi.translators.for2py import (
     preprocessor,
@@ -260,6 +261,10 @@ def generate_python_src(
     except IOError:
         assert False, f"Unable to write to {output_file}."
 
+    for f in python_files:
+        if not isfile(f):
+            python_files.remove(f)
+
     return python_source
 
 def module_file_generator(item, temp_dir, output_list, python_files):
@@ -281,11 +286,11 @@ def module_file_generator(item, temp_dir, output_list, python_files):
     module_file_path = f"{temp_dir}/{module_file_name}"
     try:
         with open(module_file_path, "w") as f:
-            output_list.append(module_file_name)
+            output_list.append(module_file_path)
             f.write(item[0])
     except IOError:
         assert False, f"Unable to write to {module_file}."
-    python_files.insert(0, module_file_path)
+    python_files.append(module_file_path)
 
 def generate_grfn(
     python_source_string, python_filename, lambdas_file,
@@ -645,7 +650,7 @@ def fortran_to_grfn(
     translated_python_files = [temp_dir + "/" + base + ".py"]
     output_file = temp_dir + "/" + base + "_outputList.txt"
     json_suffix = temp_dir + "/" + base + ".json"
-    lambdas_suffix = temp_dir + "/" + base + "_lambdas.py"
+    lambdas_file_path = temp_dir + "/" + base + "_lambdas.py"
 
     # Open and read original fortran file
     try:
@@ -679,10 +684,19 @@ def fortran_to_grfn(
         module_log_file_path
     )
 
+    # If a program uses module(s) that does not reside within the same file,
+    # we need to find out where the lives and process those files first. Thus,
+    # the program should know the list of modules that require advance process
+    # that was collected by rectify.py, below code will recursively call fortran_to_grfn
+    # function to process module files end-to-end (Fortran-to-GrFN).
     if module_files_to_process:
         processing_modules = True
         for target_module_file in module_files_to_process:
-            fortran_to_grfn(target_module_file, tester_call, network_test, temp_dir, root_dir, module_file, processing_modules)
+            fortran_to_grfn(
+                    target_module_file, tester_call, 
+                    network_test, temp_dir, root_dir, 
+                    module_file, processing_modules
+            )
         processing_modules = False
 
     # Generate separate list of modules file
@@ -690,6 +704,8 @@ def fortran_to_grfn(
     generator = mod_index_generator.ModuleGenerator()
     mode_mapper_dict = generator.analyze(mode_mapper_tree, module_log_file_path)
 
+    # This will update the log file with more information about the module,
+    # such as the declared symbols and types that is needed for generating GrFN.
     if processing_modules:
         genModFileLog.update_mod_info_json(module_log_file_path, mode_mapper_dict[0])
 
@@ -706,32 +722,24 @@ def fortran_to_grfn(
     file_list.extend(translated_python_files)
     log_generated_files(file_list)
 
-    return (
-        python_source,
-        lambdas_suffix,
-        json_suffix,
-        translated_python_files,
-        base,
-        mode_mapper_dict,
-        original_fortran_file,
-        module_log_file_path,
-    )
+    if tester_call:
+        return (
+            python_source,
+            lambdas_file_path,
+            json_suffix,
+            translated_python_files,
+            base,
+            mode_mapper_dict,
+            original_fortran_file,
+            module_log_file_path,
+        )
 
+    # Generate GrFN file
+    for python_file in translated_python_files:
+        grfn_dict = generate_grfn(
+            python_source[0][0], python_file, lambdas_file_path, mode_mapper_dict[0],
+            original_fortran_file, False, module_log_file_path
+        )
 
 if __name__ == "__main__":
-    (
-        python_src,
-        lambdas_file,
-        json_file,
-        python_files,
-        base,
-        mode_mapper_dict,
-        original_fortran_file,
-        mod_log_file_path,
-    ) = fortran_to_grfn()
-    # Generate GrFN file
-    for python_file in python_files:
-        grfn_dict = generate_grfn(
-            python_src[0][0], python_file, lambdas_file, mode_mapper_dict[0],
-            original_fortran_file, False, mod_log_file_path
-        )
+    fortran_to_grfn()
