@@ -188,6 +188,7 @@ class RectifyOFPXML:
         self.original_fortran_file_abs_path = None
         self.module_log_file_path = None
         self.module_files_to_process = []
+        self.modules_in_file = []
 
     #################################################################
     #                                                               #
@@ -2557,7 +2558,10 @@ class RectifyOFPXML:
         
         use_module = root.attrib['name']
         use_module_file_path = mod_to_file_mapper[use_module.lower()]
-        if use_module_file_path[0] != self.original_fortran_file_abs_path:
+        if (
+                use_module_file_path[0] != self.original_fortran_file_abs_path
+                and use_module not in self.modules_in_file
+        ):
             self.module_files_to_process.append(use_module_file_path[0])
         else:
             # If module resides in the same file, we don't have to do anything.
@@ -2603,6 +2607,7 @@ class RectifyOFPXML:
                 self.parseXMLTree(
                     child, cur_elem, current, parent, traverse
                 )
+        self.modules_in_file.append(root.attrib["name"])
 
     def handle_tag_initial_value(
             self, root, current, parent, grandparent, traverse
