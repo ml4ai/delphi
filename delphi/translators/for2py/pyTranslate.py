@@ -1585,6 +1585,8 @@ def create_python_source_list(outputDict: Dict):
     code_generator.functions = outputDict["functionList"]
     code_generator.pyStrings.append("\n".join(import_lines))
 
+    # Some Fortran files do not hold any PROGRAM function, such as files created
+    # for module holder purpose.
     if main_ast:
         # Copy the derived type ast from the main_ast into the separate list,
         # so it can be printed outside (above) the main method
