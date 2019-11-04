@@ -464,7 +464,6 @@ class GroundedFunctionNetwork(ComputationalGraph):
             fortran_filename,
             module_log_file_path,
             processing_modules,
-            module_log_file_path
         ) = f2grfn.fortran_to_grfn(fortran_file, True, True, str(tmpdir), root_dir, processing_modules=False)
 
         for python_file in translated_python_files:

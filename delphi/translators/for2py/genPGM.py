@@ -3634,7 +3634,8 @@ def create_grfn_dict(
     for module in mode_mapper_dict[0]["subprograms"]:
         for subp in mode_mapper_dict[0]["subprograms"][module]:
             generator.module_subprograms.append(subp)
-            module_logs["mod_info"][module]["symbol_types"][subp] = "func"
+            if module in module_logs["mod_info"]:
+                module_logs["mod_info"][module]["symbol_types"][subp] = "func"
 
     for module in mode_mapper_dict[0]["imports"]:
         for subm in mode_mapper_dict[0]["imports"][module]:
