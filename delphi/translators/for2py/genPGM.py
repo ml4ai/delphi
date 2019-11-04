@@ -3572,6 +3572,7 @@ def create_grfn_dict(
         file_name: str,
         mode_mapper_dict: list,
         original_file: str,
+        mod_log_file_path: str,
         save_file=False,
         module_file_exist=False,
         module_import_paths={},
@@ -3596,6 +3597,9 @@ def create_grfn_dict(
     # a prefix "m_", this may be changed in the future.
     # If it requires a change, simply modify this below prefix.
     module_file_prefix = "m_"
+
+    with open(mod_log_file_path) as json_f:
+        module_logs = json.load(json_f)
 
     try:
         filename_regex = re.compile(r"(?P<path>.*/)(?P<filename>.*).py")
@@ -3630,6 +3634,22 @@ def create_grfn_dict(
     for module in mode_mapper_dict[0]["subprograms"]:
         for subp in mode_mapper_dict[0]["subprograms"][module]:
             generator.module_subprograms.append(subp)
+            module_logs["mod_info"][module]["symbol_types"][subp] = "func"
+
+    for module in mode_mapper_dict[0]["imports"]:
+        for subm in mode_mapper_dict[0]["imports"][module]:
+            import_module_name = list(subm.keys())[0]
+            import_function_list = subm[import_module_name]
+            if (
+                    not import_function_list
+                    and import_module_name in module_logs["mod_info"]
+            ):
+                symbols = module_logs["mod_info"][import_module_name]["symbol_types"]
+                for key, value in symbols.items():
+                    if value == "func":
+                        generator.module_subprograms.append(key)
+
+            generator.module_subprograms.extend(import_function_list)
 
     grfn = generator.gen_grfn(asts, state, "")[0]
 
@@ -3686,6 +3706,9 @@ def create_grfn_dict(
 
     with open(lambda_file, "w") as lambda_fh:
         lambda_fh.write("".join(lambda_string_list))
+
+    with open(mod_log_file_path, "w+") as json_f:
+        json_f.write(json.dumps(module_logs, indent=2))
 
     # View the PGM file that will be used to build a scope tree
     if save_file:

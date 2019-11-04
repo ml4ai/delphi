@@ -12,10 +12,12 @@ functionality of test_program_analysis.py and autoTranslate.
 Example:
     This script can be executed as below:
 
-        $ python f2grfn -f <fortran_file>
+        $ python f2grfn -f <fortran_file> -r <root_dir>
 
 fortran_file: An original input file to a program that is
 to be translated to GrFN.
+root_dir: A root directory where module log file should be
+created or found.
 
 Author: Terrence J. Lim
 """
@@ -359,7 +361,7 @@ def generate_grfn(
 
     grfn_dict = genPGM.create_grfn_dict(
         lambdas_file, asts, python_filename, module_mapper,
-        original_fortran_file, True, module_file_exist, module_import_paths
+        original_fortran_file, mod_log_file_path, True, module_file_exist, module_import_paths,
     )
 
     if module_file_exist:
@@ -698,7 +700,7 @@ def fortran_to_grfn(
             )
         processing_modules = False
 
-    # Generate separate list of modules file
+    # Generate separate list of modules file.
     mode_mapper_tree = rectified_tree
     generator = mod_index_generator.ModuleGenerator()
     mode_mapper_dict = generator.analyze(mode_mapper_tree, module_log_file_path)
@@ -708,15 +710,16 @@ def fortran_to_grfn(
     if processing_modules:
         genModFileLog.update_mod_info_json(module_log_file_path, mode_mapper_dict[0])
 
-    # Creates a pickle file
+    # Creates a pickle file.
     output_dict = generate_outputdict(
         rectified_tree, preprocessed_fortran_file, pickle_file, tester_call
     )
-    # Create a python source file
+    # Create a python source file.
     python_source = generate_python_src(
         output_dict, translated_python_files, output_file, variable_map_file,
         temp_dir, tester_call
     )
+    # Add generated list of files and log it for later removal, if needed.
     file_list = [output_file, pickle_file, variable_map_file]
     file_list.extend(translated_python_files)
     log_generated_files(file_list)

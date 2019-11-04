@@ -4224,19 +4224,20 @@ class RectifyOFPXML:
         """
 
         fname = current.attrib['fname']
-        callee_arguments = self.arguments_list[fname]
-        for arg in callee_arguments:
-            # self.caller_arr_arguments holds any element
-            # only when arrays are being passed to functions
-            # as arguments. Thus, we first need to check if
-            # callee function name exists in the list
-            if (
-                fname in self.caller_arr_arguments
-                and arg.attrib['name'] in self.caller_arr_arguments[fname]
-            ):
-                arg.attrib['is_array'] = "true"
-            else:
-                arg.attrib['is_array'] = "false"
+        if fname in self.arguments_list:
+            callee_arguments = self.arguments_list[fname]
+            for arg in callee_arguments:
+                # self.caller_arr_arguments holds any element
+                # only when arrays are being passed to functions
+                # as arguments. Thus, we first need to check if
+                # callee function name exists in the list
+                if (
+                    fname in self.caller_arr_arguments
+                    and arg.attrib['name'] in self.caller_arr_arguments[fname]
+                ):
+                    arg.attrib['is_array'] = "true"
+                else:
+                    arg.attrib['is_array'] = "false"
         # re-initialize back to initial values
         self.call_function = False 
 

@@ -142,7 +142,7 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper, mod_info
 
     for mod in module_names_lowered:
         mod_to_file_mapper[mod] = [file_path]
-        mod_info_dict[mod] = {"exports":{}, "symbol_types":{}}
+        mod_info_dict[mod] = {"exports":{}, "symbol_types":{}, "imports":{}}
 
 def get_file_last_modified_time(file_path):
     """This function retrieves the file status and assigns the last modified
@@ -158,13 +158,29 @@ def get_file_last_modified_time(file_path):
     return file_stat[8]
 
 def update_mod_info_json(module_log_file_path, mode_mapper_dict):
+    """This function updates each module's information, such as
+    the declared variables and their types, so that genPGM.py
+    can simply reference this dictionary rather than processing
+    the file again.
+    
+    Params:
+        module_log_file_path (str): A path of module log file.
+        mode_mapper_dict (dict): A dictionary that holds all information
+        of a module(s).
+    """
     mod_info = {"exports": mode_mapper_dict["exports"]}
     symbol_types = {}
     for mod_name, mod_symbols in mode_mapper_dict["exports"].items():
         sym_type = {}
         for sym in mod_symbols:
-            m_type = mode_mapper_dict["symbol_types"][sym]
-            sym_type[sym] = m_type[1]
+            if sym in mode_mapper_dict["symbol_types"]:
+                m_type = mode_mapper_dict["symbol_types"][sym]
+                sym_type[sym] = m_type[1]
+            elif (
+                    mod_name in mode_mapper_dict["subprograms"] and
+                    sym in mode_mapper_dict["subprograms"][mod_name]
+            ):
+                sym_type[sym] = "func"
         symbol_types[mod_name] = sym_type
     mod_info["symbol_types"] = symbol_types
 
@@ -173,8 +189,13 @@ def update_mod_info_json(module_log_file_path, mode_mapper_dict):
 
     for module in mode_mapper_dict["modules"]:
         mod = module_logs["mod_info"][module]
-        mod["exports"] = mod_info["exports"]
-        mod["symbol_types"] = mod_info["symbol_types"]
+        mod["exports"] = mod_info["exports"][module]
+        mod["symbol_types"] = mod_info["symbol_types"][module]
+        if module in mode_mapper_dict["imports"]:
+            imports = mode_mapper_dict["imports"][module]
+        else:
+            imports = []
+        mod["imports"] = imports 
         module_logs["mod_info"][module] = mod
 
     with open(module_log_file_path, 'w+') as json_f:

@@ -105,9 +105,16 @@ class ModuleGenerator(object):
                                 key.lower() in module_logs["mod_info"]
                             ), f"module name (key) {key} does not exist in the log file."
                             symbols = module_logs["mod_info"][key]["exports"]
-                        self.imports.setdefault(module, []).append(
-                            {key: symbols}
-                        )
+                            if module in module_logs["mod_info"]:
+                                module_logs["mod_info"][module]["imports"] = symbols
+                        if key in symbols:
+                            self.imports.setdefault(module, []).append(
+                                {key: symbols[key]}
+                            )
+                        else:
+                            self.imports.setdefault(module, []).append(
+                                {key: symbols}
+                            )
                     else:
                         self.imports.setdefault(module, []).append(
                             {key: use_item[key]}
@@ -232,6 +239,8 @@ class ModuleGenerator(object):
             output_dictionary['symbols'] = self.symbols
             output_dictionary['symbol_types'] = self.symbol_type
 
+        with open(mod_log_path, 'w+') as json_f:
+            json_f.write(json.dumps(module_logs, indent=2))
         return [output_dictionary]
 
 
