@@ -734,7 +734,8 @@ def fortran_to_grfn(
             mode_mapper_dict,
             original_fortran_file,
             module_log_file_path,
-            processing_modules
+            processing_modules,
+            module_log_file_path
         )
 
     # Generate GrFN file
