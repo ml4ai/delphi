@@ -648,7 +648,7 @@ def fortran_to_grfn(
     variable_map_file = temp_dir + "/" + base + "_variables_pickle"
     translated_python_files = [temp_dir + "/" + base + ".py"]
     output_file = temp_dir + "/" + base + "_outputList.txt"
-    json_suffix = temp_dir + "/" + base + ".json"
+    json_file = temp_dir + "/" + base + ".json"
     lambdas_file_path = temp_dir + "/" + base + "_lambdas.py"
 
     # Open and read original fortran file
@@ -725,13 +725,15 @@ def fortran_to_grfn(
         return (
             python_source,
             lambdas_file_path,
-            json_suffix,
+            json_file,
             translated_python_files,
             base,
             mode_mapper_dict,
             original_fortran_file,
             module_log_file_path,
+            processing_modules
         )
+
     # Generate GrFN file
     for python_file in translated_python_files:
         grfn_dict = generate_grfn(
