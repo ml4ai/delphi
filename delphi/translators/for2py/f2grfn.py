@@ -685,19 +685,12 @@ def fortran_to_grfn(
             fortran_to_grfn(target_module_file, tester_call, network_test, temp_dir, root_dir, module_file, processing_modules)
         processing_modules = False
 
-    # DEBUG
-    print ("    * f2grfn - original_fortran_file: ", original_fortran_file)
     # Generate separate list of modules file
     mode_mapper_tree = rectified_tree
     generator = mod_index_generator.ModuleGenerator()
     mode_mapper_dict = generator.analyze(mode_mapper_tree, module_log_file_path)
 
-    # DEBUG
-    print ("    * processing_modules: ", processing_modules)
     if processing_modules:
-        # DEBUG
-        print ("    * mode_mapper_dict: ", mode_mapper_dict[0])
-        print ("    * module_log_file_path: ", module_log_file_path)
         genModFileLog.update_mod_info_json(module_log_file_path, mode_mapper_dict[0])
 
     # Creates a pickle file
