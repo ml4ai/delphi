@@ -78,7 +78,7 @@ def get_file_list_in_directory(root_dir_path):
                 files += [os.path.join(dir_path, f)]
     return files
 
-def modules_from_file(file_path, file_to_mod_mapper, mod_to_file_mapper):
+def modules_from_file(file_path, file_to_mod_mapper, mod_to_file_mapper, mod_info_dict):
     """This function checks either the module and file path already exist
     int the log file. If it does, then it compares the last_modified_time
     in the log file with the last modified time of file in disk. Then, it
@@ -104,11 +104,11 @@ def modules_from_file(file_path, file_to_mod_mapper, mod_to_file_mapper):
             assert (
                     last_modified_time > last_modified_time_in_log
             ), "Last modified time in the log file cannot be later than on disk file's time."
-            populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper)
+            populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper, mod_info_dict)
     else:
-        populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper)
+        populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper, mod_info_dict)
 
-def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper):
+def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper, mod_info_dict):
     """This function populates two mappers by checking and extracting 
     module names, if exist, from the file, and map it to the file name.
     Args:
@@ -123,6 +123,7 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper):
     with open(file_path, encoding = "ISO-8859-1") as f:
         file_content = f.read()
     module_names = []
+    module_names_lowered = []
     # Checks if file contains "end module" or "end module",
     # which only appears in case of module declaration.
     # If not, there is no need to look into the file any further,
@@ -135,11 +136,13 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper):
         # These two lines will extract all module names in the file.
         module_names.extend(re.findall(r'(?i)(?<=end module )[^-. \n]*', file_content))
         module_names.extend(re.findall(r'(?i)(?<=endmodule )[^-. \n]*', file_content))
-        file_to_mod_mapper[file_path] = module_names.copy()
+        module_names_lowered = [mod.lower() for mod in module_names]
+        file_to_mod_mapper[file_path] = module_names_lowered.copy()
         file_to_mod_mapper[file_path].append(get_file_last_modified_time(file_path))
 
-    for mod in module_names:
+    for mod in module_names_lowered:
         mod_to_file_mapper[mod] = [file_path]
+        mod_info_dict[mod] = {"exports":{}, "symbol_types":{}}
 
 def get_file_last_modified_time(file_path):
     """This function retrieves the file status and assigns the last modified
@@ -153,6 +156,30 @@ def get_file_last_modified_time(file_path):
     """
     file_stat = os.stat(file_path)
     return file_stat[8]
+
+def update_mod_info_json(module_log_file_path, mode_mapper_dict):
+    mod_info = {"exports": mode_mapper_dict["exports"]}
+    symbol_types = {}
+    for mod_name, mod_symbols in mode_mapper_dict["exports"].items():
+        sym_type = {}
+        for sym in mod_symbols:
+            m_type = mode_mapper_dict["symbol_types"][sym]
+            sym_type[sym] = m_type[1]
+        symbol_types[mod_name] = sym_type
+    mod_info["symbol_types"] = symbol_types
+
+    with open(module_log_file_path) as json_f:
+        module_logs = json.load(json_f)
+
+    for module in mode_mapper_dict["modules"]:
+        mod = module_logs["mod_info"][module]
+        mod["exports"] = mod_info["exports"]
+        mod["symbol_types"] = mod_info["symbol_types"]
+        module_logs["mod_info"][module] = mod
+
+    with open(module_log_file_path, 'w+') as json_f:
+        json_f.write(json.dumps(module_logs, indent=2))
+
 
 def mod_file_log_generator(
         root_dir_path=None,
@@ -194,16 +221,17 @@ def mod_file_log_generator(
         #       ...,
         #   }
         mod_to_file_mapper = module_logs["mod_to_file"]
+        mod_info_dict = module_logs["mod_info"]
     else:
         file_to_mod_mapper = {}
         mod_to_file_mapper = {}
+        mod_info_dict = {}
 
     files = get_file_list_in_directory(root_dir_path)
    
     for file_path in files:
-        modules_from_file(file_path, file_to_mod_mapper, mod_to_file_mapper)
-
-    module_log = {"file_to_mod": file_to_mod_mapper, "mod_to_file": mod_to_file_mapper}
+        modules_from_file(file_path, file_to_mod_mapper, mod_to_file_mapper, mod_info_dict)
+    module_log = {"file_to_mod": file_to_mod_mapper, "mod_to_file": mod_to_file_mapper, "mod_info": mod_info_dict}
 
     with open(module_log_file_path, 'w+') as json_f:
         json_f.write(json.dumps(module_log, indent=2))
