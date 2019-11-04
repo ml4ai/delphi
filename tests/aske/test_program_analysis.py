@@ -23,18 +23,26 @@ def get_python_source(
     root_dir = os.path.abspath(".")
     return f2grfn.fortran_to_grfn(
                 original_fortran_file, 
-                True, False, 
-                temporary_dir, root_dir,
+                True,
+                False, 
+                temporary_dir,
+                root_dir,
                 processing_modules=False
            )
 
 
 def make_grfn_dict(original_fortran_file) -> Dict:
-    (pySrc, lambdas_filename,
-     json_filename, python_filenames,
-     base, mode_mapper_dict, 
-     original_fortran, module_log_file_path,
-     processing_modules) = get_python_source(original_fortran_file)
+    (
+        pySrc, 
+        lambdas_filename,
+        json_filename, 
+        python_filenames,
+        base, 
+        mode_mapper_dict, 
+        original_fortran, 
+        module_log_file_path,
+        processing_modules
+    ) = get_python_source(original_fortran_file)
 
     for python_file in python_filenames:
         _dict = f2grfn.generate_grfn(
