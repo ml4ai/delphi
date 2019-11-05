@@ -41,24 +41,40 @@ components:
     grfn_ref:
       title: <grfn_ref>
       description: >
-        Specifies a GrFN def file that is part of a GrFN system.
-        "imports" (optional) specifies list of any GrFN files
-        that need to also be loaded due to dependencies.
+        Specifies a GrFN definition file (`grfn_source`) that is part of
+        a GrFN system, along with it source code files (`code_sources`)
+        and any <grfn_def> imports (`imports`).
       required:
-        - name
+        - grfn_source
+        - code_sources
       properties:
-        file_path:
+        grfn_source:
           $ref: '#/components/schemas/file_path'
+          description: >
+            Path to <grfn_def> file for this reference.
+        code_sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/file_path'
+          description: >
+            List of one or more source code file
+            paths that contain the namespace for
+            the current <grfn_def>.
         imports:
           type: array
           items:
             $ref: '#/components/schemas/file_path'
+          description: >
+             (optional) List of any <grfn_def> files
+             representing namespaces that are imported
+             to the current <grfn_def>.
 
     grfn_def:
       title: <grfn_def>
       description: >
         The top-level structure of the GrFN definition derived
         from Program Analysis of source code.
+        A <grfn_def> corresponds to a namespace.
       required:
         - date_created
         - source
