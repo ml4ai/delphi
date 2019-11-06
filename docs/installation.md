@@ -8,13 +8,17 @@ The following are the prerequisites for Delphi:
 - [Graphviz](https://www.graphviz.org/download/) - Delphi uses this to
   visualize causal analysis graphs. See MacOS and Ubuntu notes below
   for installing graphviz.
+- A C++17-compatible compiler.
+- [Boost](https://www.boost.org)
+- [CMake](https://cmake.org)
 
 ## Step-by-step instructions
 
 1. Download and set up the Delphi database
    ```
-   curl -O http://vision.cs.arizona.edu/adarsh/delphi.db
+   curl -O http://vanga.sista.arizona.edu/delphi_data/delphi.db
    ```
+(Last updated on 8/19/2019)
 
    Then, point the environment variable `DELPHI_DB` to point to `delphi.db`. On
    Linux, you can do the following:
@@ -34,7 +38,7 @@ The following are the prerequisites for Delphi:
   - If you are a Delphi _developer_, create a fresh Python virtual environment,
     activate it, and then run the following commands:
     ```
-    git clone https://github.com/ml4ai/delphi
+    git clone --recursive https://github.com/ml4ai/delphi
     cd delphi
     pip install -e .[test,docs]
     ```

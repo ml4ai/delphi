@@ -6,6 +6,7 @@
     Usage: see the document "for2py: Miscellaneous constructs"
 """
 
+
 class String:
     def __init__(self, length = 0, value = ""):
         if length > 0:

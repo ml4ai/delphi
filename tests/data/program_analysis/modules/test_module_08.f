@@ -18,11 +18,11 @@ C    5678      6912
           IMPLICIT NONE
           INTEGER :: X = 1234
       contains
-          subroutine myadd(y, sum)
-          integer y, sum
+          integer function myadd(y)
+          integer y
 
-          sum = x+y
-          end subroutine myadd
+          myadd = x+y
+          end function myadd
       END MODULE MYMOD8
 
 !-------------------------------------------------------------------------------
@@ -32,7 +32,7 @@ C    5678      6912
 
       x = 5678    ! << This assignment does NOT overwrite mymod8's variable x
 
-      call myadd(x,v)
+      v = myadd(x)
 
  10   FORMAT (I8,2X,I8)
       write (*,10) x, v

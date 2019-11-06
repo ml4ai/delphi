@@ -1,21 +1,30 @@
-language: python
+sudo: required
 
-python:
-  - "3.6"
+services:
+  - docker
 
 addons:
   apt:
     packages:
-    - graphviz
+      - docker-ce
 
-install:
-  - pip install -e .[test,docs]
-  - curl -O http://vision.cs.arizona.edu/adarsh/delphi.db
-  - export DELPHI_DB=`pwd`/delphi.db
+env:
+  global:
+    CACHE_IMAGE: ml4ailab/delphi
+
+before_install:
+  - docker pull $CACHE_IMAGE:latest
+  - CI_ENV=`bash <(curl -s https://codecov.io/env)`
+  - docker run $CI_ENV -itd --rm --name build-con $CACHE_IMAGE:latest
+  - docker exec build-con git fetch
+  - docker exec build-con git checkout $TRAVIS_BRANCH
 
 script:
-  - make test
-  - cd docs; make apidocs; make html
+  - docker exec build-con make test
+  - docker exec --workdir /repo/delphi/docs build-con make apidocs
+  - docker exec --workdir /repo/delphi/docs build-con make html
+  - docker cp build-con:/repo/delphi/docs .
+  - docker exec -e CODECOV_TOKEN=$CODECOV_TOKEN build-con bash -c 'bash <(curl -s https://codecov.io/bash)'
 
 deploy:
   local-dir: docs/_build/html
@@ -24,7 +33,3 @@ deploy:
   github-token: $GITHUB_TOKEN
   on:
     branch: master
-
-after_success: bash <(curl -s https://codecov.io/bash)
-
-cache: pip

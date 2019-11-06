@@ -1,9 +1,9 @@
 <html>
   {% include "head.html" %}
   <body class="theme-base-08">
-    <div class="container-fluid"> 
+    <div class="container-fluid">
       {% include "navbar.html" %}
-      <div class="row justify-content-md-center" 
+      <div class="row justify-content-md-center"
            style="padding-top: 1.5rem; padding-left:3rem; padding-right: 4rem;">
       <div class="col-4">
 
@@ -19,6 +19,7 @@
               <a id="cropYield" class="dropdown-item" href="#">Crop Yield</a>
               <a id="petPT" class="dropdown-item" href="#">Priestley-Taylor model of Evapotranspiration (DSSAT)</a>
               <a id="petASCE" class="dropdown-item" href="#">ASCE model of Evapotranspiration (DSSAT)</a>
+              <a id="SIR-simple" class="dropdown-item" href="#">Simple SIR model</a>
             </div>
           </div>
           <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal"
@@ -46,13 +47,12 @@
           {% set nav_dict = {
             'computational_graph': 'Function Network',
             'causal_analysis_graph': 'Causal Analysis Graph',
-            'python_code': 'Equivalent Python Code',
             'sensitivity_surface': 'Sensitivity Surface',
           } %}
           {% for id, label in nav_dict.items() %}
           <li class="nav-item">
             <a class="nav-link {% if id=='computational_graph' %}active{% endif %}"
-               id="{{ id }}-tab" data-toggle="tab" href="#{{ id }}" 
+               id="{{ id }}-tab" data-toggle="tab" href="#{{ id }}"
                role="tab" aria-controls="{{ id }}" aria-selected="true">
               {{ label }}
             </a>
@@ -62,16 +62,15 @@
         <div class="tab-content">
           {% for id in nav_dict %}
             <div id="{{ id }}" role="tabpanel"
-                 class="tab-pane {% if id=='computational_graph' %}show active{% endif %} 
+                 class="tab-pane {% if id=='computational_graph' %}show active{% endif %}
                         border-left border-right border-bottom"
-               aria-labelledby="{{ id }}-tab" 
-               style="height:82%; {% if id=='python_code' %}padding: 1rem;{% endif %}; overflow: scroll;">
-              {% if id=='python_code' %}{{ python_code | safe }}{% endif %}
+               aria-labelledby="{{ id }}-tab"
+               style="height:82%; overflow: scroll;">
               {% if id=='sensitivity_surface' %}
                 <div id="surfacePlot" class="justify-content-md-center"
                       style="padding-top: 1.5rem; "></div>
                 <script>
-                    var graphs = {{ graphJSON | safe}};
+                    var graphs = {{ graphJSON | safe }};
                     Plotly.plot('surfacePlot',graphs, {{ layout | safe }});
                 </script>
               {% endif %}

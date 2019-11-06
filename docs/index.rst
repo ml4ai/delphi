@@ -76,6 +76,25 @@ If you use Delphi, please cite the following:
 
 .. code-block:: bibtex
 
+   @InProceedings{sharp-EtAl:2019:N19-4,
+     author    = {Sharp, Rebecca  and  Pyarelal, Adarsh  and  Gyori, Benjamin
+       and  Alcock, Keith  and  Laparra, Egoitz  and  Valenzuela-Esc\'{a}rcega,
+       Marco A.  and  Nagesh, Ajay  and  Yadav, Vikas  and  Bachman, John  and
+       Tang, Zheng  and  Lent, Heather  and  Luo, Fan  and  Paul, Mithun  and
+       Bethard, Steven  and  Barnard, Kobus  and  Morrison, Clayton  and
+       Surdeanu, Mihai},
+     title     = {Eidos, INDRA, \& Delphi: From Free Text to Executable Causal Models},
+     booktitle = {Proceedings of the 2019 Conference of the North American
+     Chapter of the Association for Computational Linguistics (Demonstrations)},
+     month     = {6},
+     year      = {2019},
+     address   = {Minneapolis, Minnesota},
+     publisher = {Association for Computational Linguistics},
+     pages     = {42-47},
+     url       = {http://www.aclweb.org/anthology/N19-4008},
+     keywords = {demo paper, causal relations, timelines, locations, information extraction},
+   }
+
    @misc{Delphi,
        Author = {Adarsh Pyarelal and Paul Hein and Jon Stephens and Pratik
                  Bhandari and HeuiChan Lim and Saumya Debray and Clayton
@@ -103,7 +122,10 @@ Delphi is also part of the
   AnalysisGraph_API
   GrFN_API
   grfn_spec
+  delphi_database
   CONTRIBUTING
+  cpp_api/library_root
+  grfn_openapi
 
 License and Funding
 -------------------

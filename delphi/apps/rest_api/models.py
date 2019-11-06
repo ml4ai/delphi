@@ -64,6 +64,7 @@ class Serializable(object):
 
 
 class DelphiModel(db.Model, Serializable):
+    """ Delphi AnalysisGraph Model """
     __tablename__ = "delphimodel"
     id = db.Column(db.String, primary_key=True)
     icm_metadata = db.relationship(
@@ -317,6 +318,20 @@ class ExperimentResult(db.Model, Serializable):
         "polymorphic_identity": "ExperimentResult",
         "polymorphic_on": baseType,
     }
+
+
+class CauseMosForwardProjectionResult(ExperimentResult):
+    """ Placeholder docstring for class CauseMosForwardProjectionResult. """
+
+    __tablename__ = "causemosforwardprojectionresult"
+    id = db.Column(
+        db.String,
+        db.ForeignKey("experimentresult.id"),
+        primary_key=True,
+        default=str(uuid4()),
+    )
+    results = db.Column(JsonEncodedDict, nullable=True)
+    __mapper_args__ = {"polymorphic_identity": "CauseMosForwardProjectionResult"}
 
 
 class ForwardProjectionResult(ExperimentResult):

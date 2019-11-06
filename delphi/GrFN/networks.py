@@ -15,17 +15,14 @@ from SALib.sample import saltelli, fast_sampler, latin
 import networkx as nx
 from networkx.algorithms.simple_paths import all_simple_paths
 
+from delphi.translators.for2py.types_ext import Float32
 from delphi.GrFN.analysis import get_max_s2_sensitivity
 import delphi.GrFN.utils as utils
 from delphi.GrFN.utils import ScopeNode
 from delphi.utils.misc import choose_font
 from delphi.translators.for2py import (
-    preprocessor,
-    translate,
-    get_comments,
-    pyTranslate,
     genPGM,
-    rectify,
+    f2grfn,
 )
 import numpy as np
 import torch
@@ -39,11 +36,6 @@ forestgreen = "#228b22"
 class ComputationalGraph(nx.DiGraph):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.outputs = [
-            n
-            for n, d in self.out_degree()
-            if d == 0 and self.nodes[n]["type"] == "variable"
-        ]
 
     def build_call_graph(self):
         G = nx.DiGraph()
@@ -54,7 +46,6 @@ class ComputationalGraph(nx.DiGraph):
                         predecessor_variable
                     ):
                         G.add_edge(predecessor_function, name)
-
         return G
 
     def build_function_sets(self):
@@ -95,7 +86,7 @@ class ComputationalGraph(nx.DiGraph):
 
         Args:
             inputs: Input set where keys are the names of input nodes in the
-              GrFN and each key points to a set of input values (or just one).
+                GrFN and each key points to a set of input values (or just one).
 
         Returns:
             A set of outputs from executing the GrFN, one for every set of
@@ -103,7 +94,13 @@ class ComputationalGraph(nx.DiGraph):
         """
         # Set input values
         for i in self.inputs:
-            self.nodes[i]["value"] = inputs[i]
+            value = inputs[i]
+            if isinstance(value, float) or isinstance(value, int):
+                value = Float32(value)
+            elif isinstance(value, list):
+                value = np.array(value, dtype=np.float32)
+
+            self.nodes[i]["value"] = value
 
         for func_set in self.function_sets:
             for func_name in func_set:
@@ -113,6 +110,8 @@ class ComputationalGraph(nx.DiGraph):
                 signature = self.nodes[func_name]["func_inputs"]
                 input_values = [self.nodes[n]["value"] for n in signature]
                 res = lambda_fn(*input_values)
+                if len(input_values) == 0:
+                    res = Float32(res)
 
                 if torch_size is not None and len(signature) == 0:
                     self.nodes[output_node]["value"] = torch.tensor(
@@ -122,7 +121,7 @@ class ComputationalGraph(nx.DiGraph):
                     self.nodes[output_node]["value"] = res
 
         # Return the output
-        return self.nodes[self.output_node]["value"]
+        return [self.nodes[o]["value"] for o in self.outputs]
 
     def to_CAG(self):
         """ Export to a Causal Analysis Graph (CAG) PyGraphviz AGraph object.
@@ -132,25 +131,17 @@ class ComputationalGraph(nx.DiGraph):
         G = nx.DiGraph()
         for (name, attrs) in self.nodes(data=True):
             if attrs["type"] == "variable":
+                cag_name = attrs["cag_label"]
+                G.add_node(cag_name, **attrs)
                 for pred_fn in self.predecessors(name):
-                    if not any(
-                        fn_type in pred_fn
-                        for fn_type in ("condition", "decision")
-                    ):
-                        for pred_var in self.predecessors(pred_fn):
-                            G.add_node(
-                                self.nodes[pred_var]["basename"],
-                                **self.nodes[pred_var],
-                            )
-                            G.add_node(attrs["basename"], **attrs)
-                            G.add_edge(
-                                self.nodes[pred_var]["basename"],
-                                attrs["basename"],
-                            )
-                if attrs["is_loop_index"]:
-                    G.add_edge(attrs["basename"], attrs["basename"])
+                    for pred_var in self.predecessors(pred_fn):
+                        v_attrs = self.nodes[pred_var]
+                        v_name = v_attrs["cag_label"]
+                        G.add_node(v_name, **self.nodes[pred_var])
+                        G.add_edge(v_name, cag_name)
 
         return G
+
 
 class GroundedFunctionNetwork(ComputationalGraph):
     """
@@ -166,15 +157,15 @@ class GroundedFunctionNetwork(ComputationalGraph):
     node.
     """
 
-    def __init__(self, G, scope_tree):
+    def __init__(self, G, scope_tree, outputs):
         super().__init__(G)
+        self.outputs = outputs
         self.scope_tree = scope_tree
         self.inputs = [
             n
             for n, d in self.in_degree()
             if d == 0 and self.nodes[n]["type"] == "variable"
         ]
-        self.output_node = self.outputs[-1]
         self.call_graph = self.build_call_graph()
         self.function_sets = self.build_function_sets()
 
@@ -243,118 +234,174 @@ class GroundedFunctionNetwork(ComputationalGraph):
             A GroundedFunctionNetwork object.
 
         """
-        functions = {d["name"]: d for d in data["functions"]}
+        functions = {d["name"]: d for d in data["containers"]}
+        occurrences = {}
         G = nx.DiGraph()
         scope_tree = nx.DiGraph()
 
-        def add_variable_node(
-            basename: str, parent: str, index: int, is_loop_index: bool = False
-        ):
+        def identity(x):
+            return x
+
+        def make_identifier(scope: str, var: str):
+            (_, name, idx) = var.split("::")
+            return make_variable_name(scope, name, idx)
+
+        def make_variable_name(parent: str, basename: str, index: str):
+            return f"{parent}::{basename}::{index}"
+
+        def add_variable_node(parent: str, basename: str, index: str, is_exit: bool = False):
+            full_var_name = make_variable_name(parent, basename, index)
             G.add_node(
-                f"{parent}::{basename}_{index}",
+                full_var_name,
                 type="variable",
-                color="maroon",
+                color="crimson",
+                fontcolor="white" if is_exit else "black",
+                fillcolor="crimson" if is_exit else "white",
+                style="filled" if is_exit else "",
                 parent=parent,
-                label=f"{basename}_{index}",
+                label=f"{basename}::{index}",
+                cag_label=f"{basename}",
                 basename=basename,
-                is_loop_index=is_loop_index,
                 padding=15,
                 value=None,
             )
+            return full_var_name
 
-        def find_correct_scope(cur_scope, var_name):
-            if cur_scope.parent is None:
-                return cur_scope.name, -1
+        def process_wiring_statement(stmt, scope, inputs, cname):
+            lambda_name = stmt["function"]["name"]
+            lambda_node_name = f"{scope.name}::" + lambda_name
 
-            new_scope = cur_scope.parent
+            stmt_type = lambda_name.split("__")[-3]
+            if stmt_type == "assign" and len(stmt["input"]) == 0:
+                stmt_type = "literal"
 
-            if var_name in new_scope.variables:
-                return new_scope.name, new_scope.variables[var_name]
-            else:
-                return find_correct_scope(new_scope, var_name)
+            for output in stmt["output"]:
+                (_, var_name, idx) = output.split("::")
+                node_name = add_variable_node(scope.name, var_name, idx, is_exit=var_name == "EXIT")
+                G.add_edge(lambda_node_name, node_name)
 
-        def process_container(
-            scope, loop_index_variable: Optional[str] = None
-        ):
+            ordered_inputs = list()
+            for inp in stmt["input"]:
+                if inp.endswith("-1"):
+                    (parent, var_name, idx) = inputs[inp]
+                else:
+                    parent = scope.name
+                    (_, var_name, idx) = inp.split("::")
+
+                node_name = add_variable_node(parent, var_name, idx)
+                ordered_inputs.append(node_name)
+                G.add_edge(node_name, lambda_node_name)
+
+            G.add_node(
+                lambda_node_name,
+                type="function",
+                lambda_fn=getattr(lambdas, lambda_name),
+                func_inputs=ordered_inputs,
+                visited=False,
+                shape="rectangle",
+                parent=scope.name,
+                label=stmt_type[0].upper(),
+                padding=10,
+            )
+
+        def process_call_statement(stmt, scope, inputs, cname):
+            container_name = stmt["function"]["name"]
+            if container_name not in occurrences:
+                occurrences[container_name] = 0
+
+            new_container = functions[container_name]
+            container_color = "navyblue" if new_container["repeat"] else "forestgreen"
+            new_scope = ScopeNode(new_container, occurrences[container_name], parent=scope)
+            scope_tree.add_node(new_scope.name, color=container_color)
+            scope_tree.add_edge(scope.name, new_scope.name)
+
+            input_values = list()
+            for inp in stmt["input"]:
+                if inp.endswith("-1"):
+                    (parent, var_name, idx) = inputs[inp]
+                else:
+                    parent = scope.name
+                    (_, var_name, idx) = inp.split("::")
+                input_values.append((parent, var_name, idx))
+
+            callee_ret, callee_up = process_container(new_scope, input_values, container_name)
+
+            caller_ret, caller_up = list(), list()
+            for var in stmt["output"]:
+                parent = scope.name
+                (_, var_name, idx) = var.split("::")
+                node_name = add_variable_node(parent, var_name, idx)
+                caller_ret.append(node_name)
+
+            for var in stmt["updated"]:
+                parent = scope.name
+                (_, var_name, idx) = var.split("::")
+                node_name = add_variable_node(parent, var_name, idx)
+                caller_up.append(node_name)
+
+            for callee_var, caller_var in zip(callee_ret, caller_ret):
+                lambda_node_name = f"{callee_var}-->{caller_var}"
+                G.add_node(
+                    lambda_node_name,
+                    type="function",
+                    lambda_fn=identity,
+                    func_inputs=[callee_var],
+                    shape="rectangle",
+                    parent=scope.name,
+                    label="A",
+                    padding=10,
+                )
+                G.add_edge(callee_var, lambda_node_name)
+                G.add_edge(lambda_node_name, caller_var)
+
+            for callee_var, caller_var in zip(callee_up, caller_up):
+                lambda_node_name = f"{callee_var}-->{caller_var}"
+                G.add_node(
+                    lambda_node_name,
+                    type="function",
+                    lambda_fn=identity,
+                    func_inputs=[callee_var],
+                    shape="rectangle",
+                    parent=scope.name,
+                    label="A",
+                    padding=10,
+                )
+                G.add_edge(callee_var, lambda_node_name)
+                G.add_edge(lambda_node_name, caller_var)
+            occurrences[container_name] += 1
+
+        def process_container(scope, input_vals, cname):
+            if len(scope.arguments) == len(input_vals):
+                input_vars = {a: v for a, v in zip(scope.arguments, input_vals)}
+            elif len(scope.arguments) > 0:
+                input_vars = {a: (scope.name,) + tuple(a.split("::")[1:]) for a in scope.arguments}
+
             for stmt in scope.body:
-                if "name" in stmt:
-                    stmt_type = functions[stmt["name"]]["type"]
-                    if stmt_type in ("assign", "condition", "decision"):
-                        if stmt_type == "assign":
-                            if "body" in functions[stmt["name"]]:
-                                stmt_type = "literal"
+                func_def = stmt["function"]
+                func_type = func_def["type"]
+                if func_type == "lambda":
+                    process_wiring_statement(stmt, scope, input_vars, cname)
+                elif func_type == "container":
+                    process_call_statement(stmt, scope, input_vars, cname)
+                else:
+                    raise ValueError(f"Undefined function type: {func_type}")
 
-                        output = stmt["output"]
-                        scope.variables[output["variable"]] = output["index"]
-                        add_variable_node(
-                            output["variable"], scope.name, output["index"]
-                        )
-                        G.add_edge(
-                            stmt["name"],
-                            f"{scope.name}::{output['variable']}_{output['index']}",
-                        )
+            return_list, updated_list = list(), list()
+            for var_name in scope.returns:
+                (_, basename, idx) = var_name.split("::")
+                return_list.append(make_variable_name(scope.name, basename, idx))
 
-                        ordered_inputs = list()
-                        for input in stmt.get("input", []):
-                            parent = scope.name
-                            index = input["index"]
-                            base_name = input["variable"]
-                            if (
-                                index == -1
-                                and base_name != loop_index_variable
-                            ):
-                                parent, index = find_correct_scope(
-                                    scope, base_name
-                                )
+            for var_name in scope.updated:
+                (_, basename, idx) = var_name.split("::")
+                updated_list.append(make_variable_name(scope.name, basename, idx))
+            return return_list, updated_list
 
-                            add_variable_node(
-                                base_name,
-                                parent,
-                                index,
-                                base_name == loop_index_variable,
-                            )
-                            node_name = f"{parent}::{base_name}_{index}"
-                            ordered_inputs.append(node_name)
-                            G.add_edge(node_name, stmt["name"])
-
-                        G.add_node(
-                            stmt["name"],
-                            type="function",
-                            lambda_fn=getattr(lambdas, stmt["name"]),
-                            func_inputs=ordered_inputs,
-                            shape="rectangle",
-                            parent=scope.name,
-                            label=stmt_type[0].upper(),
-                            padding=10,
-                        )
-
-                    elif stmt_type == "loop_plate":
-                        index_variable = functions[stmt["name"]][
-                            "index_variable"
-                        ]
-                        scope_tree.add_node(stmt["name"], color="blue")
-                        scope_tree.add_edge(scope.name, stmt["name"])
-                        new_scope = ScopeNode(
-                            functions[stmt["name"]], parent=scope
-                        )
-                        process_container(
-                            new_scope, loop_index_variable=index_variable
-                        )
-                    else:
-                        pass
-                elif "function" in stmt and stmt["function"] != "print":
-                    scope_tree.add_node(stmt["function"], color="green")
-                    scope_tree.add_edge(scope.name, stmt["function"])
-                    new_scope = ScopeNode(
-                        functions[stmt["function"]], parent=scope
-                    )
-                    process_container(new_scope)
-
-        root = data["start"]
-        scope_tree.add_node(root, color="green")
-        cur_scope = ScopeNode(functions[root])
-        process_container(cur_scope)
-        return cls(G, scope_tree)
+        root = data["start"][0]
+        occurrences[root] = 0
+        cur_scope = ScopeNode(functions[root], occurrences[root])
+        scope_tree.add_node(cur_scope.name, color="forestgreen")
+        returns, updates = process_container(cur_scope, [], root)
+        return cls(G, scope_tree, returns+updates)
 
     @classmethod
     def from_python_file(
@@ -372,59 +419,52 @@ class GroundedFunctionNetwork(ComputationalGraph):
         lambdas_path,
         json_filename: str,
         stem: str,
-        save_file: bool = False,
+        python_file: str,
+        fortran_file: str,
+        mode_mapper_dict: list,
+        save_file: bool = False
     ):
+        module_file_exist = False
+        module_import_paths = {}
+
         """Builds GrFN object from Python source code."""
         asts = [ast.parse(pySrc)]
-        pgm_dict = genPGM.create_pgm_dict(
+        pgm_dict = genPGM.create_grfn_dict(
             lambdas_path,
             asts,
-            json_filename,
-            {"FileName": f"{stem}.py"},  # HACK
+            python_file,
+            mode_mapper_dict,
+            fortran_file,
+            save_file,
+            module_file_exist,
+            module_import_paths
         )
+
         lambdas = importlib.__import__(stem + "_lambdas")
         return cls.from_dict(pgm_dict, lambdas)
 
-
-
     @classmethod
-    def from_fortran_file(cls, fortran_file: str, tmpdir: str = "."):
+    def from_fortran_file(cls, fortran_file: str, tmpdir: str = ".", save_file: bool = False):
         """Builds GrFN object from a Fortran program."""
-        stem = Path(fortran_file).stem
+
         if tmpdir == "." and "/" in fortran_file:
             tmpdir = Path(fortran_file).parent
-        preprocessed_fortran_file = f"{tmpdir}/{stem}_preprocessed.f"
-        lambdas_path = f"{tmpdir}/{stem}_lambdas.py"
-        json_filename = stem + ".json"
 
-        with open(fortran_file, "r") as f:
-            inputLines = f.readlines()
+        (
+            pySrc,
+            lambdas_path,
+            json_filename,
+            translated_python_files,
+            stem,
+            mode_mapper_dict,
+            fortran_filename
+        ) = f2grfn.fortran_to_grfn(fortran_file, True, True, str(tmpdir))
 
-        with open(preprocessed_fortran_file, "w") as f:
-            f.write(preprocessor.process(inputLines))
+        for python_file in translated_python_files:
+            G = cls.from_python_src(pySrc[0][0], lambdas_path, json_filename, stem, python_file,
+                                    fortran_file, mode_mapper_dict, save_file=save_file)
 
-        xml_string = sp.run(
-            [
-                "java",
-                "fortran.ofp.FrontEnd",
-                "--class",
-                "fortran.ofp.XMLPrinter",
-                "--verbosity",
-                "0",
-                preprocessed_fortran_file,
-            ],
-            stdout=sp.PIPE,
-        ).stdout
-        tree = rectify.buildNewASTfromXMLString(xml_string)
-        trees = [tree]
-        comments = get_comments.get_comments(preprocessed_fortran_file)
-        os.remove(preprocessed_fortran_file)
-        xml_to_json_translator = translate.XMLToJSONTranslator()
-        outputDict = xml_to_json_translator.analyze(trees, comments)
-        pySrc = pyTranslate.create_python_source_list(outputDict)[0][0]
-
-        G = cls.from_python_src(pySrc, lambdas_path, json_filename, stem)
-        return G
+            return G
 
     @classmethod
     def from_fortran_src(cls, fortran_src: str, dir: str = "."):
@@ -453,7 +493,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
             if self.nodes[n]["type"] == "variable":
                 self.nodes[n]["value"] = None
             elif self.nodes[n]["type"] == "function":
-                self.nodes[n]["func_visited"] = False
+                self.nodes[n]["visited"] = False
 
     def sobol_analysis(
         self, num_samples, prob_def, use_torch=False, var_types=None
@@ -465,6 +505,14 @@ class GroundedFunctionNetwork(ComputationalGraph):
                 return np.where(samples >= 0.5, val1, val2)
             else:
                 return torch.tensor(samples)
+
+        def get_input(name, sample):
+            type_info = var_types[name]
+            if type_info[0] == str:
+                (val1, val2) = type_info[1]
+                return val1 if sample >= 0.5 else val2
+            else:
+                return sample
 
         samples = saltelli.sample(
             prob_def, num_samples, calc_second_order=True
@@ -486,8 +534,14 @@ class GroundedFunctionNetwork(ComputationalGraph):
         else:
             Y = np.zeros(samples.shape[0])
             for i, sample in enumerate(samples):
-                values = {n: val for n, val in zip(prob_def["names"], sample)}
-                Y[i] = self.run(values)
+                if var_types is None:
+                    values = {n: v for n, v in zip(prob_def["names"], sample)}
+                else:
+                    values = {n: get_input(n, val)
+                              for n, val in zip(prob_def["names"], sample)}
+
+                res = self.run(values)
+                Y[i] = res[0]
 
         return sobol.analyze(prob_def, Y)
 
@@ -544,7 +598,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
             for x, y in itertools.product(range(len(X)), range(len(Y))):
                 inputs = {n: v for n, v in presets.items()}
                 inputs.update({search_space[0][0]: x, search_space[1][0]: y})
-                Z[x][y] = self.run(inputs)
+                Z[x][y] = self.run(inputs)[0]
 
         return X, Y, Z, x_var, y_var
 
@@ -595,15 +649,15 @@ class GroundedFunctionNetwork(ComputationalGraph):
         """ Export to a PyGraphviz AGraph object. """
         A = nx.nx_agraph.to_agraph(self)
         A.graph_attr.update(
-            {"dpi": 227, "fontsize": 20, "fontname": "Menlo", "rankdir": "TB"}
+            {"dpi": 227, "fontsize": 20, "fontname": "Menlo", "rankdir": "LR"}
         )
         A.node_attr.update({"fontname": "Menlo"})
 
-        def build_tree(cluster_name, root_graph):
+        def build_tree(cluster_name, node_attrs, root_graph):
             subgraph_nodes = [
-                n[0]
-                for n in self.nodes(data=True)
-                if n[1]["parent"] == cluster_name
+                node_name
+                for node_name, node_data in self.nodes(data=True)
+                if node_data["parent"] == cluster_name
             ]
             root_graph.add_nodes_from(subgraph_nodes)
             subgraph = root_graph.add_subgraph(
@@ -611,12 +665,15 @@ class GroundedFunctionNetwork(ComputationalGraph):
                 name=f"cluster_{cluster_name}",
                 label=cluster_name,
                 style="bold, rounded",
+                rankdir="LR",
+                color=node_attrs[cluster_name]["color"]
             )
             for n in self.scope_tree.successors(cluster_name):
-                build_tree(n, subgraph)
+                build_tree(n, node_attrs, subgraph)
 
         root = [n for n, d in self.scope_tree.in_degree() if d == 0][0]
-        build_tree(root, A)
+        node_data = {n: d for n, d in self.scope_tree.nodes(data=True)}
+        build_tree(root, node_data, A)
         return A
 
     def to_CAG_agraph(self):
@@ -627,14 +684,16 @@ class GroundedFunctionNetwork(ComputationalGraph):
 
         """
         CAG = self.to_CAG()
+        for name, data in CAG.nodes(data=True):
+            CAG.nodes[name]["label"] = data["cag_label"]
         A = nx.nx_agraph.to_agraph(CAG)
-        A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo"})
+        A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo", "rankdir": "LR"})
         A.node_attr.update(
             {
                 "shape": "rectangle",
                 "color": "#650021",
                 "style": "rounded",
-                "fontname": "Gill Sans",
+                "fontname": "Menlo",
             }
         )
         A.edge_attr.update({"color": "#650021", "arrowsize": 0.5})
@@ -645,7 +704,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
         functions. """
 
         A = nx.nx_agraph.to_agraph(self.call_graph)
-        A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo"})
+        A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo", "rankdir": "TB"})
         A.node_attr.update(
             {"shape": "rectangle", "color": "#650021", "style": "rounded"}
         )

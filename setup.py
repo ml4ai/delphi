@@ -1,9 +1,51 @@
 """ setuptools-based setup module. """
 
-from os import path
+import os
 from setuptools import setup, find_packages
+import re
+import sys
+import platform
+from subprocess import check_call, check_output
 
-here = path.abspath(path.dirname(__file__))
+from setuptools import setup, Extension
+from setuptools.command.build_ext import build_ext
+from distutils.version import LooseVersion
+
+here = os.path.abspath(os.path.dirname(__file__))
+
+
+class CMakeExtension(Extension):
+    def __init__(self, name, sourcedir="", builddir=""):
+        Extension.__init__(self, name, sources=[])
+        self.sourcedir = os.path.abspath(sourcedir)
+        self.builddir=builddir
+
+
+class CMakeBuild(build_ext):
+    def run(self):
+        # Check if a compatible version of CMake is installed
+        try:
+            out = check_output(["cmake", "--version"])
+        except OSError:
+            raise RuntimeError(
+                "CMake must be installed to build the following extensions: "
+                + ", ".join(e.name for e in self.extensions)
+            )
+
+        if platform.system() == "Windows":
+            cmake_version = LooseVersion(
+                re.search(r"version\s*([\d.]+)", out.decode()).group(1)
+            )
+            if cmake_version < "3.1.0":
+                raise RuntimeError("CMake >= 3.1.0 is required on Windows")
+
+        for ext in self.extensions:
+            self.build_extension(ext)
+
+    def build_extension(self, ext):
+        os.makedirs(ext.builddir, exist_ok=True)
+        check_call(["make","extensions"])
+
 
 setup(
     name="delphi",
@@ -21,15 +63,19 @@ setup(
     ],
     keywords="assembling models from text",
     packages=find_packages(exclude=["contrib", "docs", "tests*"]),
+    ext_modules=[CMakeExtension("extension", "lib/", "build")],
+    cmdclass=dict(build_ext=CMakeBuild),
+    zip_safe=False,
     install_requires=[
-        "indra",
+        "pybind11",
+        "indra[eidos_offline]",
         "tqdm",
         "numpy",
         "scipy",
         "matplotlib",
         "seaborn>=0.9.0",
         "pandas",
-        "future",
+        "future==0.16.0",
         "networkx",
         "pygraphviz",
         "cython",
@@ -60,19 +106,19 @@ setup(
             "pyjnius",
         ],
         "test": [
-            "pytest>=3.6.0",
+            "pytest>=4.4.0",
             "pytest-cov",
             "pytest-sugar",
             "pytest-xdist",
-            "mypy",
         ],
         "docs": [
             "sphinx",
             "sphinx-rtd-theme",
             "sphinxcontrib-bibtex",
             "sphinxcontrib-trio",
-            "sphinx-autodoc-typehints",
             "recommonmark",
+            "breathe",
+            "exhale",
         ],
     },
     entry_points={

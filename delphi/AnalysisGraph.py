@@ -2,7 +2,7 @@ import os
 import json
 import pickle
 import random
-from math import exp, log
+from math import exp, log, pi
 from datetime import date
 from functools import partial
 from itertools import permutations, cycle, chain
@@ -10,13 +10,12 @@ from typing import Dict, Optional, Union, Callable, Tuple, List, Iterable
 from uuid import uuid4
 import networkx as nx
 import numpy as np
-from scipy.stats import gaussian_kde, norm
+import warnings
+from scipy.stats import gaussian_kde
 import pandas as pd
-from indra.statements import Influence, Concept
+from indra.statements import Influence, Concept, Event, QualitativeDelta
 from indra.statements import Evidence as INDRAEvidence
-from indra.sources.eidos import process_text
 from .random_variables import LatentVar, Indicator
-from .export import export_edge, _get_units, _get_dtype, _process_datetime
 from .utils.fp import flatMap, take, ltake, lmap, pairwise, iterate, exists
 from .utils.indra import (
     get_statements_from_json_list,
@@ -44,6 +43,7 @@ import matplotlib.cm as cm
 from matplotlib.colors import Normalize
 from delphi.utils.misc import _insert_line_breaks
 
+
 class AnalysisGraph(nx.DiGraph):
     """ The primary data structure for Delphi """
 
@@ -61,6 +61,8 @@ class AnalysisGraph(nx.DiGraph):
         self.res: int = 100
         self.transition_matrix_collection: List[pd.DataFrame] = []
         self.latent_state_sequences = None
+        self.log_prior = None
+        self.log_likelihood = None
 
     def assign_uuids_to_nodes_and_edges(self):
         """ Assign uuids to nodes and edges. """
@@ -103,15 +105,13 @@ class AnalysisGraph(nx.DiGraph):
         for s in sts:
             if assign_default_polarities:
                 for delta in deltas(s):
-                    if delta["polarity"] is None:
-                        delta["polarity"] = 1
+                    if delta.polarity is None:
+                        delta.polarity = 1
             concepts = nameTuple(s)
 
             # Excluding self-loops for now:
             if concepts[0] != concepts[1]:
-                if all(
-                    map(exists, (delta["polarity"] for delta in deltas(s)))
-                ):
+                if all(map(exists, (delta.polarity for delta in deltas(s)))):
                     if concepts in _dict:
                         _dict[concepts].append(s)
                     else:
@@ -124,31 +124,55 @@ class AnalysisGraph(nx.DiGraph):
         return cls(edges)
 
     @classmethod
-    def from_text(cls, text: str):
+    def from_text(cls, text: str, webservice=None):
         """ Construct an AnalysisGraph object from text, using Eidos to perform
-        machine reading. """
+        machine reading.
 
-        eidosProcessor = process_text(text)
-        return cls.from_statements(eidosProcessor.statements)
+        Args:
+            text: Input text to be processed by Eidos.
+            webservice: URL for Eidos webservice, either the INDRA web service,
+                or the instance of Eidos running locally on your computer (e.g.
+                http://localhost:9000.
+        """
+        from indra.sources.eidos import process_text
+        eidosProcessor = process_text(text, webservice=webservice)
+        eidosProcessor.extract_causal_relations()
+        return cls.from_statements([stmt for stmt in eidosProcessor.statements
+            if isinstance(stmt, Influence)])
 
     @classmethod
-    def from_json_serialized_statements_list(cls, json_serialized_list):
+    def from_json_serialized_statements_list(
+        cls, json_serialized_list: List[Dict]
+    ):
         """ Construct an AnalysisGraph object from a list of JSON serialized
-        INDRA statements. """
+        INDRA statements.
+
+        Args:
+            json_serialized_list: A list of JSON-serializable dicts
+                representing INDRA statements.
+        """
         return cls.from_statements(
             get_statements_from_json_list(json_serialized_list)
         )
 
     @classmethod
-    def from_json_serialized_statements_file(cls, file):
+    def from_json_serialized_statements_file(cls, file: str):
         """ Construct an AnalysisGraph object from a file containing
-        JSON-serialized INDRA statements. """
+        JSON-serialized INDRA statements.
+
+        Args:
+            file: Path to a file containing JSON-serialized INDRA statements.
+        """
         return cls.from_statements(get_statements_from_json_file(file))
 
     @classmethod
-    def from_uncharted_json_file(cls, file):
+    def from_uncharted_json_file(cls, file: str):
         """ Construct an AnalysisGraph object from a file containing INDRA
         statements serialized exported by Uncharted's CauseMos webapp.
+
+        Args:
+            file: Path to a file containing JSON-serialized INDRA statements
+            from Uncharted's CauseMos HMI.
         """
         with open(file, "r") as f:
             _dict = json.load(f)
@@ -159,7 +183,14 @@ class AnalysisGraph(nx.DiGraph):
         cls, _dict, minimum_evidence_pieces_required: int = 1
     ):
         """ Construct an AnalysisGraph object from a dict of INDRA statements
-        exported by Uncharted's CauseMos webapp. """
+        exported by Uncharted's CauseMos webapp.
+
+        Args:
+            _dict: A dict of INDRA statements exported by Uncharted's CauseMos
+                HMI.
+            minimum_evidence_pieces_required: The minimum number of evidence
+                pieces required to consider a statement for assembly.
+        """
         sts = _dict["statements"]
         G = nx.DiGraph()
         for s in sts:
@@ -184,10 +215,20 @@ class AnalysisGraph(nx.DiGraph):
                             delta["polarity"] = 1
 
                     influence_stmt = Influence(
-                        Concept(subj_name, db_refs=subj["db_refs"]),
-                        Concept(obj_name, db_refs=obj["db_refs"]),
-                        subj_delta=s["subj_delta"],
-                        obj_delta=s["obj_delta"],
+                        Event(
+                            Concept(subj_name, db_refs=subj["db_refs"]),
+                            delta=QualitativeDelta(
+                                s["subj_delta"]["polarity"],
+                                s["subj_delta"]["adjectives"],
+                            ),
+                        ),
+                        Event(
+                            Concept(obj_name, db_refs=obj["db_refs"]),
+                            delta=QualitativeDelta(
+                                s["obj_delta"]["polarity"],
+                                s["obj_delta"]["adjectives"],
+                            ),
+                        ),
                         evidence=[
                             INDRAEvidence(
                                 source_api=ev["source_api"],
@@ -206,6 +247,27 @@ class AnalysisGraph(nx.DiGraph):
                         "InfluenceStatements"
                     ] = influence_sts
 
+        func_dict = {
+            "mean": np.mean,
+            "median": np.median,
+            "max": max,
+            "min": min,
+            "raw": lambda x: x,
+        }
+
+        for concept, indicator in _dict["conceptIndicators"].items():
+            indicator_source, indicator_name = (
+                indicator["name"].split("/")[0],
+                "/".join(indicator["name"].split("/")[1:]),
+            )
+
+            G.nodes[concept]["indicators"] = {
+                indicator_name: Indicator(indicator_name, indicator_source)
+            }
+            values = [x["value"] for x in indicator["values"]]
+            indicator["mean"] = func_dict[indicator["func"]](values)
+            # indicator.source = indicator["source"]
+
         self = cls(G)
         self.assign_uuids_to_nodes_and_edges()
         return self
@@ -223,47 +285,17 @@ class AnalysisGraph(nx.DiGraph):
 
     # ==========================================================================
     # Sampling and inference
+    # ----------------------
+    #
+    # This section contains code for sampling and Bayesian inference.
     # ==========================================================================
 
-    def update_log_prior(self, A: pd.DataFrame) -> float:
-        _list = [
-            edge[2]["ConditionalProbability"].evaluate(
-                A[f"∂({edge[0]})/∂t"][edge[1]] / self.Δt
-            )
-            for edge in self.edges(data=True)
-        ]
+    def sample_from_prior(self):
+        """ Sample elements of the stochastic transition matrix from the prior
+        distribution, based on gradable adjectives. """
 
-        self.log_prior = sum(map(log, _list))
-
-    def update_log_likelihood(self):
-        _list = []
-        for latent_state, observed_state in zip(
-            self.latent_state_sequence, self.observed_state_sequence
-        ):
-            for n in self.nodes(data=True):
-                for indicator, value in observed_state[n[0]].items():
-                    ind = n[1]["indicators"][indicator]
-                    if ind.timeseries is not None:
-                        log_likelihood = np.log(
-                            norm.pdf(
-                                value, latent_state[n[0]] * ind.mean, ind.stdev
-                            )
-                        )
-                        _list.append(log_likelihood)
-
-        self.log_likelihood = sum(_list)
-
-    def update_log_joint_probability(self):
-        self.log_joint_probability = self.log_prior + self.log_likelihood
-
-    def assemble_transition_model_from_gradable_adjectives(self):
-        """ Add probability distribution functions constructed from gradable
-        adjective data to the edges of the analysis graph data structure.
-
-        Args:
-            adjective_data
-            res
-        """
+        # Add probability distribution functions constructed from gradable
+        # adjective data to the edges of the analysis graph data structure.
 
         df = pd.read_sql_table("gradableAdjectiveData", con=engine)
         gb = df.groupby("adjective")
@@ -271,38 +303,28 @@ class AnalysisGraph(nx.DiGraph):
         rs = gaussian_kde(
             flatMap(
                 lambda g: gaussian_kde(get_respdevs(g[1]))
-                .resample(self.res)[0]
+                .resample(self.res)
                 .tolist(),
                 gb,
             )
-        ).resample(self.res)[0]
+        ).resample(self.res)
 
         for edge in self.edges(data=True):
             edge[2]["ConditionalProbability"] = constructConditionalPDF(
                 gb, rs, edge
             )
             edge[2]["βs"] = np.tan(
-                edge[2]["ConditionalProbability"].resample(self.res)[0]
+                edge[2]["ConditionalProbability"].resample(self.res)
             )
 
-    def set_latent_state_sequence(self, A, n_timesteps=10):
-        self.latent_state_sequence = ltake(
-            n_timesteps,
-            iterate(
-                lambda s: pd.Series(A.values @ s.values, index=s.index),
-                self.s0,
-            ),
-        )
+        # Sample a collection of transition matrices from the prior.
 
-    def sample_from_prior(self):
-        """ Sample elements of the stochastic transition matrix from the prior
-        distribution, based on gradable adjectives. """
+        node_pairs = list(permutations(self.nodes(), 2))
 
         # simple_path_dict caches the results of the graph traversal that finds
         # simple paths between pairs of nodes, so that it doesn't have to be
         # executed for every sampled transition matrix.
 
-        node_pairs = list(permutations(self.nodes(), 2))
         simple_path_dict = {
             node_pair: [
                 list(pairwise(path))
@@ -336,142 +358,8 @@ class AnalysisGraph(nx.DiGraph):
                 )
             self.transition_matrix_collection.append(A)
 
-    def sample_observed_state(self, s: pd.Series) -> Dict:
-        """ Sample observed state vector. This is the implementation of the
-        emission function.
+        return self.transition_matrix_collection
 
-        Args:
-            s: Latent state vector.
-
-        Returns:
-            Observed state vector.
-        """
-
-        return {
-            n[0]: {
-                i.name: np.random.normal(s[n[0]] * i.mean, i.stdev)
-                for i in n[1]["indicators"].values()
-            }
-            for n in self.nodes(data=True)
-        }
-
-    def sample_from_likelihood(self, n_timesteps=10):
-        """ Sample a collection of observed state sequences from the likelihood
-        model given a collection of transition matrices.
-
-        Args:
-            n_timesteps: The number of timesteps for the sequences.
-        """
-
-        self.latent_state_sequences = lmap(
-            lambda A: ltake(
-                n_timesteps,
-                iterate(
-                    lambda s: pd.Series(A @ s.values, index=s.index), self.s0
-                ),
-            ),
-            self.transition_matrix_collection,
-        )
-
-        self.observed_state_sequences = [
-            [self.sample_observed_state(s) for s in latent_state_sequence]
-            for latent_state_sequence in self.latent_state_sequences
-        ]
-
-    def sample_from_proposal(self, A: pd.DataFrame) -> None:
-        """ Sample a new transition matrix from the proposal distribution,
-        given a current candidate transition matrix. In practice, this amounts
-        to the in-place perturbation of an element of the transition matrix
-        currently being used by the sampler.
-
-        Args
-        """
-
-        # Choose the element of A to perturb
-        self.source, self.target, self.edge_dict = random.choice(
-            list(self.edges(data=True))
-        )
-        self.original_value = A[f"∂({self.source})/∂t"][self.target]
-        A[f"∂({self.source})/∂t"][self.target] += np.random.normal(scale=0.001)
-
-    def get_timeseries_values_for_indicators(
-        self, resolution: str = "month", months: Iterable[int] = range(6, 9)
-    ):
-        """ Attach timeseries to indicators, for performing Bayesian inference.
-         """
-        if resolution == "month":
-            funcs = [
-                partial(get_indicator_value, month=month) for month in months
-            ]
-        else:
-            raise NotImplementedError(
-                "Currently, only the 'month' resolution is supported."
-            )
-
-        for n in self.nodes(data=True):
-            for indicator in n[1]["indicators"].values():
-                indicator.timeseries = [
-                    func(indicator, year="2017")[0] for func in funcs
-                ]
-                if len(set(indicator.timeseries)) == 1:
-                    indicator.timeseries = None
-
-    def sample_from_posterior(self, A: pd.DataFrame) -> None:
-        """ Run Bayesian inference - sample from the posterior distribution."""
-        self.sample_from_proposal(A)
-        self.set_latent_state_sequence(A)
-        self.update_log_prior(A)
-        self.update_log_likelihood()
-
-        candidate_log_joint_probability = self.log_prior + self.log_likelihood
-
-        delta_log_joint_probability = (
-            candidate_log_joint_probability - self.log_joint_probability
-        )
-
-        acceptance_probability = min(1, np.exp(delta_log_joint_probability))
-        if acceptance_probability > np.random.rand():
-            self.update_log_joint_probability()
-        else:
-            A[f"∂({self.source})/∂t"][self.target] = self.original_value
-            self.set_latent_state_sequence(A)
-            self.update_log_likelihood()
-            self.update_log_prior(A)
-            self.update_log_joint_probability()
-
-    def infer_transition_matrix_coefficient_from_data(
-        self,
-        source: str,
-        target: str,
-        state: Optional[str] = None,
-        crop: Optional[str] = None,
-    ):
-        """ Infer the distribution of a particular transition matrix
-        coefficient from data.
-
-        Args:
-            source: The source of the edge corresponding to the matrix element
-                to infer.
-            target: The target of the edge corresponding to the matrix element
-                to infer.
-            state:
-                The state in South Sudan for which the transition matrix
-                coefficient should be calculated.
-            crop:
-                The crop for which the transition matrix coefficient should be
-                calculated.
-        """
-        rows = engine.execute(
-            f"select * from dssat where `Crop` like '{crop}'"
-            f" and `State` like '{state}'"
-        )
-        xs, ys = lzip(*[(r["Rainfall"], r["Production"]) for r in rows])
-        xs_scaled, ys_scaled = xs / np.mean(xs), ys / np.mean(ys)
-        p, V = np.polyfit(xs_scaled, ys_scaled, 1, cov=True)
-        self.edges[source, target]["βs"] = np.random.normal(
-            p[0], np.sqrt(V[0][0]), self.res
-        )
-        self.sample_from_prior()
 
     # ==========================================================================
     # Basic Modeling Interface (BMI)
@@ -494,36 +382,33 @@ class AnalysisGraph(nx.DiGraph):
             A list of values corresponding to the distribution of the value of
             the real-valued variable representing the node.
         """
-        return [
+
+        xs = [
             self.transition_matrix_collection[i].loc[n[0]].values
             @ self.s0[i].values
             for i in range(self.res)
         ]
+        return xs
 
-    def initialize(
-        self, config_file: str = "bmi_config.txt", initialize_indicators=True
-    ):
+    def initialize(self, initialize_indicators=True):
         """ Initialize the executable AnalysisGraph with a config file.
 
         Args:
-            config_file
+            initialize_indicators: Boolean flag that sets whether indicators
+            are initialized as well.
 
         Returns:
-            AnalysisGraph
+            None
         """
         self.t = 0.0
-        if not os.path.isfile(config_file):
-            self.create_bmi_config_file(config_file)
 
+        # Create self.res copies of the initial latent state vector
         self.s0 = [
-            pd.read_csv(
-                config_file, index_col=0, header=None, error_bad_lines=False
-            )[1]
-            for _ in range(self.res)
+            self.construct_default_initial_state() for _ in range(self.res)
         ]
-        self.s0_original = self.s0[0].copy(deep=True)
 
-        self.latent_state_vector = self.construct_default_initial_state()
+        # Create a 'reference copy' of the initial latent state vector
+        self.s0_original = self.s0[0].copy(deep=True)
 
         for n in self.nodes(data=True):
             rv = LatentVar(n[0])
@@ -538,8 +423,16 @@ class AnalysisGraph(nx.DiGraph):
                         scale=0.01,
                     )
 
-    def update(self, τ: float = 1.0, update_indicators=True, dampen=False):
-        """ Advance the model by one time step. """
+    def update(
+        self,
+        τ: float = 1.0,
+        update_indicators=True,
+        dampen=False,
+        set_delta: float = None,
+    ):
+        """ Advance the model by one time step. set_delta is currently just a
+        placeholder for a future feature.
+        """
 
         for n in self.nodes(data=True):
             n[1]["next_state"] = n[1]["update_function"](n)
@@ -599,54 +492,6 @@ class AnalysisGraph(nx.DiGraph):
         """ Returns the current time in the execution of the model. """
         return self.t
 
-    # ==========================================================================
-    # Export
-    # ==========================================================================
-
-    def export_node(self, n) -> Dict[str, Union[str, List[str]]]:
-        """ Return dict suitable for exporting to JSON.
-
-        Args:
-            n: A dict representing the data in a networkx AnalysisGraph node.
-
-        Returns:
-            The node dict with additional fields for name, units, dtype, and
-            arguments.
-
-        """
-        node_dict = {
-            "name": n[0],
-            "units": _get_units(n[0]),
-            "dtype": _get_dtype(n[0]),
-            "arguments": list(self.predecessors(n[0])),
-        }
-
-        if not n[1].get("indicators") is None:
-            for indicator in n[1]["indicators"].values():
-                if "dataset" in indicator.__dict__:
-                    del indicator.__dict__["dataset"]
-
-            node_dict["indicators"] = [
-                _process_datetime(indicator.__dict__)
-                for indicator in n[1]["indicators"].values()
-            ]
-        else:
-            node_dict["indicators"] = None
-
-        return node_dict
-
-    def to_dict(self) -> Dict:
-        """ Export the CAG to a dict that can be serialized to JSON. """
-        return {
-            "name": self.name,
-            "dateCreated": str(self.dateCreated),
-            "variables": lmap(
-                lambda n: self.export_node(n), self.nodes(data=True)
-            ),
-            "timeStep": str(self.Δt),
-            "edge_data": lmap(export_edge, self.edges(data=True)),
-        }
-
     def to_pickle(self, filename: str = "delphi_model.pkl"):
         with open(filename, "wb") as f:
             pickle.dump(self, f)
@@ -703,11 +548,11 @@ class AnalysisGraph(nx.DiGraph):
 
     def parameterize(
         self,
-        country: Optional[str] = "South Sudan",
+        country: Optional[str] = "Ethiopia",
         state: Optional[str] = None,
         year: Optional[int] = None,
         month: Optional[int] = None,
-        unit: Optional[str] = None,
+        units: Optional[dict] = None,
         fallback_aggaxes: List[str] = ["year", "month"],
         aggfunc: Callable = np.mean,
     ):
@@ -717,6 +562,8 @@ class AnalysisGraph(nx.DiGraph):
             country
             year
             month
+            units: Takes dictionary object with indictor variables as keys the
+            desired units as values
             fallback_aggaxes:
                 An iterable of strings denoting the axes upon which to perform
                 fallback aggregation if the desired constraints cannot be met.
@@ -732,19 +579,39 @@ class AnalysisGraph(nx.DiGraph):
                 f"following: {valid_axes}"
             )
 
-        for n in self.nodes(data=True):
-            for indicator in n[1]["indicators"].values():
-                indicator.mean, indicator.unit = get_indicator_value(
-                    indicator,
-                    country,
-                    state,
-                    year,
-                    month,
-                    unit,
-                    fallback_aggaxes,
-                    aggfunc,
-                )
-                indicator.stdev = 0.1 * abs(indicator.mean)
+        if units is not None:
+            for n in self.nodes(data=True):
+                for indicator in n[1]["indicators"].values():
+                    if indicator.name in units:
+                        unit = units[indicator.name]
+                    else:
+                        unit = None
+                    indicator.mean, indicator.unit = get_indicator_value(
+                        indicator,
+                        country,
+                        state,
+                        year,
+                        month,
+                        unit,
+                        fallback_aggaxes,
+                        aggfunc,
+                    )
+                    indicator.stdev = 0.1 * abs(indicator.mean)
+        else:
+            unit = None
+            for n in self.nodes(data=True):
+                for indicator in n[1]["indicators"].values():
+                    indicator.mean, indicator.unit = get_indicator_value(
+                        indicator,
+                        country,
+                        state,
+                        year,
+                        month,
+                        unit,
+                        fallback_aggaxes,
+                        aggfunc,
+                    )
+                    indicator.stdev = 0.1 * abs(indicator.mean)
 
     # ==========================================================================
     # Manipulation
@@ -818,8 +685,8 @@ class AnalysisGraph(nx.DiGraph):
         for p in self.predecessors(n1):
             for st in self[p][n1]["InfluenceStatements"]:
                 if not same_polarity:
-                    st.obj_delta["polarity"] = -st.obj_delta["polarity"]
-                st.obj.db_refs["UN"][0] = (n2, st.obj.db_refs["UN"][0][1])
+                    st.obj.delta.polarity = -st.obj.delta.polarity
+                st.obj.db_refs["WM"][0] = (n2, st.obj.db_refs["WM"][0][1])
 
             if not self.has_edge(p, n2):
                 self.add_edge(p, n2)
@@ -835,8 +702,8 @@ class AnalysisGraph(nx.DiGraph):
         for s in self.successors(n1):
             for st in self.edges[n1, s]["InfluenceStatements"]:
                 if not same_polarity:
-                    st.subj_delta["polarity"] = -st.subj_delta["polarity"]
-                st.subj.db_refs["UN"][0] = (n2, st.subj.db_refs["UN"][0][1])
+                    st.subj.delta.polarity = -st.subj.delta.polarity
+                st.subj.db_refs["WM"][0] = (n2, st.subj.db_refs["WM"][0][1])
 
             if not self.has_edge(n2, s):
                 self.add_edge(n2, s)
@@ -1006,8 +873,7 @@ class AnalysisGraph(nx.DiGraph):
                     True
                     if np.mean(
                         [
-                            stmt.subj_delta["polarity"]
-                            * stmt.obj_delta["polarity"]
+                            stmt.subj.delta.polarity * stmt.obj.delta.polarity
                             for stmt in e[2]["InfluenceStatements"]
                         ]
                     )
@@ -1047,8 +913,7 @@ class AnalysisGraph(nx.DiGraph):
         self,
         indicators: bool = False,
         indicator_values: bool = False,
-        nodes_to_highlight=None,
-        *args,
+        nodes_to_highlight: Optional[Union[str, List[str]]] = None,
         **kwargs,
     ):
         """ Exports the CAG as a pygraphviz AGraph for visualization.
@@ -1185,15 +1050,17 @@ class AnalysisGraph(nx.DiGraph):
                     )
                     A.add_edge(n[0], indicator_name, color="royalblue4")
 
+        nodes_to_highlight = kwargs.get("nodes_to_highlight")
         if nodes_to_highlight is not None:
-            nodes = kwargs.pop("nodes_to_highlight")
-            if isinstance(nodes, list):
-                for n in nodes:
+            if isinstance(nodes_to_highlight, list):
+                for n in nodes_to_highlight:
                     if n in A.nodes():
                         A.add_node(n, fontcolor="royalblue")
-            elif isinstance(nodes, str):
-                if n in A.nodes():
-                    A.add_node(nodes, fontcolor="royalblue")
+            elif isinstance(nodes_to_highlight, str):
+                if nodes_to_highlight in A.nodes():
+                    A.add_node(nodes_to_highlight, fontcolor="royalblue")
+            else:
+                pass
 
         if kwargs.get("graph_label") is not None:
             A.graph_attr["label"] = kwargs["graph_label"]

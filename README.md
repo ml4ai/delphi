@@ -12,7 +12,7 @@ over multiple levels of abstraction and fully utilizing expert
 knowledge about multiple disparate domains, ranging from the
 environmental to the sociopolitical.
 
-Delphi is a Python library (3.6+) for assembling causal, dynamic, probabilistic
+Delphi is a Python/C++ library for assembling causal, dynamic, probabilistic
 models from information extracted from two sources:
 
 - *Text*: Delphi utilizes causal relations extracted using machine
@@ -25,7 +25,7 @@ models from information extracted from two sources:
 Delphi builds upon [INDRA](https://indra.bio) and [Eidos](https://github.com/clulab/eidos).
 
 For a detailed description of our procedure to convert text to models,
-see [this document](http://vision.cs.arizona.edu/adarsh/export/Arizona_Text_to_Model_Procedure.pdf).
+see [this document](http://vision.cs.arizona.edu/adarsh/Arizona_Text_to_Model_Procedure.pdf).
 
 Delphi is also part of the
 [AutoMATES](https://ml4ai.github.io/automates/) project.
@@ -37,6 +37,24 @@ If you use Delphi, please cite the following:
 
 ```bibtex
 
+  @InProceedings{sharp-EtAl:2019:N19-4,
+    author    = {Sharp, Rebecca  and  Pyarelal, Adarsh  and  Gyori, Benjamin
+      and  Alcock, Keith  and  Laparra, Egoitz  and  Valenzuela-Esc\'{a}rcega,
+      Marco A.  and  Nagesh, Ajay  and  Yadav, Vikas  and  Bachman, John  and
+      Tang, Zheng  and  Lent, Heather  and  Luo, Fan  and  Paul, Mithun  and
+      Bethard, Steven  and  Barnard, Kobus  and  Morrison, Clayton  and
+      Surdeanu, Mihai},
+    title     = {Eidos, INDRA, \& Delphi: From Free Text to Executable Causal Models},
+    booktitle = {Proceedings of the 2019 Conference of the North American
+    Chapter of the Association for Computational Linguistics (Demonstrations)},
+    month     = {6},
+    year      = {2019},
+    address   = {Minneapolis, Minnesota},
+    publisher = {Association for Computational Linguistics},
+    pages     = {42-47},
+    url       = {http://www.aclweb.org/anthology/N19-4008},
+    keywords = {demo paper, causal relations, timelines, locations, information extraction},
+  }
    @misc{Delphi,
        Author = {Adarsh Pyarelal and Paul Hein and Jon Stephens and Pratik
                  Bhandari and HeuiChan Lim and Saumya Debray and Clayton

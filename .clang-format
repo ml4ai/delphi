@@ -1,0 +1,12 @@
+DerivePointerAlignment: false
+PointerAlignment: Left
+
+BinPackArguments: false
+BinPackParameters: false
+BreakBeforeBraces: Custom
+BraceWrapping:
+  BeforeElse: true
+  BeforeCatch: true
+IndentWidth: 2
+AccessModifierOffset: 0
+CommentPragmas:  '^\\.+'

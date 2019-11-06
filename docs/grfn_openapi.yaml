@@ -1,0 +1,685 @@
+openapi: 3.0.0
+
+info:
+  title: GrFN spec
+  description: Grounded Function Network (GrFN) schema specification
+  contact:
+    name: Clayton T. Morrison
+    email: claytonm@email.arizona.edu
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+  version: 0.2.17
+
+paths: {}
+
+components:
+
+  schemas:
+
+    system_def:
+      title: <system_def>
+      description: >
+        Specification of a GrFN system consisting of one or
+        more GrFN files.
+        With imports, the system must represent a DAG.
+      required:
+        - date_created
+        - name
+        - components
+      properties:
+        date_created:
+          type: string
+          format: date-time
+        name:
+          type: string
+        components:
+          type: array
+          items:
+            $ref: '#/components/schemas/grfn_ref'
+
+    grfn_ref:
+      title: <grfn_ref>
+      description: >
+        Specifies a GrFN definition file (`grfn_source`) that is part of
+        a GrFN system, along with it source code files (`code_sources`)
+        and any <grfn_def> imports (`imports`).
+      required:
+        - grfn_source
+        - code_sources
+      properties:
+        grfn_source:
+          $ref: '#/components/schemas/file_path'
+          description: >
+            Path to <grfn_def> file for this reference.
+        code_sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/file_path'
+          description: >
+            List of one or more source code file
+            paths that contain the namespace for
+            the current <grfn_def>.
+        imports:
+          type: array
+          items:
+            $ref: '#/components/schemas/file_path'
+          description: >
+             (optional) List of any <grfn_def> files
+             representing namespaces that are imported
+             to the current <grfn_def>.
+
+    grfn_def:
+      title: <grfn_def>
+      description: >
+        The top-level structure of the GrFN definition derived
+        from Program Analysis of source code.
+        A <grfn_def> corresponds to a namespace.
+      required:
+        - date_created
+        - source
+        - identifiers
+        - variables
+        - containers
+      properties:
+        date_created:
+          type: string
+          format: date-time
+          description: >
+            Date and time that current GrFN was generated.
+        source:
+          description:
+            Path(s) to source code file(s) that were analyzed.
+          type: array
+          items:
+            $ref: '#/components/schemas/file_path'
+        start:
+          type: array
+          items:
+            $ref: '#/components/schemas/container_identifier_name'
+          description:
+            (optional) Top-level entry-points into program
+        types:
+          type: array
+          items:
+            $ref: '#/components/schemas/type_def'
+        variables:
+          type: array
+          items:
+            $ref: '#/components/schemas/variable_def'
+        containers:
+          type: array
+          items:
+            $ref: '#/components/schemas/container_def'
+        source_comments:
+          type: array
+          items:
+            type: string
+        grounding:
+          type: array
+          items:
+            $ref: '#/components/schemas/link_hypothesis'
+
+    link_hypothesis:
+      title: <link_hypothesis>
+      description: >
+        A commutative binary relation representing a hypothesized
+        link between two <semantic_element>s:
+          (elm1=A, elm2=B) == (elm1=B, elm2=A)
+      required:
+        - element_1
+        - element_2
+        - score
+      properties:
+        element_1:
+          $ref: '#/components/schemas/link_element'
+        element_2:
+          $ref: '#/components/schemas/link_element'
+        score:
+          type: number
+          format: float
+
+    link_element:
+      title: <link_element>
+      description: >
+        A grounding hypothesis link element.<br>
+        "type": identifier (<variable_identifier_name>,
+        <function_identifier_name>, <type_identifier_name>),
+        content_span, text_span, equation_term, or ontology_term
+      required:
+        - type
+        - content
+      properties:
+        type:
+          type: string
+          enum:
+            - identifier
+            - comment_span
+            - text_span
+            - equation_term
+            - ontology_term
+        source:
+          type: string
+        content:
+          type: string
+        content_type:
+          type: string
+          enum:
+            - definition
+            - units
+            - constraint
+
+    base_name:
+      title: <base_name>
+      description: >
+        The identifier name (when available) that was used in the
+        original source code.
+      type: string
+
+    scope_path:
+      title: <scope_path>
+      description: >
+        Array of names identifying a program scope.
+      type: array
+      items:
+        type: string
+
+    scope_path_string:
+      title: <scope_path_string>
+      description: >
+        String representation of a `<scope_path>`.
+        String names that make up components of the path are
+        expressed in order, separated by periods.
+      example:
+        '"foo.loop$1.loop$2"'
+      type: string
+
+    namespace_path:
+      title: <namespace_path>
+      description: >
+        Array of names representing a namespace.
+      type: array
+      items:
+        type: string
+
+    namespace_path_string:
+      title: <namespace_path_string>
+      description: >
+        Single string representation of a `<namespace_path>`.
+        String names that make up components of the path are
+        expressed in order, separated by periods.
+      example:
+        '"foo.bar.baz"'
+      type: string
+
+    gensym:
+      title: <gensym>
+      description: >
+        String representation of a unique gensym.
+        Used as identifiers in lambdas and other source code
+        generated from GrFN.
+      type: string
+
+    variable_identifier_name:
+      title: <variable_identifier_name>
+      description: >
+        `"@variable::<namespace_path_string>::<scope_path_string>::<variable_base_name>"`
+      type: string
+
+    variable_base_name:
+      title: <variable_base_name>
+      description: >
+        `"@variable::<base_name>::<index>"`
+      type: string
+
+    container_identifier_name:
+      title: <container_identifier_name>
+      description: >
+        `"@container::<namespace_path_string>::<scope_path_string>::<container_base_name>"`
+      type: string
+
+    container_base_name:
+      title: <container_base_name>
+      description: >
+        `"@container::<container_type>[$[<var_affected>|<code_given_name>]]"`
+      type: string
+
+    type_identifier_name:
+      title: <type_identifier_name>
+      description: >
+        String denoting a non-primitive type; will have a corresponding unique
+        `<type_spec>`:<br>
+        `"@type::<namespace_path_string>::<scope_path_string>::<base_name>"`
+      type: string
+
+    type_base_name:
+      title: <type_base_name>
+      description: >
+        `"@type::<base_name>"`
+      type: string
+
+    literal_name:
+      title: <literal_name>
+      description: >
+        String representing a literal value:
+          `"@literal::<type>::<value>"`<br>
+        where `<type>` is any primitive type:
+          "integer" | "float" | "boolean" | "string"<br>
+        TODO: generalize to any <type> (requires move to structured object)
+      type: string
+
+    type_def:
+      title: <type_def>
+      description: >
+        Define a non-primitive type.
+      required:
+        - name
+        - source_ref
+        - gensym
+      properties:
+        name:
+          $ref: '#/components/schemas/type_identifier_name'
+        source_ref:
+          $ref: '#/components/schemas/source_code_ref'
+        gensym:
+          $ref: '#/components/schemas/gensym'
+
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/attribute_def'
+
+    attribute_def:
+      title: <attribute_def>
+      description: >
+        Define an attribute of a `<type>`.
+      required:
+        - name
+        - value_type
+      properties:
+        name:
+          type: string
+        value_type:
+          $ref: '#/components/schemas/type'
+
+    variable_def:
+      title: <variable_def>
+      description: >
+        The specification of a variable hosting a value.
+      required:
+        - name
+        - index
+        - source_ref
+        - gensym
+        - domain
+      properties:
+        name:
+          $ref: '#/components/schemas/variable_identifier_name'
+        index:
+          type: integer
+        source_ref:
+          $ref: '#/components/schemas/source_code_ref'
+        gensym:
+          $ref: '#/components/schemas/gensym'
+
+        domain:
+           $ref: '#/components/schemas/type'
+        domain_constraints:
+          type: string
+          description: >
+            String representing a disjunctive normal form representation
+            with v = variable value, for example:<br>
+            `"(or (and (< v infty) (>= v 5)) (and (> v -infty) (< v 0)))"`
+
+    container_def:
+      title: <container_def>
+      description: >
+        Define a container with a function subnetwork body.
+        Execution through the container body depends on value
+        of the boolean "repeat":<br>
+        false = execute once<br>
+        true = execute indefinitely (loop).
+      required:
+        - name
+        - source_refs
+        - gensym
+        - repeat
+        - arguments
+        - return_value
+        - body
+      properties:
+        name:
+          $ref: '#/components/schemas/container_identifier_name'
+        source_ref:
+          $ref: '#/components/schemas/source_code_ref'
+        gensym:
+          $ref: '#/components/schemas/gensym'
+
+        repeat:
+          type: boolean
+
+        arguments:
+          type: array
+          items:
+            $ref: '#/components/schemas/variable_base_name'
+        updated:
+          type: array
+          items:
+            $ref: '#/components/schemas/variable_base_name'
+        return_value:
+          type: array
+          items:
+            $ref: '#/components/schemas/variable_identifier_name'
+        body:
+          type: array
+          items:
+            $ref: '#/components/schemas/container_wiring'
+
+    container_wiring:
+      title: <container_wiring>
+      description: >
+        Defines the "wiring" of functions within a container,
+        specifying associations of variables to function
+        arguments ("input") and the function return_value ("output").
+      required:
+        - function
+        - input
+        - output
+      properties:
+        function:
+          $ref: '#/components/schemas/function_ref'
+        input:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/variable_base_name'
+              - $ref: '#/components/schemas/container_identifier_name'
+              - $ref: '#/components/schemas/literal_name'
+        output:
+          type: array
+          items:
+            $ref: '#/components/schemas/variable_base_name'
+        updated:
+          type: array
+          items:
+            $ref: '#/components/schemas/variable_base_name'
+
+    function_ref:
+      title: <function_ref>
+      description: >
+        A `<function_ref>` is either<br>
+        (1) `<container_identifier_name>` denoting a container
+        specification<br>
+        (2) `<lambda_function_source_ref>` denoting an executable
+        lambda function.<br>
+      required:
+        - name
+        - type
+      properties:
+        name:
+          oneOf:
+            - $ref: '#/components/schemas/container_identifier_name'
+            - $ref: '#/components/schemas/lambda_function_source_ref'
+        type:
+          description: >
+            Indicate whether "function" is a
+            `<container_identifier_name>` or `<lambda_function_source_ref>`.
+          type: string
+          enum:
+            - container
+            - lambda
+
+    lambda_function_source_ref:
+      title: <lambda_function_source_ref>
+      description: >
+        String representation of a path/reference to a function
+        in `lambda.py`.
+      type: string
+
+    source_code_ref:
+      title: <source_code_ref>
+      description: >
+        Reference to the location within the a source code file.
+      required:
+        - line_number
+        - file_path
+      properties:
+        line_number:
+          type: integer
+        column_start:
+          type: integer
+        column_end:
+          type: integer
+        file_path:
+          $ref: '#/components/schemas/file_path'
+
+    file_path:
+      title: <file_path>
+      description: >
+        String representation of the path to a file.
+      type: string
+
+    type:
+      title: <type>
+      description: Root type.
+      oneOf:
+        - $ref: '#/components/schemas/type_type_def'
+        - $ref: '#/components/schemas/type_integer'
+        - $ref: '#/components/schemas/type_float'
+        - $ref: '#/components/schemas/type_boolean'
+        - $ref: '#/components/schemas/type_string'
+        - $ref: '#/components/schemas/type_array'
+        - $ref: '#/components/schemas/type_list'
+        - $ref: '#/components/schemas/type_map'
+        - $ref: '#/components/schemas/type_hashmap'
+        - $ref: '#/components/schemas/type_tuple'
+
+    type_type_def:
+      title: <type_type_def>
+      description: >
+        Indicator of a user-defined `<type_def>`.
+        "name" is a `<type_identifier_name>` that identifies the `<type_def>`.
+      required:
+        - name
+        - type
+      properties:
+        name:
+          $ref: '#/components/schemas/type_identifier_name'
+        type:
+          type: string
+          enum:
+            - "type"
+
+    type_integer:
+      title: <type_integer>
+      description: >
+        Primitive scalar integer
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+          enum:
+            - "integer"
+        type:
+          type: string
+          enum:
+            - "type"
+
+    type_float:
+      title: <type_float>
+      description: >
+        Primitive scalar float
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+          enum:
+            - "float"
+        type:
+          type: string
+          enum:
+            - "type"
+
+    type_boolean:
+      title: <type_boolean>
+      description: >
+        Primitive scalar boolean
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+          enum:
+            - "boolean"
+        type:
+          type: string
+          enum:
+            - "type"
+
+    type_string:
+      title: <type_string>
+      description: >
+        Primitive scalar string
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+          enum:
+            - "string"
+        type:
+          type: string
+          enum:
+            - "type"
+
+    type_array:
+      title: <type_array>
+      description: >
+        Array primitive type.
+        Dimension integers can only be positive.
+        The "element_type" specifies the `<type>` of the
+        elements in the array.
+      required:
+        - name
+        - type
+        - dimensions
+        - element_type
+      properties:
+        name:
+          type: string
+          enum:
+            - "array"
+        type:
+          type: string
+          enum:
+            - "type"
+        dimensions:
+          description: >
+            Array of integer or variable (storing an integer) defining
+            size of each array dimension.
+          type: array
+          items:
+            oneOf:
+              - type: integer
+                minimum: 1
+              - $ref: '#/components/schemas/variable_identifier_name'
+        index_start:
+          description: >
+            Array of integers defining start index of each dimension.
+            This field is optional. If left out, assumption is each
+            dimension has a start index of 0.
+          type: array
+          items:
+            type: integer
+        element_type:
+           $ref: '#/components/schemas/type'
+
+    type_list:
+      title: <type_list>
+      description: >
+        List primitive type.
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+          enum:
+            - "list"
+        type:
+          type: string
+          enum:
+            - "type"
+
+    type_map:
+      title: <type_map>
+      description: >
+        Map primitive type.
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+          enum:
+            - "map"
+        type:
+          type: string
+          enum:
+            - "type"
+
+    type_hashmap:
+      title: <type_hashmap>
+      description: >
+        A Map who's keys have a "key_type" `<type>`.
+      required:
+        - name
+        - type
+        - key_type
+      properties:
+        name:
+          type: string
+          enum:
+            - "hashmap"
+        type:
+          type: string
+          enum:
+            - "type"
+        key_type:
+          $ref: '#/components/schemas/type'
+
+    type_tuple:
+      title: <type_tuple>
+      description: >
+        Tuple primitive type.
+        "element_types" is an array of the `<types>` of each
+        element of the tuple.
+        The order of `<types>` in "elemennt_types" corresponds
+        to the order of elements in the tuple.
+      required:
+        - name
+        - type
+        - element_types
+      properties:
+        name:
+          type: string
+          enum:
+            - "tuple"
+        type:
+          type: string
+          enum:
+            - "type"
+        element_types:
+          type: array
+          items:
+            $ref: '#/components/schemas/type'
+
+externalDocs:
+  description: Find more information here
+  url: 'https://ml4ai.github.io/delphi/grfn_spec.html'

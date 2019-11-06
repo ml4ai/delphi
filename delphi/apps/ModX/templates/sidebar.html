@@ -1,0 +1,83 @@
+<!-- Sidebar for doc/code/model/var menus -->
+<div class="sidenav bg-light">
+  <div class="accordion model-components" id="modelComponentAccordian">
+    <div class="card">
+      <div class="card-header" id="headingDocs">
+        <h5 class="mb-0">
+          <button class="btn btn-link text-dark" type="button" data-toggle="collapse" data-target=".multi-collapse" aria-expanded="true" aria-controls="collapseDocs collapseCode">
+            Documents
+          </button>
+          <!-- <button id=new-doc-button class="badge badge-pill badge-success" data-toggle="modal" data-target="#new-doc-modal">+</button> -->
+        </h5>
+      </div>
+      <div id="collapseDocs" class="collapse multi-collapse" aria-labelledby="headingDocs" data-parent="#modelComponentAccordian">
+        <div class="card-body">
+          <div id=document-list class="list-group list-group-flush" role="tablist">
+            <!-- Saved documents will populate here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" id="headingCode">
+        <h5 class="mb-0">
+          <button class="btn btn-link text-dark collapsed" type="button" data-toggle="collapse" data-target=".multi-collapse" aria-expanded="false" aria-controls="collapseCode collapseDocs">
+            Source Code
+          </button>
+          <!-- <button id=new-code-button class="badge badge-pill badge-success">+</button> -->
+        </h5>
+      </div>
+      <div id="collapseCode" class="collapse multi-collapse" aria-labelledby="headingCode" data-parent="#modelComponentAccordian">
+        <div class="card-body">
+          <div id=source-file-list class="list-group list-group-flush" role="tablist">
+            <!-- Saved source files will populate here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" id="headingModels">
+        <h5 class="mb-0">
+          <button class="btn btn-link text-dark collapsed" type="button" data-toggle="collapse" data-target="#collapseModels" aria-expanded="false" aria-controls="collapseModels">
+            Models
+          </button>
+          <!-- <button id=new-model-button class="badge badge-pill badge-success">+</button> -->
+        </h5>
+      </div>
+      <div id="collapseModels" class="collapse show" aria-labelledby="headingModels" data-parent="#modelComponentAccordian">
+        <div class="card-body">
+          <div id=model-list class="list-group list-group-flush" role="tablist">
+            <!-- Saved models will populate here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- <div class="card">
+      <div class="card-header" id="headingVars">
+        <h5 class="mb-0">
+          <button class="btn btn-link text-dark collapsed" type="button" data-toggle="collapse" data-target="#collapseVars" aria-expanded="false" aria-controls="collapseVars">
+            Variables
+          </button>
+          <button id=new-var-button class="badge badge-pill badge-success">+</button>
+        </h5>
+      </div>
+      <div id="collapseVars" class="collapse" aria-labelledby="headingVars" data-parent="#modelComponentAccordian">
+        <div class="card-body">
+          <div id=variable-list class="list-group list-group-flush" role="tablist">
+            Saved variables will populate here
+          </div>
+        </div>
+      </div>
+    </div> -->
+  </div>
+
+  <nav class="navbar fixed-bottom navbar-light bg-light">
+    <form class="form-inline">
+      <button id=model-gen-button type="button" class="btn btn-sm btn-primary disabled">Read from source</button>
+      <button id=model-view-button type="button" class="btn btn-sm btn-primary disabled">View model</button>
+    </form>
+  </nav>
+</div>

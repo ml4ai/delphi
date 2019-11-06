@@ -24,10 +24,10 @@ Example:
     -- 'neck' : whole-line comments just after the subprogram start;
     -- 'foot' : whole-line comments just after the subprogram ends; and
     -- 'internal' : comments internal to the function (curently marked
-            by "marker statements" of the form i_g_n_o_r_e__m_e___NNN = .True.
-            where NNN is the line number of the comment.  Internal comments
-            are maintained as a dictionary that maps the variables
-            i_g_n_o_r_e__m_e___NNN to lists of comment strings.
+    by "marker statements" of the form i_g_n_o_r_e__m_e___NNN = .True.
+    where NNN is the line number of the comment.  Internal comments
+    are maintained as a dictionary that maps the variables
+    i_g_n_o_r_e__m_e___NNN to lists of comment strings.
 
     If a subprogram does not have comments for any of these categories, the
     corresponding entry in the comment dictionary is [].
@@ -36,11 +36,11 @@ Example:
     dictionary also has entries for two "file-level" comments:
 
         -- any comment at the beginning of the file (before the first function)
-           can be accessed using the key "$file_head" (this comment is also
-           the head-comment for the first subprogram in the file); and
+        can be accessed using the key "$file_head" (this comment is also
+        the head-comment for the first subprogram in the file); and
         -- any comment at the end of the file (after the last function)
-           can be accessed using the key "$file_foot" (this comment is also
-           the foot-comment for the last subprogram in the file).
+        can be accessed using the key "$file_foot" (this comment is also
+        the foot-comment for the last subprogram in the file).
 
     If either the file-head or the file-foot comment is missing, the
     corresponding entries in the comment dictionary are [].

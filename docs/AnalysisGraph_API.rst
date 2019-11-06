@@ -25,7 +25,7 @@ values of the dictionary are objects of the class
 
 The methods listed on this page constitute the public API for Delphi.
 
-.. autoclass:: AnalysisGraph
+.. autoclass:: delphi.AnalysisGraph.AnalysisGraph
 
 Constructors
 ------------
@@ -95,7 +95,6 @@ Sampling and Inference
 .. autosummary::
     :toctree: generated/
 
-    AnalysisGraph.assemble_transition_model_from_gradable_adjectives
     AnalysisGraph.sample_from_prior
     AnalysisGraph.infer_transition_matrix_coefficient_from_data
 

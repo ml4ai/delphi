@@ -1,0 +1,241 @@
+{
+  "containers": [
+    {
+      "arguments": [
+        "@variable::means::-1",
+        "@variable::vars::-1",
+        "@variable::k::-1",
+        "@variable::n::-1",
+        "@variable::runs::-1"
+      ],
+      "body": [
+        {
+          "function": {
+            "name": "SIR_Gillespie_SD_multi_module__update_mean_var__assign__tmax__0",
+            "type": "lambda"
+          },
+          "input": [],
+          "output": [
+            "@variable::tmax::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_SD_multi_module__update_mean_var__assign__means_k__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::means::-1",
+            "@variable::k::-1",
+            "@variable::n::-1",
+            "@variable::runs::-1"
+          ],
+          "output": [
+            "@variable::means::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_Gillespie_SD_multi_module__update_mean_var__assign__vars_k__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::vars::-1",
+            "@variable::k::-1",
+            "@variable::runs::-1",
+            "@variable::n::-1",
+            "@variable::means::0"
+          ],
+          "output": [
+            "@variable::vars::0"
+          ],
+          "updated": []
+        }
+      ],
+      "name": "@container::SIR-Gillespie-SD_multi_module::@global::update_mean_var",
+      "repeat": false,
+      "return_value": [],
+      "source_refs": [],
+      "updated": []
+    }
+  ],
+  "grounding": [],
+  "source": [
+    "SIR-Gillespie-SD_multi_module.f"
+  ],
+  "source_comments": {
+    "$file_foot": [],
+    "$file_head": [
+      "********************************************************************************\n",
+      "C     Variables:\n",
+      "C     beta     Rate of infection\n",
+      "C     gamma    Rate of recovery from an infection\n",
+      "C     rho      Basic reproduction Number\n",
+      "C\n",
+      "C     State Variables: S, I, R\n",
+      "C     S - Susceptible population\n",
+      "C     I - Infected population\n",
+      "C     R - Recovered population\n",
+      "C     n_S      current number of susceptible members\n",
+      "C     n_I      current number of infected members\n",
+      "C     n_R      current number of recovered members\n",
+      "C     S0       initial value of S\n",
+      "C     I0       initial value of I\n",
+      "C     R0       initial value of R\n",
+      "C     MeanS    Measures of Mean for S\n",
+      "C     MeanI    Measures of Mean for I\n",
+      "C     MeanR    Measures of Mean for R\n",
+      "C     VarS     Measures of Variance for S\n",
+      "C     VarI     Measures of Variance for I\n",
+      "C     VarR     Measures of Variance for R\n",
+      "C\n",
+      "C     rateInfect    Current state dependent rate of infection\n",
+      "C     rateRecover   Current state dependent rate of recovery\n",
+      "C     totalRates    Sum of total rates; taking advantage of Markovian identities\n",
+      "C                       to improve performance.\n",
+      "C\n",
+      "C     Tmax          Maximum time for the simulation\n",
+      "C     t             Initial time for the simulation\n",
+      "C     totalRuns     Total number of trajectories to generate for the analysis\n",
+      "C     dt       next inter-event time\n",
+      "********************************************************************************\n"
+    ],
+    "@container::SIR-Gillespie-SD_multi_module::@global::update_mean_var": {
+      "foot": [],
+      "head": [
+        "C     Fortranification of AMIDOL's SIR-Gillespie.py\n",
+        "********************************************************************************\n"
+      ],
+      "internal": {},
+      "neck": []
+    },
+    "gillespie": {
+      "foot": [],
+      "head": [
+        "********************************************************************************\n",
+        "C     Variables:\n",
+        "C     beta     Rate of infection\n",
+        "C     gamma    Rate of recovery from an infection\n",
+        "C     rho      Basic reproduction Number\n",
+        "C\n",
+        "C     State Variables: S, I, R\n",
+        "C     S - Susceptible population\n",
+        "C     I - Infected population\n",
+        "C     R - Recovered population\n",
+        "C     n_S      current number of susceptible members\n",
+        "C     n_I      current number of infected members\n",
+        "C     n_R      current number of recovered members\n",
+        "C     S0       initial value of S\n",
+        "C     I0       initial value of I\n",
+        "C     R0       initial value of R\n",
+        "C     MeanS    Measures of Mean for S\n",
+        "C     MeanI    Measures of Mean for I\n",
+        "C     MeanR    Measures of Mean for R\n",
+        "C     VarS     Measures of Variance for S\n",
+        "C     VarI     Measures of Variance for I\n",
+        "C     VarR     Measures of Variance for R\n",
+        "C\n",
+        "C     rateInfect    Current state dependent rate of infection\n",
+        "C     rateRecover   Current state dependent rate of recovery\n",
+        "C     totalRates    Sum of total rates; taking advantage of Markovian identities\n",
+        "C                       to improve performance.\n",
+        "C\n",
+        "C     Tmax          Maximum time for the simulation\n",
+        "C     t             Initial time for the simulation\n",
+        "C     totalRuns     Total number of trajectories to generate for the analysis\n",
+        "C     dt       next inter-event time\n",
+        "********************************************************************************\n"
+      ],
+      "internal": {},
+      "neck": []
+    }
+  },
+  "start": [
+    "@container::SIR-Gillespie-SD_multi_module::@global::update_mean_var"
+  ],
+  "types": [],
+  "variables": [
+    {
+      "domain": {
+        "mutable": false,
+        "name": "Array",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))",
+      "name": "@variable::SIR-Gillespie-SD_multi_module::update_mean_var::means::-1",
+      "source_refs": []
+    },
+    {
+      "domain": {
+        "mutable": false,
+        "name": "Array",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))",
+      "name": "@variable::SIR-Gillespie-SD_multi_module::update_mean_var::vars::-1",
+      "source_refs": []
+    },
+    {
+      "domain": {
+        "mutable": false,
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))",
+      "name": "@variable::SIR-Gillespie-SD_multi_module::update_mean_var::k::-1",
+      "source_refs": []
+    },
+    {
+      "domain": {
+        "mutable": false,
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))",
+      "name": "@variable::SIR-Gillespie-SD_multi_module::update_mean_var::n::-1",
+      "source_refs": []
+    },
+    {
+      "domain": {
+        "mutable": false,
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))",
+      "name": "@variable::SIR-Gillespie-SD_multi_module::update_mean_var::runs::-1",
+      "source_refs": []
+    },
+    {
+      "domain": {
+        "mutable": false,
+        "name": "integer",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))",
+      "name": "@variable::SIR-Gillespie-SD_multi_module::update_mean_var::tmax::0",
+      "source_refs": []
+    },
+    {
+      "domain": {
+        "mutable": false,
+        "name": "Array",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))",
+      "name": "@variable::SIR-Gillespie-SD_multi_module::update_mean_var::means_k::0",
+      "source_refs": []
+    },
+    {
+      "domain": {
+        "mutable": false,
+        "name": "Array",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))",
+      "name": "@variable::SIR-Gillespie-SD_multi_module::update_mean_var::vars_k::0",
+      "source_refs": []
+    }
+  ]
+}

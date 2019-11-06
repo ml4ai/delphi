@@ -1,7 +1,7 @@
 """
-Generates a module index file. This file describes each module used in a program run.
-The information about each module is represented as a json dictionary and has the
-following fields:
+This script generates a module index file. The file describes each module used
+in a program run. The information about each module is represented as a JSON
+dictionary and has the following fields:
 
     name:              <module_name>
     file:              <file_containing_the_module>
@@ -9,12 +9,13 @@ following fields:
     symbol_export:     <list_of_symbols_exported_by_module>
     subprogram_list:   <procedure_mapping_for_module>
 
-The procedure mapping for each subprogram p defined in module M is a mapping from
-each possible tuple of argument types for p to the function to invoke for that argument
-type tuple.
+The procedure mapping for each subprogram `p` defined in module `M` is a
+mapping from each possible tuple of argument types for p to the function to
+invoke for that argument type tuple.
 
 Author: Pratik Bhandari
 Date:   02/19/2019
+Last Updated: 07/02/2019
 """
 
 import sys
@@ -23,168 +24,214 @@ from typing import List, Dict
 import re
 import json
 
-class moduleGenerator(object):
+
+class ModuleGenerator(object):
     def __init__(self):
-
-        self.asts = []
-        self.useList = []
-        self.functionList = []
-        self.entryPoint = []
-        self.current_context = ''
-        self.fileName = ''
-        self.main = ''
-        self.path = ''
-
+        # This string holds the current context of the program being parsed
+        self.current_context = None
+        # This string holds the name of the original Fortran code which is
+        # being processed
+        self.fileName = None
+        # This string holds the name of the main PROGRAM module
+        self.main = None
+        # This string holds the path on which the XML file of the original
+        # Fortran code is located
+        self.path = None
         # Initialize all the dictionaries which we will be writing to our file
+        # This is a list of all modules inside a single Fortran file
         self.modules = []
+        # This dictionary holds the set of symbols exported by each module.
         self.exports = {}
+        # This dictionary holds the modules used by each module/program.
+        # Additionally, variables from each module can be selectively USEd (
+        # imported). This is stored in the object below. If all variables of
+        # a module are USEd, an `*` symbol is used to denote this.
         self.uses = {}
+        # This dictionary holds the set of symbols imported by each module.
+        # This is given by: IMPORTS(m) = U { EXPORTS(p) | p ∈ USES(m) }
+        # Since a module can use the ONLY keyword to import only some of the
+        # symbols exported by another module, in such cases, the set of
+        # imported symbols is be limited to those explicitly mentioned.
         self.imports = {}
+        # This dictionary holds all the private variables defined in each
+        # module
         self.private = {}
+        # This dictionary holds all public variables for each module/context
         self.public = {}
-        self.subpgms = {}
-        self.syms = {}
+        # This dictionary holds all subprograms (subroutines and functions) for
+        # each module
+        self.subprograms = {}
+        # This dictionary stores the set of symbols declared in each module.
+        self.symbols = {}
+        # This dictionary stores a variable-type mapping.
+        self.variable_types = {}
+        self.symbol_type = {}
 
-    def parseTree(self, root) -> bool:
+    def populate_symbols(self):
+        """
+            This function populates the dictionary `self.symbols` which stores
+            the set of symbols declared in each module. This is the union of all
+            public variables, private variables and subprograms for each module.
+        """
+        for item in self.modules:
+            self.symbols[item] = self.public.get(item, []) + \
+                                 self.private.get(item, []) + \
+                                 self.subprograms.get(item, [])
 
-        # Find function name
+    def populate_exports(self):
+        """
+            This function populates the `self.exports` dictionary which holds
+            the set of symbols exported by each module. The set of exported
+            symbols is given by: (imports U symbols) - private
+        """
+        for item in self.modules:
+            interim = self.imports.get(item, []) + self.symbols.get(item, [])
+            self.exports[item] = [x for x in interim if x not in
+                                  self.private.get(item, [])]
+
+    def populate_imports(self):
+        """
+            This function populates the `self.imports` dictionary which holds
+            all the private variables defined in each module.
+        """
+        for module in self.uses:
+            for use_item in self.uses[module]:
+                for key in use_item:
+                    if len(use_item[key]) == 1 and use_item[key][0] == '*':
+                        self.imports.setdefault(module, []).append(
+                            {key: self.exports[key]}
+                        )
+                    else:
+                        self.imports.setdefault(module, []).append(
+                            {key: use_item[key]}
+                        )
+
+    def populate_symbol_types(self):
+        for var in self.variable_types:
+            for module in self.symbols:
+                if var in self.symbols[module]:
+                    self.symbol_type[var] = [module, self.variable_types[var]]
+
+    def parse_tree(self, root) -> bool:
+        """
+            This function parses the XML tree of a Fortran file and tracks
+            and maps relevant object relationships
+        """
+
+        # Find name of PROGRAM module
         for item in root.iter():
             if item.tag == "program":
                 self.main = item.attrib["name"].lower()
 
+        variable_type = None
+
         for item in root.iter():
+            # Get the name of the XML file being parsed
             if item.tag == "file":
                 file_name = item.attrib["path"]
                 file = file_name.split('/')[-1]
-                file_reg = r'^(.*)_processed(\..*)$'
-                path_reg = r'^.*(delphi/[^delphi].*)/\w+'
-                match = re.match(file_reg, file)
+                file_regex = r'^(.*)_processed(\..*)$'
+                path_regex = r'^.*(delphi/[^delphi].*)/\w+'
+                match = re.match(file_regex, file)
                 if match:
                     self.fileName = match.group(1) + match.group(2)
-                match = re.match(path_reg, file_name)
+                match = re.match(path_regex, file_name)
                 if match:
                     self.path = match.group(1)
-
 
             elif item.tag.lower() in ["module", "program"]:
                 self.current_context = item.attrib["name"].lower()
                 self.modules.append(item.attrib["name"].lower())
 
+            elif item.tag.lower() == "type":
+                variable_type = item.attrib["name"].lower()
             elif item.tag.lower() == "variable":
                 if item.attrib.get("name"):
-                    if self.current_context == "":
+                    if not self.current_context:
                         self.current_context = self.main
-                    if self.public.get(self.current_context):
-                        self.public[self.current_context].append(item.attrib["name"].lower())
-                    else:
-                        self.public[self.current_context] = [item.attrib["name"].lower()]
+                    self.public.setdefault(self.current_context, []).append(
+                        item.attrib["name"].lower())
+                    self.variable_types[item.attrib["name"].lower()] = variable_type
 
             elif item.tag.lower() in ["subroutine", "function"]:
-                if self.current_context == "":
+                if not self.current_context:
                     self.current_context = self.main
-                if self.subpgms.get(self.current_context):
-                    self.subpgms[self.current_context].append(item.attrib["name"].lower())
-                else:
-                    self.subpgms[self.current_context] = [item.attrib["name"].lower()]
+                self.subprograms.setdefault(self.current_context, []).append(
+                    item.attrib["name"].lower())
+                self.current_context = item.attrib["name"].lower()
 
             elif item.tag.lower() == "declaration":
-                self.possible_private(item)
+                # This function parses the <declaration> tag of the XML and
+                # checks if private variables are defined in the respective
+                # module/program. Private variables tend to be inside the
+                # declaration tag
+                private_status = False
+                for child in item.iter():
+                    if child.tag.lower() == "access-spec" and child.attrib.get(
+                            "keyword").lower() == "private":
+                        private_status = True
+                    if child.tag.lower() == "variable" and private_status:
+                        if not self.current_context:
+                            self.current_context = self.main
+                        if child.attrib.get("name"):
+                            self.private.setdefault(self.current_context,
+                                                    []).append(
+                                child.attrib["name"].lower())
 
             elif item.tag.lower() == "use":
-                hasOnly = False
+                # If a module, program or subroutine uses (imports) another
+                # module, a USE statement is used and we want to map the
+                # relationship between different program scopes that occur
+                # with the use of the USE statement
                 only_symbols = []
                 for child in item:
                     if child.tag.lower() == "only":
-                        hasOnly = True
                         for innerChild in child:
-                            if innerChild.tag.lower() == "name" and hasOnly:
-                                only_symbols.append(innerChild.attrib["id"].lower())
-
-                if self.current_context == "":
+                            if innerChild.tag.lower() == "name":
+                                only_symbols.append(innerChild.attrib[
+                                                        "id"].lower())
+                if not self.current_context:
                     self.current_context = self.main
-                if self.uses.get(self.current_context):
-                    if len(only_symbols) != 0:
-                        self.uses[self.current_context].append({item.attrib["name"].lower(): only_symbols})
-                    else:
-                        self.uses[self.current_context].append({item.attrib["name"].lower(): ['*']})
-                else:
-                    if len(only_symbols) != 0:
-                        self.uses[self.current_context] = [{item.attrib["name"].lower(): only_symbols}]
-                    else:
-                        self.uses[self.current_context] = [{item.attrib["name"].lower(): ['*']}]
+                self.uses.setdefault(self.current_context, []).append({
+                    item.attrib["name"].lower(): only_symbols} if only_symbols
+                    else {item.attrib["name"].lower(): ["*"]})
 
-        self.populate_syms()
+        self.populate_symbols()
+        self.populate_symbol_types()
         self.populate_exports()
         self.populate_imports()
 
         return True
 
-    def populate_syms(self):
-        for item in self.modules:
-            self.syms[item] = self.public.get(item, []) + self.private.get(item, []) + self.subpgms.get(item, [])
-
-    def populate_exports(self):
-        for item in self.modules:
-            interim = self.imports.get(item, []) + self.syms.get(item, [])
-            self.exports[item] = [x for x in interim if x not in self.private.get(item, [])]
-
-    def populate_imports(self):
-        for module in self.uses:
-            for use_item in self.uses[module]:
-                for key in use_item:
-                    if len(use_item[key]) == 1 and use_item[key][0] == '*':
-                        if self.imports.get(module):
-                            self.imports[module].append({key: self.exports[key]})
-                        else:
-                            self.imports[module] = [{key: self.exports[key]}]
-                    elif len(use_item[key]) > 1:
-                        if self.imports.get(module):
-                            self.imports[module].append({key: use_item[key]})
-                        else:
-                            self.imports[module] = [{key: use_item[key]}]
-
-    def possible_private(self, item):
-        private_status = False
-        for child in item.iter():
-            if child.tag.lower() == "access-spec" and child.attrib.get("keyword").lower() == "private":
-                private_status = True
-            if child.tag.lower() == "name" and private_status:
-                if self.current_context == "":
-                    self.current_context = self.main
-                if self.private.get(self.current_context):
-                    self.private[self.current_context].append(child.attrib["id"].lower())
-                else:
-                    self.private[self.current_context] = [child.attrib["id"].lower()]
-
     def analyze(self, tree: ET.ElementTree) -> List:
-        status = self.parseTree(tree)
-        outputDict = {}
+        """
+            Parse the XML file from the root and keep track of all important
+            data structures and object relationships between files
+        """
+        status = self.parse_tree(tree)
+        output_dictionary = {}
         if status:
-            outputDict['FileName'] = [self.fileName, self.path]
-            outputDict['Modules'] = self.modules
-            outputDict['Exports'] = self.exports
-            outputDict['Uses'] = self.uses
-            outputDict['Imports'] = self.imports
-            outputDict['Private'] = self.private
-            outputDict['Public'] = self.public
-            outputDict['Subpgms'] = self.subpgms
-            outputDict['Syms'] = self.syms
+            output_dictionary['file_name'] = [self.fileName, self.path]
+            output_dictionary['modules'] = self.modules
+            output_dictionary['exports'] = self.exports
+            output_dictionary['use_mapping'] = self.uses
+            output_dictionary['imports'] = self.imports
+            output_dictionary['private_objects'] = self.private
+            output_dictionary['public_objects'] = self.public
+            output_dictionary['subprograms'] = self.subprograms
+            output_dictionary['symbols'] = self.symbols
+            output_dictionary['symbol_types'] = self.symbol_type
 
-            # with open('mod_gen.json','w') as fd:
-            #     json.dump(outputDict, fd, indent=4)
-
-            return outputDict
-
-# Return the root of the XML ast (of the Fortran program) generated by the OFP so that subsequent recursion can
-# be applied to it
-def get_tree(file: str) -> ET.ElementTree:
-    return ET.parse(file).getroot()
+        return [output_dictionary]
 
 
-# Get the root of the XML ast, instantiate the moduleGenerator and start the analysis process.
 def get_index(xml_file: str):
-    tree = get_tree(xml_file)
-    generator = moduleGenerator()
+    """
+        Get the root of the XML ast, instantiate the moduleGenerator and
+        start the analysis process.
+    """
+    tree = ET.parse(xml_file).getroot()
+    generator = ModuleGenerator()
     return generator.analyze(tree)
 
 
@@ -193,4 +240,4 @@ if __name__ == "__main__":
         sys.stderr.write(f"Usage: {sys.argv[0]} filename\n")
         sys.exit(1)
 
-    get_index(sys.argv[1])
+    print(get_index(sys.argv[1]))

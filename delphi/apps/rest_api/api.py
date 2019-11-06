@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
+import re
 import json
-from math import exp
+from math import exp, sqrt
 from uuid import uuid4
 import pickle
 from datetime import date, timedelta, datetime
@@ -9,6 +10,7 @@ import dateutil
 from dateutil.relativedelta import relativedelta
 from typing import Optional, List
 from itertools import product
+from statistics import median, mean
 from delphi.AnalysisGraph import AnalysisGraph
 from delphi.random_variables import LatentVar
 from delphi.utils import flatten, lmap
@@ -19,6 +21,7 @@ from delphi.apps.rest_api.models import *
 from delphi.random_variables import Indicator
 import numpy as np
 from flask import current_app
+import scipy.stats
 
 bp = Blueprint("rest_api", __name__)
 
@@ -27,98 +30,129 @@ bp = Blueprint("rest_api", __name__)
 # ============
 
 
+PLACEHOLDER_UNIT = "No units specified."
+
+
 @bp.route("/delphi/models", methods=["GET"])
 def listAllModels():
     """ Return UUIDs for all the models in the database. """
-    if (
-        list(
-            engine.execute(
-                "SELECT name FROM sqlite_master WHERE type='table' "
-                "AND name='icmmetadata'"
-            )
-        )
-        == []
-    ):
+
+    query = (
+        "SELECT name FROM sqlite_master WHERE type='table' "
+        "AND name='icmmetadata'"
+    )
+    if list(engine.execute(query)) == []:
         return jsonify([])
     else:
         return jsonify([metadata.id for metadata in ICMMetadata.query.all()])
 
 
-@bp.route("/delphi/models", methods=["POST"])
+@bp.route("/delphi/create-model", methods=["POST"])
 def createNewModel():
     """ Create a new Delphi model. """
     data = json.loads(request.data)
     G = AnalysisGraph.from_uncharted_json_serialized_dict(data)
-    G.assemble_transition_model_from_gradable_adjectives()
     G.sample_from_prior()
-    G.id = data["model_id"]
+    G.id = data["id"]
     G.to_sql(app=current_app)
     return jsonify({"status": "success"})
 
 
-@bp.route("/delphi/models/<string:model_id>/indicators", methods=["GET"])
-def getIndicators(model_id: str):
-    """ Search for indicator candidates pertaining to :model_id.
-
-    The search options include:
-        - start/end: To specify search criteria in years (YYYY)
-        - geolocation: To match indicators with matching geolocation
-        - func: To apply a transform function onto the raw indicator values
-        - concept: To search for specific concept, if omitted search across all concepts within the model
+@bp.route("/delphi/search", methods=["POST"])
+def getIndicators():
+    """
+    Given a list of concepts, this endpoint returns their respective matching
+    indicators. The search parameters are:
+    - start/end: To specify search criteria in years (YYYY)
+    - geolocation: To match indicators with matching geolocation
+    - func: To apply a transform function onto the raw indicator values
+    - concepts: List of concepts
+    - outputResolution: month/year
 
     The search will return a listing of matching indicators, sorted by
     similarity score. For each concept a maximum of 10 indicator matches will
     be returned. If there are no matches for a given concept an empty array is
     returned.
     """
-    concept = request.args.get("concept")
+
+    # args = request.args
+    args = request.get_json()
+
     func_dict = {
-        "mean": np.mean,
-        "median": np.median,
+        "mean": mean,
+        "median": median,
         "max": max,
         "min": min,
         "raw": lambda x: x,
     }
 
-    if concept is not None:
-        concepts = [concept]
-    else:
-        concepts = [
-            v.deserialize()["description"]
-            for v in CausalVariable.query.filter_by(model_id=model_id).all()
-        ]
-
     output_dict = {}
-    for concept in concepts:
+    for concept in args.get("concepts"):
         output_dict[concept] = []
-        query_parts = [
-            "select `Concept`, `Source`, `Indicator`, `Score`",
-            "from concept_to_indicator_mapping",
-            f"where `Concept` like '{concept}'",
-        ]
-        for indicator_mapping in engine.execute(" ".join(query_parts)):
-            query = (
-                f"select * from indicator"
-                f" where `Variable` like '{indicator_mapping['Indicator']}'"
-            )
-            records = list(engine.execute(query))
-            func = request.args.get("func", "raw")
+        query = (
+            "select `Concept`, `Source`, `Indicator`, `Score` "
+            "from concept_to_indicator_mapping "
+            f"where `Concept` like '{concept}'"
+        )
+        for indicator_mapping in engine.execute(query):
+            variable_name = indicator_mapping["Indicator"].replace("'", "''")
+            query_parts = [
+                f"select * from indicator",
+                f"where `Variable` like '{variable_name}'",
+            ]
+            outputResolution = args.get("outputResolution")
+            start = args.get("start")
+            end = args.get("end")
+            func = args.get("func", "raw")
+
+            if outputResolution is not None:
+                query_parts.append(f"and `{outputResolution}` is not null")
+            if start is not None:
+                query_parts.append(f"and `Year` > {start}")
+            if end is not None:
+                query_parts.append(f"and `Year` < {end}")
+
+            records = list(engine.execute(" ".join(query_parts)))
             value_dict = {}
+            source = "Unknown"
             if func == "raw":
                 for r in records:
-                    unit, value, year, source = r["Unit"], r["Value"], r["Year"], r["Source"]
+                    unit, value, year, month, source = (
+                        r["Unit"],
+                        r["Value"],
+                        r["Year"],
+                        r["Month"],
+                        r["Source"],
+                    )
+
+                    value = float(re.findall(r"-?\d+\.?\d*", value)[0])
+
+                    # Sort of a hack - some of the variables in the tables we
+                    # process don't have units specified, so we put a
+                    # placeholder string to get it to work with CauseMos.
+                    if unit is None:
+                        unit = PLACEHOLDER_UNIT
+                    _dict = {
+                        "year": year,
+                        "month": month,
+                        "value": float(value),
+                        "source": source,
+                    }
+
                     if unit not in value_dict:
-                        value_dict[unit] = [
-                            {"year": year, "value": float(value), "source": source}
-                        ]
+                        value_dict[unit] = [_dict]
                     else:
-                        value_dict[unit].append(
-                            {"year": year, "value": float(value), "source": source}
-                        )
+                        value_dict[unit].append(_dict)
                 value = value_dict
             else:
                 for r in records:
                     unit, value, source = r["Unit"], r["Value"], r["Source"]
+
+                    if unit is None:
+                        unit = PLACEHOLDER_UNIT
+
+                    value = float(re.findall(r"-?\d+\.?\d*", value)[0])
+
                     # HACK! if the variables have the same names but different
                     # sources, this will only give the most recent source
                     if unit not in value_dict:
@@ -136,34 +170,99 @@ def getIndicators(model_id: str):
                     "name": indicator_mapping["Indicator"],
                     "score": indicator_mapping["Score"],
                     "value": value,
-                    "source": source
+                    "source": source,
                 }
             )
 
     return jsonify(output_dict)
 
 
-@bp.route("/delphi/models/<string:model_id>/export", methods=["POST"])
-def exportModel(model_id: str):
-    """ Sends quantification information to be attached to an existing model.
-    Sends concept-to-indicator mappings.
-
-    Input: A map object of concepts and their associated
-           indicator/indicator-values
-    Output: Request status
-    """
+@bp.route("/delphi/models/<string:modelID>/projection", methods=["POST"])
+def createProjection(modelID):
     data = json.loads(request.data)
-    G = DelphiModel.query.filter_by(id=model_id).first().model
-    # Tag this model for display in the CauseWorks interface
-    G.tag_for_CX = True
-    for concept, indicator in data["concept_indicator_map"].items():
-        G.nodes[concept]["indicators"] = {
-            concept: Indicator(
-                concept, indicator["source"], value=indicator["value"]
-            )
-        }
+    G = DelphiModel.query.filter_by(id=modelID).first().model
+    A = G.to_agraph()
+    G.initialize(initialize_indicators=False)
+    for n in G.nodes(data=True):
+        rv = n[1]["rv"]
+        rv.partial_t = 0.0
+        for perturbation in data["perturbations"]:
+            if n[0] == perturbation["concept"]:
+                rv.partial_t = perturbation["value"]
+                G.s0_original[f"∂({n[0]})/∂t"] = rv.partial_t
+                for s in G.s0:
+                    s[f"∂({n[0]})/∂t"] = rv.partial_t
 
-    return jsonify({"status": "success"})
+    id = str(uuid4())
+    experiment = ForwardProjection(baseType="ForwardProjection", id=id)
+    db.session.add(experiment)
+    db.session.commit()
+
+    result = CauseMosForwardProjectionResult(
+        id=id, baseType="CauseMosForwardProjectionResult"
+    )
+    result.results = {
+        concept: {
+            "values": [],
+            "confidenceInterval": {"upper": [], "lower": []},
+        }
+        for concept in G
+    }
+    db.session.add(result)
+
+    startTime = data["startTime"]
+    d = dateutil.parser.parse(f"{startTime['year']} {startTime['month']}")
+
+    τ = 1.0  # Time constant to control the rate of the decay
+
+    # From https://www.ucl.ac.uk/child-health/short-courses-events/
+    #     about-statistical-courses/research-methods-and-statistics/chapter-8-content-8
+    n = len(G.s0)
+    lower_rank = int((n - 1.96 * sqrt(n)) / 2)
+    upper_rank = int((2 + n + 1.96 * sqrt(n)) / 2)
+
+    for i in range(int(data["timeStepsInMonths"])):
+        d = d + relativedelta(months=1)
+
+        for n in G.nodes():
+            values = sorted([s[n] for s in G.s0])
+            median_value = median(values)
+            lower_limit = values[lower_rank]
+            upper_limit = values[upper_rank]
+            value_dict = {
+                "year": d.year,
+                "month": d.month,
+                "value": median_value,
+            }
+
+            result.results[n]["values"].append(value_dict.copy())
+            value_dict.update({"value": lower_limit})
+            result.results[n]["confidenceInterval"]["lower"].append(
+                value_dict.copy()
+            )
+            value_dict.update({"value": upper_limit})
+            result.results[n]["confidenceInterval"]["upper"].append(
+                value_dict.copy()
+            )
+
+        G.update(update_indicators=False, dampen=True, τ=τ)
+
+    db.session.add(result)
+    db.session.commit()
+
+    return jsonify({"experimentId": experiment.id})
+
+
+@bp.route(
+    "/delphi/models/<string:modelID>/experiment/<string:experimentID>",
+    methods=["GET"],
+)
+def getExperimentResults(modelID: str, experimentID: str):
+    """ Fetch experiment results"""
+    experimentResult = CauseMosForwardProjectionResult.query.filter_by(
+        id=experimentID
+    ).first()
+    return jsonify(experimentResult.deserialize())
 
 
 # ============
@@ -201,7 +300,6 @@ def listAllICMs():
         ids = [metadata.id for metadata in ICMMetadata.query.all()]
         ids.reverse()
         return jsonify(ids)
-
 
 
 @bp.route("/icm/<string:uuid>", methods=["GET"])
@@ -345,15 +443,7 @@ def createExperiment(uuid: str):
     """ Execute an experiment over the model"""
     data = request.get_json()
     G = DelphiModel.query.filter_by(id=uuid).first().model
-    if os.environ.get("TRAVIS") is not None:
-        config_file = "bmi_config.txt"
-    else:
-        if not os.path.exists("/tmp/delphi"):
-            os.makedirs("/tmp/delphi", exist_ok=True)
-        config_file = "/tmp/delphi/bmi_config.txt"
-
-    G.create_bmi_config_file(config_file)
-    G.initialize(initialize_indicators=False, config_file=config_file)
+    G.initialize(initialize_indicators=False)
     for n in G.nodes(data=True):
         rv = n[1]["rv"]
         rv.partial_t = 0.0
@@ -384,6 +474,7 @@ def createExperiment(uuid: str):
 
     n_timesteps = data["projection"]["numSteps"]
 
+    τ = 1.0  # Time constant to control the rate of the decay
     for i in range(n_timesteps):
         if data["projection"]["stepSize"] == "MONTH":
             d = d + relativedelta(months=1)
@@ -407,24 +498,13 @@ def createExperiment(uuid: str):
                         "time": d.isoformat(),
                         "value": {
                             "baseType": "FloatValue",
-                            "value": np.median([s[n[0]] for s in G.s0]),
+                            "value": median([s[n[0]] for s in G.s0]),
                         },
                     },
                 }
             )
 
-        G.update(update_indicators=False)
-
-        # Hack for 12-month evaluation - have the partial derivative decay over
-        # time to restore equilibrium
-
-        tau = 1.0  # Time constant to control the rate of the decay
-        for n in G.nodes(data=True):
-            for variable in data["interventions"]:
-                if n[1]["id"] == variable["id"]:
-                    rv = n[1]["rv"]
-                    for s0 in G.s0:
-                        s0[f"∂({n[0]})/∂t"] = rv.partial_t * exp(-tau * i)
+        G.update(update_indicators=False, dampen=True, τ=τ)
 
     db.session.add(result)
     db.session.commit()

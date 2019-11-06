@@ -1,243 +1,393 @@
 import ast
 import sys
+import re
 from . import For2PyError
 
 
 class PrintState:
     def __init__(self, sep=None, add=None):
-        self.sep = sep if sep != None else "\n"
-        self.add = add if add != None else "    "
+        self.sep = sep if sep is not None else "\n"
+        self.add = add if add is not None else "    "
 
     def copy(self, sep=None, add=None):
         return PrintState(
-            self.sep if sep == None else sep, self.add if add == None else add
+            self.sep if sep is None else sep, self.add if add is None else add
         )
 
+class genCode:
+    def __init__(self,
+                 lambda_string=""
+                 ):
+        self.lambda_string = lambda_string
 
-def genCode(node, state):
-    codeStr = ""
+        self.process_lambda_node = {
+            "ast.FunctionDef": self.process_function_definition,
+            "ast.arguments": self.process_arguments,
+            "ast.arg": self._process_arg,
+            "ast.Load": self._process_load,
+            "ast.Store": self._process_store,
+            "ast.Index": self.process_index,
+            "ast.Num": self._process_num,
+            "ast.List": self.process_list_ast,
+            "ast.Str": self._process_str,
+            "ast.For": self.process_for,
+            "ast.If": self.process_if,
+            "ast.UnaryOp": self.process_unary_operation,
+            "ast.BinOp": self.process_binary_operation,
+            "ast.Add": self._process_add,
+            "ast.Sub": self._process_subtract,
+            "ast.Mult": self._process_multiply,
+            "ast.Pow": self._process_power,
+            "ast.Div": self._process_divide,
+            "ast.USub": self._process_unary_subtract,
+            "ast.Eq": self._process_equals_to,
+            "ast.NotEq": self._process_not_equal_to,
+            "ast.Not": self._process_not,
+            "ast.LtE": self._process_less_than_or_equal_to,
+            "ast.Lt": self._process_less_than,
+            "ast.Gt": self._process_greater_than,
+            "ast.GtE": self._process_greater_than_or_equal_to,
+            "ast.And": self._process_and,
+            "ast.Or": self._process_or,
+            "ast.Expr": self.process_expression,
+            "ast.Compare": self.process_compare,
+            "ast.Subscript": self.process_subscript,
+            "ast.Name": self._process_name,
+            "ast.AnnAssign": self.process_annotated_assign,
+            "ast.Assign": self.process_assign,
+            "ast.Call": self.process_call,
+            "ast.Import": self.process_import,
+            "ast.alias": self._process_alias,
+            "ast.Module": self.process_module,
+            "ast.BoolOp": self.process_boolean_operation,
+            "ast.Attribute": self._process_attribute,
+            "ast.AST": self.process_ast,
+            "ast.Tuple": self.process_tuple,
+            "ast.NameConstant": self.process_name_constant,
+        }
 
-    if isinstance(node, list):
-        for cur in node:
-            codeStr += f"{genCode(cur, state)}{state.sep}"
+    def generate_code(self, node, state):
+        """
+            This function parses the ast node of the python file and generates
+            python code relevant to the information in the ast. This is used as
+            the statements inside the lambda functions.
+        """
+        node_name = node.__repr__().split()[0][2:]
 
-    # Function: name, args, body, decorator_list, returns
-    elif isinstance(node, ast.FunctionDef):
-        codeStr = "def {0}({1}):{2}{3}".format(
+        if isinstance(node, list):
+            for cur in node:
+                self.lambda_string += f"{self.generate_code(cur,state)}" \
+                                      f"{state.sep}"
+        elif self.process_lambda_node.get(node_name):
+            self.lambda_string = self.process_lambda_node[node_name](node,
+                                                                     state)
+        else:
+            sys.stderr.write(
+                "No handler for {0} in genCode, value: {1}\n".format(
+                    node.__class__.__name__, str(node)
+                )
+            )
+
+        return self.lambda_string
+
+    def process_function_definition(self, node, state):
+        code_string = "def {0}({1}):{2}{3}".format(
             node.name,
-            genCode(node.args, state),
+            self.generate_code(node.args, state),
             state.sep + state.add,
-            genCode(node.body, state.copy(state.sep + state.add)),
+            self.generate_code(node.body, state.copy(state.sep + state.add)),
         )
+        return code_string
 
-    # arguments: ('args', 'vararg', 'kwonlyargs', 'kw_defaults', 'kwarg', 'defaults')
-    elif isinstance(node, ast.arguments):
-        codeStr = ", ".join([genCode(arg, state) for arg in node.args])
+    def process_arguments(self, node, state):
+        code_string = ", ".join([self.generate_code(arg, state) for arg in
+                                 node.args])
+        return code_string
 
-    # arg: ('arg', 'annotation')
-    elif isinstance(node, ast.arg):
-        codeStr = node.arg
+    @staticmethod
+    def _process_arg(node, *_):
+        code_string = node.arg
+        return code_string
 
-    # Load: ()
-    elif isinstance(node, ast.Load):
+    @staticmethod
+    def _process_load(*_):
         sys.stderr.write("genCode found ast.Load, is there a bug?\n")
 
-    # Store: ()
-    elif isinstance(node, ast.Store):
+    @staticmethod
+    def _process_store(*_):
         sys.stderr.write("genCode found ast.Store, is there a bug?\n")
 
-    # Index: ('value',)
-    elif isinstance(node, ast.Index):
-        codeStr = "[{0}]".format(genCode(node.value, state))
+    def process_index(self, node, state):
+        code_string = "[{0}]".format(self.generate_code(node.value, state))
+        return code_string
 
-    # Num: ('n',)
-    elif isinstance(node, ast.Num):
-        codeStr = str(node.n)
+    def process_name_constant(self, node, state):
+        code_string = str(node.value)
+        return code_string
 
-    # List: ('elts', 'ctx')
-    elif isinstance(node, ast.List):
-        elements = [genCode(elmt, state) for elmt in node.elts]
-        codeStr = (
+    @staticmethod
+    def _process_num(node, *_):
+        code_string = str(node.n)
+        return code_string
+
+    def process_list_ast(self, node, state):
+        elements = [self.generate_code(elmt, state) for elmt in node.elts]
+        code_string = (
             str(elements[0])
             if len(elements) == 1
             else "[{0}]".format(", ".join(elements))
         )
+        return code_string
 
-    # Str: ('s',)
-    elif isinstance(node, ast.Str):
-        codeStr = '"{0}"'.format(node.s)
+    def process_tuple(self, node, state):
+        elements = [self.generate_code(elmt, state) for elmt in node.elts]
+        # This tuple handler is a very specific method
+        # for handling an array declaration lambda.
+        code_string = "[0] * ("
+        if len(elements) == 1:
+            code_string += str(elements[0])
+        else:
+            low_bound = None
+            # Calculate the size of each dimension
+            for elem in elements:
+                if low_bound == None:
+                    low_bound = elem
+                else:
+                    code_string += f"{elem} - {low_bound}"
+                    low_bound = None
+        code_string += ")"
+        return code_string
 
-    # For: ('target', 'iter', 'body', 'orelse')
-    elif isinstance(node, ast.For):
-        codeStr = "for {0} in {1}:{2}{3}".format(
-            genCode(node.target, state),
-            genCode(node.iter, state),
+
+    @staticmethod
+    def _process_str(node, *_):
+        code_string = '"{0}"'.format(node.s)
+        return code_string
+
+    def process_for(self, node, state):
+        code_string = "for {0} in {1}:{2}{3}".format(
+            self.generate_code(node.target, state),
+            self.generate_code(node.iter, state),
             state.sep + state.add,
-            genCode(node.body, state.copy(state.sep + state.add)),
+            self.generate_code(node.body, state.copy(state.sep + state.add)),
         )
+        return code_string
 
-    # If: ('test', 'body', 'orelse')
-    elif isinstance(node, ast.If):
-        codeStr = "if ({0}):{1}{2}{3}else:{4}{5}".format(
-            genCode(node.test, state),
+    def process_if(self, node, state):
+        code_string = "if ({0}):{1}{2}{3}else:{4}{5}".format(
+            self.generate_code(node.test, state),
             state.sep + state.add,
-            genCode(node.body, state.copy(state.sep + state.add)),
+            self.generate_code(node.body, state.copy(state.sep + state.add)),
             state.sep,
             state.sep + state.add,
-            genCode(node.orelse, state.copy(state.sep + state.add)),
+            self.generate_code(node.orelse, state.copy(state.sep + state.add)),
         )
+        return code_string
 
-    # UnaryOp: ('op', 'operand')
-    elif isinstance(node, ast.UnaryOp):
-        codeStr = "{0}({1})".format(
-            genCode(node.op, state), genCode(node.operand, state)
+    def process_unary_operation(self, node, state):
+        code_string = "{0}({1})".format(
+            self.generate_code(node.op, state),
+            self.generate_code(node.operand, state)
         )
+        return code_string
 
-    # BinOp: ('left', 'op', 'right')
-    elif isinstance(node, ast.BinOp):
-        codeStr = "({0}{1}{2})".format(
-            genCode(node.left, state),
-            genCode(node.op, state),
-            genCode(node.right, state),
+    def process_binary_operation(self, node, state):
+        code_string = "({0}{1}{2})".format(
+            self.generate_code(node.left, state),
+            self.generate_code(node.op, state),
+            self.generate_code(node.right, state),
         )
+        return code_string
 
-    # Add: ()
-    elif isinstance(node, ast.Add):
-        codeStr = "+"
+    @staticmethod
+    def _process_add(*_):
+        code_string = "+"
+        return code_string
 
-    elif isinstance(node, ast.Sub):
-        codeStr = "-"
+    @staticmethod
+    def _process_subtract(*_):
+        code_string = "-"
+        return code_string
 
-    elif isinstance(node, ast.Mult):
-        codeStr = "*"
+    @staticmethod
+    def _process_multiply(*_):
+        code_string = "*"
+        return code_string
 
-    # Pow: ()
-    elif isinstance(node, ast.Pow):
-        codeStr = "**"
+    @staticmethod
+    def _process_power(*_):
+        code_string = "**"
+        return code_string
 
-    # Div: ()
-    elif isinstance(node, ast.Div):
-        codeStr = "/"
+    @staticmethod
+    def _process_divide(*_):
+        code_string = "/"
+        return code_string
 
-    # USub: ()
-    elif isinstance(node, ast.USub):
-        codeStr = "-"
+    @staticmethod
+    def _process_unary_subtract(*_):
+        code_string = "-"
+        return code_string
 
-    # Eq: ()
-    elif isinstance(node, ast.Eq):
-        codeStr = "=="
+    @staticmethod
+    def _process_equals_to(*_):
+        code_string = "=="
+        return code_string
 
-    # LtE: ()
-    elif isinstance(node, ast.LtE):
-        codeStr = "<="
+    @staticmethod
+    def _process_not_equal_to(*_):
+        code_string = "!="
+        return code_string
 
-    # Lt: ()
-    elif isinstance(node, ast.Lt):
-        codeStr = "<"
+    @staticmethod
+    def _process_not(*_):
+        code_string = "not"
+        return code_string
 
-    # Gt: ()
-    elif isinstance(node, ast.Gt):
-        codeStr = ">"
-    
-    # GtE: ()
-    elif isinstance(node, ast.GtE):
-        codeStr = ">="
+    @staticmethod
+    def _process_less_than_or_equal_to(*_):
+        code_string = "<="
+        return code_string
 
-    # And: ()
-    elif isinstance(node, ast.And):
-        codeStr = "and"
+    @staticmethod
+    def _process_less_than(*_):
+        code_string = "<"
+        return code_string
 
-    # Or: ()
-    elif isinstance(node, ast.Or):
-        codeStr = "or"
+    @staticmethod
+    def _process_greater_than(*_):
+        code_string = ">"
+        return code_string
 
-    # Expr: ('value',)
-    elif isinstance(node, ast.Expr):
-        codeStr = genCode(node.value, state)
+    @staticmethod
+    def _process_greater_than_or_equal_to(*_):
+        code_string = ">="
+        return code_string
 
-    # Compare: ('left', 'ops', 'comparators')
-    elif isinstance(node, ast.Compare):
+    @staticmethod
+    def _process_and(*_):
+        code_string = "and"
+        return code_string
+
+    @staticmethod
+    def _process_or(*_):
+        code_string = "or"
+        return code_string
+
+    def process_expression(self, node, state):
+        code_string = self.generate_code(node.value, state)
+        return code_string
+
+    def process_compare(self, node, state):
         if len(node.ops) > 1:
             sys.stderr.write(
-                "Fix Compare in genCode! Don't have an example of what this will look like\n"
+                "Fix Compare in genCode! Don't have an example of what this "
+                "will look like\n"
             )
         else:
-            codeStr = "({0} {1} {2})".format(
-                genCode(node.left, state),
-                genCode(node.ops[0], state),
-                genCode(node.comparators[0], state),
+            code_string = "({0} {1} {2})".format(
+                self.generate_code(node.left, state),
+                self.generate_code(node.ops[0], state),
+                self.generate_code(node.comparators[0], state),
             )
+            return code_string
 
-    # Subscript: ('value', 'slice', 'ctx')
-    elif isinstance(node, ast.Subscript):
-        if not isinstance(node.slice.value, ast.Num):
-            raise For2PyError("can't handle arrays in genCode right now.")
+    def process_subscript(self, node, state):
         # typical:
-        # codeStr = '{0}{1}'.format(genCode(node.value, state), genCode(node.slice, state))
-        codeStr = genCode(node.value, state)
+        # lambda_string = '{0}{1}'.format(genCode(node.value, state), genCode(
+        # node.slice,
+        # state))
+        code_string = self.generate_code(node.value, state)
+        return code_string
 
-    # Name: ('id', 'ctx')
-    elif isinstance(node, ast.Name):
-        codeStr = node.id
+    @staticmethod
+    def _process_name(node, *_):
+        code_string = node.id
+        return code_string
 
-    # AnnAssign: ('target', 'annotation', 'value', 'simple')
-    elif isinstance(node, ast.AnnAssign):
-        codeStr = genCode(node.value, state)
+    def process_annotated_assign(self, node, state):
+        code_string = self.generate_code(node.value, state)
+        return code_string
 
-    # Assign: ('targets', 'value')
-    elif isinstance(node, ast.Assign):
-        codeStr += genCode(node.value, state)
+    def process_assign(self, node, state):
+        code_string = self.generate_code(node.value, state)
+        return code_string
 
-    # Call: ('func', 'args', 'keywords')
-    elif isinstance(node, ast.Call):
+    def process_call(self, node, state):
         if isinstance(node.func, ast.Attribute):
-            fnNode = node.func
-            module = fnNode.value.id
-            fnName = fnNode.attr
-            fnName = module + "." + fnName
+            function_node = node.func
+            module = function_node.value.id
+            function_name = function_node.attr
+            function_name = module + "." + function_name
         else:
-            fnName = node.func.id
-        codeStr = f"{fnName}("
+            function_name = node.func.id
 
-        if len(node.args) > 0:
-            codeStr += ", ".join([genCode(arg, state) for arg in node.args])
+        if function_name is not "Array":
+            if ".set_" in function_name:
+                # Remove the first argument of <.set_>
+                # function of array as it is not needed
+                del node.args[0]
+                code_string = ""
+                for arg in node.args:
+                    code_string += self.generate_code(arg, state) 
+            elif ".get_" in function_name:
+                code_string = function_name.replace(".get_", "[")
+                for arg in node.args:
+                    code_string += self.generate_code(arg, state)
+                code_string += "]"
+            else:
+                code_string = f"{function_name}("
+                if len(node.args) > 0:
+                    code_string += ", ".join([self.generate_code(arg, state) for arg in
+                                             node.args])
+                code_string += ")"
+        else:
+            code_string = self.generate_code(node.args[1], state)
 
-        codeStr += ")"
+        return code_string
 
-    elif isinstance(node, ast.Import):
-        codeStr = "import {0}{1}".format(
-            ", ".join([genCode(name, state) for name in node.names]), state.sep
+    def process_import(self, node, state):
+        code_string = "import {0}{1}".format(
+            ", ".join([self.generate_code(name, state) for name in
+                       node.names]), state.sep
         )
+        return code_string
 
-    elif isinstance(node, ast.alias):
-        if node.asname == None:
-            codeStr = node.name
+    @staticmethod
+    def _process_alias(node, *_):
+        if node.asname is None:
+            code_string = node.name
         else:
-            codeStr = "{0} as {1}".format(node.name, node.asname)
+            code_string = "{0} as {1}".format(node.name, node.asname)
+        return code_string
 
-    # Module: body
-    elif isinstance(node, ast.Module):
-        codeStr = genCode(node.body, state)
+    def process_module(self, node, state):
+        code_string = self.generate_code(node.body, state)
+        return code_string
 
-    # BoolOp: body
-    elif isinstance(node, ast.BoolOp):
-        codeStr = "({0} {1} {2})".format(
-                          genCode(node.values[0], state),
-                          genCode(node.op, state),
-                          genCode(node.values[1], state))  
+    def process_boolean_operation(self, node, state):
+        code_string = "({0} {1} {2})".format(
+            self.generate_code(node.values[0], state),
+            self.generate_code(node.op, state),
+            self.generate_code(node.values[1], state))
+        return code_string
 
-    elif isinstance(node, ast.AST):
+    @staticmethod
+    def _process_attribute(node, *_):
+        # Code below will be kept until all tests pass and removed if they do
+        # lambda_string = genCode(node.value, state)
+
+        # This is a fix on `feature_save` branch to bypass the SAVE statement
+        # feature where a SAVEd variable is referenced as
+        # <function_name>.<variable_name>. So the code below only returns the
+        # <variable_name> which is stored under `node.attr`.
+        code_string = node.attr
+        return code_string
+
+    @staticmethod
+    def process_ast(node, *_):
         sys.stderr.write(
             "No handler for AST.{0} in genCode, fields: {1}\n".format(
                 node.__class__.__name__, node._fields
             )
         )
-
-    else:
-        sys.stderr.write(
-            "No handler for {0} in genCode, value: {1}\n".format(
-                node.__class__.__name__, str(node)
-            )
-        )
-
-    return codeStr

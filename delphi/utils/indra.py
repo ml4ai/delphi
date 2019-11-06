@@ -3,7 +3,7 @@
 import json
 from typing import Dict, List, Set, Tuple
 from indra.statements.concept import Concept
-from indra.statements.statements import Influence
+from indra.statements.statements import Influence, Event
 from indra.statements.evidence import Evidence
 from delphi.utils.fp import flatMap
 from functools import singledispatch
@@ -22,17 +22,17 @@ def get_valid_statements_for_modeling(sts: List[Influence]) -> List[Influence]:
         s
         for s in sts
         if is_grounded_statement(s)
-        and (s.subj_delta["polarity"] is not None)
-        and (s.obj_delta["polarity"] is not None)
+        and (s.subj.delta.polarity is not None)
+        and (s.obj.delta.polarity is not None)
     ]
 
 
 def influence_stmt_from_dict(d: Dict) -> Influence:
     st = Influence(
-        Concept(d["subj"]["name"], db_refs=d["subj"]["db_refs"]),
-        Concept(d["obj"]["name"], db_refs=d["obj"]["db_refs"]),
-        d.get("subj_delta"),
-        d.get("obj_delta"),
+        Event(Concept(d["subj"]["name"], db_refs=d["subj"]["db_refs"])),
+        Event(Concept(d["obj"]["name"], db_refs=d["obj"]["db_refs"])),
+        d.get("delta"),
+        d.get("delta"),
         [
             Evidence(
                 e["source_api"], text=e["text"], annotations=e["annotations"]
@@ -44,20 +44,21 @@ def influence_stmt_from_dict(d: Dict) -> Influence:
     return st
 
 
-def get_statements_from_json_list(_dict: Dict) -> List[Influence]:
+def get_statements_from_json_list(_list: List[Dict]) -> List[Influence]:
     return [
-        influence_stmt_from_dict(d)
-        for d in _dict
-        if d["type"] == "Influence"
-        and d["subj"]["name"] is not None
-        and d["obj"]["name"] is not None
+        influence_stmt_from_dict(elem)
+        for elem in _list
+        if elem["type"] == "Influence"
+        and elem["subj"]["name"] is not None
+        and elem["obj"]["name"] is not None
     ]
 
 
 def get_statements_from_json_file(json_file: str) -> List[Influence]:
     with open(json_file, "r") as f:
-        _list = json.load(f)
-    return get_statements_from_json_list(_list)
+       _list = json.load(f)
+    from indra.statements.io import stmts_from_json
+    return stmts_from_json([stmt for stmt in _list if stmt["type"]=="Influence"])
 
 
 @singledispatch
@@ -90,7 +91,7 @@ def is_grounded_concept(c: Concept) -> bool:
 
 def is_grounded_statement(s: Influence) -> bool:
     """ Check if an Influence statement is grounded """
-    return is_grounded_concept(s.subj) and is_grounded_concept(s.obj)
+    return is_grounded_concept(s.subj.concept) and is_grounded_concept(s.obj.concept)
 
 
 @singledispatch
@@ -163,4 +164,4 @@ def top_grounding_score(c: Concept) -> float:
 def nameTuple(s: Influence) -> Tuple[str, str]:
     """ Returns a 2-tuple consisting of the top groundings of the subj and obj
     of an Influence statement. """
-    return top_grounding(s.subj), top_grounding(s.obj)
+    return top_grounding(s.subj.concept), top_grounding(s.obj.concept)

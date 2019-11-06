@@ -1,0 +1,549 @@
+[
+ {
+  "type": "Influence",
+  "subj": {
+   "type": "Event",
+   "concept": {
+    "name": "rainfall",
+    "db_refs": {
+     "TEXT": "significantly increased rainfall in 2018 in Sudan",
+     "WDI": [
+      [
+       "WDI/Average_precipitation_in_depth_(mm_per_year)",
+       0.6445636749267578
+      ],
+      [
+       "WDI/Droughts,_floods,_extreme_temperatures_(%_of_population,_average_1990-2009)",
+       0.5588698983192444
+      ],
+      [
+       "WDI/Renewable_internal_freshwater_resources,_total_(billion_cubic_meters)",
+       0.5058166980743408
+      ],
+      [
+       "WDI/Renewable_internal_freshwater_resources_per_capita_(cubic_meters)",
+       0.47607842087745667
+      ],
+      [
+       "WDI/Adjusted_savings:_particulate_emission_damage_(%_of_GNI)",
+       0.4228626489639282
+      ],
+      [
+       "WDI/Adjusted_savings:_particulate_emission_damage_(current_US$)",
+       0.4228626489639282
+      ],
+      [
+       "WDI/Access_to_electricity,_rural_(%_of_rural_population)",
+       0.3978002071380615
+      ],
+      [
+       "WDI/Access_to_electricity,_urban_(%_of_urban_population)",
+       0.3978002071380615
+      ],
+      [
+       "WDI/Annual_freshwater_withdrawals,_agriculture_(%_of_total_freshwater_withdrawal)",
+       0.3954891264438629
+      ],
+      [
+       "WDI/Annual_freshwater_withdrawals,_domestic_(%_of_total_freshwater_withdrawal)",
+       0.3788163661956787
+      ]
+     ],
+     "MITRE12": [
+      [
+       "MITRE12/Rainfall",
+       1.0000001192092896
+      ],
+      [
+       "MITRE12/Average precipitation in depth",
+       0.6590594053268433
+      ],
+      [
+       "MITRE12/Percentage of livestock migrating due to water",
+       0.4603762626647949
+      ],
+      [
+       "MITRE12/Percentage of livestock whose main water source is lakes",
+       0.45232871174812317
+      ],
+      [
+       "MITRE12/Area harvested, Beans, dry",
+       0.44933271408081055
+      ],
+      [
+       "MITRE12/Area harvested, Coarse Grain, Total",
+       0.44933271408081055
+      ],
+      [
+       "MITRE12/Area harvested, Beans, green",
+       0.44933271408081055
+      ],
+      [
+       "MITRE12/Area harvested, Citrus Fruit,Total",
+       0.44933271408081055
+      ],
+      [
+       "MITRE12/Area harvested, Millet",
+       0.44933271408081055
+      ],
+      [
+       "MITRE12/Area harvested, Maize",
+       0.44933271408081055
+      ]
+     ],
+     "WHO": [
+      [
+       "WHO/Risk Factors/Environmental risk factors/Air pollution level in cities",
+       0.3153208792209625
+      ],
+      [
+       "WHO/Risk Factors/Environmental risk factors/Population using modern fuels for cooking\\/heating\\/lighting",
+       0.31182655692100525
+      ],
+      [
+       "WHO/Health Status/Mortality by cause/Mortality rate from road traffic injuries",
+       0.2852725088596344
+      ],
+      [
+       "WHO/Health Systems/Health workforce/Health worker density and distribution",
+       0.2674846947193146
+      ],
+      [
+       "WHO/Health Status/Morbidity/Hepatitis B surface antigen prevalence",
+       0.26539117097854614
+      ],
+      [
+       "WHO/Health Status/Mortality by cause/Maternal mortality ratio",
+       0.2534347474575043
+      ],
+      [
+       "WHO/Health Systems/Quality and safety of care/Institutional maternal mortality ratio",
+       0.2534347474575043
+      ],
+      [
+       "WHO/Health Systems/Access/Hospital bed density",
+       0.2465699017047882
+      ],
+      [
+       "WHO/Health Status/Mortality by cause/Malaria mortality rate",
+       0.2253839522600174
+      ],
+      [
+       "WHO/Service Coverage/HIV\\/TB/HIV test results for registered new and relapse TB patients",
+       0.21772517263889313
+      ]
+     ],
+     "UN": [
+      [
+       "UN/events/weather/precipitation",
+       0.8835827708244324
+      ],
+      [
+       "UN/events/natural_disaster/storm",
+       0.6612597107887268
+      ],
+      [
+       "UN/events/natural_disaster/drought",
+       0.585636556148529
+      ],
+      [
+       "UN/events/natural_disaster/flooding",
+       0.5203315019607544
+      ],
+      [
+       "UN/events/weather/temperature",
+       0.5025059580802917
+      ],
+      [
+       "UN/entities/natural/natural_resources/abiotic_resources/water",
+       0.44895413517951965
+      ],
+      [
+       "UN/events/human/agriculture/farming",
+       0.4430517554283142
+      ],
+      [
+       "UN/events/nature_impact/pollution/climate_change",
+       0.43225690722465515
+      ],
+      [
+       "UN/entities/natural/crop_technology/irrigation",
+       0.4209810197353363
+      ],
+      [
+       "UN/events/nature_impact/pollution/land_pollution",
+       0.41267117857933044
+      ]
+     ],
+     "FAO": [
+      [
+       "FAO/events/Area harvested/Maize",
+       0.44933271408081055
+      ],
+      [
+       "FAO/events/Area harvested/Okra",
+       0.44933271408081055
+      ],
+      [
+       "FAO/events/Area harvested/Melonseed",
+       0.44933271408081055
+      ],
+      [
+       "FAO/events/Area harvested/Melons, other (inc.cantaloupes)",
+       0.44933271408081055
+      ],
+      [
+       "FAO/events/Area harvested/Pulses,Total",
+       0.44933271408081055
+      ],
+      [
+       "FAO/events/Area harvested/Coarse Grain, Total",
+       0.44933271408081055
+      ],
+      [
+       "FAO/events/Area harvested/Pineapples",
+       0.44933271408081055
+      ],
+      [
+       "FAO/events/Area harvested/Millet",
+       0.44933271408081055
+      ],
+      [
+       "FAO/events/Area harvested/Garlic",
+       0.44933271408081055
+      ],
+      [
+       "FAO/events/Area harvested/Cassava",
+       0.44933271408081055
+      ]
+     ]
+    }
+   },
+   "delta": {
+    "polarity": 1,
+    "adjectives": [
+     "significantly"
+    ]
+   },
+   "context": {
+    "type": "world",
+    "time": null,
+    "geo_location": {
+     "name": "Sudan",
+     "db_refs": {
+      "GEOID": "8056717"
+     }
+    }
+   },
+   "belief": 1,
+   "id": "d19a5c0d-f156-4909-95a8-4361506eb501"
+  },
+  "obj": {
+   "type": "Event",
+   "concept": {
+    "name": "flooding",
+    "db_refs": {
+     "TEXT": "flooding in 2019 in Sudan",
+     "WDI": [
+      [
+       "WDI/Droughts,_floods,_extreme_temperatures_(%_of_population,_average_1990-2009)",
+       0.5377761125564575
+      ],
+      [
+       "WDI/Renewable_internal_freshwater_resources,_total_(billion_cubic_meters)",
+       0.46842482686042786
+      ],
+      [
+       "WDI/Agricultural_irrigated_land_(%_of_total_agricultural_land)",
+       0.4649539291858673
+      ],
+      [
+       "WDI/Renewable_internal_freshwater_resources_per_capita_(cubic_meters)",
+       0.40442055463790894
+      ],
+      [
+       "WDI/Average_precipitation_in_depth_(mm_per_year)",
+       0.40280359983444214
+      ],
+      [
+       "WDI/Mortality_caused_by_road_traffic_injury_(per_100,000_people)",
+       0.3727385997772217
+      ],
+      [
+       "WDI/Annual_freshwater_withdrawals,_agriculture_(%_of_total_freshwater_withdrawal)",
+       0.35552921891212463
+      ],
+      [
+       "WDI/Annual_freshwater_withdrawals,_domestic_(%_of_total_freshwater_withdrawal)",
+       0.3505413830280304
+      ],
+      [
+       "WDI/People_using_at_least_basic_drinking_water_services,_rural_(%_of_rural_population)",
+       0.34738144278526306
+      ],
+      [
+       "WDI/People_using_at_least_basic_drinking_water_services,_urban_(%_of_urban_population)",
+       0.34738144278526306
+      ]
+     ],
+     "MITRE12": [
+      [
+       "MITRE12/Rainfall",
+       0.7051894664764404
+      ],
+      [
+       "MITRE12/Burned Area, Closed and open shrubland",
+       0.42159503698349
+      ],
+      [
+       "MITRE12/Burned Area, Closed shrubland",
+       0.42159503698349
+      ],
+      [
+       "MITRE12/Percentage of livestock migrating due to water",
+       0.4183731973171234
+      ],
+      [
+       "MITRE12/Average precipitation in depth",
+       0.4161752462387085
+      ],
+      [
+       "MITRE12/Percentage of livestock whose main water source is lakes",
+       0.405921995639801
+      ],
+      [
+       "MITRE12/Emissions (CO2eq) from CH4 (Burning - savanna), Closed shrubland",
+       0.3908635973930359
+      ],
+      [
+       "MITRE12/Emissions (CO2eq) from CH4 (Burning - savanna), Closed and open shrubland",
+       0.3908635973930359
+      ],
+      [
+       "MITRE12/Emissions (N2O) (Burning - savanna), Closed and open shrubland",
+       0.3908635973930359
+      ],
+      [
+       "MITRE12/Emissions (CO2eq) from N2O (Burning - savanna), Closed and open shrubland",
+       0.3908635973930359
+      ]
+     ],
+     "WHO": [
+      [
+       "WHO/Risk Factors/Environmental risk factors/Air pollution level in cities",
+       0.3273925185203552
+      ],
+      [
+       "WHO/Health Status/Mortality by cause/Mortality rate from road traffic injuries",
+       0.31386756896972656
+      ],
+      [
+       "WHO/Health Status/Morbidity/New cases of vaccine-preventable diseases",
+       0.253833532333374
+      ],
+      [
+       "WHO/Health Status/Morbidity/New cases of IHR-notifiable diseases and other notifiable diseases",
+       0.253833532333374
+      ],
+      [
+       "WHO/Health Status/Morbidity/Malaria incidence rate",
+       0.24422121047973633
+      ],
+      [
+       "WHO/Health Status/Morbidity/Malaria parasite prevalence among children aged 6-59 months",
+       0.2326955646276474
+      ],
+      [
+       "WHO/Risk Factors/Environmental risk factors/Population using safely managed sanitation services",
+       0.2323034554719925
+      ],
+      [
+       "WHO/Service Coverage/Reproductive, maternal, newborn, child and adolescent/Care-seeking for symptoms of pneumonia",
+       0.21287977695465088
+      ],
+      [
+       "WHO/Risk Factors/Environmental risk factors/Population using modern fuels for cooking\\/heating\\/lighting",
+       0.20806367695331573
+      ],
+      [
+       "WHO/Service Coverage/Neglected tropical diseases/Coverage of preventive chemotherapy for selected neglected tropical diseases",
+       0.20242257416248322
+      ]
+     ],
+     "UN": [
+      [
+       "UN/events/natural_disaster/flooding",
+       0.7353233098983765
+      ],
+      [
+       "UN/events/natural_disaster/storm",
+       0.7083439826965332
+      ],
+      [
+       "UN/events/weather/precipitation",
+       0.663074254989624
+      ],
+      [
+       "UN/events/natural_disaster/drought",
+       0.6464478373527527
+      ],
+      [
+       "UN/entities/human/infrastructure/water_management",
+       0.47404536604881287
+      ],
+      [
+       "UN/entities/natural/crop_technology/irrigation",
+       0.46879419684410095
+      ],
+      [
+       "UN/entities/natural/natural_resources/abiotic_resources/water",
+       0.46086451411247253
+      ],
+      [
+       "UN/events/nature_impact/pollution/climate_change",
+       0.4513331353664398
+      ],
+      [
+       "UN/events/human/famine",
+       0.44847163558006287
+      ],
+      [
+       "UN/events/crisis",
+       0.44167056679725647
+      ]
+     ],
+     "FAO": [
+      [
+       "FAO/events/Burned Area/Closed shrubland",
+       0.42159503698349
+      ],
+      [
+       "FAO/events/Burned Area/Open shrubland",
+       0.42159503698349
+      ],
+      [
+       "FAO/events/Burned Area/Closed and open shrubland",
+       0.42159503698349
+      ],
+      [
+       "FAO/events/Emissions (CH4) (Burning - savanna)/Closed shrubland",
+       0.3908635973930359
+      ],
+      [
+       "FAO/events/Emissions (CH4) (Burning - savanna)/Closed and open shrubland",
+       0.3908635973930359
+      ],
+      [
+       "FAO/events/Emissions (CO2eq) (Burning - savanna)/Closed shrubland",
+       0.3908635973930359
+      ],
+      [
+       "FAO/events/Emissions (CO2eq) (Burning - savanna)/Closed and open shrubland",
+       0.3908635973930359
+      ],
+      [
+       "FAO/events/Emissions (CO2eq) from CH4 (Burning - savanna)/Closed shrubland",
+       0.3908635973930359
+      ],
+      [
+       "FAO/events/Emissions (CO2eq) from CH4 (Burning - savanna)/Closed and open shrubland",
+       0.3908635973930359
+      ],
+      [
+       "FAO/events/Emissions (CO2eq) from N2O (Burning - savanna)/Closed shrubland",
+       0.3908635973930359
+      ]
+     ]
+    }
+   },
+   "delta": {
+    "polarity": 1
+   },
+   "context": {
+    "type": "world",
+    "time": null,
+    "geo_location": {
+     "name": "Sudan",
+     "db_refs": {
+      "GEOID": "8056717"
+     }
+    }
+   },
+   "belief": 1,
+   "id": "fff15487-715f-48ae-a5c0-50ab8c1eb216"
+  },
+  "belief": 1,
+  "evidence": [
+   {
+    "source_api": "eidos",
+    "text": "significantly increased rainfall in 2018 in Sudan increases flooding in 2019 in Sudan",
+    "annotations": {
+     "found_by": "ported_syntax_1_verb-Causal",
+     "provenance": [
+      {
+       "documentCharInterval": [
+        {
+         "@type": "Interval",
+         "start": 1,
+         "end": 85
+        }
+       ],
+       "document": {
+        "@id": "_:Document_1"
+       },
+       "positions": [
+        {
+         "@type": "Interval",
+         "start": 1,
+         "end": 13
+        }
+       ],
+       "@type": "Provenance",
+       "sentence": {
+        "@id": "_:Sentence_1"
+       }
+      }
+     ],
+     "subj_polarity": 1,
+     "obj_polarity": 1,
+     "subj_adjectives": [
+      "significantly"
+     ],
+     "obj_adjectives": [],
+     "subj_context": {
+      "type": "world",
+      "time": null,
+      "geo_location": {
+       "name": "Sudan",
+       "db_refs": {
+        "GEOID": "8056717"
+       }
+      }
+     },
+     "obj_context": {
+      "type": "world",
+      "time": null,
+      "geo_location": {
+       "name": "Sudan",
+       "db_refs": {
+        "GEOID": "8056717"
+       }
+      }
+     }
+    },
+    "context": {
+     "type": "world",
+     "time": null,
+     "geo_location": {
+      "name": "Sudan",
+      "db_refs": {
+       "GEOID": "8056717"
+      }
+     }
+    },
+    "source_hash": -8280443291809879923
+   }
+  ],
+  "id": "a4346440-8471-422f-a1dc-0f28c23ed91f"
+ }
+]

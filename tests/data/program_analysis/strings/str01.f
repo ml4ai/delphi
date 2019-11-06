@@ -12,4 +12,3 @@ C     This program tests declaration and assignment of strings.
 
       stop
       end program main
-      

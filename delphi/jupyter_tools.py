@@ -36,8 +36,8 @@ def create_statement_inspection_table(sts: List[Influence]):
     polarity_to_str = lambda x: "+" if x == 1 else "-" if x == -1 else "None"
     l = []
     for s in sts:
-        subj_un_grounding = s.subj.db_refs["UN"][0][0].split("/")[-1]
-        obj_un_grounding = s.obj.db_refs["UN"][0][0].split("/")[-1]
+        subj_un_grounding = s.subj.db_refs["WM"][0][0].split("/")[-1]
+        obj_un_grounding = s.obj.db_refs["WM"][0][0].split("/")[-1]
         subj_polarity = s.subj_delta["polarity"]
         obj_polarity = s.obj_delta["polarity"]
         subj_adjectives = s.subj_delta["adjectives"]
@@ -211,7 +211,8 @@ def print_commit_hash_message():
     )
 
 
-def run_experiment(G, intervened_node, delta, n_timesteps: int):
+def run_experiment(G, intervened_node, delta, n_timesteps: int,est = np.median,
+        conf = 68,dampen = False):
     G.create_bmi_config_file()
     s0 = pd.read_csv(
         "bmi_config.txt", index_col=0, header=None, error_bad_lines=False
@@ -229,7 +230,7 @@ def run_experiment(G, intervened_node, delta, n_timesteps: int):
     }
 
     for t in range(1, n_timesteps + 1):
-        G.update(dampen=True)
+        G.update(dampen=dampen)
         for n in G.nodes(data=True):
             # TODO Fix this - make it more general (or justify it theoretically)
             ys = lmap(
@@ -243,8 +244,8 @@ def run_experiment(G, intervened_node, delta, n_timesteps: int):
         fig, ax = plt.subplots()
         sns.lineplot(
             indicator_values[n[0]]["xs"], indicator_values[n[0]]["ys"], ax=ax,
-            ci=68,
-            estimator=np.median
+            ci=conf,
+            estimator=est
         )
         ax.set_title(f"{indicator_values[n[0]]['name']} ({list(n[1]['indicators'].values())[0].unit})")
         ax.set_xlabel("time step number")
@@ -271,3 +272,14 @@ def perform_intervention(G, n0, partial_t_n0, n1, xlim=(0, 1)):
     ax.hist(vals[n1], density=True, bins=30)
     print(f"Standard deviation, σ = {np.std(vals[n1]):.2f}")
     plt.tight_layout()
+
+def display(G, simplified_labels = True, label_depth=1, node_to_highlight=""):
+    from pygraphviz import AGraph
+    from IPython.core.display import Image
+
+    temporary_image_filename = "tmp.png"
+    try:
+        G.to_png(temporary_image_filename, simplified_labels, label_depth, node_to_highlight)
+        return Image(temporary_image_filename)
+    finally:
+        os.remove(temporary_image_filename)

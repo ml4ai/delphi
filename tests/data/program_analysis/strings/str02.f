@@ -10,4 +10,3 @@ C     This program tests declaration and initialization of strings.
 
       stop
       end program main
-      
