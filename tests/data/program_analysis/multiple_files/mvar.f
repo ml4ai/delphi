@@ -1,4 +1,4 @@
-      module update_mvar
+      module mvar
          implicit none
       contains
          subroutine update_mean_var(MeanS, VarS, k, n, runs)
@@ -9,6 +9,6 @@
          MeanS(k) = MeanS(k) + (n - MeanS(k))/(runs+1)
          VarS(k) = VarS(k) + runs/(runs+1) * (n-MeanS(k))*(n-MeanS(k))
          end subroutine update_mean_var
-      end module update_mvar
+      end module mvar
 
 

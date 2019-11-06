@@ -1,7 +1,7 @@
 C     Fortranification of AMIDOL's SIR-Gillespie.py
 ********************************************************************************
       program main
-      use mod_gillespie
+      use gillespie_module
       integer, parameter :: S0 = 500, I0 = 10, R0 = 0, Tmax = 100
       double precision, dimension(0:Tmax) :: MeanS, MeanI, MeanR
       double precision, dimension(0:Tmax) :: VarS, VarI, VarR

@@ -31,8 +31,8 @@ C     t             Initial time for the simulation
 C     totalRuns     Total number of trajectories to generate for the analysis
 C     dt       next inter-event time
 ********************************************************************************
-      module mod_gillespie
-          use update_mvar
+      module gillespie_module
+          use mvar
       contains
           subroutine gillespie(S0, I0, R0, MeanS, MeanI, MeanR, VarS,
      &                         VarI, VarR)
@@ -115,4 +115,4 @@ C     dt       next inter-event time
           end do
 
           end subroutine gillespie
-      end module mod_gillespie
+      end module gillespie_module
