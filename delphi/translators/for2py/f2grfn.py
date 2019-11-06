@@ -375,7 +375,15 @@ def generate_grfn(
     for item in grfn_dict["containers"]:
         if "gensym" in item:
             del item["gensym"]
-    genPGM.generate_system_def([python_filename], grfn_filepath_list, module_import_paths)
+
+    with open(mod_log_file_path) as json_f:
+        module_logs = json.load(json_f)
+    genPGM.generate_system_def(
+            [python_filename],
+            grfn_filepath_list,
+            module_import_paths,
+            module_logs
+    )
 
     log_generated_files([grfn_file, lambdas_file])
     if tester_call:

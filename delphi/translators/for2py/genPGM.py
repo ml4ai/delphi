@@ -3768,21 +3768,36 @@ def get_system_name(pyfile_list: List[str]):
     return system_name, path
 
 
-def generate_system_def(python_list: List[str], component_list: List[str], module_paths: List[str]):
+def generate_system_def(
+        python_list: List[str],
+        module_grfn_list: List[str],
+        import_grfn_paths: List[str],
+        module_logs: Dict
+):
     """
         This function generates the system definition for the system under
         analysis and writes this to the main system file.
     """
     (system_name, path) = get_system_name(python_list)
     system_filepath = f"{path}/system.json"
+    module_name_regex = re.compile(r"(?P<path>.*/)m_(?P<module_name>.*)_GrFN.json")
+
     grfn_components = []
-    for component in component_list:
+    for module_grfn in module_grfn_list:
+        code_sources = []
+        module_match = re.match(module_name_regex, module_grfn)
+        if module_match:
+            module_name = module_match.group("module_name")
+            if module_name in module_logs["mod_to_file"]:
+                for path in module_logs["mod_to_file"][module_name]:
+                    code_sources.append(path)
         grfn_components.append({
-            "file_path": component,
+            "grfn_source": module_grfn,
+            "code_source": code_sources,
             "imports": []
         })
-    for module in module_paths:
-        for path in module_paths[module]:
+    for grfn in import_grfn_paths:
+        for path in import_grfn_paths[grfn]:
             grfn_components[0]["imports"].append(path)
     system_def = {
         "date_created": f"{datetime.utcnow().isoformat('T')}Z",
