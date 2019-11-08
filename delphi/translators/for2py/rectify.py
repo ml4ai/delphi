@@ -142,6 +142,10 @@ class RectifyOFPXML:
         self.goto_stmt_parents = []
         # Keeps a track of parent statements to label
         self.label_parents = []
+        # Flag to check if the variable is a character
+        self.is_character = False
+        # List to store all the character variables defined
+        self.character_var_list = []
         # Keeps a track of the main body that the statement
         # is nested under, i.e. program, loop, and if, etc
         self.body_level = {
@@ -325,6 +329,8 @@ class RectifyOFPXML:
         "name",
         "literal",
         "operation",
+        "argument",
+        "range",
     ]
 
     index_range_child_tags = [
@@ -385,7 +391,6 @@ class RectifyOFPXML:
         "print-stmt",
         "print-format",
         "keyword-argument",
-        "logical-literal-constant",
         "end-subroutine-stmt",
         "logical-literal-constant",
         "equiv-op",
@@ -394,6 +399,8 @@ class RectifyOFPXML:
         "saved-entity-list",
         "access-id",
         "parameter-stmt",
+        "type-param-value",
+        "char-selector",
     ]
 
     output_child_tags = [
@@ -854,8 +861,11 @@ class RectifyOFPXML:
                             False
                         ), f'self.In handle_tag_declaration: Empty elements "' \
                             f'{child.tag}" not handled'
-        if self.is_array == True:
+        if self.is_array:
             self.is_array = False
+
+        if self.is_character:
+            self.is_character = False
 
         # If is_derived_type is true,
         # reconstruct the derived type declaration AST structure
@@ -876,6 +886,9 @@ class RectifyOFPXML:
         <type>
         </type>
         """
+        if current.attrib["name"] == "character":
+            self.is_character = True
+            current.set("string_length", str(1))
         for child in root:
             self.clean_attrib(child)
             if "keyword2" in child.attrib:
@@ -931,7 +944,10 @@ class RectifyOFPXML:
                 else:
                     self.derived_type_var_holder_list.append(child)
             elif child.tag == "literal":
-                self.derived_type_var_holder_list.append(child)
+                if self.is_character:
+                    current.set("string_length", str(child.attrib["value"]))
+                else:
+                    self.derived_type_var_holder_list.append(child)
             elif child.tag == "component-array-spec":
                 self.derived_type_var_holder_list.append(child)
             elif (
@@ -1004,6 +1020,8 @@ class RectifyOFPXML:
                 {current.attrib['name']: self.current_scope}
             )
 
+        if self.is_character:
+            self.character_var_list.append(current.attrib['name'])
         for child in root:
             self.clean_attrib(child)
             if len(child) > 0 or child.text:
@@ -1011,6 +1029,10 @@ class RectifyOFPXML:
                     current, child.tag, child.attrib
                 )
                 if child.tag == "initial-value":
+                    self.parseXMLTree(
+                        child, cur_elem, current, parent, traverse
+                    )
+                elif child.tag == "length":
                     self.parseXMLTree(
                         child, cur_elem, current, parent, traverse
                     )
@@ -1449,7 +1471,10 @@ class RectifyOFPXML:
                                 and self.declared_non_array_vars[
                                         current.attrib['id']
                                     ] == self.current_scope
+                                and current.attrib['id'] not in
+                                self.character_var_list
                         ):
+                            print(self.character_var_list)
                             current.attrib['hasSubscripts'] = "false"
 
                     self.parseXMLTree(
@@ -2328,7 +2353,7 @@ class RectifyOFPXML:
         between the arguments.
 
         <arguments>
-        </arsuments>
+        </arguments>
         """
         for child in root:
             self.clean_attrib(child)
@@ -2342,6 +2367,26 @@ class RectifyOFPXML:
                 assert (
                     False
                 ), f'In handle_tag_variable: "{child.tag}" not handled'
+
+    def handle_tag_argument(
+            self, root, current, parent, grandparent, traverse
+    ):
+        """This function handles cleaning up the XML elements between the
+        argument.
+
+        <argument>./a
+        </argument>
+        """
+        current.attrib['is_array'] = "false"
+        for child in root:
+            self.clean_attrib(child)
+            cur_elem = ET.SubElement(
+                current, child.tag, child.attrib
+            )
+            if len(child) > 0 or child.text:
+                self.parseXMLTree(
+                    child, cur_elem, current, parent, traverse
+                )
 
     def handle_tag_if(
             self, root, current, parent, grandparent, traverse
@@ -2845,16 +2890,19 @@ class RectifyOFPXML:
             self.handle_tag_length(root, current, parent, grandparent, traverse)
         elif root.tag == "saved-entity":
             self.handle_tag_saved_entity(root, current, parent, grandparent,
-                                    traverse)
+                                         traverse)
         elif root.tag == "save-stmt":
             self.handle_tag_save_statement(root, current, parent, grandparent,
-                                     traverse)
+                                           traverse)
         elif root.tag == "constants":
             self.handle_tag_constants(root, current, parent, grandparent,
-                                    traverse)
+                                      traverse)
         elif root.tag == "constant":
             self.handle_tag_constant(root, current, parent, grandparent,
-                                      traverse)
+                                     traverse)
+        elif root.tag == "argument":
+            self.handle_tag_argument(root, current, parent, grandparent,
+                                     traverse)
         else:
             assert (
                 False
