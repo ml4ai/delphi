@@ -119,7 +119,8 @@ int main(int argc, char* argv[]) {
                                  vm["country"].as<string>());
   }
   if (vm["quantify"].as<bool>()) {
-    G.construct_beta_pdfs(RNG::rng()->get_RNG());
+    //G.construct_beta_pdfs(RNG::rng()->get_RNG());
+    G.construct_beta_pdfs();
   }
 
   if (vm["draw_graph"].as<bool>() == true) {

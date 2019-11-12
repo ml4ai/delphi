@@ -174,3 +174,25 @@ AnalysisGraph AnalysisGraph::from_uncharted_json_file(string filename) {
   return AnalysisGraph::from_uncharted_json_dict(json_data);
 }
 
+AnalysisGraph
+AnalysisGraph::from_causal_fragments(vector<CausalFragment> causal_fragments) {
+  AnalysisGraph G;
+
+  for (CausalFragment cf : causal_fragments) {
+    Event subject = Event(cf.first);
+    Event object = Event(cf.second);
+
+    string subj_name = subject.concept_name;
+    string obj_name = object.concept_name;
+
+    if (subj_name.compare(obj_name) != 0) { // Guard against self loops
+      // Add the nodes to the graph if they are not in it already
+      for (string name : {subj_name, obj_name}) {
+        G.add_node(name);
+      }
+      G.add_edge(cf);
+    }
+  }
+  return G;
+}
+
