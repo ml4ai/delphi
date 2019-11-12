@@ -67,8 +67,8 @@ PYBIND11_MODULE(DelphiPython, m) {
           py::keep_alive<0, 1>())
       .def("num_vertices", &AnalysisGraph::num_vertices)
       .def("num_edges", &AnalysisGraph::num_edges)
-      .def("get_successor_list", &AnalysisGraph::get_successor_list)
-      .def("get_predecessor_list", &AnalysisGraph::get_predecessor_list)
+      //.def("get_successor_list", &AnalysisGraph::get_successor_list)
+      //.def("get_predecessor_list", &AnalysisGraph::get_predecessor_list)
       .def("edge", py::overload_cast<string, string>(&AnalysisGraph::edge))
       .def("print_nodes", &AnalysisGraph::print_nodes)
       .def("print_edges", &AnalysisGraph::print_edges)
@@ -105,10 +105,10 @@ PYBIND11_MODULE(DelphiPython, m) {
            &AnalysisGraph::print_cells_affected_by_beta,
            "source"_a,
            "target"_a)
-      .def("get_beta",
-           &AnalysisGraph::get_beta,
-           "source_vertex_name"_a,
-           "target_vertex_name"_a)
+      //.def("get_beta",
+      //     &AnalysisGraph::get_beta,
+      //     "source_vertex_name"_a,
+      //     "target_vertex_name"_a)
       .def("print_name_to_vertex", &AnalysisGraph::print_name_to_vertex)
       .def("map_concepts_to_indicators",
            &AnalysisGraph::map_concepts_to_indicators,
