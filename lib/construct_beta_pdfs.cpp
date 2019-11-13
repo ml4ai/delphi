@@ -41,6 +41,13 @@ construct_adjective_response_map(std::mt19937 gen, size_t n_kernels = DEFAULT_N_
   return adjective_response_map;
 }
 
+
+/*
+ ============================================================================
+ Public: Construct Beta Pdfs 
+ ============================================================================
+*/
+
 void AnalysisGraph::construct_beta_pdfs(std::mt19937 gen) {
 
   double sigma_X = 1.0;

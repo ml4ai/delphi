@@ -53,7 +53,6 @@ include_directories(external/eigen)
 find_package(SQLite3 REQUIRED)
 
 add_library(Delphi
-  lib/AnalysisGraph.cpp
   lib/AnalysisGraph.hpp
   lib/construct_beta_pdfs.cpp
   lib/data.cpp
@@ -76,11 +75,16 @@ add_library(Delphi
   lib/Edge.hpp
   lib/Indicator.hpp
   lib/Indicator.cpp
-  lib/parameterization.cpp
   lib/subgraphs.cpp
   lib/constructors.cpp
   lib/sampling.cpp
   lib/inference.cpp
+  lib/synthetic_data.cpp
+  lib/graph_building.cpp
+  lib/graph_modification.cpp
+  lib/graph_utils.cpp
+  lib/printing.cpp
+  lib/indicator_manipulation.cpp
 )
 
 target_include_directories(Delphi PRIVATE external/range-v3/include)
