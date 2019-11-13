@@ -6,6 +6,7 @@
 #include <boost/graph/graph_traits.hpp>
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/iterator_range.hpp>
+#include <boost/range/algorithm/for_each.hpp>
 
 #include "graphviz_interface.hpp"
 
@@ -111,7 +112,7 @@ class AnalysisGraph {
 
   /*
    ============================================================================
-   Sampler related variables
+   Sampler Related Variables
    ============================================================================
   */
 
@@ -181,7 +182,7 @@ class AnalysisGraph {
 
   /*
    ============================================================================
-   Private: Utilities
+   Private: Utilities (in graph_util.cpp)
    ============================================================================
   */
 
@@ -268,7 +269,16 @@ class AnalysisGraph {
 
   int num_nodes() { return boost::num_vertices(graph); }
 
-  int get_vertex_id(std::string concept);
+  //int get_vertex_id(std::string concept);
+  int get_vertex_id(std::string concept) {
+    using namespace fmt::literals;
+    try {
+      return this->name_to_vertex.at(concept);
+    }
+    catch (const std::out_of_range& oor) {
+      throw std::out_of_range("Concept \"{}\" not in CAG!"_format(concept));
+    }
+  }
 
   auto node_indices() {
     return boost::make_iterator_range(boost::vertices(this->graph));
@@ -303,7 +313,14 @@ class AnalysisGraph {
     return this->successors(this->name_to_vertex.at(node_name));
   }
 
-  std::vector<Node> get_successor_list(std::string node_name);
+  //std::vector<Node> get_successor_list(std::string node_name);
+  std::vector<Node> get_successor_list(std::string node) {
+    std::vector<Node> successors = {};
+    for (int successor : this->successors(node)) {
+      successors.push_back((*this)[successor]);
+    }
+    return successors;
+  }
 
   auto predecessors(int i) {
     return boost::make_iterator_range(
@@ -314,7 +331,14 @@ class AnalysisGraph {
     return this->predecessors(this->name_to_vertex.at(node_name));
   }
 
-  std::vector<Node> get_predecessor_list(std::string node_name);
+  //std::vector<Node> get_predecessor_list(std::string node_name);
+  std::vector<Node> get_predecessor_list(std::string node) {
+    std::vector<Node> predecessors = {};
+    for (int predecessor : this->predecessors(node)) {
+      predecessors.push_back((*this)[predecessor]);
+    }
+    return predecessors;
+  }
 
   double get_beta(std::string source_vertex_name,
                   std::string target_vertex_name) {
@@ -327,7 +351,7 @@ class AnalysisGraph {
 
   /*
    ============================================================================
-   Private: Get Training Data Sequence
+   Private: Get Training Data Sequence (in train_model.cpp)
    ============================================================================
   */
 
@@ -449,7 +473,7 @@ class AnalysisGraph {
 
   /*
    ============================================================================
-   Private: Inference
+   Private: Inference (in inference.cpp)
    ============================================================================
   */
 
@@ -489,7 +513,7 @@ class AnalysisGraph {
 
   /*
    ============================================================================
-   Private: Syntheitc Data Experiment
+   Private: Syntheitc Data Experiment (in synthetic_data.cpp)
    ============================================================================
   */
 
@@ -526,7 +550,7 @@ class AnalysisGraph {
 
   /*
    ============================================================================
-   Private: Printing and Imaging (in graphviz.cpp)
+   Private: Graph Visualization (in graphviz.cpp)
    ============================================================================
   */
 
@@ -644,7 +668,7 @@ class AnalysisGraph {
 
   /*
    ============================================================================
-   Public: Graph building and modification
+   Public: Graph Building (in graph_building.cpp)
    ============================================================================
   */
 
@@ -718,7 +742,7 @@ class AnalysisGraph {
 
   /*
    ============================================================================
-   Public: Modify graph
+   Public: Graph Modification (in graph_modification.cpp)
    ============================================================================
   */
 
@@ -744,22 +768,19 @@ class AnalysisGraph {
 
   /*
    ============================================================================
-   Public: Populate graph with data
+   Public: Construct Beta Pdfs (in construct_beta_pdfs.cpp)
    ============================================================================
   */
 
   void construct_beta_pdfs(std::mt19937 rng);
   void construct_beta_pdfs();
 
-  /**
-   * Parameterize the indicators of the AnalysisGraph..
-   */
-  void parameterize(std::string country = "South Sudan",
-                    std::string state = "",
-                    std::string county = "",
-                    int year = -1,
-                    int month = 0,
-                    std::map<std::string, std::string> units = {});
+
+  /*
+   ============================================================================
+   Public: Indicator Manipulation (in indicator_manipulation.cpp)
+   ============================================================================
+  */
 
   void
   set_indicator(std::string concept, std::string indicator, std::string source);
@@ -778,12 +799,20 @@ class AnalysisGraph {
    */
   void map_concepts_to_indicators(int n = 1, std::string country = "");
 
-  void set_derivative(std::string, double);
+  /**
+   * Parameterize the indicators of the AnalysisGraph..
+   */
+  void parameterize(std::string country = "South Sudan",
+                    std::string state = "",
+                    std::string county = "",
+                    int year = -1,
+                    int month = 0,
+                    std::map<std::string, std::string> units = {});
 
 
   /*
    ============================================================================
-   Public: Utilities
+   Public: Utilities (in graph_utils.cpp)
    ============================================================================
   */
 
@@ -794,10 +823,12 @@ class AnalysisGraph {
 
   void set_random_seed(int seed);
 
+  void set_derivative(std::string, double);
+
 
   /*
    ============================================================================
-   Public: Training by MCMC Sampling
+   Public: Training the Model (in training_model.cpp)
    ============================================================================
   */
 
@@ -832,6 +863,13 @@ class AnalysisGraph {
                    InitialBeta initial_beta = InitialBeta::ZERO,
                    bool use_heuristic = false);
 
+
+  /*
+   ============================================================================
+   Public: Training by MCMC Sampling (in sampling.cpp)
+   ============================================================================
+  */
+
   void set_initial_latent_state(Eigen::VectorXd vec) { this->s0 = vec; };
 
   void set_default_initial_state();
@@ -839,7 +877,7 @@ class AnalysisGraph {
 
   /*
    ============================================================================
-   Public: Inference
+   Public: Inference (in inference.cpp)
    ============================================================================
   */
 
@@ -887,7 +925,7 @@ class AnalysisGraph {
 
   /*
    ============================================================================
-   Public: Syntheitc data experiment
+   Public: Syntheitc data experiment (in synthetic_data.cpp)
    ============================================================================
   */
 
@@ -908,7 +946,25 @@ class AnalysisGraph {
 
   /*
    ============================================================================
-   Public: Printing and Imaging
+   Public: Graph Visualization (in graphviz.cpp)
+   ============================================================================
+  */
+
+  std::string to_dot();
+
+  void
+  to_png(std::string filename = "CAG.png",
+         bool simplified_labels =
+             false, /** Whether to create simplified labels or not. */
+         int label_depth =
+             1, /** Depth in the ontology to which simplified labels extend */
+         std::string node_to_highlight = "",
+         std::string rankdir = "TB");
+
+
+  /*
+   ============================================================================
+   Public: Printing (in printing.cpp)
    ============================================================================
   */
 
@@ -928,15 +984,4 @@ class AnalysisGraph {
   // Given an edge (source, target vertex ids - i.e. a β ≡ ∂target/∂source),
   // print all the transition matrix cells that are dependent on it.
   void print_cells_affected_by_beta(int source, int target);
-
-  std::string to_dot();
-
-  void
-  to_png(std::string filename = "CAG.png",
-         bool simplified_labels =
-             false, /** Whether to create simplified labels or not. */
-         int label_depth =
-             1, /** Depth in the ontology to which simplified labels extend */
-         std::string node_to_highlight = "",
-         std::string rankdir = "TB");
 };
