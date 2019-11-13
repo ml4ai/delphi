@@ -31,6 +31,7 @@ void AnalysisGraph::train_model(int start_year,
   this->res = res;
   this->init_betas_to(initial_beta);
   this->sample_initial_transition_matrix_from_prior();
+  this->set_default_initial_state();
   this->parameterize(country, state, county, start_year, start_month, units);
 
   this->training_range = make_pair(make_pair(start_year, start_month),
@@ -41,7 +42,7 @@ void AnalysisGraph::train_model(int start_year,
         start_year, start_month, end_year, end_month, country, state, county);
   }
 
-  this->set_initial_latent_state_from_observed_state_sequence();
+  //this->set_initial_latent_state_from_observed_state_sequence();
 
   this->set_log_likelihood();
 
@@ -65,7 +66,9 @@ void AnalysisGraph::train_model(int start_year,
   // matrices.
   //
   this->transition_matrix_collection.clear();
+  this->initial_latent_state_collection.clear();
   this->transition_matrix_collection = vector<Eigen::MatrixXd>(this->res);
+  this->initial_latent_state_collection = vector<Eigen::VectorXd>(this->res);
 
   for (int i : trange(burn)) {
     this->sample_from_posterior();
@@ -74,6 +77,7 @@ void AnalysisGraph::train_model(int start_year,
   for (int i : trange(this->res)) {
     this->sample_from_posterior();
     this->transition_matrix_collection[i] = this->A_original;
+    this->initial_latent_state_collection[i] = this->s0;
   }
 
   this->trained = true;

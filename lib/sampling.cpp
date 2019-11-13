@@ -49,7 +49,6 @@ void AnalysisGraph::sample_initial_transition_matrix_from_prior() {
 void AnalysisGraph::set_initial_latent_state_from_observed_state_sequence() {
   int num_verts = this->num_vertices();
 
-  this->set_default_initial_state();
 
   for (int v = 0; v < num_verts; v++) {
     vector<Indicator>& indicators = (*this)[v].indicators;
@@ -193,6 +192,9 @@ void AnalysisGraph::sample_from_proposal() {
   graph[e[0]].beta += this->norm_dist(this->rand_num_generator);
 
   this->update_transition_matrix_cells(e[0]);
+
+  this->s0_prev = s0;
+  this->set_random_initial_latent_state();
 }
 
 void AnalysisGraph::update_transition_matrix_cells(EdgeDescriptor e) {
@@ -239,6 +241,8 @@ void AnalysisGraph::revert_back_to_previous_state() {
   // TODO: Can we change the transition matrix only when the sample is
   // accepted?
   this->update_transition_matrix_cells(this->previous_beta.first);
+
+  this->s0 = this->s0_prev;
 }
 
 

@@ -139,6 +139,7 @@ class AnalysisGraph {
 
   // Latent state that is evolved by sampling.
   Eigen::VectorXd s0;
+  Eigen::VectorXd s0_prev;
 
   // Transition matrix that is evolved by sampling.
   // Since variable A has been already used locally in other methods,
@@ -159,7 +160,7 @@ class AnalysisGraph {
   // prediction_initial_latent_states.size() = this->res
   // TODO: If we make the code using this variable to directly fetch the values
   // from this->training_latent_state_sequences, we can get rid of this
-  std::vector<Eigen::VectorXd> prediction_initial_latent_states;
+  //std::vector<Eigen::VectorXd> prediction_initial_latent_states;
 
   // Access this as
   // prediction_latent_state_sequences[ sample ][ time step ]
@@ -174,6 +175,7 @@ class AnalysisGraph {
   PredictedObservedStateSequence test_observed_state_sequence;
 
   std::vector<Eigen::MatrixXd> transition_matrix_collection;
+  std::vector<Eigen::VectorXd> initial_latent_state_collection;
 
   std::vector<Eigen::VectorXd> synthetic_latent_state_sequence;
   // ObservedStateSequence synthetic_observed_state_sequence;
