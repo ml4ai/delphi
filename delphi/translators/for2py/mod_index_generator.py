@@ -89,7 +89,7 @@ class ModuleGenerator(object):
             self.exports[item] = [x for x in interim if x not in
                                   self.private.get(item, [])]
 
-    def populate_imports(self):
+    def populate_imports(self, module_logs):
         """
             This function populates the `self.imports` dictionary which holds
             all the private variables defined in each module.
@@ -98,9 +98,23 @@ class ModuleGenerator(object):
             for use_item in self.uses[module]:
                 for key in use_item:
                     if len(use_item[key]) == 1 and use_item[key][0] == '*':
-                        self.imports.setdefault(module, []).append(
-                            {key: self.exports[key]}
-                        )
+                        if key in self.exports:
+                            symbols = self.exports[key]
+                        else:
+                            assert (
+                                key.lower() in module_logs["mod_info"]
+                            ), f"module name (key) {key} does not exist in the log file."
+                            symbols = module_logs["mod_info"][key]["exports"]
+                            if module in module_logs["mod_info"]:
+                                module_logs["mod_info"][module]["imports"] = symbols
+                        if key in symbols:
+                            self.imports.setdefault(module, []).append(
+                                {key: symbols[key]}
+                            )
+                        else:
+                            self.imports.setdefault(module, []).append(
+                                {key: symbols}
+                            )
                     else:
                         self.imports.setdefault(module, []).append(
                             {key: use_item[key]}
@@ -112,7 +126,7 @@ class ModuleGenerator(object):
                 if var in self.symbols[module]:
                     self.symbol_type[var] = [module, self.variable_types[var]]
 
-    def parse_tree(self, root) -> bool:
+    def parse_tree(self, root, module_logs) -> bool:
         """
             This function parses the XML tree of a Fortran file and tracks
             and maps relevant object relationships
@@ -199,16 +213,19 @@ class ModuleGenerator(object):
         self.populate_symbols()
         self.populate_symbol_types()
         self.populate_exports()
-        self.populate_imports()
+        self.populate_imports(module_logs)
 
         return True
 
-    def analyze(self, tree: ET.ElementTree) -> List:
+    def analyze(self, tree: ET.ElementTree, mod_log_path: str) -> List:
         """
             Parse the XML file from the root and keep track of all important
             data structures and object relationships between files
         """
-        status = self.parse_tree(tree)
+        with open(mod_log_path) as json_f:
+            module_logs = json.load(json_f)
+
+        status = self.parse_tree(tree, module_logs)
         output_dictionary = {}
         if status:
             output_dictionary['file_name'] = [self.fileName, self.path]
@@ -222,17 +239,19 @@ class ModuleGenerator(object):
             output_dictionary['symbols'] = self.symbols
             output_dictionary['symbol_types'] = self.symbol_type
 
+        with open(mod_log_path, 'w+') as json_f:
+            json_f.write(json.dumps(module_logs, indent=2))
         return [output_dictionary]
 
 
-def get_index(xml_file: str):
+def get_index(xml_file: str, module_log_file_path: str):
     """
         Get the root of the XML ast, instantiate the moduleGenerator and
         start the analysis process.
     """
     tree = ET.parse(xml_file).getroot()
     generator = ModuleGenerator()
-    return generator.analyze(tree)
+    return generator.analyze(tree, module_log_file_path)
 
 
 if __name__ == "__main__":

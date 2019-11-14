@@ -1560,7 +1560,6 @@ def create_python_source_list(outputDict: Dict):
         "from numbers import Real",
         "from random import random\n",
     ]
-
     for module in module_index_dict:
         if "module" in module_index_dict[module]:
             ast = [outputDict["ast"][module_index_dict[module][1]]]
@@ -1586,32 +1585,35 @@ def create_python_source_list(outputDict: Dict):
     code_generator.functions = outputDict["functionList"]
     code_generator.pyStrings.append("\n".join(import_lines))
 
-    # Copy the derived type ast from the main_ast into the separate list,
-    # so it can be printed outside (above) the main method
-    derived_type_ast = []
-    for index in list(main_ast[0]["body"]):
-        if "is_derived_type" in index and index["is_derived_type"] == "true":
-            if "tag" not in index:
-                derived_type_ast.append(index)
-                main_ast[0]["body"].remove(index)
+    # Some Fortran files do not hold any PROGRAM function, such as files created
+    # for module holder purpose.
+    if main_ast:
+        # Copy the derived type ast from the main_ast into the separate list,
+        # so it can be printed outside (above) the main method
+        derived_type_ast = []
+        for index in list(main_ast[0]["body"]):
+            if "is_derived_type" in index and index["is_derived_type"] == "true":
+                if "tag" not in index:
+                    derived_type_ast.append(index)
+                    main_ast[0]["body"].remove(index)
 
-    # Print derived type declaration(s)
-    if derived_type_ast:
-        code_generator.pyStrings.append("@dataclass\n")
-        for i in range(len(derived_type_ast)):
-            assert (
-                    derived_type_ast[i]["is_derived_type"] == "true"
-            ), "[derived_type_ast] holds non-derived type ast"
-            code_generator.nameMapping([derived_type_ast[i]])
-            code_generator.printDerivedType(
-                [derived_type_ast[i]], PrintState()
-            )
+        # Print derived type declaration(s)
+        if derived_type_ast:
+            code_generator.pyStrings.append("@dataclass\n")
+            for i in range(len(derived_type_ast)):
+                assert (
+                        derived_type_ast[i]["is_derived_type"] == "true"
+                ), "[derived_type_ast] holds non-derived type ast"
+                code_generator.nameMapping([derived_type_ast[i]])
+                code_generator.printDerivedType(
+                    [derived_type_ast[i]], PrintState()
+                )
 
-    code_generator.nameMapping(main_ast)
-    code_generator.printAst(main_ast, PrintState())
-    py_sourcelist.append(
-        (code_generator.get_python_source(), main_ast, "program")
-    )
+        code_generator.nameMapping(main_ast)
+        code_generator.printAst(main_ast, PrintState())
+        py_sourcelist.append(
+            (code_generator.get_python_source(), main_ast, "program")
+        )
 
     return (py_sourcelist, code_generator.variableMap)
 

@@ -421,8 +421,10 @@ class GroundedFunctionNetwork(ComputationalGraph):
         stem: str,
         python_file: str,
         fortran_file: str,
+        module_log_file_path: str,
         mode_mapper_dict: list,
-        save_file: bool = False
+        save_file: bool = False,
+
     ):
         module_file_exist = False
         module_import_paths = {}
@@ -435,6 +437,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
             python_file,
             mode_mapper_dict,
             fortran_file,
+            module_log_file_path,
             save_file,
             module_file_exist,
             module_import_paths
@@ -449,6 +452,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
 
         if tmpdir == "." and "/" in fortran_file:
             tmpdir = Path(fortran_file).parent
+        root_dir = os.path.abspath(tmpdir)
 
         (
             pySrc,
@@ -457,12 +461,14 @@ class GroundedFunctionNetwork(ComputationalGraph):
             translated_python_files,
             stem,
             mode_mapper_dict,
-            fortran_filename
-        ) = f2grfn.fortran_to_grfn(fortran_file, True, True, str(tmpdir))
+            fortran_filename,
+            module_log_file_path,
+            processing_modules,
+        ) = f2grfn.fortran_to_grfn(fortran_file, True, True, str(tmpdir), root_dir, processing_modules=False)
 
         for python_file in translated_python_files:
             G = cls.from_python_src(pySrc[0][0], lambdas_path, json_filename, stem, python_file,
-                                    fortran_file, mode_mapper_dict, save_file=save_file)
+                                    fortran_file, module_log_file_path, mode_mapper_dict, save_file=save_file)
 
             return G
 
