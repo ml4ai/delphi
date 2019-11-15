@@ -1,4 +1,5 @@
 #include "AnalysisGraph.hpp"
+#include "dbg.h"
 
 using namespace std;
 using namespace delphi::utils;
@@ -177,24 +178,34 @@ void AnalysisGraph::sample_from_posterior() {
 }
 
 void AnalysisGraph::sample_from_proposal() {
-  // Randomly pick an edge ≡ β
-  boost::iterator_range edge_it = this->edges();
+  // Flip a coin and decide whetehr the perturb a β or a derivative
+  this->coin_flip = this->uni_dist(this->rand_num_generator);
 
-  vector<EdgeDescriptor> e(1);
-  sample(
-      edge_it.begin(), edge_it.end(), e.begin(), 1, this->rand_num_generator);
+  if (this->coin_flip < this->coin_flip_thresh) {
+    // Randomly pick an edge ≡ β
+    boost::iterator_range edge_it = this->edges();
 
-  // Remember the previous β
-  this->previous_beta = make_pair(e[0], this->graph[e[0]].beta);
+    vector<EdgeDescriptor> e(1);
+    sample(
+        edge_it.begin(), edge_it.end(), e.begin(), 1, this->rand_num_generator);
 
-  // Perturb the β
-  // TODO: Check whether this perturbation is accurate
-  graph[e[0]].beta += this->norm_dist(this->rand_num_generator);
+    // Remember the previous β
+    this->previous_beta = make_pair(e[0], this->graph[e[0]].beta);
 
-  this->update_transition_matrix_cells(e[0]);
+    // Perturb the β
+    // TODO: Check whether this perturbation is accurate
+    graph[e[0]].beta += this->norm_dist(this->rand_num_generator);
 
-  this->s0_prev = s0;
-  this->set_random_initial_latent_state();
+    this->update_transition_matrix_cells(e[0]);
+  }
+  else {
+    //this->s0_prev = s0;
+    //this->set_random_initial_latent_state();
+    // Randomly select a concept to change the derivative
+    this->changed_derivative = 2 * this->uni_disc_dist(this->rand_num_generator) + 1;
+    this->previous_derivative = s0[this->changed_derivative];
+    s0[this->changed_derivative] += this->norm_dist(this->rand_num_generator);
+  }
 }
 
 void AnalysisGraph::update_transition_matrix_cells(EdgeDescriptor e) {
@@ -225,24 +236,33 @@ void AnalysisGraph::update_transition_matrix_cells(EdgeDescriptor e) {
 }
 
 double AnalysisGraph::calculate_delta_log_prior() {
-  KDE& kde = this->graph[this->previous_beta.first].kde;
+  if (this->coin_flip < this->coin_flip_thresh) {
+    KDE& kde = this->graph[this->previous_beta.first].kde;
 
-  // We have to return: log( p( β_new )) - log( p( β_old ))
-  return kde.logpdf(this->graph[this->previous_beta.first].beta) -
+    // We have to return: log( p( β_new )) - log( p( β_old ))
+    return kde.logpdf(this->graph[this->previous_beta.first].beta) -
          kde.logpdf(this->previous_beta.second);
+  }
+  else {
+    return 0.0;
+  }
 }
 
 void AnalysisGraph::revert_back_to_previous_state() {
   this->log_likelihood = this->previous_log_likelihood;
 
-  this->graph[this->previous_beta.first].beta = this->previous_beta.second;
+  if (this->coin_flip < this->coin_flip_thresh) {
+    this->graph[this->previous_beta.first].beta = this->previous_beta.second;
 
-  // Reset the transition matrix cells that were changed
-  // TODO: Can we change the transition matrix only when the sample is
-  // accepted?
-  this->update_transition_matrix_cells(this->previous_beta.first);
-
-  this->s0 = this->s0_prev;
+    // Reset the transition matrix cells that were changed
+    // TODO: Can we change the transition matrix only when the sample is
+    // accepted?
+    this->update_transition_matrix_cells(this->previous_beta.first);
+  }
+  else {
+    //this->s0 = this->s0_prev;
+    s0[this->changed_derivative] = this->previous_derivative;
+  }
 }
 
 

@@ -22,6 +22,8 @@ void AnalysisGraph::train_model(int start_year,
                                 bool use_heuristic) {
 
   this->initialize_random_number_generator();
+  this->uni_disc_dist = uniform_int_distribution<int>(0, this->num_nodes() - 1);
+
   this->construct_beta_pdfs(this->rand_num_generator);
   this->find_all_paths();
   this->data_heuristic = use_heuristic;
