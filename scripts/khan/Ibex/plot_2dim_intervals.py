@@ -12,7 +12,7 @@ for filename in filenames:
     
     varname1 = filename.split('_')[0]
     varname2 = filename.split('_')[1]
-
+    model = filename.split('_')[2]
     var1_lb = data[:,0]
     var1_ub = data[:,1]
 
@@ -25,12 +25,12 @@ for filename in filenames:
     ax = fig.add_subplot(111, aspect='equal')
     for i in range(len(var1_ub)):
         ax.add_patch(patches.Rectangle((var1_lb[i], var2_lb[i]), var1_ub[i]-var1_lb[i], var2_ub[i]-var2_lb[i]))
-    plt.title('2D plot of allowed ' + varname1 + ' and ' + varname2 + ' in PETPT')
+    plt.title('2D plot of allowed ' + varname1 + ' and ' + varname2 + ' in ' + model)
     plt.xlabel(varname1)
     plt.ylabel(varname2)
     plt.ylim(min(var2_lb)-5, max(var2_ub)+5)
     plt.xlim(min(var1_lb)-5, max(var1_ub)+5)
-    
-    plt.show()
+    plt.savefig(varname1 + '_' + varname2 + '_' + model + '_eo5.5-10.png')    
+    # plt.show()
 
 
