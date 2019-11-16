@@ -91,8 +91,8 @@ if __name__ == "__main__":
         2016,
         3,
         country="South Sudan",
-        res=200,
-        burn=10000,
+        res=20,
+        burn=100,
         use_heuristic=False,
     )
     G.set_default_initial_state()

@@ -1,6 +1,8 @@
 #include "AnalysisGraph.hpp"
+#include "data.hpp"
 #include "spdlog/spdlog.h"
 #include <tqdm.hpp>
+#include <range/v3/all.hpp>
 
 using namespace std;
 using spdlog::debug;
@@ -77,4 +79,72 @@ void AnalysisGraph::train_model(int start_year,
   this->trained = true;
   RNG::release_instance();
   return;
+}
+
+
+/*
+ ============================================================================
+ Private: Get Training Data Sequence
+ ============================================================================
+*/
+
+void AnalysisGraph::set_observed_state_sequence_from_data(int start_year,
+                                                          int start_month,
+                                                          int end_year,
+                                                          int end_month,
+                                                          string country,
+                                                          string state,
+                                                          string county) {
+  this->observed_state_sequence.clear();
+
+  // Access
+  // [ timestep ][ vertex ][ indicator ]
+  this->observed_state_sequence = ObservedStateSequence(this->n_timesteps);
+
+  int year = start_year;
+  int month = start_month;
+
+  for (int ts = 0; ts < this->n_timesteps; ts++) {
+    this->observed_state_sequence[ts] =
+        get_observed_state_from_data(year, month, country, state, county);
+
+    if (month == 12) {
+      year++;
+      month = 1;
+    }
+    else {
+      month++;
+    }
+  }
+}
+
+vector<vector<vector<double>>> AnalysisGraph::get_observed_state_from_data(
+    int year, int month, string country, string state, string county) {
+  using ranges::to;
+  using ranges::views::transform;
+
+  int num_verts = this->num_vertices();
+
+  // Access
+  // [ vertex ][ indicator ]
+  vector<vector<vector<double>>> observed_state(num_verts);
+
+  for (int v = 0; v < num_verts; v++) {
+    vector<Indicator>& indicators = (*this)[v].indicators;
+
+    for (auto& ind : indicators) {
+      auto vals = get_data_value(ind.get_name(),
+                                 country,
+                                 state,
+                                 county,
+                                 year,
+                                 month,
+                                 ind.get_unit(),
+                                 this->data_heuristic);
+
+      observed_state[v].push_back(vals);
+    }
+  }
+
+  return observed_state;
 }

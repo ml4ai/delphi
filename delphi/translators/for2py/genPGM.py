@@ -3733,6 +3733,7 @@ def create_grfn_dict(
         file_name: str,
         mode_mapper_dict: list,
         original_file: str,
+        mod_log_file_path: str,
         save_file=False,
         module_file_exist=False,
         module_import_paths={},
@@ -3758,6 +3759,9 @@ def create_grfn_dict(
     # a prefix "m_", this may be changed in the future.
     # If it requires a change, simply modify this below prefix.
     module_file_prefix = "m_"
+
+    with open(mod_log_file_path) as json_f:
+        module_logs = json.load(json_f)
 
     try:
         filename_regex = re.compile(r"(?P<path>.*/)(?P<filename>.*).py")
@@ -3792,6 +3796,23 @@ def create_grfn_dict(
     for module in mode_mapper_dict[0]["subprograms"]:
         for subp in mode_mapper_dict[0]["subprograms"][module]:
             generator.module_subprograms.append(subp)
+            if module in module_logs["mod_info"]:
+                module_logs["mod_info"][module]["symbol_types"][subp] = "func"
+
+    for module in mode_mapper_dict[0]["imports"]:
+        for subm in mode_mapper_dict[0]["imports"][module]:
+            import_module_name = list(subm.keys())[0]
+            import_function_list = subm[import_module_name]
+            if (
+                    not import_function_list
+                    and import_module_name in module_logs["mod_info"]
+            ):
+                symbols = module_logs["mod_info"][import_module_name]["symbol_types"]
+                for key, value in symbols.items():
+                    if value == "func":
+                        generator.module_subprograms.append(key)
+
+            generator.module_subprograms.extend(import_function_list)
 
     grfn = generator.gen_grfn(asts, state, "")[0]
 
@@ -3812,12 +3833,14 @@ def create_grfn_dict(
     # PROGRAM module which will be the entry point of the GrFN.
     if grfn.get("start"):
         grfn["start"] = [grfn["start"][0]]
-    else:
+    elif generator.function_definitions:
         # TODO: The `grfn_spec` mentions this to be null (None) but it looks
         #  like `networks.py` requires a certain function. Finalize after
         #  `networks.py` is completed.
         # grfn["start"] = None
         grfn["start"] = [generator.function_definitions[-1]]
+    else:
+        grfn["start"] = None
 
     # Add the placeholder to enter the grounding and link hypothesis information
     grfn["grounding"] = []
@@ -3846,6 +3869,9 @@ def create_grfn_dict(
 
     with open(lambda_file, "w") as lambda_fh:
         lambda_fh.write("".join(lambda_string_list))
+
+    with open(mod_log_file_path, "w+") as json_f:
+        json_f.write(json.dumps(module_logs, indent=2))
 
     # View the PGM file that will be used to build a scope tree
     if save_file:
@@ -3904,21 +3930,36 @@ def get_system_name(pyfile_list: List[str]):
     return system_name, path
 
 
-def generate_system_def(python_list: List[str], component_list: List[str], module_paths: List[str]):
+def generate_system_def(
+        python_list: List[str],
+        module_grfn_list: List[str],
+        import_grfn_paths: List[str],
+        module_logs: Dict
+):
     """
         This function generates the system definition for the system under
         analysis and writes this to the main system file.
     """
     (system_name, path) = get_system_name(python_list)
     system_filepath = f"{path}/system.json"
+    module_name_regex = re.compile(r"(?P<path>.*/)m_(?P<module_name>.*)_GrFN.json")
+
     grfn_components = []
-    for component in component_list:
+    for module_grfn in module_grfn_list:
+        code_sources = []
+        module_match = re.match(module_name_regex, module_grfn)
+        if module_match:
+            module_name = module_match.group("module_name")
+            if module_name in module_logs["mod_to_file"]:
+                for path in module_logs["mod_to_file"][module_name]:
+                    code_sources.append(path)
         grfn_components.append({
-            "file_path": component,
+            "grfn_source": module_grfn,
+            "code_source": code_sources,
             "imports": []
         })
-    for module in module_paths:
-        for path in module_paths[module]:
+    for grfn in import_grfn_paths:
+        for path in import_grfn_paths[grfn]:
             grfn_components[0]["imports"].append(path)
     system_def = {
         "date_created": f"{datetime.utcnow().isoformat('T')}Z",
