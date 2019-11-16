@@ -463,20 +463,10 @@ class PythonCodeGenerator(object):
     def proc_print(self, arg_strs):
         arguments = ""
         for idx in range(0, len(arg_strs)):
-            if self.check_var_name(arg_strs[idx]):
-                arguments += f"{arg_strs[idx]}"
-            else:
-                arguments += f'"{arg_strs[idx]}"'
+            arguments += f"{arg_strs[idx]}"
             if idx < len(arg_strs) - 1:
                 arguments += ", "
         return arguments
-
-    def check_var_name(self, name):
-        if name.isalnum():
-            return True
-        elif "-" not in name and "_" not in name:
-            return False
-        return True
 
     def proc_literal(self, node):
         """Processes a literal value and returns a string that is the
