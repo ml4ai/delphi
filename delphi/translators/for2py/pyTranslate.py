@@ -475,7 +475,12 @@ class PythonCodeGenerator(object):
         if node["type"] == "bool":
             return node["value"].title()
         elif node["type"] == "char":
-            return f'"{node["value"]}"'
+            if node['value'][0] in ["'", '"'] \
+              and node["value"][-1] in ["'", '"']:
+                return_val = node["value"][1:-1]
+            else:
+                return_val = node["value"]
+            return f'"{return_val}"'
         else:
             return node["value"]
 
