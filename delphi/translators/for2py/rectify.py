@@ -890,7 +890,7 @@ class RectifyOFPXML:
         <type>
         </type>
         """
-        if current.attrib["name"] == "character":
+        if current.attrib.get("name") == "character":
             self.is_character = True
             current.set("string_length", str(1))
         for child in root:

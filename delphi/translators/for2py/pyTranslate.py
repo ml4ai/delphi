@@ -540,7 +540,8 @@ class PythonCodeGenerator(object):
                 is_derived_type_ref = False
             elif ref_str in self.declaredDerivedTVars:
                 expr_str = ref_str
-            elif self.variableMap[ref_str]["type"] == 'character':
+            elif self.variableMap.get(ref_str) and \
+                    self.variableMap[ref_str]["type"] == 'character':
                 expr_str = ref_str
             else:
                 expr_str = ref_str + "[0]"
