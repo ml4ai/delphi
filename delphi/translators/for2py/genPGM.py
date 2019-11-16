@@ -2320,7 +2320,7 @@ class GrFNGenerator(object):
         # Get the GrFN element of the RHS side of the assignment which are
         # the variables involved in the assignment operations.
         sources = self.gen_grfn(node.value, state, "assign")
-
+        print(sources)
         # Detect assigns which are string initializations of the
         # following form: String(10). String initialization of the form
         # String(10, "abcdef") are valid assignments where the index of the
@@ -2496,6 +2496,7 @@ class GrFNGenerator(object):
             # string assignment.
             if not is_string_annotation:
                 grfn["variables"].append(variable_spec)
+        print("---")
         return [grfn]
 
     def process_tuple(self, node, state, *_):
@@ -2731,7 +2732,7 @@ class GrFNGenerator(object):
         target_string = f"@variable::{target_name}::{target['var']['index']}"
 
         for src in sources:
-
+            print(src)
             # Check for a write to a file
             if re.match(r"\d+", target_name) and "list" in src:
                 return fn
@@ -2806,6 +2807,7 @@ class GrFNGenerator(object):
             # else:
             #     assert False, f"Unidentified source: {src}"
 
+        print(source)
         # Removing duplicates
         unique_source = []
         [unique_source.append(obj) for obj in source if obj not in
