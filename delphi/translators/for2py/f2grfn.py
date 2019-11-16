@@ -337,6 +337,10 @@ def generate_grfn(
 
     asts = [ast.parse(python_source_string)]
 
+    # Uncomment the line below if you want to print the ast output of the
+    # python file
+    # print(genPGM.dump_ast(asts[-1]))
+
     grfn_file = python_filename[:-3] + "_GrFN.json"
 
     grfn_dict = genPGM.create_grfn_dict(
