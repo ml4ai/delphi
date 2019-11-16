@@ -516,7 +516,8 @@ class PythonCodeGenerator(object):
                 ]
                 subscripts = ", ".join(subs_strs)
                 expr_str = f"{ref_str}.get_(({subscripts}))"
-            elif self.variableMap[node['name']]['type'] == "character":
+            elif self.variableMap.get(node['name']) and \
+                    self.variableMap[node['name']]['type'] == "character":
                 subs = node["subscripts"][0]
                 subs_strs = [
                     self.proc_expr(subs[i][0], False) for i in subs
