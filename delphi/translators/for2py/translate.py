@@ -70,6 +70,9 @@ class XML_to_JSON_translator(object):
             "atan",
             "sqrt",
             "log",
+            "len",
+            "adjustl",
+            "adjustr",
         ]
         self.handled_tags = [
             "access-spec",
@@ -233,10 +236,25 @@ class XML_to_JSON_translator(object):
         assert root.tag == "argument", "The root must be <argument>"
         var_name = root.attrib["name"].lower()
         array_status = root.attrib["is_array"]
-        # Store each argument respective to the function it is defined in
-        self.argument_list.setdefault(self.current_module, []).append(var_name)
-
-        return [{"tag": "arg", "name": var_name, "is_array": array_status}]
+        # If the root does not have any children, this argument tag is a
+        # function argument variable. Otherwise, this argument is a named
+        # argument to a function (E.g.: index(back = ".true."))
+        if len(root) > 0:
+            value = []
+            for node in root:
+                value += self.parseTree(node, state)
+            return [
+                {"tag": "arg",
+                 "name": var_name,
+                 "is_array": array_status,
+                 "value": value,
+                 }
+            ]
+        else:
+            # Store each argument respective to the function it is defined in
+            self.argument_list.setdefault(self.current_module, []).append(
+                 var_name)
+            return [{"tag": "arg", "name": var_name, "is_array": array_status}]
 
     def process_declaration(self, root, state) -> List[Dict]:
         """ This function handles <declaration> tag and its sub-elements by
@@ -292,7 +310,7 @@ class XML_to_JSON_translator(object):
                 # for index in range(int(node.attrib["count"])):
                 for index in range(len(variables)):
                     if len(declared_type) > 0:
-                        combined = declared_type[-1]
+                        combined = declared_type[-1].copy()
                         combined.update(variables[index])
                         declared_variable.append(combined.copy())
                         if (
@@ -330,7 +348,7 @@ class XML_to_JSON_translator(object):
                     (var.get("is_derived_type") is True and var.get("type")
                      not in exclusion_list):
                     self.variable_list.setdefault(self.current_module,
-                                          []).append(var)
+                                                  []).append(var)
         return declared_variable
 
     def process_type(self, root, state) -> List[Dict]:
@@ -371,12 +389,23 @@ class XML_to_JSON_translator(object):
                 elif node.tag == "derived-types":
                     derived_type[-1].update(self.parseTree(node, state))
             return derived_type
+        elif root.attrib["name"] == "character":
+            # Check if this is a string
+            declared_type = {
+                "type": root.attrib["name"],
+                "length": root.attrib["string_length"],
+                "is_derived_type": root.attrib["is_derived_type"].lower(),
+                "is_string": "true",
+                "keyword2": root.attrib["keyword2"],
+            }
+            return [declared_type]
         else:
             # Else, this represents an empty element, which is the case of (1).
             declared_type = {
                 "type": root.attrib["name"],
                 "is_derived_type": root.attrib["is_derived_type"].lower(),
                 "keyword2": root.attrib["keyword2"],
+                "is_string": "false",
             }
             return [declared_type]
 
@@ -437,6 +466,9 @@ class XML_to_JSON_translator(object):
                     if node.tag == "initial-value":
                         value = self.parseTree(node, state)
                         variable["value"] = value
+                    elif node.tag == "length":
+                        variable["length"] = self.parseTree(node, state)[0][
+                            "value"]
             return [variable]
         except:
             return []
@@ -1112,7 +1144,7 @@ def xml_to_py(trees, fortran_file):
     # print_unhandled_tags() was originally intended to alert us to program
     # constructs we were not handling.  It isn't clear we actually use this
     # so I'm commenting out this call for now.  Eventually this code (and all 
-    # the code that keeps track of unhandled tags) should go away.
+    # the code that keeps track of unhandled tags) should go away.vi au
     # --SKD 06/2019
     #translator.print_unhandled_tags()
 

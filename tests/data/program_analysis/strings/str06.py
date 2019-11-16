@@ -12,24 +12,20 @@ from numbers import Real
 from random import random
 
 
-def myadd(arg1: List[int], arg2: List[int], arg3: List[int]):
-    arg3[0] = (arg1[0] + arg2[0])
-    
-
 def main():
     format_10: List[str] = [None]
-    format_10 = ['3(X,I3)']
+    format_10 = ['A', '"; "', 'A']
     format_10_obj = Format(format_10)
     
-    x: List[int] = [None]
-    y: List[int] = [None]
-    z: List[int] = [None]
-    x[0] = 12
-    y[0] = 13
-    myadd(x, y, z)
-    write_list_stream = [x[0], y[0], z[0]]
+    str1 = String(10)
+    str2 = String(5)
+    str1.set_("abcdefgh")
+    str2.set_(str1.get_substr(3, 8))
+    str1.set_substr(2, 4, str2)
+    write_list_stream = [str1, str2]
     write_line = format_10_obj.write_line(write_list_stream)
     sys.stdout.write(write_line)
     
+    return
 
 main()

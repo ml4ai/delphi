@@ -120,7 +120,7 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper, mod_info
     Returns:
         None.
     """
-    with open(file_path, encoding = "ISO-8859-1") as f:
+    with open(file_path, encoding="ISO-8859-1") as f:
         file_content = f.read()
     module_names = []
     module_names_lowered = []

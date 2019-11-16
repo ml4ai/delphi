@@ -172,6 +172,9 @@ def multidimensional_array_test():
 def sir_gillespie_sd_test():
     yield make_grfn_dict(Path(f"{DATA_DIR}/SIR-Gillespie-SD_multi_module.f"))
 
+@pytest.fixture
+def strings_test():
+    yield get_python_source(Path(f"{DATA_DIR}/strings/str06.f"))[0][0]
 #########################################################
 #                                                       #
 #               TARGET PYTHON TEST FILE                 #
@@ -280,6 +283,12 @@ def test_array_to_func_pythonIR_generation(array_to_func_python_IR_test):
     with open(f"{DATA_DIR}/array_func_loop/array-to-func_06.py", "r") as f:
         python_src = f.read()
     assert array_to_func_python_IR_test[0] == python_src
+
+
+def test_strings_pythonIR_generation(strings_test):
+    with open(f"{DATA_DIR}/strings/str06.py", "r") as f:
+        python_src = f.read()
+    assert strings_test[0] == python_src
 
 
 def test_multidimensional_array_grfn_generation(multidimensional_array_test):

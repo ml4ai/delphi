@@ -352,16 +352,20 @@ def generate_grfn(
     # Calling the `get_index` function in `mod_index_generator.py` to
     # map all variables and objects in the various files
     module_mapper = get_index(xml_file, mod_log_file_path)
-    main_program = module_mapper[0]["modules"][-1]
     module_import_paths = {}
 
     asts = [ast.parse(python_source_string)]
+
+    # Uncomment the line below if you want to print the ast output of the
+    # python file
+    # print(genPGM.dump_ast(asts[-1]))
 
     grfn_file = python_filename[:-3] + "_GrFN.json"
 
     grfn_dict = genPGM.create_grfn_dict(
         lambdas_file, asts, python_filename, module_mapper,
-        original_fortran_file, mod_log_file_path, True, module_file_exist, module_import_paths,
+        original_fortran_file, mod_log_file_path, True, module_file_exist,
+        module_import_paths,
     )
 
     if module_file_exist:
