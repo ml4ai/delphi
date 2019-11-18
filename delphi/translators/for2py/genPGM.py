@@ -240,6 +240,7 @@ class GrFNGenerator(object):
             "ast.Return": self.process_return_value,
             "ast.While": self.process_while,
             "ast.Break": self.process_break,
+            "ast.ClassDef": self.process_class_def,
         }
 
     def gen_grfn(self, node, state, call_source):
@@ -267,6 +268,8 @@ class GrFNGenerator(object):
                         node_name != "ast.Import" and
                         node_name != "ast.ImportFrom"
                 ):
+                    # DEBUG
+                    print ("    gen_grfn: ", ast.dump(node))
                     return self.process_grfn[node_name](node, state, call_source)
                 else:
                     return []
@@ -2644,6 +2647,31 @@ class GrFNGenerator(object):
         }
         grfn["functions"].append(return_dict)
         return [grfn]
+
+    def process_class_def(self, node, state, *_):
+        """This function handles user defined type (class) by populating
+        types grfn attribute.
+        """
+        grfn = {"name": "", "type": "type", "attributes": []}
+        # DEBUG
+        print ("    === process_class_def ===")
+        namespace = self._get_namespace(self.fortran_file)
+        type_name = f"@type::{namespace}::@global::{node.name}"
+        grfn["name"] = type_name
+
+        attributes = node.body[0].body
+        # Populate class memeber variables into attributes array.
+        for attrib in attributes:
+            attrib_name = attrib.target.attr
+            attrib_type = attrib.annotation.id
+            grfn["attributes"].append({"name": attrib_name, "type": attrib_type})
+
+        # DEBUG
+        print ("    grfn: ", grfn)
+        # DEBUG
+        print ("=========================================")
+
+        # return grfn
 
     @staticmethod
     def process_break(*_):
