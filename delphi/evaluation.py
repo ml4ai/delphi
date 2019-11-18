@@ -1,12 +1,12 @@
 from typing import Dict, Optional, Union, Callable, Tuple, List, Iterable
-from tqdm import trange
-import pickle
 import pandas as pd
 from scipy import stats
 from .db import engine
 import numpy as np
 import seaborn as sns
 import warnings
+import matplotlib.patches as mpatches
+import matplotlib.pyplot as plt
 
 
 class Error(Exception):
@@ -63,77 +63,17 @@ def calculate_timestep(
     return year_to_month - (start_month - 1) + (end_month - 1)
 
 
-def set_mean_for_data(
-    G,
-    start_year: int,
-    start_month: int,
-    end_year: int,
-    end_month: int,
-    **kwargs,
-) -> None:
-    """ Utility function that sets the indicator mean and standard deviation
-    base off observed data within a given time range.
-
-    Args:
-        G: Casual Analysis Graph. Must be fully built with G.parameterized()
-        called to set up indicator attributes.
-
-        start_year: The starting year (ex: 2012)
-
-        start_month: Starting month (1-12)
-
-        end_year: Ending year
-
-        end_month: Ending month
-
-        **kwargs: Can pass country, state, and units to ensure that data
-        statistics are computed from data with properly aligned axes. A
-        parameter k can also be passed which sets the median absolutie
-        deviation scale factor.
-
-    Returns:
-        None
-    """
-
-    k = kwargs.get("k", 1)
-    for node in G.nodes(data=True):
-        for ind in node[1]["indicators"].values():
-            ind_data = data_to_df(
-                ind.name,
-                start_year,
-                start_month,
-                end_year,
-                end_month,
-                **kwargs,
-            )
-            ind.mean = ind_data[f"{ind.name}(True)"].median()
-            ind_data["disp"] = abs(
-                ind_data[f"{ind.name}(True)"]
-                - ind_data[f"{ind.name}(True)"].median()
-            )
-            ind.stdev = k * ind_data["disp"].median()
-            while ind.stdev == 0:
-                ind.stdev = np.random.exponential()
-
-
 def get_data_value(
     indicator: str,
     country: Optional[str] = "South Sudan",
     state: Optional[str] = None,
-    year: Optional[int] = None,
-    month: Optional[int] = None,
+    county: Optional[str] = None,
+    year: int = 2015,
+    month: int = 1,
     unit: Optional[str] = None,
-) -> float:
+    use_heuristic: bool = False,
+) -> List[float]:
     """ Get a indicator value from the delphi database.
-
-    If multiple data entries exist for one time point then the mean is used
-    for those time points. If there are no data entries for a given year,
-    then the mean over all data values is used. If there are no data entries
-    for a given month (but there are data entries for that year), then the
-    overall value for the year is used (the mean for that year is used if there
-    are multiple values for that year). Default settings are used if state,
-    country, or unit are not found. WARNING: All specifications should be
-    same as what was passed to G.parameterize() or else you could get mismatched data.
 
     Args:
         indicator: Name of the target indicator variable.
@@ -148,12 +88,19 @@ def get_data_value(
 
         unit: Specified Units to get a value for.
 
+        use_heuristic: a boolean that indicates whether or not use a built-in
+        heurstic for partially missing data. In cases where data for a given
+        year exists but no monthly data, setting this to true divides the
+        yearly value by 12 for any month.
+
+
     Returns:
         Specified float value given the specified parameters.
     """
 
     query_base = " ".join(
         [f"select * from indicator", f"where `Variable` like '{indicator}'"]
+        #[f"select Country, Year, Month, avg(Value) as Value, Unit from indicator", f"where `Variable` like '{indicator}'"]
     )
 
     query_parts = {"base": query_base}
@@ -168,16 +115,41 @@ def get_data_value(
             query_parts["country"] = f"and `Country` is 'South Sudan'"
         else:
             query_parts["country"] = f"and `Country` is '{country}'"
+    else:
+        query_parts["country"] = f"and `Country` is 'None'"
+
     if state is not None:
         check_q = query_parts["base"] + f"and `State` is '{state}'"
         check_r = list(engine.execute(check_q))
         if check_r == []:
             warnings.warn(
-                f"Selected State not found for {indicator}! Using default settings (Aggregration over all States)"
+                (
+                    f"Selected State not found for {indicator}! Using default ",
+                    "settings (Getting data at Country level only instead of State ",
+                    "level)!",
+                )
             )
-            query_parts["state"] = ""
+            query_parts["state"] = f"and `State` is 'None'"
         else:
             query_parts["state"] = f"and `State` is '{state}'"
+    #else:
+    #    query_parts["state"] = f"and `State` is 'None'"
+
+    if county is not None:
+        check_q = query_parts["base"] + f"and `County` is '{county}'"
+        check_r = list(engine.execute(check_q))
+        if check_r == []:
+            warnings.warn(
+                (
+                    f"Selected County not found for {indicator}! Using default ",
+                    "settings (Attempting to get data at state level instead)!",
+                )
+            )
+            query_parts["county"] = f"and `County` is 'None'"
+        else:
+            query_parts["county"] = f"and `County` is '{county}'"
+    #else:
+    #    query_parts["county"] = f"and `County` is 'None'"
 
     if unit is not None:
         check_q = query_parts["base"] + f" and `Unit` is '{unit}'"
@@ -193,208 +165,49 @@ def get_data_value(
     query_parts["year"] = f"and `Year` is '{year}'"
     query_parts["month"] = f"and `Month` is '{month}'"
 
+    #query_parts["groupby"] = f"group by `Year`, `Month`"
+
+    query = " ".join(query_parts.values())
+    #print(query)
+    results = list(engine.execute(query))
+    #print(results)
+
+    if results != []:
+        unit = sorted(list({r["Unit"] for r in results}))[0]
+        vals = [float(r["Value"]) for r in results if r["Unit"] == unit]
+        return vals
+
+    if not use_heuristic:
+        return []
+
+    query_parts["month"] = f"and `Month` is '0'"
     query = " ".join(query_parts.values())
     results = list(engine.execute(query))
 
     if results != []:
         unit = sorted(list({r["Unit"] for r in results}))[0]
-        val = np.mean(
-            [float(r["Value"]) for r in results if r["Unit"] == unit]
-        )
-        return val
+        vals = [float(r["Value"]) for r in results if r["Unit"] == unit]
+        return list(map(lambda x: x / 12, vals))
 
-    query_parts["month"] = ""
-    query = " ".join(query_parts.values())
-    results = list(engine.execute(query))
-
-    if results != []:
-        unit = sorted(list({r["Unit"] for r in results}))[0]
-        val = np.mean(
-            [float(r["Value"]) for r in results if r["Unit"] == unit]
-        )
-        return val
-
-    query_parts["year"] = ""
-    query = " ".join(query_parts.values())
-    results = list(engine.execute(query))
-
-    if results != []:
-        unit = sorted(list({r["Unit"] for r in results}))[0]
-        val = np.mean(
-            [float(r["Value"]) for r in results if r["Unit"] == unit]
-        )
-        return val
-
-
-def set_observed_state_from_data(G, year: int, month: int, **kwargs) -> Dict:
-    """ Set the observed state for a given time point from data. See
-    get_data_value() for missing data rules. Note: units are automatically set
-    according to the parameterization of the given CAG.
-
-    Args:
-        G: A CAG, must have indicator variables mapped and be parameterized.
-
-        year: An integer, designates the year (ex: 2012).
-
-        month: An integer, designates the month (1-12).
-
-        **kwargs: These are options for which you can specify data axes such as
-        country, state.
-
-    Returns:
-        Returns dictionary object representing observed state.
-    """
-
-    country = kwargs.get("country", "South Sudan")
-    state = kwargs.get("state")
-
-    return {
-        n[0]: {
-            indicator.name: get_data_value(
-                indicator.name, country, state, year, month, indicator.unit
-            )
-            for indicator in n[1]["indicators"].values()
-        }
-        for n in G.nodes(data=True)
-    }
-
-
-def set_observed_state_sequence_from_data(
-    G,
-    start_year: int,
-    start_month: int,
-    end_year: int,
-    end_month: int,
-    **kwargs,
-) -> None:
-    """ Set the observed state sequence for a given time range from data. See
-    get_data_value() for missing data rules. Note: units are automatically set
-    according to the parameterization of the given CAG.
-
-    Args:
-        G: A CAG, must have indicator variables mapped and be parameterized.
-
-        start_year: An integer, designates the starting year (ex: 2012).
-
-        start_month: An integer, starting month (1-12).
-
-        end_year: An integer, ending year.
-
-        end_month: An integer, ending month.
-
-        **kwargs: These are options for which you can specify data axes such as
-        country, state.
-
-    Returns:
-        None.
-    """
-
-    G.n_timesteps = calculate_timestep(
-        start_year, start_month, end_year, end_month
-    )
-    G.observed_state_sequence = []
-    year = start_year
-    month = start_month
-    for i in range(G.n_timesteps + 1):
-        G.observed_state_sequence.append(
-            set_observed_state_from_data(G, year, month, **kwargs)
-        )
-
-        if month == 12:
-            year = year + 1
-            month = 1
-        else:
-            month = month + 1
-
-
-def set_initial_latent_state_from_observed(G, timestep: int = 0) -> None:
-    """ Utility function that sets an initial latent state from observed data.
-    This is used for the inference of the transition matrix as well as the
-    training latent state sequences.
-
-    Args:
-        G: Casual Analysis Graph. Must be fully built with G.parameterized()
-        called to set up indicator attributes.
-
-        timestep: Optional setting for setting the initial state to be other
-        than the first time step. Not currently used.
-
-    Returns:
-        None
-    """
-
-    G.s0 = G.construct_default_initial_state()
-    for node in G.nodes(data=True):
-        for inds in node[1]["indicators"].values():
-            ind_mean = inds.mean
-            while ind_mean == 0:
-                ind_mean = np.random.normal()
-            ind_value = G.observed_state_sequence[timestep][f"{node[0]}"][
-                f"{inds.name}"
-            ]
-            G.s0[f"{node[0]}"] = ind_value / ind_mean
-            if timestep == (G.n_timesteps):
-                prev_ind_value = G.observed_state_sequence[timestep - 1][
-                    f"{node[0]}"
-                ][f"{inds.name}"]
-                prev_state_value = prev_ind_value / ind_mean
-                diff = G.s0[f"{node[0]}"] - prev_state_value
-                G.s0[f"∂({node[0]})/∂t"] = np.random.normal(diff)
-            else:
-                next_ind_value = G.observed_state_sequence[timestep + 1][
-                    f"{node[0]}"
-                ][f"{inds.name}"]
-                next_state_value = next_ind_value / ind_mean
-                diff = next_state_value - G.s0[f"{node[0]}"]
-                G.s0[f"∂({node[0]})/∂t"] = diff
-
-
-def set_initial_latent_states_for_prediction(G, timestep: int = 0) -> None:
-    """ Utility function that sets an initial latent states for predictions.
-    During model training a latent state sequence is inferred for each sampled
-    transition matrix, these are then used as the initial states for
-    predictions.
-
-    Args:
-        G: Casual Analysis Graph. Must be fully built with G.parameterized()
-        called to set up indicator attributes.
-
-        timestep: Optional setting for setting the initial state to be other
-        than the first time step. Ensures that the correct
-        initial state is used.
-
-    Returns:
-        None
-    """
-
-    G.initial_latent_states_for_prediction = []
-    for ls in G.training_latent_state_sequences:
-        G.initial_latent_states_for_prediction.append(ls[timestep])
+    return []
 
 
 # ==========================================================================
-# Evaluation and inference functions
+# Inference Output functions
 # ==========================================================================
 
 
-def data_to_df(
+def data_to_list(
     indicator: str,
     start_year: int,
     start_month: int,
     end_year: int,
     end_month: int,
+    use_heuristic: bool = False,
     **kwargs,
-) -> pd.DataFrame:
+) -> Tuple[List[str], List[List[int]]]:
     """ Get the true values of the indicator variable given a start date and
     end data. Allows for other specifications as well.
-
-    If multiple data entries exist for one time point then the mean is used
-    for those time points. If there are no data entries for a given year,
-    then the mean over all data values is used. If there are no data entries
-    for a given month (but there are data entries for that year), then the
-    overall value for the year is used (the mean for that year is used if there
-    are multiple values for that year). WARNING: The **kwargs parameters should
-    be same as what was passed to G.parameterize() or else you could get mismatched data.
 
     Args:
         variable: Name of target indicator variable.
@@ -407,26 +220,46 @@ def data_to_df(
 
         end_month: An integer, ending month.
 
+        use_heuristic: a boolean that indicates whether or not use a built-in
+        heurstic for partially missing data. In cases where data for a given
+        year exists but no monthly data, setting this to true divides the
+        yearly value by 12 for any month.
+
         **kwargs: These are options for which you can specify
         country, state, units.
 
     Returns:
-        Pandas Dataframe containing true values for target node's indicator
-        variable. The values are indexed by date.
+        Returns a tuple where the first element is a list of the specified
+        dates in year-month format and the second element is a
+        list of lists of the true data for a given indicator.
+        Each element of the outer list represents a time step and the inner
+        lists contain the data for that time point.
     """
     country = kwargs.get("country", "South Sudan")
     state = kwargs.get("state")
+    county = kwargs.get("county")
     unit = kwargs.get("unit")
 
     n_timesteps = calculate_timestep(
         start_year, start_month, end_year, end_month
     )
-    vals = np.zeros(n_timesteps + 1)
+    vals = []
     year = start_year
     month = start_month
     date = []
     for j in range(n_timesteps + 1):
-        vals[j] = get_data_value(indicator, country, state, year, month, unit)
+        vals.append(
+            get_data_value(
+                indicator,
+                country,
+                state,
+                county,
+                year,
+                month,
+                unit,
+                use_heuristic,
+            )
+        )
         date.append(f"{year}-{month}")
 
         if month == 12:
@@ -435,23 +268,22 @@ def data_to_df(
         else:
             month = month + 1
 
-    return pd.DataFrame(vals, date, columns=[f"{indicator}(True)"])
+    return date, vals
 
 
-def train_model(
-    G,
-    start_year: int = 2012,
-    start_month: int = 1,
-    end_year: int = 2017,
-    end_month: int = 12,
-    res: int = 200,
-    burn: int = 10000,
+def mean_data_to_df(
+    indicator: str,
+    start_year: int,
+    start_month: int,
+    end_year: int,
+    end_month: int,
+    use_heuristic: bool = False,
+    ci: Optional[float] = None,
     **kwargs,
-) -> None:
-    """ Trains a prediction model given a CAG with indicators.
-
-    Args:
-        G: A CAG. It Must have indicators variables mapped to nodes.
+) -> pd.DataFrame:
+    """ Get the true values of the indicator variable given a start date and
+        end data. Allows for other specifications as well.
+        variable: Name of target indicator variable.
 
         start_year: An integer, designates the starting year (ex: 2012).
 
@@ -461,179 +293,74 @@ def train_model(
 
         end_month: An integer, ending month.
 
-        res: Sampling resolution. Default is 200 samples.
+        use_heuristic: a boolean that indicates whether or not use a built-in
+        heurstic for partially missing data. In cases where data for a given
+        year exists but no monthly data, setting this to true divides the
+        yearly value by 12 for any month.
 
-        burn: This specifies how many samples from the mcmc process to burn.
-        Example: If set to 10000 and res is set to 200, the mcmc process
-        generates 10200 samples in which it tosses out (burns) 10000 samples
-        and keeps 200 samples. The burn should be set high enough to allow
-        convergence to the approximated posterior distribution.
+        ci: confidence level. Only the mean is reported if left as None.
 
         **kwargs: These are options for which you can specify
-        country, state, units, fallback aggregation axes (fallback_aggaxes),
-        aggregation function (aggfunc). This includes the scale factor k, in
-        which the median absolute deviation for each indicator variable is
-        multiplied by.
+        country, state, units.
 
     Returns:
-        None, sets training variables for CAG.
+        Pandas Dataframe containing true values for target node's indicator
+        variable. The values are indexed by date.
     """
-
-    country = kwargs.get("country", "South Sudan")
-    state = kwargs.get("state")
-    year = kwargs.get("year")
-    month = kwargs.get("month")
-    units = kwargs.get("units")
-    fallback_aggaxes = kwargs.get("fallback_aggaxes", ["year", "month"])
-    aggfunc = kwargs.get("aggfunc", np.mean)
-
-    G.res = res
-    G.sample_from_prior()
-    try:
-        G.parameterize(
-            country=country,
-            state=state,
-            year=year,
-            month=month,
-            units=units,
-            fallback_aggaxes=fallback_aggaxes,
-            aggfunc=aggfunc,
-        )
-    except KeyError as e:
-        message = (
-            "Passed incomplete Causal Analysis Graph (CAG). "
-            "Ensure that CAG has indicator variables mapped to nodes by "
-            "calling <CAG>.map_concepts_to_indicators() before passing."
-        )
-        raise InputError(G, message) from e
-
-    if start_month is None:
-        start_month = 1
-
-   # set_mean_for_data(
-   #     G, start_year, start_month, end_year, end_month, **kwargs
-   # )
-
-    G.init_training_year = start_year
-    G.init_training_month = start_month
-    set_observed_state_sequence_from_data(
-        G, start_year, start_month, end_year, end_month, **kwargs
+    date, vals = data_to_list(
+        indicator,
+        start_year,
+        start_month,
+        end_year,
+        end_month,
+        use_heuristic,
+        **kwargs,
     )
+    if ci is not None:
+        data_mean = np.zeros((len(date), 3))
+        for i, obs in enumerate(vals):
+            if len(obs) > 1:
+                mean, _, _ = stats.bayes_mvs(obs, ci)
+                data_mean[i, 0] = mean[0]
+                data_mean[i, 1] = mean[1][0]
+                data_mean[i, 2] = mean[2][1]
+            else:
+                data_mean[i, 0] = np.mean(obs)
+                data_mean[i, 1] = np.nan
+                data_mean[i, 2] = np.nan
 
-    set_initial_latent_state_from_observed(G)
-
-    A = G.transition_matrix_collection[0]
-    for edge in G.edges(data=True):
-        A[f"∂({edge[0]})/∂t"][edge[1]] = 0.0
-
-    G.log_likelihood = None
-    G.training_latent_state_sequences = []
-    n_samples: int = burn + G.res
-    for i, _ in enumerate(trange(n_samples)):
-        if i >= (n_samples - G.res):
-            G.transition_matrix_collection[
-                i - (n_samples - G.res)
-            ] = G.sample_from_posterior(A).copy()
-            G.training_latent_state_sequences.append(G.latent_state_sequence)
-        else:
-            G.sample_from_posterior(A)
-
-    G.trained = True
-
-
-def generate_predictions(
-    G,
-    start_year: int = 2012,
-    start_month: int = 1,
-    end_year: int = 2018,
-    end_month: int = 12,
-) -> None:
-    """ Generates predictions given a CAG with a trained model.
-
-    Args:
-        G: A CAG. It Must have indicators variables mapped to nodes and the
-        inference model must have been trained (i.e G.trained = True).
-
-        start_year: An integer, designates the starting year (ex: 2012).
-
-        start_month: An integer, starting month (1-12).
-
-        end_year: An integer, ending year.
-
-        end_month: An integer, ending month.
-
-    Returns:
-        None.
-    """
-
-    try:
-        G.trained
-    except AttributeError as e:
-        message = (
-            "Passed untrained Causal Analysis Graph (CAG) Model. "
-            "Try calling evaluation.train_model(<CAG>,...) first!"
+        return pd.DataFrame(
+            data_mean,
+            date,
+            columns=[
+                f"{indicator}(True)",
+                f"{indicator}(True)(Lower Confidence Bound)",
+                f"{indicator}(True)(Upper Confidence Bound)",
+            ],
         )
-        raise InputError(G, message) from e
-
-    if start_year < G.init_training_year:
-        warnings.warn(
-            "The initial prediction date can't be before the "
-            "inital training date. Defaulting initial prediction date "
-            "to initial training date."
-        )
-        start_year = G.init_training_year
-        start_month = G.init_training_month
-    elif (start_year == G.init_training_year) and (
-        start_month < G.init_training_month
-    ):
-        warnings.warn(
-            "The initial prediction date can't be before the "
-            "inital training date. Defaulting initial prediction date "
-            "to initial training date."
-        )
-        start_month = G.init_training_month
-
-    total_timesteps = calculate_timestep(
-        G.init_training_year, G.init_training_month, end_year, end_month
-    )
-    pred_timesteps = calculate_timestep(
-        start_year, start_month, end_year, end_month
-    )
-
-    year = start_year
-    month = start_month
-    G.pred_range = []
-    for j in range(pred_timesteps + 1):
-        G.pred_range.append(f"{year}-{month}")
-
-        if month == 12:
-            year = year + 1
-            month = 1
-        else:
-            month = month + 1
-
-    diff_timesteps = total_timesteps - pred_timesteps
-    truncate = 0
-    if diff_timesteps > G.n_timesteps:
-        set_initial_latent_states_for_prediction(G, G.n_timesteps)
-        truncate = diff_timesteps - G.n_timesteps
-        pred_timesteps = truncate + pred_timesteps
     else:
-        set_initial_latent_states_for_prediction(G, diff_timesteps)
-    G.sample_from_likelihood(pred_timesteps + 1)
-    for latent_state_s in G.latent_state_sequences:
-        del latent_state_s[0:truncate]
-    for observed_state_s in G.observed_state_sequences:
-        del observed_state_s[0:truncate]
+        data_mean = np.zeros((len(date), 1))
+        for i, obs in enumerate(vals):
+            data_mean[i] = np.mean(obs)
+
+        return pd.DataFrame(data_mean, date, columns=[f"{indicator}(True)"])
 
 
-def pred_to_array(G, indicator: str) -> np.ndarray:
+def pred_to_array(
+    preds: Tuple[
+        Tuple[Tuple[int, int], Tuple[int, int]],
+        List[str],
+        List[List[Dict[str, Dict[str, float]]]],
+    ],
+    indicator: str,
+) -> np.ndarray:
     """ Outputs raw predictions for a given indicator that were generated by
-    generate_predictions. Each column is a time series.
+    generate_prediction(). Each column is a time step and the rows are the
+    samples for that time step.
 
     Args:
-        G: A CAG. It must have indicators variables mapped to nodes and the
-        inference model must have been trained and predictions generated.
+        preds: This is the entire prediction set returned by the
+        generate_prediction() method in AnalysisGraph.cpp.
 
         indicator: A string representing the indicator variable for which we
         want predictions printed.
@@ -641,22 +368,32 @@ def pred_to_array(G, indicator: str) -> np.ndarray:
     Returns:
         np.ndarray
     """
-
-    time_range = len(G.pred_range)
-    pred = np.zeros((G.res,time_range))
-    for i in range(G.res):
+    _, pred_range, predictions = preds
+    time_range = len(pred_range)
+    m_samples = len(predictions)
+    pred_raw = np.zeros((m_samples, time_range))
+    for i in range(m_samples):
         for j in range(time_range):
-            for _, inds in G.observed_state_sequences[i][j].items():
+            for _, inds in predictions[i][j].items():
                 if indicator in inds.keys():
-                    pred[i][j] = float(inds[indicator])
-    return pred
+                    pred_raw[i][j] = float(inds[indicator])
+    return pred_raw
 
 
 def mean_pred_to_df(
-    G, indicator: str, ci: float = 0.95, true_vals: bool = False, **kwargs
+    preds: Tuple[
+        Tuple[Tuple[int, int], Tuple[int, int]],
+        List[str],
+        List[List[Dict[str, Dict[str, float]]]],
+    ],
+    indicator: str,
+    ci: Optional[float] = 0.95,
+    true_vals: bool = False,
+    use_heuristic_for_true: bool = False,
+    **kwargs,
 ) -> pd.DataFrame:
     """ Outputs mean predictions for a given indicator that were generated by
-    generate_predictions. The rows are indexed by date. Other output includes
+    generate_prediction(). The rows are indexed by date. Other output includes
     the confidence intervals for the mean predictions and with true_vals =
     True, the true data values, residual error, and error bounds. Setting
     true_vals = True, assumes that real data exists for the given prediction
@@ -664,8 +401,8 @@ def mean_pred_to_df(
     the true dateset.
 
     Args:
-        G: A CAG. It must have indicators variables mapped to nodes and the
-        inference model must have been trained and predictions generated.
+        preds: This is the entire prediction set returned by the
+        generate_prediction() method in AnalysisGraph.cpp.
 
         indicator: A string representing the indicator variable for which we
         want mean predictions,etc printed.
@@ -684,65 +421,142 @@ def mean_pred_to_df(
         np.ndarray
     """
 
-    pred = pred_to_array(G, indicator)
-    pred_stats = np.apply_along_axis(stats.bayes_mvs, 1, pred.T, ci)[:, 0]
-    pred_mean = np.zeros((len(G.pred_range), 3))
-    for i, (mean, interval) in enumerate(pred_stats):
-        pred_mean[i, 0] = mean
-        pred_mean[i, 1] = interval[0]
-        pred_mean[i, 2] = interval[1]
+    if ci is not None:
+        pred_raw = pred_to_array(preds, indicator)
+        _, pred_range, _ = preds
+        pred_stats = np.apply_along_axis(stats.bayes_mvs, 1, pred_raw.T, ci)[
+            :, 0
+        ]
+        pred_mean = np.zeros((len(pred_range), 3))
+        for i, (mean, interval) in enumerate(pred_stats):
+            pred_mean[i, 0] = mean
+            pred_mean[i, 1] = interval[0]
+            pred_mean[i, 2] = interval[1]
 
-    mean_df = pd.DataFrame(
-        pred_mean,
-        columns=[
-            f"{indicator}(Mean Prediction)",
-            f"{indicator}(Lower Confidence Bound)",
-            f"{indicator}(Upper Confidence Bound)",
-        ],
-    )
-    if true_vals == True:
-        warnings.warn(
-            "The selected output settings assume that real data exists "
-            "for the given prediction time range. Any missing data values are "
-            "filled with a heuristic estimate based on existing data."
+        mean_df = pd.DataFrame(
+            pred_mean,
+            columns=[
+                f"{indicator}(Mean Prediction)",
+                f"{indicator}(Lower Confidence Bound)",
+                f"{indicator}(Upper Confidence Bound)",
+            ],
         )
-        start_date = G.pred_range[0]
-        start_year = int(start_date[0:4])
-        start_month = int(start_date[5:7])
-        end_date = G.pred_range[-1]
-        end_year = int(end_date[0:4])
-        end_month = int(end_date[5:7])
-        true_data_df = data_to_df(
-            indicator, start_year, start_month, end_year, end_month, **kwargs
-        )
-        mean_df = mean_df.set_index(true_data_df.index)
+        if true_vals == True:
+            warnings.warn(
+                "The selected output settings assume that real data exists "
+                "for the given prediction time range. Any missing data values are "
+                "filled with a heuristic estimate based on existing data."
+            )
+            start_date = pred_range[0]
+            start_year = int(start_date[0:4])
+            start_month = int(start_date[5:7])
+            end_date = pred_range[-1]
+            end_year = int(end_date[0:4])
+            end_month = int(end_date[5:7])
+            true_data_df = mean_data_to_df(
+                indicator,
+                start_year,
+                start_month,
+                end_year,
+                end_month,
+                use_heuristic_for_true,
+                ci,
+                **kwargs,
+            )
+            mean_df = mean_df.set_index(true_data_df.index)
 
-        error = mean_df.values - true_data_df.values.reshape(-1, 1)
-        error_df = pd.DataFrame(
-            error, columns=["Error", "Lower Error Bound", "Upper Error Bound"]
-        )
-        error_df = error_df.set_index(true_data_df.index)
+            error = mean_df.values - true_data_df.values[:, 0].reshape(-1, 1)
+            error_df = pd.DataFrame(
+                error,
+                columns=["Error", "Lower Error Bound", "Upper Error Bound"],
+            )
+            error_df = error_df.set_index(true_data_df.index)
 
-        return pd.concat(
-            [mean_df, true_data_df, error_df],
-            axis=1,
-            join_axes=[true_data_df.index],
-        )
+            return pd.concat(
+                [mean_df, true_data_df, error_df],
+                axis=1,
+                join_axes=[true_data_df.index],
+            )
+        else:
+            mean_df = mean_df.set_index(pd.Index(pred_range))
+            return mean_df
     else:
-        mean_df = mean_df.set_index(pd.Index(G.pred_range))
-        return mean_df
+        pred_raw = pred_to_array(preds, indicator)
+        _, pred_range, _ = preds
+        pred_mean = np.mean(pred_raw, axis=0).reshape(-1, 1)
+
+        mean_df = pd.DataFrame(
+            pred_mean, columns=[f"{indicator}(Mean Prediction)"]
+        )
+        if true_vals == True:
+            warnings.warn(
+                "The selected output settings assume that real data exists "
+                "for the given prediction time range. Any missing data values are "
+                "filled with a heuristic estimate based on existing data."
+            )
+            start_date = pred_range[0]
+            start_year = int(start_date[0:4])
+            start_month = int(start_date[5:7])
+            end_date = pred_range[-1]
+            end_year = int(end_date[0:4])
+            end_month = int(end_date[5:7])
+            true_data_df = mean_data_to_df(
+                indicator,
+                start_year,
+                start_month,
+                end_year,
+                end_month,
+                use_heuristic_for_true,
+                ci,
+                **kwargs,
+            )
+            mean_df = mean_df.set_index(pd.Index(pred_range))
+
+            error = mean_df.values - true_data_df.values.reshape(-1, 1)
+            error_df = pd.DataFrame(error, columns=["Error"])
+            error_df = error_df.set_index(true_data_df.index)
+
+            return pd.concat(
+                [mean_df, true_data_df, error_df],
+                axis=1,
+                join_axes=[true_data_df.index],
+            )
+        else:
+            mean_df = mean_df.set_index(pd.Index(pred_range))
+            return mean_df
+
+
+def calculate_prediction_rmse(
+    preds: Tuple[
+        Tuple[Tuple[int, int], Tuple[int, int]],
+        List[str],
+        List[List[Dict[str, Dict[str, float]]]],
+    ],
+    indicator: str,
+    **kwargs,
+) -> float:
+    df = mean_pred_to_df(preds, indicator, 0.95, True, **kwargs)
+    sqr_residuals = df["Error"].values ** 2
+    return np.sqrt(np.nanmean(sqr_residuals))
 
 
 def pred_plot(
-    G,
+    preds: Tuple[
+        Tuple[Tuple[int, int], Tuple[int, int]],
+        List[str],
+        List[List[Dict[str, Dict[str, float]]]],
+    ],
     indicator: str,
-    ci: float = 0.95,
+    ci: Optional[float] = 0.95,
     plot_type: str = "Prediction",
+    show_rmse: bool = False,
+    show_training_data: bool = False,
     save_as: Optional[str] = None,
+    use_heuristic_for_true: bool = False,
     **kwargs,
 ) -> None:
     """ Creates a line plot of the mean predictions for a given indicator that were generated by
-    generate_predictions. The y-axis are the indicator values(or errors) and the x-axis
+    generate_prediction(). The y-axis are the indicator values(or errors) and the x-axis
     are the prediction dates. Certain settings assume that true data exists for
     the given prediction range.
 
@@ -757,8 +571,8 @@ def pred_plot(
         values along with error bounds. A reference line is included at 0.
 
     Args:
-        G: A CAG. It must have indicators variables mapped to nodes and the
-        inference model must have been trained and predictions generated.
+        preds: This is the entire prediction set returned by the
+        generate_prediction() method in AnalysisGraph.cpp.
 
         indicator: A string representing the indicator variable for which we
         want mean predictions,etc printed.
@@ -778,53 +592,493 @@ def pred_plot(
         None
     """
 
-    if plot_type == "Comparison":
-        df = mean_pred_to_df(G, indicator, ci, True, **kwargs)
-        df_compare = df.drop(df.columns[[1, 2, 4, 5, 6]], axis=1)
-        sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
-        ax = sns.lineplot(data=df_compare, sort=False, **kwargs)
-        ax.fill_between(
-            x=df_compare.index,
-            y1=df[f"{indicator}(Upper Confidence Bound)"].values,
-            y2=df[f"{indicator}(Lower Confidence Bound)"].values,
-            alpha=0.5,
-            **kwargs,
-        )
-        ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
-        ax.set_title(f"Predictions vs. True values for {indicator}")
-    elif plot_type == "Error":
-        df = mean_pred_to_df(G, indicator, ci, True, **kwargs)
-        df_error = df.drop(df.columns[[0, 1, 2, 3, 5, 6]], axis=1)
-        sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
-        ax = sns.lineplot(data=df_error, sort=False, **kwargs)
-        ax.fill_between(
-            x=df_error.index,
-            y1=df["Upper Error Bound"].values,
-            y2=df["Lower Error Bound"].values,
-            alpha=0.5,
-            **kwargs,
-        )
-        ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
-        ax.axhline(color="r")
-        ax.set_title(f"Prediction Error for {indicator}")
-    else:
-        df = mean_pred_to_df(G, indicator, ci, False, **kwargs)
-        df_pred = df.drop(df.columns[[1, 2]], axis=1)
-        sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
-        ax = sns.lineplot(data=df_pred, sort=False, **kwargs)
-        ax.fill_between(
-            x=df_pred.index,
-            y1=df[f"{indicator}(Upper Confidence Bound)"].values,
-            y2=df[f"{indicator}(Lower Confidence Bound)"].values,
-            alpha=0.5,
-            **kwargs,
-        )
-        ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
-        ax.set_title(f"Predictions for {indicator}")
+    if ci is not None:
+        if plot_type == "Comparison":
+            if show_training_data:
+                training_range, pred_range, _ = preds
 
-    if save_as is not None:
-        fig = ax.get_figure()
-        fig.savefig(save_as)
+                start_year = training_range[0][0]
+                start_month = training_range[0][1]
+                end_year = int(pred_range[-1][0:4])
+                end_month = int(pred_range[-1][5:7])
+
+                total_timesteps = (
+                    calculate_timestep(
+                        start_year, start_month, end_year, end_month
+                    )
+                    + 1
+                )
+                pred_timesteps = len(pred_range)
+                pred_init_step = total_timesteps - pred_timesteps
+
+                true_date, true_data = data_to_list(
+                    indicator,
+                    start_year,
+                    start_month,
+                    end_year,
+                    end_month,
+                    use_heuristic_for_true,
+                    **kwargs,
+                )
+                true_data_x = []
+                true_data_y = []
+                pred_x = []
+                for i, obs in enumerate(true_data):
+                    if len(obs) > 0:
+                        for o in obs:
+                            true_data_y.append(o)
+                            true_data_x.append(i)
+                    else:
+                        true_data_y.append(np.nan)
+                        true_data_x.append(i)
+                    if i >= pred_init_step:
+                        pred_x.append(i)
+
+                df = mean_pred_to_df(
+                    preds,
+                    indicator,
+                    ci,
+                    False,
+                    use_heuristic_for_true,
+                    **kwargs,
+                )
+                df_pred = df.drop(df.columns[[1, 2]], axis=1)
+                sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
+                ax = sns.scatterplot(
+                    x=true_data_x,
+                    y=true_data_y,
+                    marker="x",
+                    color="red",
+                    s=100,
+                )
+                ax2 = sns.lineplot(
+                    x=pred_x, y=df_pred.values.ravel(), sort=False, ax=ax
+                )
+                ax2.fill_between(
+                    x=pred_x,
+                    y1=df[
+                        f"{indicator}(Upper Confidence Bound)"
+                    ].values.astype(float),
+                    y2=df[
+                        f"{indicator}(Lower Confidence Bound)"
+                    ].values.astype(float),
+                    alpha=0.5,
+                )
+                ax.set_xticklabels(
+                    true_date, ha="right", rotation=45, fontsize=8
+                )
+                ax.set_xticks(true_data_x)
+                ax.set_title(f"Predictions vs. True values for {indicator}")
+                ax2.get_lines()[0].set_color("blue")
+                ax2.get_lines()[0].set_linestyle("-")
+                ax2.get_lines()[0].set_marker("o")
+                handles, labels = ax.get_legend_handles_labels()
+                handles.append(
+                    mpatches.Patch(
+                        edgecolor="red",
+                        hatch="x",
+                        label=f"{indicator}(True)",
+                        fill=False,
+                        linewidth=0,
+                    )
+                )
+                handles.append(
+                    mpatches.Patch(
+                        color="blue",
+                        linestyle="-",
+                        label=f"{indicator}(Mean Prediction)",
+                    )
+                )
+
+                if show_rmse:
+                    rmse = round(
+                        calculate_prediction_rmse(preds, indicator, **kwargs),
+                        4,
+                    )
+                    rmse_str = f"Root Mean Squared Error: {rmse}"
+
+                    handles.append(
+                        mpatches.Patch(color="none", label=rmse_str)
+                    )
+                ax.legend(handles=handles)
+            else:
+                _, pred_range, _ = preds
+
+                start_year = int(pred_range[0][0:4])
+                start_month = int(pred_range[0][5:7])
+                end_year = int(pred_range[-1][0:4])
+                end_month = int(pred_range[-1][5:7])
+
+                true_date, true_data = data_to_list(
+                    indicator,
+                    start_year,
+                    start_month,
+                    end_year,
+                    end_month,
+                    use_heuristic_for_true,
+                    **kwargs,
+                )
+                true_data_x = []
+                true_data_y = []
+                for i, obs in enumerate(true_data):
+                    if len(obs) > 0:
+                        for o in obs:
+                            true_data_y.append(o)
+                            true_data_x.append(i)
+                    else:
+                        true_data_y.append(np.nan)
+                        true_data_x.append(i)
+
+                df = mean_pred_to_df(
+                    preds,
+                    indicator,
+                    ci,
+                    False,
+                    use_heuristic_for_true,
+                    **kwargs,
+                )
+                df_pred = df.drop(df.columns[[1, 2]], axis=1)
+                sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
+                ax = sns.lineplot(data=df_pred, sort=False, markers=["o"])
+                ax.fill_between(
+                    x=df.index.astype(str),
+                    y1=df[
+                        f"{indicator}(Upper Confidence Bound)"
+                    ].values.astype(float),
+                    y2=df[
+                        f"{indicator}(Lower Confidence Bound)"
+                    ].values.astype(float),
+                    alpha=0.5,
+                )
+                ax.set_xticklabels(
+                    df.index.astype(str), rotation=45, ha="right", fontsize=8
+                )
+                ax.set_title(f"Predictions vs. True values for {indicator}")
+                ax.get_lines()[0].set_color("blue")
+                ax.get_lines()[0].set_linestyle("-")
+                ax = sns.scatterplot(
+                    x=true_data_x,
+                    y=true_data_y,
+                    marker="x",
+                    color="red",
+                    s=100,
+                )
+                handles, labels = ax.get_legend_handles_labels()
+                handles.append(
+                    mpatches.Patch(color="red", label=f"{indicator}(True)")
+                )
+
+                if show_rmse:
+                    rmse = round(
+                        calculate_prediction_rmse(preds, indicator, **kwargs),
+                        4,
+                    )
+                    rmse_str = f"Root Mean Squared Error: {rmse}"
+                    handles.append(
+                        mpatches.Patch(color="none", label=rmse_str)
+                    )
+                ax.legend(handles=handles)
+        elif plot_type == "Error":
+            df = mean_pred_to_df(preds, indicator, ci, True, **kwargs)
+            df_error = df.drop(df.columns[[0, 1, 2, 3, 4, 5, 7, 8]], axis=1)
+            sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
+            ax = sns.lineplot(data=df_error, sort=False, markers=["o"])
+            ax.fill_between(
+                x=df_error.index,
+                y1=df["Upper Error Bound"].values,
+                y2=df["Lower Error Bound"].values,
+                alpha=0.5,
+            )
+            ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
+            ax.axhline(color="r")
+            ax.set_title(f"Prediction Error for {indicator}")
+            ax.get_lines()[0].set_color("blue")
+            ax.get_lines()[0].set_linestyle("-")
+            if show_rmse:
+                rmse = round(
+                    calculate_prediction_rmse(preds, indicator, **kwargs), 4
+                )
+                rmse_str = f"Root Mean Squared Error: {rmse}"
+                handles, labels = ax.get_legend_handles_labels()
+                handles.append(mpatches.Patch(color="none", label=rmse_str))
+                ax.legend(handles=handles)
+        elif plot_type == "Test":
+            # This option may not function properly
+            test_data = kwargs.get("test_data")
+            assert test_data is not None
+            df = mean_pred_to_df(preds, indicator, ci, False, **kwargs)
+            df_pred = df.drop(df.columns[[1, 2]], axis=1)
+            df_pred[f"{indicator}(Synthetic)"] = test_data
+            sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
+            ax = sns.lineplot(data=df_pred, sort=False)
+            ax.fill_between(
+                x=df_pred.index,
+                y1=df[f"{indicator}(Upper Confidence Bound)"].values,
+                y2=df[f"{indicator}(Lower Confidence Bound)"].values,
+                alpha=0.5,
+            )
+            ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
+            ax.set_title(
+                f"Predictions vs. True values(Synthetic) for {indicator}"
+            )
+        else:
+            df = mean_pred_to_df(preds, indicator, ci, False, **kwargs)
+            df_pred = df.drop(df.columns[[1, 2]], axis=1)
+            sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
+            ax = sns.lineplot(data=df_pred, sort=False, markers=["o"])
+            ax.fill_between(
+                x=df_pred.index,
+                y1=df[f"{indicator}(Upper Confidence Bound)"].values,
+                y2=df[f"{indicator}(Lower Confidence Bound)"].values,
+                alpha=0.5,
+            )
+            ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
+            ax.set_title(f"Predictions for {indicator}")
+            ax.get_lines()[0].set_color("blue")
+            ax.get_lines()[0].set_linestyle("-")
+        if save_as is not None:
+            fig = ax.get_figure()
+            fig.savefig(save_as)
+    else:
+        if plot_type == "Comparison":
+            if show_training_data:
+                training_range, pred_range, _ = preds
+
+                start_year = training_range[0][0]
+                start_month = training_range[0][1]
+                end_year = int(pred_range[-1][0:4])
+                end_month = int(pred_range[-1][5:7])
+
+                total_timesteps = (
+                    calculate_timestep(
+                        start_year, start_month, end_year, end_month
+                    )
+                    + 1
+                )
+                pred_timesteps = len(pred_range)
+                pred_init_step = total_timesteps - pred_timesteps
+
+                true_date, true_data = data_to_list(
+                    indicator,
+                    start_year,
+                    start_month,
+                    end_year,
+                    end_month,
+                    use_heuristic_for_true,
+                    **kwargs,
+                )
+                true_data_x = []
+                true_data_y = []
+                pred_x = []
+                for i, obs in enumerate(true_data):
+                    if len(obs) > 0:
+                        for o in obs:
+                            true_data_y.append(o)
+                            true_data_x.append(i)
+                    else:
+                        true_data_y.append(np.nan)
+                        true_data_x.append(i)
+                    if i >= pred_init_step:
+                        pred_x.append(i)
+
+                df = mean_pred_to_df(
+                    preds,
+                    indicator,
+                    ci,
+                    False,
+                    use_heuristic_for_true,
+                    **kwargs,
+                )
+                sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
+                ax = sns.scatterplot(
+                    x=true_data_x,
+                    y=true_data_y,
+                    marker="x",
+                    color="red",
+                    s=100,
+                )
+                ax2 = sns.lineplot(
+                    x=pred_x, y=df.values.ravel(), sort=False, ax=ax
+                )
+                ax.set_xticklabels(
+                    true_date, ha="right", rotation=45, fontsize=8
+                )
+                ax.set_xticks(true_data_x)
+                ax.set_title(f"Predictions vs. True values for {indicator}")
+                ax2.get_lines()[0].set_color("blue")
+                ax2.get_lines()[0].set_linestyle("-")
+                ax2.get_lines()[0].set_marker("o")
+                handles, labels = ax.get_legend_handles_labels()
+                handles.append(
+                    mpatches.Patch(
+                        edgecolor="red",
+                        hatch="x",
+                        label=f"{indicator}(True)",
+                        fill=False,
+                        linewidth=0,
+                    )
+                )
+                handles.append(
+                    mpatches.Patch(
+                        color="blue",
+                        linestyle="-",
+                        label=f"{indicator}(Mean Prediction)",
+                    )
+                )
+
+                if show_rmse:
+                    rmse = round(
+                        calculate_prediction_rmse(preds, indicator, **kwargs),
+                        4,
+                    )
+                    rmse_str = f"Root Mean Squared Error: {rmse}"
+
+                    handles.append(
+                        mpatches.Patch(color="none", label=rmse_str)
+                    )
+                ax.legend(handles=handles)
+            else:
+                _, pred_range, _ = preds
+
+                start_year = int(pred_range[0][0:4])
+                start_month = int(pred_range[0][5:7])
+                end_year = int(pred_range[-1][0:4])
+                end_month = int(pred_range[-1][5:7])
+
+                true_date, true_data = data_to_list(
+                    indicator,
+                    start_year,
+                    start_month,
+                    end_year,
+                    end_month,
+                    use_heuristic_for_true,
+                    **kwargs,
+                )
+                true_data_x = []
+                true_data_y = []
+                for i, obs in enumerate(true_data):
+                    if len(obs) > 0:
+                        for o in obs:
+                            true_data_y.append(o)
+                            true_data_x.append(i)
+                    else:
+                        true_data_y.append(np.nan)
+                        true_data_x.append(i)
+
+                df = mean_pred_to_df(
+                    preds,
+                    indicator,
+                    ci,
+                    False,
+                    use_heuristic_for_true,
+                    **kwargs,
+                )
+                sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
+                ax = sns.lineplot(data=df, sort=False, markers=["o"])
+                ax.set_xticklabels(
+                    df.index.astype(str), rotation=45, ha="right", fontsize=8
+                )
+                ax.set_title(f"Predictions vs. True values for {indicator}")
+                ax.get_lines()[0].set_color("blue")
+                ax.get_lines()[0].set_linestyle("-")
+                ax = sns.scatterplot(
+                    x=true_data_x,
+                    y=true_data_y,
+                    marker="x",
+                    color="red",
+                    s=100,
+                )
+                handles, labels = ax.get_legend_handles_labels()
+                handles.append(
+                    mpatches.Patch(color="red", label=f"{indicator}(True)")
+                )
+
+                if show_rmse:
+                    rmse = round(
+                        calculate_prediction_rmse(preds, indicator, **kwargs),
+                        4,
+                    )
+                    rmse_str = f"Root Mean Squared Error: {rmse}"
+                    handles.append(
+                        mpatches.Patch(color="none", label=rmse_str)
+                    )
+                ax.legend(handles=handles)
+        elif plot_type == "Error":
+            df = mean_pred_to_df(preds, indicator, ci, True, **kwargs)
+            df_error = df.drop(df.columns[[0, 1]], axis=1)
+            sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
+            ax = sns.lineplot(data=df_error, sort=False, markers=["o"])
+            ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
+            ax.axhline(color="r")
+            ax.set_title(f"Prediction Error for {indicator}")
+            ax.get_lines()[0].set_color("blue")
+            ax.get_lines()[0].set_linestyle("-")
+            if show_rmse:
+                rmse = round(
+                    calculate_prediction_rmse(preds, indicator, **kwargs), 4
+                )
+                rmse_str = f"Root Mean Squared Error: {rmse}"
+                handles, labels = ax.get_legend_handles_labels()
+                handles.append(mpatches.Patch(color="none", label=rmse_str))
+                ax.legend(handles=handles)
+        elif plot_type == "Test":
+            # This option may not function properly
+            test_data = kwargs.get("test_data")
+            assert test_data is not None
+            df = mean_pred_to_df(preds, indicator, ci, False, **kwargs)
+            df_pred = df.drop(df.columns[[1, 2]], axis=1)
+            df_pred[f"{indicator}(Synthetic)"] = test_data
+            sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
+            ax = sns.lineplot(data=df_pred, sort=False)
+            ax.fill_between(
+                x=df_pred.index,
+                y1=df[f"{indicator}(Upper Confidence Bound)"].values,
+                y2=df[f"{indicator}(Lower Confidence Bound)"].values,
+                alpha=0.5,
+            )
+            ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
+            ax.set_title(
+                f"Predictions vs. True values(Synthetic) for {indicator}"
+            )
+        else:
+            df = mean_pred_to_df(preds, indicator, ci, False, **kwargs)
+            sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
+            ax = sns.lineplot(data=df, sort=False, markers=["o"])
+            ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
+            ax.set_title(f"Predictions for {indicator}")
+            ax.get_lines()[0].set_color("blue")
+            ax.get_lines()[0].set_linestyle("-")
+        if save_as is not None:
+            fig = ax.get_figure()
+            fig.savefig(save_as)
+
+
+# ==========================================================================
+# Evaluation and Validation functions
+# ==========================================================================
+
+
+def walk_forward_val(
+    initial_training_window: Tuple[Tuple[int, int], Tuple[int, int]],
+    end_prediction_date: Tuple[int, int],
+    burn: int = 10000,
+    res: int = 200,
+    **kwargs,
+) -> pd.DataFrame:
+    training_year_start, training_month_start, training_year_end, training_month_end = (
+        initial_training_window
+    )
+
+    if (training_month_start) > 12 or (training_month_start < 1):
+        temp_x = training_month_start
+        training_month_start = training_year_start
+        training_year_start = temp_x
+    if (training_month_end) > 12 or (training_month_end < 1):
+        temp_x = training_month_end
+        training_month_end = training_year_end
+        training_year_end = temp_x
+
+    print("test")
 
 
 # ==========================================================================

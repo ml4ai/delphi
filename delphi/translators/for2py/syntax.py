@@ -117,7 +117,8 @@ RE_CASE_STMT = re.compile(CASE_STMT, re.I)
 STOP_STMT = r"\s*(\d+|&)?\s*stop\s*"
 RE_STOP_STMT = re.compile(STOP_STMT, re.I)
 
-TYPE_NAMES = r"^\s*(integer|real|double\s+precision|complex|character|logical|dimension|type)\W*"
+TYPE_NAMES = r"^\s*(integer|real|double\s+precision|complex|character|logical" \
+             r"|dimension|type|parameter)\W*"
 RE_TYPE_NAMES = re.compile(TYPE_NAMES, re.I)
 
 # EXECUTABLE_CODE_START is a list of regular expressions matching
@@ -333,3 +334,24 @@ F_INTRINSICS = frozenset(['abs', 'abort', 'access', 'achar', 'acos', 'acosd',
     'time', 'time8', 'tiny', 'trailz', 'transfer', 'transpose', 'trim', 'ttynam', 
     'ubound', 'ucobound', 'umask', 'unlink', 'unpack', 'verify', 'xor'])
 
+
+################################################################################
+#                                                                              #
+#                       NEGATED OPERATIONS MAPPING                             #
+#                                                                              #
+################################################################################
+
+NEGATED_OP = {
+                ".le." : ".gt.",
+                ".ge." : ".lt.",
+                ".lt." : ".ge.",
+                ".gt." : ".le.",
+                ".eq." : ".ne.",
+                ".ne." : ".eq.",
+                "<=" : ">",
+                ">=" : "<",
+                "==" : "!=",
+                "<" : ">=",
+                ">" : "<=",
+                "!=" : "==",
+              }

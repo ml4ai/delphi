@@ -16,7 +16,6 @@ import pandas as pd
 from indra.statements import Influence, Concept, Event, QualitativeDelta
 from indra.statements import Evidence as INDRAEvidence
 from .random_variables import LatentVar, Indicator
-from .export import export_edge, _get_units, _get_dtype, _process_datetime
 from .utils.fp import flatMap, take, ltake, lmap, pairwise, iterate, exists
 from .utils.indra import (
     get_statements_from_json_list,
@@ -43,23 +42,6 @@ import matplotlib
 import matplotlib.cm as cm
 from matplotlib.colors import Normalize
 from delphi.utils.misc import _insert_line_breaks
-
-
-def normpdf(x, mean, sd):
-    """ Calculate pdf of normal distribution with a given mean and standard
-    deviation. Faster than scipy.stats.norm.pdf. From
-    https://stackoverflow.com/a/12413491 """
-    var = float(sd) ** 2
-    denom = (2 * pi * var) ** 0.5
-    num = exp(-(float(x) - float(mean)) ** 2 / (2 * var))
-    return num / denom
-
-
-def log_normpdf(x, mean, sd):
-    var = float(sd) ** 2
-    log_denom = -0.5 * log(2 * pi) - log(sd)
-    log_num = ((float(x) - float(mean)) ** 2) / (2 * var)
-    return log_denom - log_num
 
 
 class AnalysisGraph(nx.DiGraph):
@@ -154,7 +136,9 @@ class AnalysisGraph(nx.DiGraph):
         """
         from indra.sources.eidos import process_text
         eidosProcessor = process_text(text, webservice=webservice)
-        return cls.from_statements(eidosProcessor.statements)
+        eidosProcessor.extract_causal_relations()
+        return cls.from_statements([stmt for stmt in eidosProcessor.statements
+            if isinstance(stmt, Influence)])
 
     @classmethod
     def from_json_serialized_statements_list(
@@ -376,178 +360,6 @@ class AnalysisGraph(nx.DiGraph):
 
         return self.transition_matrix_collection
 
-    def sample_from_likelihood(self, n_timesteps=10):
-        """ Sample a collection of observed state sequences from the likelihood
-        model given a collection of transition matrices.
-
-        Args:
-            n_timesteps: The number of timesteps for the sequences.
-        """
-
-        self.latent_state_sequences = lmap(
-            lambda A, t: ltake(
-                n_timesteps,
-                iterate(lambda s: pd.Series(A @ s.values, index=s.index), t),
-            ),
-            self.transition_matrix_collection,
-            self.initial_latent_states_for_prediction,
-        )
-
-        self.observed_state_sequences = [
-            [self.sample_observed_state(s) for s in latent_state_sequence]
-            for latent_state_sequence in self.latent_state_sequences
-        ]
-
-    def sample_from_posterior(self, A: pd.DataFrame) -> pd.DataFrame:
-        """ Run Bayesian inference - sample from the posterior distribution."""
-        if self.log_likelihood is None:
-            self.log_likelihood = self.calculate_log_likelihood(A)
-
-        # Sample a new transition matrix from the proposal distribution.
-        self.sample_from_proposal(A)
-
-        Δ_log_prior = self.calculate_Δ_log_prior(A)
-        original_log_likelihood = self.log_likelihood
-        candidate_log_likelihood = self.calculate_log_likelihood(A)
-        Δ_log_likelihood = candidate_log_likelihood - self.log_likelihood
-
-        delta_log_joint_probability = Δ_log_prior + Δ_log_likelihood
-
-        acceptance_probability = min(1, np.exp(delta_log_joint_probability))
-        if acceptance_probability < np.random.rand():
-            A[f"∂({self.source})/∂t"][self.target] = self.original_value
-            self.log_likelihood = original_log_likelihood
-
-        return A
-
-    def calculate_Δ_log_prior(self, A: pd.DataFrame) -> float:
-        Δ_log_prior = self.edges[self.source, self.target][
-            "ConditionalProbability"
-        ].logpdf(
-            A[f"∂({self.source})/∂t"][self.target] / self.Δt
-        ) - self.edges[
-            self.source, self.target
-        ][
-            "ConditionalProbability"
-        ].logpdf(
-            self.original_value / self.Δt
-        )
-
-        return Δ_log_prior
-
-    def calculate_log_likelihood(self, A):
-        _list = []
-        self.set_latent_state_sequence(A)
-        for latent_state, observed_state in zip(
-            self.latent_state_sequence, self.observed_state_sequence
-        ):
-            for n in self.nodes(data=True):
-                for indicator, value in observed_state[n[0]].items():
-                    ind = n[1]["indicators"][indicator]
-                    log_likelihood = log_normpdf(
-                        value, latent_state[n[0]] * ind.mean, ind.stdev
-                    )
-                    _list.append(log_likelihood)
-
-        log_likelihood_total = sum(_list)
-        return log_likelihood_total
-
-    def set_latent_state_sequence(self, A):
-        self.latent_state_sequence = ltake(
-            self.n_timesteps + 1, iterate(lambda s: A.dot(s), self.s0)
-        )
-
-    def sample_observed_state(self, s: pd.Series) -> Dict:
-        """ Sample observed state vector. This is the implementation of the
-        emission function.
-
-        Args:
-            s: Latent state vector.
-
-        Returns:
-            Observed state vector.
-        """
-
-        return {
-            n[0]: {
-                indicator.name: np.random.normal(
-                    s[n[0]] * indicator.mean, indicator.stdev
-                )
-                for indicator in n[1]["indicators"].values()
-            }
-            for n in self.nodes(data=True)
-        }
-
-    def sample_from_proposal(self, A: pd.DataFrame) -> None:
-        """ Sample a new transition matrix from the proposal distribution,
-        given a current candidate transition matrix. In practice, this amounts
-        to the in-place perturbation of an element of the transition matrix
-        currently being used by the sampler.
-        """
-
-        # Choose the element of A to perturb
-        self.source, self.target, self.edge_dict = random.choice(
-            list(self.edges(data=True))
-        )
-        # Remember the original value of the element, in case we need to revert
-        # the MCMC step.
-        self.original_value = A[f"∂({self.source})/∂t"][self.target]
-        A[f"∂({self.source})/∂t"][self.target] += np.random.normal(scale=1)
-
-    def get_timeseries_values_for_indicators(
-        self, resolution: str = "month", months: Iterable[int] = range(6, 9)
-    ):
-        """Attach timeseries to indicators, for performing Bayesian inference."""
-        if resolution == "month":
-            funcs = [
-                partial(get_indicator_value, month=month) for month in months
-            ]
-        else:
-            raise NotImplementedError(
-                "Currently, only the 'month' resolution is supported."
-            )
-
-        for n in self.nodes(data=True):
-            for indicator in n[1]["indicators"].values():
-                indicator.timeseries = [
-                    func(indicator, year="2017")[0] for func in funcs
-                ]
-                if len(set(indicator.timeseries)) == 1:
-                    indicator.timeseries = None
-
-    def infer_transition_matrix_coefficient_from_data(
-        self,
-        source: str,
-        target: str,
-        state: Optional[str] = None,
-        crop: Optional[str] = None,
-    ):
-        """ Infer the distribution of a particular transition matrix
-        coefficient from data.
-
-        Args:
-            source: The source of the edge corresponding to the matrix element
-                to infer.
-            target: The target of the edge corresponding to the matrix element
-                to infer.
-            state:
-                The state in South Sudan for which the transition matrix
-                coefficient should be calculated.
-            crop:
-                The crop for which the transition matrix coefficient should be
-                calculated.
-        """
-        rows = engine.execute(
-            f"select * from dssat where `Crop` like '{crop}'"
-            f" and `State` like '{state}'"
-        )
-        xs, ys = lzip(*[(r["Rainfall"], r["Production"]) for r in rows])
-        xs_scaled, ys_scaled = xs / np.mean(xs), ys / np.mean(ys)
-        p, V = np.polyfit(xs_scaled, ys_scaled, 1, cov=True)
-        self.edges[source, target]["βs"] = np.random.normal(
-            p[0], np.sqrt(V[0][0]), self.res
-        )
-        self.sample_from_prior()
 
     # ==========================================================================
     # Basic Modeling Interface (BMI)
@@ -680,54 +492,6 @@ class AnalysisGraph(nx.DiGraph):
         """ Returns the current time in the execution of the model. """
         return self.t
 
-    # ==========================================================================
-    # Export
-    # ==========================================================================
-
-    def export_node(self, n) -> Dict[str, Union[str, List[str]]]:
-        """ Return dict suitable for exporting to JSON.
-
-        Args:
-            n: A dict representing the data in a networkx AnalysisGraph node.
-
-        Returns:
-            The node dict with additional fields for name, units, dtype, and
-            arguments.
-
-        """
-        node_dict = {
-            "name": n[0],
-            "units": _get_units(n[0]),
-            "dtype": _get_dtype(n[0]),
-            "arguments": list(self.predecessors(n[0])),
-        }
-
-        if not n[1].get("indicators") is None:
-            for indicator in n[1]["indicators"].values():
-                if "dataset" in indicator.__dict__:
-                    del indicator.__dict__["dataset"]
-
-            node_dict["indicators"] = [
-                _process_datetime(indicator.__dict__)
-                for indicator in n[1]["indicators"].values()
-            ]
-        else:
-            node_dict["indicators"] = None
-
-        return node_dict
-
-    def to_dict(self) -> Dict:
-        """ Export the CAG to a dict that can be serialized to JSON. """
-        return {
-            "name": self.name,
-            "dateCreated": str(self.dateCreated),
-            "variables": lmap(
-                lambda n: self.export_node(n), self.nodes(data=True)
-            ),
-            "timeStep": str(self.Δt),
-            "edge_data": lmap(export_edge, self.edges(data=True)),
-        }
-
     def to_pickle(self, filename: str = "delphi_model.pkl"):
         with open(filename, "wb") as f:
             pickle.dump(self, f)
@@ -784,7 +548,7 @@ class AnalysisGraph(nx.DiGraph):
 
     def parameterize(
         self,
-        country: Optional[str] = "South Sudan",
+        country: Optional[str] = "Ethiopia",
         state: Optional[str] = None,
         year: Optional[int] = None,
         month: Optional[int] = None,
@@ -922,7 +686,7 @@ class AnalysisGraph(nx.DiGraph):
             for st in self[p][n1]["InfluenceStatements"]:
                 if not same_polarity:
                     st.obj.delta.polarity = -st.obj.delta.polarity
-                st.obj.db_refs["UN"][0] = (n2, st.obj.db_refs["UN"][0][1])
+                st.obj.db_refs["WM"][0] = (n2, st.obj.db_refs["WM"][0][1])
 
             if not self.has_edge(p, n2):
                 self.add_edge(p, n2)
@@ -939,7 +703,7 @@ class AnalysisGraph(nx.DiGraph):
             for st in self.edges[n1, s]["InfluenceStatements"]:
                 if not same_polarity:
                     st.subj.delta.polarity = -st.subj.delta.polarity
-                st.subj.db_refs["UN"][0] = (n2, st.subj.db_refs["UN"][0][1])
+                st.subj.db_refs["WM"][0] = (n2, st.subj.db_refs["WM"][0][1])
 
             if not self.has_edge(n2, s):
                 self.add_edge(n2, s)

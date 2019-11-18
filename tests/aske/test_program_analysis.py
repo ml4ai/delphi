@@ -17,23 +17,51 @@ DATA_DIR = "tests/data/program_analysis"
 
 def get_python_source(
     original_fortran_file
-) -> Tuple[str, str, str, str, str, Dict]:
-    return f2grfn.fortran_to_grfn(original_fortran_file, True, False, ".")
+):
+    temporary_dir = "."
+    # Setting a root directory to absolute path of /tests directory.
+    root_dir = os.path.abspath(".")
+    return f2grfn.fortran_to_grfn(
+                original_fortran_file, 
+                True,
+                False, 
+                temporary_dir,
+                root_dir,
+                processing_modules=False
+           )
 
 
 def make_grfn_dict(original_fortran_file) -> Dict:
-    pySrc, lambdas_filename, json_filename, python_filename, \
-    original_fortran, mode_mapper_dict = get_python_source(original_fortran_file)
-    _dict = f2grfn.generate_grfn(
-        pySrc[0][0],
-        python_filename,
+    (
+        pySrc, 
         lambdas_filename,
-        json_filename,
-        mode_mapper_dict,
-        True
-    )
+        json_filename, 
+        python_filenames,
+        base, 
+        mode_mapper_dict, 
+        original_fortran, 
+        module_log_file_path,
+        processing_modules
+    ) = get_python_source(original_fortran_file)
 
-    return _dict
+    for python_file in python_filenames:
+        _dict = f2grfn.generate_grfn(
+            pySrc[0][0],
+            python_file,
+            lambdas_filename,
+            mode_mapper_dict[0],
+            str(original_fortran_file),
+            True,
+            module_log_file_path,
+            processing_modules
+        )
+        
+        # This blocks system.json to be fully populated.
+        # Since the purpose of test_program_analysis is to compare
+        # the output GrFN JSON of the main program, I will leave this
+        # return as it is to return the only one translated GrFN string.
+        return json.dumps(_dict, sort_keys=True, indent=2)
+
 
 
 def postprocess_test_data_grfn_dict(_dict):
@@ -131,6 +159,22 @@ def SIR_python_IR_test():
         Path(f"{DATA_DIR}" f"/SIR-Gillespie-SD_inline.f"))[0][0]
 
     
+@pytest.fixture
+def array_to_func_python_IR_test():
+    yield get_python_source(
+        Path(f"{DATA_DIR}" f"/array_func_loop/array-to-func_06.f"))[0][0]
+
+@pytest.fixture
+def multidimensional_array_test():
+    yield make_grfn_dict(Path(f"{DATA_DIR}/arrays/arrays-basic-06.f"))
+
+@pytest.fixture
+def sir_gillespie_sd_test():
+    yield make_grfn_dict(Path(f"{DATA_DIR}/SIR-Gillespie-SD_multi_module.f"))
+
+@pytest.fixture
+def strings_test():
+    yield get_python_source(Path(f"{DATA_DIR}/strings/str06.f"))[0][0]
 #########################################################
 #                                                       #
 #               TARGET PYTHON TEST FILE                 #
@@ -233,3 +277,27 @@ def test_SIR_pythonIR_generation(SIR_python_IR_test):
     with open(f"{DATA_DIR}/SIR-Gillespie-SD_inline.py", "r") as f:
         python_src = f.read()
     assert SIR_python_IR_test[0] == python_src
+
+
+def test_array_to_func_pythonIR_generation(array_to_func_python_IR_test):
+    with open(f"{DATA_DIR}/array_func_loop/array-to-func_06.py", "r") as f:
+        python_src = f.read()
+    assert array_to_func_python_IR_test[0] == python_src
+
+
+def test_strings_pythonIR_generation(strings_test):
+    with open(f"{DATA_DIR}/strings/str06.py", "r") as f:
+        python_src = f.read()
+    assert strings_test[0] == python_src
+
+
+def test_multidimensional_array_grfn_generation(multidimensional_array_test):
+    with open(f"{DATA_DIR}/arrays/arrays-basic-06_GrFN.json", "r") as f:
+        grfn_dict = f.read()
+    assert str(multidimensional_array_test) == grfn_dict
+
+
+def test_sri_gillespie_sd_grfn_generation(sir_gillespie_sd_test):
+    with open(f"{DATA_DIR}/SIR-Gillespie-SD_multi_module_GrFN.json", "r") as f:
+        grfn_dict = f.read()
+    assert str(sir_gillespie_sd_test) == grfn_dict

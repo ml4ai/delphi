@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+{% include "head.html" %}
+<body class="theme-base-08">
+  {% include "navbar.html" %}
+  <div class="container-fluid">
+    <div
+      class="row justify-content-md-center"
+      style="padding-top: 1.5rem; padding-left:3rem; padding-right: 4rem;"
+    >
+      {% for id, description in { "petpt": "Priestley-Taylor
+      evapotranspiration model", "fib": "Forward Influence Blanket (ASCE Model)",
+      "petasce": "ASCE Evapotranspiration model", }.items() %}
+      <div class="col" style="height: 90%">
+        <div class="row"><h3>{{ description }}</h3></div>
+        <div id="{{ id }}" class="row" style="height:80%; height: 80%;"></div>
+      </div>
+      {% endfor %}
+    </div>
+    <!--<div class="row" id="fibSurfacePlot"></div>-->
+    <script>
+      {% include "cyjs.js" %}
+    </script>
+    <!--<script>-->
+      <!--var fibGraph = {{ graphJSON | safe}};-->
+      <!--Plotly.plot('fibSurfacePlot', fibGraph, {{ layout | safe }});-->
+    <!--</script>-->
+    <script>
+      var petpt_graph = make_cyjs(
+        'petpt',
+        {{ petpt_elementsJSON | safe }}
+      );
+      var petasce_graph = make_cyjs(
+        'petasce',
+        {{ petasce_elementsJSON | safe }}
+      );
+      var fib_graph = make_cyjs(
+        'fib',
+        {{ fib_elementsJSON | safe }}
+      );
+    </script>
+  </div>
+</body>
+<script type="text/javascript" src="static/js/controller.js"></script>
+</html>

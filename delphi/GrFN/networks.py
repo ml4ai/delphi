@@ -419,19 +419,28 @@ class GroundedFunctionNetwork(ComputationalGraph):
         lambdas_path,
         json_filename: str,
         stem: str,
+        python_file: str,
         fortran_file: str,
-        mode_mapper_dict: dict,
-        save_file: bool = False
+        module_log_file_path: str,
+        mode_mapper_dict: list,
+        save_file: bool = False,
+
     ):
+        module_file_exist = False
+        module_import_paths = {}
+
         """Builds GrFN object from Python source code."""
         asts = [ast.parse(pySrc)]
         pgm_dict = genPGM.create_grfn_dict(
             lambdas_path,
             asts,
-            json_filename,
+            python_file,
             mode_mapper_dict,
             fortran_file,
-            save_file=save_file
+            module_log_file_path,
+            save_file,
+            module_file_exist,
+            module_import_paths
         )
 
         lambdas = importlib.__import__(stem + "_lambdas")
@@ -443,20 +452,25 @@ class GroundedFunctionNetwork(ComputationalGraph):
 
         if tmpdir == "." and "/" in fortran_file:
             tmpdir = Path(fortran_file).parent
+        root_dir = os.path.abspath(tmpdir)
 
         (
             pySrc,
             lambdas_path,
             json_filename,
+            translated_python_files,
             stem,
-            fortran_filename,
             mode_mapper_dict,
-        ) = f2grfn.fortran_to_grfn(fortran_file, True, True, str(tmpdir))
+            fortran_filename,
+            module_log_file_path,
+            processing_modules,
+        ) = f2grfn.fortran_to_grfn(fortran_file, True, True, str(tmpdir), root_dir, processing_modules=False)
 
-        G = cls.from_python_src(pySrc, lambdas_path, json_filename, stem,
-                                fortran_file, mode_mapper_dict, save_file=save_file)
+        for python_file in translated_python_files:
+            G = cls.from_python_src(pySrc[0][0], lambdas_path, json_filename, stem, python_file,
+                                    fortran_file, module_log_file_path, mode_mapper_dict, save_file=save_file)
 
-        return G
+            return G
 
     @classmethod
     def from_fortran_src(cls, fortran_src: str, dir: str = "."):
@@ -696,7 +710,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
         functions. """
 
         A = nx.nx_agraph.to_agraph(self.call_graph)
-        A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo"})
+        A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo", "rankdir": "TB"})
         A.node_attr.update(
             {"shape": "rectangle", "color": "#650021", "style": "rounded"}
         )

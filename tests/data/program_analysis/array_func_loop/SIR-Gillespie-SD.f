@@ -39,13 +39,13 @@ C      end subroutine print_output
       end function pyrand
 
 ********************************************************************************
-      subroutine update_mean_var(means, vars, k, n, runs)
+      subroutine update_mean_var(MeanS, VarS, k, n, runs)
       integer, parameter :: Tmax = 100
-      double precision, dimension(0:Tmax) :: means, vars
+      double precision, dimension(0:Tmax) :: MeanS, VarS
       integer k, n, runs
 
-      means(k) = means(k) + (n - means(k))/(runs+1)
-      vars(k) = vars(k) + runs/(runs+1) * (n-means(k))*(n-means(k))
+      MeanS(k) = MeanS(k) + (n - MeanS(k))/(runs+1)
+      VarS(k) = VarS(k) + runs/(runs+1) * (n-MeanS(k))*(n-MeanS(k))
 
       return
       end subroutine update_mean_var
@@ -96,7 +96,6 @@ C     dt       next inter-event time
       double precision, dimension(0:Tmax) :: MeanS, MeanI, MeanR
       double precision, dimension(0:Tmax) :: VarS, VarI, VarR
       integer, dimension(0:Tmax) :: samples
-      double precision pyrand
 
       integer i, n_samples, runs, n_S, n_I, n_R, sample_idx, sample
       double precision t, randval
@@ -116,7 +115,7 @@ C     dt       next inter-event time
 
       n_samples = 0
 
-      randval = pyrand(.true.)    ! initialize the random-number sequence
+      randval = pyrand(.true.)
 
       do runs = 0, total_runs-1
          t = 0.0    ! Restart the event clock

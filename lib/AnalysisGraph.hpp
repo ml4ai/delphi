@@ -4,13 +4,19 @@
 #include <unsupported/Eigen/MatrixFunctions>
 
 #include <boost/graph/graph_traits.hpp>
+#include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/iterator_range.hpp>
+#include <boost/range/algorithm/for_each.hpp>
 
 #include "graphviz_interface.hpp"
 
 #include "DiGraph.hpp"
 #include "tran_mat_cell.hpp"
 #include <fmt/format.h>
+#include <nlohmann/json.hpp>
+
+const double TAU = 1;
+const double tuning_param = 0.0001;
 
 const size_t DEFAULT_N_SAMPLES = 200;
 
@@ -19,9 +25,11 @@ enum InitialBeta { ZERO, ONE, HALF, MEAN, RANDOM };
 typedef std::unordered_map<std::string, std::vector<double>>
     AdjectiveResponseMap;
 
-typedef std::vector<std::vector<std::vector<std::vector<double>>>> ObservedStateSequence;
+typedef std::vector<std::vector<std::vector<std::vector<double>>>>
+    ObservedStateSequence;
 
-typedef std::vector<std::vector<std::vector<double>>> PredictedObservedStateSequence;
+typedef std::vector<std::vector<std::vector<double>>>
+    PredictedObservedStateSequence;
 
 typedef std::pair<std::tuple<std::string, int, std::string>,
                   std::tuple<std::string, int, std::string>>
@@ -36,34 +44,38 @@ typedef std::tuple<std::pair<std::pair<int, int>, std::pair<int, int>>,
                    FormattedPredictionResult>
     Prediction;
 
+typedef boost::graph_traits<DiGraph>::edge_descriptor EdgeDescriptor;
+
+typedef std::multimap<std::pair<int, int>, std::pair<int, int>>::iterator MMapIterator;
+
 AdjectiveResponseMap construct_adjective_response_map(size_t n_kernels);
 
 /**
  * The AnalysisGraph class is the main model/interface for Delphi.
  */
 class AnalysisGraph {
-  DiGraph graph;
-
-  public:
-  AnalysisGraph() {}
-  Node& operator[](std::string);
-  Edge& edge(int, int);
-  auto nodes();
-
-  // Manujinda: I had to move this up since I am usign this within the private:
-  // block This is ugly. We need to re-factor the code to make it pretty again
-  auto vertices();
-
-  NEIGHBOR_ITERATOR successors(int i);
-
-  // Allocate a num_verts x num_verts 2D array (std::vector of std::vectors)
-  void allocate_A_beta_factors();
-
-  void print_A_beta_factors();
 
   private:
-  Node& operator[](int);
-  void clear_state();
+
+  DiGraph graph;
+
+  // Handle to the random number generator singleton object
+  RNG* rng_instance;
+
+  std::mt19937 rand_num_generator;
+
+  // Uniform distribution used by the MCMC sampler
+  std::uniform_real_distribution<double> uni_dist;
+
+  // Normal distrubution used to perturb β
+  std::normal_distribution<double> norm_dist;
+
+
+  /*
+   ============================================================================
+   Meta Data Structures
+   ============================================================================
+  */
 
   // Maps each concept name to the vertex id of the
   // vertex that concept is represented in the CAG
@@ -71,7 +83,6 @@ class AnalysisGraph {
   std::unordered_map<std::string, int> name_to_vertex = {};
 
   // Keeps track of indicators in CAG to ensure there are no duplicates.
-  // std::vector<std::string> indicators_in_CAG;
   std::unordered_set<std::string> indicators_in_CAG;
 
   // A_beta_factors is a 2D array (std::vector of std::vectors) that keeps track
@@ -98,13 +109,35 @@ class AnalysisGraph {
   // Maps each β to all the transition matrix cells that are dependent on it.
   std::multimap<std::pair<int, int>, std::pair<int, int>> beta2cell;
 
+
+  /*
+   ============================================================================
+   Sampler Related Variables
+   ============================================================================
+  */
+
+  // Keep track whether the model is trained.
+  // Used to check whether there is a trained model before calling
+  // generate_prediction()
+  bool trained = false;
+
+  int n_timesteps;
+  int pred_timesteps;
+  std::pair<std::pair<int, int>, std::pair<int, int>> training_range;
+  std::vector<std::string> pred_range;
+
   double t = 0.0;
   double delta_t = 1.0;
 
+  double log_likelihood = 0.0;
+  double previous_log_likelihood = 0.0;
+
+  // Remember the old β and the edge where we perturbed the β.
+  // We need this to revert the system to the previous state if the proposal
+  // gets rejected.
+  std::pair<EdgeDescriptor, double> previous_beta;
+
   // Latent state that is evolved by sampling.
-  // Since s0 is used to represent a sequence of latent states,
-  // I named this s0_original. Once things are refactored, we might be able to
-  // convert this to s0
   Eigen::VectorXd s0;
 
   // Transition matrix that is evolved by sampling.
@@ -112,37 +145,6 @@ class AnalysisGraph {
   // I chose to name this A_orginal. After refactoring the code, we could
   // rename this to A.
   Eigen::MatrixXd A_original;
-
-  int n_timesteps;
-  int pred_timesteps;
-  std::pair<std::pair<int, int>, std::pair<int, int>> training_range;
-
-  // This is a column of the
-  // this->training_latent_state_sequences
-  // prediction_initial_latent_states.size() = this->res
-  // TODO: If we make the code using this variable to directly fetch the values
-  // from this->training_latent_state_sequences, we can get rid of this
-  std::vector<Eigen::VectorXd> prediction_initial_latent_states;
-  std::vector<std::string> pred_range;
-
-  // Access this as
-  // prediction_latent_state_sequences[ sample ][ time step ]
-  std::vector<std::vector<Eigen::VectorXd>> predicted_latent_state_sequences;
-
-  // Access this as
-  // prediction_observed_state_sequences
-  //                            [ sample ][ time step ][ vertex ][ indicator ]
-  std::vector<PredictedObservedStateSequence> predicted_observed_state_sequences;
-  
-  PredictedObservedStateSequence test_observed_state_sequence;
-
-  // Sampling resolution. Default is 200
-  int res = DEFAULT_N_SAMPLES;
-
-  // Keep track whether the model is trained.
-  // Used to check whether there is a trained model before calling
-  // generate_prediction()
-  bool trained = false;
 
   // Access this as
   // current_latent_state
@@ -152,33 +154,49 @@ class AnalysisGraph {
   // observed_state_sequence[ time step ][ vertex ][ indicator ]
   ObservedStateSequence observed_state_sequence;
 
+  // This is a column of the
+  // this->training_latent_state_sequences
+  // prediction_initial_latent_states.size() = this->res
+  // TODO: If we make the code using this variable to directly fetch the values
+  // from this->training_latent_state_sequences, we can get rid of this
+  std::vector<Eigen::VectorXd> prediction_initial_latent_states;
+
+  // Access this as
+  // prediction_latent_state_sequences[ sample ][ time step ]
+  std::vector<std::vector<Eigen::VectorXd>> predicted_latent_state_sequences;
+
+  // Access this as
+  // prediction_observed_state_sequences
+  //                            [ sample ][ time step ][ vertex ][ indicator ]
+  std::vector<PredictedObservedStateSequence>
+      predicted_observed_state_sequences;
+
+  PredictedObservedStateSequence test_observed_state_sequence;
+
   std::vector<Eigen::MatrixXd> transition_matrix_collection;
 
-  // Remember the old β and the edge where we perturbed the β.
-  // We need this to revert the system to the previous state if the proposal
-  // gets rejected.
-  std::pair<boost::graph_traits<DiGraph>::edge_descriptor, double>
-      previous_beta;
+  std::vector<Eigen::VectorXd> synthetic_latent_state_sequence;
+  // ObservedStateSequence synthetic_observed_state_sequence;
+  bool synthetic_data_experiment = false;
 
-  double log_likelihood = 0.0;
-  double previous_log_likelihood = 0.0;
-  bool data_heuristic = false;
 
-  void
-  get_subgraph_rooted_at(int vert,
-                         std::unordered_set<int>& vertices_to_keep,
-                         int cutoff,
-                         NEIGHBOR_ITERATOR (AnalysisGraph::*neighbors)(int));
+  /*
+   ============================================================================
+   Private: Utilities (in graph_util.cpp)
+   ============================================================================
+  */
 
-  void get_subgraph_sinked_at(int vert,
-                              std::unordered_set<int>& vertices_to_keep,
-                              int cutoff);
+  void clear_state();
 
-  void get_subgraph_between(int start,
-                            int end,
-                            std::vector<int>& path,
-                            std::unordered_set<int>& vertices_to_keep,
-                            int cutoff);
+  void initialize_random_number_generator();
+
+  void remove_node(int node_id);
+
+  // Allocate a num_verts x num_verts 2D array (std::vector of std::vectors)
+  void allocate_A_beta_factors();
+
+  //AnalysisGraph
+  //find_all_paths_for_concept(std::string concept, int depth, bool reverse);
 
   /**
    * Finds all the simple paths starting at the start vertex and
@@ -205,29 +223,363 @@ class AnalysisGraph {
                                    std::vector<int>& path,
                                    int cutoff);
 
+  /**
+   * Utility function that converts a time range given a start date and end date
+   * into an integer value.
+   * At the moment returns the number of months withing the time range.
+   * This should be the number of traing data time points we have
+   *
+   * @param start_year  : Start year of the training data sequence
+   * @param start_month : Start month of the training data sequence
+   * @param end_year    : End year of the training data sequence
+   * @param end_month   : End month of the training data sequence
+   *
+   * @return            : Number of months in the training data sequence
+   *                      Including both start and end months
+   */
+  int calculate_num_timesteps(int start_year,
+                              int start_month,
+                              int end_year,
+                              int end_month);
+
+
   /*
-   ==========================================================================
-   Utilities
-   ==========================================================================
+   ============================================================================
+   Private: Subgraphs (in subgraphs.cpp)
+   ============================================================================
   */
-  void set_default_initial_state();
 
-  std::mt19937 rand_num_generator;
+  void get_subgraph(int vert,
+                    std::unordered_set<int>& vertices_to_keep,
+                    int cutoff,
+                    bool inward);
 
-  // Uniform distribution used by the MCMC sampler
-  std::uniform_real_distribution<double> uni_dist;
+  void get_subgraph_between(int start,
+                            int end,
+                            std::vector<int>& path,
+                            std::unordered_set<int>& vertices_to_keep,
+                            int cutoff);
 
-  // Normal distrubution used to perturb β
-  std::normal_distribution<double> norm_dist;
 
-  int get_vertex_id_for_concept(std::string concept, std::string caller);
+  /*
+   ============================================================================
+   Private: Accessors
+   ============================================================================
+  */
 
-  int get_degree(int vertex_id);
+  int num_nodes() { return boost::num_vertices(graph); }
 
-  void remove_node(int node_id);
+  //int get_vertex_id(std::string concept);
+  int get_vertex_id(std::string concept) {
+    using namespace fmt::literals;
+    try {
+      return this->name_to_vertex.at(concept);
+    }
+    catch (const std::out_of_range& oor) {
+      throw std::out_of_range("Concept \"{}\" not in CAG!"_format(concept));
+    }
+  }
+
+  auto node_indices() {
+    return boost::make_iterator_range(boost::vertices(this->graph));
+  };
+
+  auto nodes() {
+    using boost::adaptors::transformed;
+    return this->node_indices() |
+           transformed([&](int v) -> Node& { return (*this)[v]; });
+  };
+
+  auto node_names() {
+    using boost::adaptors::transformed;
+    return this->nodes() |
+           transformed([&](auto node) -> std::string { return node.name; });
+  };
+
+  int get_degree(int vertex_id) {
+    return boost::in_degree(vertex_id, this->graph) +
+           boost::out_degree(vertex_id, this->graph);
+  };
+
+  auto out_edges(int i) {
+    return boost::make_iterator_range(boost::out_edges(i, graph));
+  }
+
+  auto successors(int i) {
+    return boost::make_iterator_range(boost::adjacent_vertices(i, this->graph));
+  }
+
+  auto successors(std::string node_name) {
+    return this->successors(this->name_to_vertex.at(node_name));
+  }
+
+  //std::vector<Node> get_successor_list(std::string node_name);
+  std::vector<Node> get_successor_list(std::string node) {
+    std::vector<Node> successors = {};
+    for (int successor : this->successors(node)) {
+      successors.push_back((*this)[successor]);
+    }
+    return successors;
+  }
+
+  auto predecessors(int i) {
+    return boost::make_iterator_range(
+        boost::inv_adjacent_vertices(i, this->graph));
+  }
+
+  auto predecessors(std::string node_name) {
+    return this->predecessors(this->name_to_vertex.at(node_name));
+  }
+
+  //std::vector<Node> get_predecessor_list(std::string node_name);
+  std::vector<Node> get_predecessor_list(std::string node) {
+    std::vector<Node> predecessors = {};
+    for (int predecessor : this->predecessors(node)) {
+      predecessors.push_back((*this)[predecessor]);
+    }
+    return predecessors;
+  }
+
+  double get_beta(std::string source_vertex_name,
+                  std::string target_vertex_name) {
+
+    // This is ∂target / ∂source
+    return this->A_original(2 * get_vertex_id(target_vertex_name),
+                            2 * get_vertex_id(source_vertex_name) + 1);
+  }
+
+
+  /*
+   ============================================================================
+   Private: Get Training Data Sequence (in train_model.cpp)
+   ============================================================================
+  */
+
+
+  /**
+   * Set the observed state sequence for a given time range from data.
+   * The sequence includes both ends of the range.
+   * See data.hpp::get_data_value() for missing data rules.
+   * Note: units are automatically set according
+   * to the parameterization of the given CAG.
+   *
+   * @param start_year  : Start year of the sequence of data
+   * @param start_month : Start month of the sequence of data
+   * @param end_year    : End year of the sequence of data
+   * @param end_month   : End month of the sequenec of data
+   * @param country     : Country where the data is about
+   * @param state       : State where the data is about
+   * @param county      : County where the data is about
+   *
+   */
+  void
+  set_observed_state_sequence_from_data(int start_year,
+                                        int start_month,
+                                        int end_year,
+                                        int end_month,
+                                        std::string country = "South Sudan",
+                                        std::string state = "",
+                                        std::string county = "");
+
+  /**
+   * Get the observed state (values for all the indicators)
+   * for a given time point from data.
+   * See data.hpp::get_data_value() for missing data rules.
+   * Note: units are automatically set according
+   * to the parameterization of the given CAG.
+   *
+   * @param year    : Year of the time point data is extracted
+   * @param month   : Month of the time point data is extracted
+   * @param country : Country where the data is about
+   * @param state   : State where the data is about
+   * @param county  : County where the data is about
+   *
+   * @return        : Observed state std::vector for the specified location
+   *                  on the specified time point.
+   *                  Access it as: [ vertex id ][ indicator id ]
+   */
+  std::vector<std::vector<std::vector<double>>>
+  get_observed_state_from_data(int year,
+                               int month,
+                               std::string country,
+                               std::string state = "",
+                               std::string county = "");
+
+
+  /*
+   ============================================================================
+   Private: Training by MCMC Sampling (in sampling.cpp)
+   ============================================================================
+  */
+
+  // Sample elements of the stochastic transition matrix from the
+  // prior distribution, based on gradable adjectives.
+  void sample_initial_transition_matrix_from_prior();
+
+  /**
+   * Utility function that sets an initial latent state from observed data.
+   * This is used for the inference of the transition matrix as well as the
+   * training latent state sequences.
+   *
+   * @param timestep: Optional setting for setting the initial state to be other
+   *                  than the first time step. Not currently used.
+   *                  0 <= timestep < this->n_timesteps
+   */
+  void set_initial_latent_state_from_observed_state_sequence();
+
+  void set_initial_latent_from_end_of_training();
+
+  void set_log_likelihood();
+
+  void set_current_latent_state(int ts);
+
+  /**
+   * Run Bayesian inference - sample from the posterior distribution.
+   */
+  void sample_from_posterior();
+
+  /**
+   * Sample a new transition matrix from the proposal distribution,
+   * given a current candidate transition matrix.
+   * In practice, this amounts to:
+   *    Selecting a random β.
+   *    Perturbing it a bit.
+   *    Updating all the transition matrix cells that are dependent on it.
+   */
+  // TODO: Need testng
+  // TODO: Before calling sample_from_proposal() we must call
+  // AnalysisGraph::find_all_paths()
+  // TODO: Before calling sample_from_proposal(), we mush assign initial βs and
+  // run Tran_Mat_Cell::compute_cell() to initialize the first transistion
+  // matrix.
+  // TODO: Update Tran_Mat_Cell::compute_cell() to calculate the proper value.
+  // At the moment it just computes sum of length of all the paths realted to
+  // this cell
+  void sample_from_proposal();
+
+  /**
+   * Find all the transition matrix (A) cells that are dependent on the β
+   * attached to the provided edge and update them.
+   * Acts upon this->A_original
+   *
+   * @param e: The directed edge ≡ β that has been perturbed
+   */
+  void update_transition_matrix_cells(EdgeDescriptor e);
+
+  double calculate_delta_log_prior();
+
+  void revert_back_to_previous_state();
+
+
+  /*
+   ============================================================================
+   Private: Inference (in inference.cpp)
+   ============================================================================
+  */
+
+  /**
+   * Sample a collection of observed state sequences from the likelihood
+   * model given a collection of transition matrices.
+   *
+   * @param prediction_timesteps: The number of timesteps for the prediction
+   * sequences.
+   * @param initial_prediction_step: The initial prediction timestep relative
+   *                                 to training timesteps.
+   * @param total_timesteps: Total number of timesteps from the initial
+   *                         training date to the end prediction date.
+   */
+  void sample_predicted_latent_state_sequences(int prediction_timesteps,
+                                               int initial_prediction_step,
+                                               int total_timesteps);
+
+  /** Generate predicted observed state sequenes given predicted latent state
+   * sequences using the emission model
+   */
+  void
+  generate_predicted_observed_state_sequences_from_predicted_latent_state_sequences();
+
+  /**
+   * Format the prediction result into a format python callers favor.
+   *
+   * @param pred_timestes: Number of timesteps in the predicted sequence.
+   *
+   * @return Re-formatted prediction result.
+   *         Access it as:
+   *         [ sample number ][ time point ][ vertex name ][ indicator name ]
+   */
+
+  FormattedPredictionResult format_prediction_result();
+
+
+  /*
+   ============================================================================
+   Private: Syntheitc Data Experiment (in synthetic_data.cpp)
+   ============================================================================
+  */
+
+  /**
+   * To help experiment with initializing βs to differet values
+   *
+   * @param ib: Criteria to initialize β
+   */
+  void init_betas_to(InitialBeta ib = InitialBeta::MEAN);
+
+  void set_random_initial_latent_state();
+
+  void generate_synthetic_latent_state_sequence();
+
+  void
+  generate_synthetic_observed_state_sequence_from_synthetic_latent_state_sequence();
+
+  // TODO: Need testing
+  /**
+   * Sample observed state std::vector.
+   * This is the implementation of the emission function.
+   *
+   * @param latent_state: Latent state std::vector.
+   *                      This has 2 * number of vertices in the CAG.
+   *                      Even indices track the state of each vertex.
+   *                      Odd indices track the state of the derivative.
+   *
+   * @return Observed state std::vector. Observed state for each indicator for
+   * each vertex. Indexed by: [ vertex id ][ indicator id ]
+   */
+  std::vector<std::vector<double>>
+  sample_observed_state(Eigen::VectorXd latent_state);
+
+
+  /*
+   ============================================================================
+   Private: Graph Visualization (in graphviz.cpp)
+   ============================================================================
+  */
+
+  std::pair<Agraph_t*, GVC_t*> to_agraph(
+      bool simplified_labels =
+          false, /** Whether to create simplified labels or not. */
+      int label_depth =
+          1, /** Depth in the ontology to which simplified labels extend */
+      std::string node_to_highlight = "",
+      std::string rankdir = "TB");
+
 
   public:
+
+  AnalysisGraph() {}
+
   ~AnalysisGraph() {}
+
+  bool data_heuristic = false;
+
+  // Sampling resolution. Default is 200
+  int res = DEFAULT_N_SAMPLES;
+
+
+  /*
+   ============================================================================
+   Constructors (in constructors.cpp)
+   ============================================================================
+  */
 
   /**
    * A method to construct an AnalysisGraph object given a JSON-serialized list
@@ -238,7 +590,16 @@ class AnalysisGraph {
    */
   static AnalysisGraph from_json_file(std::string filename,
                                       double belief_score_cutoff = 0.9,
-                                      double grounding_score_cutoff = 0.0);
+                                      double grounding_score_cutoff = 0.0,
+                                      std::string ontology = "WM");
+
+  /*
+   * Construct an AnalysisGraph object from a dict of INDRA statements
+     exported by Uncharted's CauseMos webapp, and stored in a file.
+  */
+  static AnalysisGraph from_uncharted_json_dict(nlohmann::json json_data);
+  static AnalysisGraph from_uncharted_json_string(std::string json_string);
+  static AnalysisGraph from_uncharted_json_file(std::string filename);
 
   /**
    * A method to construct an AnalysisGraph object given from a std::vector of
@@ -249,14 +610,106 @@ class AnalysisGraph {
   static AnalysisGraph
   from_causal_fragments(std::vector<CausalFragment> causal_fragments);
 
+
+  /*
+   ============================================================================
+   Public: Accessors
+   ============================================================================
+  */
+
+  /** Number of nodes in the graph */
+  size_t num_vertices() {
+    return boost::num_vertices(this->graph);
+  }
+
+  Node& operator[](std::string node_name) {
+    return (*this)[this->get_vertex_id(node_name)];
+  }
+
+  Node& operator[](int v) { return this->graph[v]; }
+
+  size_t num_edges() { return boost::num_edges(this->graph); }
+
+  auto edges() { return boost::make_iterator_range(boost::edges(graph)); }
+
+  Edge& edge(EdgeDescriptor e) { return this->graph[e]; }
+
+  Edge& edge(int source, int target) {
+    return this->graph[boost::edge(source, target, this->graph).first];
+  }
+
+  Edge& edge(int source, std::string target) {
+    return this->graph
+      [boost::edge(source, this->get_vertex_id(target), this->graph).first];
+  }
+
+  Edge& edge(std::string source, int target) {
+    return this->graph
+      [boost::edge(this->get_vertex_id(source), target, this->graph).first];
+  }
+
+  Edge& edge(std::string source, std::string target) {
+    return this->graph[boost::edge(this->get_vertex_id(source),
+        this->get_vertex_id(target),
+        this->graph)
+      .first];
+  }
+
+  boost::range_detail::integer_iterator<unsigned long> begin() {
+    return boost::vertices(this->graph).first;
+  };
+
+  boost::range_detail::integer_iterator<unsigned long> end() {
+    return boost::vertices(this->graph).second;
+  };
+
+  Eigen::VectorXd& get_initial_latent_state() { return this->s0; };
+
+
+  /*
+   ============================================================================
+   Public: Graph Building (in graph_building.cpp)
+   ============================================================================
+  */
+
+  void add_node(std::string concept);
+
+  void add_edge(CausalFragment causal_fragment);
+  std::pair<EdgeDescriptor, bool> add_edge(int, int);
+  std::pair<EdgeDescriptor, bool> add_edge(int, std::string);
+  std::pair<EdgeDescriptor, bool> add_edge(std::string, int);
+  std::pair<EdgeDescriptor, bool> add_edge(std::string, std::string);
+
+  void remove_node(std::string concept);
+
+  // Note:
+  //      Although just calling this->remove_node(concept) within the loop
+  //          for( std::string concept : concept_s )
+  //      is sufficient to implement this method, it is not very efficient.
+  //      It re-calculates directed simple paths for each vertex removed
+  //
+  //      Therefore, the code in this->remove_node() has been duplicated with
+  //      slightly different flow to achive a more efficient execution.
+  void remove_nodes(std::unordered_set<std::string> concepts);
+
+  void remove_edge(std::string src, std::string tgt);
+
+  void remove_edges(std::vector<std::pair<std::string, std::string>> edges);
+
+
+  /*
+   ============================================================================
+   Public: Subgraph (in subgraph.cpp)
+   ============================================================================
+  */
+
   // TODO Change the name of this function to something better, like
   // restrict_to_subgraph_for_concept, update docstring
 
   /**
-   * Returns a new AnaysisGraph related to the concept provided,
-   * which is a subgraph of this graph.
+   * Returns the subgraph of the AnalysisGraph around a concept.
    *
-   * @param concept: The concept where the subgraph is about.
+   * @param concept: The concept to center the subgraph about.
    * @param depth  : The maximum number of hops from the concept provided
    *                 to be included in the subgraph.
    * #param inward : Sets the direction of the causal influence flow to
@@ -286,39 +739,14 @@ class AnalysisGraph {
                                               std::string target_concept,
                                               int cutoff = -1);
 
+
+  /*
+   ============================================================================
+   Public: Graph Modification (in graph_modification.cpp)
+   ============================================================================
+  */
+
   void prune(int cutoff = 2);
-
-  void add_node(std::string concept);
-
-  void add_edge(CausalFragment causal_fragment);
-  void change_polarity_of_edge(std::string source_concept,
-                               int source_polarity,
-                               std::string target_concept,
-                               int target_polarity);
-  void remove_node(std::string concept);
-
-  // Note:
-  //      Although just calling this->remove_node(concept) within the loop
-  //          for( std::string concept : concept_s )
-  //      is suffifient to implement this method, it is not very efficient.
-  //      It re-calculates directed simple paths for each vertex removed
-  //
-  //      Therefore, the code in this->remove_node() has been duplicated with
-  //      slightly different flow to achive a more efficient execution.
-  void remove_nodes(std::unordered_set<std::string> concepts);
-
-  void remove_edge(std::string src, std::string tgt);
-
-  void remove_edges(std::vector<std::pair<std::string, std::string>> edges);
-
-  auto edges() { return boost::make_iterator_range(boost::edges(graph)); }
-
-  /** Number of nodes in the graph */
-  int num_nodes() { return boost::num_vertices(graph); }
-
-  auto predecessors(int i) {
-    return boost::make_iterator_range(boost::inv_adjacent_vertices(i, graph));
-  }
 
   // Merge node n1 into node n2, with the option to specify relative polarity.
   // void
@@ -332,143 +760,77 @@ class AnalysisGraph {
                    std::string concept_2,
                    bool same_polarity = true);
 
-  auto out_edges(int i) {
-    return boost::make_iterator_range(boost::out_edges(i, graph));
-  }
+  void change_polarity_of_edge(std::string source_concept,
+                               int source_polarity,
+                               std::string target_concept,
+                               int target_polarity);
 
-  double get_beta(std::string source_vertex_name,
-                  std::string target_vertex_name) {
-    // This is ∂target / ∂source
-    // return this->A_original(2 * this->name_to_vertex[target_vertex_name],
-    //                        2 * this->name_to_vertex[source_vertex_name] + 1);
-    return this->A_original(
-        2 * get_vertex_id_for_concept(target_vertex_name, "get_beta()"),
-        2 * get_vertex_id_for_concept(source_vertex_name, "get_beta()") + 1);
-  }
 
+  /*
+   ============================================================================
+   Public: Construct Beta Pdfs (in construct_beta_pdfs.cpp)
+   ============================================================================
+  */
+
+  void construct_beta_pdfs(std::mt19937 rng);
   void construct_beta_pdfs();
 
-  AnalysisGraph
-  find_all_paths_for_concept(std::string concept, int depth, bool reverse);
+
+  /*
+   ============================================================================
+   Public: Indicator Manipulation (in indicator_manipulation.cpp)
+   ============================================================================
+  */
+
+  void
+  set_indicator(std::string concept, std::string indicator, std::string source);
+
+  void delete_indicator(std::string concept, std::string indicator);
+
+  void delete_all_indicators(std::string concept);
+
+  /**
+   * Map each concept node in the AnalysisGraph instance to one or more
+   * tangible quantities, known as 'indicators'.
+   *
+   * @param n: Int representing number of indicators to attach per node.
+   * Default is 1 since our model so far is configured for only 1 indicator per
+   * node.
+   */
+  void map_concepts_to_indicators(int n = 1, std::string country = "");
+
+  /**
+   * Parameterize the indicators of the AnalysisGraph..
+   */
+  void parameterize(std::string country = "South Sudan",
+                    std::string state = "",
+                    std::string county = "",
+                    int year = -1,
+                    int month = 0,
+                    std::map<std::string, std::string> units = {});
+
+
+  /*
+   ============================================================================
+   Public: Utilities (in graph_utils.cpp)
+   ============================================================================
+  */
 
   /*
    * Find all the simple paths between all the paris of nodes of the graph
    */
   void find_all_paths();
 
-  /*
-   * Prints the simple paths found between all pairs of nodes of the graph
-   * Groupd according to the starting and ending vertex.
-   * find_all_paths() should be called before this to populate the paths
-   */
-  void print_all_paths();
+  void set_random_seed(int seed);
 
-  // Given an edge (source, target vertex ids - i.e. a β ≡ ∂target/∂source),
-  // print all the transition matrix cells that are dependent on it.
-  void print_cells_affected_by_beta(int source, int target);
+  void set_derivative(std::string, double);
+
 
   /*
-   ==========================================================================
-   Sampling and inference
-   ----------------------
-
-   This section contains code for sampling and Bayesian inference.
-   ==========================================================================
+   ============================================================================
+   Public: Training the Model (in training_model.cpp)
+   ============================================================================
   */
-
-  // Sample elements of the stochastic transition matrix from the
-  // prior distribution, based on gradable adjectives.
-  void sample_initial_transition_matrix_from_prior();
-
-  /**
-   * Utility function that converts a time range given a start date and end date
-   * into an integer value.
-   * At the moment returns the number of months withing the time range.
-   * This should be the number of traing data time points we have
-   *
-   * @param start_year  : Start year of the training data sequence
-   * @param start_month : Start month of the training data sequence
-   * @param end_year    : End year of the training data sequence
-   * @param end_month   : End month of the training data sequence
-   *
-   * @return            : Number of months in the training data sequence
-   *                      Including both start and end months
-   */
-  int calculate_num_timesteps(int start_year,
-                              int start_month,
-                              int end_year,
-                              int end_month);
-
-  /**
-   * Get the observed state (values for all the indicators)
-   * for a given time point from data.
-   * See data.hpp::get_data_value() for missing data rules.
-   * Note: units are automatically set according
-   * to the parameterization of the given CAG.
-   *
-   * @param year    : Year of the time point data is extracted
-   * @param month   : Month of the time point data is extracted
-   * @param country : Country where the data is about
-   * @param state   : State where the data is about
-   * @param county  : County where the data is about
-   *
-   * @return        : Observed state std::vector for the specified location
-   *                  on the specified time point.
-   *                  Access it as: [ vertex id ][ indicator id ]
-   */
-  std::vector<std::vector<std::vector<double>>>
-  get_observed_state_from_data(int year,
-                               int month,
-                               std::string country = "South Sudan",
-                               std::string state = "",
-                               std::string county = "");
-
-  /**
-   * Set the observed state sequence for a given time range from data.
-   * The sequence includes both ends of the range.
-   * See data.hpp::get_data_value() for missing data rules.
-   * Note: units are automatically set according
-   * to the parameterization of the given CAG.
-   *
-   * @param start_year  : Start year of the sequence of data
-   * @param start_month : Start month of the sequence of data
-   * @param end_year    : End year of the sequence of data
-   * @param end_month   : End month of the sequenec of data
-   * @param country     : Country where the data is about
-   * @param state       : State where the data is about
-   * @param county      : County where the data is about
-   *
-   */
-  void
-  set_observed_state_sequence_from_data(int start_year,
-                                        int start_month,
-                                        int end_year,
-                                        int end_month,
-                                        std::string country = "South Sudan",
-                                        std::string state = "",
-                                        std::string county = "");
-
-  /**
-   * Utility function that sets an initial latent state from observed data.
-   * This is used for the inference of the transition matrix as well as the
-   * training latent state sequences.
-   *
-   * @param timestep: Optional setting for setting the initial state to be other
-   *                  than the first time step. Not currently used.
-   *                  0 <= timestep < this->n_timesteps
-   */
-  void set_initial_latent_state_from_observed_state_sequence();
-
-  void initialize_random_number_generator();
-
-  void set_random_initial_latent_state();
-
-  /**
-   * To help experiment with initializing βs to differet values
-   *
-   * @param ib: Criteria to initialize β
-   */
-  void init_betas_to(InitialBeta ib = InitialBeta::MEAN);
 
   /**
    * Train a prediction model given a CAG with indicators
@@ -501,23 +863,23 @@ class AnalysisGraph {
                    InitialBeta initial_beta = InitialBeta::ZERO,
                    bool use_heuristic = false);
 
-  /**
-   * Sample a collection of observed state sequences from the likelihood
-   * model given a collection of transition matrices.
-   *
-   * @param prediction_timesteps: The number of timesteps for the prediction sequences.
-   * @param initial_prediction_step: The initial prediction timestep relative
-   *                                 to training timesteps. 
-   * @param total_timesteps: Total number of timesteps from the initial
-   *                         training date to the end prediction date.
-   */
-  void sample_predicted_latent_state_sequences(int prediction_timesteps, int initial_prediction_step, int total_timesteps);
 
-  /** Generate predicted observed state sequenes given predicted latent state
-   * sequences using the emission model
-   */
-  void
-  generate_predicted_observed_state_sequences_from_predicted_latent_state_sequences();
+  /*
+   ============================================================================
+   Public: Training by MCMC Sampling (in sampling.cpp)
+   ============================================================================
+  */
+
+  void set_initial_latent_state(Eigen::VectorXd vec) { this->s0 = vec; };
+
+  void set_default_initial_state();
+
+
+  /*
+   ============================================================================
+   Public: Inference (in inference.cpp)
+   ============================================================================
+  */
 
   /**
    * Given a trained model, generate this->res number of
@@ -545,18 +907,6 @@ class AnalysisGraph {
                                  int end_month);
 
   /**
-   * Format the prediction result into a format python callers favor.
-   *
-   * @param pred_timestes: Number of timesteps in the predicted sequence.
-   *
-   * @return Re-formatted prediction result.
-   *         Access it as:
-   *         [ sample number ][ time point ][ vertex name ][ indicator name ]
-   */
-
-  FormattedPredictionResult format_prediction_result();
-
-  /**
    * this->generate_prediction() must be called before callign this method.
    * Outputs raw predictions for a given indicator that were generated by
    * generate_prediction(). Each column is a time step and the rows are the
@@ -572,14 +922,12 @@ class AnalysisGraph {
   */
   std::vector<std::vector<double>> prediction_to_array(std::string indicator);
 
-  std::vector<Eigen::VectorXd> synthetic_latent_state_sequence;
-  // ObservedStateSequence synthetic_observed_state_sequence;
-  bool synthetic_data_experiment = false;
 
-  void generate_synthetic_latent_state_sequence();
-
-  void
-  generate_synthetic_observed_state_sequence_from_synthetic_latent_state_sequence();
+  /*
+   ============================================================================
+   Public: Syntheitc data experiment (in synthetic_data.cpp)
+   ============================================================================
+  */
 
   std::pair<PredictedObservedStateSequence, Prediction>
   test_inference_with_synthetic_data(
@@ -595,148 +943,45 @@ class AnalysisGraph {
       std::map<std::string, std::string> units = {},
       InitialBeta initial_beta = InitialBeta::HALF);
 
-  // TODO: Need testing
-  /**
-   * Sample observed state std::vector.
-   * This is the implementation of the emission function.
-   *
-   * @param latent_state: Latent state std::vector.
-   *                      This has 2 * number of vertices in the CAG.
-   *                      Even indices track the state of each vertex.
-   *                      Odd indices track the state of the derivative.
-   *
-   * @return Observed state std::vector. Observed state for each indicator for
-   * each vertex. Indexed by: [ vertex id ][ indicator id ]
-   */
-  std::vector<std::vector<double>>
-  sample_observed_state(Eigen::VectorXd latent_state);
-
-  /**
-   * Find all the transition matrix (A) cells that are dependent on the β
-   * attached to the provided edge and update them.
-   * Acts upon this->A_original
-   *
-   * @param e: The directed edge ≡ β that has been perturbed
-   */
-  void update_transition_matrix_cells(
-      boost::graph_traits<DiGraph>::edge_descriptor e);
-
-  /**
-   * Sample a new transition matrix from the proposal distribution,
-   * given a current candidate transition matrix.
-   * In practice, this amounts to:
-   *    Selecting a random β.
-   *    Perturbing it a bit.
-   *    Updating all the transition matrix cells that are dependent on it.
-   */
-  // TODO: Need testng
-  // TODO: Before calling sample_from_proposal() we must call
-  // AnalysisGraph::find_all_paths()
-  // TODO: Before calling sample_from_proposal(), we mush assign initial βs and
-  // run Tran_Mat_Cell::compute_cell() to initialize the first transistion
-  // matrix.
-  // TODO: Update Tran_Mat_Cell::compute_cell() to calculate the proper value.
-  // At the moment it just computes sum of length of all the paths realted to
-  // this cell
-  void sample_from_proposal();
-
-  void set_current_latent_state(int ts);
-
-  double log_normpdf(double x, double mean, double sd);
-
-  void set_log_likelihood();
-
-  double calculate_delta_log_prior();
-
-  void revert_back_to_previous_state();
-
-  /**
-   * Run Bayesian inference - sample from the posterior distribution.
-   */
-  void sample_from_posterior();
-
-  // ==========================================================================
-  // Manipulation
-  // ==========================================================================
-
-  void
-  set_indicator(std::string concept, std::string indicator, std::string source);
-
-  void delete_indicator(std::string concept, std::string indicator);
-
-  void delete_all_indicators(std::string concept);
 
   /*
-  // TODO: Demosntrate how to use the Node::get_indicator() method
-  // with the custom exception.
-  // Not sure whether we need this method in AnalaysisGraph
-  // so that python side can directly access the Indicator class
-  // objects and maipulate them (we need to fiture out how to map a
-  // custom class from C++ into python for this) - harder
-  // or
-  // mirror getter and setter methods of the Indicator class
-  // in AnalysisGraph and make the python side call them - easier.
-  Indicator get_indicator(std::string concept, std::string indicator) {
-    try {
-      return graph[name_to_vertex.at(concept)].get_indicator(indicator);
-    } catch (const std::out_of_range &oor) {
-      fmt::print("Error: AnalysisGraph::get_indicator()\n");
-      fmt::print("\tConcept: {} is not in the CAG\n", concept);
-    } catch (IndicatorNotFoundException &infe) {
-      std::cerr << "Error: AnalysisGraph::get_indicator()\n"
-                << "\tindicator: " << infe.what()
-                << " is not attached to CAG node " << concept << std::endl;
-    }
-  }
+   ============================================================================
+   Public: Graph Visualization (in graphviz.cpp)
+   ============================================================================
   */
-
-  void replace_indicator(std::string concept,
-                         std::string indicator_old,
-                         std::string indicator_new,
-                         std::string source);
-
-  /*
-    ==========================================================================
-    Model parameterization
-    *Loren: I am going to try to port this, I'll try not to touch anything up
-    top
-    and only push changes that compile. If I do push a change that breaks things
-    you could probably just comment out this section.*
-    ==========================================================================
-  */
-
-  /**
-   * Map each concept node in the AnalysisGraph instance to one or more
-   * tangible quantities, known as 'indicators'.
-   *
-   * @param n: Int representing number of indicators to attach per node.
-   * Default is 1 since our model so far is configured for only 1 indicator per
-   * node.
-   */
-  void map_concepts_to_indicators(int n = 1);
-
-  /**
-   * Parameterize the indicators of the AnalysisGraph..
-   *
-   */
-  void parameterize(std::string country = "South Sudan",
-                    std::string state = "",
-                    std::string county = "",
-                    int year = 2012,
-                    int month = 1,
-                    std::map<std::string, std::string> units = {});
-
-  void print_nodes();
-
-  void print_edges();
-
-  void print_name_to_vertex();
-
-  std::pair<Agraph_t*, GVC_t*> to_agraph();
 
   std::string to_dot();
 
-  void to_png(std::string filename = "CAG.png");
+  void
+  to_png(std::string filename = "CAG.png",
+         bool simplified_labels =
+             false, /** Whether to create simplified labels or not. */
+         int label_depth =
+             1, /** Depth in the ontology to which simplified labels extend */
+         std::string node_to_highlight = "",
+         std::string rankdir = "TB");
 
+
+  /*
+   ============================================================================
+   Public: Printing (in printing.cpp)
+   ============================================================================
+  */
+
+  void print_nodes();
+  void print_edges();
+  void print_name_to_vertex();
   void print_indicators();
+  void print_A_beta_factors();
+
+  /*
+   * Prints the simple paths found between all pairs of nodes of the graph
+   * Groupd according to the starting and ending vertex.
+   * find_all_paths() should be called before this to populate the paths
+   */
+  void print_all_paths();
+
+  // Given an edge (source, target vertex ids - i.e. a β ≡ ∂target/∂source),
+  // print all the transition matrix cells that are dependent on it.
+  void print_cells_affected_by_beta(int source, int target);
 };

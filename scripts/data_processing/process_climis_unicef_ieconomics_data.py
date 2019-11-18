@@ -9,7 +9,7 @@ from pprint import pprint
 from glob import glob
 from typing import List, Dict
 from delphi.utils.shell import cd
-from delphi.paths import data_dir, south_sudan_data
+from delphi.paths import south_sudan_data
 from delphi.utils.fp import grouper
 from functools import partial
 from itertools import groupby
@@ -74,7 +74,7 @@ def set_defaults(record: Dict):
             "Year": 2017,
             "Country": "South Sudan",
             "Unit": "%",
-            "Source": "CliMIS",
+            "Source": "CLiMIS",
             "County": None,
         }
     )
@@ -152,14 +152,14 @@ def process_file_with_multiple_tables(filename, header_dict):
         return None
 
 def process_climis_crop_production_data(data_dir: str):
-    """ Process CliMIS crop production data """
+    """ Process CLiMIS crop production data """
 
     climis_crop_production_csvs = glob(
         "{data_dir}/Climis South Sudan Crop Production Data/"
         "Crops_EstimatedProductionConsumptionBalance*.csv"
     )
     state_county_df = pd.read_csv(
-        f"data/south_sudan_data_fewsnet.tsv", skipinitialspace=True
+        f"data/indicator_data_fewsnet.tsv", skipinitialspace=True
     )
     combined_records = []
 
@@ -170,7 +170,7 @@ def process_climis_crop_production_data(data_dir: str):
             record = {
                 "Year": year,
                 "Month": None,
-                "Source": "CliMIS",
+                "Source": "CLiMIS",
                 "Country": "South Sudan",
             }
             region = r["State/County"].strip()
@@ -206,7 +206,7 @@ def process_climis_crop_production_data(data_dir: str):
 
 
 def process_climis_livestock_data(data_dir: str):
-    """ Process CliMIS livestock data. """
+    """ Process CLiMIS livestock data. """
 
     records = []
 
@@ -348,14 +348,15 @@ def process_climis_livestock_data(data_dir: str):
             livestock_migration_df,
             livestock_pasture_df,
             livestock_water_sources_df,
-        ]
+        ],
+        sort=True
     )
     return climis_livestock_data_df
 
 
 def process_climis_import_data(data_dir: str) -> pd.DataFrame:
     dfs = []
-    for f in glob(f"{data_dir}/CliMIS Import Data/*.csv"):
+    for f in glob(f"{data_dir}/CLiMIS Import Data/*.csv"):
         df = pd.read_csv(f, names=range(1, 13), header=0, thousands=",")
         df = df.stack().reset_index(name="Value")
         df.columns = ["Year", "Month", "Value"]
@@ -380,7 +381,7 @@ def process_climis_import_data(data_dir: str) -> pd.DataFrame:
 def process_climis_rainfall_data(data_dir: str) -> pd.DataFrame:
     dfs = []
     # Read CSV files first
-    for f in glob(f"{data_dir}/CliMIS South Sudan Rainfall Data in"
+    for f in glob(f"{data_dir}/CLiMIS South Sudan Rainfall Data in"
                   " Millimeters/*.csv"):
         # Get the name of the table without path and extension
         table_name = os.path.basename(f)[:-4]
@@ -398,13 +399,13 @@ def process_climis_rainfall_data(data_dir: str) -> pd.DataFrame:
         df_new['Unit'] = 'millimeters'
         df_new['County'] = None
         df_new['State'] = state
-        df_new['Source'] = 'CliMIS'
+        df_new['Source'] = 'CLiMIS'
         df_new['Country'] = 'South Sudan'
         dfs.append(df_new)
     df1 = pd.concat(dfs)
 
     # Read XLSX file next
-    fname = f'{data_dir}/CliMIS South Sudan Rainfall Data in Millimeters/' + \
+    fname = f'{data_dir}/CLiMIS South Sudan Rainfall Data in Millimeters/' + \
         'Rainfall-Early_Warning_6month_Summary-2017-data_table.xlsx'
     df = pd.read_excel(fname, sheet_name='Rainfall Data', header=1)
     cols = ['Variable', 'Year', 'Month', 'Value', 'Unit', 'Source',
@@ -433,7 +434,7 @@ def process_climis_rainfall_data(data_dir: str) -> pd.DataFrame:
     df_new['State'] = states
     df_new['Variable'] = 'Rainfall'
     df_new['Unit'] = 'millimeters'
-    df_new['Source'] = 'CliMIS'
+    df_new['Source'] = 'CLiMIS'
     df_new['Country'] = 'South Sudan'
 
     df = pd.concat([df1, df_new])
@@ -494,8 +495,7 @@ if __name__ == "__main__":
         "Country",
     ]
 
-    data_dir = str(data_dir / "raw" / "wm_12_month_evaluation")
+    data_dir = "data/raw/wm_12_month_evaluation"
     df = create_combined_table(data_dir, columns)
     df["Year"] = df["Year"].astype(int)
-    df = df[(df.Year < 2017) | ((df.Year == 2017) & (df.Month <= 4))]
-    df.to_csv("data/south_sudan_data_climis_unicef_ieconomics.tsv", index=False, sep="\t")
+    df.to_csv(sys.argv[1], index=False, sep="\t")

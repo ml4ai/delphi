@@ -36,8 +36,8 @@ def create_statement_inspection_table(sts: List[Influence]):
     polarity_to_str = lambda x: "+" if x == 1 else "-" if x == -1 else "None"
     l = []
     for s in sts:
-        subj_un_grounding = s.subj.db_refs["UN"][0][0].split("/")[-1]
-        obj_un_grounding = s.obj.db_refs["UN"][0][0].split("/")[-1]
+        subj_un_grounding = s.subj.db_refs["WM"][0][0].split("/")[-1]
+        obj_un_grounding = s.obj.db_refs["WM"][0][0].split("/")[-1]
         subj_polarity = s.subj_delta["polarity"]
         obj_polarity = s.obj_delta["polarity"]
         subj_adjectives = s.subj_delta["adjectives"]
@@ -273,13 +273,13 @@ def perform_intervention(G, n0, partial_t_n0, n1, xlim=(0, 1)):
     print(f"Standard deviation, σ = {np.std(vals[n1]):.2f}")
     plt.tight_layout()
 
-def display(G):
+def display(G, simplified_labels = True, label_depth=1, node_to_highlight=""):
     from pygraphviz import AGraph
     from IPython.core.display import Image
 
     temporary_image_filename = "tmp.png"
     try:
-        G.to_png(temporary_image_filename)
+        G.to_png(temporary_image_filename, simplified_labels, label_depth, node_to_highlight)
         return Image(temporary_image_filename)
     finally:
         os.remove(temporary_image_filename)

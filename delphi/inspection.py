@@ -50,7 +50,7 @@ def statements(G: AnalysisGraph) -> Iterable[Influence]:
     return sorted(
         sts,
         key=lambda s: (
-            s.subj.db_refs["UN"][0][0].split("/")[-1]
-            + s.obj.db_refs["UN"][0][0].split("/")[-1]
+            s.subj.db_refs["WM"][0][0].split("/")[-1]
+            + s.obj.db_refs["WM"][0][0].split("/")[-1]
         ),
     )

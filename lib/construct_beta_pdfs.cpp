@@ -1,18 +1,19 @@
 #include "AnalysisGraph.hpp"
 #include "itertools.hpp"
 #include <sqlite3.h>
+
 using namespace std;
+using namespace delphi::utils;
 
 AdjectiveResponseMap
-construct_adjective_response_map(size_t n_kernels = DEFAULT_N_SAMPLES) {
-  using utils::hasKey;
-  sqlite3* db;
+construct_adjective_response_map(std::mt19937 gen, size_t n_kernels = DEFAULT_N_SAMPLES) {
+  sqlite3* db = nullptr;
   int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
 
   if (rc == 1)
     throw "Could not open db\n";
 
-  sqlite3_stmt* stmt;
+  sqlite3_stmt* stmt = nullptr;
   const char* query = "select * from gradableAdjectiveData";
   rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
 
@@ -22,7 +23,7 @@ construct_adjective_response_map(size_t n_kernels = DEFAULT_N_SAMPLES) {
     string adjective =
         string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2)));
     double response = sqlite3_column_double(stmt, 6);
-    if (hasKey(adjective_response_map, adjective)) {
+    if (in(adjective_response_map, adjective)) {
       adjective_response_map[adjective] = {response};
     }
     else {
@@ -31,20 +32,27 @@ construct_adjective_response_map(size_t n_kernels = DEFAULT_N_SAMPLES) {
   }
 
   for (auto& [k, v] : adjective_response_map) {
-    v = KDE(v).resample(n_kernels);
+    v = KDE(v).resample(n_kernels, gen);
   }
   sqlite3_finalize(stmt);
   sqlite3_close(db);
+  stmt = nullptr;
+  db = nullptr;
   return adjective_response_map;
 }
 
-void AnalysisGraph::construct_beta_pdfs() {
-  using utils::get;
-  using utils::lmap;
+
+/*
+ ============================================================================
+ Public: Construct Beta Pdfs 
+ ============================================================================
+*/
+
+void AnalysisGraph::construct_beta_pdfs(std::mt19937 gen) {
 
   double sigma_X = 1.0;
   double sigma_Y = 1.0;
-  AdjectiveResponseMap adjective_response_map = construct_adjective_response_map();
+  AdjectiveResponseMap adjective_response_map = construct_adjective_response_map(gen);
   vector<double> marginalized_responses;
   for (auto [adjective, responses] : adjective_response_map) {
     for (auto response : responses) {
@@ -53,9 +61,9 @@ void AnalysisGraph::construct_beta_pdfs() {
   }
 
   marginalized_responses =
-      KDE(marginalized_responses).resample(DEFAULT_N_SAMPLES);
+      KDE(marginalized_responses).resample(DEFAULT_N_SAMPLES, gen);
 
-  for (auto e : edges()) {
+  for (auto e : this->edges()) {
     vector<double> all_thetas = {};
 
     for (Statement stmt : this->graph[e].evidence) {
@@ -78,13 +86,25 @@ void AnalysisGraph::construct_beta_pdfs() {
       }
     }
 
-    // TODO: Why kde is optional in struct Edge?
-    // It seems all the edges get assigned with a kde
     this->graph[e].kde = KDE(all_thetas);
 
     // Initialize the initial β for this edge
     // TODO: Decide the correct way to initialize this
-    this->graph[e].beta = this->graph[e].kde.value().mu;
+    this->graph[e].beta = this->graph[e].kde.mu;
   }
+}
+
+/*
+ * TODO: Remove this method
+ * This method was introduced to make the old test code happy
+ * when the signature of construct_beta_pdfs was updated to fix memory
+ * leaks.
+ * After updating the old test code, this method shoudl be
+ * removed from here and DelphiPython.cpp
+ */
+void AnalysisGraph::construct_beta_pdfs() {
+  std::mt19937 gen = RNG::rng()->get_RNG();
+  this->construct_beta_pdfs(gen);
+  RNG::release_instance();
 }
 

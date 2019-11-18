@@ -17,20 +17,15 @@ sys.path.insert(0, "/tmp/automates")
 
 
 def process_tr_dicts():
+    grfn_path = os.path.join(THIS_FOLDER, "grfn_with_alignments.json")
+    petasce_path = os.path.join(THIS_FOLDER, "petasce_with_alignments_2.json")
 
-    with open(
-        os.path.join(THIS_FOLDER, "grfn_with_alignments.json"), "r"
-    ) as f:
-        tr_dict_1 = json.load(f)
-
-    with open(
-        os.path.join(THIS_FOLDER, "petasce_with_alignments_2.json"), "r"
-    ) as f:
-        tr_dict_2 = json.load(f)
+    tr_dict_1 = json.load(open(grfn_path, "r", encoding="utf-8"))
+    tr_dict_2 = json.load(open(petasce_path, "r", encoding="utf-8"))
 
     tr_dict = {
-        "variables": tr_dict_1["variables"][0]+ tr_dict_2["variables"][0],
-        "alignments": tr_dict_1["alignments"][0]+ tr_dict_2["alignments"][0],
+        "variables": tr_dict_1["variables"][0] + tr_dict_2["variables"][0],
+        "alignments": tr_dict_1["alignments"][0] + tr_dict_2["alignments"][0],
     }
 
     tr_dict_processed = {}
@@ -116,44 +111,48 @@ def get_tooltip(n):
             tooltip = None
 
     else:
-        src = inspect.getsource(n[1]["lambda_fn"])
-        src_lines = src.split("\n")
-        ltx = (
-            src_lines[0].split("__")[2].split("(")[0].replace("_", "\_")
-            + " = "
-            + latex(
-                sympify(src_lines[1][10:].replace("math.", "")),
-                mul_symbol="dot",
-            ).replace("_", "\_")
-        )
-        tooltip = """
-        <nav>
-            <div class="nav nav-tabs" id="nav-tab-{n}" role="tablist">
-                <a class="nav-item nav-link active" id="nav-eq-tab-{n}"
-                    data-toggle="tab" href="#nav-eq-{n}" role="tab"
-                    aria-controls="nav-eq-{n}" aria-selected="true">
-                    Equation
-                </a>
-                <a class="nav-item nav-link" id="nav-code-tab-{n}"
-                    data-toggle="tab" href="#nav-code-{n}" role="tab"
-                    aria-controls="nav-code-{n}" aria-selected="false">
-                    Lambda Function
-                </a>
+        try:
+            func_name = n[1]["lambda_fn"].__name__
+            out_name = func_name.split("__")[-2].replace("_", "\_")
+            src = inspect.getsource(n[1]["lambda_fn"])
+            src_lines = src.split("\n")
+            computation = src_lines[1].replace("return", "").strip().replace("math.", "")
+
+            ltx = (out_name + " = " +
+                   latex(sympify(computation), mul_symbol="dot",).replace("_", "\_")
+                   )
+
+            tooltip = """
+            <nav>
+                <div class="nav nav-tabs" id="nav-tab-{n}" role="tablist">
+                    <a class="nav-item nav-link active" id="nav-eq-tab-{n}"
+                        data-toggle="tab" href="#nav-eq-{n}" role="tab"
+                        aria-controls="nav-eq-{n}" aria-selected="true">
+                        Equation
+                    </a>
+                    <a class="nav-item nav-link" id="nav-code-tab-{n}"
+                        data-toggle="tab" href="#nav-code-{n}" role="tab"
+                        aria-controls="nav-code-{n}" aria-selected="false">
+                        Lambda Function
+                    </a>
+                </div>
+            </nav>
+            <div class="tab-content" id="nav-tabContent" style="padding-top:1rem; padding-bottom: 0.5rem;">
+                <div class="tab-pane fade show active" id="nav-eq-{n}"
+                    role="tabpanel" aria-labelledby="nav-eq-tab-{n}">
+                    \({ltx}\)
+                </div>
+                <div class="tab-pane fade" id="nav-code-{n}" role="tabpanel"
+                    aria-labelledby="nav-code-tab-{n}">
+                    {src}
+                </div>
             </div>
-        </nav>
-        <div class="tab-content" id="nav-tabContent" style="padding-top:1rem; padding-bottom: 0.5rem;">
-            <div class="tab-pane fade show active" id="nav-eq-{n}"
-                role="tabpanel" aria-labelledby="nav-eq-tab-{n}">
-                \({ltx}\)
-            </div>
-            <div class="tab-pane fade" id="nav-code-{n}" role="tabpanel"
-                aria-labelledby="nav-code-tab-{n}">
-                {src}
-            </div>
-        </div>
-        """.format(
-            ltx=ltx, src=highlight(src, PYTHON_LEXER, PYTHON_FORMATTER), n=n
-        )
+            """.format(
+                ltx=ltx, src=highlight(src, PYTHON_LEXER, PYTHON_FORMATTER), n=n
+            )
+        except Exception as e:
+            print(e)
+            return ""
     return tooltip
 
 

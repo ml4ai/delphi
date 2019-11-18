@@ -8,7 +8,7 @@ The following are the prerequisites for Delphi:
 - [Graphviz](https://www.graphviz.org/download/) - Delphi uses this to
   visualize causal analysis graphs. See MacOS and Ubuntu notes below
   for installing graphviz.
-- A C++17-compatible compiler. Delphi has been tested with Clang 8 and G++ 8.
+- A C++17-compatible compiler.
 - [Boost](https://www.boost.org)
 - [CMake](https://cmake.org)
 

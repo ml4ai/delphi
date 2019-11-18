@@ -1,4 +1,5 @@
 import os
+import sys
 import zipfile
 import calendar
 from pathlib import Path
@@ -10,6 +11,7 @@ from delphi.utils.web import download_file
 from tqdm import tqdm
 import matplotlib as mpl
 import pandas as pd
+import sys
 
 mpl.rcParams["backend"] = "Agg"
 from matplotlib import pyplot as plt
@@ -155,7 +157,7 @@ def create_food_security_data_table(region: str, country: str):
                                 }
                             )
     df = pd.DataFrame(ipc_records)
-    df.to_csv("data/south_sudan_data_fewsnet.tsv", sep="\t", index=False)
+    df.to_csv(sys.argv[1], sep="\t", index=False)
 
 
 if __name__ == "__main__":

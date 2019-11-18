@@ -100,7 +100,7 @@ def test_getAllModels(G, client):
 
 
 def test_createModel(client):
-    with open("tests/data/delphi_create_model_payload.json") as f:
+    with open("tests/data/delphi_create_model_payload.json", encoding="utf-8") as f:
         data = json.load(f)
     rv = client.post(f"/delphi/create-model", json=data)
     post_data = {

@@ -4,7 +4,7 @@ import pandas as pd
 from pathlib import Path
 from sqlalchemy import create_engine
 
-ENGINE = create_engine(f"sqlite:///{sys.argv[5]}", echo=False)
+ENGINE = create_engine(f"sqlite:///{sys.argv[5]}", echo=False, pool_pre_ping=True)
 
 
 def insert_table(df, table_name):
@@ -12,7 +12,8 @@ def insert_table(df, table_name):
 
 
 def create_indicator_table(indicator_table):
-    df = pd.read_csv(indicator_table, index_col=False, sep="\t")
+    df = pd.read_csv(indicator_table, index_col=False, sep="\t",
+            dtype={"Country": str, "Source": str})
     df["Country"].fillna(value="None", inplace=True, downcast="infer")
     df["County"].fillna(value="None", inplace=True, downcast="infer")
     df["Month"].fillna(value=0, inplace=True, downcast="infer")
@@ -21,6 +22,21 @@ def create_indicator_table(indicator_table):
     df["Unit"].fillna(value="None", inplace=True, downcast="infer")
     df["Variable"].fillna(value="None", inplace=True, downcast="infer")
     df["Year"].fillna(value=-1, inplace=True, downcast="infer")
+
+    for i,c in enumerate(df['Value']):
+        if isinstance(c,str):
+            df.loc[i,'Value'] = c.replace(',','')
+
+    df['Country'] = df['Country'].astype(str)
+    df['County'] = df['County'].astype(str)
+    df['Month'] = df['Month'].astype(int)
+    df['Source'] = df['Source'].astype(str)
+    df['State'] = df['State'].astype(str)
+    df['Unit'] = df['Unit'].astype(str)
+    df['Value'] = df['Value'].astype(float)
+    df['Variable'] = df['Variable'].astype(str)
+    df['Year'] = df['Year'].astype(int)
+
     insert_table(df, "indicator")
 
 

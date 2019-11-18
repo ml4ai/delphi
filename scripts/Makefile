@@ -23,11 +23,11 @@ all: report.pdf
 
 RAW := data/raw
 RAW_ZIP := $(RAW).zip
-DB_EXIST := data/delphi.db
 
 
 $(RAW_ZIP):
-	curl http://vanga.sista.arizona.edu/delphi_data/$@ -o $@
+	mkdir -p data
+	curl http://vanga.sista.arizona.edu/delphi_data/$(@F) -o $@
 	
 $(RAW): $(RAW_ZIP)
 	unzip $< -d data
@@ -41,8 +41,8 @@ DSSAT_DATA := $(RAW)/DSSAT/disaggregated_all_20190123_1451
 DSSAT_AGGREGATED_DATA := $(RAW)/DSSAT/SSD_csv
 
 data/delphi.db: create_delphi_db.py\
-				data/south_sudan_data.tsv\
-				data/un_to_indicators.tsv\
+				data/indicator_data.tsv\
+				data/primary_to_indicators.tsv\
 				data/raw/adjectiveData.tsv\
 				$(DSSAT_AGGREGATED_DATA)
 	python $^ $@
@@ -56,55 +56,98 @@ $(RAW)/FEWS: $(RAW)
 PREASSEMBLED_CORPUS := $(RAW)/wm_12_month_evaluation/jsonld-merged20190404.json
 $(PREASSEMBLED_CORPUS): $(RAW)
 $(DSSAT_DATA): $(RAW)
-$(RAW)/wm_12_month_evaluation/south_sudan_data_conflict.tsv: $(RAW)
+$(RAW)/wm_12_month_evaluation/indicator_data_conflict.tsv: $(RAW)
 $(RAW)/adjectiveData.tsv: $(RAW)
 $(DSSAT_AGGREGATED_DATA): $(RAW)
 
 
-data/south_sudan_data_fao.tsv: $(RAW)/FAOSTAT
-	python data_processing/process_FAO_and_WDI_data.py --fao
+data/fao_data.tsv: data_processing/process_FAO_data.py $(RAW)/FAOSTAT
+	python $< $@
 
-data/south_sudan_data_wdi.tsv: $(RAW)/WDI/WDIData.csv
-	python data_processing/process_FAO_and_WDI_data.py --wdi
+data/wdi_data.tsv: data_processing/process_WDI_data.py $(RAW)/WDI/WDIData.csv
+	python $^ $@
 
-data/south_sudan_data_fewsnet.tsv: $(RAW)/FEWS
-	python data_processing/process_FEWSNET_data.py	
+data/indicator_data_fewsnet.tsv: data_processing/process_FEWSNET_data.py $(RAW)/FEWS 
+	python $< $@
 
-data/south_sudan_data_climis_unicef_ieconomics.tsv: data_processing/process_climis_unicef_ieconomics_data.py
-	python $<
+data/indicator_data_climis_unicef_ieconomics.tsv: data_processing/process_climis_unicef_ieconomics_data.py
+	python $< $@
 
 dssat: $(DSSAT_DATA) $(DSSAT_AGGREGATED_DATA)
 
-data/south_sudan_data_dssat.tsv: data_processing/process_dssat_data.py $(DSSAT_DATA)
+data/indicator_data_dssat.tsv: data_processing/process_dssat_data.py $(DSSAT_DATA)
 	python $^ $@
 	
-data/south_sudan_data_UNHCR.tsv: data_processing/process_UNHCR_asylum_seeker_data.py
-	python $<
+data/indicator_data_UNHCR.tsv: data_processing/process_UNHCR_asylum_seeker_data.py
+	python $< $@
 
-data/south_sudan_migration_data_initial: data_processing/process_migration_data_initial.py
-	python $<
+data/south_sudan_migration_data_initial.tsv: data_processing/process_migration_data_initial.py
+	python $< $@
 
-data/south_sudan_migration_data_secondary: data_processing/process_migration_data_secondary.py\
-										   data/south_sudan_migration_data_initial
-	python $<
+data/south_sudan_migration_data_secondary.tsv: data_processing/process_migration_data_secondary.py\
+										   data/south_sudan_migration_data_initial.tsv
+	python $^ $@
+
+
+data/WHO-data1.csv: data_processing/WHO-csv.py $(RAW)/data_for_november_2019_evaluation/south_sudan_data/WHO
+	python $< $@ 
+
+data/WHO-data2.csv: data_processing/WHO-excel.py $(RAW)/data_for_november_2019_evaluation/south_sudan_data/WHO
+	python $< 
+
+data/WHO-data3.csv: data_processing/WHO-excel1.py $(RAW)/data_for_november_2019_evaluation/south_sudan_data/WHO
+	python $< 
+
+data/IMF-data.csv: data_processing/IMF.py $(RAW)/data_for_november_2019_evaluation/south_sudan_data/IMF
+	python $< 
+
+data/WFP-data.csv: data_processing/WFP.py $(RAW)/data_for_november_2019_evaluation/south_sudan_data/WFP
+	python $< 
+
+data/World-Bank-data.csv: data_processing/World-Bank.py $(RAW)/data_for_november_2019_evaluation/south_sudan_data/World\ Bank
+	python $< 
+
+data/acled-data1.csv: data_processing/acled-South-Sudan.py $(RAW)/data_for_november_2019_evaluation/south_sudan_data/Humanitarian\ Data\ Exchange
+	python $< 
+
+
+data/acled-data2.csv: data_processing/acled-Ethiopia.py $(RAW)/data_for_november_2019_evaluation/ethiopia_east_africa_data/Armed\ Conflict\ Location\ &\ Event\ Data\ Project\ -\ ACLED
+	python $< 
+
+
+data/acled-data3.csv: data_processing/acled-South-Sudan-Ethiopia.py $(RAW)/data_for_november_2019_evaluation/south_sudan_data/Humanitarian\ Data\ Exchange
+	python $< 
+
+data/dssat_data_oct2019_eval.tsv: data_processing/process_dssat_data_oct2019_eval.py
+	python $< $@
+
+data/IOM-DTM-data1.csv: data_processing/IOM-DTM1.py
+	python $< $@
 
 # =============================================================================
 # Creation of final indicator table and flat list of indicators
 # =============================================================================
 
-data/south_sudan_data.tsv: data_processing/process_FAO_and_WDI_data.py\
-						   data/south_sudan_data_fao.tsv\
-						   data/south_sudan_data_wdi.tsv\
-						   $(RAW)/wm_12_month_evaluation/south_sudan_data_conflict.tsv\
-						   data/south_sudan_data_fewsnet.tsv\
-						   data/south_sudan_data_climis_unicef_ieconomics.tsv\
-						   data/south_sudan_data_dssat.tsv\
-						   data/south_sudan_data_UNHCR.tsv\
-						   data/south_sudan_migration_data_secondary
-	python $< --combine
-
-data/indicator_flat_list.txt: data/south_sudan_data.tsv
-
+data/indicator_data.tsv: data_processing/combine_data.py\
+						 data/fao_data.tsv\
+						 data/WHO-data1.csv\
+						 data/WHO-data2.csv\
+						 data/WHO-data3.csv\
+						 data/IMF-data.csv\
+						 data/WFP-data.csv\
+						 data/World-Bank-data.csv\
+						 data/acled-data1.csv\
+						 data/acled-data2.csv\
+						 data/acled-data3.csv\
+						 data/IOM-DTM-data1.csv\
+						 data/dssat_data_oct2019_eval.tsv\
+						 $(RAW)/wm_12_month_evaluation/indicator_data_conflict.tsv\
+						 data/indicator_data_fewsnet.tsv\
+						 data/indicator_data_climis_unicef_ieconomics.tsv\
+						 data/indicator_data_dssat.tsv\
+						 data/indicator_data_UNHCR.tsv\
+						 data/south_sudan_migration_data_secondary.tsv
+	python $< $@
 
 # =============================================================================
 # Creation of concept to indicator mapping
@@ -150,9 +193,9 @@ EIDOS_JAR:=target/scala-$(SCALA_VERSION)/eidos-assembly-$(EIDOS_VERSION)-SNAPSHO
 $(EIDOS)/$(EIDOS_JAR):
 	cd $(EIDOS); JAVA_OPTS=-Xmx16g time sbt assembly 
 
-data/un_to_indicators.tsv: data/indicator_flat_list.txt\
+data/primary_to_indicators.tsv: data/indicator_flat_list.txt\
 						   $(ONTOLOGY_GEN_SCRIPT)\
-						   data/south_sudan_data.tsv\
+						   data/indicator_data.tsv\
 						   $(EIDOS)/$(EIDOS_JAR)\
 						   $(WORD_EMBEDDING_VECTORS)
 	python $(ONTOLOGY_GEN_SCRIPT) $< $(TARGET_ONTOLOGY_FILENAME) $(TARGET_ONTOLOGY_NAME) 

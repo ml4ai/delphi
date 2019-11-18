@@ -1,0 +1,60 @@
+ Hi All,
+
+I've updated the GrFN specification to now represent link hypotheses.
+
+I am attaching the grfn_openapi.html that makes it easier to browse the GrFN specification. To "read" this, treat each production (the things surrounded by greaterthan/lessthan signs: e.g., `<grfn_def>`) as productions in a grammar that itself is defining the JSON format. In the html, you can click on any of these and they will expand.
+
+NOTE: When a field is REQUIRED, it will show up in the html with a red-star. REQUIRED fields must have some non-null value. When a field does not have a red-star, it is OPTIONAL. When no value is being specified, place a `null` as the value.
+
+Here is what has been changed:
+
+Under `<grfn_def>` (third production down; click to expand) you will see that there is a new field called "grounding". This itself is an array (i.e., list) of `<link_hypothesis>` (you can expand ). (This looks like `> [...]` ; if you click on the `>`, it will expand to show the `<link_hypothesis>`, which you can then also click on to further expand...)
+
+A `<link_hypothesis>` in turn will bind two `<link_element>`s (under fields "element_1" and "element_2"). As noted, the order of these doesn't matter (this relation is commutative). There is also a "score" that will be a float. This is the score of estimating the strength of the link.
+
+A `<link_element>` is then used to represent what is being linked. The field "type" designates what type of thing is being linked. You'll see that the value of "type" is specified to be a string, but it's an `enum` (you can expand this as well to get the list), meaning it can only take on one of the five values specified: identifier (these are program elements that have a string name, such as a `<variable_name>`, `<function_name>` or `<type_name>`), comment_span (these are spans of text derived from a source code comment), text_span (spans of text derived from a source text document), equation_term (a reference to a term in an equation), or ontology_term (a term in a provided ontology).
+
+The "source" field is a string representing where the `<link_element>` came from. For example, if the "type" is "comment_span", then the "source" is a reference to the file (and possibly the location/line-number) that the comment span came from. Currently, this format is up to you to determine. We'll likely refine this as we move forward. Also, NOTE that this field is *optional* (indicated by the lack of a red-star by the field name): in the case of an identifier string, there is no need for a "source".
+
+Next, we have the "content": this is a string representing the actual content of the linked thing. In the case of a "type"="identifier", this would be the identifier string itself (such as a `<variable_name>`. In the case of a "type"="text_span", this would be the span of text (e.g., "the susceptible population, S"). etc. 
+
+In some cases (again, optional), some types of link_elements will themselves have a type, so I've provided the "content_type"  field. Right now I can only think of the three possible types of "text_span" that we identifier: definition, units, constraint. We can expand as needed.
+
+Here's an example of what I expect a link_hypothesis JSON would look like: Suppose we're linking the variable identifier (variable_name) "my_namspace.foo::calculate::yield::0" to the text_span "crop yield is in metric tonnes" (a content_type "unit"). Then the JSON might look like the following (the "source" for the "text_span" in "element_2" is just a possible representation where first the document name is given followed by the sentence number in the document; again,  this is up to you and likely to evolve):
+
+```
+{
+	"element_1": {
+			"type": "identifier",
+			"source": null,
+			"content": "my_namspace.foo::calculate::yield::0",
+			"content_type": null
+		},
+	"element_2": {
+			"type": "text_span",
+			"source": "Crop Yields of South Sudan;sentence=254",
+			"content": "crop yield is in metric tonnes",
+			"content_type": "units"
+		},
+	"score": 0.67
+}
+```
+
+If there are more than one such link_hypotheses, then there would be a JSON array (i.e., a python list) of such links as the value of the <grfn_def> "grounding":
+
+```
+{
+   # other grfn_def fields here...
+   "grounding":
+        [{
+             # first link_hypothesis
+         },
+         {
+             # second link_hypothesis
+         },
+        # etc...
+        ]
+}
+```
+
+Let me know if you have any questions!!

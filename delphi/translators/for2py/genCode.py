@@ -1,5 +1,6 @@
 import ast
 import sys
+import re
 from . import For2PyError
 
 
@@ -12,6 +13,7 @@ class PrintState:
         return PrintState(
             self.sep if sep is None else sep, self.add if add is None else add
         )
+
 
 class genCode:
     def __init__(self,
@@ -40,6 +42,8 @@ class genCode:
             "ast.Div": self._process_divide,
             "ast.USub": self._process_unary_subtract,
             "ast.Eq": self._process_equals_to,
+            "ast.NotEq": self._process_not_equal_to,
+            "ast.Not": self._process_not,
             "ast.LtE": self._process_less_than_or_equal_to,
             "ast.Lt": self._process_less_than,
             "ast.Gt": self._process_greater_than,
@@ -141,11 +145,17 @@ class genCode:
         # This tuple handler is a very specific method
         # for handling an array declaration lambda.
         code_string = "[0] * ("
-        code_string += (
-            str(elements[0])
-            if len(elements) == 1
-            else "{0}".format(" + ".join(elements))
-        )
+        if len(elements) == 1:
+            code_string += str(elements[0])
+        else:
+            low_bound = None
+            # Calculate the size of each dimension
+            for elem in elements:
+                if low_bound == None:
+                    low_bound = elem
+                else:
+                    code_string += f"{elem} - {low_bound}"
+                    low_bound = None
         code_string += ")"
         return code_string
 
@@ -223,6 +233,16 @@ class genCode:
     @staticmethod
     def _process_equals_to(*_):
         code_string = "=="
+        return code_string
+
+    @staticmethod
+    def _process_not_equal_to(*_):
+        code_string = "!="
+        return code_string
+
+    @staticmethod
+    def _process_not(*_):
+        code_string = "not"
         return code_string
 
     @staticmethod
@@ -304,24 +324,40 @@ class genCode:
             function_name = node.func.id
 
         if function_name is not "Array":
-            if ".set_" in function_name:
+            # Check for setter and getter functions to differentiate between
+            # array and string operations
+            if ".set_" in function_name and len(node.args) > 1 and \
+                    function_name.split('.')[1] != "set_substr":
+                # This is an Array operation
                 # Remove the first argument of <.set_>
                 # function of array as it is not needed
                 del node.args[0]
                 code_string = ""
                 for arg in node.args:
-                    code_string += self.generate_code(arg, state) 
-            elif ".get_" in function_name:
+                    code_string += self.generate_code(arg, state)
+            elif ".get_" in function_name and \
+                    function_name.split('.')[1] != "get_substr":
+                # This is an Array operation
                 code_string = function_name.replace(".get_", "[")
                 for arg in node.args:
                     code_string += self.generate_code(arg, state)
                 code_string += "]"
             else:
+                # This is a String operation
                 code_string = f"{function_name}("
                 if len(node.args) > 0:
-                    code_string += ", ".join([self.generate_code(arg, state) for arg in
-                                             node.args])
+                    arg_list = []
+                    arg_count = len(node.args)
+                    for arg_index in range(arg_count):
+                        arg_string = self.generate_code(node.args[arg_index],
+                                                        state)
+                        if ".f_index" in function_name and \
+                                arg_count > 1 and arg_index == arg_count - 1:
+                            arg_string = f"[{arg_string}]"
+                        arg_list.append(arg_string)
+                    code_string += ", ".join(arg_list)
                 code_string += ")"
+
         else:
             code_string = self.generate_code(node.args[1], state)
 

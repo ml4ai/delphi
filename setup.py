@@ -75,7 +75,7 @@ setup(
         "matplotlib",
         "seaborn>=0.9.0",
         "pandas",
-        "future",
+        "future==0.16.0",
         "networkx",
         "pygraphviz",
         "cython",

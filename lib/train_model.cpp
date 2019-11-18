@@ -1,10 +1,12 @@
 #include "AnalysisGraph.hpp"
+#include "data.hpp"
 #include "spdlog/spdlog.h"
 #include <tqdm.hpp>
+#include <range/v3/all.hpp>
 
 using namespace std;
-using tq::trange;
 using spdlog::debug;
+using tq::trange;
 
 void AnalysisGraph::train_model(int start_year,
                                 int start_month,
@@ -19,18 +21,20 @@ void AnalysisGraph::train_model(int start_year,
                                 InitialBeta initial_beta,
                                 bool use_heuristic) {
 
+  this->initialize_random_number_generator();
+  this->construct_beta_pdfs(this->rand_num_generator);
   this->find_all_paths();
   this->data_heuristic = use_heuristic;
 
   this->n_timesteps = this->calculate_num_timesteps(
       start_year, start_month, end_year, end_month);
   this->res = res;
-  this->initialize_random_number_generator();
   this->init_betas_to(initial_beta);
   this->sample_initial_transition_matrix_from_prior();
   this->parameterize(country, state, county, start_year, start_month, units);
 
-  this->training_range = make_pair(make_pair(start_year,start_month), make_pair(end_year,end_month));
+  this->training_range = make_pair(make_pair(start_year, start_month),
+                                   make_pair(end_year, end_month));
 
   if (!synthetic_data_experiment) {
     this->set_observed_state_sequence_from_data(
@@ -73,5 +77,74 @@ void AnalysisGraph::train_model(int start_year,
   }
 
   this->trained = true;
+  RNG::release_instance();
   return;
+}
+
+
+/*
+ ============================================================================
+ Private: Get Training Data Sequence
+ ============================================================================
+*/
+
+void AnalysisGraph::set_observed_state_sequence_from_data(int start_year,
+                                                          int start_month,
+                                                          int end_year,
+                                                          int end_month,
+                                                          string country,
+                                                          string state,
+                                                          string county) {
+  this->observed_state_sequence.clear();
+
+  // Access
+  // [ timestep ][ vertex ][ indicator ]
+  this->observed_state_sequence = ObservedStateSequence(this->n_timesteps);
+
+  int year = start_year;
+  int month = start_month;
+
+  for (int ts = 0; ts < this->n_timesteps; ts++) {
+    this->observed_state_sequence[ts] =
+        get_observed_state_from_data(year, month, country, state, county);
+
+    if (month == 12) {
+      year++;
+      month = 1;
+    }
+    else {
+      month++;
+    }
+  }
+}
+
+vector<vector<vector<double>>> AnalysisGraph::get_observed_state_from_data(
+    int year, int month, string country, string state, string county) {
+  using ranges::to;
+  using ranges::views::transform;
+
+  int num_verts = this->num_vertices();
+
+  // Access
+  // [ vertex ][ indicator ]
+  vector<vector<vector<double>>> observed_state(num_verts);
+
+  for (int v = 0; v < num_verts; v++) {
+    vector<Indicator>& indicators = (*this)[v].indicators;
+
+    for (auto& ind : indicators) {
+      auto vals = get_data_value(ind.get_name(),
+                                 country,
+                                 state,
+                                 county,
+                                 year,
+                                 month,
+                                 ind.get_unit(),
+                                 this->data_heuristic);
+
+      observed_state[v].push_back(vals);
+    }
+  }
+
+  return observed_state;
 }

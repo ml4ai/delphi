@@ -127,7 +127,7 @@ def construct_concept_to_indicator_mapping(n: int = 1) -> Dict[str, List[str]]:
 
 def get_indicator_value(
     indicator: Indicator,
-    country: Optional[str] = "South Sudan",
+    country: Optional[str] = "Ethiopia",
     state: Optional[str] = None,
     year: Optional[int] = None,
     month: Optional[int] = None,

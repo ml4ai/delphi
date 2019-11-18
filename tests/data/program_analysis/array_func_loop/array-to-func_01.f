@@ -9,7 +9,9 @@ C   The code was sampled from SIR-Gillespie.f
       double precision, dimension(0:Tmax) :: meanS, varS
       integer k, n, runs
 
+      meanS(k) = 100
       meanS(k) = meanS(k) + (n - meanS(k))/(runs+1)
+      varS(k) = 200
       varS(k) = varS(k) + runs/(runs+1) * (n-meanS(k))*(n-meanS(k))
 
       return

@@ -24,20 +24,10 @@ import re
 import os
 import sys
 import argparse
+import json
 import xml.etree.ElementTree as ET
-from delphi.translators.for2py import For2PyError
-
-# Dictionary of negated operations
-NEGATED_OP = {
-                ".le." : ".gt.",
-                ".ge." : ".lt.",
-                ".lt." : ".ge.",
-                ".gt." : ".le.",
-                ".eq." : ".ne.",
-                ".ne." : ".eq.",
-                "<=" : ">",
-                ">=" : "<"
-              }
+from delphi.translators.for2py import For2PyError, syntax, f2grfn
+from os.path import isfile, join
 
 class RectifyOFPXML:
     def __init__(self):
@@ -153,6 +143,10 @@ class RectifyOFPXML:
         self.goto_stmt_parents = []
         # Keeps a track of parent statements to label
         self.label_parents = []
+        # Flag to check if the variable is a character
+        self.is_character = False
+        # List to store all the character variables defined
+        self.character_var_list = []
         # Keeps a track of the main body that the statement
         # is nested under, i.e. program, loop, and if, etc
         self.body_level = {
@@ -189,6 +183,16 @@ class RectifyOFPXML:
         self.goto_under_else = False
         # When handling function, collect names
         self.args_for_function = []
+        # Holds arguments of subroutine or function
+        self.arguments_list = {}
+        # Holds the caller arguments that are array
+        self.caller_arr_arguments = {}
+        # Set to true if handling <call>
+        self.call_function = False
+        self.original_fortran_file_abs_path = None
+        self.module_log_file_path = None
+        self.module_files_to_process = []
+        self.modules_in_file = []
 
     #################################################################
     #                                                               #
@@ -263,6 +267,7 @@ class RectifyOFPXML:
         "attr-spec",
         "access-stmt",
         "access-id-list",
+        "constants"
     ]
 
     value_child_tags = [
@@ -328,6 +333,8 @@ class RectifyOFPXML:
         "name",
         "literal",
         "operation",
+        "argument",
+        "range",
     ]
 
     index_range_child_tags = [
@@ -388,7 +395,6 @@ class RectifyOFPXML:
         "print-stmt",
         "print-format",
         "keyword-argument",
-        "logical-literal-constant",
         "end-subroutine-stmt",
         "logical-literal-constant",
         "equiv-op",
@@ -396,6 +402,9 @@ class RectifyOFPXML:
         "saved-entity-list__begin",
         "saved-entity-list",
         "access-id",
+        "parameter-stmt",
+        "type-param-value",
+        "char-selector",
     ]
 
     output_child_tags = [
@@ -480,9 +489,8 @@ class RectifyOFPXML:
         <header>
         </header>
         """
-        # This holder will be used only when refactoring
-        # of header is needed, such as with odd syntax
-        # of .eqv. operator
+        # This holder will be used only when refactoring of header is needed,
+        # such as with odd syntax of .eqv. operator
         temp_elem_holder = []
         target_tags = [
                 "name",
@@ -505,7 +513,9 @@ class RectifyOFPXML:
                         self.parseXMLTree(
                                 child, cur_elem, current, parent, traverse
                         )
-
+                        # If the current header belongs to <function>,
+                        # we need to manipulate the structure of the AST
+                        # to have an equivalent syntax as <subroutine>
                         if (
                                 parent.tag == "function"
                                 and cur_elem.tag == "names"
@@ -518,13 +528,24 @@ class RectifyOFPXML:
                             for arg in self.args_for_function:
                                 argument = ET.SubElement(
                                                 cur_elem, "argument",
-                                                {"name": arg})
+                                                {"name": arg, "is_array": "false"})
+
+                        # If the current header belongs to <subroutine>,
+                        # add it to the arguments_list for later
+                        # array status marking when a function call happens
+                        if (
+                            (parent.tag == "subroutine"
+                            and child.tag == "arguments")
+                            or parent.tag == "function"
+                        ):
+                            sub_name = parent.attrib["name"]
+                            self.arguments_list[sub_name] = cur_elem
                      
                     if cur_elem.tag in target_tags:
                         temp_elem_holder.append(cur_elem)
                         if cur_elem.tag == "equiv-operand__equiv-op":
                             need_refactoring = True
-                    # Handler for the case wher label appears under
+                    # Handler for the case where label appears under
                     # the header element. This happens when label
                     # is assigned to the if statement.
                     if (
@@ -554,6 +575,9 @@ class RectifyOFPXML:
                         False
                     ), f'In handle_tag_header: Empty elements "{child.tag}"'
 
+        # Revert the argument list back to its empty state to accommodate for
+        # new functions
+        self.args_for_function = []
         # equivalent operator has a weird ast syntax,
         # so it requires refactoring.
         if need_refactoring:
@@ -841,8 +865,11 @@ class RectifyOFPXML:
                             False
                         ), f'self.In handle_tag_declaration: Empty elements "' \
                             f'{child.tag}" not handled'
-        if self.is_array == True:
+        if self.is_array:
             self.is_array = False
+
+        if self.is_character:
+            self.is_character = False
 
         # If is_derived_type is true,
         # reconstruct the derived type declaration AST structure
@@ -863,6 +890,9 @@ class RectifyOFPXML:
         <type>
         </type>
         """
+        if current.attrib.get("name") == "character":
+            self.is_character = True
+            current.set("string_length", str(1))
         for child in root:
             self.clean_attrib(child)
             if "keyword2" in child.attrib:
@@ -918,7 +948,10 @@ class RectifyOFPXML:
                 else:
                     self.derived_type_var_holder_list.append(child)
             elif child.tag == "literal":
-                self.derived_type_var_holder_list.append(child)
+                if self.is_character:
+                    current.set("string_length", str(child.attrib["value"]))
+                else:
+                    self.derived_type_var_holder_list.append(child)
             elif child.tag == "component-array-spec":
                 self.derived_type_var_holder_list.append(child)
             elif (
@@ -991,6 +1024,8 @@ class RectifyOFPXML:
                 {current.attrib['name']: self.current_scope}
             )
 
+        if self.is_character:
+            self.character_var_list.append(current.attrib['name'])
         for child in root:
             self.clean_attrib(child)
             if len(child) > 0 or child.text:
@@ -998,6 +1033,10 @@ class RectifyOFPXML:
                     current, child.tag, child.attrib
                 )
                 if child.tag == "initial-value":
+                    self.parseXMLTree(
+                        child, cur_elem, current, parent, traverse
+                    )
+                elif child.tag == "length":
                     self.parseXMLTree(
                         child, cur_elem, current, parent, traverse
                     )
@@ -1012,6 +1051,65 @@ class RectifyOFPXML:
                     assert (
                         False
                     ), f'In handle_tag_variable: Empty elements "{child.tag}" not handled'
+
+    def handle_tag_constants(
+            self, root, current, parent, grandparent, traverse
+    ):
+        """This function handles cleaning up the XML elements between the
+        constants elements.
+
+        <constants>
+        </constants>
+        """
+        for child in root:
+            self.clean_attrib(child)
+            if len(child) > 0 or child.text:
+                cur_elem = ET.SubElement(
+                    current, child.tag, child.attrib
+                )
+                cur_elem.set("is_array", str(self.is_array).lower())
+                self.parseXMLTree(
+                    child, cur_elem, current, parent, traverse
+                )
+            elif child.tag == "parameter-stmt":
+                pass
+            else:
+                assert (
+                        child.tag == "constant"
+                ), f'In handle_tag_constant: "{child.tag}" not handled'
+
+    def handle_tag_constant(
+            self, root, current, parent, grandparent, traverse
+    ):
+        """This function handles cleaning up the XML elements between the
+        constants elements.
+
+        <constant>
+        </constant>
+        """
+        # Store all declared variables based on their array status
+        if current.attrib['is_array'] == "true":
+            self.declared_array_vars.update(
+                {current.attrib['name']: self.current_scope}
+            )
+        else:
+            self.declared_non_array_vars.update(
+                {current.attrib['name']: self.current_scope}
+            )
+
+        for child in root:
+            self.clean_attrib(child)
+            if child.text or len(child) > 0:
+                cur_elem = ET.SubElement(
+                    current, child.tag, child.attrib
+                )
+                self.parseXMLTree(
+                    child, cur_elem, current, parent, traverse
+                )
+            else:
+                assert (
+                    False
+                ), f'In handle_tag_constant: Empty elements "{child.tag}" not handled'
 
     def handle_tag_statement(
             self, root, current, parent, grandparent, traverse
@@ -1318,16 +1416,22 @@ class RectifyOFPXML:
         <name>
         <name>
 
-        There are three different types of names that the type attribute can hold:
+        There are three different types of names that the type attribute can
+    hold:
             (1) variable  - Simple (single) variable or an array
             (2) procedure - Function (or procedure) call
             (3) ambiguous - None of the above two type
         """
-        # All variables have default "is_array" value "false"
-        current.attrib['is_array'] = "false"
+        if (
+            "id" in current.attrib
+            and current.attrib['id'] in self.declared_array_vars
+        ):
+            current.attrib['is_array'] = "true"
+        else:
+            current.attrib['is_array'] = "false"
 
-        # If 'id' attribute holds '%' symbol, it's an indication of derived type referencing
-        # Thus, clean up the 'id' and reconstruct the <name> AST
+        # If 'id' attribute holds '%' symbol, it's an indication of derived type
+        # referencing. Thus, clean up the 'id' and reconstruct the <name> AST.
         if "id" in current.attrib and "%" in current.attrib['id']:
             self.is_derived_type_ref = True
             self.clean_derived_type_ref(current)
@@ -1343,6 +1447,11 @@ class RectifyOFPXML:
                         current, child.tag, child.attrib
                     )
                     if child.tag == "subscripts":
+                        # If current name is for caller arguments,
+                        # mark the name of the function in the subscripts
+                        # as an one of its attributes
+                        if parent.tag == "call":
+                            cur_elem.attrib['fname'] = current.attrib['id']
                         # Default
                         current.attrib['hasSubscripts'] = "true"
                         # Check whether the variable is an array AND the
@@ -1366,8 +1475,12 @@ class RectifyOFPXML:
                                 and self.declared_non_array_vars[
                                         current.attrib['id']
                                     ] == self.current_scope
+                                and current.attrib['id'] not in
+                                self.character_var_list
                         ):
+                            print(self.character_var_list)
                             current.attrib['hasSubscripts'] = "false"
+
                     self.parseXMLTree(
                         child, cur_elem, current, parent, traverse
                     )
@@ -1421,9 +1534,20 @@ class RectifyOFPXML:
         <value>
         </value>
         """
+        function_call = False
         for child in root:
             self.clean_attrib(child)
             cur_elem = ET.SubElement(current, child.tag, child.attrib)
+
+            if (
+                child.tag == "name"
+                and child.attrib['id'] in self.arguments_list
+            ):
+                # if 'id' is in the arguments_list, it indicates that
+                # the RHS of the assignment is a function call
+                self.call_function = True
+                function_call = True
+                current.attrib['fname'] = child.attrib['id']
 
             try:
                 error_chk = self.value_child_tags.index(child.tag)
@@ -1433,6 +1557,12 @@ class RectifyOFPXML:
             self.parseXMLTree(
                 child, cur_elem, current, parent, traverse
             )
+
+            # If current assignment is done with a function call,
+            # then update function definition's arguments with array status
+            if function_call:
+                self.update_arguments(current)
+
             if (
                     child.tag == "name"
                     and self.need_reconstruct
@@ -1686,7 +1816,6 @@ class RectifyOFPXML:
                 cur_elem = ET.SubElement(
                     current, child.tag, child.attrib
                 )
-
                 try:
                     error_chk = self.subscripts_child_tags.index(child.tag)
                 except:
@@ -1697,6 +1826,24 @@ class RectifyOFPXML:
                 self.parseXMLTree(
                     child, cur_elem, current, parent, traverse
                 )
+                # If current subscript is for a function caller and
+                # current element (argument) is an array, then store
+                # it into the caller_arr_arguments map for later use
+                if (
+                    self.call_function
+                    and (cur_elem.tag == "name"
+                    and cur_elem.attrib['is_array'] == "true")
+                ):
+                    assert (
+                        "fname" in parent.attrib
+                    ), "If this subscript is for the caller argument,\
+                            fname must exist in the parent"
+                    fname = parent.attrib['fname']
+                    arg = cur_elem.attrib['id']
+                    if fname in self.caller_arr_arguments:
+                        self.caller_arr_arguments[fname].append (arg)
+                    else:
+                        self.caller_arr_arguments[fname] = [arg]
 
     def handle_tag_operation(
             self, root, current, parent, grandparent, traverse
@@ -1714,7 +1861,7 @@ class RectifyOFPXML:
                     child.tag == "operator"
                     and self.need_op_negation
             ):
-                child.attrib['operator'] = NEGATED_OP[child.attrib['operator']]
+                child.attrib['operator'] = syntax.NEGATED_OP[child.attrib['operator']]
                 self.need_op_negation = False
             cur_elem = ET.SubElement(
                 current, child.tag, child.attrib
@@ -2141,10 +2288,13 @@ class RectifyOFPXML:
         <call>
         </call>
         """
+        self.call_function = True
         for child in root:
             self.clean_attrib(child)
             if child.text:
                 if child.tag == "name":
+                    # fname: Function name
+                    current.attrib['fname'] = child.attrib['id']
                     cur_elem = ET.SubElement(
                         current, child.tag, child.attrib
                     )
@@ -2162,6 +2312,9 @@ class RectifyOFPXML:
                     assert (
                         False
                     ), f'In handle_tag_call: Empty elements "{child.tag}"'
+
+        # Update function definition's arguments with array status
+        self.update_arguments(current)
 
     def handle_tag_subroutine(
             self, root, current, parent, grandparent, traverse
@@ -2204,7 +2357,7 @@ class RectifyOFPXML:
         between the arguments.
 
         <arguments>
-        </arsuments>
+        </arguments>
         """
         for child in root:
             self.clean_attrib(child)
@@ -2212,10 +2365,32 @@ class RectifyOFPXML:
                 cur_elem = ET.SubElement(
                     current, child.tag, child.attrib
                 )
+                # Set a default array status to False
+                cur_elem.attrib['is_array'] = "false"
             else:
                 assert (
                     False
                 ), f'In handle_tag_variable: "{child.tag}" not handled'
+
+    def handle_tag_argument(
+            self, root, current, parent, grandparent, traverse
+    ):
+        """This function handles cleaning up the XML elements between the
+        argument.
+
+        <argument>./a
+        </argument>
+        """
+        current.attrib['is_array'] = "false"
+        for child in root:
+            self.clean_attrib(child)
+            cur_elem = ET.SubElement(
+                current, child.tag, child.attrib
+            )
+            if len(child) > 0 or child.text:
+                self.parseXMLTree(
+                    child, cur_elem, current, parent, traverse
+                )
 
     def handle_tag_if(
             self, root, current, parent, grandparent, traverse
@@ -2416,6 +2591,28 @@ class RectifyOFPXML:
         <use>
         </use>
         """
+        assert (
+            isfile(self.module_log_file_path)
+        ), f"Module log file path must exist."
+
+        with open(self.module_log_file_path) as json_f:
+            module_logs = json.load(json_f)
+        
+        file_to_mod_mapper = module_logs["file_to_mod"]
+        mod_to_file_mapper = module_logs["mod_to_file"]
+        
+        use_module = root.attrib['name']
+        use_module_file_path = mod_to_file_mapper[use_module.lower()]
+        if (
+                use_module_file_path[0] != self.original_fortran_file_abs_path
+                and use_module not in self.modules_in_file
+        ):
+            self.module_files_to_process.append(use_module_file_path[0])
+        else:
+            # If module resides in the same file, we don't have to do anything.
+            # Handling for this case is alreadyd implemented in genPGM.py
+            pass
+
         for child in root:
             self.clean_attrib(child)
             if child.tag == "use-stmt" or child.tag == "only":
@@ -2455,6 +2652,7 @@ class RectifyOFPXML:
                 self.parseXMLTree(
                     child, cur_elem, current, parent, traverse
                 )
+        self.modules_in_file.append(root.attrib["name"])
 
     def handle_tag_initial_value(
             self, root, current, parent, grandparent, traverse
@@ -2719,9 +2917,18 @@ class RectifyOFPXML:
             self.handle_tag_length(root, current, parent, grandparent, traverse)
         elif root.tag == "saved-entity":
             self.handle_tag_saved_entity(root, current, parent, grandparent,
-                                    traverse)
+                                         traverse)
         elif root.tag == "save-stmt":
             self.handle_tag_save_statement(root, current, parent, grandparent,
+                                           traverse)
+        elif root.tag == "constants":
+            self.handle_tag_constants(root, current, parent, grandparent,
+                                      traverse)
+        elif root.tag == "constant":
+            self.handle_tag_constant(root, current, parent, grandparent,
+                                     traverse)
+        elif root.tag == "argument":
+            self.handle_tag_argument(root, current, parent, grandparent,
                                      traverse)
         else:
             assert (
@@ -4051,6 +4258,36 @@ class RectifyOFPXML:
                 boundary, boundary_for_label,
                 self.statements_to_reconstruct_after['stmts-follow-label']
         )
+        
+    def update_arguments(self, current):
+        """This function handles function definition's
+        arguments with array status based on the information
+        that was observed during the function call
+
+        Args:
+            current (:obj: 'ET'): Current node (either call or value)
+
+        Returns:
+            None.
+        """
+
+        fname = current.attrib['fname']
+        if fname in self.arguments_list:
+            callee_arguments = self.arguments_list[fname]
+            for arg in callee_arguments:
+                # self.caller_arr_arguments holds any element
+                # only when arrays are being passed to functions
+                # as arguments. Thus, we first need to check if
+                # callee function name exists in the list
+                if (
+                    fname in self.caller_arr_arguments
+                    and arg.attrib['name'] in self.caller_arr_arguments[fname]
+                ):
+                    arg.attrib['is_array'] = "true"
+                else:
+                    arg.attrib['is_array'] = "false"
+        # re-initialize back to initial values
+        self.call_function = False 
 
     #################################################################
     #                                                               #
@@ -4500,7 +4737,7 @@ def indent(elem, level=0):
             elem.tail = i
 
 
-def buildNewASTfromXMLString(xmlString: str) -> ET.Element:
+def buildNewASTfromXMLString(xmlString: str, original_fortran_file: str, module_log_file_path: str) -> ET.Element:
     """This function process OFP generated XML and generates
     a rectified version by recursively calling the appropriate
     functions.
@@ -4511,10 +4748,13 @@ def buildNewASTfromXMLString(xmlString: str) -> ET.Element:
     Returns:
         ET object: A reconstructed element object.
     """
+    XMLCreator = RectifyOFPXML()
+    # We need the absolute path of Fortran file to lookup in the modLogFile.json
+    XMLCreator.original_fortran_file_abs_path = os.path.abspath(original_fortran_file)
+    XMLCreator.module_log_file_path = module_log_file_path
     traverse = 1
 
     ofpAST = ET.XML(xmlString)
-    XMLCreator = RectifyOFPXML()
     # A root of the new AST
     newRoot = ET.Element(ofpAST.tag, ofpAST.attrib)
     # First add the root to the new AST list
@@ -4548,7 +4788,7 @@ def buildNewASTfromXMLString(xmlString: str) -> ET.Element:
         if not XMLCreator.continue_elimination:
             XMLCreator.need_goto_elimination = False
 
-    return newRoot
+    return newRoot, XMLCreator.module_files_to_process
 
 
 def parse_args():

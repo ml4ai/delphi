@@ -3,6 +3,7 @@
 import ast
 import sys
 import tokenize
+import pickle
 from datetime import datetime
 import re
 import argparse
@@ -17,65 +18,7 @@ from collections import OrderedDict
 from itertools import chain, product
 import operator
 import uuid
-
-###########################################################################
-#                                                                         #
-#                            GLOBAL VARIABLES                             #
-#                                                                         #
-###########################################################################
-
-# The BINOPS dictionary holds operators for all the arithmetic and
-# comparative functions
-# TODO Take this inside class
-BINOPS = {
-    ast.Add: operator.add,
-    ast.Sub: operator.sub,
-    ast.Mult: operator.mul,
-    ast.Div: operator.truediv,
-    ast.Pow: operator.pow,
-    ast.Eq: operator.eq,
-    ast.LtE: operator.le,
-}
-
-# The ANNOTATE_MAP dictionary is used to map Python ast data types into data
-# types for the lambdas
-# TODO Take this inside class
-ANNOTATE_MAP = {
-    "real": "Real",
-    "float": "real",
-    "Real": "real",
-    "integer": "int",
-    "int": "integer",
-    "string": "str",
-    "str": "string",
-    "array": "[]",
-    "list": "array",
-    "bool": "bool",
-    "file_handle": "fh",
-}
-
-# The UNNECESSARY_TYPES tuple holds the ast types to ignore
-# TODO Take this inside class
-UNNECESSARY_TYPES = (
-    ast.Mult,
-    ast.Add,
-    ast.Sub,
-    ast.Pow,
-    ast.Div,
-    ast.USub,
-    ast.Eq,
-    ast.LtE,
-)
-
-# Regular expression to match python statements that need to be bypassed in
-# the GrFN and lambda files. Currently contains I/O statements.
-# TODO Take this inside class
-BYPASS_IO = r"^format_\d+$|^format_\d+_obj$|^file_\d+$|^write_list_\d+$|" \
-            r"^write_line$|^format_\d+_obj" \
-            r".*|^Format$|^list_output_formats$|^write_list_stream$|^file_\d" \
-            r"+\.write$"
-RE_BYPASS_IO = re.compile(BYPASS_IO, re.I)
-
+import os.path
 
 class GrFNState:
     def __init__(
@@ -90,7 +33,8 @@ class GrFNState:
             scope_path: Optional[List] = [],
             arrays: Optional[Dict] = {},
             array_types: Optional[Dict] = {},
-            array_assign_name: Optional = None
+            array_assign_name: Optional = None,
+            string_assign_name: Optional = None,
     ):
         self.lambda_strings = lambda_strings
         self.last_definitions = last_definitions
@@ -103,6 +47,7 @@ class GrFNState:
         self.arrays = arrays
         self.array_types = array_types
         self.array_assign_name = array_assign_name
+        self.string_assign_name = string_assign_name
 
     def copy(
             self,
@@ -117,6 +62,7 @@ class GrFNState:
             arrays: Optional[Dict] = None,
             array_types: Optional[Dict] = None,
             array_assign_name: Optional = None,
+            string_assign_name: Optional = None,
     ):
         return GrFNState(
             self.lambda_strings if lambda_strings is None else lambda_strings,
@@ -134,6 +80,8 @@ class GrFNState:
             self.array_types if array_types is None else array_types,
             self.array_assign_name if array_assign_name is None else
             array_assign_name,
+            self.string_assign_name if string_assign_name is None else
+            string_assign_name,
         )
 
 
@@ -150,29 +98,118 @@ class GrFNGenerator(object):
         self.update_functions = {}
         self.mode_mapper = {}
         self.name_mapper = {}
+        self.variable_map = {}
         self.function_argument_map = {}
+        # Holds all declared arrays {symbol:domain}
         self.arrays = {}
+        # Holds declared array types {symbol:type}
         self.array_types = {}
         self.array_assign_name = None
+        # Holds a list of multi-dimensional array symbols
+        self.md_array = []
+        # Holds all the string assignments along with their length
+        self.strings = {}
         self.outer_count = 0
         self.types = (list, ast.Module, ast.FunctionDef)
         self.elif_condition_number = None
         self.current_scope = None
         self.loop_index = -1
         self.parent_loop_state = None
+        self.handling_f_args = True
+        self.f_array_arg = []
+        # {symbol:index}
+        self.updated_arrays = {}
+        # {symbol: [_list_of_domains_]}
+        # This mapping is required as there may be
+        # a multiple array passes to the function
+        # argument and we do not want to replace one
+        # with another. We need to update all function
+        # argument domains for arrays
+        self.array_arg_domain = {}
+        # Holds list of modules that program references
+        self.module_variable_types = {}
+        # Holds the list of declared subprograms in modules
+        self.module_subprograms = []
+        # Holds module names
+        self.module_names = []
 
         self.gensym_tag_map = {
             "container": 'c',
             "variable": 'v',
             "function": 'f',
-            "holder": 'h'  # TODO Change/Remove this
         }
         self.type_def_map = {
             "real": "float",
             "integer": "integer",
             "string": "string",
             "bool": "boolean",
+            "Array": "Array",
+            "character": "string",
         }
+
+        # The binops dictionary holds operators for all the arithmetic and
+        # comparative functions
+        self.binops = {
+            ast.Add: operator.add,
+            ast.Sub: operator.sub,
+            ast.Mult: operator.mul,
+            ast.Div: operator.truediv,
+            ast.Pow: operator.pow,
+            ast.Eq: operator.eq,
+            ast.LtE: operator.le,
+        }
+
+        # The annotate_map dictionary is used to map Python ast data types
+        # into data types for the lambdas
+        self.annotate_map = {
+            "real": "Real",
+            "float": "real",
+            "Real": "real",
+            "integer": "int",
+            "int": "integer",
+            "string": "str",
+            "str": "string",
+            "array": "[]",
+            "list": "array",
+            "bool": "bool",
+            "file_handle": "fh",
+            "Array": "Array",
+        }
+
+        # Arithmetic operator dictionary
+        # TODO: Complete the list
+        self.arithmetic_ops = {
+            "Add": "+",
+            "Sub": "-",
+            "Div": "/",
+            "Mult": "*",
+            "+": "+",
+            "-": "-",
+            "/": "/",
+            "*": "*",
+        }
+
+        # The unnecessary_types tuple holds the ast types to ignore
+        self.unnecessary_types = (
+            ast.Mult,
+            ast.Add,
+            ast.Sub,
+            ast.Pow,
+            ast.Div,
+            ast.USub,
+            ast.Eq,
+            ast.LtE,
+        )
+
+        # Regular expression to match python statements that need to be
+        # bypassed in the GrFN and lambda files. Currently contains I/O
+        # statements.
+        self.bypass_io = r"^format_\d+$|^format_\d+_obj$|^file_\d+$" \
+                         r"|^write_list_\d+$|^write_line$|^format_\d+_obj" \
+                         r".*|^Format$|^list_output_formats$|" \
+                         r"^write_list_stream$|^file_\d+\.write$"
+        self.re_bypass_io = re.compile(self.bypass_io, re.I)
+
         self.process_grfn = {
             "ast.FunctionDef": self.process_function_definition,
             "ast.arguments": self.process_arguments,
@@ -202,6 +239,7 @@ class GrFNGenerator(object):
             "ast.NameConstant": self._process_nameconstant,
             "ast.Return": self.process_return_value,
             "ast.While": self.process_while,
+            "ast.Break": self.process_break,
         }
 
     def gen_grfn(self, node, state, call_source):
@@ -224,11 +262,18 @@ class GrFNGenerator(object):
             elif isinstance(node, ast.If):
                 return self.gen_grfn(node.body, state, "start")
             else:
-                return []
+                node_name = node.__repr__().split()[0][2:]
+                if (
+                        node_name != "ast.Import" and
+                        node_name != "ast.ImportFrom"
+                ):
+                    return self.process_grfn[node_name](node, state, call_source)
+                else:
+                    return []
         elif isinstance(node, list):
             return self.process_list(node, state, call_source)
         elif any(isinstance(node, node_type) for node_type in
-                 UNNECESSARY_TYPES):
+                 self.unnecessary_types):
             return self.process_unnecessary_types(node, state, call_source)
         else:
             node_name = node.__repr__().split()[0][2:]
@@ -262,9 +307,10 @@ class GrFNGenerator(object):
             function adds these along with the identifier_spec_grfn to the
             main GrFN JSON.
         """
+        self.module_names.append(node.name)
+
         return_value = []
         return_list = []
-
         local_last_definitions = state.last_definitions.copy()
         local_next_definitions = state.next_definitions.copy()
         local_variable_types = state.variable_types.copy()
@@ -287,13 +333,14 @@ class GrFNGenerator(object):
                 function_name=node.name,
                 variable_types=local_variable_types,
             )
-            self._process_decorators(node.decorator_list, function_state)
+            self.process_decorators(node.decorator_list, function_state)
 
         # Check if the function contains arguments or not. This determines
         # whether the function is the outermost scope (does not contain
         # arguments) or it is not (contains arguments). For non-outermost
-        # scopes, indexing starts from -1. For outermost scopes, indexing
-        # starts from 0
+        # scopes, indexing starts from -1 (because all arguments will have
+        # an index of -1). For outermost scopes, indexing starts from
+        # normally from 0.
         # TODO: What do you do when a non-outermost scope function does not
         #  have arguments. Current assumption is that the function without
         #  arguments is the outermost function i.e. call to the `start`
@@ -326,7 +373,6 @@ class GrFNGenerator(object):
                 variable_types=local_variable_types,
                 last_definition_default=-1,
             )
-
         # Get the list of arguments from the function definition
         argument_list = self.gen_grfn(node.args, function_state, "functiondef")
         # Keep a map of the arguments for each function. This will be used in
@@ -344,15 +390,15 @@ class GrFNGenerator(object):
         self.current_scope = node.name
         # Create the variable definition for the arguments
         argument_variable_grfn = []
+        self.handling_f_args = True
         for argument in argument_list:
             argument_variable_grfn.append(
                 self.generate_variable_definition(argument,
                                                   None,
                                                   function_state)
             )
-
-        # Generate the `variable_identifier_name` for each container
-        # argument.
+        self.handling_f_args = False
+        # Generate the `variable_identifier_name` for each container argument.
         # TODO Currently only variables are handled as container arguments.
         #  Create test cases of other containers as container arguments and
         #  extend this functionality.
@@ -368,7 +414,8 @@ class GrFNGenerator(object):
         #  a list and you should append to it.
         for body in body_grfn:
             for function in body["functions"]:
-                if function.get("type") == "return":
+                if function.get("function") and function["function"]["type"] \
+                        == "return":
                     return_value = function["value"]
                     # Remove the return_value function body from the main
                     # body as we don't need that anymore
@@ -378,8 +425,16 @@ class GrFNGenerator(object):
         #  literals as well. Add that functionality here.
         if return_value:
             for value in return_value:
-                return_list.append(f"@variable::{value['var']['variable']}::"
-                                   f"{value['var']['index']}")
+                if "var" in value:
+                    return_list.append(f"@variable::{value['var']['variable']}::"
+                                       f"{value['var']['index']}")
+                elif "call" in value:
+                    for inputs in value['call']['inputs']:
+                        if "var" in value:
+                            return_list.append(
+                                f"@variable::{value['var']['variable']}::"
+                                f"{value['var']['index']}")
+            return_list = list(set(return_list))
         else:
             return_list = []
 
@@ -393,7 +448,12 @@ class GrFNGenerator(object):
         # Find the list of updated identifiers
         if argument_list:
             updated_identifiers = self._find_updated(argument_variable_grfn,
-                                                     function_variable_grfn)
+                                                     function_variable_grfn,
+                                                     self.f_array_arg,
+                                                     function_state)
+            for array in self.f_array_arg:
+                if array in function_state.last_definitions:
+                    self.updated_arrays[array] = function_state.last_definitions[array]
         else:
             updated_identifiers = []
         self.function_argument_map[node.name]["updated_list"] = \
@@ -439,7 +499,6 @@ class GrFNGenerator(object):
         pgm = {"containers": function_container_grfn,
                "variables": container_variables,
                }
-
         return [pgm]
 
     def process_arguments(self, node, state, call_source):
@@ -464,12 +523,15 @@ class GrFNGenerator(object):
         assert (
             node.annotation
         ), "Found argument without annotation. This should not happen."
-        state.variable_types[node.arg] = self._get_variable_type(
+        state.variable_types[node.arg] = self.get_variable_type(
             node.annotation)
 
         if state.last_definitions.get(node.arg) is None:
             if call_source == "functiondef":
-                state.last_definitions[node.arg] = -1
+                if node.arg not in self.updated_arrays:
+                    state.last_definitions[node.arg] = -1
+                else:
+                    state.last_definitions[node.arg] = self.updated_arrays[node.arg]
             else:
                 assert False, ("Call source is not ast.FunctionDef. "
                                "Handle this by setting state.last_definitions["
@@ -495,8 +557,7 @@ class GrFNGenerator(object):
         """
         self.gen_grfn(node.value, state, "index")
 
-    @staticmethod
-    def process_num(node, *_):
+    def process_num(self, node, *_):
         """
             This function handles the ast.Num of the ast tree. This node only
             contains a numeric value in its body. For example: Num(n=0),
@@ -504,7 +565,7 @@ class GrFNGenerator(object):
             <function_assign_body_literal_spec> form.
 
         """
-        data_type = ANNOTATE_MAP.get(type(node.n).__name__)
+        data_type = self.annotate_map.get(type(node.n).__name__)
         if data_type:
             # TODO Change this format. Since the spec has changed,
             #  this format is no longer required. Go for a simpler format.
@@ -529,8 +590,9 @@ class GrFNGenerator(object):
         # arise, the following code might need to be rewritten and the
         # following return code will have to be added as well.
         # return elements if len(elements) == 1 else [{"list": elements}]
+        element_grfn = []
         for list_element in node.elts:
-            element_grfn = self.gen_grfn(list_element, state, "List")
+            element_grfn.append(self.gen_grfn(list_element, state, "List"))
 
         return element_grfn
 
@@ -692,6 +754,10 @@ class GrFNGenerator(object):
         loop_check_variable = self.generate_variable_definition("IF_0",
                                                                 None,
                                                                 loop_state)
+
+        loop_state.next_definitions["#cond"] = 1
+        loop_state.last_definitions["#cond"] = 0
+
         loop_check_function_name = self.generate_function_name(
             "__condition__",
             loop_check_variable["name"],
@@ -707,6 +773,8 @@ class GrFNGenerator(object):
         loop_break_variable = self.generate_variable_definition("EXIT",
                                                                 None,
                                                                 loop_state)
+        loop_state.next_definitions["EXIT"] = 1
+
         loop_break_function_name = self.generate_function_name(
             "__decision__",
             loop_break_variable["name"],
@@ -745,10 +813,11 @@ class GrFNGenerator(object):
         else:
             assert False, "Error in getting loop end name"
         # First, lambda function for loop index initiation
-        index_initiation_lambda = self._generate_lambda_function(
+        index_initiation_lambda = self.generate_lambda_function(
             loop_start_name,
             index_function_name["name"],
             True,
+            False,
             False,
             [],
             state,
@@ -758,10 +827,11 @@ class GrFNGenerator(object):
 
         # Second, lambda function for IF_0_0 test
         loop_test_string = f"0 <= {index_name} < {loop_end_name}"
-        loop_continuation_test_lambda = self._generate_lambda_function(
+        loop_continuation_test_lambda = self.generate_lambda_function(
             loop_test_string,
             loop_check_function_name["name"],
             True,
+            False,
             False,
             loop_condition_inputs_lambda,
             state,
@@ -770,10 +840,11 @@ class GrFNGenerator(object):
         loop_state.lambda_strings.append(loop_continuation_test_lambda)
 
         # Third, lambda function for EXIT code
-        loop_exit_test_lambda = self._generate_lambda_function(
+        loop_exit_test_lambda = self.generate_lambda_function(
             "IF_0_0",
             loop_break_function_name["name"],
             True,
+            False,
             False,
             ["IF_0_0"],
             state,
@@ -790,6 +861,10 @@ class GrFNGenerator(object):
         # Get a list of all variables that were used as inputs within the
         # loop body (nested as well).
         loop_body_inputs = []
+
+        # Get only the dictionaries
+        body_functions_grfn = [item for item in body_functions_grfn if
+                               isinstance(item, dict)]
         for function in body_functions_grfn:
             if function['function']['type'] == 'lambda':
                 for ip in function['input']:
@@ -823,7 +898,7 @@ class GrFNGenerator(object):
             # which means it did not have a defined value above the loop
             # body) and is not a function argument (since they have an index
             # of -1 as well but have a defined value)
-            if not (state.last_definitions[input_var] == -1 and input_var 
+            if not (state.last_definitions[input_var] == -1 and input_var
             not in
                     self.function_argument_map[main_function_name][
                         "argument_list"]
@@ -836,7 +911,8 @@ class GrFNGenerator(object):
         for item in loop_body_inputs:
             # TODO Hack for now, this should be filtered off from the code
             #  block above
-            if 'IF' not in item:
+            if 'IF' not in item and \
+                    state.last_definitions.get(item) is not None:
                 function_input.append(f"@variable::{item}::"
                                       f"{state.last_definitions[item]}")
                 container_argument.append(f"@variable::{item}::-1")
@@ -896,7 +972,9 @@ class GrFNGenerator(object):
             #  implement them.
             # TODO: Hack, this IF check should not even appear in
             #  loop_body_outputs
-            if 'IF' not in item:
+            if 'IF' not in item \
+                    and "EXIT" not in item \
+                    and state.last_definitions.get(item) is not None:
                 if state.last_definitions[item] == -2:
                     updated_index = 0
                 else:
@@ -962,10 +1040,11 @@ class GrFNGenerator(object):
         }
 
         # Finally, lambda function for loop index increment
-        index_increment_lambda = self._generate_lambda_function(
+        index_increment_lambda = self.generate_lambda_function(
             f"{index_name} + 1",
             index_increment_function_name["name"],
             True,
+            False,
             False,
             [index_name],
             state,
@@ -997,6 +1076,7 @@ class GrFNGenerator(object):
             "output": function_output,
             "updated": function_updated
         }
+
         loop_container = [loop_container] + body_container_grfn
         loop_variables = body_variables_grfn + loop_variables_grfn
         grfn = {
@@ -1126,6 +1206,10 @@ class GrFNGenerator(object):
         loop_check_variable = self.generate_variable_definition("IF_0",
                                                                 None,
                                                                 loop_state)
+
+        loop_state.next_definitions["#cond"] = 1
+        loop_state.last_definitions["#cond"] = 0
+
         loop_check_function_name = self.generate_function_name(
             "__condition__",
             loop_check_variable["name"],
@@ -1141,6 +1225,9 @@ class GrFNGenerator(object):
         loop_break_variable = self.generate_variable_definition("EXIT",
                                                                 None,
                                                                 loop_state)
+        # Increment the next definition of EXIT
+        loop_state.next_definitions["EXIT"] = 1
+
         loop_break_function_name = self.generate_function_name(
             "__decision__",
             loop_break_variable["name"],
@@ -1161,10 +1248,11 @@ class GrFNGenerator(object):
         #  more complex form. The one below is for the basic case.
 
         # Second, lambda function for IF_0_0 test
-        loop_continuation_test_lambda = self._generate_lambda_function(
+        loop_continuation_test_lambda = self.generate_lambda_function(
             node.test,
             loop_check_function_name["name"],
             True,
+            False,
             False,
             loop_condition_inputs_lambda,
             state,
@@ -1173,10 +1261,11 @@ class GrFNGenerator(object):
         loop_state.lambda_strings.append(loop_continuation_test_lambda)
 
         # Third, lambda function for EXIT code
-        loop_exit_test_lambda = self._generate_lambda_function(
+        loop_exit_test_lambda = self.generate_lambda_function(
             "IF_0_0",
             loop_break_function_name["name"],
             True,
+            False,
             False,
             ["IF_0_0"],
             state,
@@ -1192,6 +1281,10 @@ class GrFNGenerator(object):
         # Get a list of all variables that were used as inputs within the
         # loop body (nested as well).
         loop_body_inputs = []
+
+        # Get only the dictionaries
+        body_functions_grfn = [item for item in body_functions_grfn if
+                               isinstance(item, dict)]
         for function in body_functions_grfn:
             if function['function']['type'] == 'lambda':
                 for ip in function['input']:
@@ -1236,7 +1329,8 @@ class GrFNGenerator(object):
         for item in loop_body_inputs:
             # TODO Hack for now, this should be filtered off from the code
             #  block above
-            if 'IF' not in item:
+            if 'IF' not in item and \
+                    state.last_definitions.get(item) is not None:
                 function_input.append(f"@variable::{item}::"
                                       f"{state.last_definitions[item]}")
                 container_argument.append(f"@variable::{item}::-1")
@@ -1296,8 +1390,10 @@ class GrFNGenerator(object):
             #  implement them.
             # TODO: Hack, this IF check should not even appear in
             #  loop_body_outputs
-            if 'IF' not in item:
-                if state.last_definitions[item] == -2:
+            if 'IF' not in item \
+                    and "EXIT" not in item \
+                    and state.last_definitions.get(item) is not None:
+                if (state.last_definitions[item] == -2) or (item == "EXIT"):
                     updated_index = 0
                 else:
                     updated_index = state.last_definitions[item] + 1
@@ -1387,6 +1483,8 @@ class GrFNGenerator(object):
         grfn = {"functions": [], "variables": [], "containers": []}
         # Get the GrFN schema of the test condition of the `IF` command
         condition_sources = self.gen_grfn(node.test, state, "if")
+        condition_variables = self.get_variables(condition_sources)
+
         # The index of the IF_x_x variable will start from 0
         if state.last_definition_default in (-1, 0, -2):
             # default_if_index = state.last_definition_default + 1
@@ -1400,9 +1498,9 @@ class GrFNGenerator(object):
                                                           default_if_index)
             state.next_definitions["#cond"] = condition_number + 1
             condition_name = f"IF_{condition_number}"
-            condition_index = self._get_last_definition(condition_name,
-                                                        state.last_definitions,
-                                                        0)
+            condition_index = self.get_last_definition(condition_name,
+                                                       state.last_definitions,
+                                                       0)
         else:
             condition_number = self.elif_condition_number
             condition_name = f"IF_{condition_number}"
@@ -1436,7 +1534,7 @@ class GrFNGenerator(object):
             "function": function_name,
             "input": [
                 f"@variable::{src['var']['variable']}::{src['var']['index']}"
-                for src in condition_sources
+                for src in condition_variables
                 if 'var' in src
             ],
             "output": [output_variable],
@@ -1445,12 +1543,13 @@ class GrFNGenerator(object):
         grfn["variables"].append(variable_spec)
         grfn["functions"].append(fn)
 
-        lambda_string = self._generate_lambda_function(
+        lambda_string = self.generate_lambda_function(
             node.test,
             function_name["name"],
             False,
             False,
-            [src["var"]['variable'] for src in condition_sources if
+            False,
+            [src["var"]['variable'] for src in condition_variables if
              "var" in src],
             state,
             False
@@ -1476,28 +1575,58 @@ class GrFNGenerator(object):
         # Note that `else_grfn` will be empty if the else block contains
         # another `if-else` block
         else_node_name = node.orelse.__repr__().split()[0][3:]
+
         if else_node_name != "ast.If":
             else_grfn = self.gen_grfn(node.orelse, else_state, "if")
         else:
             else_grfn = []
             self.elif_condition_number = condition_number
 
+        if len(else_grfn) > 0 \
+                and isinstance(else_grfn[0]["functions"][0], str) \
+                and else_grfn[0]["functions"][0] == "insert_break":
+            # Get next def of EXIT
+            exit_index = self._get_next_definition("EXIT",
+                                                   else_state.last_definitions,
+                                                   state.next_definitions,
+                                                   0)
+            loop_break_variable = self.generate_variable_definition("EXIT",
+                                                                    None,
+                                                                    else_state)
+            else_grfn[0]["variables"].append(loop_break_variable)
+
+        if len(if_grfn) > 0 \
+                and len(if_grfn[0]["functions"]) > 0 \
+                and isinstance(if_grfn[0]["functions"][0], str) \
+                and if_grfn[0]["functions"][0] == "insert_break":
+            # Get next def of EXIT
+            exit_index = self._get_next_definition("EXIT",
+                                                   if_state.last_definitions,
+                                                   state.next_definitions,
+                                                   0)
+            loop_break_variable = self.generate_variable_definition("EXIT",
+                                                                    None,
+                                                                    if_state)
+            if_grfn[0]["variables"].append(loop_break_variable)
+
         for spec in if_grfn:
             grfn["functions"] += spec["functions"]
             grfn["variables"] += spec["variables"]
+            grfn["containers"] += spec["containers"]
 
         for spec in else_grfn:
             grfn["functions"] += spec["functions"]
             grfn["variables"] += spec["variables"]
+            grfn["containers"] += spec["containers"]
 
         updated_definitions = [
             var
             for var in set(start_definitions.keys())
-                .union(if_definitions.keys())
-                .union(else_definitions.keys())
-            if var not in start_definitions
-               or if_definitions[var] != start_definitions[var]
-               or else_definitions[var] != start_definitions[var]
+            .union(if_definitions.keys())
+            .union(else_definitions.keys())
+            if var not in start_definitions or if_definitions[var] !=
+            start_definitions[var] or else_definitions[var] !=
+            start_definitions[var]
         ]
 
         # For every updated variable in the `if-else` block, get a list of
@@ -1513,6 +1642,22 @@ class GrFNGenerator(object):
                 ]
                 if version is not None
             ]
+
+        # There might be cases where a variable is only defined within an `if`
+        # or an `else` block and nowhere within the container. Example below:
+        # while (x < 5):
+        #    a = 2
+        #    if (a > 4):
+        #       a = 2
+        #    else:
+        #       x = 3
+        # Here, `x` will only have one index in `defined_versions`. We add a
+        # `-1' to this defined version
+        for updated_definitions in defined_versions:
+            if len(defined_versions[updated_definitions]) == 1:
+                defined_versions[updated_definitions] = \
+                    [-1] + defined_versions[updated_definitions]
+
         # For every updated identifier, we need one __decision__ block. So
         # iterate over all updated identifiers.
         for updated_definition in defined_versions:
@@ -1574,11 +1719,12 @@ class GrFNGenerator(object):
                     {"variable": updated_definition, "index": 1},
                     condition_output,
                 ]
-            lambda_string = self._generate_lambda_function(
+            lambda_string = self.generate_lambda_function(
                 node,
                 function_name["name"],
                 False,
                 True,
+                False,
                 [f"{src['variable']}_{src['index']}" for src in inputs],
                 state,
                 False
@@ -1595,6 +1741,7 @@ class GrFNGenerator(object):
             for spec in elseif_grfn:
                 grfn["functions"] += spec["functions"]
                 grfn["variables"] += spec["variables"]
+                grfn["containers"] += spec["containers"]
 
         return [grfn]
 
@@ -1618,10 +1765,10 @@ class GrFNGenerator(object):
         # simply perform the respective operation on these two numbers and
         # represent this computation in a GrFN spec.
         if isinstance(node.left, ast.Num) and isinstance(node.right, ast.Num):
-            for op in BINOPS:
+            for op in self.binops:
                 if isinstance(node.op, op):
-                    val = BINOPS[type(node.op)](node.left.n, node.right.n)
-                    data_type = ANNOTATE_MAP.get(type(val).__name__)
+                    val = self.binops[type(node.op)](node.left.n, node.right.n)
+                    data_type = self.annotate_map.get(type(val).__name__)
                     if data_type:
                         return [
                             {
@@ -1689,9 +1836,10 @@ class GrFNGenerator(object):
                 assert False, f"Unsupported expr: {expr}."
         for expr in expressions:
             array_set = False
+            string_set = False
             call = expr["call"]
             function_name = call["function"]
-            io_match = self._check_io_variables(function_name)
+            io_match = self.check_io_variables(function_name)
             if io_match:
                 return []
             # Bypassing calls to `print` for now. Need further discussion and
@@ -1699,44 +1847,85 @@ class GrFNGenerator(object):
             # statements.
             if function_name == "print":
                 return []
-            # A handler for array <.set_> function
+
+            # A handler for array and string <.set_>/<.set_substr> function
             if ".set_" in function_name:
-                array_set = True
-                function_name = function_name.replace(".set_", "")
-                input_index = self._get_last_definition(
-                    function_name,
-                    state.last_definitions,
-                    state.last_definition_default
-                )
-                output_index = self._get_next_definition(
-                    function_name,
-                    state.last_definitions,
-                    state.next_definitions,
-                    state.last_definition_default
-                )
-                arr_index = call["inputs"][0][0]["var"]["variable"]
-                # Create a new variable spec for indexed array. Ex.
-                # arr(i) will be arr_i. This will be added as a new
-                # variable in GrFN.
-                variable_spec = self.generate_variable_definition(
-                    function_name, arr_index, state)
-                grfn["variables"].append(variable_spec)
-                state.array_assign_name = f"{function_name}[{arr_index}]"
-                # We want to have a new variable spec for the original
-                # array (arr(i), for example) and generate the function
-                # name with it.
-                variable_spec = self.generate_variable_definition(
-                    function_name, None, state)
-                assign_function = self.generate_function_name(
-                    "__assign__",
-                    variable_spec['name'],
-                    arr_index
-                )
-                container_id_name = assign_function["name"]
-                function_type = assign_function["type"]
+                call_var, method = function_name.split(".")
+                # This is an array
+                if len(call["inputs"]) > 1 and method != "set_substr":
+                    array_set = True
+                    function_name = function_name.replace(".set_", "")
+                    input_index = self.get_last_definition(
+                        function_name,
+                        state.last_definitions,
+                        state.last_definition_default
+                    )
+                    output_index = self._get_next_definition(
+                        function_name,
+                        state.last_definitions,
+                        state.next_definitions,
+                        state.last_definition_default
+                    )
+                    arr_index = self._generate_array_index(node)
+                    str_arr_index = ""
+                    str_arr_for_varname = ""
+                    for idx in arr_index:
+                        if function_name not in self.md_array:
+                            str_arr_index += str(idx)
+                            str_arr_for_varname += str(idx)
+                        else:
+                            str_arr_index += f"[{idx}]"
+                            str_arr_for_varname += f"{idx}"
+                    # arr_index = call["inputs"][0][0]["var"]["variable"]
+                    # Create a new variable spec for indexed array. Ex.
+                    # arr(i) will be arr_i. This will be added as a new
+                    # variable in GrFN.
+                    variable_spec = self.generate_variable_definition(
+                        function_name, str_arr_for_varname, state)
+                    grfn["variables"].append(variable_spec)
+                    if function_name not in self.md_array:
+                        state.array_assign_name = f"{function_name}[{str_arr_index}]"
+                    else:
+                        state.array_assign_name = f"{function_name}{str_arr_index}"
+                    # We want to have a new variable spec for the original
+                    # array (arr(i), for example) and generate the function
+                    # name with it.
+                    variable_spec = self.generate_variable_definition(
+                        function_name, None, state)
+                    assign_function = self.generate_function_name(
+                        "__assign__",
+                        variable_spec['name'],
+                        arr_index
+                    )
+                    container_id_name = assign_function["name"]
+                    function_type = assign_function["type"]
+                # This is a string
+                else:
+                    string_set = True
+                    function_name = call_var
+                    state.string_assign_name = function_name
+                    input_index = self._get_next_definition(
+                        function_name,
+                        state.last_definitions,
+                        state.next_definitions,
+                        -1
+                    )
+                    variable_spec = self.generate_variable_definition(
+                        function_name, None, state)
+                    grfn["variables"].append(variable_spec)
+                    assign_function = self.generate_function_name(
+                        "__assign__",
+                        variable_spec['name'],
+                        None
+                    )
+                    container_id_name = assign_function["name"]
+                    function_type = assign_function["type"]
             else:
-                container_id_name = self.function_argument_map[function_name][
-                    "name"]
+                if function_name in self.function_argument_map:
+                    container_id_name = self.function_argument_map[function_name][
+                        "name"]
+                elif function_name in self.module_subprograms:
+                    container_id_name = function_name
                 function_type = "container"
 
             function = {
@@ -1761,6 +1950,10 @@ class GrFNGenerator(object):
             argument_list = []
             list_index = 0
             for arg in call["inputs"]:
+                # We handle inputs to strings differently, so break out of
+                # this loop
+                if string_set:
+                    break
                 generate_lambda_for_arr = False
                 if len(arg) == 1:
                     # TODO: Only variables are represented in function
@@ -1788,7 +1981,7 @@ class GrFNGenerator(object):
                     # gets assigned to an array. For example, arr(i) =
                     # __expression__ or arr(i) = arr2(i).
                     elif "call" in arg[0]:
-                        function = self.generate_array_setter(
+                        function = self._generate_array_setter(
                             node, function, arg,
                             function_name, container_id_name,
                             arr_index, state)
@@ -1798,37 +1991,37 @@ class GrFNGenerator(object):
                         generate_lambda_for_arr = True
 
                     if generate_lambda_for_arr:
-                        lambda_string = self._generate_lambda_function(
+                        lambda_string = self.generate_lambda_function(
                             node,
                             container_id_name,
                             True,
                             True,
+                            False,
                             argument_list,
                             state,
                             False
                         )
                         state.lambda_strings.append(lambda_string)
                 else:
-                    if "call" in arg[0]:
-                        if function_name in self.arrays:
-                            # If array type is <float> the argument holder
-                            # has a different structure that it does not hold
-                            # function info. like when an array is 'int' type
-                            # [{'call': {'function': '_type_', 'inputs': [...]]
-                            # which causes an error. Thus, the code below fixes
-                            # by correctly structuring it.
-                            array_type = self.arrays[function_name]['elem_type']
-                            fixed_arg = [{'call': {
-                                'function': array_type,
-                                'inputs': [arg]}}]
-                            function = self.generate_array_setter(
-                                node, function, fixed_arg,
-                                function_name, container_id_name,
-                                arr_index, state)
+                    if function_name in self.arrays:
+                        # If array type is <float> the argument holder
+                        # has a different structure that it does not hold
+                        # function info. like when an array is 'int' type
+                        # [{'call': {'function': '_type_', 'inputs': [...]]
+                        # which causes an error. Thus, the code below fixes
+                        # by correctly structuring it.
+                        array_type = self.arrays[function_name]['elem_type']
+                        fixed_arg = [{'call': {
+                            'function': array_type,
+                            'inputs': [arg]}}]
+                        function = self._generate_array_setter(
+                            node, function, fixed_arg,
+                            function_name, container_id_name,
+                            arr_index, state)
                     else:
-                        raise For2PyError(
-                            "Only 1 input per argument supported right now."
-                        )
+                        assert (
+                             "call" in arg[0]
+                        ), "Only 1 input per argument supported right now."
 
             # Below is a separate loop just for filling in inputs for arrays
             if array_set:
@@ -1868,6 +2061,24 @@ class GrFNGenerator(object):
                     function["input"]
                 )
 
+            # Make an assign function for a string .set_ operation
+            if string_set:
+                target = {"var": {
+                    "variable": function_name,
+                    "index": variable_spec['name'].split('::')[-1]
+                }}
+
+                source_list = list(chain.from_iterable(call["inputs"]))
+
+                function = self.make_fn_dict(assign_function, target,
+                                             source_list, state)
+                argument_list = self.make_source_list_dict(source_list)
+
+                lambda_string = self.generate_lambda_function(
+                    node, container_id_name, True, False, True, argument_list,
+                    state, False)
+                state.lambda_strings.append(lambda_string)
+
             # This is sort of a hack for SIR to get the updated fields filled
             # in beforehand. For a generalized approach, look at
             # `process_module`.
@@ -1875,27 +2086,29 @@ class GrFNGenerator(object):
                 for functions in self.function_argument_map:
                     if self.function_argument_map[functions]["name"] == \
                             function["function"]["name"]:
-                        for updated in self.function_argument_map[
-                                functions]["updated_list"]:
-                            (_, variable_name, _) = updated.split('::')
-                            index = [
-                                var.rsplit('::', 1)[1]
-                                for var in function["input"]
-                                if variable_name in var
-                            ][0]
-                            function["updated"].append(
-                                f"@variable::{variable_name}::{int(index)+1}"
-                            )
-                            state.last_definitions[variable_name] += 1
-                            state.next_definitions[variable_name] = \
-                                state.last_definitions[variable_name] + 1
 
-                            variable_spec = self.generate_variable_definition(
-                                variable_name,
-                                None,
-                                state
-                            )
-                            grfn['variables'].append(variable_spec)
+                        for var in function["input"]:
+                            input_var = var.rsplit('::')
+                            index = input_var[2]
+                            if (
+                                input_var[1] in self.f_array_arg
+                                or var in self.function_argument_map[functions]["updated_list"]
+                            ):
+                                variable_name = input_var[1]
+                                function["updated"].append(
+                                    f"@variable::{variable_name}::{int(index)+1}"
+                                )
+
+                                state.last_definitions[variable_name] += 1
+                                state.next_definitions[variable_name] = \
+                                    state.last_definitions[variable_name] + 1
+
+                                variable_spec = self.generate_variable_definition(
+                                    variable_name,
+                                    None,
+                                    state
+                                )
+                                grfn['variables'].append(variable_spec)
             # Keep a track of all functions whose `update` might need to be
             # later updated, along with their scope.
             if len(function['input']) > 0:
@@ -1964,7 +2177,7 @@ class GrFNGenerator(object):
         # Currently, bypassing any `i_g_n_o_r_e___m_e__` variables which are
         # used for comment extraction.
         if not re.match(r'i_g_n_o_r_e___m_e__.*', node.id):
-            last_definition = self._get_last_definition(
+            last_definition = self.get_last_definition(
                 node.id,
                 state.last_definitions,
                 state.last_definition_default
@@ -1997,23 +2210,30 @@ class GrFNGenerator(object):
         # If the source i.e. assigned value is `None` (e.g. day: List[int] =
         # [None]), only update the data type of the targets and populate the
         # `annotated_assigned` map. No further processing will be done.
-        if len(sources) == 1 and ('value' in sources[0].keys()) and \
-                sources[0]['value'] is None:
+        if len(sources) == 1 and ('value' in sources[0][0].keys()) and \
+                sources[0][0]['value'] is None:
             for target in targets:
                 state.variable_types[target["var"]["variable"]] = \
-                    self._get_variable_type(node.annotation)
+                    self.get_variable_type(node.annotation)
                 if target["var"]["variable"] not in self.annotated_assigned:
                     self.annotated_assigned.append(target["var"]["variable"])
 
+                # Check if these variables are io variables. We don't maintain
+                # states for io variables. So, don't add them on the
+                # last_definitions and next_definitions dict.
+                io_match = self.check_io_variables(target["var"]["variable"])
+                if io_match:
+                    self.exclude_list.append(target["var"]["variable"])
                 # When a variable is AnnAssigned with [None] it is being
                 # declared but not defined. So, it should not be assigned an
                 # index. Having the index as -2 indicates that this variable
                 # has only been declared but never defined. The next
                 # definition of this variable should start with an index of 0
                 # though.
-                target['var']['index'] = -2
-                state.last_definitions[target['var']['variable']] = -2
-                state.next_definitions[target['var']['variable']] = 0
+                if not io_match:
+                    target['var']['index'] = -2
+                    state.last_definitions[target['var']['variable']] = -2
+                    state.next_definitions[target['var']['variable']] = 0
             return []
 
         grfn = {"functions": [], "variables": [], "containers": []}
@@ -2033,12 +2253,12 @@ class GrFNGenerator(object):
             # Preprocessing and removing certain Assigns which only pertain
             # to the Python code and do not relate to the FORTRAN code in any
             # way.
-            io_match = self._check_io_variables(target_name)
+            io_match = self.check_io_variables(target_name)
             if io_match:
                 self.exclude_list.append(target_name)
                 return []
             state.variable_types[target_name] = \
-                self._get_variable_type(node.annotation)
+                self.get_variable_type(node.annotation)
             if target_name not in self.annotated_assigned:
                 self.annotated_assigned.append(target_name)
             # Update the `next_definition` index of the target since it is
@@ -2059,14 +2279,15 @@ class GrFNGenerator(object):
 
             # TODO Somewhere around here, the Float32 class problem will have
             #  to be handled.
-            fn = self.make_fn_dict(function_name, target, sources)
+            fn = self.make_fn_dict(function_name, target, sources, state)
 
             if len(sources) > 0:
-                lambda_string = self._generate_lambda_function(
+                lambda_string = self.generate_lambda_function(
                     node,
                     function_name["name"],
                     False,
                     True,
+                    False,
                     [
                         src["var"]["variable"]
                         for src in sources
@@ -2087,6 +2308,7 @@ class GrFNGenerator(object):
 
             grfn["functions"].append(fn)
             grfn["variables"].append(variable_spec)
+
         return [grfn]
 
     def process_assign(self, node, state, *_):
@@ -2098,6 +2320,25 @@ class GrFNGenerator(object):
         # Get the GrFN element of the RHS side of the assignment which are
         # the variables involved in the assignment operations.
         sources = self.gen_grfn(node.value, state, "assign")
+
+        # Detect assigns which are string initializations of the
+        # following form: String(10). String initialization of the form
+        # String(10, "abcdef") are valid assignments where the index of the
+        # variables will be incremented but for the former case the index
+        # will not be incremented and neither will its variable spec be
+        # generated
+        is_string_assign = False
+        is_string_annotation = False
+        if (
+                "call" in sources[0]
+                and sources[0]["call"]["function"] == "String"
+        ):
+            is_string_assign = True
+            # Check if it just an object initialization or initialization
+            # with value assignment
+            if len(sources[0]["call"]["inputs"]) == 1:
+                # This is just an object initialization e.g. String(10)
+                is_string_annotation = True
 
         array_assignment = False
         # If current assignment is for Array declaration,
@@ -2134,10 +2375,29 @@ class GrFNGenerator(object):
             if "list" in target:
                 return []
             target_name = target["var"]["variable"]
+            # Fill some data structures if this is a string
+            # assignment/initialization
+            if is_string_assign:
+                state.variable_types[target_name] = "string"
+                state.string_assign_name = target_name
+                self.strings[target_name] = {
+                    "length": sources[0]["call"]["inputs"][0][0]["value"]
+                }
+                if is_string_annotation:
+                    # If this is just a string initialization,
+                    # last_definition should not contain this string's index.
+                    # This happens only during assignments.
+                    del(state.last_definitions[target_name])
+                    self.strings[target_name]["annotation"] = True
+                    self.strings[target_name]["annotation_assign"] = False
+                else:
+                    self.strings[target_name]["annotation"] = False
+                    self.strings[target_name]["annotation_assign"] = True
+
             # Preprocessing and removing certain Assigns which only pertain
             # to the Python code and do not relate to the FORTRAN code in any
             # way.
-            io_match = self._check_io_variables(target_name)
+            io_match = self.check_io_variables(target_name)
             if io_match:
                 self.exclude_list.append(target_name)
                 return []
@@ -2162,11 +2422,17 @@ class GrFNGenerator(object):
                 if target["var"]["index"] == -1:
                     target["var"]["index"] = 0
                     state.last_definitions[target_name] = 0
+
+                if var_name in self.variable_map and \
+                        self.variable_map[var_name]["parameter"]:
+                    is_mutable = True
+                else:
+                    is_mutable = False
                 array_info = {
                     "index": target["var"]["index"],
                     "dimensions": array_dimensions,
                     "elem_type": array_type,
-                    "mutable": True,
+                    "mutable": is_mutable,
                 }
                 self.arrays[var_name] = array_info
                 state.array_types[var_name] = array_type
@@ -2179,7 +2445,7 @@ class GrFNGenerator(object):
             #  proper method to handle IO moving on
             for src in sources:
                 if 'call' in src:
-                    if self._check_io_variables(src["call"]["function"]):
+                    if self.check_io_variables(src["call"]["function"]):
                         io_source = True
                     function = src['call']['function']
                     # Check if the source is a function call by comparing its
@@ -2205,24 +2471,31 @@ class GrFNGenerator(object):
                     variable_spec['name'],
                     None
                 )
-            fn = self.make_fn_dict(function_name, target, sources)
+            fn = self.make_fn_dict(function_name, target, sources, state)
             if len(fn) == 0:
                 return []
             source_list = self.make_source_list_dict(sources)
-
             if (
                 not io_source
                 and not is_function_call
             ):
-                lambda_string = self._generate_lambda_function(
-                    node, function_name["name"], False, True,
-                    source_list, state, False
-                )
+                if is_string_assign:
+                    lambda_string = self.generate_lambda_function(
+                        node, function_name["name"], True, False, True,
+                        source_list, state, False)
+                else:
+                    lambda_string = self.generate_lambda_function(
+                        node, function_name["name"], False, True, False,
+                        source_list, state, False
+                    )
                 state.lambda_strings.append(lambda_string)
 
             grfn["functions"].append(fn)
-            grfn["variables"].append(variable_spec)
-
+            # Do not add the variable spec if this is a string annotation
+            # since this can collide with the variable spec of the first
+            # string assignment.
+            if not is_string_annotation:
+                grfn["variables"].append(variable_spec)
         return [grfn]
 
     def process_tuple(self, node, state, *_):
@@ -2335,7 +2608,7 @@ class GrFNGenerator(object):
         else:
             # TODO: This section of the code should be the same as
             #  `process_name`. Verify this.
-            last_definition = self._get_last_definition(
+            last_definition = self.get_last_definition(
                 node.attr,
                 state.last_definitions,
                 state.last_definition_default
@@ -2354,11 +2627,31 @@ class GrFNGenerator(object):
         else:
             val = None
 
+        namespace = self._get_namespace(self.fortran_file)
+        function_name = f"{namespace}__{self.current_scope}__return"
+        function_name = self.replace_multiple(
+            function_name,
+            ['$', '-', ':'],
+            '_'
+        )
+        function_name = function_name.replace('.', '__')
         return_dict = {
-            "type": "return",
+            "function": {
+                "name": function_name,
+                "type": "return"
+            },
             "value": val
         }
         grfn["functions"].append(return_dict)
+        return [grfn]
+
+    @staticmethod
+    def process_break(*_):
+        """
+            Process the breaks in the file, adding an EXIT node
+        """
+        grfn = {"functions": ['insert_break'], "variables": [], "containers":
+                []}
         return [grfn]
 
     @staticmethod
@@ -2408,11 +2701,15 @@ class GrFNGenerator(object):
         source_list = []
         for src in source_dictionary:
             if "var" in src:
-                if src["var"]["variable"] not in ANNOTATE_MAP:
+                if src["var"]["variable"] not in self.annotate_map:
                     source_list.append(src["var"]["variable"])
             elif "call" in src:
                 for ip in src["call"]["inputs"]:
                     source_list.extend(self.make_source_list_dict(ip))
+                if "f_index" in src["call"]["function"] \
+                        or "get_substr" in src["call"]["function"]:
+                    string_var = src["call"]["function"].split(".")[0]
+                    source_list.append(string_var)
             elif "list" in src:
                 for ip in src["list"]:
                     if "var" in ip:
@@ -2426,12 +2723,11 @@ class GrFNGenerator(object):
 
         return source_list
 
-    def make_fn_dict(self, name, target, sources):
+    def make_fn_dict(self, name, target, sources, state):
         source = []
         fn = {}
         io_source = False
         target_name = target["var"]["variable"]
-
         target_string = f"@variable::{target_name}::{target['var']['index']}"
 
         for src in sources:
@@ -2439,15 +2735,22 @@ class GrFNGenerator(object):
             if re.match(r"\d+", target_name) and "list" in src:
                 return fn
             if "call" in src:
+                function_name = src["call"]["function"]
+                method_var = function_name.split(".")
+                if len(method_var) > 1:
+                    method_name = method_var[1]
+                else:
+                    method_name = function_name
                 # Remove first index of an array function as it's
                 # really a type name not the variable for input.
-                if src["call"]["function"] is "Array":
+                if function_name is "Array":
                     del src["call"]["inputs"][0]
                 # If a RHS of an assignment is an array getter,
                 # for example, meani.get_((runs[0])), we only need
                 # the array name (meani in this case) and append
                 # to source.
-                if ".get_" in src["call"]["function"]:
+                # if ".get_" in src["call"]["function"]:
+                if method_name == "get_":
                     get_array_name = src["call"]["function"].replace(
                         ".get_",
                         ""
@@ -2461,8 +2764,8 @@ class GrFNGenerator(object):
                 # 'i' is bypassed here
                 # TODO this is only for PETASCE02.for. Will need to include 'i'
                 #  in the long run
-                bypass_match_source = self._check_io_variables(
-                    src["call"]["function"]
+                bypass_match_source = self.check_io_variables(
+                    function_name
                 )
                 if bypass_match_source:
                     if "var" in src:
@@ -2479,8 +2782,11 @@ class GrFNGenerator(object):
                 if not io_source:
                     for source_ins in self.make_call_body_dict(src):
                         source.append(source_ins)
-                else:
-                    source = []
+                # Check for cases of string index operations
+                if method_name in ["f_index", "get_substr"]:
+                    string_var = src["call"]["function"].split(".")[0]
+                    index = state.last_definitions[string_var]
+                    source.append(f"@variable::{string_var}::{index}")
 
             elif "var" in src:
                 source_string = f"@variable::{src['var']['variable']}::" \
@@ -2568,8 +2874,7 @@ class GrFNGenerator(object):
 
         return source_list
 
-    @staticmethod
-    def _process_decorators(node, state):
+    def process_decorators(self, node, state):
         """
             Go through each decorator and extract relevant information.
             Currently this function only checks for the static_vars decorator
@@ -2582,7 +2887,8 @@ class GrFNGenerator(object):
                 for arg in decorator.args[0].elts:
                     variable = arg.values[0].s
                     variable_type = arg.values[2].s
-                    state.variable_types[variable] = ANNOTATE_MAP[variable_type]
+                    state.variable_types[variable] = self.annotate_map[
+                        variable_type]
 
     @staticmethod
     def _merge_dictionary(dicts: Iterable[Dict]) -> Dict:
@@ -2611,8 +2917,8 @@ class GrFNGenerator(object):
 
         return merged_dict
 
-    @staticmethod
-    def _get_last_definition(var, last_definitions, last_definition_default):
+    def get_last_definition(self, var, last_definitions,
+                            last_definition_default):
         """
             This function returns the last (current) definition (index) of a
             variable.
@@ -2621,7 +2927,7 @@ class GrFNGenerator(object):
 
         # Pre-processing and removing certain Assigns which only pertain to the
         # Python code and do not relate to the FORTRAN code in any way.
-        bypass_match = RE_BYPASS_IO.match(var)
+        bypass_match = self.re_bypass_io.match(var)
 
         if not bypass_match:
             if var in last_definitions:
@@ -2645,17 +2951,15 @@ class GrFNGenerator(object):
 
         index = next_definitions.get(var, last_definition_default + 1)
         # Update the next definition index of this variable by incrementing
-        # it by
-        # 1. This will be used the next time when this variable is referenced on
-        # the LHS side of an assignment.
+        # it by 1. This will be used the next time when this variable is
+        # referenced on the LHS side of an assignment.
         next_definitions[var] = index + 1
         # Also update the `last_definitions` dictionary which holds the current
         # index of all variables in scope.
         last_definitions[var] = index
         return index
 
-    @staticmethod
-    def _get_variable_type(annotation_node):
+    def get_variable_type(self, annotation_node):
         """
             This function returns the data type of a variable using the
             annotation information used to define that variable
@@ -2666,8 +2970,8 @@ class GrFNGenerator(object):
             data_type = annotation_node.slice.value.id
         else:
             data_type = annotation_node.id
-        if ANNOTATE_MAP.get(data_type):
-            return ANNOTATE_MAP[data_type]
+        if self.annotate_map.get(data_type):
+            return self.annotate_map[data_type]
         else:
             sys.stderr.write(
                 "Unsupported type (only float, int, list, real, bool and str "
@@ -2690,14 +2994,17 @@ class GrFNGenerator(object):
             HEX string. The uuid4() function of 'uuid' focuses on randomness.
             Each and every bit of a UUID v4 is generated randomly and with no
             inherent logic. To every gensym, we add a tag signifying the data
-            type it represents. 'v' is for variables and 'h' is for holders.
+            type it represents.
+            'v': variables
+            'c': containers
+            'f': functions
         """
         return f"{self.gensym_tag_map[tag]}_{uuid.uuid4().hex[:12]}"
 
-    @staticmethod
-    def _generate_lambda_function(node, function_name: str, return_value: bool,
-                                  array_assign: bool, inputs, state,
-                                  is_custom: bool):
+    def generate_lambda_function(self, node, function_name: str,
+                                 return_value: bool, array_assign: bool,
+                                 string_assign: bool, inputs, state,
+                                 is_custom: bool):
         lambda_for_var = True
         lambda_strings = []
         argument_strings = []
@@ -2743,13 +3050,24 @@ class GrFNGenerator(object):
                 ]
             # function argument requires annotation only when
             # it's dealing with simple variable (at least for now).
-            if lambda_for_var:
-                annotation = ANNOTATE_MAP[annotation]
+            # TODO String assignments of all kinds are class/method related
+            #  operations and will not involve annotations. Discuss this.
+            if lambda_for_var and annotation != "string":
+                annotation = self.annotate_map[annotation]
                 argument_strings.append(f"{ip}: {annotation}")
             # Currently, this is for array specific else case.
             else:
                 argument_strings.append(ip)
                 lambda_for_var = True
+
+        if string_assign and \
+                not self.strings[state.string_assign_name]["annotation"] and \
+                not self.strings[state.string_assign_name]["annotation_assign"]:
+            if len(argument_strings) > 0:
+                argument_strings.insert(0, state.string_assign_name)
+            else:
+                argument_strings.append(state.string_assign_name)
+
         lambda_strings.append(
             f"def {function_name}({', '.join(argument_strings)}):\n    "
         )
@@ -2767,6 +3085,14 @@ class GrFNGenerator(object):
                 lambda_strings.append(f"{state.array_assign_name} = {code}\n")
                 lambda_strings.append(f"    return {state.array_assign_name}")
                 state.array_assign_name = None
+            elif string_assign:
+                if self.strings[state.string_assign_name]["annotation"]:
+                    self.strings[state.string_assign_name]["annotation"] = False
+                if self.strings[state.string_assign_name]["annotation_assign"]:
+                    self.strings[state.string_assign_name]["annotation_assign"] \
+                        = False
+                lambda_strings.append(f"return {code}")
+                state.string_assign_name = None
             else:
                 lambda_strings.append(f"return {code}")
         else:
@@ -2806,10 +3132,50 @@ class GrFNGenerator(object):
         namespace = self._get_namespace(self.fortran_file)
         if variable in state.last_definitions:
             index = state.last_definitions[variable]
+        elif variable in self.strings and self.strings[variable]["annotation"]:
+            # If this is a string initialization without assignment,
+            # the index will be 0 by default
+            index = 0
         elif variable in self.arrays:
             index = 0
-
         domain = self.get_domain_dictionary(variable, state)
+        # Since we need to update the domain of arrays that
+        # were passed to a function once the program actually
+        # finds about it, we need to temporarily hold the domain
+        # information in the dictionary of domain list.
+        if (
+            "name" in domain
+            and domain["name"] == "array"
+        ):
+            if variable in self.array_arg_domain:
+                self.array_arg_domain[variable].append(domain)
+            else:
+                self.array_arg_domain[variable] = [domain]
+
+        # Only array variables hold dimensions in their domain
+        # when they get declared, we identify the array variable
+        # declaration by simply checking the existence of the dimensions
+        # key in the domain. Also, the array was previously passed
+        # to functions.
+        if (
+            "dimensions" in domain
+            and variable in self.array_arg_domain
+        ):
+            # Since we can't simply do "dom = domain"
+            # as this will do a replacement of the dict element
+            # not the actual domain object of the original function
+            # argument, we need to clean off the existing contents
+            # first and then add the array domain spec one-by-one.
+            for dom in self.array_arg_domain[variable]:
+                if "name" in dom:
+                    del dom["name"]
+                if "type" in dom:
+                    del dom["type"]
+                dom["index"] = domain["index"]
+                dom["dimensions"] = domain["dimensions"]
+                dom["elem_type"] = domain["elem_type"]
+                dom["mutable"] = domain["mutable"]
+
         variable_gensym = self.generate_gensym("variable")
 
         if arr_index is not None:
@@ -2817,9 +3183,8 @@ class GrFNGenerator(object):
 
         variable_name = f"@variable::{namespace}::{self.current_scope}::" \
                         f"{variable}::{index}"
-
-        # TODO Change the domain constraint. How do you figure the domain
-        #  constraint out?
+        # TODO Change the domain constraint. How do you figure out the domain
+        #  constraint?
         domain_constraint = "(and (> v -infty) (< v infty)))"
 
         variable_definition = {
@@ -2836,10 +3201,24 @@ class GrFNGenerator(object):
         if variable in self.arrays:
             domain_dictionary = self.arrays[variable]
         else:
-            variable_type = state.variable_types[variable]
+            if variable in state.variable_types:
+                variable_type = state.variable_types[variable]
+            elif variable in self.module_variable_types:
+                variable_type = self.module_variable_types[variable][1]
+            if variable in self.variable_map and \
+                    self.variable_map[variable]["parameter"]:
+                is_mutable = True
+            else:
+                is_mutable = False
+            if (
+                self.handling_f_args
+                and variable_type == "array"
+            ):
+                self.f_array_arg.append(variable)
             domain_dictionary = {
                 "name": self.type_def_map[variable_type],
-                "type": "type"
+                "type": "type",
+                "mutable": is_mutable,
             }
         return domain_dictionary
 
@@ -2855,11 +3234,21 @@ class GrFNGenerator(object):
             namespace_scope = variable_match.group("namescope")
             variable_name = variable_match.group("variable")
             if arr_index:
-                variable_name = variable_name + f"_{arr_index}"
+                variable_name += "_"
+                for index in arr_index:
+                    variable_name = variable_name + f"{index}"
             variable_index = variable_match.group("index")
 
-            name = namespace_scope + function_type + variable_name + "::" + \
-                   variable_index
+            # If this function is for a string initialization, the function
+            # name will have an "init" suffix attached to it to differentiate
+            # it from the first assignment of this string.
+            if self.strings.get(variable_name) and \
+                    self.strings.get(variable_name)["annotation"]:
+                    name = namespace_scope + function_type + variable_name + \
+                           "-init::" + variable_index
+            else:
+                name = namespace_scope + function_type + variable_name + "::" + \
+                       variable_index
             name = self.replace_multiple(name, ['$', '-', ':'], '_')
             name = name.replace('.', '__')
             if any([x in function_type for x in ["assign", "condition",
@@ -2916,7 +3305,6 @@ class GrFNGenerator(object):
                                 )
                                 grfn_dict[0]['variables'].append(variable_spec)
                             body_function['updated'] = updated_variable
-
         return grfn_dict
 
     @staticmethod
@@ -2935,14 +3323,14 @@ class GrFNGenerator(object):
                 None.
         """
         # A multi-dimensional array handler
-        if "list" in inputs[1][0]["list"][0]:
-            for lists in inputs[1][0]["list"]:
-                low_bound = int(lists["list"][0]["value"])
-                upper_bound = int(lists["list"][1]["value"])
+        if len(inputs[1]) > 1:
+            for lst in inputs[1]:
+                low_bound = int(lst[0]["list"][0]["value"])
+                upper_bound = int(lst[0]["list"][1]["value"])
                 array_dimensions.append(upper_bound - low_bound + 1)
         # 1-D array handler
         else:
-            bounds = inputs[1][0]["list"]
+            bounds = inputs[1][0][0]["list"]
             # Get lower bound of an array
             if "type" in bounds[0]:
                 # When an index is a scalar value
@@ -2967,7 +3355,7 @@ class GrFNGenerator(object):
                 assert False, f"low_bound type: {type(low_bound)} is " \
                               f"currently not handled."
 
-    def generate_array_setter(self, node, function, arg, name,
+    def _generate_array_setter(self, node, function, arg, name,
                               container_id_name, arr_index, state
                               ):
         """
@@ -2988,17 +3376,21 @@ class GrFNGenerator(object):
                 (list) function: A completed list of function.
         """
         argument_list = list()
-
         # Array index is always one of
         # the lambda function argument
-        argument_list.append(arr_index)
+        for idx in arr_index:
+            if (
+                    idx not in self.arithmetic_ops
+                    and isinstance(idx, str)
+            ):
+                argument_list.append(idx)
         # For array setter value handler
         for var in arg[0]["call"]["inputs"][0]:
             # If an input is a simple variable
             if "var" in var:
                 var_name = var['var']['variable']
                 if var_name not in argument_list:
-                    input_index = self._get_last_definition(
+                    input_index = self.get_last_definition(
                         var_name,
                         state.last_definitions,
                         state.last_definition_default
@@ -3019,7 +3411,7 @@ class GrFNGenerator(object):
                     if get_array_name not in argument_list:
                         argument_list.append(get_array_name)
                         if get_array_name != name:
-                            ip_index = self._get_last_definition(
+                            ip_index = self.get_last_definition(
                                 get_array_name,
                                 state.last_definitions,
                                 state.last_definition_default
@@ -3032,11 +3424,12 @@ class GrFNGenerator(object):
                         # It's not an error, so just pass it.
                         pass
         # Generate lambda function for array[index]
-        lambda_string = self._generate_lambda_function(
+        lambda_string = self.generate_lambda_function(
             node,
             container_id_name,
             True,
             True,
+            False,
             argument_list,
             state,
             False
@@ -3044,6 +3437,59 @@ class GrFNGenerator(object):
         state.lambda_strings.append(lambda_string)
 
         return function
+
+    def _generate_array_index (self, node):
+        """This function is for generating array index grfn
+        handling both single and multi-dimensional arrays.
+
+        Args:
+            node: The node referring to the array.
+
+        Returns:
+            (list) index: Formed array index.
+        """
+        args = node.value.args[0]
+        args_name = args.__repr__().split()[0][2:]
+        # Case 1: Single dimensional array
+        if args_name == "ast.Subscript":
+            return [args.value.id]
+        # Case 1.1: Single dimensional array with arithmetic
+        # operation as setter index
+        elif args_name == "ast.BinOp":
+            left_ast = args.left.__repr__().split()[0][2:]
+            right_ast = args.right.__repr__().split()[0][2:]
+            # Get the operator's left side value
+            if left_ast == "ast.Subscript":
+                left = args.left.value.id
+            elif left_ast == "ast.Num":
+                left = args.left.n
+            # Get the arithmetic operator
+            op = self.arithmetic_ops[args.op.__repr__().split()[0][6:]]
+            # Get the operator's right side value
+            if right_ast == "ast.Subscript":
+                right = args.right.value.id
+            elif right_ast == "ast.Num":
+                right = args.right.n
+            return [left, op, right]
+        # Case 2: Multi-dimensional array
+        elif args_name == "ast.Tuple":
+            md_array_name = node.value.func.value.id
+            if md_array_name not in self.md_array:
+                self.md_array.append(md_array_name)
+            dimensions = args.elts
+            dimension_list = []
+            for dimension in dimensions:
+                ast_name = dimension.__repr__().split()[0][2:]
+                if ast_name == "ast.Subscript":
+                    dimension_list.append(dimension.value.id)
+                else:
+                    assert (
+                        ast_name == "ast.Num"
+                    ), f"Unable to handle {ast_name} for multi-dimensional array"
+            return dimension_list
+        else:
+            assert False, f"Unable to handle {args_name}"
+
 
     @staticmethod
     def replace_multiple(main_string, to_be_replaced, new_string):
@@ -3061,7 +3507,7 @@ class GrFNGenerator(object):
         return main_string
 
     @staticmethod
-    def _find_updated(argument_list, body_variable_list):
+    def _find_updated(argument_list, body_variable_list, f_array_arg, state):
         """
             This function finds and generates a list of updated identifiers
             in a container.
@@ -3100,16 +3546,21 @@ class GrFNGenerator(object):
                     int(body_dict[argument]) > int(argument_dict[argument]):
                 updated_list.append(f"@variable::{argument}::"
                                     f"{body_dict[argument]}")
+            # If argument is an array type, get the current index and
+            # update it. Then, append to the function's updated list
+            elif argument in f_array_arg:
+                updated_idx = state.last_definitions[argument]
+                updated_list.append(f"@variable::{argument}::"
+                                    f"{updated_idx}")
 
         return updated_list
 
-    @staticmethod
-    def _check_io_variables(variable_name):
+    def check_io_variables(self, variable_name):
         """
             This function scans the variable and checks if it is an io
             variable. It returns the status of this check i.e. True or False.
         """
-        io_match = RE_BYPASS_IO.match(variable_name)
+        io_match = self.re_bypass_io.match(variable_name)
         return io_match
 
     @staticmethod
@@ -3164,6 +3615,23 @@ class GrFNGenerator(object):
         """
         # return list(set(input_list))
         return list(OrderedDict.fromkeys(input_list))
+
+    def get_variables(self, condition_sources):
+        variable_list = list()
+        for item in condition_sources:
+            if isinstance(item, dict) and "var" in item:
+                variable_list.append(item)
+            elif isinstance(item, list):
+                variable_list += self.get_variables(item)
+
+        # Remove any duplicate dictionaries from the list. This is done to
+        # preserve ordering.
+        # Reference: https://www.geeksforgeeks.org/
+        # python-removing-duplicate-dicts-in-list/
+        variable_list = [i for n, i in enumerate(variable_list) if
+                         i not in variable_list[n + 1:]]
+
+        return variable_list
 
 
 def get_path(file_name: str, instance: str):
@@ -3260,9 +3728,12 @@ def create_grfn_dict(
         lambda_file: str,
         asts: List,
         file_name: str,
-        mode_mapper_dict: dict,
+        mode_mapper_dict: list,
         original_file: str,
+        mod_log_file_path: str,
         save_file=False,
+        module_file_exist=False,
+        module_import_paths={},
 ) -> Dict:
     """
         Create a Python dict representing the GrFN, with additional metadata for
@@ -3272,25 +3743,101 @@ def create_grfn_dict(
     lambda_string_list = [
         "from numbers import Real\n",
         "from random import random\n",
+        "from delphi.translators.for2py.strings import *\n"
         "import delphi.translators.for2py.math_ext as math\n\n"
     ]
 
     state = GrFNState(lambda_string_list)
     generator = GrFNGenerator()
-    generator.mode_mapper = mode_mapper_dict
+    generator.mode_mapper = mode_mapper_dict[0]
     generator.fortran_file = original_file
+
+    # Currently, we are specifying the module file with
+    # a prefix "m_", this may be changed in the future.
+    # If it requires a change, simply modify this below prefix.
+    module_file_prefix = "m_"
+
+    with open(mod_log_file_path) as json_f:
+        module_logs = json.load(json_f)
+
+    try:
+        filename_regex = re.compile(r"(?P<path>.*/)(?P<filename>.*).py")
+        file_match = re.match(filename_regex, file_name)
+        assert file_match, f"Can't match filename to any format: {file_name}"
+
+        path = file_match.group("path")
+        filename = file_match.group("filename")
+
+        # Since we do not have separate variable pickle file
+        # for m_*.py, we need to use the original program pickle
+        # file that module resides.
+        module_name = None
+        if module_file_exist:
+            module_file_path = file_name
+            # Ignoring the module file prefix
+            module_name = filename[len(module_file_prefix):]
+            org_file = get_original_file_name(original_file)
+            file_name = path + org_file
+        else:
+            file_name = path+filename
+            
+        with open(f"{file_name}_variables_pickle", "rb") as f:
+            variable_map = pickle.load(f)
+        generator.variable_map = variable_map
+    except IOError:
+        raise For2PyError(f"Unable to read file {file_name}.")
+
+    # Extract variables with type that are declared in module
+    generator.module_variable_types = mode_mapper_dict[0]["symbol_types"]
+    # Extract functions (and subroutines) declared in module
+    for module in mode_mapper_dict[0]["subprograms"]:
+        for subp in mode_mapper_dict[0]["subprograms"][module]:
+            generator.module_subprograms.append(subp)
+            if module in module_logs["mod_info"]:
+                module_logs["mod_info"][module]["symbol_types"][subp] = "func"
+
+    for module in mode_mapper_dict[0]["imports"]:
+        for subm in mode_mapper_dict[0]["imports"][module]:
+            import_module_name = list(subm.keys())[0]
+            import_function_list = subm[import_module_name]
+            if (
+                    not import_function_list
+                    and import_module_name in module_logs["mod_info"]
+            ):
+                symbols = module_logs["mod_info"][import_module_name]["symbol_types"]
+                for key, value in symbols.items():
+                    if value == "func":
+                        generator.module_subprograms.append(key)
+
+            generator.module_subprograms.extend(import_function_list)
+
     grfn = generator.gen_grfn(asts, state, "")[0]
+
+    if len(generator.mode_mapper["use_mapping"]) > 0:
+        for user, module in generator.mode_mapper["use_mapping"].items():
+            if (
+                    (user in generator.module_names)
+                    or (module_name and module_name == user)
+            ):
+                module_paths = []
+                for import_mods in module:
+                    for mod_name, target in import_mods.items():
+                        module_path = path + module_file_prefix + mod_name + "_GrFN.json"
+                        module_paths.append(module_path)
+                module_import_paths[user] = module_paths
 
     # If the GrFN has a `start` node, it will refer to the name of the
     # PROGRAM module which will be the entry point of the GrFN.
     if grfn.get("start"):
         grfn["start"] = [grfn["start"][0]]
-    else:
+    elif generator.function_definitions:
         # TODO: The `grfn_spec` mentions this to be null (None) but it looks
         #  like `networks.py` requires a certain function. Finalize after
         #  `networks.py` is completed.
         # grfn["start"] = None
         grfn["start"] = [generator.function_definitions[-1]]
+    else:
+        grfn["start"] = None
 
     # Add the placeholder to enter the grounding and link hypothesis information
     grfn["grounding"] = []
@@ -3320,9 +3867,15 @@ def create_grfn_dict(
     with open(lambda_file, "w") as lambda_fh:
         lambda_fh.write("".join(lambda_string_list))
 
+    with open(mod_log_file_path, "w+") as json_f:
+        json_f.write(json.dumps(module_logs, indent=2))
+
     # View the PGM file that will be used to build a scope tree
     if save_file:
-        json.dump(grfn, open(file_name[:file_name.rfind(".")] + ".json", "w"))
+        if module_file_exist:
+            json.dump(grfn, open(module_file_path[:module_file_path.rfind(".")] + ".json", "w"))
+        else:
+            json.dump(grfn, open(file_name[:file_name.rfind(".")] + ".json", "w"))
 
     return grfn
 
@@ -3374,35 +3927,62 @@ def get_system_name(pyfile_list: List[str]):
     return system_name, path
 
 
-def generate_system_def(python_list: List[str], component_list: List[str]):
+def generate_system_def(
+        python_list: List[str],
+        module_grfn_list: List[str],
+        import_grfn_paths: List[str],
+        module_logs: Dict
+):
     """
         This function generates the system definition for the system under
         analysis and writes this to the main system file.
     """
     (system_name, path) = get_system_name(python_list)
-    system_filename = f"{path}/system.json"
+    system_filepath = f"{path}/system.json"
+    module_name_regex = re.compile(r"(?P<path>.*/)m_(?P<module_name>.*)_GrFN.json")
+
     grfn_components = []
-    for component in component_list:
+    for module_grfn in module_grfn_list:
+        code_sources = []
+        module_match = re.match(module_name_regex, module_grfn)
+        if module_match:
+            module_name = module_match.group("module_name")
+            if module_name in module_logs["mod_to_file"]:
+                for path in module_logs["mod_to_file"][module_name]:
+                    code_sources.append(path)
         grfn_components.append({
-            "file_path": component,
+            "grfn_source": module_grfn,
+            "code_source": code_sources,
             "imports": []
         })
-    with open(system_filename, "w") as system_file:
-        system_def = {
-            "date_created": f"{datetime.utcnow().isoformat('T')}Z",
-            "name": system_name,
-            "components": grfn_components
-        }
-        system_file.write(json.dumps(system_def, indent=2))
+    for grfn in import_grfn_paths:
+        for path in import_grfn_paths[grfn]:
+            grfn_components[0]["imports"].append(path)
+    system_def = {
+        "date_created": f"{datetime.utcnow().isoformat('T')}Z",
+        "name": system_name,
+        "components": grfn_components
+    }
+    if os.path.isfile(system_filepath):
+        with open(system_filepath, "r") as f:
+            systems_def = json.load(f)
+            systems_def['systems'].append(system_def)
+    else:
+        systems_def = {'systems': [system_def]}
+
+    with open(system_filepath, "w") as system_file:
+        system_file.write(json.dumps(systems_def, indent=2))
 
 
 def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
-                  original_file: str, print_ast_flag=False):
+                  original_file_path: str, print_ast_flag=False):
     """
-        This function takes in the list of python files to convert into GrFN 
+        This function takes in the list of python files to convert into GrFN
         and generates each file's AST along with starting the GrFN generation
-        process. 
+        process.
     """
+
+    module_file_exist = False
 
     module_mapper = {}
     grfn_filepath_list = []
@@ -3426,23 +4006,39 @@ def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
             xml_file = f"{path}rectified_{filename}.xml"
             # Calling the `get_index` function in `mod_index_generator.py` to
             # map all variables and objects in the various files
-            module_mapper = get_index(xml_file)[0]
+        else:
+            module_file_exist = True
+            file_name = get_original_file_name(original_file_path)
+            xml_file = f"{path}rectified_{file_name}.xml"
+        # Calling the `get_index` function in `mod_index_generator.py` to
+        # map all variables and objects in the various files
+        module_mapper = get_index(xml_file)
 
+    main_program = module_mapper[0]["modules"][-1]
+    module_import_paths = {}
     for index, ast_string in enumerate(ast_list):
         lambda_file = python_list[index][:-3] + "_" + lambda_tail
         grfn_file = python_list[index][:-3] + "_" + grfn_tail
         grfn_dict = create_grfn_dict(
             lambda_file, [ast_string], python_list[index], module_mapper,
-            original_file
+            original_file_path, True, module_file_exist, module_import_paths
         )
+        if module_file_exist:
+            main_python_file = path + file_name + ".py"
+            python_list[index] = main_python_file
         grfn_filepath_list.append(grfn_file)
         # Write each GrFN JSON into a file
         with open(grfn_file, "w") as file_handle:
-            file_handle.write(json.dumps(grfn_dict, indent=2))
-
+            file_handle.write(json.dumps(grfn_dict, sort_keys=True, indent=2))
+    
     # Finally, write the <systems.json> file which gives a mapping of all the
     # GrFN files related to the system.
-    generate_system_def(python_list, grfn_filepath_list)
+    generate_system_def(python_list, grfn_filepath_list, module_import_paths)
+
+
+def get_original_file_name (original_file_path):
+    original_file = original_file_path.split('/')
+    return original_file[-1].split('.')[0]
 
 
 if __name__ == "__main__":
