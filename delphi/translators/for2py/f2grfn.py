@@ -660,10 +660,10 @@ def fortran_to_grfn(
     rectified_xml_file = temp_dir + "/" + "rectified_" + base + ".xml"
     pickle_file = temp_dir + "/" + base + "_pickle"
     variable_map_file = temp_dir + "/" + base + "_variables_pickle"
-    translated_python_files = [temp_dir + "/" + base + ".py"]
+    python_file = temp_dir + "/" + base + ".py"
     output_file = temp_dir + "/" + base + "_outputList.txt"
     json_file = temp_dir + "/" + base + ".json"
-    lambdas_file_path = temp_dir + "/" + base + "_lambdas.py"
+    # lambdas_file_path = temp_dir + "/" + base + "_lambdas.py"
 
     # Open and read original fortran file
     try:
@@ -698,7 +698,7 @@ def fortran_to_grfn(
     )
 
     # If a program uses module(s) that does not reside within the same file,
-    # we need to find out where the lives and process those files first. Thus,
+    # we need to find out where they live and process those files first. Thus,
     # the program should know the list of modules that require advance process
     # that was collected by rectify.py, below code will recursively call fortran_to_grfn
     # function to process module files end-to-end (Fortran-to-GrFN).
@@ -726,11 +726,13 @@ def fortran_to_grfn(
     output_dict = generate_outputdict(
         rectified_tree, preprocessed_fortran_file, pickle_file, tester_call
     )
+    translated_python_files = []
     # Create a python source file.
     python_source = generate_python_src(
         output_dict, translated_python_files, output_file, variable_map_file,
         temp_dir, tester_call
     )
+    translated_python_files.append(python_file)
     # Add generated list of files and log it for later removal, if needed.
     file_list = [output_file, pickle_file, variable_map_file]
     file_list.extend(translated_python_files)
@@ -749,12 +751,15 @@ def fortran_to_grfn(
             processing_modules,
         )
 
+    python_file_num = 0
     # Generate GrFN file
     for python_file in translated_python_files:
+        lambdas_file_path  = python_file[0:-3] + "_lambdas.py"
         grfn_dict = generate_grfn(
-            python_source[0][0], python_file, lambdas_file_path, mode_mapper_dict[0],
+            python_source[python_file_num][0], python_file, lambdas_file_path, mode_mapper_dict[0],
             original_fortran_file, False, module_log_file_path, processing_modules
         )
+        python_file_num += 1
 
 if __name__ == "__main__":
     fortran_to_grfn()
