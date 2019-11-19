@@ -1985,14 +1985,13 @@ class GrFNGenerator(object):
                             node, function, arg,
                             function_name, container_id_name,
                             arr_index, state)
+                        generate_lambda_for_arr = True
                     # This is a case where a literal gets assigned to an array.
                     # For example, arr(i) = 100.
                     elif "type" in arg[0] and array_set:
                         generate_lambda_for_arr = True
 
-                    if (
-                            generate_lambda_for_arr
-                    ):
+                    if generate_lambda_for_arr:
                         lambda_string = self.generate_lambda_function(
                             node,
                             container_id_name,
@@ -2028,6 +2027,7 @@ class GrFNGenerator(object):
             # Below is a separate loop just for filling in inputs for arrays
             if array_set:
                 argument_list = []
+                need_lambdas = False
                 for arg in call["inputs"]:
                     for ip in arg:
                         if 'var' in ip:
@@ -2040,6 +2040,7 @@ class GrFNGenerator(object):
                         elif 'call' in ip:
                             function_call = ip['call']
                             function_name = function_call['function']
+                            need_lambdas = True
                             if '.get_' in function_name:
                                 function_name = function_name.replace(
                                     ".get_", "")
@@ -2073,17 +2074,19 @@ class GrFNGenerator(object):
                     argument_list
                 )
 
-                lambda_string = self.generate_lambda_function(
-                    node,
-                    container_id_name,
-                    True,
-                    True,
-                    False,
-                    argument_list,
-                    state,
-                    False
-                )
-                state.lambda_strings.append(lambda_string)
+                if need_lambdas:
+                    lambda_string = self.generate_lambda_function(
+                        node,
+                        container_id_name,
+                        True,
+                        True,
+                        False,
+                        argument_list,
+                        state,
+                        False
+                    )
+                    state.lambda_strings.append(lambda_string)
+                    need_lambdas = False
 
             # Make an assign function for a string .set_ operation
             if string_set:
