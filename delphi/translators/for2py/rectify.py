@@ -2602,8 +2602,6 @@ class RectifyOFPXML:
         mod_to_file_mapper = module_logs["mod_to_file"]
         
         use_module = root.attrib['name']
-        # DEBUG
-        print ("    * mod_to_file_mapper: ", mod_to_file_mapper)
         if use_module.lower() in mod_to_file_mapper:
             use_module_file_path = mod_to_file_mapper[use_module.lower()]
             if (

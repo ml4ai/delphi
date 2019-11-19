@@ -1990,7 +1990,9 @@ class GrFNGenerator(object):
                     elif "type" in arg[0] and array_set:
                         generate_lambda_for_arr = True
 
-                    if generate_lambda_for_arr:
+                    if (
+                            generate_lambda_for_arr
+                    ):
                         lambda_string = self.generate_lambda_function(
                             node,
                             container_id_name,
@@ -2025,6 +2027,7 @@ class GrFNGenerator(object):
 
             # Below is a separate loop just for filling in inputs for arrays
             if array_set:
+                argument_list = []
                 for arg in call["inputs"]:
                     for ip in arg:
                         if 'var' in ip:
@@ -2032,6 +2035,8 @@ class GrFNGenerator(object):
                                 f"@variable::"
                                 f"{ip['var']['variable']}::"
                                 f"{ip['var']['index']}")
+                            if ip['var']['variable'] not in argument_list:
+                                argument_list.append(ip['var']['variable'])
                         elif 'call' in ip:
                             function_call = ip['call']
                             function_name = function_call['function']
@@ -2047,6 +2052,8 @@ class GrFNGenerator(object):
                                         f"@variable::"
                                         f"{function_name}::"
                                         f"{state.last_definitions[function_name]}")
+                                if function_name not in argument_list:
+                                    argument_list.append(function_name)
                             for call_input in function_call['inputs']:
                                 # TODO: This is of a recursive nature. Make
                                 #  this a loop. Works for SIR for now.
@@ -2056,10 +2063,27 @@ class GrFNGenerator(object):
                                             f"@variable::"
                                             f"{var['var']['variable']}::"
                                             f"{var['var']['index']}")
+                                        if var['var']['variable'] not in argument_list:
+                                            argument_list.append(var['var']['variable'])
 
                 function["input"] = self._remove_duplicate_from_list(
                     function["input"]
                 )
+                argument_list = self._remove_duplicate_from_list(
+                    argument_list
+                )
+
+                lambda_string = self.generate_lambda_function(
+                    node,
+                    container_id_name,
+                    True,
+                    True,
+                    False,
+                    argument_list,
+                    state,
+                    False
+                )
+                state.lambda_strings.append(lambda_string)
 
             # Make an assign function for a string .set_ operation
             if string_set:
