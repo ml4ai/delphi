@@ -39,11 +39,6 @@ def sir_gillespie_inline_grfn():
 
 
 @pytest.fixture
-def gillespie_mult_grfn():
-    return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/SIR-Gillespie-SD_multi_module.f")
-
-
-@pytest.fixture
 def sir_gillespie_ms_grfn():
     return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/SIR-Gillespie-MS.f")
 
@@ -117,14 +112,6 @@ def test_sir_gillespie_inline_creation(sir_gillespie_inline_grfn):
     G.draw('SIR-Gillespie_inline--GrFN.pdf', prog='dot')
     CAG = sir_gillespie_inline_grfn.to_CAG_agraph()
     CAG.draw('SIR-Gillespie_inline--CAG.pdf', prog='dot')
-
-
-def test_mult_files_grfn(gillespie_mult_grfn):
-    assert isinstance(gillespie_mult_grfn, GroundedFunctionNetwork)
-    G = gillespie_mult_grfn.to_agraph()
-    G.draw('SIR-Gillespie_multi--GrFN.pdf', prog='dot')
-    CAG = gillespie_mult_grfn.to_CAG_agraph()
-    CAG.draw('SIR-Gillespie_multi--CAG.pdf', prog='dot')
 
 
 def test_sir_gillespie_ms_creation(sir_gillespie_ms_grfn):
