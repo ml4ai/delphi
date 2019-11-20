@@ -32,9 +32,10 @@ def get_python_source(
 
 
 def make_grfn_dict(original_fortran_file) -> Dict:
+    lambda_file_suffix = "_lambdas.py"
+
     (
         pySrc, 
-        lambdas_filename,
         json_filename, 
         python_filenames,
         base, 
@@ -45,6 +46,7 @@ def make_grfn_dict(original_fortran_file) -> Dict:
     ) = get_python_source(original_fortran_file)
 
     for python_file in python_filenames:
+        lambdas_filename  = python_file[0:-3] + lambda_file_suffix
         _dict = f2grfn.generate_grfn(
             pySrc[0][0],
             python_file,
@@ -297,7 +299,7 @@ def test_multidimensional_array_grfn_generation(multidimensional_array_test):
     assert str(multidimensional_array_test) == grfn_dict
 
 
-def test_sri_gillespie_sd_grfn_generation(sir_gillespie_sd_test):
+def test_sir_gillespie_sd_grfn_generation(sir_gillespie_sd_test):
     with open(f"{DATA_DIR}/SIR-Gillespie-SD_multi_module_GrFN.json", "r") as f:
         grfn_dict = f.read()
     assert str(sir_gillespie_sd_test) == grfn_dict
