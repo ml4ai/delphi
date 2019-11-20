@@ -132,6 +132,7 @@ class GrFNGenerator(object):
         self.module_subprograms = []
         # Holds module names
         self.module_names = []
+        self.generated_lambda_functions = []
 
         self.gensym_tag_map = {
             "container": 'c',
@@ -2074,7 +2075,10 @@ class GrFNGenerator(object):
                     argument_list
                 )
 
-                if need_lambdas:
+                if (
+                        need_lambdas
+                        and container_id_name not in self.generated_lambda_functions
+                ):
                     lambda_string = self.generate_lambda_function(
                         node,
                         container_id_name,
@@ -3032,6 +3036,7 @@ class GrFNGenerator(object):
                                  return_value: bool, array_assign: bool,
                                  string_assign: bool, inputs, state,
                                  is_custom: bool):
+        self.generated_lambda_functions.append(function_name)
         lambda_for_var = True
         lambda_strings = []
         argument_strings = []
