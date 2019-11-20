@@ -8,6 +8,7 @@ from delphi.GrFN.networks import GroundedFunctionNetwork
 from delphi.GrFN.sensitivity import FAST_analysis, RBD_FAST_analysis
 import delphi.GrFN.analysis as analysis
 from test_GrFN import petpt_grfn, petasce_grfn
+import delphi.translators.for2py.f2grfn as f2grfn
 
 import numpy as np
 
@@ -16,7 +17,7 @@ sys.path.insert(0, "tests/data/program_analysis")
 
 
 def test_regular_PETPT(petpt_grfn):
-    args = petpt_grfn.inputs
+    args = petpt_grfn[0].inputs
     bounds = {
         "PETPT::@global::petpt::0::msalb::-1": [0, 1],
         "PETPT::@global::petpt::0::srad::-1": [1, 20],
@@ -32,9 +33,10 @@ def test_regular_PETPT(petpt_grfn):
     }
 
     Ns = 1000
-    Si = petpt_grfn.sobol_analysis(Ns, problem)
+    Si = petpt_grfn[0].sobol_analysis(Ns, problem)
     assert len(Si.keys()) == 6
     assert len(Si["S1"]) == len(args)
+    f2grfn.cleanup_files(petpt_grfn[1])
 
 
 @pytest.mark.skip("Need to update to latest JSON")
@@ -105,16 +107,17 @@ def test_PETASCE_sobol_analysis(petasce_grfn):
         "PETASCE_simple::@global::petasce::0::canht::-1": (float, [0.0]),
     }
 
-    args = petasce_grfn.inputs
+    args = petasce_grfn[0].inputs
     problem = {
         'num_vars': len(args),
         'names': args,
         'bounds': [bounds[arg] for arg in args]
     }
 
-    Si = petasce_grfn.sobol_analysis(100, problem, var_types=type_info)
-    assert len(Si["S1"]) == len(petasce_grfn.inputs)
-    assert len(Si["S2"][0]) == len(petasce_grfn.inputs)
+    Si = petasce_grfn[0].sobol_analysis(100, problem, var_types=type_info)
+    assert len(Si["S1"]) == len(petasce_grfn[0].inputs)
+    assert len(Si["S2"][0]) == len(petasce_grfn[0].inputs)
+    f2grfn.cleanup_files(petasce_grfn[1])
 
 
 @pytest.mark.skip("Need to update to latest JSON")
@@ -185,19 +188,20 @@ def test_PETPT_sensitivity_surface(petpt_grfn):
         "PETPT::@global::petpt::0::xhlai::-1": 10,
     }
 
-    (X, Y, Z, x_var, y_var) = petpt_grfn.S2_surface((80, 60), bounds, presets)
+    (X, Y, Z, x_var, y_var) = petpt_grfn[0].S2_surface((80, 60), bounds, presets)
 
     assert X.shape == (80,)
     assert Y.shape == (60,)
     assert Z.shape == (80, 60)
+    f2grfn.cleanup_files(petpt_grfn[1])
 
 
 @pytest.mark.skip("Need to update FIB for new GrFN schema")
 def test_FIB_execution(petpt_grfn, petasce_grfn):
-    petpt_fib = petpt_grfn.to_FIB(petasce_grfn)
-    petasce_fib = petasce_grfn.to_FIB(petpt_grfn)
+    petpt_fib = petpt_grfn[0].to_FIB(petasce_grfn)
+    petasce_fib = petasce_grfn[0].to_FIB(petpt_grfn)
 
-    pt_inputs = {name: 1 for name in petpt_grfn.inputs}
+    pt_inputs = {name: 1 for name in petpt_grfn[0].inputs}
 
     asce_inputs = {
         "PETASCE_simple::@global::petasce::0::msalb::-1": 0.5,
@@ -220,8 +224,10 @@ def test_FIB_execution(petpt_grfn, petasce_grfn):
         "PETASCE_simple::@global::petasce::0::wnd::0": 3.5,
     }
 
-    res = petpt_fib.run(pt_inputs, {})
+    res = petpt_fib[0].run(pt_inputs, {})
     assert res[0] == np.float32(0.029983712)
 
-    res = petasce_fib.run(asce_inputs, asce_covers)
+    res = petasce_fib[0].run(asce_inputs, asce_covers)
     assert res[0] == np.float32(0.00012496980836348878)
+    f2grfn.cleanup_files(petpt_grfn[1])
+    f2grfn.cleanup_files(petasce_grfn[1])
