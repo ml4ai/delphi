@@ -432,27 +432,20 @@ class GroundedFunctionNetwork(ComputationalGraph):
         module_import_paths = {}
 
         """Builds GrFN object from Python source code."""
-        pgm_dict = f2grfn.generate_grfn(
-            pySrc,
-            python_file,
+        asts = [ast.parse(pySrc)]
+        pgm_dict = genPGM.create_grfn_dict(
             lambdas_path,
-            mode_mapper_dict[0],
-            str(fortran_file),
-            True,
+            asts,
+            python_file,
+            mode_mapper_dict,
+            fortran_file,
             module_log_file_path,
-            processing_modules
+            save_file,
+            module_file_exist,
+            module_import_paths
         )
 
-        filename_regex = re.compile(r"(?P<path>.*/)(?P<filename>.*).py")
-        file_match = re.match(filename_regex, python_file)
-        filename = file_match.group("filename")
-
-        lambdas = importlib.__import__(filename + "_lambdas")
-        # DEBUG
-        print ("    * python_file: ", python_file)
-        print ("    * stem: ", stem)
-        print ("    * lambdas: ", lambdas)
-        print ("    * lambdas_path: ", lambdas_path)
+        lambdas = importlib.__import__(stem + "_lambdas")
         return cls.from_dict(pgm_dict, lambdas)
 
     @classmethod
