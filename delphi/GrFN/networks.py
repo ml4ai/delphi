@@ -431,25 +431,9 @@ class GroundedFunctionNetwork(ComputationalGraph):
         module_file_exist = False
         module_import_paths = {}
 
-        """Builds GrFN object from Python source code."""
-        """
-        asts = [ast.parse(pySrc)]
-        pgm_dict = genPGM.create_grfn_dict(
-            lambdas_path,
-            asts,
-            python_file,
-            mode_mapper_dict,
-            fortran_file,
-            module_log_file_path,
-            save_file,
-            module_file_exist,
-            module_import_paths
-        )
-
-        lambdas = importlib.__import__(stem + "_lambdas")
-        """
         tester_call = True
         network_test = True
+        """Builds GrFN object from Python source code."""
         pgm_dict, generated_files = f2grfn.generate_grfn(
                                         pySrc,
                                         python_file,
@@ -463,6 +447,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
                                         save_file
                                     )
         lambdas = importlib.__import__(stem + "_lambdas")
+        """Add generated GrFN and lambdas file paths to the list"""
         generated_files_list.extend(generated_files)
         return cls.from_dict(pgm_dict, lambdas)
 
@@ -475,6 +460,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
         if tmpdir == "." and "/" in fortran_file:
             tmpdir_path = Path(fortran_file).parent
         root_dir = os.path.abspath(tmpdir)
+
         (
             pySrc,
             json_filename,
@@ -510,6 +496,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
                                     generated_files,
                                     save_file=save_file)
 
+            """Return GrFN and generated files list for cleanup"""
             return G, generated_files
 
     @classmethod

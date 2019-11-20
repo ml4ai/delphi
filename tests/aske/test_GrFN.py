@@ -16,31 +16,49 @@ sys.path.insert(0, "tests/data/program_analysis")
 
 @pytest.fixture
 def crop_yield_grfn():
+    # Return two things:
+    # (1) Index [0]: GrFN object.
+    # (2) Index [1]: List of all generated files during processing Fortran file to GrFN.
     return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/crop_yield.f")
 
 
 @pytest.fixture
 def petpt_grfn():
+    # Return two things:
+    # (1) Index [0]: GrFN object.
+    # (2) Index [1]: List of all generated files during processing Fortran file to GrFN.
     return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/PETPT.for")
 
 
 @pytest.fixture
 def petasce_grfn():
+    # Return two things:
+    # (1) Index [0]: GrFN object.
+    # (2) Index [1]: List of all generated files during processing Fortran file to GrFN.
     return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/PETASCE_simple.for")
 
 
 @pytest.fixture
 def sir_simple_grfn():
+    # Return two things:
+    # (1) Index [0]: GrFN object.
+    # (2) Index [1]: List of all generated files during processing Fortran file to GrFN.
     return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/SIR-simple.f")
 
 
 @pytest.fixture
 def sir_gillespie_inline_grfn():
+    # Return two things:
+    # (1) Index [0]: GrFN object.
+    # (2) Index [1]: List of all generated files during processing Fortran file to GrFN.
     return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/SIR-Gillespie-SD_inline.f")
 
 
 @pytest.fixture
 def sir_gillespie_ms_grfn():
+    # Return two things:
+    # (1) Index [0]: GrFN object.
+    # (2) Index [1]: List of all generated files during processing Fortran file to GrFN.
     return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/SIR-Gillespie-MS.f")
 
 
@@ -57,6 +75,9 @@ def test_petpt_creation_and_execution(petpt_grfn):
     res = petpt_grfn[0].run(values)
     assert res[0] == np.float32(0.029983712)
 
+    # Since each test function is at the final phase of the test,
+    # the program needs to maintain the files and list up to here.
+    # Then, clean up all files based on the list before ending the test.
     f2grfn.cleanup_files(petpt_grfn[1])
 
 
@@ -103,12 +124,15 @@ def test_sir_simple_creation(sir_simple_grfn):
     G.draw('SIR-simple--GrFN.pdf', prog='dot')
     CAG = sir_simple_grfn[0].to_CAG_agraph()
     CAG.draw('SIR-simple--CAG.pdf', prog='dot')
+    # This importlib look up the lambdas file. Thus, the program must
+    # maintain the files up to this level before clean up.
     lambdas = importlib.__import__(f"SIR-simple_lambdas")
     (D, I, S, F) = GrFN2WD.to_wiring_diagram(sir_simple_grfn[0], lambdas)
     assert len(D) == 3
     assert len(I) == 3
     assert len(S) == 9
     assert len(F) == 5
+    # File cleanup.
     f2grfn.cleanup_files(sir_simple_grfn[1])
 
 
