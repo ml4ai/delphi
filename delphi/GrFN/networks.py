@@ -26,6 +26,7 @@ from delphi.translators.for2py import (
 )
 import numpy as np
 import torch
+import re
 
 FONT = choose_font()
 
@@ -423,6 +424,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
         fortran_file: str,
         module_log_file_path: str,
         mode_mapper_dict: list,
+        processing_modules: bool,
         save_file: bool = False,
 
     ):
@@ -450,13 +452,14 @@ class GroundedFunctionNetwork(ComputationalGraph):
     def from_fortran_file(cls, fortran_file: str, tmpdir: str = ".", save_file: bool = False):
         """Builds GrFN object from a Fortran program."""
 
+        lambda_file_suffix = "_lambdas.py"
+
         if tmpdir == "." and "/" in fortran_file:
             tmpdir = Path(fortran_file).parent
         root_dir = os.path.abspath(tmpdir)
 
         (
             pySrc,
-            lambdas_path,
             json_filename,
             translated_python_files,
             stem,
@@ -467,8 +470,10 @@ class GroundedFunctionNetwork(ComputationalGraph):
         ) = f2grfn.fortran_to_grfn(fortran_file, True, True, str(tmpdir), root_dir, processing_modules=False)
 
         for python_file in translated_python_files:
+            lambdas_path = python_file[0:-3] + lambda_file_suffix
             G = cls.from_python_src(pySrc[0][0], lambdas_path, json_filename, stem, python_file,
-                                    fortran_file, module_log_file_path, mode_mapper_dict, save_file=save_file)
+                                    fortran_file, module_log_file_path, mode_mapper_dict, 
+                                    processing_modules, save_file=save_file)
 
             return G
 
