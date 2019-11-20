@@ -3812,7 +3812,7 @@ def create_grfn_dict(
             file_name = path + org_file
         else:
             file_name = path+filename
-            
+
         with open(f"{file_name}_variables_pickle", "rb") as f:
             variable_map = pickle.load(f)
         generator.variable_map = variable_map
@@ -3901,13 +3901,6 @@ def create_grfn_dict(
 
     with open(mod_log_file_path, "w+") as json_f:
         json_f.write(json.dumps(module_logs, indent=2))
-
-    # View the PGM file that will be used to build a scope tree
-    if save_file:
-        if module_file_exist:
-            json.dump(grfn, open(module_file_path[:module_file_path.rfind(".")] + ".json", "w"))
-        else:
-            json.dump(grfn, open(file_name[:file_name.rfind(".")] + ".json", "w"))
 
     return grfn
 
