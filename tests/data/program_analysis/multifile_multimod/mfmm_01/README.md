@@ -1,0 +1,1 @@
+The files in this directory make up a program that uses several different DSSAT modules used by the PET code (CSMVersion.for, ModuleDefs.for, OSDefinitions.for) together with a small main program (main.for).  A Makefile shows how an executable can be built from these files.
