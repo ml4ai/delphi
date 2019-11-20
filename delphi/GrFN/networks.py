@@ -425,6 +425,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
         module_log_file_path: str,
         mode_mapper_dict: list,
         processing_modules: bool,
+        generated_files_list: list,
         save_file: bool = False,
     ):
         module_file_exist = False
@@ -448,17 +449,23 @@ class GroundedFunctionNetwork(ComputationalGraph):
         lambdas = importlib.__import__(stem + "_lambdas")
         """
         tester_call = True
-        pgm_dict = f2grfn.generate_grfn(
-            pySrc,
-            python_file,
-            lambdas_path,
-            mode_mapper_dict,
-            fortran_file,
-            tester_call,
-            module_log_file_path,
-            processing_modules,
-        )
+        network_test = True
+        pgm_dict, generated_files = f2grfn.generate_grfn(
+                                        pySrc,
+                                        python_file,
+                                        lambdas_path,
+                                        mode_mapper_dict,
+                                        fortran_file,
+                                        tester_call,
+                                        network_test,
+                                        module_log_file_path,
+                                        processing_modules,
+                                        save_file
+                                    )
+        # DEBUG
+        print ("    stem: ", stem)
         lambdas = importlib.__import__(stem + "_lambdas")
+        generated_files_list.extend(generated_files)
         return cls.from_dict(pgm_dict, lambdas)
 
     @classmethod
@@ -491,12 +498,23 @@ class GroundedFunctionNetwork(ComputationalGraph):
                                     save_file=save_file
             )
 
+        generated_files = []
         for python_file in translated_python_files:
             lambdas_path = python_file[0:-3] + lambda_file_suffix
-            G = cls.from_python_src(pySrc[0][0], lambdas_path, json_filename, stem, python_file,
-                                    fortran_file, module_log_file_path, mode_mapper_dict, 
-                                    processing_modules, save_file=save_file)
+            G = cls.from_python_src(
+                                    pySrc[0][0],
+                                    lambdas_path,
+                                    json_filename,
+                                    stem,
+                                    python_file,
+                                    fortran_file,
+                                    module_log_file_path,
+                                    mode_mapper_dict, 
+                                    processing_modules,
+                                    generated_files,
+                                    save_file=save_file)
 
+            f2grfn.cleanup_files(generated_files)
             return G
 
     @classmethod
