@@ -64,7 +64,7 @@ def make_grfn_dict(original_fortran_file) -> Dict:
                                         save_file
                                  )
         f2grfn.cleanup_files(generated_files)
-        
+       
         # This blocks system.json to be fully populated.
         # Since the purpose of test_program_analysis is to compare
         # the output GrFN JSON of the main program, I will leave this
