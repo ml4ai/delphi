@@ -462,8 +462,6 @@ class GroundedFunctionNetwork(ComputationalGraph):
                                         processing_modules,
                                         save_file
                                     )
-        # DEBUG
-        print ("    stem: ", stem)
         lambdas = importlib.__import__(stem + "_lambdas")
         generated_files_list.extend(generated_files)
         return cls.from_dict(pgm_dict, lambdas)
@@ -477,8 +475,6 @@ class GroundedFunctionNetwork(ComputationalGraph):
         if tmpdir == "." and "/" in fortran_file:
             tmpdir_path = Path(fortran_file).parent
         root_dir = os.path.abspath(tmpdir)
-        # DEBUG
-        print ("    * root_dir: ", root_dir)
         (
             pySrc,
             json_filename,
@@ -514,8 +510,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
                                     generated_files,
                                     save_file=save_file)
 
-            f2grfn.cleanup_files(generated_files)
-            return G
+            return G, generated_files
 
     @classmethod
     def from_fortran_src(cls, fortran_src: str, dir: str = "."):
