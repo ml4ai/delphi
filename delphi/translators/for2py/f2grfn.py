@@ -796,8 +796,15 @@ def fortran_to_grfn(
     for python_file in translated_python_files:
         lambdas_file_path  = python_file[0:-3] + lambdas_file_suffix
         grfn_dict = generate_grfn(
-            python_source[python_file_num][0], python_file, lambdas_file_path, mode_mapper_dict[0],
-            original_fortran_file, False, module_log_file_path, processing_modules
+            python_source[python_file_num][0],
+            python_file,
+            lambdas_file_path,
+            mode_mapper_dict[0],
+            original_fortran_file,
+            tester_call,
+            network_test,
+            module_log_file_path,
+            processing_modules
         )
         python_file_num += 1
 
