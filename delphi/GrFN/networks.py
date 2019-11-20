@@ -26,6 +26,7 @@ from delphi.translators.for2py import (
 )
 import numpy as np
 import torch
+import re
 
 FONT = choose_font()
 
@@ -423,6 +424,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
         fortran_file: str,
         module_log_file_path: str,
         mode_mapper_dict: list,
+        processing_modules: bool,
         save_file: bool = False,
 
     ):
@@ -430,25 +432,34 @@ class GroundedFunctionNetwork(ComputationalGraph):
         module_import_paths = {}
 
         """Builds GrFN object from Python source code."""
-        asts = [ast.parse(pySrc)]
-        pgm_dict = genPGM.create_grfn_dict(
-            lambdas_path,
-            asts,
+        pgm_dict = f2grfn.generate_grfn(
+            pySrc,
             python_file,
-            mode_mapper_dict,
-            fortran_file,
+            lambdas_path,
+            mode_mapper_dict[0],
+            str(fortran_file),
+            True,
             module_log_file_path,
-            save_file,
-            module_file_exist,
-            module_import_paths
+            processing_modules
         )
 
-        lambdas = importlib.__import__(stem + "_lambdas")
+        filename_regex = re.compile(r"(?P<path>.*/)(?P<filename>.*).py")
+        file_match = re.match(filename_regex, python_file)
+        filename = file_match.group("filename")
+
+        lambdas = importlib.__import__(filename + "_lambdas")
+        # DEBUG
+        print ("    * python_file: ", python_file)
+        print ("    * stem: ", stem)
+        print ("    * lambdas: ", lambdas)
+        print ("    * lambdas_path: ", lambdas_path)
         return cls.from_dict(pgm_dict, lambdas)
 
     @classmethod
     def from_fortran_file(cls, fortran_file: str, tmpdir: str = ".", save_file: bool = False):
         """Builds GrFN object from a Fortran program."""
+
+        lambda_file_suffix = "_lambdas.py"
 
         if tmpdir == "." and "/" in fortran_file:
             tmpdir = Path(fortran_file).parent
@@ -456,7 +467,6 @@ class GroundedFunctionNetwork(ComputationalGraph):
 
         (
             pySrc,
-            lambdas_path,
             json_filename,
             translated_python_files,
             stem,
@@ -467,8 +477,10 @@ class GroundedFunctionNetwork(ComputationalGraph):
         ) = f2grfn.fortran_to_grfn(fortran_file, True, True, str(tmpdir), root_dir, processing_modules=False)
 
         for python_file in translated_python_files:
+            lambdas_path = python_file[0:-3] + lambda_file_suffix
             G = cls.from_python_src(pySrc[0][0], lambdas_path, json_filename, stem, python_file,
-                                    fortran_file, module_log_file_path, mode_mapper_dict, save_file=save_file)
+                                    fortran_file, module_log_file_path, mode_mapper_dict, 
+                                    processing_modules, save_file=save_file)
 
             return G
 
