@@ -55,7 +55,9 @@ def make_grfn_dict(original_fortran_file) -> Dict:
             str(original_fortran_file),
             True,
             module_log_file_path,
-            processing_modules
+            processing_modules,
+            False,
+            False
         )
         
         # This blocks system.json to be fully populated.
