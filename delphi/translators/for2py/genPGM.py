@@ -3958,7 +3958,8 @@ def generate_system_def(
         python_list: List[str],
         module_grfn_list: List[str],
         import_grfn_paths: List[str],
-        module_logs: Dict
+        module_logs: Dict,
+        original_file_path: str,
 ):
     """
         This function generates the system definition for the system under
@@ -3977,6 +3978,9 @@ def generate_system_def(
             if module_name in module_logs["mod_to_file"]:
                 for path in module_logs["mod_to_file"][module_name]:
                     code_sources.append(path)
+
+        if not code_sources:
+            code_sources.append(original_file_path)
         grfn_components.append({
             "grfn_source": module_grfn,
             "code_source": code_sources,

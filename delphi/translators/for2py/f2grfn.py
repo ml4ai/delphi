@@ -207,7 +207,7 @@ def generate_outputdict(
 
 
 def generate_python_src(
-    output_dictionary, python_files,
+    output_dictionary, python_files, main_python_file,
     output_file, variable_map_file, temp_dir, tester_call
 ):
     """This function generates python source file from
@@ -250,9 +250,10 @@ def generate_python_src(
             module_file_generator(item, temp_dir, output_list, python_files)            
         else:
             try:
-                with open(python_files[0], "w") as f:
-                    output_list.append(python_files[0])
+                with open(main_python_file, "w") as f:
+                    output_list.append(main_python_file)
                     f.write(item[0])
+                python_files.append(main_python_file)
             except IOError:
                 assert False, f"Unable to write to {python_file_name}."
 
@@ -379,14 +380,14 @@ def generate_grfn(
     for item in grfn_dict["containers"]:
         if "gensym" in item:
             del item["gensym"]
-
     with open(mod_log_file_path) as json_f:
         module_logs = json.load(json_f)
     genPGM.generate_system_def(
             [python_filename],
             grfn_filepath_list,
             module_import_paths,
-            module_logs
+            module_logs,
+            original_fortran_file
     )
 
     log_generated_files([grfn_file, lambdas_file])
@@ -661,6 +662,7 @@ def fortran_to_grfn(
     pickle_file = temp_dir + "/" + base + "_pickle"
     variable_map_file = temp_dir + "/" + base + "_variables_pickle"
     python_file = temp_dir + "/" + base + ".py"
+
     output_file = temp_dir + "/" + base + "_outputList.txt"
     json_file = temp_dir + "/" + base + ".json"
     # lambdas_file_path = temp_dir + "/" + base + "_lambdas.py"
@@ -726,13 +728,13 @@ def fortran_to_grfn(
     output_dict = generate_outputdict(
         rectified_tree, preprocessed_fortran_file, pickle_file, tester_call
     )
+    
     translated_python_files = []
     # Create a python source file.
     python_source = generate_python_src(
-        output_dict, translated_python_files, output_file, variable_map_file,
-        temp_dir, tester_call
+        output_dict, translated_python_files, python_file, output_file,
+        variable_map_file, temp_dir, tester_call
     )
-    translated_python_files.append(python_file)
     # Add generated list of files and log it for later removal, if needed.
     file_list = [output_file, pickle_file, variable_map_file]
     file_list.extend(translated_python_files)
