@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 This module implements functions to preprocess Fortran source files prior to
 parsing to fix up some constructs (such as continuation lines) that are
@@ -23,6 +25,7 @@ from delphi.translators.for2py.syntax import (
     line_is_continuation,
     line_is_continued,
     line_is_executable,
+    line_is_include,
     line_is_pgm_unit_end,
     line_is_pgm_unit_separator,
     line_is_pgm_unit_start,
