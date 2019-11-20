@@ -208,7 +208,8 @@ def generate_outputdict(
 
 def generate_python_src(
     output_dictionary, python_files, main_python_file,
-    output_file, variable_map_file, temp_dir, tester_call
+    output_file, variable_map_file, temp_dir, tester_call,
+    save_file
 ):
     """This function generates python source file from
     generated python source list. This function will
@@ -296,18 +297,23 @@ def module_file_generator(item, temp_dir, output_list, python_files):
     python_files.append(module_file_path)
 
 def generate_grfn(
-    python_source_string, python_filename, lambdas_file,
-    mode_mapper_dictionary, original_fortran_file, tester_call,
-    mod_log_file_path, processing_modules, save_file = True,
-    network_test = False
+    python_source_string,
+    python_file_path,
+    lambdas_file_path,
+    mode_mapper_dictionary,
+    original_fortran_file,
+    tester_call,
+    network_test,
+    mod_log_file_path,
+    processing_modules,
+    save_file=True
 ):
     """This function generates GrFN dictionary object and file.
 
     Args:
         python_source_string (str): A string of python code.
-        python_filename (str): A generated python file name.
-        lambdas_file (str): The suffix of the file name where
-        lambdas will be written to.
+        python_file_path (str): A generated python file path.
+        lambdas_file_path (str): A lambdas file path.
         mode_mapper_dictionary (list): A mapper of file info (i.e. filename,
         module, and exports, etc).
         original_fortran_file (str): The path to the original
@@ -319,12 +325,11 @@ def generate_grfn(
     Returns:
         dict: A dictionary of generated GrFN.
     """
-
-    
-    print(
-        "+Generating GrFN files: Func: <create_grfn_dict>, Script: "
-        "<genPGM.py>"
-    )
+    if not tester_call:
+        print(
+            "+Generating GrFN files: Func: <create_grfn_dict>, Script: "
+            "<genPGM.py>"
+        )
 
     module_file_exist = False
     module_paths = []
@@ -335,7 +340,7 @@ def generate_grfn(
 
     # First, find the main python file in order to populate the module
     # mapper
-    file_match = re.match(filename_regex, python_filename)
+    file_match = re.match(filename_regex, python_file_path)
     assert file_match, "Invalid filename."
 
     path = file_match.group("path")
@@ -362,41 +367,45 @@ def generate_grfn(
     # python file
     # print(genPGM.dump_ast(asts[-1]))
 
-    grfn_file = python_filename[:-3] + "_GrFN.json"
+    grfn_file = python_file_path[:-3] + "_GrFN.json"
 
     grfn_dict = genPGM.create_grfn_dict(
-        lambdas_file, asts, python_filename, module_mapper,
-        original_fortran_file, mod_log_file_path, save_file, module_file_exist,
-        module_import_paths,
-    )
+                                        lambdas_file_path,
+                                        asts,
+                                        python_file_path,
+                                        module_mapper,
+                                        original_fortran_file,
+                                        mod_log_file_path,
+                                        save_file,
+                                        module_file_exist,
+                                        module_import_paths
+                )
 
     if module_file_exist:
-        python_filename = path + file_name + ".py"
+        python_file_path = path + file_name + ".py"
     grfn_filepath_list.append(grfn_file)
 
-    if not network_test:
-        del grfn_dict["date_created"]
-        for item in grfn_dict["variables"]:
-            if "gensym" in item:
-                del item["gensym"]
-        for item in grfn_dict["containers"]:
-            if "gensym" in item:
-                del item["gensym"]
-
+    del grfn_dict["date_created"]
+    for item in grfn_dict["variables"]:
+        if "gensym" in item:
+            del item["gensym"]
+    for item in grfn_dict["containers"]:
+        if "gensym" in item:
+            del item["gensym"]
     with open(mod_log_file_path) as json_f:
         module_logs = json.load(json_f)
     genPGM.generate_system_def(
-            [python_filename],
+            [python_file_path],
             grfn_filepath_list,
             module_import_paths,
             module_logs,
             original_fortran_file
     )
 
-    log_generated_files([grfn_file, lambdas_file])
+    log_generated_files([grfn_file, lambdas_file_path])
     if tester_call:
-        cleanup_files(GENERATED_FILE_PATHS)
-        return grfn_dict
+        # cleanup_files(GENERATED_FILE_PATHS)
+        return grfn_dict, GENERATED_FILE_PATHS
     else:
         # Write each GrFN JSON into a file
         with open(grfn_file, "w") as file_handle:
@@ -577,6 +586,7 @@ def fortran_to_grfn(
     root_dir_path=".",
     module_file_name=MODULE_FILE_NAME,
     processing_modules=False,
+    save_file=True
 ):
     """This function invokes other appropriate functions
     to process and generate objects to translate fortran
@@ -735,7 +745,7 @@ def fortran_to_grfn(
     # Create a python source file.
     python_source = generate_python_src(
         output_dict, translated_python_files, python_file, output_file,
-        variable_map_file, temp_dir, tester_call
+        variable_map_file, temp_dir, tester_call, save_file
     )
     # Add generated list of files and log it for later removal, if needed.
     file_list = [output_file, pickle_file, variable_map_file]
