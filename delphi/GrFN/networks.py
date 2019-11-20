@@ -426,12 +426,12 @@ class GroundedFunctionNetwork(ComputationalGraph):
         mode_mapper_dict: list,
         processing_modules: bool,
         save_file: bool = False,
-
     ):
         module_file_exist = False
         module_import_paths = {}
 
         """Builds GrFN object from Python source code."""
+        """
         asts = [ast.parse(pySrc)]
         pgm_dict = genPGM.create_grfn_dict(
             lambdas_path,
@@ -446,6 +446,19 @@ class GroundedFunctionNetwork(ComputationalGraph):
         )
 
         lambdas = importlib.__import__(stem + "_lambdas")
+        """
+        tester_call = True
+        pgm_dict = f2grfn.generate_grfn(
+            pySrc,
+            python_file,
+            lambdas_path,
+            mode_mapper_dict,
+            fortran_file,
+            tester_call,
+            module_log_file_path,
+            processing_modules,
+        )
+        lambdas = importlib.__import__(stem + "_lambdas")
         return cls.from_dict(pgm_dict, lambdas)
 
     @classmethod
@@ -455,9 +468,10 @@ class GroundedFunctionNetwork(ComputationalGraph):
         lambda_file_suffix = "_lambdas.py"
 
         if tmpdir == "." and "/" in fortran_file:
-            tmpdir = Path(fortran_file).parent
+            tmpdir_path = Path(fortran_file).parent
         root_dir = os.path.abspath(tmpdir)
-
+        # DEBUG
+        print ("    * root_dir: ", root_dir)
         (
             pySrc,
             json_filename,
@@ -467,7 +481,15 @@ class GroundedFunctionNetwork(ComputationalGraph):
             fortran_filename,
             module_log_file_path,
             processing_modules,
-        ) = f2grfn.fortran_to_grfn(fortran_file, True, True, str(tmpdir), root_dir, processing_modules=False)
+        ) = f2grfn.fortran_to_grfn(
+                                    fortran_file, 
+                                    tester_call=True,
+                                    network_test=True,
+                                    temp_dir=str(tmpdir),
+                                    root_dir_path=root_dir,
+                                    processing_modules=False,
+                                    save_file=save_file
+            )
 
         for python_file in translated_python_files:
             lambdas_path = python_file[0:-3] + lambda_file_suffix
