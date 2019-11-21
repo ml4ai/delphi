@@ -178,7 +178,7 @@ EIDOS_SRC := $(EIDOS)/src/main
 ONTOLOGY_GEN_SCRIPT := $(EIDOS_SRC)/python/mk_yaml_ontology.py
 
 TARGET_ONTOLOGY_FILENAME := $(EIDOS_SRC)/resources/org/clulab/wm/eidos/english/ontologies/delphi_db_indicators.yml
-TARGET_ONTOLOGY_NAME := MITRE12
+TARGET_ONTOLOGY_NAME := delphi_db_indicators
 
 SCALA_VERSION:=2.12
 EIDOS_VERSION:=0.2.3
