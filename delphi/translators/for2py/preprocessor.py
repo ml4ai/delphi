@@ -179,6 +179,7 @@ TRANSITIONS = {
 	"empty" : "outside",
         "pgm_unit_start": "in_neck",
         "pgm_unit_end": "outside",
+        "other" : "outside",
     },
     "in_neck": {
         "comment": "in_neck",
@@ -194,8 +195,16 @@ TRANSITIONS = {
         "exec_stmt": "in_body",
         "pgm_unit_sep": "outside",
         "pgm_unit_end": "outside",
+        "other" : "in_body",
     },
 }
+
+
+def next_state(curr_state, edge_type):
+    if edge_type in TRANSITIONS[curr_state]:
+        return TRANSITIONS[curr_state][edge_type]
+    else:
+        return curr_state
 
 
 def type_of_line(line):
@@ -249,12 +258,6 @@ def extract_comments(
 
         # process the line appropriately
         if curr_state == "outside":
-            assert line_type in (
-                "comment",
-                "empty",
-                "pgm_unit_start", 
-                "pgm_unit_end"
-            ), (line_type, line)
             if line_type == "comment":
                 curr_comment.append(line)
                 lines[i] = (linenum, None)
@@ -277,15 +280,6 @@ def extract_comments(
                 curr_comment = []
 
         elif curr_state == "in_neck":
-            assert line_type in (
-                "comment",
-                "empty",
-                "exec_stmt",
-                "pgm_unit_sep",
-                "pgm_unit_end",
-                "other"
-            ), f"[Line {linenum}]: {line.strip()} (line_type: {line_type})"
-	           
             if line_type == "comment":
                 curr_comment.append(line)
                 lines[i] = (linenum, None)
@@ -296,14 +290,6 @@ def extract_comments(
                 pass  # nothing to do -- continue
 
         elif curr_state == "in_body":
-            assert line_type in (
-                "comment",
-                "empty",
-                "exec_stmt",
-                "pgm_unit_sep",
-                "pgm_unit_end",
-            ), f"[Line {linenum}]: {line.strip()} (line_type: {line_type})"
-
             if line_type == "comment":
                 if IGNORE_INTERNAL_COMMENTS:
                     lines[i] = (linenum, None)
@@ -316,7 +302,7 @@ def extract_comments(
                 pass  # nothing to do -- continue
 
         # update the current state
-        curr_state = TRANSITIONS[curr_state][line_type]
+        curr_state = next_state(curr_state,line_type)
 
     # if there's a comment at the very end of the file, make it the foot
     # comment of curr_fn
