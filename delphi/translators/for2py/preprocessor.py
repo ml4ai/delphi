@@ -437,7 +437,7 @@ def preprocess_file(infile, outfile):
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
-        sys.stderr.write("*** USAGE: preprocessor.py <infile> <outfile>\n")
+        sys.stderr.write("** USAGE: preprocessor.py <infile> <outfile>\n")
         sys.exit(1)
 
     infile, outfile = sys.argv[1], sys.argv[2]
