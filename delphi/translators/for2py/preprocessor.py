@@ -377,6 +377,12 @@ def preprocess(lines):
     return extract_comments(enum_lines)
 
 
+def discard_line(line):
+    return (line is None or 
+            line.strip() == '' or
+            INTERNAL_COMMENT_PREFIX not in line)
+
+
 def process(inputLines: List[str]) -> str:
     """process() provides the interface used by an earlier version of this
        preprocessor."""
@@ -384,7 +390,7 @@ def process(inputLines: List[str]) -> str:
     actual_lines = [
         line[1]
         for line in lines
-        if line[1] is not None and INTERNAL_COMMENT_PREFIX not in line[1]
+        if not discard_line(line[1])
     ]
     return "".join(actual_lines)
 

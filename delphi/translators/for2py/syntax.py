@@ -31,7 +31,7 @@ def line_is_comment(line: str) -> bool:
 
     """
 
-    return (line[0] in "cCdD*!")
+    return (line[0] in "cCdD*!" or re.match(r"\s*!", line) is not None)
 
 
 ################################################################################
