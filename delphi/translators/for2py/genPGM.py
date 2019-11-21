@@ -132,6 +132,7 @@ class GrFNGenerator(object):
         self.module_subprograms = []
         # Holds module names
         self.module_names = []
+        self.generated_lambda_functions = []
 
         self.gensym_tag_map = {
             "container": 'c',
@@ -1985,6 +1986,7 @@ class GrFNGenerator(object):
                             node, function, arg,
                             function_name, container_id_name,
                             arr_index, state)
+                        generate_lambda_for_arr = True
                     # This is a case where a literal gets assigned to an array.
                     # For example, arr(i) = 100.
                     elif "type" in arg[0] and array_set:
@@ -2025,6 +2027,8 @@ class GrFNGenerator(object):
 
             # Below is a separate loop just for filling in inputs for arrays
             if array_set:
+                argument_list = []
+                need_lambdas = False
                 for arg in call["inputs"]:
                     for ip in arg:
                         if 'var' in ip:
@@ -2032,9 +2036,12 @@ class GrFNGenerator(object):
                                 f"@variable::"
                                 f"{ip['var']['variable']}::"
                                 f"{ip['var']['index']}")
+                            if ip['var']['variable'] not in argument_list:
+                                argument_list.append(ip['var']['variable'])
                         elif 'call' in ip:
                             function_call = ip['call']
                             function_name = function_call['function']
+                            need_lambdas = True
                             if '.get_' in function_name:
                                 function_name = function_name.replace(
                                     ".get_", "")
@@ -2047,6 +2054,8 @@ class GrFNGenerator(object):
                                         f"@variable::"
                                         f"{function_name}::"
                                         f"{state.last_definitions[function_name]}")
+                                if function_name not in argument_list:
+                                    argument_list.append(function_name)
                             for call_input in function_call['inputs']:
                                 # TODO: This is of a recursive nature. Make
                                 #  this a loop. Works for SIR for now.
@@ -2056,10 +2065,32 @@ class GrFNGenerator(object):
                                             f"@variable::"
                                             f"{var['var']['variable']}::"
                                             f"{var['var']['index']}")
+                                        if var['var']['variable'] not in argument_list:
+                                            argument_list.append(var['var']['variable'])
 
                 function["input"] = self._remove_duplicate_from_list(
                     function["input"]
                 )
+                argument_list = self._remove_duplicate_from_list(
+                    argument_list
+                )
+
+                if (
+                        need_lambdas
+                        and container_id_name not in self.generated_lambda_functions
+                ):
+                    lambda_string = self.generate_lambda_function(
+                        node,
+                        container_id_name,
+                        True,
+                        True,
+                        False,
+                        argument_list,
+                        state,
+                        False
+                    )
+                    state.lambda_strings.append(lambda_string)
+                    need_lambdas = False
 
             # Make an assign function for a string .set_ operation
             if string_set:
@@ -3005,6 +3036,7 @@ class GrFNGenerator(object):
                                  return_value: bool, array_assign: bool,
                                  string_assign: bool, inputs, state,
                                  is_custom: bool):
+        self.generated_lambda_functions.append(function_name)
         lambda_for_var = True
         lambda_strings = []
         argument_strings = []
@@ -3780,7 +3812,7 @@ def create_grfn_dict(
             file_name = path + org_file
         else:
             file_name = path+filename
-            
+
         with open(f"{file_name}_variables_pickle", "rb") as f:
             variable_map = pickle.load(f)
         generator.variable_map = variable_map
@@ -3870,13 +3902,6 @@ def create_grfn_dict(
     with open(mod_log_file_path, "w+") as json_f:
         json_f.write(json.dumps(module_logs, indent=2))
 
-    # View the PGM file that will be used to build a scope tree
-    if save_file:
-        if module_file_exist:
-            json.dump(grfn, open(module_file_path[:module_file_path.rfind(".")] + ".json", "w"))
-        else:
-            json.dump(grfn, open(file_name[:file_name.rfind(".")] + ".json", "w"))
-
     return grfn
 
 
@@ -3931,7 +3956,8 @@ def generate_system_def(
         python_list: List[str],
         module_grfn_list: List[str],
         import_grfn_paths: List[str],
-        module_logs: Dict
+        module_logs: Dict,
+        original_file_path: str,
 ):
     """
         This function generates the system definition for the system under
@@ -3950,6 +3976,9 @@ def generate_system_def(
             if module_name in module_logs["mod_to_file"]:
                 for path in module_logs["mod_to_file"][module_name]:
                     code_sources.append(path)
+
+        if not code_sources:
+            code_sources.append(original_file_path)
         grfn_components.append({
             "grfn_source": module_grfn,
             "code_source": code_sources,
