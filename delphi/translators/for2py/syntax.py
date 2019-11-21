@@ -31,6 +31,7 @@ def line_is_comment(line: str) -> bool:
 
     """
 
+    #return (line[0] in "cCdD*!" or len(line.strip()) == 0)
     return (line[0] in "cCdD*!")
 
 
@@ -68,6 +69,11 @@ RE_SUBPGM_END = re.compile(SUBPGM_END, re.I)
 
 ASSG_STMT = r"\s*(\d+|&)?\s*.*=\s*"
 RE_ASSG_STMT = re.compile(ASSG_STMT, re.I)
+
+INCLUDE_STMT_1 = r"\s*(\d+)?\s*include\s+'(\w+(\.\w*)?)'"
+RE_INCLUDE_STMT_1 = re.compile(INCLUDE_STMT_1, re.I)
+INCLUDE_STMT_2 = r'\s*(\d+)?\s*include\s+"(\w+(\.\w*)?)"'
+RE_INCLUDE_STMT_2 = re.compile(INCLUDE_STMT_2, re.I)
 
 CALL_STMT = r"\s*(\d+|&)?\s*call\s*"
 RE_CALL_STMT = re.compile(CALL_STMT, re.I)
@@ -157,12 +163,12 @@ def line_starts_subpgm(line: str) -> Tuple[bool, Optional[str]]:
     """
 
     match = RE_SUB_START.match(line)
-    if match is not None:
+    if match != None:
         f_name = match.group(1)
         return (True, f_name)
 
     match = RE_FN_START.match(line)
-    if match != None:
+    if match is not None:
         f_name = match.group(2)
         return (True, f_name)
 
@@ -171,17 +177,17 @@ def line_starts_subpgm(line: str) -> Tuple[bool, Optional[str]]:
 
 def line_is_pgm_unit_start(line):
     match = RE_PGM_UNIT_START.match(line)
-    return match != None
+    return match is not None
 
 
 def line_is_pgm_unit_end(line):
     match = RE_PGM_UNIT_END.match(line)
-    return match != None
+    return match is not None
 
 
 def line_is_pgm_unit_separator(line):
     match = RE_PGM_UNIT_SEP.match(line)
-    return match != None
+    return match is not None
 
 
 def program_unit_name(line:str) -> str:
@@ -189,7 +195,7 @@ def program_unit_name(line:str) -> str:
       subprogram, or function, this function returns the name associated
       with that program unit."""
    match = RE_PGM_UNIT_START.match(line)
-   assert match != None
+   assert match is not None
    return match.group(2)
 
 def line_is_continuation(line: str) -> bool:
@@ -231,7 +237,7 @@ def line_ends_subpgm(line: str) -> bool:
         True if line is the last line of a subprogram definition, else False.
     """
     match = RE_SUBPGM_END.match(line)
-    return match != None
+    return match is not None
 
 
 def line_is_executable(line: str) -> bool:
@@ -245,11 +251,26 @@ def line_is_executable(line: str) -> bool:
         return False
 
     for exp in EXECUTABLE_CODE_START:
-        if re.match(exp, line) != None:
+        if re.match(exp, line) is not None:
             return True
 
     return False
             
+
+def line_is_include(line: str) -> str:
+    """ line_is_include() : if the argument is an INCLUDE statement, returns
+        the argument to the INCLUDE statement (a file name); otherwise
+        returns None.
+    """
+    match = RE_INCLUDE_STMT_1.match(line)
+    if match is not None:
+        return match.group(2)
+
+    match = RE_INCLUDE_STMT_2.match(line)
+    if match is not None:
+        return match.group(2)
+
+    return None
 
 
 ################################################################################
