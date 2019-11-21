@@ -18,44 +18,53 @@ DATA_DIR = "tests/data/program_analysis"
 def get_python_source(
     original_fortran_file
 ):
-    temporary_dir = "."
     # Setting a root directory to absolute path of /tests directory.
     root_dir = os.path.abspath(".")
     return f2grfn.fortran_to_grfn(
                 original_fortran_file, 
-                True,
-                False, 
-                temporary_dir,
-                root_dir,
-                processing_modules=False
+                tester_call=True,
+                network_test=False, 
+                temp_dir='.',
+                root_dir_path=root_dir,
+                processing_modules=False,
+                save_file=False
            )
 
 
 def make_grfn_dict(original_fortran_file) -> Dict:
+    lambda_file_suffix = "_lambdas.py"
+    tester_call = True
+    save_file = False
+    network_test = False
+
     (
         pySrc, 
-        lambdas_filename,
         json_filename, 
-        python_filenames,
+        python_file_paths,
         base, 
         mode_mapper_dict, 
         original_fortran, 
         module_log_file_path,
-        processing_modules
+        processing_modules,
     ) = get_python_source(original_fortran_file)
 
-    for python_file in python_filenames:
-        _dict = f2grfn.generate_grfn(
-            pySrc[0][0],
-            python_file,
-            lambdas_filename,
-            mode_mapper_dict[0],
-            str(original_fortran_file),
-            True,
-            module_log_file_path,
-            processing_modules
-        )
-        
+    for python_file_path in python_file_paths:
+        python_file_path_wo_extension = python_file_path[0:-3]
+        lambdas_file_path  = python_file_path_wo_extension + lambda_file_suffix
+        _dict, generated_files = f2grfn.generate_grfn(
+                                        pySrc[0][0],
+                                        python_file_path,
+                                        lambdas_file_path,
+                                        mode_mapper_dict[0],
+                                        str(original_fortran_file),
+                                        tester_call,
+                                        network_test,
+                                        module_log_file_path,
+                                        processing_modules,
+                                        save_file
+                                 )
+        f2grfn.cleanup_files(generated_files)
+       
         # This blocks system.json to be fully populated.
         # Since the purpose of test_program_analysis is to compare
         # the output GrFN JSON of the main program, I will leave this
@@ -297,7 +306,7 @@ def test_multidimensional_array_grfn_generation(multidimensional_array_test):
     assert str(multidimensional_array_test) == grfn_dict
 
 
-def test_sri_gillespie_sd_grfn_generation(sir_gillespie_sd_test):
+def test_sir_gillespie_sd_grfn_generation(sir_gillespie_sd_test):
     with open(f"{DATA_DIR}/SIR-Gillespie-SD_multi_module_GrFN.json", "r") as f:
         grfn_dict = f.read()
     assert str(sir_gillespie_sd_test) == grfn_dict

@@ -59,8 +59,9 @@ def create_concept_to_indicator_mapping_table(mapping_table):
         sep='\t',
     )
     df.Indicator = df.Indicator.str.replace("\\\/", "/")
-    df = df[df["Source"] == "mitre12"]
-    df.Indicator = df.Indicator.str.replace("MITRE12/", "")
+    df.Indicator = df.Indicator.str.replace("_", " ")
+    df = df[df["Source"] == "delphi_db_indicators"]
+    df.Indicator = df.Indicator.str.replace(" delphi_db_indicators/", "")
 
     insert_table(df, "concept_to_indicator_mapping")
 

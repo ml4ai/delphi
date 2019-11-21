@@ -110,12 +110,12 @@ def combine_data(outputFile):
         "data/World-Bank-data.csv", index_col=False, dtype=dtype_dict
     )
 
-    dssat_oct2019_eval_data_df = read_csv('data/dssat_data_oct2019_eval.tsv')
-    
+    dssat_oct2019_eval_data_df = read_csv("data/dssat_data_oct2019_eval.tsv")
+
     IOM_DTM1_df = pd.read_csv(
         "data/IOM-DTM-data1.csv", index_col=False, dtype=dtype_dict
     )
-    
+
     combined_df = pd.concat(
         [
             fao_wdi_df,
