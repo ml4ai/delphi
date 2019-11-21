@@ -31,8 +31,8 @@ def line_is_comment(line: str) -> bool:
 
     """
 
-    #return (line[0] in "cCdD*!" or len(line.strip()) == 0)
-    return (line[0] in "cCdD*!")
+    return (line[0] in "cCdD*!" or len(line.strip()) == 0)
+    #return (line[0] in "cCdD*!")
 
 
 ################################################################################
