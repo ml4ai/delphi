@@ -157,7 +157,7 @@ def line_starts_subpgm(line: str) -> Tuple[bool, Optional[str]]:
     """
 
     match = RE_SUB_START.match(line)
-    if match != None:
+    if match is not None:
         f_name = match.group(1)
         return (True, f_name)
 
