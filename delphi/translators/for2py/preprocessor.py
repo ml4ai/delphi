@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """
 This module implements functions to preprocess Fortran source files prior to
 parsing to fix up some constructs (such as continuation lines) that are
@@ -25,7 +23,6 @@ from delphi.translators.for2py.syntax import (
     line_is_continuation,
     line_is_continued,
     line_is_executable,
-    line_is_include,
     line_is_pgm_unit_end,
     line_is_pgm_unit_separator,
     line_is_pgm_unit_start,
@@ -160,9 +157,71 @@ def merge_adjacent_comment_lines(lines):
     return lines
 
 
+# We use a finite-state machine to keep track of where the line currently
+# being processed sits w.r.t. the structure of the code; this affects how
+# comments should be handled.  The FSM has the following set of states:
+#
+#     { "outside", "in_neck", "in_body" }.
+#
+# Here, "outside" refers to program points outside any program unit such as
+# programs, subprograms, or modules; "in_neck" refers to the portion of
+# code within a subprogram between the subprogram header and the first line
+# of executable code; and "in_body" refers to the portion of the code between
+# the first line of executable code and the end of the subprogram.
+#
+# State transitions for the FSM are given by the dictionary TRANSITIONS;
+# here "comment", "pgm_unit_start", "exec_stmt", etc., relate to the nature of
+# the line being processed.
+
+TRANSITIONS = {
+    "outside": {
+        "comment": "outside",
+	"empty" : "outside",
+        "pgm_unit_start": "in_neck",
+        "pgm_unit_end": "outside",
+    },
+    "in_neck": {
+        "comment": "in_neck",
+	"empty" : "in_neck",
+        "exec_stmt": "in_body",
+        "other": "in_neck",
+        "pgm_unit_sep": "outside",
+        "pgm_unit_end": "outside",
+    },
+    "in_body": {
+        "comment": "in_body",
+	"empty" : "in_body",
+        "exec_stmt": "in_body",
+        "pgm_unit_sep": "outside",
+        "pgm_unit_end": "outside",
+    },
+}
+
+
+def type_of_line(line):
+    """Given a line of code, type_of_line() returns a string indicating
+       what kind of code it is."""
+
+    if line.strip() == "":
+        return "empty"
+
+    if line_is_comment(line):
+        return "comment"
+    elif line_is_executable(line):
+        return "exec_stmt"
+    elif line_is_pgm_unit_end(line):
+        return "pgm_unit_end"
+    elif line_is_pgm_unit_start(line):
+        return "pgm_unit_start"
+    elif line_is_pgm_unit_separator(line):
+        return "pgm_unit_sep"
+    else:
+        return "other"
+
+
 def extract_comments(
     lines: List[Tuple[int, str]]
-) -> List[Tuple[int, str]]:
+) -> Tuple[List[Tuple[int, str]], Dict[str, List[str]]]:
     """Given a list of numbered lines from a Fortran file where comments
        internal to subprogram bodies have been moved out into their own lines,
        extract_comments() extracts comments into a dictionary and replaces
@@ -172,12 +231,109 @@ def extract_comments(
        variable declarations) added; and comments is a dictionary mapping
        marker statement variables to the corresponding comments."""
 
+    curr_comment = []
+    curr_fn, prev_fn, curr_marker = None, None, None
+    comments = OrderedDict()
+
+    # curr_state refers to the state of the finite-state machine (see above)
+    curr_state = "outside"
+
+    comments["$file_head"] = []
+    comments["$file_foot"] = []
+
     for i in range(len(lines)):
         (linenum, line) = lines[i]
-        if line_is_comment(line):
-            lines[i] = (linenum, None)
 
-    return lines
+        # determine what kind of line this is
+        line_type = type_of_line(line)
+
+        # process the line appropriately
+        if curr_state == "outside":
+            assert line_type in (
+                "comment",
+                "empty",
+                "pgm_unit_start", 
+                "pgm_unit_end"
+            ), (line_type, line)
+            if line_type == "comment":
+                curr_comment.append(line)
+                lines[i] = (linenum, None)
+            else:
+                # line_type == "pgm_unit_start" 
+                pgm_unit_name = program_unit_name(line)
+
+                if curr_state == "outside":
+                    comments["$file_head"] = curr_comment
+
+                if prev_fn is not None:
+                    comments[prev_fn]["foot"] = curr_comment
+
+                prev_fn = curr_fn
+                curr_fn = pgm_unit_name
+
+                comments[curr_fn] = init_comment_map(
+                    curr_comment, [], [], OrderedDict()
+                )
+                curr_comment = []
+
+        elif curr_state == "in_neck":
+            assert line_type in (
+                "comment",
+                "empty",
+                "exec_stmt",
+                "pgm_unit_sep",
+                "pgm_unit_end",
+                "other"
+            ), f"[Line {linenum}]: {line.strip()} (line_type: {line_type})"
+	           
+            if line_type == "comment":
+                curr_comment.append(line)
+                lines[i] = (linenum, None)
+            elif line_type == "exec_stmt":
+                comments[curr_fn]["neck"] = curr_comment
+                curr_comment = []
+            else:
+                pass  # nothing to do -- continue
+
+        elif curr_state == "in_body":
+            assert line_type in (
+                "comment",
+                "empty",
+                "exec_stmt",
+                "pgm_unit_sep",
+                "pgm_unit_end",
+            ), f"[Line {linenum}]: {line.strip()} (line_type: {line_type})"
+
+            if line_type == "comment":
+                if IGNORE_INTERNAL_COMMENTS:
+                    lines[i] = (linenum, None)
+                else:
+                    marker_var = f"{INTERNAL_COMMENT_PREFIX}_{linenum}"
+                    marker_stmt = f"        {marker_var} = .True.\n"
+                    comments[curr_fn]["internal"][marker_var] = line
+                    lines[i] = (linenum, marker_stmt)
+            else:
+                pass  # nothing to do -- continue
+
+        # update the current state
+        curr_state = TRANSITIONS[curr_state][line_type]
+
+    # if there's a comment at the very end of the file, make it the foot
+    # comment of curr_fn
+    if curr_comment != [] and comments.get(curr_fn):
+        comments[curr_fn]["foot"] = curr_comment
+        comments["$file_foot"] = curr_comment
+
+    return (lines, comments)
+
+
+def init_comment_map(head_cmt, neck_cmt, foot_cmt, internal_cmt):
+    return {
+        "head": head_cmt,
+        "neck": neck_cmt,
+        "foot": foot_cmt,
+        "internal": internal_cmt,
+    }
 
 
 def split_trailing_comment(line: str) -> str:
@@ -238,7 +394,7 @@ def preprocess(lines):
 def process(inputLines: List[str]) -> str:
     """process() provides the interface used by an earlier version of this
        preprocessor."""
-    lines = preprocess(inputLines)
+    lines, comments = preprocess(inputLines)
     actual_lines = [
         line[1]
         for line in lines
@@ -247,10 +403,32 @@ def process(inputLines: List[str]) -> str:
     return "".join(actual_lines)
 
 
+def print_comments(comments):
+    for fn, comment in comments.items():
+        if fn in ("$file_head", "$file_foot"):  # file-level comments
+            print(fn + ":")
+            for line in comment:
+                print(f"{line.rstrip()}")
+            print("")
+        else:  # subprogram comments
+            for ccat in ["head", "neck", "foot"]:
+                print(f"Function {fn} [{ccat}]:")
+                for line in comment[ccat]:
+                    print(line.rstrip())
+                print("")
+
+            if comment["internal"] != {}:
+                for marker in comment["internal"]:
+                    comment_line_no = marker[len("i_g_n_o_r_e__m_e___") :]
+                    print(f"Function: {fn} [internal: line {comment_line_no}]:")
+                    print(comment["internal"][marker])
+                    print("")
+
+
 def preprocess_file(infile, outfile):
     with open(infile, mode="r", encoding="latin-1") as f:
         inputLines = f.readlines()
-        lines = preprocess(inputLines)
+        lines, comments = preprocess(inputLines)
 
     with open(outfile, "w") as f:
         for _, line in lines:
@@ -264,3 +442,7 @@ if __name__ == "__main__":
 
     infile, outfile = sys.argv[1], sys.argv[2]
     preprocess_file(infile, outfile)
+
+    # Temporarily commenting out the printing of comments by the preprocessor.
+    # To be reinstated later if it seems useful.  --SKD 06/2019
+    #print_comments(comments)
