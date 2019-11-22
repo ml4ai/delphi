@@ -132,7 +132,12 @@ class GrFNGenerator(object):
         self.module_subprograms = []
         # Holds module names
         self.module_names = []
+        # List of generated lambda function def. names
         self.generated_lambda_functions = []
+        # List of user-defined (derived) types
+        self.derived_types = []
+        # List of derived type grfns
+        self.derived_types_grfn = []
 
         self.gensym_tag_map = {
             "container": 'c',
@@ -253,6 +258,8 @@ class GrFNGenerator(object):
         if state.function_name is None and not any(
                 isinstance(node, t) for t in self.types
         ):
+            # DEBUG
+            print ("    gen_grfn: ", ast.dump(node))
             # If the node is of instance ast.Call, it is the starting point
             # of the system.
             if isinstance(node, ast.Call):
@@ -269,8 +276,6 @@ class GrFNGenerator(object):
                         node_name != "ast.Import" and
                         node_name != "ast.ImportFrom"
                 ):
-                    # DEBUG
-                    print ("    gen_grfn: ", ast.dump(node))
                     return self.process_grfn[node_name](node, state, call_source)
                 else:
                     return []
@@ -2598,7 +2603,16 @@ class GrFNGenerator(object):
         grfn_list = []
         for cur in node.body:
             grfn = self.gen_grfn(cur, state, "module")
-            grfn_list += grfn
+            # DEBUG
+            print ("    * process_module: ", grfn)
+            if (
+                    grfn
+                    and "name" in grfn[0]
+                    and "@type" in grfn[0]["name"]
+            ):
+                self.derived_types_grfn.append(grfn)
+            else:
+                grfn_list += grfn
         merged_grfn = [self._merge_dictionary(grfn_list)]
 
         return merged_grfn
@@ -2690,6 +2704,9 @@ class GrFNGenerator(object):
         type_name = f"@type::{namespace}::@global::{node.name}"
         grfn["name"] = type_name
 
+        # Keep a track of declared user-defined types
+        self.derived_types.append(node.name)
+
         attributes = node.body[0].body
         # Populate class memeber variables into attributes array.
         for attrib in attributes:
@@ -2702,7 +2719,7 @@ class GrFNGenerator(object):
         # DEBUG
         print ("=========================================")
 
-        # return grfn
+        return [grfn]
 
     @staticmethod
     def process_break(*_):
@@ -3275,8 +3292,18 @@ class GrFNGenerator(object):
                 and variable_type == "array"
             ):
                 self.f_array_arg.append(variable)
+
+            if variable_type in self.type_def_map:
+                type_name = self.type_def_map[variable_type]
+            elif variable_type in self.derived_types:
+                type_name = variable_type
+            else:
+                assert (
+                    False
+                ), f"Type {variable_type} is not a valid type."
+
             domain_dictionary = {
-                "name": self.type_def_map[variable_type],
+                "name": type_name,
                 "type": "type",
                 "mutable": is_mutable,
             }
@@ -3871,6 +3898,7 @@ def create_grfn_dict(
 
             generator.module_subprograms.extend(import_function_list)
 
+    # Generate GrFN with an AST generated from Python IR.
     grfn = generator.gen_grfn(asts, state, "")[0]
 
     if len(generator.mode_mapper["use_mapping"]) > 0:
@@ -3903,7 +3931,7 @@ def create_grfn_dict(
     grfn["grounding"] = []
     # TODO Add a placeholder for `types`. This will have to be populated when
     #  user defined types start appearing.
-    grfn["types"] = []
+    grfn["types"] = generator.derived_types_grfn
     # Get the file path of the original Fortran code being analyzed
     source_file = get_path(original_file, "source")
 
