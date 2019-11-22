@@ -138,6 +138,10 @@ class GrFNGenerator(object):
         self.derived_types = []
         # List of derived type grfns
         self.derived_types_grfn = []
+        # List of attributes declared under user-defined types
+        self.derived_types_attributes = {}
+        # List of variables (objects) declared with user-defined type
+        self.derived_type_objects = {}
 
         self.gensym_tag_map = {
             "container": 'c',
@@ -254,12 +258,13 @@ class GrFNGenerator(object):
             This function generates the GrFN structure by parsing through the
             python AST
         """
+        # DEBUG
+        if not isinstance(node, list):
+            print ("    gen_grfn: ", dump_ast(node))
         # Look for code that is not inside any function.
         if state.function_name is None and not any(
                 isinstance(node, t) for t in self.types
         ):
-            # DEBUG
-            print ("    gen_grfn: ", ast.dump(node))
             # If the node is of instance ast.Call, it is the starting point
             # of the system.
             if isinstance(node, ast.Call):
@@ -418,6 +423,9 @@ class GrFNGenerator(object):
         # the function body
         body_grfn = self.gen_grfn(node.body, function_state, "functiondef")
 
+        # DEBUG
+        print ("    * body_grfn: ", body_grfn, "\n")
+
         # Get the `return_value` from the body. We want to append it separately.
         # TODO There can be multiple return values. `return_value` should be
         #  a list and you should append to it.
@@ -508,6 +516,11 @@ class GrFNGenerator(object):
         pgm = {"containers": function_container_grfn,
                "variables": container_variables,
                }
+        # DEBUG
+        print ("    * pgm['variables']: ")
+        for i in pgm["variables"]:
+            print ("    ", i)
+        print ("\n")
         return [pgm]
 
     def process_arguments(self, node, state, call_source):
@@ -2360,6 +2373,8 @@ class GrFNGenerator(object):
         # the variables involved in the assignment operations.
         sources = self.gen_grfn(node.value, state, "assign")
 
+        array_assignment = False
+        d_type_obj_declaration = False
         # Detect assigns which are string initializations of the
         # following form: String(10). String initialization of the form
         # String(10, "abcdef") are valid assignments where the index of the
@@ -2368,30 +2383,27 @@ class GrFNGenerator(object):
         # generated
         is_string_assign = False
         is_string_annotation = False
-        if (
-                "call" in sources[0]
-                and sources[0]["call"]["function"] == "String"
-        ):
-            is_string_assign = True
-            # Check if it just an object initialization or initialization
-            # with value assignment
-            if len(sources[0]["call"]["inputs"]) == 1:
-                # This is just an object initialization e.g. String(10)
-                is_string_annotation = True
-
-        array_assignment = False
-        # If current assignment is for Array declaration,
-        # we need to extract information (dimension, index, and type)
-        # of the array based on its dimension (single or multi-).
-        if (
-                "call" in sources[0]
-                and sources[0]["call"]["function"] == "Array"
-        ):
-            array_assignment = True
-            array_dimensions = []
-            inputs = sources[0]["call"]["inputs"]
-            array_type = inputs[0][0]["var"]["variable"]
-            self._get_array_dimension(sources, array_dimensions, inputs)
+        if "call" in sources[0]:
+            if sources[0]["call"]["function"] == "String":
+                is_string_assign = True
+                # Check if it just an object initialization or initialization
+                # with value assignment
+                if len(sources[0]["call"]["inputs"]) == 1:
+                    # This is just an object initialization e.g. String(10)
+                    is_string_annotation = True
+            elif sources[0]["call"]["function"] == "Array":
+                array_assignment = True
+                array_dimensions = []
+                inputs = sources[0]["call"]["inputs"]
+                array_type = inputs[0][0]["var"]["variable"]
+                self._get_array_dimension(sources, array_dimensions, inputs)
+            elif sources[0]["call"]["function"] in self.derived_types:
+                print ("    * sources[0][call][function]: ", sources[0]["call"]["function"])
+                d_type_obj_declaration = True
+            else:
+                pass
+        else:
+            pass
 
         # This reduce function is useful when a single assignment operation
         # has multiple targets (E.g: a = b = 5). Currently, the translated
@@ -2414,6 +2426,8 @@ class GrFNGenerator(object):
             if "list" in target:
                 return []
             target_name = target["var"]["variable"]
+            # DEBUG
+            print ("    * target_name: ", target_name)
             # Fill some data structures if this is a string
             # assignment/initialization
             if is_string_assign:
@@ -2479,6 +2493,21 @@ class GrFNGenerator(object):
             variable_spec = self.generate_variable_definition(target_name,
                                                               None,
                                                               state)
+            # Do not add the variable spec if this is a string annotation
+            # since this can collide with the variable spec of the first
+            # string assignment.
+            if not is_string_annotation:
+                grfn["variables"].append(variable_spec)
+
+            # Since a Python class (derived type) object declaration has syntax
+            # is __object_name__ = __class_name__, it's considered as an assignment
+            # that will create __assign__ function GrFN, which should not. Thus,
+            # simply return the [grfn] here to avoid generating __assign__ function.
+            if d_type_obj_declaration:
+                return [grfn]
+
+            # DEBUG
+            print ("    * variable_spec: ", variable_spec)
 
             # TODO Hack to not print lambda function for IO assigns. Need a
             #  proper method to handle IO moving on
@@ -2510,6 +2539,8 @@ class GrFNGenerator(object):
                     variable_spec['name'],
                     None
                 )
+            # DEBUG
+            print ("    * function_name: ", function_name)
             fn = self.make_fn_dict(function_name, target, sources, state)
             if len(fn) == 0:
                 return []
@@ -2530,11 +2561,6 @@ class GrFNGenerator(object):
                 state.lambda_strings.append(lambda_string)
 
             grfn["functions"].append(fn)
-            # Do not add the variable spec if this is a string annotation
-            # since this can collide with the variable spec of the first
-            # string assignment.
-            if not is_string_annotation:
-                grfn["variables"].append(variable_spec)
         return [grfn]
 
     def process_tuple(self, node, state, *_):
@@ -2706,6 +2732,7 @@ class GrFNGenerator(object):
 
         # Keep a track of declared user-defined types
         self.derived_types.append(node.name)
+        self.derived_types_attributes[node.name] = []
 
         attributes = node.body[0].body
         # Populate class memeber variables into attributes array.
@@ -2713,6 +2740,8 @@ class GrFNGenerator(object):
             attrib_name = attrib.target.attr
             attrib_type = attrib.annotation.id
             grfn["attributes"].append({"name": attrib_name, "type": attrib_type})
+            # Keep a track of derived type attributes (member variables).
+            self.derived_types_attributes[node.name].append(attrib_name)
 
         # DEBUG
         print ("    grfn: ", grfn)
@@ -3220,14 +3249,14 @@ class GrFNGenerator(object):
         # were passed to a function once the program actually
         # finds about it, we need to temporarily hold the domain
         # information in the dictionary of domain list.
-        if (
-            "name" in domain
-            and domain["name"] == "array"
-        ):
-            if variable in self.array_arg_domain:
-                self.array_arg_domain[variable].append(domain)
-            else:
-                self.array_arg_domain[variable] = [domain]
+        if "name" in domain:
+            if domain["name"] == "array":
+                if variable in self.array_arg_domain:
+                    self.array_arg_domain[variable].append(domain)
+                else:
+                    self.array_arg_domain[variable] = [domain]
+            elif domain["name"] in self.derived_types:
+                self.derived_type_objects[variable] = domain["name"]
 
         # Only array variables hold dimensions in their domain
         # when they get declared, we identify the array variable
