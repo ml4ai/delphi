@@ -258,9 +258,6 @@ class GrFNGenerator(object):
             This function generates the GrFN structure by parsing through the
             python AST
         """
-        # DEBUG
-        if not isinstance(node, list):
-            print ("    gen_grfn: ", dump_ast(node))
         # Look for code that is not inside any function.
         if state.function_name is None and not any(
                 isinstance(node, t) for t in self.types
@@ -409,6 +406,7 @@ class GrFNGenerator(object):
             argument_variable_grfn.append(
                 self.generate_variable_definition(argument,
                                                   None,
+                                                  False,
                                                   function_state)
             )
         self.handling_f_args = False
@@ -422,9 +420,6 @@ class GrFNGenerator(object):
         # Enter the body of the function and recursively generate the GrFN of
         # the function body
         body_grfn = self.gen_grfn(node.body, function_state, "functiondef")
-
-        # DEBUG
-        print ("    * body_grfn: ", body_grfn, "\n")
 
         # Get the `return_value` from the body. We want to append it separately.
         # TODO There can be multiple return values. `return_value` should be
@@ -516,11 +511,6 @@ class GrFNGenerator(object):
         pgm = {"containers": function_container_grfn,
                "variables": container_variables,
                }
-        # DEBUG
-        print ("    * pgm['variables']: ")
-        for i in pgm["variables"]:
-            print ("    ", i)
-        print ("\n")
         return [pgm]
 
     def process_arguments(self, node, state, call_source):
@@ -760,6 +750,7 @@ class GrFNGenerator(object):
         # wiring` for the loop index, check condition and break decisions.
         index_variable_grfn = self.generate_variable_definition(index_name,
                                                                 None,
+                                                                False,
                                                                 loop_state)
         index_function_name = self.generate_function_name(
             "__assign__",
@@ -775,6 +766,7 @@ class GrFNGenerator(object):
 
         loop_check_variable = self.generate_variable_definition("IF_0",
                                                                 None,
+                                                                False,
                                                                 loop_state)
 
         loop_state.next_definitions["#cond"] = 1
@@ -794,6 +786,7 @@ class GrFNGenerator(object):
 
         loop_break_variable = self.generate_variable_definition("EXIT",
                                                                 None,
+                                                                False,
                                                                 loop_state)
         loop_state.next_definitions["EXIT"] = 1
 
@@ -955,6 +948,7 @@ class GrFNGenerator(object):
             argument_variable = self.generate_variable_definition(
                 var,
                 None,
+                False,
                 container_input_state
             )
             body_variables_grfn.append(argument_variable)
@@ -1019,6 +1013,7 @@ class GrFNGenerator(object):
                 updated_variable = self.generate_variable_definition(
                     item,
                     None,
+                    False,
                     state
                 )
                 body_variables_grfn.append(updated_variable)
@@ -1048,6 +1043,7 @@ class GrFNGenerator(object):
         loop_state.last_definitions[index_name] = 1
         index_increment_grfn = self.generate_variable_definition(index_name,
                                                                  None,
+                                                                 False,
                                                                  loop_state)
         index_increment_function_name = self.generate_function_name(
             "__assign_",
@@ -1227,6 +1223,7 @@ class GrFNGenerator(object):
 
         loop_check_variable = self.generate_variable_definition("IF_0",
                                                                 None,
+                                                                False,
                                                                 loop_state)
 
         loop_state.next_definitions["#cond"] = 1
@@ -1246,6 +1243,7 @@ class GrFNGenerator(object):
 
         loop_break_variable = self.generate_variable_definition("EXIT",
                                                                 None,
+                                                                False,
                                                                 loop_state)
         # Increment the next definition of EXIT
         loop_state.next_definitions["EXIT"] = 1
@@ -1373,6 +1371,7 @@ class GrFNGenerator(object):
             argument_variable = self.generate_variable_definition(
                 var,
                 None,
+                False,
                 container_input_state
             )
             body_variables_grfn.append(argument_variable)
@@ -1437,6 +1436,7 @@ class GrFNGenerator(object):
                 updated_variable = self.generate_variable_definition(
                     item,
                     None,
+                    False,
                     state
                 )
                 body_variables_grfn.append(updated_variable)
@@ -1535,7 +1535,7 @@ class GrFNGenerator(object):
         state.variable_types[condition_name] = "bool"
         state.last_definitions[condition_name] = condition_index
         variable_spec = self.generate_variable_definition(condition_name, None,
-                                                          state)
+                                                          False, state)
         function_name = self.generate_function_name("__condition__",
                                                     variable_spec["name"],
                                                     None
@@ -1614,6 +1614,7 @@ class GrFNGenerator(object):
                                                    0)
             loop_break_variable = self.generate_variable_definition("EXIT",
                                                                     None,
+                                                                    False,
                                                                     else_state)
             else_grfn[0]["variables"].append(loop_break_variable)
 
@@ -1628,6 +1629,7 @@ class GrFNGenerator(object):
                                                    0)
             loop_break_variable = self.generate_variable_definition("EXIT",
                                                                     None,
+                                                                    False,
                                                                     if_state)
             if_grfn[0]["variables"].append(loop_break_variable)
 
@@ -1721,7 +1723,7 @@ class GrFNGenerator(object):
                 ),
             }
             variable_spec = self.generate_variable_definition(
-                updated_definition, None, state)
+                updated_definition, None, False, state)
             function_name = self.generate_function_name("__decision__",
                                                         variable_spec['name'],
                                                         None)
@@ -1903,7 +1905,7 @@ class GrFNGenerator(object):
                     # arr(i) will be arr_i. This will be added as a new
                     # variable in GrFN.
                     variable_spec = self.generate_variable_definition(
-                        function_name, str_arr_for_varname, state)
+                        function_name, str_arr_for_varname, False, state)
                     grfn["variables"].append(variable_spec)
                     if function_name not in self.md_array:
                         state.array_assign_name = f"{function_name}[{str_arr_index}]"
@@ -1913,7 +1915,7 @@ class GrFNGenerator(object):
                     # array (arr(i), for example) and generate the function
                     # name with it.
                     variable_spec = self.generate_variable_definition(
-                        function_name, None, state)
+                        function_name, None, False, state)
                     assign_function = self.generate_function_name(
                         "__assign__",
                         variable_spec['name'],
@@ -1933,7 +1935,7 @@ class GrFNGenerator(object):
                         -1
                     )
                     variable_spec = self.generate_variable_definition(
-                        function_name, None, state)
+                        function_name, None, False, state)
                     grfn["variables"].append(variable_spec)
                     assign_function = self.generate_function_name(
                         "__assign__",
@@ -2158,6 +2160,7 @@ class GrFNGenerator(object):
                                 variable_spec = self.generate_variable_definition(
                                     variable_name,
                                     None,
+                                    False,
                                     state
                                 )
                                 grfn['variables'].append(variable_spec)
@@ -2322,6 +2325,7 @@ class GrFNGenerator(object):
                                                           "var"]["index"] + 1
             variable_spec = self.generate_variable_definition(target_name,
                                                               None,
+                                                              False,
                                                               state)
             function_name = self.generate_function_name(
                 "__assign__",
@@ -2369,12 +2373,22 @@ class GrFNGenerator(object):
         """
         io_source = False
         is_function_call = False
+        maybe_d_type_object = False
+        d_type_object_name = None
+        reference = None
         # Get the GrFN element of the RHS side of the assignment which are
         # the variables involved in the assignment operations.
         sources = self.gen_grfn(node.value, state, "assign")
 
+        node_name = node.targets[0].__repr__().split()[0][2:]
+        if node_name == "ast.Attribute":
+            if node.targets[0].value.id in self.derived_type_objects:
+                maybe_d_type_object = True
+                d_type_object_name = node.targets[0].value.id
+                object_type = self.derived_type_objects[d_type_object_name]
+
         array_assignment = False
-        d_type_obj_declaration = False
+        is_d_type_obj_declaration = False
         # Detect assigns which are string initializations of the
         # following form: String(10). String initialization of the form
         # String(10, "abcdef") are valid assignments where the index of the
@@ -2398,8 +2412,7 @@ class GrFNGenerator(object):
                 array_type = inputs[0][0]["var"]["variable"]
                 self._get_array_dimension(sources, array_dimensions, inputs)
             elif sources[0]["call"]["function"] in self.derived_types:
-                print ("    * sources[0][call][function]: ", sources[0]["call"]["function"])
-                d_type_obj_declaration = True
+                is_d_type_obj_declaration = True
             else:
                 pass
         else:
@@ -2426,8 +2439,6 @@ class GrFNGenerator(object):
             if "list" in target:
                 return []
             target_name = target["var"]["variable"]
-            # DEBUG
-            print ("    * target_name: ", target_name)
             # Fill some data structures if this is a string
             # assignment/initialization
             if is_string_assign:
@@ -2490,9 +2501,21 @@ class GrFNGenerator(object):
                 self.arrays[var_name] = array_info
                 state.array_types[var_name] = array_type
 
+            if (
+                    maybe_d_type_object
+                    and object_type
+                    and object_type in self.derived_types_attributes
+                    and target_name in self.derived_types_attributes[object_type]
+            ):
+                is_d_type_object_assignment = True
+            else:
+                is_d_type_object_assignment = False
+
             variable_spec = self.generate_variable_definition(target_name,
-                                                              None,
+                                                              d_type_object_name,
+                                                              is_d_type_object_assignment,
                                                               state)
+
             # Do not add the variable spec if this is a string annotation
             # since this can collide with the variable spec of the first
             # string assignment.
@@ -2503,11 +2526,8 @@ class GrFNGenerator(object):
             # is __object_name__ = __class_name__, it's considered as an assignment
             # that will create __assign__ function GrFN, which should not. Thus,
             # simply return the [grfn] here to avoid generating __assign__ function.
-            if d_type_obj_declaration:
+            if is_d_type_obj_declaration:
                 return [grfn]
-
-            # DEBUG
-            print ("    * variable_spec: ", variable_spec)
 
             # TODO Hack to not print lambda function for IO assigns. Need a
             #  proper method to handle IO moving on
@@ -2629,8 +2649,6 @@ class GrFNGenerator(object):
         grfn_list = []
         for cur in node.body:
             grfn = self.gen_grfn(cur, state, "module")
-            # DEBUG
-            print ("    * process_module: ", grfn)
             if (
                     grfn
                     and "name" in grfn[0]
@@ -2724,8 +2742,6 @@ class GrFNGenerator(object):
         types grfn attribute.
         """
         grfn = {"name": "", "type": "type", "attributes": []}
-        # DEBUG
-        print ("    === process_class_def ===")
         namespace = self._get_namespace(self.fortran_file)
         type_name = f"@type::{namespace}::@global::{node.name}"
         grfn["name"] = type_name
@@ -2742,11 +2758,6 @@ class GrFNGenerator(object):
             grfn["attributes"].append({"name": attrib_name, "type": attrib_type})
             # Keep a track of derived type attributes (member variables).
             self.derived_types_attributes[node.name].append(attrib_name)
-
-        # DEBUG
-        print ("    grfn: ", grfn)
-        # DEBUG
-        print ("=========================================")
 
         return [grfn]
 
@@ -2834,6 +2845,9 @@ class GrFNGenerator(object):
         io_source = False
         target_name = target["var"]["variable"]
         target_string = f"@variable::{target_name}::{target['var']['index']}"
+
+        # DEBUG
+        print ("    * make_fn_dict - sources: ", sources)
 
         for src in sources:
             # Check for a write to a file
@@ -3223,7 +3237,7 @@ class GrFNGenerator(object):
 
         return container_id
 
-    def generate_variable_definition(self, variable, arr_index, state):
+    def generate_variable_definition(self, variable, reference, d_type_object_assign, state):
         """
             This function generates the GrFN structure for a variable
             definition, of the form:
@@ -3234,6 +3248,13 @@ class GrFNGenerator(object):
                         domain:
                         domain_constraints:
                         }
+            Args:
+                variable (str): A variableee name.
+                reefeerence (str): Either array's indexing variable (i.e. i for array[i])
+                or derived type object's referencing class member variable (i.e. k for x.k).
+
+            Returns:
+                list : Generated GrFN.
         """
         namespace = self._get_namespace(self.fortran_file)
         if variable in state.last_definitions:
@@ -3284,8 +3305,11 @@ class GrFNGenerator(object):
 
         variable_gensym = self.generate_gensym("variable")
 
-        if arr_index is not None:
-            variable = f"{variable}_{arr_index}"
+        if reference is not None:
+            if d_type_object_assign:
+                variable = f"{reference}_{variable}"
+            else:
+                variable = f"{variable}_{reference}"
 
         variable_name = f"@variable::{namespace}::{self.current_scope}::" \
                         f"{variable}::{index}"
@@ -3409,6 +3433,7 @@ class GrFNGenerator(object):
                                 variable_spec = \
                                     self.generate_variable_definition(
                                         variable_name, None,
+                                        False,
                                         self.update_functions[
                                             container]['state']
                                     )
