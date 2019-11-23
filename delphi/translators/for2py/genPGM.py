@@ -20,6 +20,8 @@ import operator
 import uuid
 import os.path
 
+
+# noinspection PyDefaultArgument
 class GrFNState:
     def __init__(
             self,
@@ -85,6 +87,7 @@ class GrFNState:
         )
 
 
+# noinspection PyDefaultArgument,PyTypeChecker
 class GrFNGenerator(object):
     def __init__(self,
                  annotated_assigned=[],
@@ -268,7 +271,8 @@ class GrFNGenerator(object):
                         node_name != "ast.Import" and
                         node_name != "ast.ImportFrom"
                 ):
-                    return self.process_grfn[node_name](node, state, call_source)
+                    return self.process_grfn[node_name](node,
+                                                        state, call_source)
                 else:
                     return []
         elif isinstance(node, list):
@@ -427,10 +431,10 @@ class GrFNGenerator(object):
         if return_value:
             for value in return_value:
                 if "var" in value:
-                    return_list.append(f"@variable::{value['var']['variable']}::"
-                                       f"{value['var']['index']}")
+                    return_list.append(f"@variable::{value['var']['variable']}"
+                                       f"::{value['var']['index']}")
                 elif "call" in value:
-                    for inputs in value['call']['inputs']:
+                    for _ in value['call']['inputs']:
                         if "var" in value:
                             return_list.append(
                                 f"@variable::{value['var']['variable']}::"
@@ -454,7 +458,8 @@ class GrFNGenerator(object):
                                                      function_state)
             for array in self.f_array_arg:
                 if array in function_state.last_definitions:
-                    self.updated_arrays[array] = function_state.last_definitions[array]
+                    self.updated_arrays[array] = \
+                        function_state.last_definitions[array]
         else:
             updated_identifiers = []
         self.function_argument_map[node.name]["updated_list"] = \
@@ -532,7 +537,8 @@ class GrFNGenerator(object):
                 if node.arg not in self.updated_arrays:
                     state.last_definitions[node.arg] = -1
                 else:
-                    state.last_definitions[node.arg] = self.updated_arrays[node.arg]
+                    state.last_definitions[node.arg] = \
+                        self.updated_arrays[node.arg]
             else:
                 assert False, ("Call source is not ast.FunctionDef. "
                                "Handle this by setting state.last_definitions["
@@ -646,8 +652,6 @@ class GrFNGenerator(object):
         else:
             self.loop_index = 0
 
-        # Get the main function name (e.g. foo.loop$0.loop$1 then `foo`)
-        main_function_name = self.current_scope.split('.')[0]
         # First, get the `container_id_name` of the loop container
         container_id_name = self.generate_container_id_name(
             self.fortran_file, self.current_scope, f"loop${self.loop_index}")
@@ -986,9 +990,13 @@ class GrFNGenerator(object):
                 )
                 state.last_definitions[item] = updated_index
                 state.next_definitions[item] = updated_index + 1
+                item_id = loop_state.last_definitions.get(
+                    item,
+                    loop_body_outputs[item]
+                )
                 container_updated.append(
                     f"@variable::{item}::"
-                    f"{loop_state.last_definitions.get(item, loop_body_outputs[item])}"
+                    f"{item_id}"
                 )
                 # Create variable spec for updated variables in parent scope.
                 # So, temporarily change the current scope to its previous form
@@ -1121,8 +1129,6 @@ class GrFNGenerator(object):
         else:
             self.loop_index = 0
 
-        # Get the main function name (e.g. foo.loop$0.loop$1 then `foo`)
-        main_function_name = self.current_scope.split('.')[0]
         # First, get the `container_id_name` of the loop container
         container_id_name = self.generate_container_id_name(
             self.fortran_file, self.current_scope,
@@ -1404,9 +1410,13 @@ class GrFNGenerator(object):
                 )
                 state.last_definitions[item] = updated_index
                 state.next_definitions[item] = updated_index + 1
+                item_id = loop_state.last_definitions.get(
+                    item,
+                    loop_body_outputs[item]
+                )
                 container_updated.append(
                     f"@variable::{item}::"
-                    f"{loop_state.last_definitions.get(item,loop_body_outputs[item])}"
+                    f"{item_id}"
                 )
                 # Create variable spec for updated variables in parent scope.
                 # So, temporarily change the current scope to its previous form
@@ -1587,10 +1597,10 @@ class GrFNGenerator(object):
                 and isinstance(else_grfn[0]["functions"][0], str) \
                 and else_grfn[0]["functions"][0] == "insert_break":
             # Get next def of EXIT
-            exit_index = self._get_next_definition("EXIT",
-                                                   else_state.last_definitions,
-                                                   state.next_definitions,
-                                                   0)
+            _ = self._get_next_definition("EXIT",
+                                          else_state.last_definitions,
+                                          state.next_definitions,
+                                          0)
             loop_break_variable = self.generate_variable_definition("EXIT",
                                                                     None,
                                                                     else_state)
@@ -1601,10 +1611,10 @@ class GrFNGenerator(object):
                 and isinstance(if_grfn[0]["functions"][0], str) \
                 and if_grfn[0]["functions"][0] == "insert_break":
             # Get next def of EXIT
-            exit_index = self._get_next_definition("EXIT",
-                                                   if_state.last_definitions,
-                                                   state.next_definitions,
-                                                   0)
+            _ = self._get_next_definition("EXIT",
+                                          if_state.last_definitions,
+                                          state.next_definitions,
+                                          0)
             loop_break_variable = self.generate_variable_definition("EXIT",
                                                                     None,
                                                                     if_state)
@@ -1790,8 +1800,8 @@ class GrFNGenerator(object):
         # ast handlers will process them and return a [{grfn_spec}, ..] form
         # for each side. Add these two sides together to give a single [{
         # grfn_spec}, ...] form.
-        operation_grfn = self.gen_grfn(node.left, state, "binop") \
-                         + self.gen_grfn(node.right, state, "binop")
+        operation_grfn = self.gen_grfn(node.left, state, "binop") + \
+            self.gen_grfn(node.right, state, "binop")
 
         return operation_grfn
 
@@ -1838,6 +1848,10 @@ class GrFNGenerator(object):
         for expr in expressions:
             array_set = False
             string_set = False
+            container_id_name = None
+            input_index = None
+            output_index = None
+            arr_index = None
             call = expr["call"]
             function_name = call["function"]
             io_match = self.check_io_variables(function_name)
@@ -1885,9 +1899,11 @@ class GrFNGenerator(object):
                         function_name, str_arr_for_varname, state)
                     grfn["variables"].append(variable_spec)
                     if function_name not in self.md_array:
-                        state.array_assign_name = f"{function_name}[{str_arr_index}]"
+                        state.array_assign_name = \
+                            f"{function_name}[{str_arr_index}]"
                     else:
-                        state.array_assign_name = f"{function_name}{str_arr_index}"
+                        state.array_assign_name = \
+                            f"{function_name}{str_arr_index}"
                     # We want to have a new variable spec for the original
                     # array (arr(i), for example) and generate the function
                     # name with it.
@@ -1923,8 +1939,8 @@ class GrFNGenerator(object):
                     function_type = assign_function["type"]
             else:
                 if function_name in self.function_argument_map:
-                    container_id_name = self.function_argument_map[function_name][
-                        "name"]
+                    container_id_name = \
+                        self.function_argument_map[function_name]["name"]
                 elif function_name in self.module_subprograms:
                     container_id_name = function_name
                 function_type = "container"
@@ -2065,8 +2081,10 @@ class GrFNGenerator(object):
                                             f"@variable::"
                                             f"{var['var']['variable']}::"
                                             f"{var['var']['index']}")
-                                        if var['var']['variable'] not in argument_list:
-                                            argument_list.append(var['var']['variable'])
+                                        if var['var']['variable'] not in \
+                                                argument_list:
+                                            argument_list.append(var['var']
+                                                                 ['variable'])
 
                 function["input"] = self._remove_duplicate_from_list(
                     function["input"]
@@ -2077,7 +2095,8 @@ class GrFNGenerator(object):
 
                 if (
                         need_lambdas
-                        and container_id_name not in self.generated_lambda_functions
+                        and container_id_name not in
+                        self.generated_lambda_functions
                 ):
                     lambda_string = self.generate_lambda_function(
                         node,
@@ -2101,6 +2120,16 @@ class GrFNGenerator(object):
 
                 source_list = list(chain.from_iterable(call["inputs"]))
 
+                # If the function is `set_substr`, the target string will
+                # also be an input.
+                if method == "set_substr":
+                    source_list.append({
+                        'var': {
+                            'variable': function_name,
+                            'index': int(variable_spec['name'].split('::')[
+                                             -1]) - 1
+                        }
+                    })
                 function = self.make_fn_dict(assign_function, target,
                                              source_list, state)
                 argument_list = self.make_source_list_dict(source_list)
@@ -2421,6 +2450,7 @@ class GrFNGenerator(object):
                     del(state.last_definitions[target_name])
                     self.strings[target_name]["annotation"] = True
                     self.strings[target_name]["annotation_assign"] = False
+                    return []
                 else:
                     self.strings[target_name]["annotation"] = False
                     self.strings[target_name]["annotation_assign"] = True
@@ -3092,14 +3122,6 @@ class GrFNGenerator(object):
                 argument_strings.append(ip)
                 lambda_for_var = True
 
-        if string_assign and \
-                not self.strings[state.string_assign_name]["annotation"] and \
-                not self.strings[state.string_assign_name]["annotation_assign"]:
-            if len(argument_strings) > 0:
-                argument_strings.insert(0, state.string_assign_name)
-            else:
-                argument_strings.append(state.string_assign_name)
-
         lambda_strings.append(
             f"def {function_name}({', '.join(argument_strings)}):\n    "
         )
@@ -3107,17 +3129,26 @@ class GrFNGenerator(object):
         # enter the python script for the lambda file.
         if "__decision__" in function_name:
             code = f"{inputs[1]} if {inputs[2]} else {inputs[0]}"
-        else:
+        elif not string_assign:
             lambda_code_generator = genCode()
-            code = lambda_code_generator.generate_code(node,
-                                                       PrintState("\n    ")
-                                                       )
+            code = lambda_code_generator.generate_code(
+                node,
+                PrintState("\n    ")
+            )
         if return_value:
             if array_assign:
                 lambda_strings.append(f"{state.array_assign_name} = {code}\n")
                 lambda_strings.append(f"    return {state.array_assign_name}")
                 state.array_assign_name = None
             elif string_assign:
+                lambda_code_generator = genCode(
+                    self.strings[state.string_assign_name]["length"]
+                )
+                code = lambda_code_generator.generate_code(
+                    node,
+                    PrintState("\n    "),
+                )
+
                 if self.strings[state.string_assign_name]["annotation"]:
                     self.strings[state.string_assign_name]["annotation"] = False
                 if self.strings[state.string_assign_name]["annotation_assign"]:
@@ -3271,16 +3302,8 @@ class GrFNGenerator(object):
                     variable_name = variable_name + f"{index}"
             variable_index = variable_match.group("index")
 
-            # If this function is for a string initialization, the function
-            # name will have an "init" suffix attached to it to differentiate
-            # it from the first assignment of this string.
-            if self.strings.get(variable_name) and \
-                    self.strings.get(variable_name)["annotation"]:
-                    name = namespace_scope + function_type + variable_name + \
-                           "-init::" + variable_index
-            else:
-                name = namespace_scope + function_type + variable_name + "::" + \
-                       variable_index
+            name = namespace_scope + function_type + variable_name + "::" + \
+                variable_index
             name = self.replace_multiple(name, ['$', '-', ':'], '_')
             name = name.replace('.', '__')
             if any([x in function_type for x in ["assign", "condition",
@@ -3756,6 +3779,7 @@ def process_comments(source_comment_dict, generator_object):
     return source_comment_dict
 
 
+# noinspection PyDefaultArgument
 def create_grfn_dict(
         lambda_file: str,
         asts: List,
@@ -3763,7 +3787,6 @@ def create_grfn_dict(
         mode_mapper_dict: list,
         original_file: str,
         mod_log_file_path: str,
-        save_file=False,
         module_file_exist=False,
         module_import_paths={},
 ) -> Dict:
@@ -4043,14 +4066,13 @@ def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
         # map all variables and objects in the various files
         module_mapper = get_index(xml_file)
 
-    main_program = module_mapper[0]["modules"][-1]
     module_import_paths = {}
     for index, ast_string in enumerate(ast_list):
         lambda_file = python_list[index][:-3] + "_" + lambda_tail
         grfn_file = python_list[index][:-3] + "_" + grfn_tail
         grfn_dict = create_grfn_dict(
             lambda_file, [ast_string], python_list[index], module_mapper,
-            original_file_path, True, module_file_exist, module_import_paths
+            original_file_path, module_file_exist, module_import_paths
         )
         if module_file_exist:
             main_python_file = path + file_name + ".py"
@@ -4065,7 +4087,7 @@ def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
     generate_system_def(python_list, grfn_filepath_list, module_import_paths)
 
 
-def get_original_file_name (original_file_path):
+def get_original_file_name(original_file_path):
     original_file = original_file_path.split('/')
     return original_file[-1].split('.')[0]
 
