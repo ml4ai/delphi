@@ -2482,6 +2482,7 @@ class GrFNGenerator(object):
         # Again as above, only a single target appears in current version.
         # The `for` loop seems unnecessary but will be required when multiple
         # targets start appearing.
+        target_name = []
         for target in targets:
             # DEBUG
             print ("    & target: ", target, "\n")
@@ -2489,32 +2490,32 @@ class GrFNGenerator(object):
             # E.g. (i[0], x[0], j[0], y[0],) = ...
             if "list" in target:
                 return []
-            target_name = target["var"]["variable"]
+            target_name.append(target["var"]["variable"])
             # Fill some data structures if this is a string
             # assignment/initialization
             if is_string_assign:
-                state.variable_types[target_name] = "string"
-                state.string_assign_name = target_name
-                self.strings[target_name] = {
+                state.variable_types[target_name[0]] = "string"
+                state.string_assign_name = target_name[0]
+                self.strings[target_name[0]] = {
                     "length": sources[0]["call"]["inputs"][0][0]["value"]
                 }
                 if is_string_annotation:
                     # If this is just a string initialization,
                     # last_definition should not contain this string's index.
                     # This happens only during assignments.
-                    del(state.last_definitions[target_name])
-                    self.strings[target_name]["annotation"] = True
-                    self.strings[target_name]["annotation_assign"] = False
+                    del(state.last_definitions[target_name[0]])
+                    self.strings[target_name[0]]["annotation"] = True
+                    self.strings[target_name[0]]["annotation_assign"] = False
                 else:
-                    self.strings[target_name]["annotation"] = False
-                    self.strings[target_name]["annotation_assign"] = True
+                    self.strings[target_name[0]]["annotation"] = False
+                    self.strings[target_name[0]]["annotation_assign"] = True
 
             # Preprocessing and removing certain Assigns which only pertain
             # to the Python code and do not relate to the FORTRAN code in any
             # way.
-            io_match = self.check_io_variables(target_name)
+            io_match = self.check_io_variables(target_name[0])
             if io_match:
-                self.exclude_list.append(target_name)
+                self.exclude_list.append(target_name[0])
                 return []
 
             # If the target is a list of variables, the grfn notation for the
@@ -2537,7 +2538,7 @@ class GrFNGenerator(object):
                 # correct value from -1 to 0.
                 if target["var"]["index"] == -1:
                     target["var"]["index"] = 0
-                    state.last_definitions[target_name] = 0
+                    state.last_definitions[target_name[0]] = 0
 
                 if var_name in self.variable_map and \
                         self.variable_map[var_name]["parameter"]:
@@ -2561,7 +2562,7 @@ class GrFNGenerator(object):
             ):
                 self.current_d_object_name = d_type_object_name
 
-            variable_spec = self.generate_variable_definition(target_name,
+            variable_spec = self.generate_variable_definition(target_name[0],
                                                               d_type_object_name,
                                                               is_d_type_object_assignment,
                                                               state)
