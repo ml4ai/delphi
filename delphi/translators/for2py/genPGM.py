@@ -2046,10 +2046,6 @@ class GrFNGenerator(object):
             # Below is a separate loop just for filling in inputs for arrays
             if array_set:
                 argument_list = []
-<<<<<<< HEAD
-                need_lambdas = False
-=======
->>>>>>> 119429e67aad4e7e43913e2bbfa17b938fa41613
                 for arg in call["inputs"]:
                     for ip in arg:
                         if 'var' in ip:
@@ -2086,15 +2082,8 @@ class GrFNGenerator(object):
                                             f"@variable::"
                                             f"{var['var']['variable']}::"
                                             f"{var['var']['index']}")
-<<<<<<< HEAD
-                                        if var['var']['variable'] not in \
-                                                argument_list:
-                                            argument_list.append(var['var']
-                                                                 ['variable'])
-=======
                                         if var['var']['variable'] not in argument_list:
                                             argument_list.append(var['var']['variable'])
->>>>>>> 119429e67aad4e7e43913e2bbfa17b938fa41613
 
                 function["input"] = self._remove_duplicate_from_list(
                     function["input"]
@@ -2103,25 +2092,6 @@ class GrFNGenerator(object):
                     argument_list
                 )
 
-<<<<<<< HEAD
-                if (
-                        need_lambdas
-                        and container_id_name not in
-                        self.generated_lambda_functions
-                ):
-                    lambda_string = self.generate_lambda_function(
-                        node,
-                        container_id_name,
-                        True,
-                        True,
-                        False,
-                        argument_list,
-                        state,
-                        False
-                    )
-                    state.lambda_strings.append(lambda_string)
-                    need_lambdas = False
-=======
                 lambda_string = self.generate_lambda_function(
                     node,
                     container_id_name,
@@ -2133,7 +2103,6 @@ class GrFNGenerator(object):
                     False
                 )
                 state.lambda_strings.append(lambda_string)
->>>>>>> 119429e67aad4e7e43913e2bbfa17b938fa41613
 
             # Make an assign function for a string .set_ operation
             if string_set:
@@ -4105,7 +4074,7 @@ def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
         # Write each GrFN JSON into a file
         with open(grfn_file, "w") as file_handle:
             file_handle.write(json.dumps(grfn_dict, sort_keys=True, indent=2))
-    
+
     # Finally, write the <systems.json> file which gives a mapping of all the
     # GrFN files related to the system.
     generate_system_def(python_list, grfn_filepath_list, module_import_paths)
