@@ -311,7 +311,7 @@ def extract_comments(
         comments[curr_fn]["foot"] = curr_comment
         comments["$file_foot"] = curr_comment
 
-    return (lines, comments)
+    return lines
 
 
 def init_comment_map(head_cmt, neck_cmt, foot_cmt, internal_cmt):
@@ -387,7 +387,7 @@ def discard_line(line):
 def process(inputLines: List[str]) -> str:
     """process() provides the interface used by an earlier version of this
        preprocessor."""
-    lines, comments = preprocess(inputLines)
+    lines = preprocess(inputLines)
     actual_lines = [
         line[1]
         for line in lines
