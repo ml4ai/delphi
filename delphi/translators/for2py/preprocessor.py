@@ -381,7 +381,7 @@ def preprocess(lines):
 def discard_line(line):
     return (line is None or 
             line.strip() == '' or
-            INTERNAL_COMMENT_PREFIX not in line)
+            INTERNAL_COMMENT_PREFIX in line)
 
 
 def process(inputLines: List[str]) -> str:
