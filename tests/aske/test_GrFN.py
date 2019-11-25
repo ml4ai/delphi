@@ -40,7 +40,7 @@ def sir_gillespie_inline_grfn():
 
 @pytest.fixture
 def gillespie_mult_grfn():
-    return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/SIR-Gillespie-SD_multi_module.f")
+    return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/SIR-Gillespie-SD_multi_module.f", save_file=True)
 
 
 @pytest.fixture
