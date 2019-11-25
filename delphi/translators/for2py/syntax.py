@@ -34,6 +34,18 @@ def line_is_comment(line: str) -> bool:
     return (line[0] in "cCdD*!")
 
 
+def line_is_comment_ext(line: str) -> bool:
+    """
+        line_is_comment_ext(line) returns True iff line is a comment
+        (as defined above in line_is_comment(), or if it is a blank line,
+        or if it is whitespace followed by an internal comment marker.
+    """
+
+    return (line[0] in "cCdD*!"
+            or re.match(r"\s*!", line) is not None
+            or line.strip() == '')
+
+
 ################################################################################
 #                                                                              #
 #                           FORTRAN LINE PROCESSING                            #
