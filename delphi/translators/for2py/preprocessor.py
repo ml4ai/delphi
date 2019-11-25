@@ -243,13 +243,9 @@ def extract_comments(
 
     curr_comment = []
     curr_fn, prev_fn, curr_marker = None, None, None
-    comments = OrderedDict()
 
     # curr_state refers to the state of the finite-state machine (see above)
     curr_state = "outside"
-
-    comments["$file_head"] = []
-    comments["$file_foot"] = []
 
     for i in range(len(lines)):
         (linenum, line) = lines[i]
@@ -266,26 +262,13 @@ def extract_comments(
                 # line_type == "pgm_unit_start" 
                 pgm_unit_name = program_unit_name(line)
 
-                if curr_state == "outside":
-                    comments["$file_head"] = curr_comment
-
-                if prev_fn is not None:
-                    comments[prev_fn]["foot"] = curr_comment
-
                 prev_fn = curr_fn
                 curr_fn = pgm_unit_name
 
-                comments[curr_fn] = init_comment_map(
-                    curr_comment, [], [], OrderedDict()
-                )
-                curr_comment = []
-
         elif curr_state == "in_neck":
             if line_type == "comment":
-                curr_comment.append(line)
                 lines[i] = (linenum, None)
             elif line_type == "exec_stmt":
-                comments[curr_fn]["neck"] = curr_comment
                 curr_comment = []
             else:
                 pass  # nothing to do -- continue
@@ -297,19 +280,12 @@ def extract_comments(
                 else:
                     marker_var = f"{INTERNAL_COMMENT_PREFIX}_{linenum}"
                     marker_stmt = f"        {marker_var} = .True.\n"
-                    comments[curr_fn]["internal"][marker_var] = line
                     lines[i] = (linenum, marker_stmt)
             else:
                 pass  # nothing to do -- continue
 
         # update the current state
         curr_state = next_state(curr_state,line_type)
-
-    # if there's a comment at the very end of the file, make it the foot
-    # comment of curr_fn
-    if curr_comment != [] and comments.get(curr_fn):
-        comments[curr_fn]["foot"] = curr_comment
-        comments["$file_foot"] = curr_comment
 
     return lines
 
@@ -396,28 +372,6 @@ def process(inputLines: List[str]) -> str:
     return "".join(actual_lines)
 
 
-def print_comments(comments):
-    for fn, comment in comments.items():
-        if fn in ("$file_head", "$file_foot"):  # file-level comments
-            print(fn + ":")
-            for line in comment:
-                print(f"{line.rstrip()}")
-            print("")
-        else:  # subprogram comments
-            for ccat in ["head", "neck", "foot"]:
-                print(f"Function {fn} [{ccat}]:")
-                for line in comment[ccat]:
-                    print(line.rstrip())
-                print("")
-
-            if comment["internal"] != {}:
-                for marker in comment["internal"]:
-                    comment_line_no = marker[len("i_g_n_o_r_e__m_e___") :]
-                    print(f"Function: {fn} [internal: line {comment_line_no}]:")
-                    print(comment["internal"][marker])
-                    print("")
-
-
 def preprocess_file(infile, outfile):
     with open(infile, mode="r", encoding="latin-1") as f:
         inputLines = f.readlines()
@@ -436,6 +390,3 @@ if __name__ == "__main__":
     infile, outfile = sys.argv[1], sys.argv[2]
     preprocess_file(infile, outfile)
 
-    # Temporarily commenting out the printing of comments by the preprocessor.
-    # To be reinstated later if it seems useful.  --SKD 06/2019
-    #print_comments(comments)
