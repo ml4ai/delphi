@@ -2578,7 +2578,8 @@ class GrFNGenerator(object):
             # If current assignment process is for a derivec type object (i.e x.k), then
             if is_d_type_object_assignment:
                 # (1) we need to add object and referencing type attribute as
-                # function inputs.
+                # function inputs. TODO: There can be > 1 referencing attributes.
+                # Thus, this must be moddified to kind of a loop form.
                 src = [
                         {"var": {
                                     "variable": d_type_object_name,
