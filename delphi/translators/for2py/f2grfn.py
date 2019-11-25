@@ -69,6 +69,7 @@ MODULE_FILE_NAME = "modFileLog.json"
 """A file that holds log of all files with module(s)
 """
 
+
 def generate_ofp_xml(preprocessed_fortran_file, ofp_file, tester_call):
     """ This function executes Java command to run open
     fortran parser to generate initial AST XML from
@@ -266,7 +267,7 @@ def generate_python_src(
                     f.write(item[0])
                 python_files.append(main_python_file)
             except IOError:
-                assert False, f"Unable to write to {python_file_name}."
+                assert False, f"Unable to write to {main_python_file}."
 
     try:
         with open(output_file, "w") as f:
@@ -280,6 +281,7 @@ def generate_python_src(
             python_files.remove(f)
 
     return python_source
+
 
 def module_file_generator(item, temp_dir, output_list, python_files):
     """This function extracts a translated module from
@@ -387,7 +389,6 @@ def generate_grfn(
                                         module_mapper,
                                         original_fortran_file,
                                         mod_log_file_path,
-                                        save_file,
                                         module_file_exist,
                                         module_import_paths
                 )
