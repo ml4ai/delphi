@@ -2602,15 +2602,18 @@ class RectifyOFPXML:
         mod_to_file_mapper = module_logs["mod_to_file"]
         
         use_module = root.attrib['name']
-        use_module_file_path = mod_to_file_mapper[use_module.lower()]
-        if (
-                use_module_file_path[0] != self.original_fortran_file_abs_path
-                and use_module not in self.modules_in_file
-        ):
-            self.module_files_to_process.append(use_module_file_path[0])
+        if use_module.lower() in mod_to_file_mapper:
+            use_module_file_path = mod_to_file_mapper[use_module.lower()]
+            if (
+                    use_module_file_path[0] != self.original_fortran_file_abs_path
+                    and use_module not in self.modules_in_file
+            ):
+                self.module_files_to_process.append(use_module_file_path[0])
+            else:
+                # If module resides in the same file, we don't have to do anything.
+                # Handling for this case is alreadyd implemented in genPGM.py
+                pass
         else:
-            # If module resides in the same file, we don't have to do anything.
-            # Handling for this case is alreadyd implemented in genPGM.py
             pass
 
         for child in root:
