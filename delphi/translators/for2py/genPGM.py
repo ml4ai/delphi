@@ -2396,9 +2396,21 @@ class GrFNGenerator(object):
 
         node_name = node.targets[0].__repr__().split()[0][2:]
         if node_name == "ast.Attribute":
-            if node.targets[0].value.id in self.derived_type_objects:
+            node_value = node.targets[0].value
+            attrib_ast = node_value.__repr__().split()[0][2:]
+            if (
+                    attrib_ast == "ast.Name"
+                    and node_value.id in self.derived_type_objects
+            ):
                 maybe_d_type_object = True
-                d_type_object_name = node.targets[0].value.id
+                d_type_object_name = node_value.id
+                object_type = self.derived_type_objects[d_type_object_name]
+            elif (
+                    attrib_ast == "ast.Attribute"
+                    and node_value.value.id in self.derived_type_objects 
+            ):
+                maybe_d_type_object = True
+                d_type_object_name = node_value.value.id
                 object_type = self.derived_type_objects[d_type_object_name]
 
         array_assignment = False
@@ -2431,6 +2443,27 @@ class GrFNGenerator(object):
                 pass
         else:
             pass
+        # DEBUG
+        if isinstance(node.targets, list):
+            print ("    & node.targets: ", dump_ast(node.targets[0]))
+            print ("    & node_name: ", node_name)
+            print ("    & maybe_d_type_object: ", maybe_d_type_object)
+        else:
+            print ("    & node.targets: ", dump_ast(node.targets))
+
+
+        if (
+                maybe_d_type_object
+                and node_name == "ast.Attribute"
+        ):
+            # Derived type object referencing attributes (i.e. k for x.k case).
+            attributes = []
+            
+
+            is_d_type_object_assignment = True
+        else:
+            is_d_type_object_assignment = False
+
 
         # This reduce function is useful when a single assignment operation
         # has multiple targets (E.g: a = b = 5). Currently, the translated
@@ -2443,11 +2476,15 @@ class GrFNGenerator(object):
                 for target in node.targets
             ],
         )
+        # DEBUG
+        print ("    & targets: ", targets)
         grfn = {"functions": [], "variables": [], "containers": []}
         # Again as above, only a single target appears in current version.
         # The `for` loop seems unnecessary but will be required when multiple
         # targets start appearing.
         for target in targets:
+            # DEBUG
+            print ("    & target: ", target, "\n")
             # Bypass any assigns that have multiple targets.
             # E.g. (i[0], x[0], j[0], y[0],) = ...
             if "list" in target:
@@ -2522,10 +2559,7 @@ class GrFNGenerator(object):
                     and object_type in self.derived_types_attributes
                     and target_name in self.derived_types_attributes[object_type]
             ):
-                is_d_type_object_assignment = True
                 self.current_d_object_name = d_type_object_name
-            else:
-                is_d_type_object_assignment = False
 
             variable_spec = self.generate_variable_definition(target_name,
                                                               d_type_object_name,
@@ -2733,16 +2767,51 @@ class GrFNGenerator(object):
         if node.attr == "_val":
             return self.gen_grfn(node.value, state, call_source)
         else:
-            # TODO: This section of the code should be the same as
-            #  `process_name`. Verify this.
-            last_definition = self.get_last_definition(
-                node.attr,
+            # DEBUG
+            print ("    & node: ", dump_ast(node))
+            node_value = node.__repr__().split()[0][2:]
+            if node_value != "ast.Attribute":
+                # TODO: This section of the code should be the same as
+                #  `process_name`. Verify this.
+                last_definition = self.get_last_definition(
+                    node.attr,
+                    state.last_definitions,
+                    state.last_definition_default
+                )
+                # TODO Change the format according to the new spec
+                return [{"var": {"variable": node.attr, "index": last_definition}}]
+            else:
+                attributes, last_definitions = self.get_derived_type_attributes(node, state) 
+                attribs = []
+                for attr in attributes:
+                    variable_info = {"var": {"variable": attr, "index": last_definitions[attr]}}
+                    attribs.append(variable_info)
+
+                return attribs
+
+    # TODO: Move to somewhere else and add documentation
+    def get_derived_type_attributes (self, node, state):
+        attributes = []
+
+        node_value = node.value.__repr__().split()[0][2:]
+        if (
+                node_value == "ast.Attribute"
+                and node.value.attr
+        ):
+            attributes.append(node.value.attr)
+
+        if node.attr:
+            attributes.append(node.attr)
+
+        last_definitions = {}
+        for attrib in attributes:
+            last_definitions[attrib] = self.get_last_definition(
+                attrib,
                 state.last_definitions,
                 state.last_definition_default
             )
+        return attributes, last_definitions
 
-            # TODO Change the format according to the new spec
-            return [{"var": {"variable": node.attr, "index": last_definition}}]
 
     def process_return_value(self, node, state, *_):
         """
@@ -2788,8 +2857,16 @@ class GrFNGenerator(object):
         attributes = node.body[0].body
         # Populate class memeber variables into attributes array.
         for attrib in attributes:
-            attrib_name = attrib.target.attr
-            attrib_type = self.annotate_map[attrib.annotation.id]
+            attrib_ast = attrib.__repr__().split()[0][2:]
+            if attrib_ast == "ast.AnnAssign":
+                attrib_name = attrib.target.attr
+                attrib_type = self.annotate_map[attrib.annotation.id]
+            elif attrib_ast == "ast.Assign":
+                attrib_name = attrib.targets[0].attr
+                attrib_type = attrib.value.func.id
+                assert (
+                        attrib_type in self.derived_types
+                ), f"User-defined type [{attrib_type}] does not exist."
             grfn["attributes"].append({"name": attrib_name, "type": attrib_type})
             # Keep a track of derived type attributes (member variables).
             self.derived_types_attributes[node.name].append(attrib_name)
