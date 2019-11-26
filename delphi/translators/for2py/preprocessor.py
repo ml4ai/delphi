@@ -180,9 +180,9 @@ def preprocess(lines):
     # no semantic content.  
     enum_lines = [line for line in enum_lines if line[1].rstrip() != ""]
 
-    enum_lines = separate_trailing_comments(enum_lines)
+    enum_lines = discard_comments(enum_lines) #separate_trailing_comments(enum_lines)
     enum_lines = merge_continued_lines(enum_lines)
-    return discard_comments(enum_lines)
+    return enum_lines
 
 
 def discard_line(line):
