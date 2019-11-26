@@ -43,12 +43,12 @@ def separate_trailing_comments(lines: List[str]) -> List[Tuple[int, str]]:
 
     i = 0
     while i < len(lines):
-        (n, code_line) = lines[i]
+        code_line = lines[i]
         if not line_is_comment(code_line):
             (code_part, comment_part) = split_trailing_comment(code_line)
             if comment_part is not None:
-                lines[i] = (n, comment_part)
-                lines.insert(i + 1, (n, code_part))
+                lines[i] = comment_part
+                lines.insert(i + 1, code_part)
         i += 1
 
     return lines
@@ -71,20 +71,20 @@ def merge_continued_lines(lines):
         i = 0
         while i < len(lines) - 1:
             ln0, ln1 = lines[i], lines[i + 1]
-            if (line_is_comment(ln0[1]) and line_is_continuation(ln1[1])) \
-               or (line_is_continued(ln0[1]) and line_is_comment(ln1[1])):
+            if (line_is_comment(ln0) and line_is_continuation(ln1)) \
+               or (line_is_continued(ln0) and line_is_comment(ln1)):
                 if (i, i+1) not in swaps:
                     # swap the code portions of lines[i] and lines[i+1]
-                    lines[i], lines[i + 1] = (ln0[0], ln1[1]), (ln1[0], ln0[1])
+                    lines[i], lines[i + 1] = (ln1, ln0)
                     swaps.add((i,i+1))  # to prevent infinite loops
                 else:
                    # If we get here, there is a pair of adjacent lines that
                    # are about to go into an infinite swap sequence; one of them
                    # must be a comment.  We delete the comment.
-                   if line_is_comment(ln0[1]):
+                   if line_is_comment(ln0):
                        lines.pop(i)
                    else:
-                       assert line_is_comment(ln1[1])
+                       assert line_is_comment(ln1)
                        lines.pop(i+1)
                 chg = True
 
@@ -97,27 +97,23 @@ def merge_continued_lines(lines):
         i = 0
         while i < len(lines):
             line = lines[i]
-            if line_is_continuation(line[1]):
+            if line_is_continuation(line):
                 assert i > 0
-                (prev_linenum, prev_line_code) = lines[i - 1]
-                curr_line_code = line[1].lstrip()[
-                    1:
-                ]  # remove continuation  char
+                prev_line_code = lines[i - 1]
+                curr_line_code = line.lstrip()[1:]  # remove continuation char
                 merged_code = prev_line_code.rstrip() + \
                               " " + \
                               curr_line_code.lstrip() + \
                               "\n"
-                lines[i - 1] = (prev_linenum, merged_code)
+                lines[i - 1] = merged_code
                 lines.pop(i)
                 chg = True
-            elif line_is_continued(line[1]):
+            elif line_is_continued(line):
                 assert i < len(lines)-1  # there must be a next line
-                (next_linenum, next_line_code) = lines[i + 1]
-                curr_line_code = line[1].rstrip()[
-                    :-1
-                ].rstrip()  # remove continuation  char
+                next_line_code = lines[i + 1]
+                curr_line_code = line[1].rstrip()[:-1].rstrip()
                 merged_code = curr_line_code + " " + next_line_code.lstrip()
-                lines[i] = (i, merged_code)
+                lines[i] = merged_code
                 lines.pop(i+1)
                 chg = True
 
@@ -127,7 +123,7 @@ def merge_continued_lines(lines):
 
 
 def discard_comments(lines: List[Tuple[int, str]]) -> List[Tuple[int, str]]:
-    return [line for line in lines if not line_is_comment(line[1])]
+    return [line for line in lines if not line_is_comment(line)]
 
 
 def split_trailing_comment(line: str) -> str:
@@ -173,16 +169,10 @@ def split_trailing_comment(line: str) -> str:
 
 
 def preprocess(lines):
-    enum_lines = list(enumerate(lines, 1))
-
-    # Discard empty lines. While these are technically comments, they provide
-    # no semantic content.  
-    enum_lines = [line for line in enum_lines if line[1].rstrip() != ""]
-
-    enum_lines = separate_trailing_comments(enum_lines)
-    enum_lines = discard_comments(enum_lines)
-    enum_lines = merge_continued_lines(enum_lines)
-    return enum_lines
+    lines = separate_trailing_comments(lines)
+    lines = discard_comments(lines)
+    lines = merge_continued_lines(lines)
+    return lines
 
 
 def discard_line(line):
@@ -194,9 +184,9 @@ def process(inputLines: List[str]) -> str:
        preprocessor."""
     lines = preprocess(inputLines)
     actual_lines = [
-        line[1]
+        line
         for line in lines
-        if not discard_line(line[1])
+        if not discard_line(line)
     ]
     return "".join(actual_lines)
 
@@ -204,7 +194,7 @@ def process(inputLines: List[str]) -> str:
 def preprocess_file(infile, outfile):
     with open(infile, mode="r", encoding="latin-1") as f:
         inputLines = f.readlines()
-        lines, comments = preprocess(inputLines)
+        lines = preprocess(inputLines)
 
     with open(outfile, "w") as f:
         for _, line in lines:
