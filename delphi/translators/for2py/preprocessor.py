@@ -132,7 +132,8 @@ def discard_comments(lines: List[Tuple[int, str]]) -> List[Tuple[int, str]]:
         (linenum, line) = lines[i]
 
         if line_is_comment(line):
-            lines[i] = (linenum, None)
+            #lines[i] = (linenum, None)
+            lines.pop(i)
 
     return lines
 
