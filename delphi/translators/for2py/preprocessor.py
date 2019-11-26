@@ -248,7 +248,7 @@ def extract_comments(
 
         if line_is_comment(line):
             lines[i] = (linenum, None)
-
+      
     return lines
 
 
