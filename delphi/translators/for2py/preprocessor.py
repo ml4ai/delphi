@@ -128,14 +128,7 @@ def merge_continued_lines(lines):
 
 
 def discard_comments(lines: List[Tuple[int, str]]) -> List[Tuple[int, str]]:
-    for i in range(len(lines)):
-        (linenum, line) = lines[i]
-
-        if line_is_comment(line):
-            #lines[i] = (linenum, None)
-            lines.pop(i)
-
-    return lines
+    return [line for line in lines if not line_is_comment(line[1])]
 
 
 def split_trailing_comment(line: str) -> str:
