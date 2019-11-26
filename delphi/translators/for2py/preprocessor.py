@@ -225,9 +225,7 @@ def preprocess(lines):
 
 
 def discard_line(line):
-    return (line is None or 
-            line.strip() == '' or
-            INTERNAL_COMMENT_PREFIX in line)
+    return (line is None or line.strip() == '')
 
 
 def process(inputLines: List[str]) -> str:
