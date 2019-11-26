@@ -256,29 +256,14 @@ def extract_comments(
         if curr_state == "outside":
             if line_type == "comment":
                 lines[i] = (linenum, None)
-            else:
-                # line_type == "pgm_unit_start" 
-                pgm_unit_name = program_unit_name(line)
-
-                prev_fn = curr_fn
-                curr_fn = pgm_unit_name
 
         elif curr_state == "in_neck":
             if line_type == "comment":
                 lines[i] = (linenum, None)
-            else:
-                pass  # nothing to do -- continue
 
         elif curr_state == "in_body":
             if line_type == "comment":
-                if IGNORE_INTERNAL_COMMENTS:
-                    lines[i] = (linenum, None)
-                else:
-                    marker_var = f"{INTERNAL_COMMENT_PREFIX}_{linenum}"
-                    marker_stmt = f"        {marker_var} = .True.\n"
-                    lines[i] = (linenum, marker_stmt)
-            else:
-                pass  # nothing to do -- continue
+                lines[i] = (linenum, None)
 
         # update the current state
         curr_state = next_state(curr_state,line_type)
