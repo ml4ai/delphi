@@ -241,7 +241,6 @@ def extract_comments(
        variable declarations) added; and comments is a dictionary mapping
        marker statement variables to the corresponding comments."""
 
-    curr_comment = []
     curr_fn, prev_fn, curr_marker = None, None, None
 
     # curr_state refers to the state of the finite-state machine (see above)
@@ -256,33 +255,15 @@ def extract_comments(
         # process the line appropriately
         if curr_state == "outside":
             if line_type == "comment":
-                curr_comment.append(line)
                 lines[i] = (linenum, None)
-            else:
-                # line_type == "pgm_unit_start" 
-                pgm_unit_name = program_unit_name(line)
-
-                prev_fn = curr_fn
-                curr_fn = pgm_unit_name
 
         elif curr_state == "in_neck":
             if line_type == "comment":
                 lines[i] = (linenum, None)
-            elif line_type == "exec_stmt":
-                curr_comment = []
-            else:
-                pass  # nothing to do -- continue
 
         elif curr_state == "in_body":
             if line_type == "comment":
-                if IGNORE_INTERNAL_COMMENTS:
-                    lines[i] = (linenum, None)
-                else:
-                    marker_var = f"{INTERNAL_COMMENT_PREFIX}_{linenum}"
-                    marker_stmt = f"        {marker_var} = .True.\n"
-                    lines[i] = (linenum, marker_stmt)
-            else:
-                pass  # nothing to do -- continue
+                lines[i] = (linenum, None)
 
         # update the current state
         curr_state = next_state(curr_state,line_type)
@@ -375,7 +356,7 @@ def process(inputLines: List[str]) -> str:
 def preprocess_file(infile, outfile):
     with open(infile, mode="r", encoding="latin-1") as f:
         inputLines = f.readlines()
-        lines, comments = preprocess(inputLines)
+        lines = preprocess(inputLines)
 
     with open(outfile, "w") as f:
         for _, line in lines:
