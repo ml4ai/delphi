@@ -127,29 +127,6 @@ def merge_continued_lines(lines):
     return lines
 
 
-def merge_adjacent_comment_lines(lines):
-    """Given a list of numered Fortran source code lines, i.e., pairs of the
-       form (n, code_line) where n is a line number and code_line is a line
-       of code, merge_adjacent_comment_lines() merges sequences of lines that are
-       indicated to be comment lines.
-    """
-
-    i = 0
-    while i < len(lines)-1:
-        lnum, line = lines[i]
-        if line_is_comment(line):
-            j = i+1
-            while j < len(lines) and line_is_comment(lines[j][1]):
-                line += lines[j][1]
-                lines.pop(j)
-                # pop() removes a line so lines[j] now refers to the next line
-
-            lines[i] = (lnum, line)
-        i += 1
-
-    return lines
-
-
 def discard_comments(lines: List[Tuple[int, str]]) -> List[Tuple[int, str]]:
     for i in range(len(lines)):
         (linenum, line) = lines[i]
@@ -158,15 +135,6 @@ def discard_comments(lines: List[Tuple[int, str]]) -> List[Tuple[int, str]]:
             lines[i] = (linenum, None)
 
     return lines
-
-
-def init_comment_map(head_cmt, neck_cmt, foot_cmt, internal_cmt):
-    return {
-        "head": head_cmt,
-        "neck": neck_cmt,
-        "foot": foot_cmt,
-        "internal": internal_cmt,
-    }
 
 
 def split_trailing_comment(line: str) -> str:
@@ -220,7 +188,6 @@ def preprocess(lines):
 
     enum_lines = separate_trailing_comments(enum_lines)
     enum_lines = merge_continued_lines(enum_lines)
-    #enum_lines = merge_adjacent_comment_lines(enum_lines)
     return discard_comments(enum_lines)
 
 
