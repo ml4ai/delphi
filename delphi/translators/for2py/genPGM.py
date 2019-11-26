@@ -144,6 +144,8 @@ class GrFNGenerator(object):
         self.derived_type_objects = {}
         # Currently handling derived type object name
         self.current_d_object_name = None
+        # Currently handling derived type object's accessing attributes
+        self.current_d_object_attributes = []
 
         self.gensym_tag_map = {
             "container": 'c',
@@ -2445,12 +2447,6 @@ class GrFNGenerator(object):
                 pass
         else:
             pass
-        # DEBUG
-        if isinstance(node.targets, list):
-            print ("    & node.targets: ", dump_ast(node.targets[0]))
-            print ("    & node_name: ", node_name)
-        else:
-            print ("    & node.targets: ", dump_ast(node.targets))
 
         # This reduce function is useful when a single assignment operation
         # has multiple targets (E.g: a = b = 5). Currently, the translated
@@ -2463,49 +2459,43 @@ class GrFNGenerator(object):
                 for target in node.targets
             ],
         )
-        # DEBUG
-        print ("    & targets: ", targets)
         grfn = {"functions": [], "variables": [], "containers": []}
         # Again as above, only a single target appears in current version.
         # The `for` loop seems unnecessary but will be required when multiple
         # targets start appearing.
-        target_name = []
+        target_names = []
         object_attr_num = 1
-        # DEBUG
-        print ("    * len(targets): ", len(targets))
         for target in targets:
-            # DEBUG
-            print ("    & target: ", target, "\n")
             # Bypass any assigns that have multiple targets.
             # E.g. (i[0], x[0], j[0], y[0],) = ...
             if "list" in target:
                 return []
-            target_name.append(target["var"]["variable"])
+            target_names.append(target["var"]["variable"])
             # Fill some data structures if this is a string
             # assignment/initialization
             if is_string_assign:
-                state.variable_types[target_name[0]] = "string"
-                state.string_assign_name = target_name[0]
-                self.strings[target_name[0]] = {
+                state.variable_types[target_names[0]] = "string"
+                state.string_assign_name = target_names[0]
+                self.strings[target_names[0]] = {
                     "length": sources[0]["call"]["inputs"][0][0]["value"]
                 }
                 if is_string_annotation:
                     # If this is just a string initialization,
                     # last_definition should not contain this string's index.
                     # This happens only during assignments.
-                    del(state.last_definitions[target_name[0]])
-                    self.strings[target_name[0]]["annotation"] = True
-                    self.strings[target_name[0]]["annotation_assign"] = False
+                    del(state.last_definitions[target_names[0]])
+                    self.strings[target_names[0]]["annotation"] = True
+                    self.strings[target_names[0]]["annotation_assign"] = False
                 else:
-                    self.strings[target_name[0]]["annotation"] = False
-                    self.strings[target_name[0]]["annotation_assign"] = True
+                    self.strings[target_names[0]]["annotation"] = False
+                    self.strings[target_names[0]]["annotation_assign"] = True
 
             # Preprocessing and removing certain Assigns which only pertain
             # to the Python code and do not relate to the FORTRAN code in any
             # way.
-            io_match = self.check_io_variables(target_name[0])
+            io_match = self.check_io_variables(target_names[0])
             if io_match:
-                self.exclude_list.append(target_name[0])
+                self.exclude_list.append(target_names[0])
                 return []
 
             # If the target is a list of variables, the grfn notation for the
@@ -2528,7 +2518,7 @@ class GrFNGenerator(object):
                 # correct value from -1 to 0.
                 if target["var"]["index"] == -1:
                     target["var"]["index"] = 0
-                    state.last_definitions[target_name[0]] = 0
+                    state.last_definitions[target_names[0]] = 0
 
                 if var_name in self.variable_map and \
                         self.variable_map[var_name]["parameter"]:
@@ -2548,7 +2538,7 @@ class GrFNGenerator(object):
                 maybe_d_type_object_assign 
                 and object_type
                 and object_type in self.derived_types_attributes
-                and target_name[0] in self.derived_types_attributes[object_type]
+                and target_names[0] in self.derived_types_attributes[object_type]
             ):
                 self.current_d_object_name = d_type_object_name
                 is_d_type_object_assignment = True
@@ -2570,7 +2560,7 @@ class GrFNGenerator(object):
             else:
                 is_d_type_object_assignment = False
 
-            variable_spec = self.generate_variable_definition(target_name,
+            variable_spec = self.generate_variable_definition(target_names,
                                                               d_type_object_name,
                                                               is_d_type_object_assignment,
                                                               state)
@@ -2620,23 +2610,22 @@ class GrFNGenerator(object):
                 )
             # If current assignment process is for a derivec type object (i.e x.k), then
             if is_d_type_object_assignment:
-                # (1) we need to add object and referencing type attribute as
-                # function inputs. TODO: There can be > 1 referencing attributes.
-                # Thus, this must be moddified to kind of a loop form.
+                # (1) we need to add derived tyoe object as function input.
                 src = [
                         {"var": {
                                     "variable": d_type_object_name,
-                                    "index": state.last_definitions[d_type_object_name[0]]}
-                        },
-                        {"var": {
-                                    "variable": target_name[0],
-                                    "index": state.last_definitions[target_name[0]]}
+                                    "index": state.last_definitions[d_type_object_name]}
                         }
                 ]
                 sources.extend(src)
+               
+                # (2) Generate the object name + attributes variable name
+                new_var_name = d_type_object_name
+                for target_name in target_names:
+                    new_var_name += f"_{target_name}"
+                    self.current_d_object_attributes.append(target_name)
 
-                new_var_name = f"{d_type_object_name}_{target_name[0]}"
-                # (2) we need to modify thee target to be "objectName_attribute".
+                # (3) we need to modify thee target to be "objectName_attribute".
                 # For example, variable: x_k and index: __index_of_x_y__.
                 target["var"] = {
                                     "variable": new_var_name,
@@ -2646,6 +2635,7 @@ class GrFNGenerator(object):
             fn = self.make_fn_dict(function_name, target, sources, state)
             if len(fn) == 0:
                 return []
+
             source_list = self.make_source_list_dict(sources)
 
             if (
@@ -2659,6 +2649,8 @@ class GrFNGenerator(object):
                 state.lambda_strings.append(lambda_string)
 
             grfn["functions"].append(fn)
+            # We need to cleanup the object attribute tracking list.
+            self.current_d_object_attributes = []
         return [grfn]
 
     def process_tuple(self, node, state, *_):
@@ -2776,8 +2768,6 @@ class GrFNGenerator(object):
         if node.attr == "_val":
             return self.gen_grfn(node.value, state, call_source)
         else:
-            # DEBUG
-            print ("    & node: ", dump_ast(node))
             node_value = node.__repr__().split()[0][2:]
             if node_value != "ast.Attribute":
                 # TODO: This section of the code should be the same as
@@ -3248,17 +3238,19 @@ class GrFNGenerator(object):
         lambda_for_var = True
         lambda_strings = []
         argument_strings = []
-
+        
         # We need to remove the attribute (class member var) from
         # the source_list as we do not need it in the lambda function
         # argument. Also, form an __object.attribtue__ string.
         if d_type_assign:
             d_type = state.variable_types[self.current_d_object_name]
             target_name = self.current_d_object_name
-            for ip in inputs:
-                if ip in self.derived_types_attributes[d_type]:
-                    target_name += f".{ip}"
-                    inputs.remove(ip)
+            for attr in self.current_d_object_attributes:
+                if attr in self.derived_types_attributes[d_type]:
+                    target_name += f".{attr}"
+                    # Since the next attribute that will be seen must be dependent
+                    # on the current attribute type, here it's updating the d_type.
+                    d_type = state.variable_types[attr]
 
         # If a custom lambda function is encountered, create its function
         # instead
@@ -3410,8 +3402,6 @@ class GrFNGenerator(object):
             elif variable in self.arrays:
                 index.append(0)
             domains.append(self.get_domain_dictionary(variable, state))
-
-
         for domain in domains:
             # Since we need to update the domain of arrays that
             # were passed to a function once the program actually
