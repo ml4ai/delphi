@@ -2402,14 +2402,14 @@ class GrFNGenerator(object):
                     attrib_ast == "ast.Name"
                     and node_value.id in self.derived_type_objects
             ):
-                maybe_d_type_object = True
+                maybe_d_type_object_assign = True
                 d_type_object_name = node_value.id
                 object_type = self.derived_type_objects[d_type_object_name]
             elif (
                     attrib_ast == "ast.Attribute"
                     and node_value.value.id in self.derived_type_objects 
             ):
-                maybe_d_type_object = True
+                maybe_d_type_object_assign = True
                 d_type_object_name = node_value.value.id
                 object_type = self.derived_type_objects[d_type_object_name]
 
@@ -2447,23 +2447,8 @@ class GrFNGenerator(object):
         if isinstance(node.targets, list):
             print ("    & node.targets: ", dump_ast(node.targets[0]))
             print ("    & node_name: ", node_name)
-            print ("    & maybe_d_type_object: ", maybe_d_type_object)
         else:
             print ("    & node.targets: ", dump_ast(node.targets))
-
-
-        if (
-                maybe_d_type_object
-                and node_name == "ast.Attribute"
-        ):
-            # Derived type object referencing attributes (i.e. k for x.k case).
-            attributes = []
-            
-
-            is_d_type_object_assignment = True
-        else:
-            is_d_type_object_assignment = False
-
 
         # This reduce function is useful when a single assignment operation
         # has multiple targets (E.g: a = b = 5). Currently, the translated
@@ -2483,6 +2468,9 @@ class GrFNGenerator(object):
         # The `for` loop seems unnecessary but will be required when multiple
         # targets start appearing.
         target_name = []
+        object_attr_num = 1
+        # DEBUG
+        print ("    * len(targets): ", len(targets))
         for target in targets:
             # DEBUG
             print ("    & target: ", target, "\n")
@@ -2555,14 +2543,32 @@ class GrFNGenerator(object):
                 state.array_types[var_name] = array_type
 
             if (
-                    maybe_d_type_object
-                    and object_type
-                    and object_type in self.derived_types_attributes
-                    and target_name in self.derived_types_attributes[object_type]
+                maybe_d_type_object_assign 
+                and object_type
+                and object_type in self.derived_types_attributes
+                and target_name[0] in self.derived_types_attributes[object_type]
             ):
                 self.current_d_object_name = d_type_object_name
+                is_d_type_object_assignment = True
 
-            variable_spec = self.generate_variable_definition(target_name[0],
+                # If targets holds more than 1 variable information and
+                # it's greater than the object attribute number, then
+                # the derived type object is referencing more than
+                # 1 attribute (i.e. x.k.v).
+                if (
+                        len(targets) > 1
+                        and len(targets) > object_attr_num
+                ):
+                    object_attr_num += 1
+                    # Therefore, we do not want to go any further before
+                    # collecting all the information of the attribute information,
+                    # so we need to simply return back to the beginning of loop and
+                    # restart the process.
+                    continue
+            else:
+                is_d_type_object_assignment = False
+
+            variable_spec = self.generate_variable_definition(target_name,
                                                               d_type_object_name,
                                                               is_d_type_object_assignment,
                                                               state)
@@ -2618,16 +2624,16 @@ class GrFNGenerator(object):
                 src = [
                         {"var": {
                                     "variable": d_type_object_name,
-                                    "index": state.last_definitions[d_type_object_name]}
+                                    "index": state.last_definitions[d_type_object_name[0]]}
                         },
                         {"var": {
-                                    "variable": target_name,
-                                    "index": state.last_definitions[target_name]}
+                                    "variable": target_name[0],
+                                    "index": state.last_definitions[target_name[0]]}
                         }
                 ]
                 sources.extend(src)
 
-                new_var_name = f"{d_type_object_name}_{target_name}"
+                new_var_name = f"{d_type_object_name}_{target_name[0]}"
                 # (2) we need to modify thee target to be "objectName_attribute".
                 # For example, variable: x_k and index: __index_of_x_y__.
                 target["var"] = {
@@ -3370,7 +3376,7 @@ class GrFNGenerator(object):
 
         return container_id
 
-    def generate_variable_definition(self, variable, reference, d_type_object_assign, state):
+    def generate_variable_definition(self, variables, reference, d_type_object_assign, state):
         """
             This function generates the GrFN structure for a variable
             definition, of the form:
@@ -3382,7 +3388,7 @@ class GrFNGenerator(object):
                         domain_constraints:
                         }
             Args:
-                variable (str): A variableee name.
+                variables (list): List of variables.
                 reefeerence (str): Either array's indexing variable (i.e. i for array[i])
                 or derived type object's referencing class member variable (i.e. k for x.k).
 
@@ -3390,64 +3396,72 @@ class GrFNGenerator(object):
                 list : Generated GrFN.
         """
         namespace = self._get_namespace(self.fortran_file)
-        if variable in state.last_definitions:
-            index = state.last_definitions[variable]
-        elif variable in self.strings and self.strings[variable]["annotation"]:
-            # If this is a string initialization without assignment,
-            # the index will be 0 by default
-            index = 0
-        elif variable in self.arrays:
-            index = 0
-        domain = self.get_domain_dictionary(variable, state)
-        # Since we need to update the domain of arrays that
-        # were passed to a function once the program actually
-        # finds about it, we need to temporarily hold the domain
-        # information in the dictionary of domain list.
-        if "name" in domain:
-            if domain["name"] == "array":
-                if variable in self.array_arg_domain:
-                    self.array_arg_domain[variable].append(domain)
-                else:
-                    self.array_arg_domain[variable] = [domain]
-            elif domain["name"] in self.derived_types:
-                self.derived_type_objects[variable] = domain["name"]
+        index = []
+        domains = []
+        for variable in variables:
+            if variable in state.last_definitions:
+                index.append(state.last_definitions[variable])
+            elif variable in self.strings and self.strings[variable]["annotation"]:
+                # If this is a string initialization without assignment,
+                # the index will be 0 by default
+                index.append(0)
+            elif variable in self.arrays:
+                index.append(0)
+            domains.append(self.get_domain_dictionary(variable, state))
 
-        # Only array variables hold dimensions in their domain
-        # when they get declared, we identify the array variable
-        # declaration by simply checking the existence of the dimensions
-        # key in the domain. Also, the array was previously passed
-        # to functions.
-        if (
-            "dimensions" in domain
-            and variable in self.array_arg_domain
-        ):
-            # Since we can't simply do "dom = domain"
-            # as this will do a replacement of the dict element
-            # not the actual domain object of the original function
-            # argument, we need to clean off the existing contents
-            # first and then add the array domain spec one-by-one.
-            for dom in self.array_arg_domain[variable]:
-                if "name" in dom:
-                    del dom["name"]
-                if "type" in dom:
-                    del dom["type"]
-                dom["index"] = domain["index"]
-                dom["dimensions"] = domain["dimensions"]
-                dom["elem_type"] = domain["elem_type"]
-                dom["mutable"] = domain["mutable"]
+
+        for domain in domains:
+            # Since we need to update the domain of arrays that
+            # were passed to a function once the program actually
+            # finds about it, we need to temporarily hold the domain
+            # information in the dictionary of domain list.
+            if "name" in domain:
+                if domain["name"] == "array":
+                    if variable in self.array_arg_domain:
+                        self.array_arg_domain[variable].append(domain)
+                    else:
+                        self.array_arg_domain[variable] = [domain]
+                elif domain["name"] in self.derived_types:
+                    self.derived_type_objects[variable] = domain["name"]
+
+            # Only array variables hold dimensions in their domain
+            # when they get declared, we identify the array variable
+            # declaration by simply checking the existence of the dimensions
+            # key in the domain. Also, the array was previously passed
+            # to functions.
+            if (
+                "dimensions" in domain
+                and variable in self.array_arg_domain
+            ):
+                # Since we can't simply do "dom = domain"
+                # as this will do a replacement of the dict element
+                # not the actual domain object of the original function
+                # argument, we need to clean off the existing contents
+                # first and then add the array domain spec one-by-one.
+                for dom in self.array_arg_domain[variable]:
+                    if "name" in dom:
+                        del dom["name"]
+                    if "type" in dom:
+                        del dom["type"]
+                    dom["index"] = domain["index"]
+                    dom["dimensions"] = domain["dimensions"]
+                    dom["elem_type"] = domain["elem_type"]
+                    dom["mutable"] = domain["mutable"]
 
         variable_gensym = self.generate_gensym("variable")
 
         if reference is not None:
             # var_type = state.variable_types[variable]
             if d_type_object_assign:
-                variable = f"{reference}_{variable}"
+                variable = reference
+                for var in variables:
+                    variable += f"_{var}"
             else:
-                variable = f"{variable}_{reference}"
-            state.last_definitions[variable] = index
+                variable = f"{variable[0]}_{reference}"
+            state.last_definitions[variable] = index[0]
 
         variable_name = f"@variable::{namespace}::{self.current_scope}::" \
-                        f"{variable}::{index}"
+                        f"{variable}::{index[0]}"
         # TODO Change the domain constraint. How do you figure out the domain
         #  constraint?
         domain_constraint = "(and (> v -infty) (< v infty)))"
