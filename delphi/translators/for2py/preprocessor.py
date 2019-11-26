@@ -31,14 +31,6 @@ from delphi.translators.for2py.syntax import (
 )
 
 
-# IGNORE_INTERNAL_COMMENTS: if set to True, internal comments are dropped.
-IGNORE_INTERNAL_COMMENTS = True
-
-# INTERNAL_COMMENT_PREFIX is a prefix used for marker variables associated
-# with comments internal to subprogram bodies.
-INTERNAL_COMMENT_PREFIX = "i_g_n_o_r_e___m_e_"
-
-
 def separate_trailing_comments(lines: List[str]) -> List[Tuple[int, str]]:
     """Given a list of numbered Fortran source code lines, i.e., pairs of the
        form (n, code_line) where n is a line number and code_line is a line
@@ -228,7 +220,7 @@ def preprocess(lines):
 
     enum_lines = separate_trailing_comments(enum_lines)
     enum_lines = merge_continued_lines(enum_lines)
-    enum_lines = merge_adjacent_comment_lines(enum_lines)
+    #enum_lines = merge_adjacent_comment_lines(enum_lines)
     return discard_comments(enum_lines)
 
 
