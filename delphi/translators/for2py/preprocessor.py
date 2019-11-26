@@ -179,17 +179,7 @@ def type_of_line(line):
         return "other"
 
 
-def extract_comments(
-    lines: List[Tuple[int, str]]
-) -> List[Tuple[int, str]]:
-    """Given a list of numbered lines from a Fortran file where comments
-       internal to subprogram bodies have been moved out into their own lines,
-       extract_comments() extracts comments into a dictionary and replaces
-       each comment internal to subprogram bodies with a marker statement.
-       It returns a pair (code, comments) where code is a list of numbered
-       lines with comments removed and marker statements (plus corresponding
-       variable declarations) added; and comments is a dictionary mapping
-       marker statement variables to the corresponding comments."""
+def discard_comments(lines: List[Tuple[int, str]]) -> List[Tuple[int, str]]:
 
     curr_fn, prev_fn, curr_marker = None, None, None
 
@@ -270,7 +260,7 @@ def preprocess(lines):
     enum_lines = separate_trailing_comments(enum_lines)
     enum_lines = merge_continued_lines(enum_lines)
     enum_lines = merge_adjacent_comment_lines(enum_lines)
-    return extract_comments(enum_lines)
+    return discard_comments(enum_lines)
 
 
 def discard_line(line):
