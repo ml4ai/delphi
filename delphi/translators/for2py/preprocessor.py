@@ -158,42 +158,11 @@ def merge_adjacent_comment_lines(lines):
     return lines
 
 
-def type_of_line(line):
-    """Given a line of code, type_of_line() returns a string indicating
-       what kind of code it is."""
-
-    if line.strip() == "":
-        return "empty"
-
-    if line_is_comment(line):
-        return "comment"
-    elif line_is_executable(line):
-        return "exec_stmt"
-    elif line_is_pgm_unit_end(line):
-        return "pgm_unit_end"
-    elif line_is_pgm_unit_start(line):
-        return "pgm_unit_start"
-    elif line_is_pgm_unit_separator(line):
-        return "pgm_unit_sep"
-    else:
-        return "other"
-
-
 def discard_comments(lines: List[Tuple[int, str]]) -> List[Tuple[int, str]]:
-
-    curr_fn, prev_fn, curr_marker = None, None, None
-
-    # curr_state refers to the state of the finite-state machine (see above)
-    curr_state = "outside"
-
     for i in range(len(lines)):
         (linenum, line) = lines[i]
 
-        # determine what kind of line this is
-        line_type = type_of_line(line)
-
-        # process the line appropriately
-        if line_type == "comment":
+        if line_is_comment(line):
             lines[i] = (linenum, None)
 
     return lines
