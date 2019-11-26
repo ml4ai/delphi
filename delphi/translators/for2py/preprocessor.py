@@ -243,30 +243,11 @@ def extract_comments(
 
     curr_fn, prev_fn, curr_marker = None, None, None
 
-    # curr_state refers to the state of the finite-state machine (see above)
-    curr_state = "outside"
-
     for i in range(len(lines)):
         (linenum, line) = lines[i]
 
-        # determine what kind of line this is
-        line_type = type_of_line(line)
-
-        # process the line appropriately
-        if curr_state == "outside":
-            if line_type == "comment":
-                lines[i] = (linenum, None)
-
-        elif curr_state == "in_neck":
-            if line_type == "comment":
-                lines[i] = (linenum, None)
-
-        elif curr_state == "in_body":
-            if line_type == "comment":
-                lines[i] = (linenum, None)
-
-        # update the current state
-        curr_state = next_state(curr_state,line_type)
+        if line_is_comment(line):
+            lines[i] = (linenum, None)
 
     return lines
 
