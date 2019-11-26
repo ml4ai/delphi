@@ -21,8 +21,6 @@ def line_is_comment(line: str) -> bool:
     except within character literals, then everything after the ! on that
     line is a comment.
 
-    A totally blank line is a comment line (we ignore this here).
-
     Args:
         line
 
@@ -31,7 +29,7 @@ def line_is_comment(line: str) -> bool:
 
     """
 
-    return (line[0] in "cCdD*!")
+    return (line[0] in "cCdD*!" or line.strip() == '')
 
 
 ################################################################################
