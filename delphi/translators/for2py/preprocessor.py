@@ -47,8 +47,9 @@ def separate_trailing_comments(lines: List[str]) -> List[Tuple[int, str]]:
         if not line_is_comment(code_line):
             (code_part, comment_part) = split_trailing_comment(code_line)
             if comment_part is not None:
-                lines[i] = comment_part
-                lines.insert(i + 1, code_part)
+                #lines[i] = comment_part
+                lines[i] = code_part
+                #lines.insert(i + 1, code_part)
         i += 1
 
     return lines
