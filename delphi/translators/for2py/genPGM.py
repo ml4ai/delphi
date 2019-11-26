@@ -3459,7 +3459,7 @@ class GrFNGenerator(object):
                 for var in variables:
                     variable += f"_{var}"
             else:
-                variable = f"{variable[0]}_{reference}"
+                variable = f"{variable}_{reference}"
             state.last_definitions[variable] = index[0]
 
         variable_name = f"@variable::{namespace}::{self.current_scope}::" \
