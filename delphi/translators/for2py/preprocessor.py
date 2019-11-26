@@ -158,56 +158,6 @@ def merge_adjacent_comment_lines(lines):
     return lines
 
 
-# We use a finite-state machine to keep track of where the line currently
-# being processed sits w.r.t. the structure of the code; this affects how
-# comments should be handled.  The FSM has the following set of states:
-#
-#     { "outside", "in_neck", "in_body" }.
-#
-# Here, "outside" refers to program points outside any program unit such as
-# programs, subprograms, or modules; "in_neck" refers to the portion of
-# code within a subprogram between the subprogram header and the first line
-# of executable code; and "in_body" refers to the portion of the code between
-# the first line of executable code and the end of the subprogram.
-#
-# State transitions for the FSM are given by the dictionary TRANSITIONS;
-# here "comment", "pgm_unit_start", "exec_stmt", etc., relate to the nature of
-# the line being processed.
-
-TRANSITIONS = {
-    "outside": {
-        "comment": "outside",
-	"empty" : "outside",
-        "pgm_unit_start": "in_neck",
-        "pgm_unit_end": "outside",
-        "other" : "outside",
-    },
-    "in_neck": {
-        "comment": "in_neck",
-	"empty" : "in_neck",
-        "exec_stmt": "in_body",
-        "other": "in_neck",
-        "pgm_unit_sep": "outside",
-        "pgm_unit_end": "outside",
-    },
-    "in_body": {
-        "comment": "in_body",
-	"empty" : "in_body",
-        "exec_stmt": "in_body",
-        "pgm_unit_sep": "outside",
-        "pgm_unit_end": "outside",
-        "other" : "in_body",
-    },
-}
-
-
-def next_state(curr_state, edge_type):
-    if edge_type in TRANSITIONS[curr_state]:
-        return TRANSITIONS[curr_state][edge_type]
-    else:
-        return curr_state
-
-
 def type_of_line(line):
     """Given a line of code, type_of_line() returns a string indicating
        what kind of code it is."""
@@ -231,7 +181,7 @@ def type_of_line(line):
 
 def extract_comments(
     lines: List[Tuple[int, str]]
-) -> Tuple[List[Tuple[int, str]], Dict[str, List[str]]]:
+) -> List[Tuple[int, str]]:
     """Given a list of numbered lines from a Fortran file where comments
        internal to subprogram bodies have been moved out into their own lines,
        extract_comments() extracts comments into a dictionary and replaces
@@ -241,7 +191,6 @@ def extract_comments(
        variable declarations) added; and comments is a dictionary mapping
        marker statement variables to the corresponding comments."""
 
-    curr_comment = []
     curr_fn, prev_fn, curr_marker = None, None, None
 
     # curr_state refers to the state of the finite-state machine (see above)
@@ -254,38 +203,8 @@ def extract_comments(
         line_type = type_of_line(line)
 
         # process the line appropriately
-        if curr_state == "outside":
-            if line_type == "comment":
-                curr_comment.append(line)
-                lines[i] = (linenum, None)
-            else:
-                # line_type == "pgm_unit_start" 
-                pgm_unit_name = program_unit_name(line)
-
-                prev_fn = curr_fn
-                curr_fn = pgm_unit_name
-
-        elif curr_state == "in_neck":
-            if line_type == "comment":
-                lines[i] = (linenum, None)
-            elif line_type == "exec_stmt":
-                curr_comment = []
-            else:
-                pass  # nothing to do -- continue
-
-        elif curr_state == "in_body":
-            if line_type == "comment":
-                if IGNORE_INTERNAL_COMMENTS:
-                    lines[i] = (linenum, None)
-                else:
-                    marker_var = f"{INTERNAL_COMMENT_PREFIX}_{linenum}"
-                    marker_stmt = f"        {marker_var} = .True.\n"
-                    lines[i] = (linenum, marker_stmt)
-            else:
-                pass  # nothing to do -- continue
-
-        # update the current state
-        curr_state = next_state(curr_state,line_type)
+        if line_type == "comment":
+            lines[i] = (linenum, None)
 
     return lines
 
