@@ -20,7 +20,6 @@ from collections import OrderedDict
 from typing import List, Dict, Tuple
 from delphi.translators.for2py.syntax import (
     line_is_comment,
-    line_is_comment_ext,
     line_is_continuation,
     line_is_continued,
     line_is_executable,
