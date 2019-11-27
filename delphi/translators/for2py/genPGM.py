@@ -2863,30 +2863,6 @@ class GrFNGenerator(object):
 
                 return attribs
 
-    # TODO: Move to somewhere else and add documentation
-    def get_derived_type_attributes (self, node, state):
-        attributes = []
-
-        node_value = node.value.__repr__().split()[0][2:]
-        if (
-                node_value == "ast.Attribute"
-                and node.value.attr
-        ):
-            attributes.append(node.value.attr)
-
-        if node.attr:
-            attributes.append(node.attr)
-
-        last_definitions = {}
-        for attrib in attributes:
-            last_definitions[attrib] = self.get_last_definition(
-                attrib,
-                state.last_definitions,
-                state.last_definition_default
-            )
-        return attributes, last_definitions
-
-
     def process_return_value(self, node, state, *_):
         """
         This function handles the return value from a function.
@@ -3906,6 +3882,31 @@ class GrFNGenerator(object):
         else:
             assert False, f"Unable to handle {args_name}"
 
+    def get_derived_type_attributes (self, node, state):
+        """ This function retrieves the derived type attributes
+        from the ast and return the updated last definition dict
+        and populated attribute list"""
+
+        attributes = []
+
+        node_value = node.value.__repr__().split()[0][2:]
+        if (
+                node_value == "ast.Attribute"
+                and node.value.attr
+        ):
+            attributes.append(node.value.attr)
+
+        if node.attr:
+            attributes.append(node.attr)
+
+        last_definitions = {}
+        for attrib in attributes:
+            last_definitions[attrib] = self.get_last_definition(
+                attrib,
+                state.last_definitions,
+                state.last_definition_default
+            )
+        return attributes, last_definitions
 
     @staticmethod
     def replace_multiple(main_string, to_be_replaced, new_string):
