@@ -181,8 +181,8 @@ def split_trailing_comment(line: str) -> str:
 def preprocess(lines):
     lines = [line for line in lines if line.rstrip() != ""]
     lines = separate_trailing_comments(lines)
-    lines = merge_continued_lines(lines)
     lines = discard_comments(lines)
+    lines = merge_continued_lines(lines)
     return lines
 
 def discard_line(line):
