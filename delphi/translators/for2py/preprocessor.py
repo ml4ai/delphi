@@ -68,37 +68,6 @@ def merge_continued_lines(lines):
        of code, merge_continued_lines() merges sequences of lines that are
        indicated to be continuation lines.
     """
-
-    # Before a continuation line L1 is merged with the line L0 before it (and
-    # presumably the one L1 is continuing), ensure that L0 is not a comment.
-    # If L0 is a comment, swap L0 and L1.
-    chg = True
-    swaps = set()
-    while chg:
-        chg = False
-        i = 0
-        while i < len(lines) - 1:
-            ln0, ln1 = lines[i], lines[i + 1]
-            if (line_is_comment_ext(ln0) and line_is_continuation(ln1)) \
-               or (line_is_continued(ln0) and line_is_comment_ext(ln1)):
-                if (i, i+1) not in swaps:
-                    # swap the code portions of lines[i] and lines[i+1]
-                    lines[i], lines[i + 1] = ln1, ln0
-                    swaps.add((i,i+1))  # to prevent infinite loops
-                else:
-                   # If we get here, there is a pair of adjacent lines that
-                   # are about to go into an infinite swap sequence; one of them
-                   # must be a comment.  We delete the comment.
-                   if line_is_comment_ext(ln0):
-                       lines.pop(i)
-                   else:
-                       assert line_is_comment_ext(ln1)
-                       lines.pop(i+1)
-                chg = True
-
-            i += 1
-
-    # Merge continuation lines
     chg = True
     while chg:
         chg = False
