@@ -219,10 +219,9 @@ def line_is_continuation(line: str, f_ext: str) -> bool:
     if line[0] == '&':
         return True
 
-    if f_ext in FIXED_FORM_EXT 
-            and len(line) > 5 
-            and line[5] != ' '
-            and line[5] != '0':
+    if f_ext in FIXED_FORM_EXT \
+            and len(line) > 5 \
+            and not (line[5] == ' ' or line[5] == '0'):
         return True
 
     return False
