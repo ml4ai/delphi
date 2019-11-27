@@ -208,8 +208,9 @@ def line_is_continuation(line: str) -> bool:
     if line_is_comment(line):
         return False
 
-    llstr = line.lstrip()
-    return len(llstr) > 0 and llstr[0] == "&"
+    #llstr = line.lstrip()
+    #return len(llstr) > 0 and llstr[0] == "&"
+    return (len(line) > 5 and line[5] != ' ')
 
 
 def line_is_continued(line: str) -> bool:
