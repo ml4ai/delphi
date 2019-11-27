@@ -31,14 +31,6 @@ from delphi.translators.for2py.syntax import (
 )
 
 
-# IGNORE_INTERNAL_COMMENTS: if set to True, internal comments are dropped.
-IGNORE_INTERNAL_COMMENTS = True
-
-# INTERNAL_COMMENT_PREFIX is a prefix used for marker variables associated
-# with comments internal to subprogram bodies.
-INTERNAL_COMMENT_PREFIX = "i_g_n_o_r_e___m_e_"
-
-
 def separate_trailing_comments(lines: List[str]) -> List[Tuple[int, str]]:
     """Given a list of numbered Fortran source code lines, i.e., pairs of the
        form (n, code_line) where n is a line number and code_line is a line
@@ -68,35 +60,6 @@ def merge_continued_lines(lines):
        of code, merge_continued_lines() merges sequences of lines that are
        indicated to be continuation lines.
     """
-
-    # Before a continuation line L1 is merged with the line L0 before it (and
-    # presumably the one L1 is continuing), ensure that L0 is not a comment.
-    # If L0 is a comment, swap L0 and L1.
-    chg = True
-    swaps = set()
-    while chg:
-        chg = False
-        i = 0
-        while i < len(lines) - 1:
-            ln0, ln1 = lines[i], lines[i + 1]
-            if (line_is_comment_ext(ln0) and line_is_continuation(ln1)) \
-               or (line_is_continued(ln0) and line_is_comment_ext(ln1)):
-                if (i, i+1) not in swaps:
-                    # swap the code portions of lines[i] and lines[i+1]
-                    lines[i], lines[i + 1] = ln1, ln0
-                    swaps.add((i,i+1))  # to prevent infinite loops
-                else:
-                   # If we get here, there is a pair of adjacent lines that
-                   # are about to go into an infinite swap sequence; one of them
-                   # must be a comment.  We delete the comment.
-                   if line_is_comment_ext(ln0):
-                       lines.pop(i)
-                   else:
-                       assert line_is_comment_ext(ln1)
-                       lines.pop(i+1)
-                chg = True
-
-            i += 1
 
     # Merge continuation lines
     chg = True
@@ -181,14 +144,12 @@ def split_trailing_comment(line: str) -> str:
 def preprocess(lines):
     lines = [line for line in lines if line.rstrip() != ""]
     lines = separate_trailing_comments(lines)
-    lines = merge_continued_lines(lines)
     lines = discard_comments(lines)
+    lines = merge_continued_lines(lines)
     return lines
 
 def discard_line(line):
-    return (line is None or 
-            line.strip() == '' or
-            INTERNAL_COMMENT_PREFIX in line)
+    return (line is None or line.strip() == '')
 
 
 def process(inputLines: List[str]) -> str:
