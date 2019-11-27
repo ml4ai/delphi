@@ -69,6 +69,7 @@ MODULE_FILE_NAME = "modFileLog.json"
 """A file that holds log of all files with module(s)
 """
 
+
 def generate_ofp_xml(preprocessed_fortran_file, ofp_file, tester_call):
     """ This function executes Java command to run open
     fortran parser to generate initial AST XML from
@@ -266,7 +267,7 @@ def generate_python_src(
                     f.write(item[0])
                 python_files.append(main_python_file)
             except IOError:
-                assert False, f"Unable to write to {python_file_name}."
+                assert False, f"Unable to write to {main_python_file}."
 
     try:
         with open(output_file, "w") as f:
@@ -280,6 +281,7 @@ def generate_python_src(
             python_files.remove(f)
 
     return python_source
+
 
 def module_file_generator(item, temp_dir, output_list, python_files):
     """This function extracts a translated module from
@@ -387,8 +389,6 @@ def generate_grfn(
                                         module_mapper,
                                         original_fortran_file,
                                         mod_log_file_path,
-                                        save_file,
-                                        module_file_exist,
                                         module_import_paths
                 )
 
@@ -427,6 +427,7 @@ def generate_grfn(
         with open(grfn_file, "w") as file_handle:
             file_handle.write(json.dumps(grfn_dict, sort_keys=True, indent=2))
 
+
 def is_module_file(filename):
     """This function is to check whether the handling
     file is a module file or not.
@@ -440,6 +441,7 @@ def is_module_file(filename):
         return True
     else:
         return False
+
 
 def parse_args():
     """This function is for a safe command line
@@ -540,6 +542,7 @@ def cleanup_files(generated_file_paths):
         if os.path.isfile(filepath):
             os.remove(filepath)
 
+
 def log_generated_files(file_paths):
     """This function will add generated files' paths
     into the global list GENERATED_FILE_PATHS.
@@ -549,6 +552,7 @@ def log_generated_files(file_paths):
         None
     """
     GENERATED_FILE_PATHS.extend(file_paths)
+
 
 def indent(elem, level=0):
     """ This function indents each level of XML.
@@ -807,6 +811,7 @@ def fortran_to_grfn(
             processing_modules
         )
         python_file_num += 1
+
 
 if __name__ == "__main__":
     fortran_to_grfn()

@@ -17,9 +17,14 @@ class PrintState:
 
 class genCode:
     def __init__(self,
-                 lambda_string=""
+                 string_length=None,
+                 lambda_string="",
                  ):
         self.lambda_string = lambda_string
+        if string_length:
+            self.string_length = string_length
+        else:
+            self.string_length = None
 
         self.process_lambda_node = {
             "ast.FunctionDef": self.process_function_definition,
@@ -67,7 +72,7 @@ class genCode:
             "ast.NameConstant": self.process_name_constant,
         }
 
-    def generate_code(self, node, state):
+    def generate_code(self, node, state, length=None):
         """
             This function parses the ast node of the python file and generates
             python code relevant to the information in the ast. This is used as
@@ -347,20 +352,71 @@ class genCode:
                 code_string += "]"
             else:
                 # This is a String operation
+                module_parts = function_name.split('.')
+                module = module_parts[-1]
+                function = module_parts[0]
+
                 code_string = f"{function_name}("
                 if len(node.args) > 0:
                     arg_list = []
                     arg_count = len(node.args)
+                    if arg_count == 1 and \
+                       module == "set_":
+                        # This is a setter function for the string
+                        arg_string = self.generate_code(node.args[0],
+                                                        state)
+                        if arg_string[0] != '"' and arg_string[-1] != '"':
+                            # This is a variable assignment and not a direct
+                            # string assignment
+                            arg_string = f"{arg_string}[0:{self.string_length}]"
+                        code_string = f'{arg_string}.' \
+                                      f'ljust({self.string_length}, " ")'
+                        return code_string
+                    elif function_name == "String":
+                        # This is a String annotated assignment i.e.
+                        # String(10, "abcdef")
+                        arg_string = self.generate_code(node.args[1],
+                                                        state)
+                        code_string = f'{arg_string}.' \
+                                      f'ljust({self.string_length}, " ")'
+                        return code_string
+                    elif module == "f_index":
+                        # This is the f_index function
+                        find_string = self.generate_code(node.args[0],
+                                                         state)
+                        if arg_count == 1:
+                            code_string = f"{function}.find({find_string})+1"
+                        else:
+                            code_string = f"{function}.rfind({find_string})+1"
+                        return code_string
+                    elif module == "get_substr":
+                        start_id = self.generate_code(node.args[0],
+                                                      state)
+                        end_id = self.generate_code(node.args[1],
+                                                    state)
+                        code_string = f"{function}[{start_id}-1:{end_id}]"
+                        return code_string
+                    elif module == "set_substr":
+                        start_id = self.generate_code(node.args[0],
+                                                      state)
+                        end_id = self.generate_code(node.args[1],
+                                                    state)
+                        source_string = self.generate_code(node.args[2],
+                                                           state)
+                        new_index = f"{end_id}-{start_id}+1"
+                        prefix = f"{function_name}[:{start_id}-1]"
+                        suffix = f"{function_name}[{end_id}:]"
+                        new_string = f"{source_string}[:{new_index}]"
+
+                        code_string = f"{prefix}+{new_string}+{suffix}"
+                        return code_string
+
                     for arg_index in range(arg_count):
                         arg_string = self.generate_code(node.args[arg_index],
                                                         state)
-                        if ".f_index" in function_name and \
-                                arg_count > 1 and arg_index == arg_count - 1:
-                            arg_string = f"[{arg_string}]"
                         arg_list.append(arg_string)
                     code_string += ", ".join(arg_list)
                 code_string += ")"
-
         else:
             code_string = self.generate_code(node.args[1], state)
 
