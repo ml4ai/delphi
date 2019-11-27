@@ -2046,6 +2046,7 @@ class GrFNGenerator(object):
             # Below is a separate loop just for filling in inputs for arrays
             if array_set:
                 argument_list = []
+                need_lambdas = False
                 for arg in call["inputs"]:
                     for ip in arg:
                         if 'var' in ip:
@@ -2092,17 +2093,23 @@ class GrFNGenerator(object):
                     argument_list
                 )
 
-                lambda_string = self.generate_lambda_function(
-                    node,
-                    container_id_name,
-                    True,
-                    True,
-                    False,
-                    argument_list,
-                    state,
-                    False
-                )
-                state.lambda_strings.append(lambda_string)
+                if (
+                        need_lambdas
+                        and container_id_name not in
+                        self.generated_lambda_functions
+                ):
+                    lambda_string = self.generate_lambda_function(
+                        node,
+                        container_id_name,
+                        True,
+                        True,
+                        False,
+                        argument_list,
+                        state,
+                        False
+                    )
+                    state.lambda_strings.append(lambda_string)
+                    need_lambdas = False
 
             # Make an assign function for a string .set_ operation
             if string_set:
@@ -2330,6 +2337,10 @@ class GrFNGenerator(object):
                 None
             )
 
+            # If the source is a list inside of a list, remove the outer list
+            if len(sources) == 1 and isinstance(sources[0], list):
+                sources = sources[0]
+
             # TODO Somewhere around here, the Float32 class problem will have
             #  to be handled.
             fn = self.make_fn_dict(function_name, target, sources, state)
@@ -2448,7 +2459,7 @@ class GrFNGenerator(object):
                     self.strings[target_name]["annotation"] = False
                     self.strings[target_name]["annotation_assign"] = True
 
-            # Preprocessing and removing certain Assigns which only pertain
+            # Pre-processing and removing certain Assigns which only pertain
             # to the Python code and do not relate to the FORTRAN code in any
             # way.
             io_match = self.check_io_variables(target_name)
@@ -2753,6 +2764,12 @@ class GrFNGenerator(object):
 
     def make_source_list_dict(self, source_dictionary):
         source_list = []
+
+        # If the source is a list inside of a list, remove the outer list
+        if len(source_dictionary) == 1 and \
+                isinstance(source_dictionary[0], list):
+            source_dictionary = source_dictionary[0]
+
         for src in source_dictionary:
             if "var" in src:
                 if src["var"]["variable"] not in self.annotate_map:
@@ -2783,6 +2800,10 @@ class GrFNGenerator(object):
         io_source = False
         target_name = target["var"]["variable"]
         target_string = f"@variable::{target_name}::{target['var']['index']}"
+
+        # If the source is a list inside of a list, remove the outer list
+        if len(sources) == 1 and isinstance(sources[0], list):
+            sources = sources[0]
 
         for src in sources:
             # Check for a write to a file
