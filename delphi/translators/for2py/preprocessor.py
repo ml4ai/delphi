@@ -22,27 +22,13 @@ from delphi.translators.for2py.syntax import (
     line_is_comment,
     line_is_continuation,
     line_is_continued,
-    line_is_executable,
-    line_is_pgm_unit_end,
-    line_is_pgm_unit_separator,
-    line_is_pgm_unit_start,
-    program_unit_name,
 )
-
-
-# IGNORE_INTERNAL_COMMENTS: if set to True, internal comments are dropped.
-IGNORE_INTERNAL_COMMENTS = True
-
-# INTERNAL_COMMENT_PREFIX is a prefix used for marker variables associated
-# with comments internal to subprogram bodies.
-INTERNAL_COMMENT_PREFIX = "i_g_n_o_r_e___m_e_"
 
 
 def separate_trailing_comments(lines: List[str]) -> List[Tuple[int, str]]:
     """Given a list of Fortran source code linesseparate_trailing_comments()
        removes partial-line comments and returns the resulting list of lines.
     """
-
     i = 0
     while i < len(lines):
         code_line = lines[i]
@@ -60,6 +46,7 @@ def merge_continued_lines(lines):
        merges sequences of lines that are indicated to be continuation lines
        and returns the resulting list of source lines.
     """
+    print(">>> lines: {}".format(lines))
     chg = True
     while chg:
         chg = False
@@ -89,7 +76,7 @@ def merge_continued_lines(lines):
                 chg = True
 
             i += 1
-
+    print("<<< lines: {}".format(lines))
     return lines
 
 
@@ -147,9 +134,7 @@ def preprocess(lines):
     return lines
 
 def discard_line(line):
-    return (line is None or 
-            line.strip() == '' or
-            INTERNAL_COMMENT_PREFIX in line)
+    return (line is None or line.strip() == '')
 
 
 def process(inputLines: List[str]) -> str:
