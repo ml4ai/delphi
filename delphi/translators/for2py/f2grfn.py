@@ -389,6 +389,7 @@ def generate_grfn(
                                         module_mapper,
                                         original_fortran_file,
                                         mod_log_file_path,
+                                        module_file_exist,
                                         module_import_paths
                 )
 
