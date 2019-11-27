@@ -149,6 +149,7 @@ class GrFNGenerator(object):
         self.current_d_object_name = None
         # Currently handling derived type object's accessing attributes
         self.current_d_object_attributes = []
+        self.is_d_object_array_assign = False
 
         self.gensym_tag_map = {
             "container": 'c',
@@ -1909,22 +1910,51 @@ class GrFNGenerator(object):
 
             # A handler for array and string <.set_>/<.set_substr> function
             if ".set_" in function_name:
-                call_var, method = function_name.split(".")
+                split_function = function_name.split(".")
+                is_derived_type_array_ref = False
+                if (
+                        len(split_function) > 2
+                        and split_function[0] == self.current_d_object_name
+                ):
+                    d_object = split_function[0]
+                    call_var = split_function[1]
+                    method = split_function[2]
+                    is_derived_type_array_ref = True
+                else:
+                    call_var = split_function[0]
+                    method = split_function[1]
                 # This is an array
                 if len(call["inputs"]) > 1 and method != "set_substr":
                     array_set = True
                     function_name = function_name.replace(".set_", "")
-                    input_index = self.get_last_definition(
-                        function_name,
-                        state.last_definitions,
-                        state.last_definition_default
-                    )
-                    output_index = self._get_next_definition(
-                        function_name,
-                        state.last_definitions,
-                        state.next_definitions,
-                        state.last_definition_default
-                    )
+                    for idx in range(0,len(split_function)-1):
+                        input_index = self.get_last_definition(
+                            split_function[idx],
+                            state.last_definitions,
+                            state.last_definition_default
+                        )
+                        output_index = self._get_next_definition(
+                            split_function[idx],
+                            state.last_definitions,
+                            state.next_definitions,
+                            state.last_definition_default
+                        )
+                    if is_derived_type_array_ref:
+                        function_name = function_name.replace(".", "_")
+                        input_index = self.get_last_definition(
+                            function_name,
+                            state.last_definitions,
+                            state.last_definition_default
+                        )
+                        output_index = self._get_next_definition(
+                            function_name,
+                            state.last_definitions,
+                            state.next_definitions,
+                            state.last_definition_default
+                        )
+                        state.variable_types[function_name] = state.variable_types[call_var]
+                        self.arrays[function_name] = self.arrays[call_var]
+
                     arr_index = self._generate_array_index(node)
                     str_arr_index = ""
                     str_arr_for_varname = ""
@@ -1939,6 +1969,10 @@ class GrFNGenerator(object):
                     # Create a new variable spec for indexed array. Ex.
                     # arr(i) will be arr_i. This will be added as a new
                     # variable in GrFN.
+                    # DEBUG
+                    print ("    * function_name: ", function_name)
+                    print ("    * str_arr_for_varname: ", str_arr_for_varname)
+                    print ("    * state.last_definitions: ", state.last_definitions)
                     variable_spec = self.generate_variable_definition(
                         [function_name], str_arr_for_varname, False, state)
                     grfn["variables"].append(variable_spec)
@@ -2068,6 +2102,8 @@ class GrFNGenerator(object):
                         )
                         state.lambda_strings.append(lambda_string)
                 else:
+                    # DEBUG
+                    print ("    * self.arrays: ", self.arrays)
                     if function_name in self.arrays:
                         # If array type is <float> the argument holder
                         # has a different structure that it does not hold
@@ -2411,7 +2447,6 @@ class GrFNGenerator(object):
                     False
                 )
                 state.lambda_strings.append(lambda_string)
-
             # In the case of assignments of the form: "ud: List[float]"
             # an assignment function will be created with an empty input
             # list. Also, the function dictionary will be empty. We do
@@ -2721,7 +2756,6 @@ class GrFNGenerator(object):
             ):
                 return []
             function_node = node.func
-
             # The `function_node` can be a ast.Name (e.g. Format(format_10)
             # where `format_10` will be an ast.Name or it can have another
             # ast.Attribute (e.g. Format(main.file_10.readline())).
@@ -2733,8 +2767,12 @@ class GrFNGenerator(object):
                 function_name = module + "." + function_name
             elif isinstance(function_node.value, ast.Attribute):
                 module = self.gen_grfn(function_node.value, state, "call")
-                function_name = function_node.attr
-                function_name = module + "." + function_name
+                function_name = ""
+                func_name = function_node.attr
+                if self.is_d_object_array_assign:
+                    function_name = self.current_d_object_name + "."
+                    self.is_d_object_array_assign = False
+                function_name += module + "." + func_name
             else:
                 assert False, f"Invalid expression call {function_node}"
         else:
@@ -2799,6 +2837,11 @@ class GrFNGenerator(object):
         # handling. E.g. format_10_obj.read_line(main.file_10.readline())).
         # Here, main.file_10.readline is
         if call_source == "call":
+            if (
+                isinstance(node.value, ast.Name)
+                and node.value.id == self.current_d_object_name
+            ):
+                self.is_d_object_array_assign = True
             module = node.attr
             return module
         # When a computations float value is extracted using the Float32
@@ -3389,6 +3432,8 @@ class GrFNGenerator(object):
                 argument_strings.append(f"{ip}: {annotation}")
             # Currently, this is for array specific else case.
             else:
+                # DEBUG
+                print ("    * ip: ", ip)
                 argument_strings.append(ip)
                 lambda_for_var = True
 
@@ -3555,6 +3600,10 @@ class GrFNGenerator(object):
         if variable in self.arrays:
             domain_dictionary = self.arrays[variable]
         else:
+            # DEBUG
+            print ("    * variable: ", variable)
+            print ("    * state.variable_types: ", state.variable_types)
+            print ("    * self.module_variable_types: ", self.module_variable_types)
             if variable in state.variable_types:
                 variable_type = state.variable_types[variable]
             elif variable in self.module_variable_types:
@@ -3741,7 +3790,14 @@ class GrFNGenerator(object):
             Returns:
                 (list) function: A completed list of function.
         """
-        argument_list = [name]
+        if "_" in name:
+            names = name.split("_")
+            if names[0] in self.current_d_object_name:
+                argument_list = [names[0]]
+            else:
+                argument_list = [name]
+        else:
+            argument_list = [name]
         # Array index is always one of
         # the lambda function argument
         for idx in arr_index:
@@ -3752,7 +3808,7 @@ class GrFNGenerator(object):
                 argument_list.append(idx)
         # For array setter value handler
         for var in arg[0]["call"]["inputs"][0]:
-            # If an input is a simple variable
+            # If an input is a simple variable.
             if "var" in var:
                 var_name = var['var']['variable']
                 if var_name not in argument_list:
@@ -3769,7 +3825,7 @@ class GrFNGenerator(object):
                 else:
                     # It's not an error, so just pass it.
                     pass
-            # If an input is an array (for now).
+            # If an input is an array.
             elif "call" in var:
                 ref_call = var["call"]
                 if ".get_" in ref_call["function"]:
@@ -3803,6 +3859,10 @@ class GrFNGenerator(object):
             False
         )
         state.lambda_strings.append(lambda_string)
+
+
+        # DEBUG
+        print ("    * lambda_string:\n", lambda_string)
 
         return function
 
