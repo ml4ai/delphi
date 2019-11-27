@@ -215,6 +215,12 @@ class GrFNGenerator(object):
             ast.LtE,
         )
 
+        # List of helper library types
+        self.library_types = [
+            "Array",
+            "String"
+        ]
+
         # Regular expression to match python statements that need to be
         # bypassed in the GrFN and lambda files. Currently contains I/O
         # statements.
@@ -2023,13 +2029,10 @@ class GrFNGenerator(object):
                             node, function, arg,
                             function_name, container_id_name,
                             arr_index, state)
-                        generate_lambda_for_arr = True
                     # This is a case where a literal gets assigned to an array.
                     # For example, arr(i) = 100.
                     elif "type" in arg[0] and array_set:
                         generate_lambda_for_arr = True
-
-                    if generate_lambda_for_arr:
                         lambda_string = self.generate_lambda_function(
                             node,
                             container_id_name,
@@ -2041,8 +2044,14 @@ class GrFNGenerator(object):
                             state,
                             False
                         )
+                        # DEBUG
+                        print ("    * lambda_string:")
+                        print (lambda_string)
                         state.lambda_strings.append(lambda_string)
                 else:
+                    # DEBUG
+                    print ("    * function_name: ", function_name)
+                    print ("    * self.arrays: ", self.arrays)
                     if function_name in self.arrays:
                         # If array type is <float> the argument holder
                         # has a different structure that it does not hold
@@ -2519,12 +2528,9 @@ class GrFNGenerator(object):
                 if target["var"]["index"] == -1:
                     target["var"]["index"] = 0
                     state.last_definitions[target_names[0]] = 0
-
-                if var_name in self.variable_map and \
-                        self.variable_map[var_name]["parameter"]:
-                    is_mutable = True
-                else:
-                    is_mutable = False
+                # DEBUG
+                print ("    self.arrays: ", self.arrays)
+                is_mutable = True
                 array_info = {
                     "index": target["var"]["index"],
                     "dimensions": array_dimensions,
@@ -2678,6 +2684,8 @@ class GrFNGenerator(object):
         # math.exp, math.cos, etc). The `module` part here is captured by the
         # attribute tag.
         if isinstance(node.func, ast.Attribute):
+            # DEBUG
+            print ("    * process_call: ", ast.dump(node.func))
             # Check if there is a <sys> call. Bypass it if exists.
             if isinstance(node.func.value, ast.Attribute) and \
                     node.func.value.value.id == "sys":
@@ -2853,9 +2861,14 @@ class GrFNGenerator(object):
         self.derived_types.append(node.name)
         self.derived_types_attributes[node.name] = []
 
+        # DEBUG
+        print ("    * process_class_def - node: ", dump_ast(node))
+        print ("    * process_class_def - self.derived_types: ", self.derived_types)
+
         attributes = node.body[0].body
         # Populate class memeber variables into attributes array.
         for attrib in attributes:
+            attrib_is_array = False
             attrib_ast = attrib.__repr__().split()[0][2:]
             if attrib_ast == "ast.AnnAssign":
                 attrib_name = attrib.target.attr
@@ -2863,15 +2876,52 @@ class GrFNGenerator(object):
             elif attrib_ast == "ast.Assign":
                 attrib_name = attrib.targets[0].attr
                 attrib_type = attrib.value.func.id
+                # DEBUG
+                print ("    * process_class_def - attrib_type: ", attrib_type)
                 assert (
                         attrib_type in self.derived_types
+                        or attrib_type in self.library_types
                 ), f"User-defined type [{attrib_type}] does not exist."
-            grfn["attributes"].append({"name": attrib_name, "type": attrib_type})
-            # Keep a track of derived type attributes (member variables).
+
+                if attrib_type == "Array":
+                    attrib_is_array = True
+
+            if attrib_is_array:
+                elem_type = attrib.value.args[0].id
+                # TODO: Currently, derived type array attributes are assumed
+                # to be a single dimensional array with integer type. It maybe
+                # appropriate to handle a multi-dimensional with variable used
+                # as a dimension size.
+                dimension_info = attrib.value.args[1]
+                lower_bound = int(dimension_info.elts[0].elts[0].n)
+                upper_bound = int(dimension_info.elts[0].elts[1].n)
+                dimension = (upper_bound - lower_bound) + 1
+                dimensions = [dimension]
+
+                grfn["attributes"].append({
+                                            "name": attrib_name,
+                                            "type": attrib_type,
+                                            "elem_type": elem_type,
+                                            "dimensions": dimensions
+                })
+                # Here index is not needed for derived type attributes,
+                # but simply adding it as a placeholder to make a constant
+                # structure with other arrays.
+                self.arrays[attrib_name] = {
+                                            "index": 0,
+                                            "dimensions": dimensions,
+                                            "elem_type": elem_type,
+                                            "mutable": True
+
+                }
+            else:
+                grfn["attributes"].append({"name": attrib_name, "type": attrib_type})
+                pass
             self.derived_types_attributes[node.name].append(attrib_name)
 
             state.variable_types[attrib_name] = attrib_type
-
+        # DEBUG
+        print ("    * process_class_def - grfn: ", grfn)
         return [grfn]
 
     @staticmethod
@@ -3331,6 +3381,8 @@ class GrFNGenerator(object):
                                                        PrintState("\n    ")
                                                        )
         if return_value:
+            # DEBUG
+            print ("    * returned code: ", code)
             if array_assign:
                 lambda_strings.append(f"{self.array_assign_name} = {code}\n")
                 lambda_strings.append(f"    return {self.array_assign_name}")
@@ -3666,7 +3718,7 @@ class GrFNGenerator(object):
             Returns:
                 (list) function: A completed list of function.
         """
-        argument_list = list()
+        argument_list = [name]
         # Array index is always one of
         # the lambda function argument
         for idx in arr_index:
