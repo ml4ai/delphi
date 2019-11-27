@@ -2005,8 +2005,6 @@ class GrFNGenerator(object):
                             state,
                             False
                         )
-                        # DEBUG
-                        print (lambda_string)
                         state.lambda_strings.append(lambda_string)
                 else:
                     if function_name in self.arrays:
