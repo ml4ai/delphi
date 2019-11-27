@@ -137,11 +137,11 @@ def process(inputLines: List[str]) -> str:
     """process() provides the interface used by an earlier version of this
        preprocessor."""
     lines = preprocess(inputLines)
-    actual_lines = [
-        line
-        for line in lines
-        if not discard_line(line)
-    ]
+    #actual_lines = [
+    #    line
+    #    for line in lines
+    #    if not discard_line(line)
+    #]
     return "".join(lines)
 
 
