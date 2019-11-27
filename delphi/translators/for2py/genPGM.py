@@ -1729,6 +1729,7 @@ class GrFNGenerator(object):
                 state,
                 False
             )
+
             state.lambda_strings.append(lambda_string)
 
             grfn["functions"].append(fn)
@@ -1993,6 +1994,7 @@ class GrFNGenerator(object):
                     if (
                             generate_lambda_for_arr
                     ):
+                        argument_list.append(function_name)
                         lambda_string = self.generate_lambda_function(
                             node,
                             container_id_name,
@@ -2003,6 +2005,8 @@ class GrFNGenerator(object):
                             state,
                             False
                         )
+                        # DEBUG
+                        print (lambda_string)
                         state.lambda_strings.append(lambda_string)
                 else:
                     if function_name in self.arrays:
@@ -2072,18 +2076,6 @@ class GrFNGenerator(object):
                 argument_list = self._remove_duplicate_from_list(
                     argument_list
                 )
-
-                lambda_string = self.generate_lambda_function(
-                    node,
-                    container_id_name,
-                    True,
-                    True,
-                    False,
-                    argument_list,
-                    state,
-                    False
-                )
-                state.lambda_strings.append(lambda_string)
 
             # Make an assign function for a string .set_ operation
             if string_set:
@@ -3399,7 +3391,7 @@ class GrFNGenerator(object):
             Returns:
                 (list) function: A completed list of function.
         """
-        argument_list = list()
+        argument_list = [name]
         # Array index is always one of
         # the lambda function argument
         for idx in arr_index:
@@ -3447,6 +3439,7 @@ class GrFNGenerator(object):
                     else:
                         # It's not an error, so just pass it.
                         pass
+
         # Generate lambda function for array[index]
         lambda_string = self.generate_lambda_function(
             node,
