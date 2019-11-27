@@ -15,6 +15,7 @@ Author:
     Saumya Debray
 """
 
+import os
 import sys
 from collections import OrderedDict
 from typing import List, Dict, Tuple
@@ -24,6 +25,18 @@ from delphi.translators.for2py.syntax import (
     line_is_continued,
 )
 
+
+def expand_leading_tabs(lines):
+    """ For each line, expand_leading_tabs() replaces a leading tab with
+        six blanks.
+    """
+    for i in range(len(lines)):
+        line = lines[i]
+        if line[0] == '\t':
+            lines[i] = '      ' + line[1:]
+
+    return lines
+    
 
 def separate_trailing_comments(lines: List[str]) -> List[Tuple[int, str]]:
     """Given a list of Fortran source code linesseparate_trailing_comments()
@@ -41,10 +54,13 @@ def separate_trailing_comments(lines: List[str]) -> List[Tuple[int, str]]:
     return lines
 
 
-def merge_continued_lines(lines):
+def merge_continued_lines(lines, f_ext):
     """Given a list of Fortran source code lines, merge_continued_lines() 
        merges sequences of lines that are indicated to be continuation lines
-       and returns the resulting list of source lines.
+       and returns the resulting list of source lines.  The argument f_ext
+       gives the file extension of the input file: this determines whether
+       we have fixed-form or free-form syntax, which determines how 
+       continuation lines are written.  
     """
     chg = True
     while chg:
@@ -52,8 +68,10 @@ def merge_continued_lines(lines):
         i = 0
         while i < len(lines):
             line = lines[i]
-            if line_is_continuation(line):
-                assert i > 0
+            if line_is_continuation(line, f_ext):
+                if i == 0:
+                    print("line: {}, CONT: {}, CHAR = '{}'".format(line, line_is_continuation(line, f_ext), line[5]))
+                assert i > 0, "Weird continuation line (line {}): {}".format(i+1, line)
                 prev_line_code = lines[i - 1]
                 curr_line_code = line.lstrip()[1:]  # remove continuation  char
                 merged_code = prev_line_code.rstrip() + \
@@ -125,25 +143,27 @@ def split_trailing_comment(line: str) -> str:
     return (line, None)
 
 
-def preprocess(lines):
+def preprocess(lines, infile):
+    _, f_ext = os.path.splitext(infile)
     lines = [line for line in lines if line.rstrip() != ""]
+    lines = expand_leading_tabs(lines)
     lines = separate_trailing_comments(lines)
     lines = discard_comments(lines)
-    lines = merge_continued_lines(lines)
+    lines = merge_continued_lines(lines, f_ext)
     return lines
 
 
-def process(inputLines: List[str]) -> str:
+def process(inputLines: List[str], infile: str) -> str:
     """process() provides the interface used by an earlier version of this
        preprocessor."""
-    lines = preprocess(inputLines)
+    lines = preprocess(inputLines, infile)
     return "".join(lines)
 
 
 def preprocess_file(infile):
     with open(infile, mode="r", encoding="latin-1") as f:
         inputLines = f.readlines()
-        lines = preprocess(inputLines)
+        lines = preprocess(inputLines, infile)
         return lines
 
 
@@ -156,6 +176,5 @@ if __name__ == "__main__":
     lines = preprocess_file(infile)
 
     with open(outfile, "w") as f:
-        for _, line in lines:
-            if line is not None:
-                f.write(line)
+        for line in lines:
+            f.write(line)

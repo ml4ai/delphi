@@ -197,12 +197,16 @@ def program_unit_name(line:str) -> str:
    assert match is not None
    return match.group(2)
 
-def line_is_continuation(line: str) -> bool:
+
+FIXED_FORM_EXT = ('.f', '.for')
+
+def line_is_continuation(line: str, f_ext: str) -> bool:
     """
     Args:
         line
     Returns:
-        True iff line is a continuation line, else False.
+        True iff line is a continuation line, else False.  Currently this
+        is used only for fixed-form input files (f_ext in ('.f', '.for')
     """
 
     if line_is_comment(line):
@@ -210,7 +214,7 @@ def line_is_continuation(line: str) -> bool:
 
     #llstr = line.lstrip()
     #return len(llstr) > 0 and llstr[0] == "&"
-    return (len(line) > 5 and line[5] != ' ')
+    return (f_ext in FIXED_FORM_EXT and len(line) > 5 and line[5] != ' ')
 
 
 def line_is_continued(line: str) -> bool:
