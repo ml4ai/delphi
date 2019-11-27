@@ -20,7 +20,6 @@ from collections import OrderedDict
 from typing import List, Dict, Tuple
 from delphi.translators.for2py.syntax import (
     line_is_comment,
-    line_is_comment_ext,
     line_is_continuation,
     line_is_continued,
     line_is_executable,
@@ -40,14 +39,8 @@ INTERNAL_COMMENT_PREFIX = "i_g_n_o_r_e___m_e_"
 
 
 def separate_trailing_comments(lines: List[str]) -> List[Tuple[int, str]]:
-    """Given a list of numbered Fortran source code lines, i.e., pairs of the
-       form (n, code_line) where n is a line number and code_line is a line
-       of code, separate_trailing_comments() behaves as follows: for each
-       pair (n, code_line) where code_line can be broken into two parts -- a
-       code portion code_part and a trailing comment portion comment_part, such
-       that code_part and comment_part are both non-empty, it replaces the
-       pair (n, code_line) by two pairs (n, comment_part) and (n, code_part).
-       The return value is the resulting list of numbered lines.
+    """Given a list of Fortran source code linesseparate_trailing_comments()
+       removes partial-line comments and returns the resulting list of lines.
     """
 
     i = 0
@@ -63,10 +56,9 @@ def separate_trailing_comments(lines: List[str]) -> List[Tuple[int, str]]:
 
 
 def merge_continued_lines(lines):
-    """Given a list of numered Fortran source code lines, i.e., pairs of the
-       form (n, code_line) where n is a line number and code_line is a line
-       of code, merge_continued_lines() merges sequences of lines that are
-       indicated to be continuation lines.
+    """Given a list of Fortran source code lines, merge_continued_lines() 
+       merges sequences of lines that are indicated to be continuation lines
+       and returns the resulting list of source lines.
     """
     chg = True
     while chg:
