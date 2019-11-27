@@ -46,7 +46,6 @@ def merge_continued_lines(lines):
        merges sequences of lines that are indicated to be continuation lines
        and returns the resulting list of source lines.
     """
-    print(">>> lines: {}".format(lines))
     chg = True
     while chg:
         chg = False
@@ -76,12 +75,12 @@ def merge_continued_lines(lines):
                 chg = True
 
             i += 1
-    print("<<< lines: {}".format(lines))
     return lines
 
 
 def discard_comments(lines):
-    return [line for line in lines if not line_is_comment(line)]
+    return [line for line in lines 
+                 if not (line_is_comment(line) or line.strip() == '')]
 
 
 def split_trailing_comment(line: str) -> str:
@@ -132,9 +131,6 @@ def preprocess(lines):
     lines = discard_comments(lines)
     lines = merge_continued_lines(lines)
     return lines
-
-def discard_line(line):
-    return (line is None or line.strip() == '')
 
 
 def process(inputLines: List[str]) -> str:
