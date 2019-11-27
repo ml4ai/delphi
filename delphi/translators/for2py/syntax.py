@@ -34,18 +34,6 @@ def line_is_comment(line: str) -> bool:
     return (line[0] in "cCdD*!")
 
 
-def line_is_comment_ext(line: str) -> bool:
-    """
-        line_is_comment_ext(line) returns True iff line is a comment
-        (as defined above in line_is_comment(), or if it is a blank line,
-        or if it is whitespace followed by an internal comment marker.
-    """
-
-    return (line[0] in "cCdD*!"
-            or re.match(r"\s*!", line) is not None
-            or line.strip() == '')
-
-
 ################################################################################
 #                                                                              #
 #                           FORTRAN LINE PROCESSING                            #
@@ -209,19 +197,31 @@ def program_unit_name(line:str) -> str:
    assert match is not None
    return match.group(2)
 
-def line_is_continuation(line: str) -> bool:
+
+FIXED_FORM_EXT = ('.f', '.for')
+
+def line_is_continuation(line: str, f_ext: str) -> bool:
     """
     Args:
         line
     Returns:
-        True iff line is a continuation line, else False.
+        True iff line is a continuation line, else False.  Currently this
+        is used only for fixed-form input files, i.e., f_ext in ('.f', '.for')
     """
 
     if line_is_comment(line):
         return False
 
-    llstr = line.lstrip()
-    return len(llstr) > 0 and llstr[0] == "&"
+    if f_ext in FIXED_FORM_EXT:
+        if line[0] == '\t':
+            return (line[1] in "123456789")
+        else:
+            return (len(line) > 5 and not (line[5] == ' ' or line[5] == '0'))
+ 
+    if line[0] == '&':
+        return True
+
+    return False
 
 
 def line_is_continued(line: str) -> bool:

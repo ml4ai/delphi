@@ -46,6 +46,7 @@ Example:
     corresponding entries in the comment dictionary are [].
 """
 
+import os
 import sys
 import re
 from collections import OrderedDict
@@ -77,6 +78,8 @@ def get_comments(src_file_name: str):
     comments["$file_head"] = []
     comments["$file_foot"] = []
 
+    _, f_ext = os.path.splitext(src_file_name)
+
     with open(src_file_name, "r", encoding="latin-1") as f:
         for line in f:
             if line_is_comment(line):
@@ -102,7 +105,7 @@ def get_comments(src_file_name: str):
                     in_neck = True
                 elif line_ends_subpgm(line):
                     curr_comment = []
-                elif line_is_continuation(line):
+                elif line_is_continuation(line, f_ext):
                     lineno += 1
                     continue
                 else:
