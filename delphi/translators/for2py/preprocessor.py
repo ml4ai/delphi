@@ -161,7 +161,7 @@ def process(inputLines: List[str]) -> str:
         for line in lines
         if not discard_line(line)
     ]
-    return "".join(actual_lines)
+    return "".join(alines)
 
 
 def preprocess_file(infile, outfile):
