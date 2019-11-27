@@ -213,15 +213,12 @@ def line_is_continuation(line: str, f_ext: str) -> bool:
         return False
 
     if f_ext in FIXED_FORM_EXT:
-        if line[0] == '\t' and line[1] in "123456789":
-            return True
-
+        if line[0] == '\t':
+            return (line[1] in "123456789")
+        else:
+            return (len(line) > 5 and not (line[5] == ' ' or line[5] == '0'))
+ 
     if line[0] == '&':
-        return True
-
-    if f_ext in FIXED_FORM_EXT \
-            and len(line) > 5 \
-            and not (line[5] == ' ' or line[5] == '0'):
         return True
 
     return False
