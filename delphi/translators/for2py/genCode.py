@@ -324,8 +324,13 @@ class genCode:
             function_node = node.func
             if not isinstance(function_node.value, ast.Attribute):
                 module = function_node.value.id
-            else:
+            elif isinstance(node.func.value.value, ast.Name):
                 module = function_node.value.value.id
+            elif isinstance(node.func.value.value, ast.Call):
+                call = node.func.value.value
+                module = call.func.value.id
+                # DEBUG
+                print(" & node.func.value.value: ", ast.dump(node.func.value.value))
             function_name = function_node.attr
             function_name = module + "." + function_name
         else:
