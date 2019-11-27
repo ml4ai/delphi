@@ -1969,10 +1969,6 @@ class GrFNGenerator(object):
                     # Create a new variable spec for indexed array. Ex.
                     # arr(i) will be arr_i. This will be added as a new
                     # variable in GrFN.
-                    # DEBUG
-                    print ("    * function_name: ", function_name)
-                    print ("    * str_arr_for_varname: ", str_arr_for_varname)
-                    print ("    * state.last_definitions: ", state.last_definitions)
                     variable_spec = self.generate_variable_definition(
                         [function_name], str_arr_for_varname, False, state)
                     grfn["variables"].append(variable_spec)
@@ -2102,8 +2098,6 @@ class GrFNGenerator(object):
                         )
                         state.lambda_strings.append(lambda_string)
                 else:
-                    # DEBUG
-                    print ("    * self.arrays: ", self.arrays)
                     if function_name in self.arrays:
                         # If array type is <float> the argument holder
                         # has a different structure that it does not hold
@@ -3432,8 +3426,6 @@ class GrFNGenerator(object):
                 argument_strings.append(f"{ip}: {annotation}")
             # Currently, this is for array specific else case.
             else:
-                # DEBUG
-                print ("    * ip: ", ip)
                 argument_strings.append(ip)
                 lambda_for_var = True
 
@@ -3452,6 +3444,10 @@ class GrFNGenerator(object):
             )
         if return_value:
             if array_assign:
+                if "_" in state.array_assign_name:
+                    names = state.array_assign_name.split("_")
+                    if names[0] == self.current_d_object_name:
+                        state.array_assign_name = state.array_assign_name.replace("_", ".")
                 lambda_strings.append(f"{state.array_assign_name} = {code}\n")
                 lambda_strings.append(f"    return {state.array_assign_name}")
                 state.array_assign_name = None
@@ -3600,10 +3596,6 @@ class GrFNGenerator(object):
         if variable in self.arrays:
             domain_dictionary = self.arrays[variable]
         else:
-            # DEBUG
-            print ("    * variable: ", variable)
-            print ("    * state.variable_types: ", state.variable_types)
-            print ("    * self.module_variable_types: ", self.module_variable_types)
             if variable in state.variable_types:
                 variable_type = state.variable_types[variable]
             elif variable in self.module_variable_types:
@@ -3792,7 +3784,7 @@ class GrFNGenerator(object):
         """
         if "_" in name:
             names = name.split("_")
-            if names[0] in self.current_d_object_name:
+            if names[0] == self.current_d_object_name:
                 argument_list = [names[0]]
             else:
                 argument_list = [name]
@@ -3859,10 +3851,6 @@ class GrFNGenerator(object):
             False
         )
         state.lambda_strings.append(lambda_string)
-
-
-        # DEBUG
-        print ("    * lambda_string:\n", lambda_string)
 
         return function
 
