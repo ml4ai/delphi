@@ -212,8 +212,20 @@ def line_is_continuation(line: str, f_ext: str) -> bool:
     if line_is_comment(line):
         return False
 
-    return (line[0] == '&'
-            or (f_ext in FIXED_FORM_EXT and len(line) > 5 and line[5] != ' '))
+    if f_ext in FIXED_FORM_EXT:
+        if line[0] == '\t' and line[1] in "123456789":
+            return True
+
+    if line[0] == '&':
+        return True
+
+    if f_ext in FIXED_FORM_EXT 
+            and len(line) > 5 
+            and line[5] != ' '
+            and line[5] != '0':
+        return True
+
+    return False
 
 
 def line_is_continued(line: str) -> bool:
