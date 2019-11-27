@@ -137,23 +137,15 @@ def process(inputLines: List[str]) -> str:
     """process() provides the interface used by an earlier version of this
        preprocessor."""
     lines = preprocess(inputLines)
-    #actual_lines = [
-    #    line
-    #    for line in lines
-    #    if not discard_line(line)
-    #]
     return "".join(lines)
 
 
-def preprocess_file(infile, outfile):
+def preprocess_file(infile):
     with open(infile, mode="r", encoding="latin-1") as f:
         inputLines = f.readlines()
         lines = preprocess(inputLines)
+        return lines
 
-    with open(outfile, "w") as f:
-        for _, line in lines:
-            if line is not None:
-                f.write(line)
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
@@ -161,5 +153,9 @@ if __name__ == "__main__":
         sys.exit(1)
 
     infile, outfile = sys.argv[1], sys.argv[2]
-    preprocess_file(infile, outfile)
+    lines = preprocess_file(infile)
 
+    with open(outfile, "w") as f:
+        for _, line in lines:
+            if line is not None:
+                f.write(line)
