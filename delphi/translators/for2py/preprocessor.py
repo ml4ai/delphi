@@ -52,12 +52,11 @@ def separate_trailing_comments(lines: List[str]) -> List[Tuple[int, str]]:
 
     i = 0
     while i < len(lines):
-        (n, code_line) = lines[i]
+        code_line = lines[i]
         if not line_is_comment(code_line):
             (code_part, comment_part) = split_trailing_comment(code_line)
             if comment_part is not None:
-                lines[i] = (n, comment_part)
-                lines.insert(i + 1, (n, code_part))
+                lines[i] = code_part
         i += 1
 
     return lines
@@ -80,20 +79,20 @@ def merge_continued_lines(lines):
         i = 0
         while i < len(lines) - 1:
             ln0, ln1 = lines[i], lines[i + 1]
-            if (line_is_comment_ext(ln0[1]) and line_is_continuation(ln1[1])) \
-               or (line_is_continued(ln0[1]) and line_is_comment_ext(ln1[1])):
+            if (line_is_comment_ext(ln0) and line_is_continuation(ln1)) \
+               or (line_is_continued(ln0) and line_is_comment_ext(ln1)):
                 if (i, i+1) not in swaps:
                     # swap the code portions of lines[i] and lines[i+1]
-                    lines[i], lines[i + 1] = (ln0[0], ln1[1]), (ln1[0], ln0[1])
+                    lines[i], lines[i + 1] = ln1, ln0
                     swaps.add((i,i+1))  # to prevent infinite loops
                 else:
                    # If we get here, there is a pair of adjacent lines that
                    # are about to go into an infinite swap sequence; one of them
                    # must be a comment.  We delete the comment.
-                   if line_is_comment_ext(ln0[1]):
+                   if line_is_comment_ext(ln0):
                        lines.pop(i)
                    else:
-                       assert line_is_comment_ext(ln1[1])
+                       assert line_is_comment_ext(ln1)
                        lines.pop(i+1)
                 chg = True
 
@@ -106,27 +105,25 @@ def merge_continued_lines(lines):
         i = 0
         while i < len(lines):
             line = lines[i]
-            if line_is_continuation(line[1]):
+            if line_is_continuation(line):
                 assert i > 0
-                (prev_linenum, prev_line_code) = lines[i - 1]
-                curr_line_code = line[1].lstrip()[
-                    1:
-                ]  # remove continuation  char
+                prev_line_code = lines[i - 1]
+                curr_line_code = line.lstrip()[1:]  # remove continuation  char
                 merged_code = prev_line_code.rstrip() + \
                               " " + \
                               curr_line_code.lstrip() + \
                               "\n"
-                lines[i - 1] = (prev_linenum, merged_code)
+                lines[i - 1] = merged_code
                 lines.pop(i)
                 chg = True
-            elif line_is_continued(line[1]):
+            elif line_is_continued(line):
                 assert i < len(lines)-1  # there must be a next line
-                (next_linenum, next_line_code) = lines[i + 1]
-                curr_line_code = line[1].rstrip()[
+                next_line_code = lines[i + 1]
+                curr_line_code = line.rstrip()[
                     :-1
                 ].rstrip()  # remove continuation  char
                 merged_code = curr_line_code + " " + next_line_code.lstrip()
-                lines[i] = (i, merged_code)
+                lines[i] = merged_code
                 lines.pop(i+1)
                 chg = True
 
@@ -135,130 +132,8 @@ def merge_continued_lines(lines):
     return lines
 
 
-def merge_adjacent_comment_lines(lines):
-    """Given a list of numered Fortran source code lines, i.e., pairs of the
-       form (n, code_line) where n is a line number and code_line is a line
-       of code, merge_adjacent_comment_lines() merges sequences of lines that are
-       indicated to be comment lines.
-    """
-
-    i = 0
-    while i < len(lines)-1:
-        lnum, line = lines[i]
-        if line_is_comment(line):
-            j = i+1
-            while j < len(lines) and line_is_comment(lines[j][1]):
-                line += lines[j][1]
-                lines.pop(j)
-                # pop() removes a line so lines[j] now refers to the next line
-
-            lines[i] = (lnum, line)
-        i += 1
-
-    return lines
-
-
-# We use a finite-state machine to keep track of where the line currently
-# being processed sits w.r.t. the structure of the code; this affects how
-# comments should be handled.  The FSM has the following set of states:
-#
-#     { "outside", "in_neck", "in_body" }.
-#
-# Here, "outside" refers to program points outside any program unit such as
-# programs, subprograms, or modules; "in_neck" refers to the portion of
-# code within a subprogram between the subprogram header and the first line
-# of executable code; and "in_body" refers to the portion of the code between
-# the first line of executable code and the end of the subprogram.
-#
-# State transitions for the FSM are given by the dictionary TRANSITIONS;
-# here "comment", "pgm_unit_start", "exec_stmt", etc., relate to the nature of
-# the line being processed.
-
-TRANSITIONS = {
-    "outside": {
-        "comment": "outside",
-	"empty" : "outside",
-        "pgm_unit_start": "in_neck",
-        "pgm_unit_end": "outside",
-        "other" : "outside",
-    },
-    "in_neck": {
-        "comment": "in_neck",
-	"empty" : "in_neck",
-        "exec_stmt": "in_body",
-        "other": "in_neck",
-        "pgm_unit_sep": "outside",
-        "pgm_unit_end": "outside",
-    },
-    "in_body": {
-        "comment": "in_body",
-	"empty" : "in_body",
-        "exec_stmt": "in_body",
-        "pgm_unit_sep": "outside",
-        "pgm_unit_end": "outside",
-        "other" : "in_body",
-    },
-}
-
-
-def next_state(curr_state, edge_type):
-    if edge_type in TRANSITIONS[curr_state]:
-        return TRANSITIONS[curr_state][edge_type]
-    else:
-        return curr_state
-
-
-def type_of_line(line):
-    """Given a line of code, type_of_line() returns a string indicating
-       what kind of code it is."""
-
-    if line.strip() == "":
-        return "empty"
-
-    if line_is_comment(line):
-        return "comment"
-    elif line_is_executable(line):
-        return "exec_stmt"
-    elif line_is_pgm_unit_end(line):
-        return "pgm_unit_end"
-    elif line_is_pgm_unit_start(line):
-        return "pgm_unit_start"
-    elif line_is_pgm_unit_separator(line):
-        return "pgm_unit_sep"
-    else:
-        return "other"
-
-
-def extract_comments(
-    lines: List[Tuple[int, str]]
-) -> Tuple[List[Tuple[int, str]], Dict[str, List[str]]]:
-    """Given a list of numbered lines from a Fortran file where comments
-       internal to subprogram bodies have been moved out into their own lines,
-       extract_comments() extracts comments into a dictionary and replaces
-       each comment internal to subprogram bodies with a marker statement.
-       It returns a pair (code, comments) where code is a list of numbered
-       lines with comments removed and marker statements (plus corresponding
-       variable declarations) added; and comments is a dictionary mapping
-       marker statement variables to the corresponding comments."""
-
-    curr_fn, prev_fn, curr_marker = None, None, None
-
-    for i in range(len(lines)):
-        (linenum, line) = lines[i]
-
-        if line_is_comment(line):
-            lines[i] = (linenum, None)
-      
-    return lines
-
-
-def init_comment_map(head_cmt, neck_cmt, foot_cmt, internal_cmt):
-    return {
-        "head": head_cmt,
-        "neck": neck_cmt,
-        "foot": foot_cmt,
-        "internal": internal_cmt,
-    }
+def discard_comments(lines):
+    return [line for line in lines if not line_is_comment(line)]
 
 
 def split_trailing_comment(line: str) -> str:
@@ -304,17 +179,11 @@ def split_trailing_comment(line: str) -> str:
 
 
 def preprocess(lines):
-    enum_lines = list(enumerate(lines, 1))
-
-    # Discard empty lines. While these are technically comments, they provide
-    # no semantic content.  
-    enum_lines = [line for line in enum_lines if line[1].rstrip() != ""]
-
-    enum_lines = separate_trailing_comments(enum_lines)
-    enum_lines = merge_continued_lines(enum_lines)
-    enum_lines = merge_adjacent_comment_lines(enum_lines)
-    return extract_comments(enum_lines)
-
+    lines = [line for line in lines if line.rstrip() != ""]
+    lines = separate_trailing_comments(lines)
+    lines = merge_continued_lines(lines)
+    lines = discard_comments(lines)
+    return lines
 
 def discard_line(line):
     return (line is None or 
@@ -327,9 +196,9 @@ def process(inputLines: List[str]) -> str:
        preprocessor."""
     lines = preprocess(inputLines)
     actual_lines = [
-        line[1]
+        line
         for line in lines
-        if not discard_line(line[1])
+        if not discard_line(line)
     ]
     return "".join(actual_lines)
 
