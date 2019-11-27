@@ -20,28 +20,15 @@ from collections import OrderedDict
 from typing import List, Dict, Tuple
 from delphi.translators.for2py.syntax import (
     line_is_comment,
-    line_is_comment_ext,
     line_is_continuation,
-    line_is_continued,
-    line_is_executable,
-    line_is_pgm_unit_end,
-    line_is_pgm_unit_separator,
-    line_is_pgm_unit_start,
-    program_unit_name,
+    line_is_continued
 )
 
 
-def separate_trailing_comments(lines: List[str]) -> List[Tuple[int, str]]:
-    """Given a list of numbered Fortran source code lines, i.e., pairs of the
-       form (n, code_line) where n is a line number and code_line is a line
-       of code, separate_trailing_comments() behaves as follows: for each
-       pair (n, code_line) where code_line can be broken into two parts -- a
-       code portion code_part and a trailing comment portion comment_part, such
-       that code_part and comment_part are both non-empty, it replaces the
-       pair (n, code_line) by two pairs (n, comment_part) and (n, code_part).
-       The return value is the resulting list of numbered lines.
+def separate_trailing_comments(lines: List[str]) -> List[str]:
+    """Given a list of Fortran source code lines, separate_trailing_comments() 
+       returns a list of lines with trailing comments removed.
     """
-
     i = 0
     while i < len(lines):
         code_line = lines[i]
@@ -55,13 +42,9 @@ def separate_trailing_comments(lines: List[str]) -> List[Tuple[int, str]]:
 
 
 def merge_continued_lines(lines):
-    """Given a list of numered Fortran source code lines, i.e., pairs of the
-       form (n, code_line) where n is a line number and code_line is a line
-       of code, merge_continued_lines() merges sequences of lines that are
-       indicated to be continuation lines.
+    """Given a list of Fortran source code lines, merge_continued_lines() merges 
+       sequences of lines that are indicated to be continuation lines.
     """
-
-    # Merge continuation lines
     chg = True
     while chg:
         chg = False
@@ -161,7 +144,7 @@ def process(inputLines: List[str]) -> str:
         for line in lines
         if not discard_line(line)
     ]
-    return "".join(alines)
+    return "".join(lines)
 
 
 def preprocess_file(infile, outfile):
