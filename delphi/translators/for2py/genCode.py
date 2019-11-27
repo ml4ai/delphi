@@ -317,7 +317,10 @@ class genCode:
     def process_call(self, node, state):
         if isinstance(node.func, ast.Attribute):
             function_node = node.func
-            module = function_node.value.id
+            if not isinstance(function_node.value, ast.Attribute):
+                module = function_node.value.id
+            else:
+                module = function_node.value.value.id
             function_name = function_node.attr
             function_name = module + "." + function_name
         else:

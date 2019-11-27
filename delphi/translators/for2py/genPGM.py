@@ -2044,14 +2044,8 @@ class GrFNGenerator(object):
                             state,
                             False
                         )
-                        # DEBUG
-                        print ("    * lambda_string:")
-                        print (lambda_string)
                         state.lambda_strings.append(lambda_string)
                 else:
-                    # DEBUG
-                    print ("    * function_name: ", function_name)
-                    print ("    * self.arrays: ", self.arrays)
                     if function_name in self.arrays:
                         # If array type is <float> the argument holder
                         # has a different structure that it does not hold
@@ -2528,9 +2522,7 @@ class GrFNGenerator(object):
                 if target["var"]["index"] == -1:
                     target["var"]["index"] = 0
                     state.last_definitions[target_names[0]] = 0
-                # DEBUG
-                print ("    self.arrays: ", self.arrays)
-                is_mutable = True
+                is_mutable = False
                 array_info = {
                     "index": target["var"]["index"],
                     "dimensions": array_dimensions,
@@ -2684,11 +2676,12 @@ class GrFNGenerator(object):
         # math.exp, math.cos, etc). The `module` part here is captured by the
         # attribute tag.
         if isinstance(node.func, ast.Attribute):
-            # DEBUG
-            print ("    * process_call: ", ast.dump(node.func))
             # Check if there is a <sys> call. Bypass it if exists.
-            if isinstance(node.func.value, ast.Attribute) and \
-                    node.func.value.value.id == "sys":
+            if (
+                    isinstance(node.func.value, ast.Attribute)
+                    and isinstance(node.func.value.value, ast.Name)
+                    and node.func.value.value.id == "sys"
+            ):
                 return []
             function_node = node.func
 
@@ -2861,10 +2854,6 @@ class GrFNGenerator(object):
         self.derived_types.append(node.name)
         self.derived_types_attributes[node.name] = []
 
-        # DEBUG
-        print ("    * process_class_def - node: ", dump_ast(node))
-        print ("    * process_class_def - self.derived_types: ", self.derived_types)
-
         attributes = node.body[0].body
         # Populate class memeber variables into attributes array.
         for attrib in attributes:
@@ -2876,8 +2865,6 @@ class GrFNGenerator(object):
             elif attrib_ast == "ast.Assign":
                 attrib_name = attrib.targets[0].attr
                 attrib_type = attrib.value.func.id
-                # DEBUG
-                print ("    * process_class_def - attrib_type: ", attrib_type)
                 assert (
                         attrib_type in self.derived_types
                         or attrib_type in self.library_types
@@ -2920,8 +2907,6 @@ class GrFNGenerator(object):
             self.derived_types_attributes[node.name].append(attrib_name)
 
             state.variable_types[attrib_name] = attrib_type
-        # DEBUG
-        print ("    * process_class_def - grfn: ", grfn)
         return [grfn]
 
     @staticmethod
@@ -3381,8 +3366,6 @@ class GrFNGenerator(object):
                                                        PrintState("\n    ")
                                                        )
         if return_value:
-            # DEBUG
-            print ("    * returned code: ", code)
             if array_assign:
                 lambda_strings.append(f"{self.array_assign_name} = {code}\n")
                 lambda_strings.append(f"    return {self.array_assign_name}")
