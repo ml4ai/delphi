@@ -181,9 +181,16 @@ def array_to_func_python_IR_test():
 def multidimensional_array_test():
     yield make_grfn_dict(Path(f"{DATA_DIR}/arrays/arrays-basic-06.f"))
 
+
 @pytest.fixture
 def sir_gillespie_sd_test():
+    yield make_grfn_dict(Path(f"{DATA_DIR}/SIR-Gillespie-SD.f"))
+
+
+@pytest.fixture
+def sir_gillespie_sd_multi_test():
     yield make_grfn_dict(Path(f"{DATA_DIR}/SIR-Gillespie-SD_multi_module.f"))
+
 
 @pytest.fixture
 def strings_test():
@@ -331,18 +338,18 @@ def test_multidimensional_array_grfn_generation(multidimensional_array_test):
     f2grfn.cleanup_files(multidimensional_array_test[2])
 
 
-def test_sir_gillespie_sd_grfn_generation(sir_gillespie_sd_test):
+def test_sir_gillespie_sd_multi_grfn_generation(sir_gillespie_sd_multi_test):
     with open(f"{DATA_DIR}/SIR-Gillespie-SD_multi_module_GrFN.json", "r") as f:
         grfn_dict = f.read()
-    assert str(sir_gillespie_sd_test[0]) == grfn_dict
+    assert str(sir_gillespie_sd_multi_test[0]) == grfn_dict
 
     with open(f"{DATA_DIR}/SIR-Gillespie-SD_multi_module_lambdas.py", "r") as f:
         target_lambda_functions = f.read()
-    with open(f"{TEMP_DIR}/{sir_gillespie_sd_test[1]}", "r") as l:
+    with open(f"{TEMP_DIR}/{sir_gillespie_sd_multi_test[1]}", "r") as l:
         generated_lamdba_functions = l.read()
     assert str(target_lambda_functions) == str(generated_lamdba_functions)
 
-    f2grfn.cleanup_files(sir_gillespie_sd_test[2])
+    f2grfn.cleanup_files(sir_gillespie_sd_multi_test[2])
 
 
 def test_derived_type_grfn_generation(derived_type_grfn_test):
