@@ -188,9 +188,16 @@ def sir_gillespie_sd_test():
 @pytest.fixture
 def strings_test():
     yield get_python_source(Path(f"{DATA_DIR}/strings/str06.f"))[0][0]
+
+
+@pytest.fixture
+def derived_type_grfn_test():
+    yield make_grfn_dict(Path(f"{DATA_DIR}/derived-types/derived-types-04.f"))
+
+
 #########################################################
 #                                                       #
-#               TARGET PYTHON TEST FILE                 #
+#                   PYTHON IR TEST                      #
 #                                                       #
 #########################################################
 
@@ -303,9 +310,10 @@ def test_strings_pythonIR_generation(strings_test):
         python_src = f.read()
     assert strings_test[0] == python_src
 
+
 ############################################################################
 #                                                                          #
-#                               GrFN Test                                  #
+#                               GrFN TEST                                  #
 #                                                                          #
 ############################################################################
 
@@ -335,3 +343,17 @@ def test_sir_gillespie_sd_grfn_generation(sir_gillespie_sd_test):
     assert str(target_lambda_functions) == str(generated_lamdba_functions)
 
     f2grfn.cleanup_files(sir_gillespie_sd_test[2])
+
+
+def test_derived_type_grfn_generation(derived_type_grfn_test):
+    with open(f"{DATA_DIR}/derived-types-04_GrFN.json", "r") as f:
+        grfn_dict = f.read()
+    assert str(derived_type_grfn_test[0]) == grfn_dict
+
+    with open(f"{DATA_DIR}/derived-types-04_lambdas.py", "r") as f:
+        target_lambda_functions = f.read()
+    with open(f"{TEMP_DIR}/{derived_type_grfn_test[1]}", "r") as l:
+        generated_lamdba_functions = l.read()
+    assert str(target_lambda_functions) == str(generated_lamdba_functions)
+
+    f2grfn.cleanup_files(derived_type_grfn_test[2])
