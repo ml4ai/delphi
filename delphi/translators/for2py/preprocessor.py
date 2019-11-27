@@ -124,7 +124,7 @@ def split_trailing_comment(line: str) -> str:
     return (line, None)
 
 
-def preprocess(lines):
+def process(inputLines: List[str]) -> str:
     lines = [line for line in lines if line.rstrip() != ""]
     lines = separate_trailing_comments(lines)
     lines = discard_comments(lines)
@@ -135,22 +135,10 @@ def discard_line(line):
     return (line is None or line.strip() == '')
 
 
-def process(inputLines: List[str]) -> str:
-    """process() provides the interface used by an earlier version of this
-       preprocessor."""
-    lines = preprocess(inputLines)
-    actual_lines = [
-        line
-        for line in lines
-        if not discard_line(line)
-    ]
-    return "".join(lines)
-
-
 def preprocess_file(infile, outfile):
     with open(infile, mode="r", encoding="latin-1") as f:
         inputLines = f.readlines()
-        lines = preprocess(inputLines)
+        lines = process(inputLines)
 
     with open(outfile, "w") as f:
         for _, line in lines:
