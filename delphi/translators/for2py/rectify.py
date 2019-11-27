@@ -1478,7 +1478,6 @@ class RectifyOFPXML:
                                 and current.attrib['id'] not in
                                 self.character_var_list
                         ):
-                            print(self.character_var_list)
                             current.attrib['hasSubscripts'] = "false"
 
                     self.parseXMLTree(
