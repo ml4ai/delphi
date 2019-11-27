@@ -206,15 +206,14 @@ def line_is_continuation(line: str, f_ext: str) -> bool:
         line
     Returns:
         True iff line is a continuation line, else False.  Currently this
-        is used only for fixed-form input files (f_ext in ('.f', '.for')
+        is used only for fixed-form input files, i.e., f_ext in ('.f', '.for')
     """
 
     if line_is_comment(line):
         return False
 
-    #llstr = line.lstrip()
-    #return len(llstr) > 0 and llstr[0] == "&"
-    return (f_ext in FIXED_FORM_EXT and len(line) > 5 and line[5] != ' ')
+    return (line[0] == '&'
+            or (f_ext in FIXED_FORM_EXT and len(line) > 5 and line[5] != ' '))
 
 
 def line_is_continued(line: str) -> bool:
