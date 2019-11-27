@@ -20,15 +20,36 @@ from collections import OrderedDict
 from typing import List, Dict, Tuple
 from delphi.translators.for2py.syntax import (
     line_is_comment,
+    line_is_comment_ext,
     line_is_continuation,
-    line_is_continued
+    line_is_continued,
+    line_is_executable,
+    line_is_pgm_unit_end,
+    line_is_pgm_unit_separator,
+    line_is_pgm_unit_start,
+    program_unit_name,
 )
 
 
-def separate_trailing_comments(lines: List[str]) -> List[str]:
-    """Given a list of Fortran source code lines, separate_trailing_comments() 
-       returns a list of lines with trailing comments removed.
+# IGNORE_INTERNAL_COMMENTS: if set to True, internal comments are dropped.
+IGNORE_INTERNAL_COMMENTS = True
+
+# INTERNAL_COMMENT_PREFIX is a prefix used for marker variables associated
+# with comments internal to subprogram bodies.
+INTERNAL_COMMENT_PREFIX = "i_g_n_o_r_e___m_e_"
+
+
+def separate_trailing_comments(lines: List[str]) -> List[Tuple[int, str]]:
+    """Given a list of numbered Fortran source code lines, i.e., pairs of the
+       form (n, code_line) where n is a line number and code_line is a line
+       of code, separate_trailing_comments() behaves as follows: for each
+       pair (n, code_line) where code_line can be broken into two parts -- a
+       code portion code_part and a trailing comment portion comment_part, such
+       that code_part and comment_part are both non-empty, it replaces the
+       pair (n, code_line) by two pairs (n, comment_part) and (n, code_part).
+       The return value is the resulting list of numbered lines.
     """
+
     i = 0
     while i < len(lines):
         code_line = lines[i]
@@ -42,9 +63,42 @@ def separate_trailing_comments(lines: List[str]) -> List[str]:
 
 
 def merge_continued_lines(lines):
-    """Given a list of Fortran source code lines, merge_continued_lines() merges 
-       sequences of lines that are indicated to be continuation lines.
+    """Given a list of numered Fortran source code lines, i.e., pairs of the
+       form (n, code_line) where n is a line number and code_line is a line
+       of code, merge_continued_lines() merges sequences of lines that are
+       indicated to be continuation lines.
     """
+
+    # Before a continuation line L1 is merged with the line L0 before it (and
+    # presumably the one L1 is continuing), ensure that L0 is not a comment.
+    # If L0 is a comment, swap L0 and L1.
+    chg = True
+    swaps = set()
+    while chg:
+        chg = False
+        i = 0
+        while i < len(lines) - 1:
+            ln0, ln1 = lines[i], lines[i + 1]
+            if (line_is_comment_ext(ln0) and line_is_continuation(ln1)) \
+               or (line_is_continued(ln0) and line_is_comment_ext(ln1)):
+                if (i, i+1) not in swaps:
+                    # swap the code portions of lines[i] and lines[i+1]
+                    lines[i], lines[i + 1] = ln1, ln0
+                    swaps.add((i,i+1))  # to prevent infinite loops
+                else:
+                   # If we get here, there is a pair of adjacent lines that
+                   # are about to go into an infinite swap sequence; one of them
+                   # must be a comment.  We delete the comment.
+                   if line_is_comment_ext(ln0):
+                       lines.pop(i)
+                   else:
+                       assert line_is_comment_ext(ln1)
+                       lines.pop(i+1)
+                chg = True
+
+            i += 1
+
+    # Merge continuation lines
     chg = True
     while chg:
         chg = False
@@ -124,28 +178,40 @@ def split_trailing_comment(line: str) -> str:
     return (line, None)
 
 
-def preprocess(lines: List[str]) -> str:
+def preprocess(lines):
     lines = [line for line in lines if line.rstrip() != ""]
     lines = separate_trailing_comments(lines)
-    lines = discard_comments(lines)
     lines = merge_continued_lines(lines)
+    lines = discard_comments(lines)
     return lines
 
 def discard_line(line):
-    return (line is None or line.strip() == '')
+    return (line is None or 
+            line.strip() == '' or
+            INTERNAL_COMMENT_PREFIX in line)
 
 
-def process(lines: List[str]) -> str:
-    processed_lines = preprocess(lines)
-    return ''.join(processed_lines)
+def process(inputLines: List[str]) -> str:
+    """process() provides the interface used by an earlier version of this
+       preprocessor."""
+    lines = preprocess(inputLines)
+    actual_lines = [
+        line
+        for line in lines
+        if not discard_line(line)
+    ]
+    return "".join(actual_lines)
+
 
 def preprocess_file(infile, outfile):
     with open(infile, mode="r", encoding="latin-1") as f:
         inputLines = f.readlines()
-        lines = process(inputLines)
+        lines = preprocess(inputLines)
 
     with open(outfile, "w") as f:
-        f.write(lines)
+        for _, line in lines:
+            if line is not None:
+                f.write(line)
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
@@ -154,4 +220,3 @@ if __name__ == "__main__":
 
     infile, outfile = sys.argv[1], sys.argv[2]
     preprocess_file(infile, outfile)
-
