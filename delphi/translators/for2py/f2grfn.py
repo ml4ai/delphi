@@ -428,6 +428,7 @@ def generate_grfn(
         with open(grfn_file, "w") as file_handle:
             file_handle.write(json.dumps(grfn_dict, sort_keys=True, indent=2))
 
+
 def is_module_file(filename):
     """This function is to check whether the handling
     file is a module file or not.
@@ -441,6 +442,7 @@ def is_module_file(filename):
         return True
     else:
         return False
+
 
 def parse_args():
     """This function is for a safe command line
@@ -541,6 +543,7 @@ def cleanup_files(generated_file_paths):
         if os.path.isfile(filepath):
             os.remove(filepath)
 
+
 def log_generated_files(file_paths):
     """This function will add generated files' paths
     into the global list GENERATED_FILE_PATHS.
@@ -550,6 +553,7 @@ def log_generated_files(file_paths):
         None
     """
     GENERATED_FILE_PATHS.extend(file_paths)
+
 
 def indent(elem, level=0):
     """ This function indents each level of XML.
@@ -808,6 +812,7 @@ def fortran_to_grfn(
             processing_modules
         )
         python_file_num += 1
+
 
 if __name__ == "__main__":
     fortran_to_grfn()
