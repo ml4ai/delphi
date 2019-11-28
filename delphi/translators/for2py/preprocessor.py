@@ -23,20 +23,9 @@ from delphi.translators.for2py.syntax import (
     line_is_comment,
     line_is_continuation,
     line_is_continued,
+    line_is_include,
 )
 
-
-def expand_leading_tabs(lines):
-    """ For each line, expand_leading_tabs() replaces a leading tab with
-        six blanks.
-    """
-    for i in range(len(lines)):
-        line = lines[i]
-        if line[0] == '\t':
-            lines[i] = '      ' + line[1:]
-
-    return lines
-    
 
 def separate_trailing_comments(lines: List[str]) -> List[Tuple[int, str]]:
     """Given a list of Fortran source code linesseparate_trailing_comments()
@@ -69,8 +58,6 @@ def merge_continued_lines(lines, f_ext):
         while i < len(lines):
             line = lines[i]
             if line_is_continuation(line, f_ext):
-                if i == 0:
-                    print("line: {}, CONT: {}, CHAR = '{}'".format(line, line_is_continuation(line, f_ext), line[5]))
                 assert i > 0, "Weird continuation line (line {}): {}".format(i+1, line)
                 prev_line_code = lines[i - 1]
                 curr_line_code = line.lstrip()[1:]  # remove continuation  char
@@ -133,7 +120,7 @@ def split_trailing_comment(line: str) -> str:
                 return (line, None)
             else:
                 i = j + 1
-        elif line[i] == "!":  # partial-line comment
+        elif line[i] == "!" and i != 5:  # partial-line comment
             comment_part = line[i:]
             code_part = line[:i].rstrip() + "\n"
             return (code_part, comment_part)
@@ -143,13 +130,53 @@ def split_trailing_comment(line: str) -> str:
     return (line, None)
 
 
+def path_to_target(infile, target):
+    # if target is already specified via an absolute path, return that path
+    if target[0] == '/':
+        return target
+
+    # if infile has a path specified, specify target relative to that path
+    pos = infile.rfind('/')
+    if pos >= 0:
+        path_to_infile = infile[:pos]
+        return "{}/{}".format(path_to_infile, target)
+
+    # otherwise simply return target
+    return target
+
+
+def process_includes(lines, infile):
+    """ process_includes() processes INCLUDE statements, which behave like
+        the #include preprocessor directive in C.
+    """
+    chg = True
+    while chg:
+        chg = False
+        include_idxs = [i for i in range(len(lines))
+                          if line_is_include(lines[i]) is not None]
+
+        # include_idxs is a list of the index positions of INCLUDE statements.
+        # Each such statement is processed by replacing it with the contents
+        # of the file it mentions.  We process include_idxs in reverse so that
+        # processing an INCLUDE statement does not change the index position of 
+        # any remaining INCLUDE statements.
+        for idx in reversed(include_idxs):
+            chg = True
+            include_f = line_is_include(lines[idx])
+            assert include_f is not None
+            include_path = path_to_target(infile, include_f)
+            incl_lines = preprocess_file(include_path)
+            lines = lines[:idx] + incl_lines + lines[idx+1:]            
+
+    return lines
+
 def preprocess(lines, infile):
     _, f_ext = os.path.splitext(infile)
     lines = [line for line in lines if line.rstrip() != ""]
-    lines = expand_leading_tabs(lines)
     lines = separate_trailing_comments(lines)
     lines = discard_comments(lines)
     lines = merge_continued_lines(lines, f_ext)
+    lines = process_includes(lines, infile)
     return lines
 
 
