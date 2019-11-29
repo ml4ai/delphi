@@ -625,7 +625,7 @@ C             CHP Added TRTNUM to CONTROL variable.
       Type (MgmtType) Mgmt_tmp
       Type (WatType) Wat_tmp
       Type (NiType) Ni_tmp
-      Type (OrgCType) OrgC_Tmp
+      Type (OrgCType) OrgC_tmp
       Type (PDLABETATYPE) PDLABETA_tmp
 
       Value = 0.0
@@ -724,10 +724,10 @@ C             CHP Added TRTNUM to CONTROL variable.
         SELECT CASE (VarName)
         Case ('TOMINFOM'); Value = OrgC_tmp % TOMINFOM
         Case ('TOMINSOM'); Value = OrgC_tmp % TOMINSOM
-        Case ('TOMINSOM1');Value = OrgC_tmp % TOMINSOM1
-        Case ('TOMINSOM2');Value = OrgC_tmp % TOMINSOM2
-        Case ('TOMINSOM3');Value = OrgC % TOMINSOM3
-        Case ('TNIMBSOM'); Value = OrgC % TNIMBSOM
+        Case ('TOMINSOM1'); Value = OrgC_tmp % TOMINSOM1
+        Case ('TOMINSOM2'); Value = OrgC_tmp % TOMINSOM2
+        Case ('TOMINSOM3'); Value = OrgC_tmp % TOMINSOM3
+        Case ('TNIMBSOM'); Value = OrgC_tmp % TNIMBSOM
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
@@ -1009,6 +1009,8 @@ C             CHP Added TRTNUM to CONTROL variable.
       Character*78  MSG(2)
       Logical ERR
       Type (SPAMType) SPAM_tmp
+      Type (PlantType) Plant_tmp
+      Type (WeathType) Weath_tmp
 
       Value = ' '
       ERR = .FALSE.
@@ -1017,16 +1019,16 @@ C             CHP Added TRTNUM to CONTROL variable.
       Case ('WEATHER')
         SELECT CASE (VarName)
         Case ('WSTA');
-           SPAM_tmp = SAVE_data % WEATHER
-           Value = SPAM_tmp % WSTAT
+           Weath_tmp = SAVE_data % WEATHER
+           Value = Weath_tmp % WSTAT
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
       Case ('PLANT')
         SELECT CASE (VarName)
         Case ('iSTNAME');
-           SPAM_tmp = SAVE_data % PLANT
-           Value = SPAM_tmp % iSTNAME
+           Plant_tmp = SAVE_data % PLANT
+           Value = Plant_tmp % iSTNAME
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
