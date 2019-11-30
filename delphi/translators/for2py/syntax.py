@@ -36,6 +36,70 @@ def line_is_comment(line: str) -> bool:
 
 ################################################################################
 #                                                                              #
+#                              CONTINUATION LINES                              #
+#                                                                              #
+################################################################################
+
+FIXED_FORM_EXT = ('.f', '.for')
+
+def line_is_continuation(line: str, f_ext: str) -> bool:
+    """ From FORTRAN 77  Language Reference
+        (https://docs.oracle.com/cd/E19957-01/805-4939/6j4m0vn6l/index.html)
+
+    A statement takes one or more lines; the first line is called the initial line; 
+    the subsequent lines are called the continuation lines.  You can format a 
+    source line in either of two ways: Standard fixed format, or Tab format.
+
+    In Standard Fixed Format, continuation lines are identified by a nonblank, 
+    nonzero in column 6.
+
+    Tab-Format source lines are defined as follows: A tab in any of columns 
+    1 through 6, or an ampersand in column 1, establishes the line as a 
+    tab-format source line.  If the tab is the first nonblank character, the 
+    text following the tab is scanned as if it started in column 7.
+    Continuation lines are identified by an ampersand (&) in column 1, or a 
+    nonzero digit after the first tab.    
+
+    Args:
+        line
+    Returns:
+        True iff line is a continuation line, else False.  Currently this
+        is used only for fixed-form input files, i.e., f_ext in ('.f', '.for')
+    """
+
+    if line_is_comment(line):
+        return False
+
+    if f_ext in FIXED_FORM_EXT:
+        if line[0] == '\t':
+            return (line[1] in "123456789")
+        else:
+            return (len(line) > 5 and not (line[5] == ' ' or line[5] == '0'))
+ 
+    if line[0] == '&':
+        return True
+
+    return False
+
+
+def line_is_continued(line: str) -> bool:
+    """
+    Args:
+        line
+    Returns:
+        True iff line is continued on the next line.  This is a Fortran-90
+        feature and indicated by a '&' at the end of the line.
+    """
+
+    if line_is_comment(line):
+        return False
+
+    llstr = line.rstrip()
+    return len(llstr) > 0 and llstr[-1] == "&"
+
+
+################################################################################
+#                                                                              #
 #                           FORTRAN LINE PROCESSING                            #
 #                                                                              #
 ################################################################################
@@ -196,48 +260,6 @@ def program_unit_name(line:str) -> str:
    match = RE_PGM_UNIT_START.match(line)
    assert match is not None
    return match.group(2)
-
-
-FIXED_FORM_EXT = ('.f', '.for')
-
-def line_is_continuation(line: str, f_ext: str) -> bool:
-    """
-    Args:
-        line
-    Returns:
-        True iff line is a continuation line, else False.  Currently this
-        is used only for fixed-form input files, i.e., f_ext in ('.f', '.for')
-    """
-
-    if line_is_comment(line):
-        return False
-
-    if f_ext in FIXED_FORM_EXT:
-        if line[0] == '\t':
-            return (line[1] in "123456789")
-        else:
-            return (len(line) > 5 and not (line[5] == ' ' or line[5] == '0'))
- 
-    if line[0] == '&':
-        return True
-
-    return False
-
-
-def line_is_continued(line: str) -> bool:
-    """
-    Args:
-        line
-    Returns:
-        True iff line is continued on the next line.  This is a Fortran-90
-        feature and indicated by a '&' at the end of the line.
-    """
-
-    if line_is_comment(line):
-        return False
-
-    llstr = line.rstrip()
-    return len(llstr) > 0 and llstr[-1] == "&"
 
 
 def line_ends_subpgm(line: str) -> bool:
