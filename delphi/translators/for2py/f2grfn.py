@@ -722,7 +722,7 @@ def fortran_to_grfn(
         )
     try:
         with open(preprocessed_fortran_file, "w") as f:
-            f.write(preprocessor.process(input_lines))
+            f.write(preprocessor.process(input_lines, original_fortran_file))
     except IOError:
         assert False, "Unable to write to file: {preprocessed_fortran_file}"
 
