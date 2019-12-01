@@ -412,6 +412,7 @@ class RectifyOFPXML:
         "interface-stmt",
         "interface-body",
         "interface-specification",
+        "end-interface-stmt",
     ]
 
     output_child_tags = [
@@ -2772,6 +2773,12 @@ class RectifyOFPXML:
     def handle_tag_interface(
             self, root, current, parent, grandparent, traverse
     ):
+        """This function handles rectifying the elements between
+        interface tag.
+
+        <interface>
+        </interface>
+        """
         for child in root:
             if child.tag == "header" or child.tag == "body":
                 cur_elem = ET.SubElement(
@@ -2782,7 +2789,9 @@ class RectifyOFPXML:
                         child, cur_elem, current, parent, traverse
                     )
             else:
-                pass
+                assert (
+                    child.tag in self.unnecessary_tags
+                ), f'In handle_tag_length: "{child.tag}" not handled'
 
 
     #################################################################
