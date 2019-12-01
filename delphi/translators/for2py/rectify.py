@@ -271,6 +271,8 @@ class RectifyOFPXML:
         "interface",
         "subroutine",
         "intent",
+        "names",
+        "procedure-stmt",
     ]
 
     value_child_tags = [
