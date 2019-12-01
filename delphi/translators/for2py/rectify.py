@@ -405,6 +405,12 @@ class RectifyOFPXML:
         "parameter-stmt",
         "type-param-value",
         "char-selector",
+        "component-attr-spec-list__begin",
+        "explicit-shape-spec-list__begin",
+        "explicit-shape-spec",
+        "explicit-shape-spec-list",
+        "component-attr-spec",
+        "component-attr-spec-list",
     ]
 
     output_child_tags = [
@@ -965,6 +971,7 @@ class RectifyOFPXML:
             elif (
                     child.tag == "component-decl"
                     or child.tag == "component-decl-list"
+                    or child.tag == "name"
             ):
                 self.derived_type_var_holder_list.append(child)
             elif child.tag == "length":
