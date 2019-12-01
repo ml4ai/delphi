@@ -2930,9 +2930,29 @@ class GrFNGenerator(object):
                 # appropriate to handle a multi-dimensional with variable used
                 # as a dimension size.
                 dimension_info = attrib.value.args[1]
+                is_literal = False
+                is_name = False
                 lower_bound = int(dimension_info.elts[0].elts[0].n)
-                upper_bound = int(dimension_info.elts[0].elts[1].n)
-                dimension = (upper_bound - lower_bound) + 1
+
+                # Retrieve upper bound of an array.
+                if isinstance(dimension_info.elts[0].elts[1], ast.Num):
+                    upper_bound = int(dimension_info.elts[0].elts[1].n)
+                    is_literal = True
+                elif isinstance(dimension_info.elts[0].elts[1], ast.Name):
+                    upper_bound = dimension_info.elts[0].elts[1].id
+                    is_name = True
+                else:
+                    assert (
+                            False
+                    ), f"Currently, ast type [{type(dimension_info.elts[0].elts[1])}] is not supported."
+
+                if is_literal:
+                    dimension = (upper_bound - lower_bound) + 1
+                elif is_name:
+                    dimension = upper_bound
+                else:
+                    pass
+
                 dimensions = [dimension]
 
                 grfn["attributes"].append({

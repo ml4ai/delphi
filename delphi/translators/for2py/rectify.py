@@ -807,8 +807,6 @@ class RectifyOFPXML:
             if child.tag == "component-attr-spec-list__begin":
                 is_derived_type_handling = True
             if len(child) > 0 or child.text:
-                # DEBUG
-                print ("    tag_declaration - child: ", child)
                 if child.tag in self.declaration_child_tags:
                     if child.tag == "format":
                         self.is_format = True
@@ -2984,8 +2982,6 @@ class RectifyOFPXML:
             # declarations will follow.
             derived_type = ET.SubElement(self.parent_type, "derived-types")
             for elem in self.derived_type_var_holder_list:
-                # DEBUG
-                print ("    * elem: ", elem)
                 if elem.tag == "intrinsic-type-spec":
                     keyword2 = ""
                     if elem.attrib['keyword2'] == "":
