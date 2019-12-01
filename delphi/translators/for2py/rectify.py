@@ -801,13 +801,23 @@ class RectifyOFPXML:
         <declaration>
         </declaration>
         """
+        is_derived_type_handling = False
         for child in root:
             self.clean_attrib(child)
+            if child.tag == "component-attr-spec-list__begin":
+                is_derived_type_handling = True
             if len(child) > 0 or child.text:
+                # DEBUG
+                print ("    tag_declaration - child: ", child)
                 if child.tag in self.declaration_child_tags:
                     if child.tag == "format":
                         self.is_format = True
                         self.format_holder.append(child)
+                    elif (
+                            child.tag == "name"
+                            and is_derived_type_handling
+                    ):
+                        self.derived_type_var_holder_list.append(child)
                     else:
                         cur_elem = ET.SubElement(
                             current, child.tag, child.attrib
@@ -2956,7 +2966,7 @@ class RectifyOFPXML:
             None.
         """
         if self.derived_type_var_holder_list:
-            literal = ET.Element("")
+            size = ET.Element("")
             is_dimension = False
 
             # Since component-decl-list appears after component-decl,
@@ -2974,6 +2984,8 @@ class RectifyOFPXML:
             # declarations will follow.
             derived_type = ET.SubElement(self.parent_type, "derived-types")
             for elem in self.derived_type_var_holder_list:
+                # DEBUG
+                print ("    * elem: ", elem)
                 if elem.tag == "intrinsic-type-spec":
                     keyword2 = ""
                     if elem.attrib['keyword2'] == "":
@@ -2997,8 +3009,15 @@ class RectifyOFPXML:
                         "keyword2": "none",
                     }
                     newType = ET.SubElement(derived_type, "type", attributes)
-                elif elem.tag == "literal":
-                    literal = elem
+                elif (
+                        elem.tag == "literal"
+                        or elem.tag == "name"
+                ):
+                    size = elem
+                    if elem.tag == "literal":
+                        tag_name = "literal"
+                    else:
+                        tag_name = "name"
                 elif elem.tag == "component-array-spec":
                     is_dimension = True
                 elif elem.tag == "component-decl":
@@ -3027,8 +3046,8 @@ class RectifyOFPXML:
                             init_value_attrib = ET.SubElement(
                                 new_variable, "initial-value"
                             )
-                            new_literal = ET.SubElement(
-                                init_value_attrib, "literal", literal.attrib
+                            new_size = ET.SubElement(
+                                init_value_attrib, tag_name, size.attrib
                             )  # <initial-value _attribs_>
                     else:
                         new_dimensions = ET.SubElement(
@@ -3037,9 +3056,9 @@ class RectifyOFPXML:
                         new_dimension = ET.SubElement(
                             new_dimensions, "dimension", {"type": "simple"}
                         )  # <dimension type="simple">
-                        new_literal = ET.SubElement(
-                            new_dimension, "literal", literal.attrib
-                        )  # <literal type="" value="">
+                        new_size = ET.SubElement(
+                            new_dimension, tag_name, size.attrib
+                        )  # <literal type="" value=""> or <name id="">
                         if len(counts) > count:
                             attr = {"count": counts[count]}
                             new_variables = ET.SubElement(
