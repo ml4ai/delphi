@@ -850,12 +850,16 @@ class XML_to_JSON_translator(object):
             root.tag == "dimension"
         ), f"The root must be <dimension>. Current tag is {root.tag} with " \
             f"{root.attrib} attributes."
-        dimension = {"tag": "dimension"}
+        dimension = {}
         for node in root:
             if node.tag == "range":
                 dimension["range"] = self.parseTree(node, state)
             if node.tag == "literal":
                 dimension["literal"] = self.parseTree(node, state)
+            if node.tag == "name":
+                dimension_info = self.parseTree(node, state)
+                dimension = dimension_info[0]
+        dimension["tag"] = "dimension"
         return [dimension]
 
     def process_range(self, root, state) -> List[Dict]:

@@ -1552,6 +1552,10 @@ class PythonCodeGenerator(object):
                     "range" in dimension
             ):  # A case where explicit low and up bounds are set
                 array_range += f"({self.get_range(dimension['range'][0])})"
+            elif (
+                    "name" in dimension
+            ): # A case where variable name given as a size with no explicit lower bound.
+                array_range += f"(0, {dimension['name']})"
             else:
                 assert (
                     False
