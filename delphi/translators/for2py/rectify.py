@@ -267,7 +267,9 @@ class RectifyOFPXML:
         "attr-spec",
         "access-stmt",
         "access-id-list",
-        "constants"
+        "constants",
+        "interface",
+        "subroutine",
     ]
 
     value_child_tags = [
@@ -405,6 +407,8 @@ class RectifyOFPXML:
         "parameter-stmt",
         "type-param-value",
         "char-selector",
+        "interface-block",
+        "interface-stmt",
     ]
 
     output_child_tags = [
@@ -2762,6 +2766,22 @@ class RectifyOFPXML:
                     False
                 ), f'In handle_tag_length: "{child.tag}" not handled'
 
+    def handle_tag_interface(
+            self, root, current, parent, grandparent, traverse
+    ):
+        for child in root:
+            if child.tag == "header" or child.tag == "body":
+                cur_elem = ET.SubElement(
+                    current, child.tag, child.attrib
+                )
+                if len(child) > 0 or child.text:
+                    self.parseXMLTree(
+                        child, cur_elem, current, parent, traverse
+                    )
+            else:
+                pass
+
+
     #################################################################
     #                                                               #
     #                       XML TAG PARSER                          #
@@ -2932,6 +2952,9 @@ class RectifyOFPXML:
         elif root.tag == "argument":
             self.handle_tag_argument(root, current, parent, grandparent,
                                      traverse)
+        elif root.tag == "interface":
+            self.handle_tag_interface(root, current, parent, grandparent,
+                                    traverse)
         else:
             assert (
                 False
