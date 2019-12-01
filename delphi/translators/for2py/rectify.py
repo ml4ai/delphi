@@ -270,6 +270,7 @@ class RectifyOFPXML:
         "constants",
         "interface",
         "subroutine",
+        "intent",
     ]
 
     value_child_tags = [
@@ -409,6 +410,8 @@ class RectifyOFPXML:
         "char-selector",
         "interface-block",
         "interface-stmt",
+        "interface-body",
+        "interface-specification",
     ]
 
     output_child_tags = [
