@@ -41,4 +41,3 @@ C  3   6.000   2.000   2.500   3.000
 
       stop
       end program main
-

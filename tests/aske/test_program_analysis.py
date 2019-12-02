@@ -202,6 +202,10 @@ def derived_type_grfn_test():
     yield make_grfn_dict(Path(f"{DATA_DIR}/derived-types/derived-types-04.f"))
 
 
+@pytest.fixture
+def derived_type_array_grfn_test():
+    yield make_grfn_dict(Path(f"{DATA_DIR}/derived-types/derived-types-02.f"))
+
 #########################################################
 #                                                       #
 #                   PYTHON IR TEST                      #
@@ -364,3 +368,16 @@ def test_derived_type_grfn_generation(derived_type_grfn_test):
     assert str(target_lambda_functions) == str(generated_lamdba_functions)
 
     f2grfn.cleanup_files(derived_type_grfn_test[2])
+
+def test_derived_type_array_grfn_generation(derived_type_array_grfn_test):
+    with open(f"{DATA_DIR}/derived-types/derived-types-02_GrFN.json", "r") as f:
+        grfn_dict = f.read()
+    assert str(derived_type_array_grfn_test[0]) == grfn_dict
+
+    with open(f"{DATA_DIR}/derived-types/derived-types-02_lambdas.py", "r") as f:
+        target_lambda_functions = f.read()
+    with open(f"{TEMP_DIR}/{derived_type_array_grfn_test[1]}", "r") as l:
+        generated_lamdba_functions = l.read()
+    assert str(target_lambda_functions) == str(generated_lamdba_functions)
+
+    f2grfn.cleanup_files(derived_type_array_grfn_test[2])
