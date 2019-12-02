@@ -501,16 +501,16 @@ class PythonCodeGenerator(object):
             is_derived_type_ref = True
         else:
             ref_str = self.nameMapper[node["name"]]
-
         # If the variable is a saved variable, prefix it by the function name
         # to access the saved value of the variable
-        if is_derived_type_ref:
-            if ref_str.split('.')[0] in \
-                        self.saved_variables[self.current_module]:
-                ref_str = f"{self.current_module}.{ref_str}"
-        else:
-            if ref_str in self.saved_variables[self.current_module]:
-                ref_str = f"{self.current_module}.{ref_str}"
+        if self.current_module in self.saved_variables:
+            if is_derived_type_ref:
+                if ref_str.split('.')[0] in \
+                            self.saved_variables[self.current_module]:
+                    ref_str = f"{self.current_module}.{ref_str}"
+            else:
+                if ref_str in self.saved_variables[self.current_module]:
+                    ref_str = f"{self.current_module}.{ref_str}"
 
         if "subscripts" in node:
             # array reference or function call or string indexing

@@ -545,11 +545,15 @@ class XML_to_JSON_translator(object):
             elif node.tag == "dimensions":
                 dimensions = {
                     "count": node.attrib["count"],
-                    "dimensions": [{"tag": "dimension"}],
+                    "dimensions": [],
                 }
-                dimensions["dimensions"][0].update(
-                    self.parseTree(node, state)[-1]
-                )
+                dims = self.parseTree(node, state)
+                for dim in dims:
+                    dim_info = {
+                            "tag": "dimension",
+                            "range": dim["range"]
+                    }
+                    dimensions["dimensions"].append(dim_info)
                 declared_type[-1].update(dimensions)
             elif node.tag == "variables":
                 variables = self.parseTree(node, state)
@@ -763,7 +767,6 @@ class XML_to_JSON_translator(object):
                 "is_arg": "false",
                 "is_parameter": "false",
             }
-
             # Check whether the passed element is for derived type reference
             if "is_derived_type_ref" in root.attrib:
                 ref["is_derived_type_ref"] = "true"
