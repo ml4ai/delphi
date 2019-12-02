@@ -26,6 +26,7 @@ import sys
 import argparse
 import json
 import xml.etree.ElementTree as ET
+import copy
 from delphi.translators.for2py import For2PyError, syntax, f2grfn
 from os.path import isfile, join
 
@@ -269,7 +270,8 @@ class RectifyOFPXML:
         "attr-spec",
         "access-stmt",
         "access-id-list",
-        "constants"
+        "constants",
+        "literal",
     ]
 
     value_child_tags = [
@@ -811,16 +813,17 @@ class RectifyOFPXML:
         """
         is_derived_type_dimension_setting = False
         is_end_of_one_dimension = False
+        dim_number = 0
         for child in root:
             self.clean_attrib(child)
             if child.tag == "explicit-shape-spec-list__begin":
                 is_derived_type_dimension_setting = True
                 self.dim += 1
+                dim_number += 1
                 self.derived_type_array_dimensions[self.dim] = []
             elif child.tag == "explicit-shape-spec":
                 is_end_of_one_dimension = True
-                self.dim += 1
-                self.derived_type_array_dimensions[self.dim] = []
+                dim_number += 1
             elif child.tag == "explicit-shape-spec-list":
                 is_derived_type_dimension_setting = False
 
@@ -834,6 +837,7 @@ class RectifyOFPXML:
                             or child.tag == "literal"
                     ):
                         if is_derived_type_dimension_setting:
+                            child.attrib["dim-number"] = str(dim_number)
                             self.derived_type_array_dimensions[self.dim].append(child)
                         else:
                             self.derived_type_var_holder_list.append(child)
@@ -922,6 +926,7 @@ class RectifyOFPXML:
             self.is_character = True
             current.set("string_length", str(1))
 
+        dim_number = 0
         is_derived_type_dimension_setting = False
         for child in root:
             self.clean_attrib(child)
@@ -971,7 +976,13 @@ class RectifyOFPXML:
             elif child.tag == "explicit-shape-spec-list__begin":
                 is_derived_type_dimension_setting = True
                 self.dim += 1
+                dim_number += 1
                 self.derived_type_array_dimensions[self.dim] = []
+            elif child.tag == "explicit-shape-spec":
+                is_end_of_one_dimension = True
+                dim_number += 1
+            elif child.tag == "explicit-shape-spec-list":
+                is_derived_type_dimension_setting = False
             elif child.tag == "intrinsic-type-spec":
                 if self.is_derived_type:
                     self.derived_type_var_holder_list.append(child)
@@ -985,6 +996,7 @@ class RectifyOFPXML:
                 if self.is_character:
                     current.set("string_length", str(child.attrib["value"]))
                 elif is_derived_type_dimension_setting:
+                    child.attrib["dim-number"] = str(dim_number)
                     self.derived_type_array_dimensions[self.dim].append(child)
                 else:
                     self.derived_type_var_holder_list.append(child)
@@ -992,6 +1004,7 @@ class RectifyOFPXML:
                     is_derived_type_dimension_setting
                     and child.tag == "name"
             ):
+                    child.attrib["dim-number"] = str(dim_number)
                     self.derived_type_array_dimensions[self.dim].append(child)
             elif child.tag == "component-array-spec":
                 self.derived_type_var_holder_list.append(child)
@@ -3090,40 +3103,64 @@ class RectifyOFPXML:
                             new_dimension = ET.SubElement(
                                 new_dimensions, "dimension", {"type": "simple"}
                             )  # <dimension type="simple">
-                            if len(self.derived_type_array_dimensions[dim]) == 1:
-                                if self.derived_type_array_dimensions[dim][0].tag == "literal":
+                            has_lower_bound = False
+                            new_range = ET.SubElement(new_dimension, "range")
+                            num_of_dimensions = len(self.derived_type_array_dimensions[dim])
+                            for s in range(0, num_of_dimensions):
+                                value = self.derived_type_array_dimensions[dim][s]
+                                if value.tag == "literal":
                                     tag_name = "literal"
-                                elif self.derived_type_array_dimensions[dim][0].tag == "name":
+                                elif value.tag == "name":
                                     tag_name = "name"
+                                    value.attrib["is_derived_type_ref"] = "true"
                                 else:
-                                    pass # TODO: Error here
-                                size = self.derived_type_array_dimensions[dim][0]
-                                new_size = ET.SubElement(
-                                    new_dimension, tag_name, size.attrib
-                                )  # <literal type="" value=""> or <name id="">
-                            else:
-                                assert (
-                                    len(self.derived_type_array_dimensions[dim]) == 2
-                                ), f"Number of literals representing range of an array cannot exeed 2."
-                                new_range = ET.SubElement(new_dimension, "range")
-                                for s in range(0,2):
-                                    if s == 0:
-                                        bound = ET.SubElement(new_range, "lower-bound")
-                                    else:
-                                        assert (
-                                                s == 1
-                                        ), f" Only value of s can be 1 here. Current s = {s}."
-                                        bound = ET.SubElement(new_range, "upper-bound")
+                                    pass
 
-                                    value = self.derived_type_array_dimensions[dim][s]
-                                    if value.tag == "literal":
-                                        tag_name = "literal"
-                                    elif value.tag == "name":
-                                        tag_name = "name"
-                                        value.attrib["is_derived_type_ref"] = "true"
-                                    else:
-                                        pass
-                                    new_range_value = ET.SubElement(bound, tag_name, value.attrib)
+                                need_new_dimension = False 
+                                need_upper_bound = False
+                                if (
+                                        len(self.derived_type_array_dimensions[dim]) == 1
+                                        or (not has_lower_bound 
+                                            and ((s+1) < len(self.derived_type_array_dimensions[dim])
+                                            and value.attrib["dim-number"] != self.derived_type_array_dimensions[dim][s+1].attrib["dim-number"]))
+                                ):
+                                    if (
+                                            (s+1) < len(self.derived_type_array_dimensions[dim])
+                                            and value.attrib["dim-number"] != self.derived_type_array_dimensions[dim][s+1].attrib["dim-number"]
+                                    ):
+                                        need_new_dimension = True
+                                    upper_bound_value = copy.copy(value)
+                                    upper_bound_tag_name = tag_name
+                                    tag_name = "literal"
+                                    value.tag = "literal"
+                                    value.attrib = {
+                                            "dim-number": value.attrib["dim-number"],
+                                            "type": "int",
+                                            "value": "0"
+                                    }
+                                    need_upper_bound = True
+
+                                if not has_lower_bound:
+                                    bound = ET.SubElement(new_range, "lower-bound")
+                                    has_lower_bound = True
+                                else:
+                                    bound = ET.SubElement(new_range, "upper-bound")
+                                    has_lower_bound = False
+
+                                new_range_value = ET.SubElement(bound, tag_name, value.attrib)
+
+                                if need_upper_bound:
+                                    bound = ET.SubElement(new_range, "upper-bound")
+                                    new_range_value = ET.SubElement(bound, upper_bound_tag_name, upper_bound_value.attrib)
+                                    has_lower_bound = False
+
+                                if need_new_dimension:
+                                    new_dimension = ET.SubElement(
+                                        new_dimensions, "dimension", {"type": "simple"}
+                                    )  # <dimension type="simple">
+                                    new_range = ET.SubElement(new_dimension, "range")
+                                    need_new_dimension = False
+                                    
 
                         if len(counts) > count:
                             attr = {"count": counts[count]}
