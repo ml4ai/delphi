@@ -1,7 +1,0 @@
-*DSSAT Cropping System Model Ver. 4.7.2.001   -develop    DEC 01, 2019; 11:13:53
-
- Unit  Filename
-   21  FILEIO
-  501  ERRORO
-  502  WARNING.OUT
-  503  OUTWARN
