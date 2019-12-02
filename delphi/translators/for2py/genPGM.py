@@ -2932,28 +2932,67 @@ class GrFNGenerator(object):
                 dimension_info = attrib.value.args[1]
                 is_literal = False
                 is_name = False
-                lower_bound = int(dimension_info.elts[0].elts[0].n)
+                
+                single_dimension = False
+                dimension_list = []
+                if isinstance(dimension_info.elts[0], ast.Tuple):
+                    lower_bound = int(dimension_info.elts[0].elts[0].n)
+                    single_dimension = True
 
-                # Retrieve upper bound of an array.
-                if isinstance(dimension_info.elts[0].elts[1], ast.Num):
-                    upper_bound = int(dimension_info.elts[0].elts[1].n)
-                    is_literal = True
-                elif isinstance(dimension_info.elts[0].elts[1], ast.Name):
-                    upper_bound = dimension_info.elts[0].elts[1].id
-                    is_name = True
-                else:
-                    assert (
-                            False
-                    ), f"Currently, ast type [{type(dimension_info.elts[0].elts[1])}] is not supported."
+                    # Retrieve upper bound of an array.
+                    if isinstance(dimension_info.elts[0].elts[1], ast.Num):
+                        upper_bound = int(dimension_info.elts[0].elts[1].n)
+                        is_literal = True
+                    elif isinstance(dimension_info.elts[0].elts[1], ast.Name):
+                        upper_bound = dimension_info.elts[0].elts[1].id
+                        is_name = True
+                    else:
+                        assert (
+                                False
+                        ), f"Currently, ast type [{type(dimension_info.elts[0].elts[1])}] is not supported."
 
-                if is_literal:
-                    dimension = (upper_bound - lower_bound) + 1
-                elif is_name:
-                    dimension = upper_bound
-                else:
-                    pass
+                    if is_literal:
+                        dimension = (upper_bound - lower_bound) + 1
+                    elif is_name:
+                        dimension = upper_bound
+                    else:
+                        pass
 
-                dimensions = [dimension]
+                    dimension_list.append(dimension)
+
+                elif isinstance(dimension_info.elts[0], ast.Call):
+                    lower_bound = int(dimension_info.elts[0].func.elts[0].n)
+                    if isinstance(dimension_info.elts[0].func.elts[1], ast.Num):
+                        upper_bound = int(dimension_info.elts[0].func.elts[1].n)
+                        is_literal = True
+                    elif isinstance(dimension_info.elts[0].func.elts[1], ast.Name):
+                        upper_bound = dimension_info.elts[0].func.elts[1].id
+                        is_name = True
+
+                    if is_literal:
+                        first_dimension = (upper_bound - lower_bound) + 1
+                    elif is_name:
+                        first_dimension = upper_bound
+
+                    dimension_list.append(first_dimension)
+
+                    lower_bound = int(dimension_info.elts[0].args[0].n)
+
+                    if isinstance(dimension_info.elts[0].args[1], ast.Num):
+                        upper_bound = int(dimension_info.elts[0].args[1].n)
+                        is_literal = True
+                    elif isinstance(dimension_info.elts[0].args[1], ast.Name):
+                        upper_bound = dimension_info.elts[0].args[1].id
+                        is_name = True
+
+                    if is_literal:
+                        second_dimension = (upper_bound - lower_bound) + 1
+                    elif is_name:
+                        second_dimension = upper_bound
+
+                    dimension_list.append(second_dimension)
+
+                dimensions = dimension_list
 
                 grfn["attributes"].append({
                                             "name": attrib_name,
