@@ -420,9 +420,10 @@ def generate_grfn(
             original_fortran_file
     )
 
-    log_generated_files([grfn_file, lambdas_file_path])
+    log_generated_files([grfn_file])
     if tester_call:
-        return grfn_dict, GENERATED_FILE_PATHS
+        cleanup_files(GENERATED_FILE_PATHS)
+        return grfn_dict
     else:
         # Write GrFN JSON into a file.
         with open(grfn_file, "w") as file_handle:
@@ -725,7 +726,7 @@ def fortran_to_grfn(
     except IOError:
         assert False, "Unable to write to file: {preprocessed_fortran_file}"
 
-    log_generated_files([system_json_path, preprocessed_fortran_file])
+    log_generated_files([preprocessed_fortran_file])
     
     # Generate OFP XML from preprocessed fortran
     ofp_xml = generate_ofp_xml(
