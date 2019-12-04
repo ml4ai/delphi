@@ -33,7 +33,7 @@ def test_regular_PETPT(petpt_grfn):
     }
 
     Ns = 1000
-    Si = petpt_grfn[0].sobol_analysis(Ns, problem)
+    Si = petpt_grfn.sobol_analysis(Ns, problem)
     assert len(Si.keys()) == 6
     assert len(Si["S1"]) == len(args)
 
@@ -113,7 +113,7 @@ def test_PETASCE_sobol_analysis(petasce_grfn):
         'bounds': [bounds[arg] for arg in args]
     }
 
-    Si = petasce_grfn[0].sobol_analysis(100, problem, var_types=type_info)
+    Si = petasce_grfn.sobol_analysis(100, problem, var_types=type_info)
     assert len(Si["S1"]) == len(petasce_grfn.inputs)
     assert len(Si["S2"][0]) == len(petasce_grfn.inputs)
 
