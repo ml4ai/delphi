@@ -13,13 +13,16 @@ C This file tests one-to-one comparison with characters
       SELECT CASE(VAR)
         CASE('A')
           Y = X/4
-          WRITE(*,*) 'The variable is A and Y is: ', Y, Y*Z
+         WRITE(*,10) 'The variable is A and Y is: ', Y, Y*Z
         CASE('G')
           Y = X/10
-          WRITE(*,*) 'The variable is G and Y is: ', Y, Y*Z
+          WRITE(*,10) 'The variable is G and Y is: ', Y, Y*Z
         CASE DEFAULT
-          WRITE(*,*) 'Invalid Argument!'
+          WRITE(*,20) 'Invalid Argument!'
 
       END SELECT
+
+ 10   format(A, I2, I4)
+ 20   format(A)
 
       END PROGRAM MAIN

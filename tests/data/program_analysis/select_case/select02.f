@@ -13,19 +13,22 @@ C This file tests an integer with various types of comparisons
       SELECT CASE(I)
         CASE(:3)
           Y = X/4
-          WRITE(*,*) 'The variable is I, A, and Y are: ', I, Y, Y*Z
+          WRITE(*,10) 'The variable is I, A, and Y are: ', I, Y, Y*Z
         CASE(9:)
           Y = X/10
-          WRITE(*,*) 'The variable is I, A, and Y are: ', I, Y, Y*Z
+          WRITE(*,10) 'The variable is I, A, and Y are: ', I, Y, Y*Z
         CASE(8)
           Y = X/2
-          WRITE(*,*) 'The variable is I, A, and Y are: ', I, Y, Y*Z
+          WRITE(*,10) 'The variable is I, A, and Y are: ', I, Y, Y*Z
         CASE(4:7)
           Y = X/8
-          WRITE(*,*) 'The variable is I, A, and Y are: ', I, Y, Y*Z
+          WRITE(*,10) 'The variable is I, A, and Y are: ', I, Y, Y*Z
         CASE DEFAULT
-          WRITE(*,*) 'Invalid Argument!'
+          WRITE(*,20) 'Invalid Argument!'
 
       END SELECT
+
+ 10   format(A, I2, I2, I4)
+ 20   format(A)
 
       END PROGRAM MAIN
