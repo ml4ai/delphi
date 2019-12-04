@@ -422,6 +422,7 @@ class RectifyOFPXML:
         "select-case-stmt",
         "case-selector",
         "case-stmt",
+        "end-select-stmt",
     ]
 
     output_child_tags = [
@@ -915,7 +916,7 @@ class RectifyOFPXML:
         <type>
         </type>
         """
-        if current.attrib.get("name") == "character":
+        if current.attrib.get("name").lower() == "character":
             self.is_character = True
             current.set("string_length", str(1))
         for child in root:
@@ -1819,8 +1820,8 @@ class RectifyOFPXML:
         """This function handles cleaning up the XML elements
         between the subscripts elements.
 
-        <supscripts>
-        </supscripts>
+        <subscripts>
+        </subscripts>
         """
         for child in root:
             self.clean_attrib(child)
@@ -2873,6 +2874,68 @@ class RectifyOFPXML:
                         False
                     ), f'In handle_tag_case: Empty elements "{child.tag}"'
 
+    def handle_tag_value_ranges(
+            self, root, current, parent, grandparent, traverse
+    ):
+        """This function handles cleaning up the XML elements
+        between the value-ranges elements.
+
+        <value-ranges>
+        </value-ranges>
+        """
+        for child in root:
+            self.clean_attrib(child)
+
+            if child.tag == "value-range":
+                cur_elem = ET.SubElement(
+                    current, child.tag, child.attrib
+                )
+                if len(child) > 0 or child.text:
+                    self.parseXMLTree(
+                        child, cur_elem, current, parent, traverse
+                    )
+            else:
+                try:
+                    _ = self.unnecessary_tags.index(child.tag)
+                except ValueError:
+                    assert (
+                        False
+                    ), f'In handle_tag_value_ranges: Empty eleme' \
+                       f'nts "{child.tag}"'
+
+    def handle_tag_value_range(
+            self, root, current, parent, grandparent, traverse
+    ):
+        """This function handles cleaning up the XML elements
+        between the value-range elements.
+
+        <value-range>
+        </value-range>
+        """
+        for child in root:
+            self.clean_attrib(child)
+
+            if child.tag == "value":
+                cur_elem = ET.SubElement(
+                    current, child.tag, child.attrib
+                )
+                if len(child) > 0 or child.text:
+                    self.parseXMLTree(
+                        child, cur_elem, current, parent, traverse
+                    )
+                else:
+                    current.remove(cur_elem)
+                    if len(root) == 1:
+                        parent.remove(current)
+            else:
+                try:
+                    _ = self.unnecessary_tags.index(child.tag)
+                except ValueError:
+                    assert (
+                        False
+                    ), f'In handle_tag_value_range: Empty eleme' \
+                       f'nts "{child.tag}"'
+
     #################################################################
     #                                                               #
     #                       XML TAG PARSER                          #
@@ -3049,6 +3112,12 @@ class RectifyOFPXML:
         elif root.tag == "case":
             self.handle_tag_case(root, current, parent, grandparent,
                                  traverse)
+        elif root.tag == "value-ranges":
+            self.handle_tag_value_ranges(root, current, parent, grandparent,
+                                         traverse)
+        elif root.tag == "value-range":
+            self.handle_tag_value_range(root, current, parent, grandparent,
+                                        traverse)
         else:
             assert (
                 False
@@ -4311,7 +4380,7 @@ class RectifyOFPXML:
         if "rule" in current.attrib:
             current.attrib.pop("rule")
 
-    def boundary_identifier (self):
+    def boundary_identifier(self):
         """This function will be called to identify the boundary
         for each goto-and-label. The definition of scope here is
         that whether one goto-label is nested under another goto-label.
