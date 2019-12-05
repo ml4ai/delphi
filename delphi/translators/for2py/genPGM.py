@@ -2497,21 +2497,28 @@ class GrFNGenerator(object):
         is_string_assign = False
         is_string_annotation = False
         if "call" in sources[0]:
-            if sources[0]["call"]["function"] == "String":
+            type_name = sources[0]["call"]["function"]
+            if type_name == "String":
                 is_string_assign = True
                 # Check if it just an object initialization or initialization
                 # with value assignment
                 if len(sources[0]["call"]["inputs"]) == 1:
                     # This is just an object initialization e.g. String(10)
                     is_string_annotation = True
-            elif sources[0]["call"]["function"] == "Array":
+            elif type_name == "Array":
                 array_assignment = True
                 array_dimensions = []
                 inputs = sources[0]["call"]["inputs"]
                 array_type = inputs[0][0]["var"]["variable"]
                 self._get_array_dimension(sources, array_dimensions, inputs)
-            elif sources[0]["call"]["function"] in self.derived_types:
+            elif type_name in self.derived_types:
                 is_d_type_obj_declaration = True
+                if isinstance(node.targets[0], ast.Name):
+                    variable_name = node.targets[0].id
+                    if variable_name not in self.module_variable_types:
+                        for program in self.mode_mapper['public_objects']:
+                            if variable_name in self.mode_mapper['public_objects'][program]:
+                                self.module_variable_types[variable_name] = [program, type_name]
             else:
                 pass
         else:
@@ -3502,6 +3509,7 @@ class GrFNGenerator(object):
             elif variable in self.arrays:
                 index.append(0)
             domains.append(self.get_domain_dictionary(variable, state))
+            
         for domain in domains:
             # Since we need to update the domain of arrays that
             # were passed to a function once the program actually
@@ -3590,7 +3598,6 @@ class GrFNGenerator(object):
                 and variable_type == "array"
             ):
                 self.f_array_arg.append(variable)
-
             # Retrieve variable type name (i.e. integer, float, __derived_type__)
             if variable_type in self.type_def_map:
                 type_name = self.type_def_map[variable_type]
@@ -4203,7 +4210,6 @@ def create_grfn_dict(
         generator.variable_map = variable_map
     except IOError:
         raise For2PyError(f"Unable to read file {file_name}.")
-
     # Extract variables with type that are declared in module
     generator.module_variable_types = mode_mapper_dict[0]["symbol_types"]
     # Extract functions (and subroutines) declared in module
