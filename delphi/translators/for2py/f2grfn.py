@@ -762,13 +762,14 @@ def fortran_to_grfn(
     # This will update the log file with more information about the module,
     # such as the declared symbols and types that is needed for generating GrFN.
     if processing_modules:
-        genModFileLog.update_mod_info_json(module_log_file_path, mode_mapper_dict[0])
+        genModFileLog.update_mod_info_json(module_log_file_path,
+                                           mode_mapper_dict[0])
 
     # Creates a pickle file.
     output_dict = generate_outputdict(
         rectified_tree, preprocessed_fortran_file, pickle_file, tester_call
     )
-    
+
     translated_python_files = []
     # Create a python source file.
     python_source = generate_python_src(
@@ -800,7 +801,7 @@ def fortran_to_grfn(
     python_file_num = 0
     # Generate GrFN file
     for python_file in translated_python_files:
-        lambdas_file_path  = python_file[0:-3] + lambdas_file_suffix
+        lambdas_file_path = python_file[0:-3] + lambdas_file_suffix
         grfn_dict = generate_grfn(
             python_source[python_file_num][0],
             python_file,
