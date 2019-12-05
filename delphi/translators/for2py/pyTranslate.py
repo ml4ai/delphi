@@ -1472,7 +1472,7 @@ class PythonCodeGenerator(object):
                         left_arg = arguments[0]
                         right_arg = arguments[1]
                         if left_arg.get("tag") == "literal" and \
-                           left_arg.get("value") == "'Inf'":
+                           left_arg.get("value") == "'-Inf'":
                             self.pyStrings.append(f"{check_variable} <= ")
                             self.printAst(
                                 [right_arg],
