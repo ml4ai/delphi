@@ -1086,7 +1086,6 @@ class XML_to_JSON_translator(object):
 
         return [value_range_spec]
 
-
     def parseTree(self, root, state: ParseState) -> List[Dict]:
         """
         Parses the XML ast tree recursively to generate a JSON AST
