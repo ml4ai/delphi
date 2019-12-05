@@ -1125,8 +1125,6 @@ class PythonCodeGenerator(object):
             if format_type == "runtime":
                 self.pyStrings.append("output_fmt = list_output_formats([")
                 for var in write_string.split(","):
-                    print(write_string.split(","))
-                    print(self.variableMap)
                     # self.pyStrings.append(f"{var},")
                     varMatch = re.match(
                         r"^(.*?)\[\d+\]|^(.*?)[^\[]", var.strip()
