@@ -185,7 +185,7 @@ def refactor_select_case(lines):
         code_line = lines[i]
         if prefix_regex.search(code_line):
             match_list = re.findall(prefix_regex, code_line)
-            code_line = re.sub(prefix_regex, f"{match_list[0][0]}'Inf':"
+            code_line = re.sub(prefix_regex, f"{match_list[0][0]}'-Inf':"
                                              f"{match_list[0][1]}", code_line)
         if suffix_regex.search(code_line):
             match_list = re.findall(suffix_regex, code_line)
