@@ -51,7 +51,7 @@ def make_grfn_dict(original_fortran_file) -> Dict:
 
     for python_file_path in python_file_paths:
         python_file_path_wo_extension = python_file_path[0:-3]
-        lambdas_file_path  = python_file_path_wo_extension + lambda_file_suffix
+        lambdas_file_path = python_file_path_wo_extension + lambda_file_suffix
         _dict = f2grfn.generate_grfn(
                                         pySrc[0][0],
                                         python_file_path,
@@ -64,15 +64,12 @@ def make_grfn_dict(original_fortran_file) -> Dict:
                                         processing_modules,
                                         save_file
         )
-       
+
         # This blocks system.json to be fully populated.
         # Since the purpose of test_program_analysis is to compare
         # the output GrFN JSON of the main program, I will leave this
         # return as it is to return the only one translated GrFN string.
-        return (
-                json.dumps(_dict, sort_keys=True, indent=2),
-                lambdas_file_path
-        )
+        return (json.dumps(_dict, sort_keys=True, indent=2), lambdas_file_path)
 
 
 def postprocess_test_data_grfn_dict(_dict):

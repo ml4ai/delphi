@@ -15,7 +15,7 @@ def select02__main__assign__z__0():
 def select02__main__condition__IF_0__0(i: int):
     return (i <= 3)
 
-def select02__main__assign__y__0(x: int):
+def select02__main__assign__y__0(x):
     return int((x/4))
 
 def select02__main__decision__y__1(y_0: int, y_1: int, IF_0_0: bool):
@@ -24,7 +24,7 @@ def select02__main__decision__y__1(y_0: int, y_1: int, IF_0_0: bool):
 def select02__main__condition__IF_0__1(i: int):
     return (i >= 9)
 
-def select02__main__assign__y__2(x: int):
+def select02__main__assign__y__2(x):
     return int((x/10))
 
 def select02__main__decision__y__3(y_0: int, y_1: int, IF_0_1: bool):
@@ -33,7 +33,7 @@ def select02__main__decision__y__3(y_0: int, y_1: int, IF_0_1: bool):
 def select02__main__condition__IF_0__2(i: int):
     return (i == 8)
 
-def select02__main__assign__y__4(x: int):
+def select02__main__assign__y__4(x):
     return int((x/2))
 
 def select02__main__decision__y__5(y_0: int, y_1: int, IF_0_2: bool):
@@ -42,7 +42,7 @@ def select02__main__decision__y__5(y_0: int, y_1: int, IF_0_2: bool):
 def select02__main__condition__IF_0__3(i: int):
     return ((i >= 4) and (i <= 7))
 
-def select02__main__assign__y__6(x: int):
+def select02__main__assign__y__6(x):
     return int((x/8))
 
 def select02__main__decision__y__7(y_0: int, y_1: int, IF_0_3: bool):
