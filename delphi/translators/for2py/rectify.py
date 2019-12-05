@@ -948,9 +948,10 @@ class RectifyOFPXML:
         <type>
         </type>
         """
-        if current.attrib.get("name").lower() == "character":
-            self.is_character = True
-            current.set("string_length", str(1))
+        if current.attrib.get("name"):
+            if current.attrib["name"].lower() == "character":
+                self.is_character = True
+                current.set("string_length", str(1))
 
         dim_number = 0
         is_derived_type_dimension_setting = False
