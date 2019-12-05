@@ -1606,7 +1606,6 @@ class GrFNGenerator(object):
             state,
             False
         )
-        # print(lambda_string)
         state.lambda_strings.append(lambda_string)
 
         # Tricky thing going on here. The last definitions of `state` are
@@ -3397,11 +3396,11 @@ class GrFNGenerator(object):
         """
         return f"{self.gensym_tag_map[tag]}_{uuid.uuid4().hex[:12]}"
 
-    def generate_lambda_function(self, node: object, function_name: object,
-                                 return_value: object, array_assign: object,
-                                 string_assign: object, d_type_assign: object,
-                                 inputs: object, state: object,
-                                 is_custom: object) -> object:
+    def generate_lambda_function(self, node, function_name: str,
+                                 return_value: bool, array_assign: bool,
+                                 string_assign: bool, d_type_assign: bool,
+                                 inputs, state,
+                                 is_custom: bool):
         self.generated_lambda_functions.append(function_name)
         lambda_for_var = True
         lambda_strings = []
