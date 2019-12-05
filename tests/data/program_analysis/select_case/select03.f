@@ -5,21 +5,24 @@ C This file tests an integer with a list of 'or' test cases in a single case
 
       IMPLICIT NONE
 
-      INTEGER :: I = 5
-      INTEGER :: X = 40
       INTEGER :: Y
-      INTEGER :: Z = 2
+      INTEGER :: INC
 
-      SELECT CASE(I)
-        CASE(:2,5,9:)
-          Y = X/4
-          WRITE(*,10) 'The variable is I, A, and Y are: ', I, Y, Y*Z
-        CASE(3,4,6:8)
-          Y = X/10
-          WRITE(*,10) 'The variable is I, A, and Y are: ', I, Y, Y*Z
+      DO 20 INC=1,10
 
-      END SELECT
+        SELECT CASE(INC)
 
- 10   format(A, I2, I2, I4)
+          CASE(:2,5,9:)
+            Y = INC*2
+            WRITE(*,30) 'The variables INC and Y have values: ', INC, Y
+          CASE(3,4,6:8)
+            Y = INC*3
+            WRITE(*,30) 'The variables INC and Y have values: ', INC, Y
+
+        END SELECT
+
+ 20   END DO
+
+ 30   FORMAT(A, I2, I4)
 
       END PROGRAM MAIN

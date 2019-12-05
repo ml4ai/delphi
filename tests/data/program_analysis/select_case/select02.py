@@ -13,47 +13,46 @@ from random import random
 
 
 def main():
-    format_10: List[str] = [None]
-    format_10 = ['A', 'I2', 'I2', 'I4']
-    format_10_obj = Format(format_10)
-    
     format_20: List[str] = [None]
-    format_20 = ['A']
+    format_20 = ['A', 'I2', 'I4']
     format_20_obj = Format(format_20)
     
-    i: List[int] = [5]
-    x: List[int] = [40]
-    y: List[int] = [None]
-    z: List[int] = [2]
+    format_30: List[str] = [None]
+    format_30 = ['A']
+    format_30_obj = Format(format_30)
     
-    if (i[0] <= 3):
-        y[0] = int((x[0] / 4))
-        write_list_stream = ["The variable is I, A, and Y are: ", i[0], y[0], (y[0] * z[0])]
-        write_line = format_10_obj.write_line(write_list_stream)
-        sys.stdout.write(write_line)
-    else:
-        if (i[0] >= 9):
-            y[0] = int((x[0] / 10))
-            write_list_stream = ["The variable is I, A, and Y are: ", i[0], y[0], (y[0] * z[0])]
-            write_line = format_10_obj.write_line(write_list_stream)
+    inc: List[int] = [None]
+    y: List[int] = [None]
+    for inc[0] in range(1, 10+1):
+        
+        if (inc[0] <= 3):
+            y[0] = int((inc[0] * 2))
+            write_list_stream = ["The variables I and Y have values: ", inc[0], y[0]]
+            write_line = format_20_obj.write_line(write_list_stream)
             sys.stdout.write(write_line)
         else:
-            if (i[0] == 8):
-                y[0] = int((x[0] / 2))
-                write_list_stream = ["The variable is I, A, and Y are: ", i[0], y[0], (y[0] * z[0])]
-                write_line = format_10_obj.write_line(write_list_stream)
+            if (inc[0] >= 9):
+                y[0] = int((inc[0] * 3))
+                write_list_stream = ["The variables I and Y have values: ", inc[0], y[0]]
+                write_line = format_20_obj.write_line(write_list_stream)
                 sys.stdout.write(write_line)
             else:
-                if (i[0] >= 4 and i[0] <= 7):
-                    y[0] = int((x[0] / 8))
-                    write_list_stream = ["The variable is I, A, and Y are: ", i[0], y[0], (y[0] * z[0])]
-                    write_line = format_10_obj.write_line(write_list_stream)
-                    sys.stdout.write(write_line)
-                else:
-                    write_list_stream = ["Invalid Argument!"]
+                if (inc[0] == 8):
+                    y[0] = int((inc[0] * 4))
+                    write_list_stream = ["The variables I and Y have values: ", inc[0], y[0]]
                     write_line = format_20_obj.write_line(write_list_stream)
                     sys.stdout.write(write_line)
-                
-                
+                else:
+                    if (inc[0] >= 4 and inc[0] <= 7):
+                        y[0] = int((inc[0] * 5))
+                        write_list_stream = ["The variables I and Y have values: ", inc[0], y[0]]
+                        write_line = format_20_obj.write_line(write_list_stream)
+                        sys.stdout.write(write_line)
+                    else:
+                        write_list_stream = ["Invalid Argument!"]
+                        write_line = format_30_obj.write_line(write_list_stream)
+                        sys.stdout.write(write_line)
+    
+    
 
 main()
