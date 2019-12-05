@@ -178,8 +178,8 @@ def refactor_select_case(lines):
     is in the form <:3> will be <Inf:3>. This is done so that the FortranOFP
     recognizes the <:3> and <3:> structures properly.
     """
-    prefix_regex = re.compile(r'([^\d+]):(\d+)', re.I)
-    suffix_regex = re.compile(r'(\d+):([^\d+])', re.I)
+    prefix_regex = re.compile(r'([(,]):(\d+)', re.I)
+    suffix_regex = re.compile(r'(\d+):([),])', re.I)
     i = 0
     while i < len(lines):
         code_line = lines[i]
