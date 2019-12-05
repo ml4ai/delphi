@@ -62,8 +62,8 @@ GENERATED_FILE_PATHS = []
 
 
 MODULE_FILE_PREFIX = "m_"
-"""Module file prefix that all generated python module files will be specified with.
-"""
+"""Module file prefix that all generated python module files will be specified 
+with."""
 
 MODULE_FILE_NAME = "modFileLog.json"
 """A file that holds log of all files with module(s)
@@ -308,6 +308,7 @@ def module_file_generator(item, temp_dir, output_list, python_files):
         assert False, f"Unable to write to {module_file}."
     python_files.append(module_file_path)
 
+
 def generate_grfn(
     python_source_string,
     python_file_path,
@@ -532,6 +533,7 @@ def check_classpath():
             sys.stderr.write(f" {','.join(not_found)}\n")
             sys.exit(1)
 
+
 def cleanup_files(generated_file_paths):
     """This function cleans up all generated files.
     Args:
@@ -628,9 +630,9 @@ def fortran_to_grfn(
         root_dir_path (str): A root directory of the program.
         module_file_name (str): A module log file name.
         processing_modules (bool): A boolean condition marker to indicate
-        whether current fortran_to_grfn execution of for processing a module.
-        save_file (bool): A boolean condition to mark whether to save the generated
-        files or not.
+        whether current fortran_to_grfn execution is for processing a module.
+        save_file (bool): A boolean condition to mark whether to save the
+        generated files or not.
 
     Returns:
         str {
@@ -665,7 +667,8 @@ def fortran_to_grfn(
         module_file = module_file_name
 
     # Generate or update module log file.
-    module_log_file_path = genModFileLog.mod_file_log_generator(root_dir, module_file)
+    module_log_file_path = genModFileLog.mod_file_log_generator(root_dir,
+                                                                module_file)
 
     base = get_file_base(original_fortran_file)
 
@@ -676,8 +679,7 @@ def fortran_to_grfn(
     if temp_dir is None:
         temp_dir = current_dir + "/" + temp_out_dir
 
-    # If "tmp" directory does not exist already,
-    # simply create one.
+    # If "tmp" directory does not exist already, simply create one.
     if not os.path.isdir(temp_dir):
         os.mkdir(temp_dir)
     else:
@@ -688,9 +690,8 @@ def fortran_to_grfn(
 
     print(f"*** ALL OUTPUT FILES LIVE IN [{temp_dir}]")
 
-    # To avoid the system.json confliction between each
-    # f2grfn execution, we need to remove the system.json
-    # from the directory first.
+    # To avoid the system.json conflict between each f2grfn execution,
+    # we need to remove the system.json from the directory first.
     system_json_path = temp_dir + "/" + "system.json"
     if os.path.isfile(system_json_path) and not processing_modules:
         rm_system_json = "rm " + system_json_path
@@ -733,7 +734,7 @@ def fortran_to_grfn(
         preprocessed_fortran_file, ofp_file, tester_call
     )
 
-    # Recify and generate a new xml from OFP XML
+    # Rectify and generate a new xml from OFP XML
     rectified_tree, module_files_to_process = generate_rectified_xml(
         ofp_xml, rectified_xml_file, tester_call, original_fortran_file,
         module_log_file_path
@@ -742,8 +743,9 @@ def fortran_to_grfn(
     # If a program uses module(s) that does not reside within the same file,
     # we need to find out where they live and process those files first. Thus,
     # the program should know the list of modules that require advance process
-    # that was collected by rectify.py, below code will recursively call fortran_to_grfn
-    # function to process module files end-to-end (Fortran-to-GrFN).
+    # that was collected by rectify.py, below code will recursively call
+    # fortran_to_grfn function to process module files end-to-end (
+    # Fortran-to-GrFN).
     if module_files_to_process:
         processing_modules = True
         for target_module_file in module_files_to_process:
