@@ -154,6 +154,9 @@ class XML_to_JSON_translator(object):
             "length": self.process_length,
             "save-stmt": self.process_save,
             "cycle": self.process_continue,
+            "select": self.process_select,
+            "case": self.process_case,
+            "value-range": self.process_value_range,
         }
 
         self.unhandled_tags = set()  # unhandled xml tags in the current input
@@ -371,21 +374,33 @@ class XML_to_JSON_translator(object):
                 if node.tag == "type":
                     derived_type += self.parseTree(node, state)
                 elif node.tag == "length":
-                    is_derived_type = False
-                    if "is_derived_type" in root.attrib:
-                        is_derived_type = root.attrib[
-                            "is_derived_type"
-                        ].lower()
-                    keyword2 = "none"
-                    if "keyword2" in root.attrib:
-                        keyword2 = root.attrib["keyword2"]
-                    declared_type = {
-                        "type": root.attrib["name"],
-                        "is_derived_type": is_derived_type,
-                        "keyword2": keyword2,
+                    if root.attrib["name"].lower() == "character":
+                        string_length = self.parseTree(node, state)
+                        declared_type = {
+                            "type": root.attrib["name"].lower(),
+                            "length": string_length[0]["value"],
+                            "is_derived_type": root.attrib[
+                                "is_derived_type"].lower(),
+                            "is_string": "true",
+                            "keyword2": root.attrib["keyword2"],
                         }
-                    declared_type["value"] = self.parseTree(node, state)
-                    return [declared_type]
+                        return [declared_type]
+                    else:
+                        is_derived_type = False
+                        if "is_derived_type" in root.attrib:
+                            is_derived_type = root.attrib[
+                                "is_derived_type"
+                            ].lower()
+                        keyword2 = "none"
+                        if "keyword2" in root.attrib:
+                            keyword2 = root.attrib["keyword2"]
+                        declared_type = {
+                            "type": root.attrib["name"],
+                            "is_derived_type": is_derived_type,
+                            "keyword2": keyword2,
+                            }
+                        declared_type["value"] = self.parseTree(node, state)
+                        return [declared_type]
                 elif node.tag == "derived-types":
                     derived_type[-1].update(self.parseTree(node, state))
             return derived_type
@@ -1031,9 +1046,45 @@ class XML_to_JSON_translator(object):
         self.cycle_index += 1
         if self.loop_active:
             self.loop_constructs.setdefault(
-                f"loop", []).append(f"cycle"
-                                                      f"_{self.cycle_index}")
+                f"loop", []).append(f"cycle_{self.cycle_index}")
         return [{"tag": root.tag, "index": self.cycle_index}]
+
+    def process_select(self, root, state) -> List[Dict]:
+        """This function handles select statements tag."""
+        select_spec = {"tag": "select"}
+        for node in root:
+            if node.tag == "header":
+                select_spec["args"] = self.parseTree(node, state)
+            elif node.tag == "body":
+                select_spec["body"] = self.parseTree(node, state)
+
+        return [select_spec]
+
+    def process_case(self, root, state) -> List[Dict]:
+        """This function handles the CASE statement in Fortran. This should
+        be modeled as an if-else statement in languages like Python
+        """
+        case_spec = {"tag": "case"}
+        for node in root:
+            if node.tag == "header":
+                for child in node:
+                    if child.tag == "value-ranges":
+                        case_spec["args"] = self.parseTree(child, state)
+                    else:
+                        assert False, f"Unhandled type {child.tag} in case"
+            elif node.tag == "body":
+                case_spec["body"] = self.parseTree(node, state)
+
+        return [case_spec]
+
+    def process_value_range(self, root, state) -> List[Dict]:
+        """This function handles the range of values inside CASE statements"""
+        value_range_spec = {"tag": "case_range", "args": []}
+        for node in root:
+            if node.tag == "value":
+                value_range_spec["args"] += self.parseTree(node, state)
+
+        return [value_range_spec]
 
     def parseTree(self, root, state: ParseState) -> List[Dict]:
         """

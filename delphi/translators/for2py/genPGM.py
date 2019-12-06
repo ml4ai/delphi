@@ -1534,7 +1534,7 @@ class GrFNGenerator(object):
         grfn = {"functions": [], "variables": [], "containers": []}
         # Get the GrFN schema of the test condition of the `IF` command
         condition_sources = self.gen_grfn(node.test, state, "if")
-        condition_variables = self.get_variables(condition_sources)
+        condition_variables = self.get_variables(condition_sources, state)
 
         # The index of the IF_x_x variable will start from 0
         if state.last_definition_default in (-1, 0, -2):
@@ -1563,8 +1563,8 @@ class GrFNGenerator(object):
 
         state.variable_types[condition_name] = "bool"
         state.last_definitions[condition_name] = condition_index
-        variable_spec = self.generate_variable_definition([condition_name], None,
-                                                          False, state)
+        variable_spec = self.generate_variable_definition([condition_name],
+                                                          None, False, state)
         function_name = self.generate_function_name("__condition__",
                                                     variable_spec["name"],
                                                     None
@@ -1634,14 +1634,24 @@ class GrFNGenerator(object):
             else_grfn = []
             self.elif_condition_number = condition_number
 
+        # Sometimes, some if-else body blocks only contain I/O operations,
+        # the GrFN for which will be empty. Check for these and handle
+        # accordingly
+        if len(else_grfn) > 0 and \
+                len(else_grfn[0]["functions"]) == 0 and \
+                len(else_grfn[0]["variables"]) == 0 and \
+                len(else_grfn[0]["containers"]) == 0:
+            else_grfn = []
+            self.elif_condition_number = condition_number
+
         if len(else_grfn) > 0 \
                 and isinstance(else_grfn[0]["functions"][0], str) \
                 and else_grfn[0]["functions"][0] == "insert_break":
             # Get next def of EXIT
-            exit_index = self._get_next_definition("EXIT",
-                                                   else_state.last_definitions,
-                                                   state.next_definitions,
-                                                   0)
+            _ = self._get_next_definition("EXIT",
+                                          else_state.last_definitions,
+                                          state.next_definitions,
+                                          0)
             loop_break_variable = self.generate_variable_definition(["EXIT"],
                                                                     None,
                                                                     False,
@@ -1653,10 +1663,10 @@ class GrFNGenerator(object):
                 and isinstance(if_grfn[0]["functions"][0], str) \
                 and if_grfn[0]["functions"][0] == "insert_break":
             # Get next def of EXIT
-            exit_index = self._get_next_definition("EXIT",
-                                                   if_state.last_definitions,
-                                                   state.next_definitions,
-                                                   0)
+            _ = self._get_next_definition("EXIT",
+                                          if_state.last_definitions,
+                                          state.next_definitions,
+                                          0)
             loop_break_variable = self.generate_variable_definition(["EXIT"],
                                                                     None,
                                                                     False,
@@ -1927,7 +1937,7 @@ class GrFNGenerator(object):
                 if len(call["inputs"]) > 1 and method != "set_substr":
                     array_set = True
                     function_name = function_name.replace(".set_", "")
-                    for idx in range(0,len(split_function)-1):
+                    for idx in range(0, len(split_function)-1):
                         input_index = self.get_last_definition(
                             split_function[idx],
                             state.last_definitions,
@@ -2212,8 +2222,8 @@ class GrFNGenerator(object):
                 argument_list = self.make_source_list_dict(source_list)
 
                 lambda_string = self.generate_lambda_function(
-                    node, container_id_name, True, False, True, argument_list,
-                    state, False)
+                    node, container_id_name, True, False, True, False,
+                    argument_list, state, False)
                 state.lambda_strings.append(lambda_string)
 
             # This is sort of a hack for SIR to get the updated fields filled
@@ -2555,6 +2565,7 @@ class GrFNGenerator(object):
                     del(state.last_definitions[target_names[0]])
                     self.strings[target_names[0]]["annotation"] = True
                     self.strings[target_names[0]]["annotation_assign"] = False
+                    return []
                 else:
                     self.strings[target_names[0]]["annotation"] = False
                     self.strings[target_names[0]]["annotation_assign"] = True
@@ -2707,8 +2718,9 @@ class GrFNGenerator(object):
                 and not is_function_call
             ):
                 lambda_string = self.generate_lambda_function(
-                    node, function_name["name"], True, array_assignment, is_string_assign,
-                    is_d_type_object_assignment, source_list, state, False
+                    node, function_name["name"], True, array_assignment,
+                    is_string_assign, is_d_type_object_assignment,
+                    source_list, state, False
                 )
                 state.lambda_strings.append(lambda_string)
 
@@ -3387,7 +3399,8 @@ class GrFNGenerator(object):
     def generate_lambda_function(self, node, function_name: str,
                                  return_value: bool, array_assign: bool,
                                  string_assign: bool, d_type_assign: bool,
-                                 inputs, state, is_custom: bool):
+                                 inputs, state,
+                                 is_custom: bool):
         self.generated_lambda_functions.append(function_name)
         lambda_for_var = True
         lambda_strings = []
@@ -3402,8 +3415,9 @@ class GrFNGenerator(object):
             for attr in self.current_d_object_attributes:
                 if attr in self.derived_types_attributes[d_type]:
                     target_name += f".{attr}"
-                    # Since the next attribute that will be seen must be dependent
-                    # on the current attribute type, here it's updating the d_type.
+                    # Since the next attribute that will be seen must be
+                    # dependent on the current attribute type, here it's
+                    # updating the d_type.
                     d_type = state.variable_types[attr]
 
         # If a custom lambda function is encountered, create its function
@@ -3456,8 +3470,8 @@ class GrFNGenerator(object):
                 else:
                     assert (
                             annotation in self.derived_types
-                    ), f"Annotation must be a regular type or user defined type.\
-                        Annotation: {annotation}"
+                    ), f"Annotation must be a regular type or user defined " \
+                       f"type. Annotation: {annotation}"
                 argument_strings.append(f"{ip}: {annotation}")
             # Currently, this is for array specific else case.
             else:
@@ -3482,7 +3496,8 @@ class GrFNGenerator(object):
                 if "_" in state.array_assign_name:
                     names = state.array_assign_name.split("_")
                     if names[0] == self.current_d_object_name:
-                        state.array_assign_name = state.array_assign_name.replace("_", ".")
+                        state.array_assign_name = \
+                            state.array_assign_name.replace("_", ".")
                 lambda_strings.append(f"{state.array_assign_name} = {code}\n")
                 lambda_strings.append(f"    return {state.array_assign_name}")
                 state.array_assign_name = None
@@ -4092,13 +4107,24 @@ class GrFNGenerator(object):
         # return list(set(input_list))
         return list(OrderedDict.fromkeys(input_list))
 
-    def get_variables(self, condition_sources):
+    def get_variables(self, condition_sources, state):
         variable_list = list()
         for item in condition_sources:
             if isinstance(item, dict) and "var" in item:
                 variable_list.append(item)
             elif isinstance(item, list):
-                variable_list += self.get_variables(item)
+                variable_list += self.get_variables(item, state)
+            elif 'call' in item:
+                function_dict = item["call"]
+                if "__str__" in function_dict["function"]:
+                    var_name = function_dict["function"].split(".")[0]
+                    var_node = [
+                        {"var": {"variable": var_name,
+                                 "index": state.last_definitions[var_name]}}
+                    ]
+                    variable_list += var_node
+                # TODO: Will have to add other if cases for other string
+                #  types here
 
         # Remove any duplicate dictionaries from the list. This is done to
         # preserve ordering.
