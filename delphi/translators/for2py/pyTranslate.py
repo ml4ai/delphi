@@ -1127,7 +1127,8 @@ class PythonCodeGenerator(object):
                 for var in write_string.split(","):
                     # self.pyStrings.append(f"{var},")
                     varMatch = re.match(
-                        r"^(.*?)\[\d+\]|^(.*?)[^\[]", var.strip()
+                        r"^[-]?[(]?(.*?)\[\d+\]|^[-]?[(]?(.*?)[^\[]",
+                        var.strip()
                     )
                     if varMatch:
                         var = varMatch.group(1)
