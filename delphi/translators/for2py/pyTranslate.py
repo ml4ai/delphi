@@ -943,7 +943,7 @@ class PythonCodeGenerator(object):
         else:
             assert False, f"tag: {node['tag']} not being handled yet."
 
-    def print_return(self, _):
+    def print_return(self, *_):
         self.pyStrings.append("")
 
     def print_open(self, node, _):
