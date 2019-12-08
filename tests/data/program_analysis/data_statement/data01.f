@@ -1,22 +1,25 @@
+* FORTRAN test file to implement the DATA statement
+* This file uses the DATA statement to assign simple real and integer variables
+
+**********************************************************************
+* Expected Output:  A: 1  B: 2  C: 3
+*                   X: 2.20  Y: 2.20  Z: 2.20
+**********************************************************************
+
       PROGRAM MAIN
 
-      IMPLICIT NONE 
+      IMPLICIT NONE
 
-      integer, parameter :: arrsize=100000,init=0
-      real,parameter :: rinit=0.
-      real :: r1,r2,r3,array1(2,2),array2(arrsize)
-      real(kind(1.d0)) :: r4,r5
-      complex :: q
-      integer :: l,b,o,z,array3(10)
-      data r1,r2,r3 /1.,2.,3./, array1 /1.,2.,3.,4./
-      data r4 /1.23456789012345d0/ ! correct initialization
-      data r5 /1.23456789012345/   ! loses precision
-      data array2 /arrsize*rinit/,q /(0.,0.)/
-      data (array3(l),l=1,10) /10*init/
-      data b /B'01101000100010111110100001111010'/
-      data o /O'15042764172'/
-      data z /Z'688be87a'/
-      
-      write(*,*) r4,r5
+      INTEGER :: A,B,C
+      REAL :: X,Y,Z
 
-      end program main
+      DATA A /1/, B,C /2,3/
+      DATA X,Y,Z /3*2.2/
+
+      WRITE(*,10) 'A: ', A, 'B: ', B, 'C: ', C
+      WRITE(*,20) 'X: ', X, 'Y: ', Y, 'Z: ', Z
+
+ 10   FORMAT(A, I1, 2X, A, I1, 2X, A, I1)
+ 20   FORMAT(A, F4.2, 2X, A, F4.2, 2X, A, F4.2)
+
+      END PROGRAM MAIN
