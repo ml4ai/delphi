@@ -404,7 +404,7 @@ class XML_to_JSON_translator(object):
                 elif node.tag == "derived-types":
                     derived_type[-1].update(self.parseTree(node, state))
             return derived_type
-        elif root.attrib["name"] == "character":
+        elif root.attrib["name"].lower() == "character":
             # Check if this is a string
             declared_type = {
                 "type": root.attrib["name"],
