@@ -231,7 +231,9 @@ class GrFNGenerator(object):
         self.bypass_io = r"^format_\d+$|^format_\d+_obj$|^file_\d+$" \
                          r"|^write_list_\d+$|^write_line$|^format_\d+_obj" \
                          r".*|^Format$|^list_output_formats$|" \
-                         r"^write_list_stream$|^file_\d+\.write$"
+                         r"^write_list_stream$|^file_\d+\.write$|" \
+                         r"^output_fmt$"
+
         self.re_bypass_io = re.compile(self.bypass_io, re.I)
 
         self.process_grfn = {
@@ -2779,6 +2781,8 @@ class GrFNGenerator(object):
                     function_name = self.current_d_object_name + "."
                     self.is_d_object_array_assign = False
                 function_name += module + "." + func_name
+            elif isinstance(function_node.value, ast.Call):
+                return self.gen_grfn(function_node.value, state, "call")
             else:
                 assert False, f"Invalid expression call {function_node}"
         else:
@@ -3665,14 +3669,14 @@ class GrFNGenerator(object):
             ):
                 self.f_array_arg.append(variable)
 
-            # Retrieve variable type name (i.e. integer, float, __derived_type__)
+            # Retrieve variable type name (i.e. integer, float, __derived_type)
             if variable_type in self.type_def_map:
                 type_name = self.type_def_map[variable_type]
             elif variable_type in self.derived_types:
                 type_name = variable_type
                 # Since derived type variables are not a regular type variable,
-                # we need to needs to them manually here into variable_types dictionary
-                # to be referenced later in the stream.
+                # we need to needs to them manually here into variable_types
+                # dictionary to be referenced later in the stream.
                 state.variable_types[variable] = type_name
             else:
                 assert (
