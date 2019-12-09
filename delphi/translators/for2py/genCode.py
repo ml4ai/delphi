@@ -322,13 +322,23 @@ class genCode:
     def process_call(self, node, state):
         if isinstance(node.func, ast.Attribute):
             function_node = node.func
+
+            # If the python code has a strip function, call it's inner call
+            # function
+            if function_node.attr == "strip":
+                # TODO Add code to handle possible arguments to strip as
+                #  well. Look at select_case/select04.f for reference
+                string = self.generate_code(function_node.value, state)
+                return f"{string}.strip()"
+
             if not isinstance(function_node.value, ast.Attribute):
                 module = function_node.value.id
-            elif isinstance(node.func.value.value, ast.Name):
+            elif isinstance(function_node.value.value, ast.Name):
                 module = function_node.value.value.id
-            elif isinstance(node.func.value.value, ast.Call):
+            elif isinstance(function_node.value.value, ast.Call):
                 call = node.func.value.value
                 module = call.func.value.id
+
             function_name = function_node.attr
             function_name = module + "." + function_name
         else:
