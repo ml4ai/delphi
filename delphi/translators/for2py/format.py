@@ -339,7 +339,7 @@ class Format:
 
             elif fmt[0] in "pP":  # scaling factor
                 # For now we ignore scaling: there are lots of other things we
-                # need to spend time on.  To fix later if necessary.
+                # need to spend time on. To fix later if necessary.
                 rest_of_fmt = fmt[1:]
                 rexp = self.gen_output_fmt_1(rest_of_fmt)
 
