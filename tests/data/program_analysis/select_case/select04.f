@@ -1,21 +1,26 @@
       PROGRAM MAIN
 
-      IMPLICIT NONE
+      CHARACTER(LEN=4) :: Title = "BS"
+      INTEGER :: DrMD = 0, PhD = 0, MS = 0, BS = 0, Others = 0
 
-      INTEGER :: Class = 8
-
-      SELECT CASE (Class)
-        CASE (1)
-          WRITE(*,*)  'Freshman'
-        CASE (2)
-          WRITE(*,*)  'Sophomore'
-        CASE (3)
-          WRITE(*,*)  'Junior'
-        CASE (4)
-          WRITE(*,*)  'Senior'
+      SELECT CASE (Title)
+        CASE ("DrMD")
+          DrMD = DrMD + 1
+          WRITE(*,10) "DrMD: ", DrMD
+        CASE ("PhD")
+          PhD = PhD + 1
+          WRITE(*,10) "PhD: ", PhD
+        CASE ("MS")
+          MS = MS + 1
+          WRITE(*,10) "MS: ", MS
+        CASE ("BS")
+          BS = BS + 1
+          WRITE(*,10) "BS: ", BS
         CASE DEFAULT
-          WRITE(*,*)  "Hmmmm, I dont know"
+          Others = Others + 1
+          WRITE(*,10) "Others: ", Others
       END SELECT
-      WRITE(*,*)  'Done'
+
+ 10   FORMAT(A, I2)
 
       END PROGRAM MAIN
