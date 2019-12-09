@@ -139,6 +139,7 @@ class PrintState:
             add="    ",
             print_first=True,
             call_source=None,
+            select_var=None,
             defined_vars=[],
             global_vars=[],
             function_scope="",
@@ -148,6 +149,7 @@ class PrintState:
         self.add = add
         self.print_first = print_first
         self.call_source = call_source
+        self.select_var = select_var
         self.defined_vars = defined_vars
         self.global_vars = global_vars
         self.function_scope = function_scope
@@ -159,6 +161,7 @@ class PrintState:
             add=None,
             print_first=None,
             call_source=None,
+            select_var=None,
             defined_vars=None,
             global_vars=None,
             function_scope=None,
@@ -169,6 +172,7 @@ class PrintState:
             self.add if add is None else add,
             self.print_first if print_first is None else print_first,
             self.call_source if call_source is None else call_source,
+            self.select_var if select_var is None else select_var,
             self.defined_vars if defined_vars is None else defined_vars,
             self.global_vars if global_vars is None else global_vars,
             self.function_scope if function_scope is None else function_scope,
@@ -224,9 +228,6 @@ class PythonCodeGenerator(object):
         self.current_call = None
         # This flag is True when the SAVE statement is in context
         self.is_save = False
-        # This variable holds the current variable being inspected in the
-        # select-case statement
-        self.current_select = None
         # This flag remains False until the first case statement is started
         # in every select block
         self.case_started = False
@@ -1126,7 +1127,7 @@ class PythonCodeGenerator(object):
                     if var_match:
                         var = var_match.group(1)
                         self.pyStrings.append(
-                            f'"{self.variableMap[var.strip()]}",'
+                            f'"{self.variableMap[var.strip()]["type"]}",'
                         )
                 self.pyStrings.append("])" + print_state.sep)
                 self.pyStrings.append(
@@ -1152,7 +1153,7 @@ class PythonCodeGenerator(object):
                     if var_match:
                         var = var_match.group(1)
                         self.pyStrings.append(
-                            f'"{self.variableMap[var.strip()]}",'
+                            f'"{self.variableMap[var.strip()]["type"]}",'
                         )
 
                 self.pyStrings.append("])" + print_state.sep)
@@ -1447,11 +1448,12 @@ class PythonCodeGenerator(object):
         This function converts the select-case statement in Fortran into an
         if-else statement block in Python
         """
+        select_var = None
         for arg in node["args"]:
             if arg['tag'] == "ref":
-                self.current_select = self.proc_ref(arg, False)
+                select_var = self.proc_ref(arg, False)
         self.case_started = False
-        self.print_ast(node["body"], print_state)
+        self.print_ast(node["body"], print_state.copy(select_var=select_var))
 
     def print_case(self, node, print_state: PrintState):
         """
@@ -1460,7 +1462,6 @@ class PythonCodeGenerator(object):
         """
         if node.get('args'):
             if not self.case_started:
-                # self.pyStrings.append("if ")
                 self.case_started = True
             else:
                 self.pyStrings.append("else:"+print_state.sep+print_state.add)
@@ -1474,12 +1475,14 @@ class PythonCodeGenerator(object):
                     self.pyStrings.append(" or (")
                 if arg.get("tag") == "case_range":
                     arguments = arg['args']
-                    select_string = re.sub(r'\[.*\]', '', self.current_select)
+                    select_string = re.sub(r'\[.*\]', '',
+                                           print_state.select_var)
                     if self.variableMap[select_string]['type'].lower() \
                             == "character":
-                        check_variable = f"{self.current_select}.__str__()"
+                        check_variable = f"{print_state.select_var}.__str__(" \
+                                         f").strip()"
                     else:
-                        check_variable = self.current_select
+                        check_variable = print_state.select_var
 
                     if len(arguments) == 1:
                         self.pyStrings.append(f"{check_variable} == ")
@@ -1529,6 +1532,12 @@ class PythonCodeGenerator(object):
                     else:
                         assert False, f"Invalid length of case arguments " \
                                       f"{len(arguments)}"
+                    # If the value being compared to is a variable and it is
+                    # a character, add the __str__ method to it
+                    if self.pyStrings[-1].lower() in self.variableMap:
+                        if self.variableMap[self.pyStrings[-1].lower()][
+                              'type'] == "CHARACTER":
+                            self.pyStrings.append(".__str__()")
                     self.pyStrings.append(")")
                 else:
                     assert False, f"Unhandled case argument {arg.get('tag')}"
