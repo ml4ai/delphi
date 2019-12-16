@@ -17,6 +17,7 @@ Author:
 
 import os
 import sys
+import re
 from collections import OrderedDict
 from typing import List, Dict, Tuple
 from delphi.translators.for2py.syntax import (
@@ -170,6 +171,32 @@ def process_includes(lines, infile):
 
     return lines
 
+
+def refactor_select_case(lines):
+    """Search for lines that are CASE statements and refactor their structure
+    such that they are always in a i:j form. This means any CASE statement that
+    is in the form <:3> will be <Inf:3>. This is done so that the FortranOFP
+    recognizes the <:3> and <3:> structures properly.
+    """
+    prefix_regex = re.compile(r'([(,]):(\d+)', re.I)
+    suffix_regex = re.compile(r'(\d+):([),])', re.I)
+    i = 0
+    while i < len(lines):
+        code_line = lines[i]
+        if prefix_regex.search(code_line):
+            match_list = re.findall(prefix_regex, code_line)
+            code_line = re.sub(prefix_regex, f"{match_list[0][0]}'-Inf':"
+                                             f"{match_list[0][1]}", code_line)
+        if suffix_regex.search(code_line):
+            match_list = re.findall(suffix_regex, code_line)
+            code_line = re.sub(suffix_regex, f"{match_list[0][0]}:'Inf'"
+                                             f"{match_list[0][1]}", code_line)
+
+        lines[i] = code_line
+        i += 1
+    return lines
+
+
 def preprocess(lines, infile):
     _, f_ext = os.path.splitext(infile)
     lines = [line for line in lines if line.rstrip() != ""]
@@ -177,6 +204,7 @@ def preprocess(lines, infile):
     lines = discard_comments(lines)
     lines = merge_continued_lines(lines, f_ext)
     lines = process_includes(lines, infile)
+    lines = refactor_select_case(lines)
     return lines
 
 
