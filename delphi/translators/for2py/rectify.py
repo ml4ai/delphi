@@ -881,7 +881,7 @@ class RectifyOFPXML:
         for child in root:
             self.clean_attrib(child)
             # Temporarily hold the declaring variable's type.
-            if child.tag == "type":
+            if child.tag == "type" and "name" in child.attrib:
                 self.variable_type = child.attrib['name']
             # Keep a track of array in derived type dimension information.
             if child.tag == "explicit-shape-spec-list__begin":
@@ -2509,11 +2509,6 @@ class RectifyOFPXML:
                     assert (
                         False
                     ), f'In handle_tag_subroutine: Empty elements "{child.tag}"'
-
-        # DEBUG
-        print ("rectify.py - handle_tag_subroutine - self.argument_types: ", self.argument_types)
-        print ("rectify.py - handle_tag_subroutine - self.arguments_list: ", self.arguments_list)
-        print ("rectify.py - handle_tag_subroutine - self.interface_functions: ", self.interface_functions)
 
         # Updating the argument attribute to hold the type.
         for arg in self.arguments_list[current.attrib['name']]:
