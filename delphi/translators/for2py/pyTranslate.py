@@ -263,6 +263,7 @@ class PythonCodeGenerator(object):
             "cycle": self.printContinue,
             "select": self.printSelect,
             "case": self.printCase,
+            "interface": self.printInterface,
         }
         self.readFormat = []
 
@@ -1523,6 +1524,56 @@ class PythonCodeGenerator(object):
                 indexRef=True,
             ),
         )
+
+    def printInterface(self, node, printState: PrintState):
+        """This function prints out the Fortran interface to Python regular def
+        function with isinstance"""
+        # DEBUG
+        print ("    pyTranslate.py - printInterface - node: ", node)
+        # Print function declaration.
+        self.pyStrings.append(f"def {node['name']} (")
+        max_argument = int(node["max_argument"])
+        for i in range(0, max_argument):
+            arg_num = f"arg{i+1}"
+            self.pyStrings.append(f"{arg_num}=None")
+            if i < max_argument - 1:
+                self.pyStrings.append(", ")
+        self.pyStrings.append("):\n")
+        # Print code to figure out how many arguments were passed to the function.
+        self.pyStrings.append("    num_passed_args = 0\n")
+        self.pyStrings.append(f"    for i in range(0, {max_argument}):\n")
+        self.pyStrings.append("         if arg+f\"{i+1}\" != None:\n")
+        self.pyStrings.append("             num_passed_args += 1\n")
+        
+        functions_sorted_by_arg_nums = {}
+        for i in range(1, max_argument+1):
+            for function in node["functions"]:
+                if i == len(node["functions"][function]):
+                    if i not in functions_sorted_by_arg_nums:
+                        functions_sorted_by_arg_nums[i] = [function]
+                    else:
+                        functions_sorted_by_arg_nums[i].append(function)
+
+        for num in functions_sorted_by_arg_nums:
+            self.pyStrings.append(f"    if num_passed_args == {num}:\n")
+            for function in functions_sorted_by_arg_nums[num]:
+                types = node["functions"][function]
+                self.pyStrings.append("        if")
+                for i in range(1, num+1):
+                    self.pyStrings.append(f" isintance(arg{i}[0], {types[i-1]})")
+                    if i < num:
+                        self.pyStrings.append(f" and")
+                self.pyStrings.append(f":\n")
+                self.pyStrings.append(f"            {function}(")
+                for i in range(1, num+1):
+                    self.pyStrings.append(f"arg{i}")
+                    if i < num:
+                        self.pyStrings.append(f", ")
+                self.pyStrings.append(")\n")
+
+        # DEBUG
+        print ("    pyTranslate.py - printInterface - functions_sorted_by_arg_nums: ", functions_sorted_by_arg_nums)
+
 
     ###########################################################################
     #                                                                         #
