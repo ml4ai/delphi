@@ -2522,12 +2522,15 @@ class RectifyOFPXML:
                     self.interface_function_xml[interface][current.attrib['name']],
                     "argument-types"
                 )
+                num_args = 0
                 for arg in self.arguments_list[current.attrib['name']]:
+                    num_args += 1
                     argument_type = ET.SubElement(
                         argument_types,
                         "argument-type",
                         {"type": arg.attrib['type']}
                     )
+                self.interface_function_xml[interface][current.attrib['name']].attrib['num_args'] = str(num_args)
 
     def handle_tag_arguments(
             self, root, current, _, grandparent, traverse
