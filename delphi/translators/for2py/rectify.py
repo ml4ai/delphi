@@ -197,6 +197,21 @@ class RectifyOFPXML:
         self.modules_in_file = []
         self.derived_type_array_dimensions = {}
         self.dim = 0
+        # Keeps a track of maximum number of function
+        # arguments that are member of interface
+        self.member_function_argument_max = 0
+        # Mark whether currently handling interface
+        # member functions
+        self.is_interface_member = False
+        # Keeps a track of interface function names
+        self.interface_functions = {}
+        # Mark wheter currently handling interface
+        self.is_interface = False
+        # Keep a track of currently declaring interface name
+        self.cur_interface_name = None
+        # Keep a track of interface XML object for later update
+        self.interface_xml = {}
+
 
     #################################################################
     #                                                               #
@@ -546,6 +561,13 @@ class RectifyOFPXML:
                     cur_elem = ET.SubElement(
                         current, child.tag, child.attrib
                     )
+
+                    # Add a new interface:[] element into the interface
+                    # function tracker dictionary if current header is
+                    # for declaring interface.
+                    if self.is_interface and cur_elem.tag == "name":
+                        self.interface_functions[cur_elem.attrib['id']] = []
+                        self.cur_interface_name = cur_elem.attrib['id']
 
                     if len(child) > 0 or child.text:
                         self.parseXMLTree(
@@ -1477,6 +1499,8 @@ class RectifyOFPXML:
                 cur_elem = ET.SubElement(
                     current, child.tag, child.attrib
                 )
+                if "id" in child.attrib and self.is_interface:
+                    self.interface_functions[self.cur_interface_name].append(child.attrib['id'])
                 if grandparent.tag == "function":
                     self.args_for_function.append(cur_elem.attrib['id'])
                 # If the element holds sub-elements, call the XML tree parser
@@ -2472,6 +2496,27 @@ class RectifyOFPXML:
         <arguments>
         </arguments>
         """
+        num_of_args = int(root.attrib['count'])
+        if self.is_interface_member:
+            if grandparent.tag == "subroutine":
+                for interface in self.interface_functions:
+                    if (
+                            grandparent.attrib['name'] in self.interface_functions[interface]
+                            and interface in self.interface_xml
+                    ):
+                        if (
+                                "max_arg" not in self.interface_xml[interface].attrib
+                                or ("max_arg" in self.interface_xml[interface].attrib
+                                    and int(self.interface_xml[interface].attrib['max_arg']) < num_of_args)
+                        ):
+                            self.interface_xml[interface].attrib['max_arg'] = str(num_of_args)
+                        else:
+                            pass
+                    else:
+                        pass
+            else:
+                assert False, f"Currently, {grandparent.tag} not handled for interface."
+                            
         for child in root:
             self.clean_attrib(child)
             if child.tag == "argument":
@@ -2809,7 +2854,7 @@ class RectifyOFPXML:
                        f'"{child.tag}"'
 
     def handle_tag_members(
-            self, root, current, parent, _, traverse
+            self, root, current, parent, grandparnet, traverse
     ):
         """This function handles cleaning up the XML elements
         between the members elements.
@@ -2817,6 +2862,7 @@ class RectifyOFPXML:
         <members>   or    <member>
         </members>        </member>
         """
+        self.is_interface_member = True
         for child in root:
             self.clean_attrib(child)
 
@@ -2834,6 +2880,8 @@ class RectifyOFPXML:
                 self.parseXMLTree(
                     child, cur_elem, current, parent, traverse
                 )
+        # Re-initialize to false when exiting members
+        self.is_interface_member = False
 
     def handle_tag_only(
             self, root, current, parent, grandparent, traverse
@@ -2892,8 +2940,25 @@ class RectifyOFPXML:
         <interface>
         </interface>
         """
+        self.is_interface = True
         for child in root:
             if child.tag == "header" or child.tag == "body":
+                cur_elem = ET.SubElement(
+                    current, child.tag, child.attrib
+                )
+                if len(child) > 0 or child.text:
+                    self.parseXMLTree(
+                        child, cur_elem, current, parent, traverse
+                    )
+            else:
+                assert (
+                    child.tag in self.unnecessary_tags
+                ), f'In handle_tag_length: "{child.tag}" not handled'
+
+        self.interface_xml[self.cur_interface_name] = current
+        # Re-initializing for next interface use
+        self.cur_interface_name = None
+        self.is_interface = False
 
     def handle_tag_select(
             self, root, current, parent, grandparent, traverse
@@ -3016,7 +3081,6 @@ class RectifyOFPXML:
                         False
                     ), f'In handle_tag_value_range: Empty eleme' \
                        f'nts "{child.tag}"'
->>>>>>> e9747b7eed30a98c431452ca670c2ab578ac3c38
 
     #################################################################
     #                                                               #
