@@ -185,8 +185,12 @@ class RectifyOFPXML:
         self.goto_under_else = False
         # When handling function, collect names
         self.args_for_function = []
-        # Holds arguments of subroutine or function
+        # Holds arguments of subroutine or function XML object
         self.arguments_list = {}
+        # Holds function argument types
+        self.argument_types = {}
+        # Temporarily holds the type of declaring variable type
+        self.variable_type = None
         # Holds the caller arguments that are array
         self.caller_arr_arguments = {}
         # Set to true if handling <call>
@@ -205,6 +209,7 @@ class RectifyOFPXML:
         self.is_interface_member = False
         # Keeps a track of interface function names
         self.interface_functions = {}
+        self.interface_function_xml = {}
         # Mark wheter currently handling interface
         self.is_interface = False
         # Keep a track of currently declaring interface name
@@ -567,6 +572,7 @@ class RectifyOFPXML:
                     # for declaring interface.
                     if self.is_interface and cur_elem.tag == "name":
                         self.interface_functions[cur_elem.attrib['id']] = []
+                        self.interface_function_xml[cur_elem.attrib['id']] = {}
                         self.cur_interface_name = cur_elem.attrib['id']
 
                     if len(child) > 0 or child.text:
@@ -874,6 +880,10 @@ class RectifyOFPXML:
         dim_number = 0
         for child in root:
             self.clean_attrib(child)
+            # Temporarily hold the declaring variable's type.
+            if child.tag == "type":
+                self.variable_type = child.attrib['name']
+            # Keep a track of array in derived type dimension information.
             if child.tag == "explicit-shape-spec-list__begin":
                 is_derived_type_dimension_setting = True
                 self.dim += 1
@@ -1087,7 +1097,7 @@ class RectifyOFPXML:
         current.set("is_derived_type", str(self.is_derived_type))
 
     def handle_tag_variables(
-            self, root, current, parent, _, traverse
+            self, root, current, parent, grandparent, traverse
     ):
         """This function handles cleaning up the XML elements
         between the variables elements.
@@ -1098,6 +1108,12 @@ class RectifyOFPXML:
         for child in root:
             self.clean_attrib(child)
             if len(child) > 0 or child.text:
+                if (
+                        child.tag == "variable"
+                        and self.current_scope in self.argument_types
+                        and child.attrib['name'] in self.argument_types[self.current_scope]
+                ):
+                    self.argument_types[self.current_scope][child.attrib['name']] = self.variable_type
                 # Up to this point, all the child (nested or sub) elements were
                 # <variable>
                 cur_elem = ET.SubElement(
@@ -1112,7 +1128,7 @@ class RectifyOFPXML:
                     child.tag == "variable"
                     and child.attrib
                 ):
-                    _ = ET.SubElement(
+                    grandparent = ET.SubElement(
                         current, child.tag, child.attrib
                     )
                 else:
@@ -1501,6 +1517,7 @@ class RectifyOFPXML:
                 )
                 if "id" in child.attrib and self.is_interface:
                     self.interface_functions[self.cur_interface_name].append(child.attrib['id'])
+                    self.interface_function_xml[self.cur_interface_name][child.attrib['id']] = cur_elem
                 if grandparent.tag == "function":
                     self.args_for_function.append(cur_elem.attrib['id'])
                 # If the element holds sub-elements, call the XML tree parser
@@ -1554,6 +1571,12 @@ class RectifyOFPXML:
             self.is_derived_type_ref = True
             self.clean_derived_type_ref(current)
 
+        # Default attribute values
+        current.attrib['hasSubscripts'] = "false"
+        current.attrib['is_arg'] = "false"
+        current.attrib['numPartRef'] = "1"
+        current.attrib['type'] = "ambiguous"
+
         for child in root:
             self.clean_attrib(child)
             if child.text:
@@ -1570,7 +1593,6 @@ class RectifyOFPXML:
                         # as an one of its attributes
                         if parent.tag == "call":
                             cur_elem.attrib['fname'] = current.attrib['id']
-                        # Default
                         current.attrib['hasSubscripts'] = "true"
                         # Check whether the variable is an array AND the
                         # variable is for the current scope. This is important
@@ -2462,6 +2484,7 @@ class RectifyOFPXML:
         <subroutine>
         </subroutine>
         """
+        self.argument_types[root.attrib['name']] = {}
         self.current_scope = root.attrib['name']
         for child in root:
             self.clean_attrib(child)
@@ -2486,6 +2509,30 @@ class RectifyOFPXML:
                     assert (
                         False
                     ), f'In handle_tag_subroutine: Empty elements "{child.tag}"'
+
+        # DEBUG
+        print ("rectify.py - handle_tag_subroutine - self.argument_types: ", self.argument_types)
+        print ("rectify.py - handle_tag_subroutine - self.arguments_list: ", self.arguments_list)
+        print ("rectify.py - handle_tag_subroutine - self.interface_functions: ", self.interface_functions)
+
+        # Updating the argument attribute to hold the type.
+        for arg in self.arguments_list[current.attrib['name']]:
+            if arg.attrib['name'] in self.argument_types[current.attrib['name']]:
+                arg.attrib['type'] = self.argument_types[current.attrib['name']][arg.attrib['name']]
+
+        # Add extra XMLs under the interface function names to hold the argument types.
+        for interface in self.interface_function_xml:
+            if current.attrib['name'] in self.interface_function_xml[interface]:
+                argument_types = ET.SubElement(
+                    self.interface_function_xml[interface][current.attrib['name']],
+                    "argument-types"
+                )
+                for arg in self.arguments_list[current.attrib['name']]:
+                    argument_type = ET.SubElement(
+                        argument_types,
+                        "argument-type",
+                        {"type": arg.attrib['type']}
+                    )
 
     def handle_tag_arguments(
             self, root, current, _, grandparent, traverse
@@ -2520,6 +2567,10 @@ class RectifyOFPXML:
         for child in root:
             self.clean_attrib(child)
             if child.tag == "argument":
+                # Collect the argument names with None as a initial type.
+                # Types will be updated in handle_tag_variable.
+                if grandparent.tag == "subroutine":
+                    self.argument_types[grandparent.attrib['name']][child.attrib['name']] = None
                 cur_elem = ET.SubElement(
                     current, child.tag, child.attrib
                 )
