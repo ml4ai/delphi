@@ -981,6 +981,8 @@ class RectifyOFPXML:
                 self.reconstruct_derived_type_declaration()
             self.is_derived_type = False
 
+        self.variable_type = None
+
     def handle_tag_type(
             self, root, current, parent, _, traverse
     ):
@@ -1057,6 +1059,8 @@ class RectifyOFPXML:
                 if self.is_derived_type:
                     self.derived_type_var_holder_list.append(child)
             elif child.tag == "derived-type-spec":
+                if self.variable_type == None:
+                    self.variable_type = child.attrib['typeName']
                 if not self.is_derived_type:
                     self.is_derived_type = True
                     current.set("name", child.attrib['typeName'])
@@ -2509,11 +2513,10 @@ class RectifyOFPXML:
                     assert (
                         False
                     ), f'In handle_tag_subroutine: Empty elements "{child.tag}"'
-
         # Updating the argument attribute to hold the type.
         for arg in self.arguments_list[current.attrib['name']]:
             if arg.attrib['name'] in self.argument_types[current.attrib['name']]:
-                arg.attrib['type'] = self.argument_types[current.attrib['name']][arg.attrib['name']]
+                arg.attrib['type'] = str(self.argument_types[current.attrib['name']][arg.attrib['name']])
 
         # Add extra XMLs under the interface function names to hold the argument types.
         for interface in self.interface_function_xml:
@@ -2585,7 +2588,7 @@ class RectifyOFPXML:
         """This function handles cleaning up the XML elements between the
         argument.
 
-        <argument>./a
+        <argument>
         </argument>
         """
         current.attrib['is_array'] = "false"

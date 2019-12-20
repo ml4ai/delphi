@@ -654,7 +654,10 @@ class PythonCodeGenerator(object):
 
     def printArg(self, node, printState: PrintState):
         try:
-            var_type = TYPE_MAP[node["type"].lower()]
+            if node["type"].lower() in TYPE_MAP:
+                var_type = TYPE_MAP[node["type"].lower()]
+            elif node["is_derived_type"] == "true":
+                var_type = node["type"].lower()
         except KeyError:
             raise For2PyError(f"unrecognized type {node['type']}")
 
@@ -1528,22 +1531,26 @@ class PythonCodeGenerator(object):
     def printInterface(self, node, printState: PrintState):
         """This function prints out the Fortran interface to Python regular def
         function with isinstance"""
-        # DEBUG
-        print ("    pyTranslate.py - printInterface - node: ", node)
         # Print function declaration.
         self.pyStrings.append(f"def {node['name']} (")
         max_argument = int(node["max_argument"])
         for i in range(0, max_argument):
             arg_num = f"arg{i+1}"
+            # A Python function representing Fortran interface can receive
+            # n number of arguments that are not fixed. Thus, as a default,
+            # Python function will be declared with the maximum number of
+            # arguments with default value of None.
             self.pyStrings.append(f"{arg_num}=None")
             if i < max_argument - 1:
                 self.pyStrings.append(", ")
         self.pyStrings.append("):\n")
+
         # Print code to figure out how many arguments were passed to the function.
         self.pyStrings.append("    num_passed_args = 0\n")
-        self.pyStrings.append(f"    for i in range(0, {max_argument}):\n")
-        self.pyStrings.append("         if arg+f\"{i+1}\" != None:\n")
-        self.pyStrings.append("             num_passed_args += 1\n")
+        for i in range(0, max_argument):
+            self.pyStrings.append(f"    if arg{i+1} != None:\n")
+            self.pyStrings.append("        num_passed_args += 1\n")
+        self.pyStrings.append("\n")
         
         functions_sorted_by_arg_nums = {}
         for i in range(1, max_argument+1):
@@ -1560,7 +1567,11 @@ class PythonCodeGenerator(object):
                 types = node["functions"][function]
                 self.pyStrings.append("        if")
                 for i in range(1, num+1):
-                    self.pyStrings.append(f" isintance(arg{i}[0], {types[i-1]})")
+                    if types[i-1] in TYPE_MAP:
+                        arg_type = TYPE_MAP[types[i-1]]
+                    else:
+                        arg_type = types[i-1]
+                    self.pyStrings.append(f" isinstance(arg{i}[0], {arg_type})")
                     if i < num:
                         self.pyStrings.append(f" and")
                 self.pyStrings.append(f":\n")
@@ -1570,10 +1581,6 @@ class PythonCodeGenerator(object):
                     if i < num:
                         self.pyStrings.append(f", ")
                 self.pyStrings.append(")\n")
-
-        # DEBUG
-        print ("    pyTranslate.py - printInterface - functions_sorted_by_arg_nums: ", functions_sorted_by_arg_nums)
-
 
     ###########################################################################
     #                                                                         #

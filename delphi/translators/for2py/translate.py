@@ -191,6 +191,7 @@ class XML_to_JSON_translator(object):
         self.cycle_index = 0
         self.return_index = 0
         self.loop_active = False
+        self.derived_type_list = []
 
     def process_subroutine_or_program_module(self, root, state):
         """ This function should be the very first function to be called """
@@ -239,9 +240,13 @@ class XML_to_JSON_translator(object):
     def process_argument(self, root, state) -> List[Dict]:
         """ This function handles <argument> tag. It simply create a new AST
         list and copy the values (tag and attributes) to it.  """
-
         assert root.tag == "argument", "The root must be <argument>"
         var_name = root.attrib["name"].lower()
+        if root.attrib["type"] in self.derived_type_list:
+            is_derived_type = "true"
+        else:
+            is_derived_type = "false"
+
         array_status = root.attrib["is_array"]
         # If the root does not have any children, this argument tag is a
         # function argument variable. Otherwise, this argument is a named
@@ -255,13 +260,14 @@ class XML_to_JSON_translator(object):
                  "name": var_name,
                  "is_array": array_status,
                  "value": value,
+                 "is_derived_type": is_derived_type
                  }
             ]
         else:
             # Store each argument respective to the function it is defined in
             self.argument_list.setdefault(self.current_module, []).append(
                  var_name)
-            return [{"tag": "arg", "name": var_name, "is_array": array_status}]
+            return [{"tag": "arg", "name": var_name, "is_array": array_status, "is_derived_type": is_derived_type}]
 
     def process_declaration(self, root, state) -> List[Dict]:
         """ This function handles <declaration> tag and its sub-elements by
@@ -297,6 +303,7 @@ class XML_to_JSON_translator(object):
                     # AST list object into the declared_variable object. No
                     # other work is done in the current function.
                     declared_variable += self.parseTree(node, state)
+                    self.derived_type_list.append(declared_variable[0]["type"])
             elif node.tag == "dimensions":
                 num_of_dimensions = int(node.attrib["count"])
                 dimensions = {
@@ -813,7 +820,7 @@ class XML_to_JSON_translator(object):
             for node in root:
                 if node.tag == "argument-types":
                     ref["is_interface_func"] = "true"
-                    ref["function_arg_types"] = self.parseTree(node, state)
+                    ref["func_arg_types"] = self.parseTree(node, state)
 
             return [ref]
 
@@ -1120,12 +1127,9 @@ class XML_to_JSON_translator(object):
             elif node.tag == "body":
                 body = self.parseTree(node, state)
                 for elem in body:
-                    interface["functions"][elem["name"]] = elem["function_arg_types"]
+                    interface["functions"][elem["name"]] = elem["func_arg_types"]
             else:
                 pass
-        # DEBUG
-        print ("    translate.py - process_interface - interface: ", interface)
-
         return [interface]
 
     def parseTree(self, root, state: ParseState) -> List[Dict]:
