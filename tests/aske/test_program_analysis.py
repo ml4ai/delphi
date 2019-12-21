@@ -212,6 +212,17 @@ def select_case_python_IR_test():
 def select_case_grfn_test():
     yield make_grfn_dict(Path(f"{DATA_DIR}/select_case/select02.f"))
 
+
+@pytest.fixture
+def interface_python_IR_test():
+    yield get_python_source(Path(f"{DATA_DIR}/interface/interface_01.f"))[0][0]
+
+
+@pytest.fixture
+def multiple_interface_python_IR_test():
+    yield get_python_source(Path(f"{DATA_DIR}/interface/interface_03.f"))[0][0]
+
+
 #########################################################
 #                                                       #
 #                   PYTHON IR TEST                      #
@@ -332,6 +343,18 @@ def test_select_case_pythonIR_generation(select_case_python_IR_test):
     with open(f"{DATA_DIR}/select_case/select02.py", "r") as f:
         python_src = f.read()
     assert select_case_python_IR_test[0] == python_src
+
+
+def test_interface_pythonIR_generation(interface_python_IR_test):
+    with open(f"{DATA_DIR}/interface/m_mymod.py", "r") as f:
+        python_src = f.read()
+    assert interface_python_IR_test[0] == python_src
+
+
+def test_multiple_interface_pythonIR_generation(multiple_interface_python_IR_test):
+    with open(f"{DATA_DIR}/interface/m_testmodule.py", "r") as f:
+        python_src = f.read()
+    assert multiple_interface_python_IR_test[0] == python_src
 
 
 ############################################################################
