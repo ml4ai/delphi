@@ -242,7 +242,10 @@ class XML_to_JSON_translator(object):
         list and copy the values (tag and attributes) to it.  """
         assert root.tag == "argument", "The root must be <argument>"
         var_name = root.attrib["name"].lower()
-        if root.attrib["type"] in self.derived_type_list:
+        if (
+                "type" in root.attrib
+                and root.attrib["type"] in self.derived_type_list
+        ):
             is_derived_type = "true"
         else:
             is_derived_type = "false"
