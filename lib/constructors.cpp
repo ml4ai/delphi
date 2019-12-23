@@ -161,6 +161,7 @@ AnalysisGraph::from_uncharted_json_dict(nlohmann::json json_data) {
     string text = stmt["evidence"][0]["text"].get<string>();
     G.add_edge(causal_fragment);
   }
+  G.construct_beta_pdfs();
   return G;
 }
 
