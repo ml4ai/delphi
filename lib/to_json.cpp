@@ -15,10 +15,3 @@ string AnalysisGraph::to_json_string() {
   j["edges"] = data;
   return j.dump();
 }
-
-AnalysisGraph AnalysisGraph::from_json_string(string json_string) {
-  auto data = nlohmann::json::parse(json_string);
-  AnalysisGraph G;
-  G.id = data["id"];
-  return G;
-}

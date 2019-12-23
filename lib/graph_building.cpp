@@ -80,7 +80,7 @@ void AnalysisGraph::remove_node(string concept) {
 
       if (node_to_remove) // Concept is in the CAG
       {
-        // Note: This is an overlaoded private method that takes in a vertex id
+        // Note: This is an overloaded private method that takes in a vertex id
         this->remove_node(node_to_remove.mapped());
       }
       else // The concept is not in the graph
