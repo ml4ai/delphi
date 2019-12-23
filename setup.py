@@ -18,7 +18,7 @@ class CMakeExtension(Extension):
     def __init__(self, name, sourcedir="", builddir=""):
         Extension.__init__(self, name, sources=[])
         self.sourcedir = os.path.abspath(sourcedir)
-        self.builddir=builddir
+        self.builddir = builddir
 
 
 class CMakeBuild(build_ext):
@@ -44,8 +44,50 @@ class CMakeBuild(build_ext):
 
     def build_extension(self, ext):
         os.makedirs(ext.builddir, exist_ok=True)
-        check_call(["make","extensions"])
+        check_call(["make", "extensions"])
 
+
+EXTRAS_REQUIRE = {
+    "wm": [
+        "pybind11",
+        "indra[eidos_offline]",
+        "SQLAlchemy",
+        "flask-sqlalchemy",
+        "python-dateutil",
+    ],
+    "aske": [
+        "plotly",
+        "sympy",
+        "flask-WTF",
+        "flask-codemirror",
+        "salib",
+        "torch",
+    ],
+    "dev": [
+        "jupyter",
+        "jupyter-contrib-nbextensions",
+        "check-manifest",
+        "rise",
+        "shapely",
+        "pyshp",
+        "xlrd",
+        "pyjnius",
+    ],
+    "test": ["pytest>=4.4.0", "pytest-cov", "pytest-sugar", "pytest-xdist",],
+    "docs": [
+        "sphinx",
+        "sphinx-rtd-theme",
+        "sphinxcontrib-bibtex",
+        "sphinxcontrib-trio",
+        "recommonmark",
+        "breathe",
+        "exhale",
+    ],
+}
+
+EXTRAS_REQUIRE["all"] = list(
+    {dep for deps in EXTRAS_REQUIRE.values() for dep in deps}
+)
 
 setup(
     name="delphi",
@@ -67,8 +109,6 @@ setup(
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
     install_requires=[
-        "pybind11",
-        "indra[eidos_offline]",
         "tqdm",
         "numpy",
         "scipy",
@@ -81,46 +121,11 @@ setup(
         "cython",
         "dataclasses",
         "flask",
-        "SQLAlchemy",
-        "flask-sqlalchemy",
-        "jupyter",
-        "jupyter-contrib-nbextensions",
-        "python-dateutil",
-        "salib",
-        "torch",
         "ruamel.yaml",
-        "flask-WTF",
-        "flask-codemirror",
         "pygments",
-        "sympy",
-        "plotly",
     ],
+    extras_require=EXTRAS_REQUIRE,
     python_requires=">=3.6",
-    extras_require={
-        "dev": [
-            "check-manifest",
-            "rise",
-            "shapely",
-            "pyshp",
-            "xlrd",
-            "pyjnius",
-        ],
-        "test": [
-            "pytest>=4.4.0",
-            "pytest-cov",
-            "pytest-sugar",
-            "pytest-xdist",
-        ],
-        "docs": [
-            "sphinx",
-            "sphinx-rtd-theme",
-            "sphinxcontrib-bibtex",
-            "sphinxcontrib-trio",
-            "recommonmark",
-            "breathe",
-            "exhale",
-        ],
-    },
     entry_points={
         "console_scripts": [
             "delphi = delphi.apps.cli:main",

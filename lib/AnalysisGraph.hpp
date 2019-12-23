@@ -45,6 +45,7 @@ typedef std::tuple<std::pair<std::pair<int, int>, std::pair<int, int>>,
     Prediction;
 
 typedef boost::graph_traits<DiGraph>::edge_descriptor EdgeDescriptor;
+typedef boost::graph_traits<DiGraph>::edge_iterator EdgeIterator;
 
 typedef std::multimap<std::pair<int, int>, std::pair<int, int>>::iterator MMapIterator;
 
@@ -569,6 +570,8 @@ class AnalysisGraph {
 
   ~AnalysisGraph() {}
 
+  std::string id;
+  std::string to_json_string();
   bool data_heuristic = false;
 
   // Sampling resolution. Default is 200
@@ -610,6 +613,9 @@ class AnalysisGraph {
   static AnalysisGraph
   from_causal_fragments(std::vector<CausalFragment> causal_fragments);
 
+
+  /** From internal string representation output by to_json_string */
+  static AnalysisGraph from_json_string(std::string);
 
   /*
    ============================================================================

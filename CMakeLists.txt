@@ -21,14 +21,13 @@ include_directories(${Boost_INCLUDE_DIR})
 include_directories(external/nlohmann-json)
 include_directories(external/cppitertools)
 
-option(USE_BUNDLED_FMT "Use fmtlib bundled with Delphi" ON)
 option(USE_BUNDLED_SPDLOG "Use spdlog bundled with Delphi" ON)
 
-if(USE_BUNDLED_FMT)
+find_package(fmt)
+
+if(NOT APPLE)
   include_directories(external/fmt/include)
   add_subdirectory(external/fmt)
-else()
-  find_package(fmt REQUIRED)
 endif()
 
 
@@ -55,6 +54,7 @@ find_package(SQLite3 REQUIRED)
 add_library(Delphi
   lib/AnalysisGraph.hpp
   lib/construct_beta_pdfs.cpp
+  lib/to_json.cpp
   lib/data.cpp
   lib/data.hpp
   lib/DiGraph.hpp
