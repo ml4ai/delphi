@@ -196,3 +196,17 @@ AnalysisGraph::from_causal_fragments(vector<CausalFragment> causal_fragments) {
   return G;
 }
 
+AnalysisGraph AnalysisGraph::from_json_string(string json_string) {
+  auto data = nlohmann::json::parse(json_string);
+  AnalysisGraph G;
+  G.id = data["id"];
+  for (auto e : data["edges"]) {
+    string source = e[0];
+    string target = e[1];
+    G.add_node(source);
+    G.add_node(target);
+    G.add_edge(source, target);
+    G.edge(source, target).kde.dataset = e[2].get<vector<double>>();
+  }
+  return G;
+}
