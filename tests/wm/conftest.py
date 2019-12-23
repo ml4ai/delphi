@@ -8,7 +8,7 @@ from indra.statements import (
     Event,
     QualitativeDelta,
 )
-from delphi.AnalysisGraph import AnalysisGraph
+from delphi.cpp.DelphiPython import AnalysisGraph
 from delphi.utils.indra import *
 from delphi.utils.shell import cd
 

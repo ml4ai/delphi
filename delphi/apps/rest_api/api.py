@@ -11,7 +11,7 @@ from dateutil.relativedelta import relativedelta
 from typing import Optional, List
 from itertools import product
 from statistics import median, mean
-from delphi.AnalysisGraph import AnalysisGraph
+from delphi.cpp.DelphiPython import AnalysisGraph
 from delphi.random_variables import LatentVar
 from delphi.utils import flatten, lmap
 from flask import jsonify, request, Blueprint
@@ -51,10 +51,9 @@ def listAllModels():
 def createNewModel():
     """ Create a new Delphi model. """
     data = json.loads(request.data)
-    G = AnalysisGraph.from_uncharted_json_serialized_dict(data)
-    G.sample_from_prior()
+    G = AnalysisGraph.from_uncharted_json_string(request.data)
     G.id = data["id"]
-    G.to_sql(app=current_app)
+    print(G.to_json_string())
     return jsonify({"status": "success"})
 
 
