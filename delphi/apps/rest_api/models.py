@@ -63,6 +63,7 @@ class Serializable(object):
         return [m.serialize() for m in l]
 
 
+
 class DelphiModel(db.Model, Serializable):
     """ Delphi AnalysisGraph Model """
     __tablename__ = "delphimodel"
@@ -70,7 +71,7 @@ class DelphiModel(db.Model, Serializable):
     icm_metadata = db.relationship(
         "ICMMetadata", backref="delphimodel", lazy=True, uselist=False
     )
-    model = db.Column(db.PickleType)
+    model = db.Column(db.String)
 
 
 class ICMMetadata(db.Model, Serializable):

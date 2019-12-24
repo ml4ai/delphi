@@ -52,8 +52,10 @@ def createNewModel():
     """ Create a new Delphi model. """
     data = json.loads(request.data)
     G = AnalysisGraph.from_uncharted_json_string(request.data)
-    print(G.to_json_string())
     G.id = data["id"]
+    model=DelphiModel(id=data["id"], model = G.to_json_string())
+    db.session.add(model)
+    db.session.commit()
     return jsonify({"status": "success"})
 
 
@@ -179,8 +181,9 @@ def getIndicators():
 @bp.route("/delphi/models/<string:modelID>/projection", methods=["POST"])
 def createProjection(modelID):
     data = json.loads(request.data)
-    G = DelphiModel.query.filter_by(id=modelID).first().model
-    A = G.to_agraph()
+    model = DelphiModel.query.filter_by(id=modelID).first().model
+    G = AnalysisGraph.from_json_string(model)
+    # FIXME
     G.initialize(initialize_indicators=False)
     for n in G.nodes(data=True):
         rv = n[1]["rv"]

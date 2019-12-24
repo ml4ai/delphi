@@ -28,6 +28,7 @@ def app():
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 
     with app.app_context():
+        db.create_all()
         yield app
         db.drop_all()
 
