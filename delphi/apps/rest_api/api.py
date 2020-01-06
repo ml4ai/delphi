@@ -215,7 +215,7 @@ def createProjection(modelID):
     for i in range(int(data["timeStepsInMonths"])):
         d = d + relativedelta(months=1)
 
-        for n in G.nodes():
+        for n in G:
             values = sorted([s[n] for s in G.s0])
             median_value = median(values)
             lower_limit = values[lower_rank]
