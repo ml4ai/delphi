@@ -800,7 +800,7 @@ class AnalysisGraph {
   void map_concepts_to_indicators(int n = 1, std::string country = "");
 
   /**
-   * Parameterize the indicators of the AnalysisGraph..
+   * Parameterize the indicators of the AnalysisGraph.
    */
   void parameterize(std::string country = "South Sudan",
                     std::string state = "",
@@ -909,18 +909,16 @@ class AnalysisGraph {
    * samples for that time step.
    *
    * @param indicator: A std::string representing the indicator variable for
-   which we
-   *                   want predictions for.
-
-   * @return A this->res x this->pred_timesteps dimension 2D array
+   * which we want predictions.
+   * @return A (this->res, x this->pred_timesteps) dimension 2D array
    *         (std::vector of std::vectors)
    *
-  */
+   */
   std::vector<std::vector<double>> prediction_to_array(std::string indicator);
 
   /*
    ============================================================================
-   Public: Syntheitc data experiment (in synthetic_data.cpp)
+   Public: Synthetic data experiment (in synthetic_data.cpp)
    ============================================================================
   */
 
