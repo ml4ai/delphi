@@ -49,7 +49,7 @@ class CMakeBuild(build_ext):
 
 EXTRAS_REQUIRE = {
     "wm": [
-        "pybind11",
+        "flask" "pybind11",
         "indra[eidos_offline]",
         "SQLAlchemy",
         "flask-sqlalchemy",
@@ -73,7 +73,7 @@ EXTRAS_REQUIRE = {
         "xlrd",
         "pyjnius",
     ],
-    "test": ["pytest>=4.4.0", "pytest-cov", "pytest-sugar", "pytest-xdist",],
+    "test": ["pytest>=4.4.0", "pytest-cov", "pytest-sugar", "pytest-xdist"],
     "docs": [
         "sphinx",
         "sphinx-rtd-theme",

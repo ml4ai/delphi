@@ -5,8 +5,8 @@
 
 #include <boost/graph/graph_traits.hpp>
 #include <boost/range/adaptor/transformed.hpp>
-#include <boost/range/iterator_range.hpp>
 #include <boost/range/algorithm/for_each.hpp>
+#include <boost/range/iterator_range.hpp>
 
 #include "graphviz_interface.hpp"
 
@@ -47,7 +47,8 @@ typedef std::tuple<std::pair<std::pair<int, int>, std::pair<int, int>>,
 typedef boost::graph_traits<DiGraph>::edge_descriptor EdgeDescriptor;
 typedef boost::graph_traits<DiGraph>::edge_iterator EdgeIterator;
 
-typedef std::multimap<std::pair<int, int>, std::pair<int, int>>::iterator MMapIterator;
+typedef std::multimap<std::pair<int, int>, std::pair<int, int>>::iterator
+    MMapIterator;
 
 AdjectiveResponseMap construct_adjective_response_map(size_t n_kernels);
 
@@ -57,7 +58,6 @@ AdjectiveResponseMap construct_adjective_response_map(size_t n_kernels);
 class AnalysisGraph {
 
   private:
-
   DiGraph graph;
 
   // Handle to the random number generator singleton object
@@ -70,7 +70,6 @@ class AnalysisGraph {
 
   // Normal distrubution used to perturb β
   std::normal_distribution<double> norm_dist;
-
 
   /*
    ============================================================================
@@ -109,7 +108,6 @@ class AnalysisGraph {
 
   // Maps each β to all the transition matrix cells that are dependent on it.
   std::multimap<std::pair<int, int>, std::pair<int, int>> beta2cell;
-
 
   /*
    ============================================================================
@@ -180,7 +178,6 @@ class AnalysisGraph {
   // ObservedStateSequence synthetic_observed_state_sequence;
   bool synthetic_data_experiment = false;
 
-
   /*
    ============================================================================
    Private: Utilities (in graph_util.cpp)
@@ -196,8 +193,8 @@ class AnalysisGraph {
   // Allocate a num_verts x num_verts 2D array (std::vector of std::vectors)
   void allocate_A_beta_factors();
 
-  //AnalysisGraph
-  //find_all_paths_for_concept(std::string concept, int depth, bool reverse);
+  // AnalysisGraph
+  // find_all_paths_for_concept(std::string concept, int depth, bool reverse);
 
   /**
    * Finds all the simple paths starting at the start vertex and
@@ -243,7 +240,6 @@ class AnalysisGraph {
                               int end_year,
                               int end_month);
 
-
   /*
    ============================================================================
    Private: Subgraphs (in subgraphs.cpp)
@@ -261,7 +257,6 @@ class AnalysisGraph {
                             std::unordered_set<int>& vertices_to_keep,
                             int cutoff);
 
-
   /*
    ============================================================================
    Private: Accessors
@@ -270,7 +265,7 @@ class AnalysisGraph {
 
   int num_nodes() { return boost::num_vertices(graph); }
 
-  //int get_vertex_id(std::string concept);
+  // int get_vertex_id(std::string concept);
   int get_vertex_id(std::string concept) {
     using namespace fmt::literals;
     try {
@@ -314,7 +309,7 @@ class AnalysisGraph {
     return this->successors(this->name_to_vertex.at(node_name));
   }
 
-  //std::vector<Node> get_successor_list(std::string node_name);
+  // std::vector<Node> get_successor_list(std::string node_name);
   std::vector<Node> get_successor_list(std::string node) {
     std::vector<Node> successors = {};
     for (int successor : this->successors(node)) {
@@ -332,7 +327,7 @@ class AnalysisGraph {
     return this->predecessors(this->name_to_vertex.at(node_name));
   }
 
-  //std::vector<Node> get_predecessor_list(std::string node_name);
+  // std::vector<Node> get_predecessor_list(std::string node_name);
   std::vector<Node> get_predecessor_list(std::string node) {
     std::vector<Node> predecessors = {};
     for (int predecessor : this->predecessors(node)) {
@@ -349,13 +344,11 @@ class AnalysisGraph {
                             2 * get_vertex_id(source_vertex_name) + 1);
   }
 
-
   /*
    ============================================================================
    Private: Get Training Data Sequence (in train_model.cpp)
    ============================================================================
   */
-
 
   /**
    * Set the observed state sequence for a given time range from data.
@@ -405,7 +398,6 @@ class AnalysisGraph {
                                std::string country,
                                std::string state = "",
                                std::string county = "");
-
 
   /*
    ============================================================================
@@ -471,7 +463,6 @@ class AnalysisGraph {
 
   void revert_back_to_previous_state();
 
-
   /*
    ============================================================================
    Private: Inference (in inference.cpp)
@@ -500,7 +491,7 @@ class AnalysisGraph {
   generate_predicted_observed_state_sequences_from_predicted_latent_state_sequences();
 
   /**
-   * Format the prediction result into a format python callers favor.
+   * Format the prediction result into a format Python callers favor.
    *
    * @param pred_timestes: Number of timesteps in the predicted sequence.
    *
@@ -511,15 +502,14 @@ class AnalysisGraph {
 
   FormattedPredictionResult format_prediction_result();
 
-
   /*
    ============================================================================
-   Private: Syntheitc Data Experiment (in synthetic_data.cpp)
+   Private: Synthetic Data Experiment (in synthetic_data.cpp)
    ============================================================================
   */
 
   /**
-   * To help experiment with initializing βs to differet values
+   * To help experiment with initializing βs to different values
    *
    * @param ib: Criteria to initialize β
    */
@@ -548,7 +538,6 @@ class AnalysisGraph {
   std::vector<std::vector<double>>
   sample_observed_state(Eigen::VectorXd latent_state);
 
-
   /*
    ============================================================================
    Private: Graph Visualization (in graphviz.cpp)
@@ -563,9 +552,7 @@ class AnalysisGraph {
       std::string node_to_highlight = "",
       std::string rankdir = "TB");
 
-
   public:
-
   AnalysisGraph() {}
 
   ~AnalysisGraph() {}
@@ -576,7 +563,6 @@ class AnalysisGraph {
 
   // Sampling resolution. Default is 200
   int res = DEFAULT_N_SAMPLES;
-
 
   /*
    ============================================================================
@@ -613,7 +599,6 @@ class AnalysisGraph {
   static AnalysisGraph
   from_causal_fragments(std::vector<CausalFragment> causal_fragments);
 
-
   /** From internal string representation output by to_json_string */
   static AnalysisGraph from_json_string(std::string);
 
@@ -624,9 +609,7 @@ class AnalysisGraph {
   */
 
   /** Number of nodes in the graph */
-  size_t num_vertices() {
-    return boost::num_vertices(this->graph);
-  }
+  size_t num_vertices() { return boost::num_vertices(this->graph); }
 
   Node& operator[](std::string node_name) {
     return (*this)[this->get_vertex_id(node_name)];
@@ -646,19 +629,19 @@ class AnalysisGraph {
 
   Edge& edge(int source, std::string target) {
     return this->graph
-      [boost::edge(source, this->get_vertex_id(target), this->graph).first];
+        [boost::edge(source, this->get_vertex_id(target), this->graph).first];
   }
 
   Edge& edge(std::string source, int target) {
     return this->graph
-      [boost::edge(this->get_vertex_id(source), target, this->graph).first];
+        [boost::edge(this->get_vertex_id(source), target, this->graph).first];
   }
 
   Edge& edge(std::string source, std::string target) {
     return this->graph[boost::edge(this->get_vertex_id(source),
-        this->get_vertex_id(target),
-        this->graph)
-      .first];
+                                   this->get_vertex_id(target),
+                                   this->graph)
+                           .first];
   }
 
   boost::range_detail::integer_iterator<unsigned long> begin() {
@@ -670,7 +653,6 @@ class AnalysisGraph {
   };
 
   Eigen::VectorXd& get_initial_latent_state() { return this->s0; };
-
 
   /*
    ============================================================================
@@ -701,7 +683,6 @@ class AnalysisGraph {
   void remove_edge(std::string src, std::string tgt);
 
   void remove_edges(std::vector<std::pair<std::string, std::string>> edges);
-
 
   /*
    ============================================================================
@@ -745,7 +726,6 @@ class AnalysisGraph {
                                               std::string target_concept,
                                               int cutoff = -1);
 
-
   /*
    ============================================================================
    Public: Graph Modification (in graph_modification.cpp)
@@ -771,7 +751,6 @@ class AnalysisGraph {
                                std::string target_concept,
                                int target_polarity);
 
-
   /*
    ============================================================================
    Public: Construct Beta Pdfs (in construct_beta_pdfs.cpp)
@@ -780,7 +759,6 @@ class AnalysisGraph {
 
   void construct_beta_pdfs(std::mt19937 rng);
   void construct_beta_pdfs();
-
 
   /*
    ============================================================================
@@ -815,7 +793,6 @@ class AnalysisGraph {
                     int month = 0,
                     std::map<std::string, std::string> units = {});
 
-
   /*
    ============================================================================
    Public: Utilities (in graph_utils.cpp)
@@ -830,7 +807,6 @@ class AnalysisGraph {
   void set_random_seed(int seed);
 
   void set_derivative(std::string, double);
-
 
   /*
    ============================================================================
@@ -869,7 +845,6 @@ class AnalysisGraph {
                    InitialBeta initial_beta = InitialBeta::ZERO,
                    bool use_heuristic = false);
 
-
   /*
    ============================================================================
    Public: Training by MCMC Sampling (in sampling.cpp)
@@ -879,7 +854,6 @@ class AnalysisGraph {
   void set_initial_latent_state(Eigen::VectorXd vec) { this->s0 = vec; };
 
   void set_default_initial_state();
-
 
   /*
    ============================================================================
@@ -928,7 +902,6 @@ class AnalysisGraph {
   */
   std::vector<std::vector<double>> prediction_to_array(std::string indicator);
 
-
   /*
    ============================================================================
    Public: Syntheitc data experiment (in synthetic_data.cpp)
@@ -949,7 +922,6 @@ class AnalysisGraph {
       std::map<std::string, std::string> units = {},
       InitialBeta initial_beta = InitialBeta::HALF);
 
-
   /*
    ============================================================================
    Public: Graph Visualization (in graphviz.cpp)
@@ -966,7 +938,6 @@ class AnalysisGraph {
              1, /** Depth in the ontology to which simplified labels extend */
          std::string node_to_highlight = "",
          std::string rankdir = "TB");
-
 
   /*
    ============================================================================

@@ -183,32 +183,21 @@ def createProjection(modelID):
     data = json.loads(request.data)
     model = DelphiModel.query.filter_by(id=modelID).first().model
     G = AnalysisGraph.from_json_string(model)
-    # FIXME
-    G.initialize(initialize_indicators=False)
-    for n in G.nodes(data=True):
-        rv = n[1]["rv"]
-        rv.partial_t = 0.0
-        for perturbation in data["perturbations"]:
-            if n[0] == perturbation["concept"]:
-                rv.partial_t = perturbation["value"]
-                G.s0_original[f"∂({n[0]})/∂t"] = rv.partial_t
-                for s in G.s0:
-                    s[f"∂({n[0]})/∂t"] = rv.partial_t
+    G.set_default_initial_state()
+    for perturbation in data["perturbations"]:
+        G.set_derivative(perturbation["concept"], perturbation["value"])
 
     id = str(uuid4())
-    experiment = ForwardProjection(baseType="ForwardProjection", id=id)
-    db.session.add(experiment)
-    db.session.commit()
 
     result = CauseMosForwardProjectionResult(
         id=id, baseType="CauseMosForwardProjectionResult"
     )
     result.results = {
-        concept: {
+        G[n].name: {
             "values": [],
             "confidenceInterval": {"upper": [], "lower": []},
         }
-        for concept in G
+        for n in G
     }
     db.session.add(result)
 
@@ -217,9 +206,9 @@ def createProjection(modelID):
 
     τ = 1.0  # Time constant to control the rate of the decay
 
-    # From https://www.ucl.ac.uk/child-health/short-courses-events/
-    #     about-statistical-courses/research-methods-and-statistics/chapter-8-content-8
-    n = len(G.s0)
+    # # From https://www.ucl.ac.uk/child-health/short-courses-events/
+    # #     about-statistical-courses/research-methods-and-statistics/chapter-8-content-8
+    n = G.res
     lower_rank = int((n - 1.96 * sqrt(n)) / 2)
     upper_rank = int((2 + n + 1.96 * sqrt(n)) / 2)
 
