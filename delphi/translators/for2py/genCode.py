@@ -359,6 +359,10 @@ class genCode:
                 module = module_parts[-1]
                 function = module_parts[0]
 
+                if module == "__str__":
+                    code_string = function
+                    return code_string
+
                 code_string = f"{function_name}("
                 if len(node.args) > 0:
                     arg_list = []
@@ -445,11 +449,12 @@ class genCode:
         return code_string
 
     def process_boolean_operation(self, node, state):
-        code_string = "({0} {1} {2})".format(
-            self.generate_code(node.values[0], state),
-            self.generate_code(node.op, state),
-            self.generate_code(node.values[1], state))
-        return code_string
+        bool_tests = [self.generate_code(node.values[i], state) for i in range(
+            len(node.values))]
+        bool_operation = self.generate_code(node.op, state)
+        code_string = f" {bool_operation} ".join(bool_tests)
+
+        return f"({code_string})"
 
     @staticmethod
     def _process_attribute(node, *_):

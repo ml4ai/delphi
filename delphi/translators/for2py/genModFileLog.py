@@ -19,11 +19,12 @@ Author: Terrence J. Lim
 """
 
 import os
-from os.path import isfile, join
+from os.path import isfile
 import re
 import sys
 import json
 import argparse
+
 
 def parse_args():
     """This function is for a safe command line
@@ -59,8 +60,10 @@ def parse_args():
         default_module_file_name = "modFileLog.json"
         return root_dir_path, default_module_file_name
 
+
 def get_file_list_in_directory(root_dir_path):
-    """This function lists all Fortran files (excluding directories)
+    """This function lists all Fortran fi
+    les (excluding directories)
     in the specified directory.
     Args:
         dir_path (str): Directory path.
@@ -78,7 +81,9 @@ def get_file_list_in_directory(root_dir_path):
                 files += [os.path.join(dir_path, f)]
     return files
 
-def modules_from_file(file_path, file_to_mod_mapper, mod_to_file_mapper, mod_info_dict):
+
+def modules_from_file(file_path, file_to_mod_mapper, mod_to_file_mapper,
+                      mod_info_dict):
     """This function checks either the module and file path already exist
     int the log file. If it does, then it compares the last_modified_time
     in the log file with the last modified time of file in disk. Then, it
@@ -98,17 +103,22 @@ def modules_from_file(file_path, file_to_mod_mapper, mod_to_file_mapper, mod_inf
 
     if file_path in file_to_mod_mapper:
         last_modified_time_in_log = file_to_mod_mapper[file_path][-1]
-        if last_modified_time  == last_modified_time_in_log:
+        if last_modified_time == last_modified_time_in_log:
             return
         else:
             assert (
                     last_modified_time > last_modified_time_in_log
-            ), "Last modified time in the log file cannot be later than on disk file's time."
-            populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper, mod_info_dict)
+            ), "Last modified time in the log file cannot be later than on " \
+               "disk file's time."
+            populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
+                             mod_info_dict)
     else:
-        populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper, mod_info_dict)
+        populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
+                         mod_info_dict)
 
-def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper, mod_info_dict):
+
+def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
+                     mod_info_dict):
     """This function populates two mappers by checking and extracting 
     module names, if exist, from the file, and map it to the file name.
     Args:
@@ -134,15 +144,23 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper, mod_info
     ):
         # Extract the module name that follows 'end module' or 'endmodule'
         # These two lines will extract all module names in the file.
-        module_names.extend(re.findall(r'(?i)(?<=end module )[^-. \n]*', file_content))
-        module_names.extend(re.findall(r'(?i)(?<=endmodule )[^-. \n]*', file_content))
+        module_names.extend(re.findall(r'(?i)(?<=end module )[^-. \n]*',
+                                       file_content))
+        module_names.extend(re.findall(r'(?i)(?<=endmodule )[^-. \n]*',
+                                       file_content))
         module_names_lowered = [mod.lower() for mod in module_names]
         file_to_mod_mapper[file_path] = module_names_lowered.copy()
-        file_to_mod_mapper[file_path].append(get_file_last_modified_time(file_path))
+        file_to_mod_mapper[file_path].append(get_file_last_modified_time(
+            file_path))
 
     for mod in module_names_lowered:
         mod_to_file_mapper[mod] = [file_path]
-        mod_info_dict[mod] = {"exports":{}, "symbol_types":{}, "imports":{}}
+        mod_info_dict[mod] = {
+            "exports": {},
+            "symbol_types": {},
+            "imports": {}
+        }
+
 
 def get_file_last_modified_time(file_path):
     """This function retrieves the file status and assigns the last modified
@@ -156,6 +174,7 @@ def get_file_last_modified_time(file_path):
     """
     file_stat = os.stat(file_path)
     return file_stat[8]
+
 
 def update_mod_info_json(module_log_file_path, mode_mapper_dict):
     """This function updates each module's information, such as
@@ -216,7 +235,7 @@ def mod_file_log_generator(
     Returns:
         None.
     """
-    if root_dir_path == None:
+    if not root_dir_path:
         root_dir_path = "."
     module_log_file_path = root_dir_path + "/" + module_log_file_name
 
@@ -233,9 +252,10 @@ def mod_file_log_generator(
         #       ...,
         #   }
         file_to_mod_mapper = module_logs["file_to_mod"]
-        # This will hold the module-to-file mapping, so any program that accesses
-        # module log JSON file can directly access the file path with the module
-        # name specified with "USE" without looping through the file_to_mod mapper.
+        # This will hold the module-to-file mapping, so any program that
+        # accesses module log JSON file can directly access the file path
+        # with the module name specified with "USE" without looping through
+        # the file_to_mod mapper.
         # Structure (One-to-One):
         #   {
         #       "__module_name__" : "__file_path__",
@@ -251,13 +271,19 @@ def mod_file_log_generator(
     files = get_file_list_in_directory(root_dir_path)
    
     for file_path in files:
-        modules_from_file(file_path, file_to_mod_mapper, mod_to_file_mapper, mod_info_dict)
-    module_log = {"file_to_mod": file_to_mod_mapper, "mod_to_file": mod_to_file_mapper, "mod_info": mod_info_dict}
+        modules_from_file(file_path, file_to_mod_mapper, mod_to_file_mapper,
+                          mod_info_dict)
+    module_log = {
+        "file_to_mod": file_to_mod_mapper,
+        "mod_to_file": mod_to_file_mapper,
+        "mod_info": mod_info_dict
+    }
 
     with open(module_log_file_path, 'w+') as json_f:
         json_f.write(json.dumps(module_log, indent=2))
 
     return module_log_file_path
+
 
 if __name__ == "__main__":
     root_dir_path, module_log_file = parse_args()
