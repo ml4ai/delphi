@@ -29,7 +29,8 @@ void AnalysisGraph::sample_predicted_latent_state_sequences(
     for (int t = 0; t < this->n_timesteps; t++) {
       const Eigen::MatrixXd& A_t =
           tuning_param * t * this->transition_matrix_collection[samp];
-      this->predicted_latent_state_sequences[samp][t] = A_t.exp() * this->s0;
+      const Eigen::VectorXd& s0_samp = this->initial_latent_state_collection[samp];
+      this->predicted_latent_state_sequences[samp][t] = A_t.exp() * s0_samp;
     }
   }
 }
