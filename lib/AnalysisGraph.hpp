@@ -498,7 +498,8 @@ class AnalysisGraph {
    */
   void sample_predicted_latent_state_sequences(int prediction_timesteps,
                                                int initial_prediction_step,
-                                               int total_timesteps);
+                                               int total_timesteps,
+                                               bool project = false);
 
   /** Generate predicted observed state sequenes given predicted latent state
    * sequences using the emission model
@@ -517,6 +518,9 @@ class AnalysisGraph {
    */
 
   FormattedPredictionResult format_prediction_result();
+
+
+  void run_model(int start_year, int start_month, int end_year, int end_month, bool project = false);
 
   /*
    ============================================================================
@@ -901,6 +905,8 @@ class AnalysisGraph {
                                  int start_month,
                                  int end_year,
                                  int end_month);
+
+  void generate_projection(std::string json_projection);
 
   /**
    * this->generate_prediction() must be called before callign this method.

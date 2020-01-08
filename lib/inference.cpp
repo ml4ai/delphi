@@ -16,7 +16,8 @@ using spdlog::warn;
 void AnalysisGraph::sample_predicted_latent_state_sequences(
     int prediction_timesteps,
     int initial_prediction_step,
-    int total_timesteps) {
+    int total_timesteps,
+    bool project) {
   this->n_timesteps = prediction_timesteps;
 
   // Allocate memory for prediction_latent_state_sequences
@@ -29,8 +30,15 @@ void AnalysisGraph::sample_predicted_latent_state_sequences(
     for (int t = 0; t < this->n_timesteps; t++) {
       const Eigen::MatrixXd& A_t =
           tuning_param * t * this->transition_matrix_collection[samp];
-      const Eigen::VectorXd& s0_samp = this->initial_latent_state_collection[samp];
-      this->predicted_latent_state_sequences[samp][t] = A_t.exp() * s0_samp;
+      if (project) {
+        // Perform projection based on the perturbed initial latenet state s0
+        this->predicted_latent_state_sequences[samp][t] = A_t.exp() * this->s0;
+      }
+      else {
+        // Perform inference based on the sampled initial latent states
+        const Eigen::VectorXd& s0_samp = this->initial_latent_state_collection[samp];
+        this->predicted_latent_state_sequences[samp][t] = A_t.exp() * s0_samp;
+      }
     }
   }
 }
@@ -82,17 +90,11 @@ FormattedPredictionResult AnalysisGraph::format_prediction_result() {
   return result;
 }
 
-
-/*
- ============================================================================
- Public: Inference
- ============================================================================
-*/
-
-Prediction AnalysisGraph::generate_prediction(int start_year,
-                                              int start_month,
-                                              int end_year,
-                                              int end_month) {
+void AnalysisGraph::run_model(int start_year,
+                              int start_month,
+                              int end_year,
+                              int end_month,
+                              bool project) {
   if (!this->trained) {
     print("Passed untrained Causal Analysis Graph (CAG) Model. \n",
           "Try calling <CAG>.train_model(...) first!");
@@ -107,7 +109,7 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
          "inital training date. Defaulting initial prediction date "
          "to initial training date.");
     start_year = this->training_range.first.first;
-    start_month = this->training_range.first.first;
+    start_month = this->training_range.first.second;
   }
 
   /*
@@ -153,11 +155,68 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
   }
 
   this->sample_predicted_latent_state_sequences(
-      this->pred_timesteps, 0, total_timesteps);
+      this->pred_timesteps, 0, total_timesteps, project);
   this->generate_predicted_observed_state_sequences_from_predicted_latent_state_sequences();
+}
+
+
+/*
+ ============================================================================
+ Public: Inference
+ ============================================================================
+*/
+
+Prediction AnalysisGraph::generate_prediction(int start_year,
+                                              int start_month,
+                                              int end_year,
+                                              int end_month) {
+  this->run_model(start_year, start_month, end_year, end_month);
 
   return make_tuple(
       this->training_range, this->pred_range, this->format_prediction_result());
+}
+
+void AnalysisGraph::generate_projection(string json_projection) {
+  auto json_data = nlohmann::json::parse(json_projection);
+
+  auto start_time = json_data["startTime"];
+  int start_year = start_time["year"].get<int>();
+  int start_month = start_time["month"].get<int>();
+
+  int time_steps = json_data["timeStepsInMonths"].get<int>();
+
+  // This calculation adds one more month to the time steps
+  // To avoid that we need to check some corner cases
+  int end_year = start_year + (start_month + time_steps) / 12;
+  int end_month = (start_month + time_steps) % 12;
+
+  cout << start_year << endl;
+  cout << start_month << endl;
+  cout << time_steps << endl;
+  cout << end_year << endl;
+  cout << end_month << endl;
+
+  // Create the perturbed initial latent state
+  this->set_default_initial_state();
+
+  auto perturbations =json_data["perturbations"];
+
+  for(auto pert : perturbations) {
+    string concept = pert["concept"].get<string>();
+    double value = pert["value"].get<double>();
+    cout << concept << ", " << value << endl;
+
+    try {
+      this->s0(2 * this->name_to_vertex.at(concept) + 1) = value;
+    }
+    catch (const out_of_range& oor) {
+      cout << "Concept: " << concept << " Not present in the CAG. Cannot perturb\n";
+    }
+  }
+
+  cout << this->s0 << endl;
+
+  this->run_model(start_year, start_month, end_year, end_month, true);
 }
 
 vector<vector<double>> AnalysisGraph::prediction_to_array(string indicator) {
