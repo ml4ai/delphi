@@ -1,13 +1,12 @@
 #include "AnalysisGraph.hpp"
-#include "tqdm.hpp"
 #include "spdlog/spdlog.h"
+#include "tqdm.hpp"
+#include "utils.hpp"
 #include <fstream>
+#include <range/v3/all.hpp>
 
 using namespace std;
-using tq::tqdm;
-using spdlog::debug;
-using spdlog::error;
-using spdlog::warn;
+using spdlog::debug, spdlog::error, spdlog::warn, delphi::utils::mean, tq::tqdm;
 
 nlohmann::json load_json(string filename) {
   ifstream i(filename);
@@ -23,8 +22,6 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
   auto json_data = load_json(filename);
 
   AnalysisGraph G;
-
-  //unordered_map<string, int> name_to_vertex = {};
 
   debug("Processing INDRA statements...");
   for (auto stmt : tqdm(json_data)) {
@@ -89,8 +86,6 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
 AnalysisGraph
 AnalysisGraph::from_uncharted_json_dict(nlohmann::json json_data) {
   AnalysisGraph G;
-
-  //unordered_map<string, int> name_to_vertex = {};
 
   auto statements = json_data["statements"];
 
@@ -158,8 +153,34 @@ AnalysisGraph::from_uncharted_json_dict(nlohmann::json json_data) {
     auto causal_fragment =
         CausalFragment({subj_adj_str, subj_polarity, subj_name},
                        {obj_adj_str, obj_polarity, obj_name});
-    //string text = stmt["evidence"][0]["text"].get<string>();
     G.add_edge(causal_fragment);
+  }
+
+  for (auto& [concept, mapping] : json_data["conceptIndicators"].items()) {
+    string indicator_name = mapping["name"].get<string>();
+    string indicator_source = mapping["name"].get<string>();
+    G[concept].add_indicator(indicator_name, indicator_source);
+    // Calculate aggregate from the values given
+    vector<double> values = {};
+    for (auto& data_point : mapping["values"]) {
+      values.push_back(data_point["value"].get<double>());
+    }
+    // Aggregation function
+    string func = mapping["func"].get<string>();
+    double aggregated_value = 0.0;
+    if (func == "max") {
+      aggregated_value = ranges::max(values);
+    }
+    else if (func == "min") {
+      aggregated_value = ranges::min(values);
+    }
+    else if (func == "avg") {
+      aggregated_value = mean(values);
+    }
+    else {
+      throw runtime_error("\"func\" must be one of [max|min|avg]");
+    }
+    G[concept].get_indicator(indicator_name).set_mean(aggregated_value);
   }
   G.construct_beta_pdfs();
   return G;
