@@ -8,6 +8,7 @@ import pickle
 from datetime import date, timedelta, datetime
 import dateutil
 from dateutil.relativedelta import relativedelta
+from dateutil.parser import parse
 from typing import Optional, List
 from itertools import product
 from statistics import median, mean
@@ -180,12 +181,17 @@ def getIndicators():
 
 @bp.route("/delphi/models/<string:modelID>/projection", methods=["POST"])
 def createProjection(modelID):
-    data = json.loads(request.data)
+
     model = DelphiModel.query.filter_by(id=modelID).first().model
     G = AnalysisGraph.from_json_string(model)
-    G.set_default_initial_state()
-    for perturbation in data["perturbations"]:
-        G.set_derivative(perturbation["concept"], perturbation["value"])
+    G.train_model(start_year = 2012,
+                  start_month = 1,
+                  end_year = 2012,
+                  end_month = 1,
+                  res = 5,
+                  burn = 10)
+
+    projection_result = G.generate_projection(request.data)
 
     id = str(uuid4())
 
@@ -201,8 +207,10 @@ def createProjection(modelID):
     }
     db.session.add(result)
 
+    data = json.loads(request.data)
     startTime = data["startTime"]
-    d = dateutil.parser.parse(f"{startTime['year']} {startTime['month']}")
+    #d = dateutil.parser.parse(f"{startTime['year']} {startTime['month']}")
+    d = parse(f"{startTime['year']} {startTime['month']}")
 
     τ = 1.0  # Time constant to control the rate of the decay
 
@@ -212,36 +220,40 @@ def createProjection(modelID):
     lower_rank = int((n - 1.96 * sqrt(n)) / 2)
     upper_rank = int((2 + n + 1.96 * sqrt(n)) / 2)
 
-    for i in range(int(data["timeStepsInMonths"])):
-        d = d + relativedelta(months=1)
+    lower_rank = 0 if lower_rank < 0 else lower_rank
+    upper_rank = n-1 if upper_rank >= n else upper_rank
 
-        for n in G:
-            values = sorted([s[n] for s in G.s0])
-            median_value = median(values)
-            lower_limit = values[lower_rank]
-            upper_limit = values[upper_rank]
+    for concept, samples in projection_result.items():
+        for ts in range(int(data["timeStepsInMonths"])):
+            d = d + relativedelta(months=1)
+
+            median_value = median(samples[ts])
+            lower_limit = samples[ts][lower_rank]
+            upper_limit = samples[ts][upper_rank]
+
             value_dict = {
                 "year": d.year,
                 "month": d.month,
                 "value": median_value,
             }
 
-            result.results[n]["values"].append(value_dict.copy())
+            result.results[concept]["values"].append(value_dict.copy())
             value_dict.update({"value": lower_limit})
-            result.results[n]["confidenceInterval"]["lower"].append(
+            result.results[concept]["confidenceInterval"]["lower"].append(
                 value_dict.copy()
             )
             value_dict.update({"value": upper_limit})
-            result.results[n]["confidenceInterval"]["upper"].append(
+            result.results[concept]["confidenceInterval"]["upper"].append(
                 value_dict.copy()
             )
-
-        G.update(update_indicators=False, dampen=True, τ=τ)
 
     db.session.add(result)
     db.session.commit()
 
-    return jsonify({"experimentId": experiment.id})
+    return jsonify({"experimentId": id})
+
+    # What does this do?
+    #G.update(update_indicators=False, dampen=True, τ=τ)
 
 
 @bp.route(
