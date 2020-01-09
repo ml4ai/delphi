@@ -12,6 +12,7 @@ using Eigen::VectorXd;
 
 // Sample elements of the stochastic transition matrix from the
 // prior distribution, based on gradable adjectives.
+// TODO: Fix the name and description of this function.
 void AnalysisGraph::sample_initial_transition_matrix_from_prior() {
   int num_verts = this->num_vertices();
 
