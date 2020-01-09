@@ -90,6 +90,26 @@ FormattedPredictionResult AnalysisGraph::format_prediction_result() {
   return result;
 }
 
+FormattedProjectionResult AnalysisGraph::format_projection_result() {
+  // Access
+  // [ vertex_name ][ timestep ][ sample ]
+  FormattedProjectionResult result;
+
+  for (auto [vert_name, vert_id] : this->name_to_vertex) {
+    result[vert_name] = vector<vector<double>>(this->pred_timesteps,
+                               vector<double>(this->res));
+    for (int ts = 0; ts < this->pred_timesteps; ts++) {
+      for (int samp = 0; samp < this->res; samp++) {
+        result[vert_name][ts][samp] =
+          this->predicted_latent_state_sequences[samp][ts](2 * vert_id);
+      }
+      sort(result[vert_name][ts].begin(), result[vert_name][ts].end());
+    }
+  }
+
+  return result;
+}
+
 void AnalysisGraph::run_model(int start_year,
                               int start_month,
                               int end_year,
@@ -176,7 +196,7 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
       this->training_range, this->pred_range, this->format_prediction_result());
 }
 
-void AnalysisGraph::generate_projection(string json_projection) {
+FormattedProjectionResult AnalysisGraph::generate_projection(string json_projection) {
   auto json_data = nlohmann::json::parse(json_projection);
 
   auto start_time = json_data["startTime"];
@@ -190,11 +210,13 @@ void AnalysisGraph::generate_projection(string json_projection) {
   int end_year = start_year + (start_month + time_steps) / 12;
   int end_month = (start_month + time_steps) % 12;
 
+  /*
   cout << start_year << endl;
   cout << start_month << endl;
   cout << time_steps << endl;
   cout << end_year << endl;
   cout << end_month << endl;
+  */
 
   // Create the perturbed initial latent state
   this->set_default_initial_state();
@@ -204,7 +226,7 @@ void AnalysisGraph::generate_projection(string json_projection) {
   for(auto pert : perturbations) {
     string concept = pert["concept"].get<string>();
     double value = pert["value"].get<double>();
-    cout << concept << ", " << value << endl;
+    //cout << concept << ", " << value << endl;
 
     try {
       this->s0(2 * this->name_to_vertex.at(concept) + 1) = value;
@@ -214,9 +236,11 @@ void AnalysisGraph::generate_projection(string json_projection) {
     }
   }
 
-  cout << this->s0 << endl;
+  //cout << this->s0 << endl;
 
   this->run_model(start_year, start_month, end_year, end_month, true);
+
+  return this->format_projection_result();
 }
 
 vector<vector<double>> AnalysisGraph::prediction_to_array(string indicator) {

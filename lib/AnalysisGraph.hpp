@@ -35,9 +35,16 @@ typedef std::pair<std::tuple<std::string, int, std::string>,
                   std::tuple<std::string, int, std::string>>
     CausalFragment;
 
+// Access
+// [ sample ][ time_step ][ vertex_name ][ indicator_name ]
 typedef std::vector<std::vector<
     std::unordered_map<std::string, std::unordered_map<std::string, double>>>>
     FormattedPredictionResult;
+
+// Access
+// [ vertex_name ][ timestep ][ sample ]
+typedef std::unordered_map<std::string, std::vector<std::vector<double>>>
+    FormattedProjectionResult;
 
 typedef std::tuple<std::pair<std::pair<int, int>, std::pair<int, int>>,
                    std::vector<std::string>,
@@ -180,7 +187,7 @@ class AnalysisGraph {
   std::vector<std::vector<Eigen::VectorXd>> predicted_latent_state_sequences;
 
   // Access this as
-  // prediction_observed_state_sequences
+  // predicted_observed_state_sequences
   //                            [ sample ][ time step ][ vertex ][ indicator ]
   std::vector<PredictedObservedStateSequence>
       predicted_observed_state_sequences;
@@ -516,9 +523,9 @@ class AnalysisGraph {
    *         Access it as:
    *         [ sample number ][ time point ][ vertex name ][ indicator name ]
    */
-
   FormattedPredictionResult format_prediction_result();
 
+  FormattedProjectionResult format_projection_result();
 
   void run_model(int start_year, int start_month, int end_year, int end_month, bool project = false);
 
@@ -906,7 +913,7 @@ class AnalysisGraph {
                                  int end_year,
                                  int end_month);
 
-  void generate_projection(std::string json_projection);
+  FormattedProjectionResult generate_projection(std::string json_projection);
 
   /**
    * this->generate_prediction() must be called before callign this method.

@@ -24,7 +24,7 @@ AnalysisGraph AnalysisGraph::from_json_file(string filename,
 
   AnalysisGraph G;
 
-  unordered_map<string, int> name_to_vertex = {};
+  //unordered_map<string, int> name_to_vertex = {};
 
   debug("Processing INDRA statements...");
   for (auto stmt : tqdm(json_data)) {
@@ -90,7 +90,7 @@ AnalysisGraph
 AnalysisGraph::from_uncharted_json_dict(nlohmann::json json_data) {
   AnalysisGraph G;
 
-  unordered_map<string, int> name_to_vertex = {};
+  //unordered_map<string, int> name_to_vertex = {};
 
   auto statements = json_data["statements"];
 
@@ -158,7 +158,7 @@ AnalysisGraph::from_uncharted_json_dict(nlohmann::json json_data) {
     auto causal_fragment =
         CausalFragment({subj_adj_str, subj_polarity, subj_name},
                        {obj_adj_str, obj_polarity, obj_name});
-    string text = stmt["evidence"][0]["text"].get<string>();
+    //string text = stmt["evidence"][0]["text"].get<string>();
     G.add_edge(causal_fragment);
   }
   G.construct_beta_pdfs();
