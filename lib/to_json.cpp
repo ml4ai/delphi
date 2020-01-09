@@ -1,9 +1,11 @@
 #include "AnalysisGraph.hpp"
+#include <fmt/format.h>
 #include <nlohmann/json.hpp>
 
 using namespace std;
+using namespace fmt::literals;
 
-string AnalysisGraph::to_json_string() {
+string AnalysisGraph::to_json_string(int indent) {
   nlohmann::json j;
   j["id"] = this->id;
   vector<tuple<string, string, vector<double>>> data;
@@ -13,13 +15,18 @@ string AnalysisGraph::to_json_string() {
     data.push_back({source, target, this->edge(e).kde.dataset});
   }
   j["edges"] = data;
-  j["nodes"] = {};
   for (Node& n : this->nodes()) {
     // Just taking the first indicator for now, will try to incorporate multiple
     // indicators per node later.
+    if (n.indicators.size() == 0) {
+      throw runtime_error("Node {} has no indicators!"_format(n.name));
+    }
     Indicator& indicator = n.indicators.at(0);
-    j["indicatorValues"][n.name] = {{"indicator", indicator.name},
-                                    {"mean", indicator.mean}};
+    j["indicatorData"][n.name] = {
+        {"name", indicator.name},
+        {"mean", indicator.mean},
+        {"source", indicator.source},
+    };
   }
-  return j.dump();
+  return j.dump(indent);
 }

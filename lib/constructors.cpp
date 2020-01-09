@@ -174,7 +174,7 @@ AnalysisGraph::from_uncharted_json_dict(nlohmann::json json_data) {
     else if (func == "min") {
       aggregated_value = ranges::min(values);
     }
-    else if (func == "avg") {
+    else if (func == "mean") {
       aggregated_value = mean(values);
     }
     else {
@@ -218,6 +218,7 @@ AnalysisGraph::from_causal_fragments(vector<CausalFragment> causal_fragments) {
   return G;
 }
 
+// Construct AnalysisGraph from Delphi's own JSON representation
 AnalysisGraph AnalysisGraph::from_json_string(string json_string) {
   auto data = nlohmann::json::parse(json_string);
   AnalysisGraph G;
