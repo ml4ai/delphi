@@ -20,7 +20,7 @@ PYBIND11_MODULE(DelphiPython, m) {
 
   py::class_<AnalysisGraph>(m, "AnalysisGraph")
       .def_readwrite("id", &AnalysisGraph::id)
-      .def("to_json_string", &AnalysisGraph::to_json_string)
+      .def("to_json_string", &AnalysisGraph::to_json_string, "indent"_a=0)
       .def("from_json_string", &AnalysisGraph::from_json_string)
       .def_readwrite("data_heuristic", &AnalysisGraph::data_heuristic)
       .def_readwrite("res", &AnalysisGraph::res)

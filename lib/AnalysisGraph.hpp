@@ -585,7 +585,7 @@ class AnalysisGraph {
   ~AnalysisGraph() {}
 
   std::string id;
-  std::string to_json_string();
+  std::string to_json_string(int indent=0);
   bool data_heuristic = false;
 
   // Sampling resolution. Default is 200

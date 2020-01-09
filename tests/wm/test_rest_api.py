@@ -46,7 +46,7 @@ def test_createModel(client):
     post_data = {
         "startTime": {"year": 2017, "month": 4},
         "perturbations": [
-            {"concept": "UN/entities/human/food/food_price", "value": 0.2}
+            {"concept": "wm/concept/indicator_and_reported_property/weather/rainfall", "value": 0.2}
         ],
         "timeStepsInMonths": 3,
     }
