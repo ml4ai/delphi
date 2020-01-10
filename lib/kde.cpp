@@ -35,7 +35,7 @@ KDE::KDE(std::vector<double> v) : dataset(v) {
   bw = pow(4 * pow(stdev, 5) / (3 * N), 1 / 5);
 }
 
-vector<double> KDE::resample(int n_samples, std::mt19937 gen,
+vector<double> KDE::resample(int n_samples, std::mt19937& gen,
                         uniform_real_distribution<double>& uni_dist,
                         normal_distribution<double>& norm_dist) {
   vector<double> samples;
