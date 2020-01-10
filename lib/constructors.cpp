@@ -178,7 +178,7 @@ AnalysisGraph::from_uncharted_json_dict(nlohmann::json json_data) {
       aggregated_value = mean(values);
     }
     else {
-      throw runtime_error("\"func\" must be one of [max|min|avg]");
+      throw runtime_error("\"func\" must be one of [max|min|mean]");
     }
     G[concept].get_indicator(indicator_name).set_mean(aggregated_value);
   }
