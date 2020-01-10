@@ -218,18 +218,22 @@ AnalysisGraph::from_causal_fragments(vector<CausalFragment> causal_fragments) {
   return G;
 }
 
-// Construct AnalysisGraph from Delphi's own JSON representation
 AnalysisGraph AnalysisGraph::from_json_string(string json_string) {
   auto data = nlohmann::json::parse(json_string);
   AnalysisGraph G;
   G.id = data["id"];
   for (auto e : data["edges"]) {
-    string source = e[0];
-    string target = e[1];
+    string source = e["source"].get<string>();
+    string target = e["target"].get<string>();
     G.add_node(source);
     G.add_node(target);
     G.add_edge(source, target);
-    G.edge(source, target).kde.dataset = e[2].get<vector<double>>();
+    G.edge(source, target).kde.dataset = e["kernels"].get<vector<double>>();
+  }
+  for (auto& [concept, indicator] : data["indicatorData"].items()) {
+    string indicator_name = indicator["name"].get<string>();
+    G[concept].add_indicator(indicator_name, indicator["source"].get<string>());
+    G[concept].get_indicator(indicator_name).set_mean(indicator["mean"].get<double>());
   }
   return G;
 }
