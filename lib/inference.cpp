@@ -1,6 +1,7 @@
 #include "AnalysisGraph.hpp"
 #include <range/v3/all.hpp>
 #include "spdlog/spdlog.h"
+#include "dbg.h"
 
 using namespace std;
 using fmt::print, fmt::format;
@@ -101,7 +102,8 @@ FormattedProjectionResult AnalysisGraph::format_projection_result() {
     for (int ts = 0; ts < this->pred_timesteps; ts++) {
       for (int samp = 0; samp < this->res; samp++) {
         result[vert_name][ts][samp] =
-          this->predicted_latent_state_sequences[samp][ts](2 * vert_id);
+          //this->predicted_latent_state_sequences[samp][ts](2 * vert_id);
+          this->predicted_observed_state_sequences[samp][ts][vert_id][0];
       }
       sort(result[vert_name][ts].begin(), result[vert_name][ts].end());
     }
@@ -173,9 +175,11 @@ void AnalysisGraph::run_model(int start_year,
       month++;
     }
   }
+  dbg("Sampling latent states");
 
   this->sample_predicted_latent_state_sequences(
       this->pred_timesteps, 0, total_timesteps, project);
+  dbg("Generating Observed states");
   this->generate_predicted_observed_state_sequences_from_predicted_latent_state_sequences();
 }
 
@@ -197,6 +201,13 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
 }
 
 FormattedProjectionResult AnalysisGraph::generate_projection(string json_projection) {
+  this->initialize_random_number_generator();
+  //this->uni_disc_dist = uniform_int_distribution<int>(0, this->num_nodes() - 1);
+
+  //this->construct_beta_pdfs(this->rand_num_generator);
+  this->find_all_paths();
+  this->print_all_paths();
+
   auto json_data = nlohmann::json::parse(json_projection);
 
   auto start_time = json_data["startTime"];
@@ -217,6 +228,11 @@ FormattedProjectionResult AnalysisGraph::generate_projection(string json_project
   cout << end_year << endl;
   cout << end_month << endl;
   */
+  dbg("Json passed");
+
+  this->res = 5;
+  this->sample_initial_transition_matrix_collection_from_prior();
+  dbg("Matrix collection");
 
   // Create the perturbed initial latent state
   this->set_default_initial_state();
@@ -236,9 +252,11 @@ FormattedProjectionResult AnalysisGraph::generate_projection(string json_project
     }
   }
 
-  //cout << this->s0 << endl;
-
+  dbg("Perturbations");
+  this->trained = true;
   this->run_model(start_year, start_month, end_year, end_month, true);
+  this->trained = false;
+  dbg("Model run");
 
   return this->format_projection_result();
 }

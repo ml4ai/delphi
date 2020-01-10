@@ -1,4 +1,5 @@
 #include "AnalysisGraph.hpp"
+#include "dbg.h"
 
 using namespace std;
 using namespace delphi::utils;
@@ -44,6 +45,27 @@ void AnalysisGraph::sample_initial_transition_matrix_from_prior() {
   for (auto& [row, col] : this->beta_dependent_cells) {
     this->A_original(row * 2, col * 2 + 1) =
         this->A_beta_factors[row][col]->compute_cell(this->graph);
+  }
+}
+
+void AnalysisGraph::sample_initial_transition_matrix_collection_from_prior() {
+  this->transition_matrix_collection.clear();
+  this->transition_matrix_collection = vector<Eigen::MatrixXd>(this->res);
+
+  for (int i = 0; i < this->res; i++) {
+    for (auto e : this->edges()) {
+      dbg("In the loop");
+      vector<double> betas = this->graph[e].kde.resample(i+1, this->rand_num_generator);
+      dbg(betas);
+      dbg(graph[e].kde.dataset);
+      this->graph[e].beta = betas[i];
+      dbg(this->graph[e].beta);
+    }
+
+    // Create this->A_original based on the sampled β and remember it
+    this->sample_initial_transition_matrix_from_prior(); 
+    cout << this->A_original << endl << endl;
+    this->transition_matrix_collection[i] = this->A_original;
   }
 }
 
