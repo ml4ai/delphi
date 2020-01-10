@@ -432,6 +432,8 @@ class AnalysisGraph {
   // prior distribution, based on gradable adjectives.
   void sample_initial_transition_matrix_from_prior();
 
+  void sample_initial_transition_matrix_collection_from_prior();
+
   /**
    * Utility function that sets an initial latent state from observed data.
    * This is used for the inference of the transition matrix as well as the
