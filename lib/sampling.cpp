@@ -51,10 +51,15 @@ void AnalysisGraph::sample_initial_transition_matrix_collection_from_prior() {
   this->transition_matrix_collection.clear();
   this->transition_matrix_collection = vector<Eigen::MatrixXd>(this->res);
 
+  dbg("sampling matrix");
   for (int i = 0; i < this->res; i++) {
     for (auto e : this->edges()) {
-      vector<double> betas = this->graph[e].kde.resample(i+1, this->rand_num_generator);
-      this->graph[e].beta = betas[i];
+      // If the two lines below (60, 61) are uncommented and the line below these (62) is commented
+      // we get differet transition matrices just because we take a different element
+      // of the sample sequrence.
+      //vector<double> betas = this->graph[e].kde.resample(i+1, this->rand_num_generator, this->uni_dist, this->norm_dist);
+      //this->graph[e].beta = betas[i];
+      this->graph[e].beta = this->graph[e].kde.resample(1, this->rand_num_generator, this->uni_dist, this->norm_dist)[0];
     }
 
     // Create this->A_original based on the sampled β and remember it

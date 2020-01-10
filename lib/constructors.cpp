@@ -182,6 +182,7 @@ AnalysisGraph::from_uncharted_json_dict(nlohmann::json json_data) {
     }
     G[concept].get_indicator(indicator_name).set_mean(aggregated_value);
   }
+  G.initialize_random_number_generator();
   G.construct_beta_pdfs();
   return G;
 }

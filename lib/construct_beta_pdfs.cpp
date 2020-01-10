@@ -6,7 +6,7 @@ using namespace std;
 using namespace delphi::utils;
 
 AdjectiveResponseMap
-construct_adjective_response_map(std::mt19937 gen, size_t n_kernels = DEFAULT_N_SAMPLES) {
+construct_adjective_response_map(std::mt19937 gen, std::uniform_real_distribution<double>& uni_dist, std::normal_distribution<double>& norm_dist, size_t n_kernels = DEFAULT_N_SAMPLES) {
   sqlite3* db = nullptr;
   int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
 
@@ -32,7 +32,7 @@ construct_adjective_response_map(std::mt19937 gen, size_t n_kernels = DEFAULT_N_
   }
 
   for (auto& [k, v] : adjective_response_map) {
-    v = KDE(v).resample(n_kernels, gen);
+    v = KDE(v).resample(n_kernels, gen, uni_dist, norm_dist);
   }
   sqlite3_finalize(stmt);
   sqlite3_close(db);
@@ -48,11 +48,11 @@ construct_adjective_response_map(std::mt19937 gen, size_t n_kernels = DEFAULT_N_
  ============================================================================
 */
 
-void AnalysisGraph::construct_beta_pdfs(std::mt19937 gen) {
+void AnalysisGraph::construct_beta_pdfs() {
 
   double sigma_X = 1.0;
   double sigma_Y = 1.0;
-  AdjectiveResponseMap adjective_response_map = construct_adjective_response_map(gen);
+  AdjectiveResponseMap adjective_response_map = construct_adjective_response_map(this->rand_num_generator, this->uni_dist, this->norm_dist);
   vector<double> marginalized_responses;
   for (auto [adjective, responses] : adjective_response_map) {
     for (auto response : responses) {
@@ -61,7 +61,7 @@ void AnalysisGraph::construct_beta_pdfs(std::mt19937 gen) {
   }
 
   marginalized_responses =
-      KDE(marginalized_responses).resample(DEFAULT_N_SAMPLES, gen);
+      KDE(marginalized_responses).resample(DEFAULT_N_SAMPLES, this->rand_num_generator, this->uni_dist, this->norm_dist);
 
   for (auto e : this->edges()) {
     vector<double> all_thetas = {};
@@ -102,9 +102,10 @@ void AnalysisGraph::construct_beta_pdfs(std::mt19937 gen) {
  * After updating the old test code, this method shoudl be
  * removed from here and DelphiPython.cpp
  */
+/*
 void AnalysisGraph::construct_beta_pdfs() {
   std::mt19937 gen = RNG::rng()->get_RNG();
   this->construct_beta_pdfs(gen);
   RNG::release_instance();
 }
-
+*/

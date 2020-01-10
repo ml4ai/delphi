@@ -4,11 +4,12 @@
 #include "utils.hpp"
 #include <boost/range/numeric.hpp>
 #include <random>
+#include "dbg.h"
 
 /**
  * Returns a randomly selected element of a vector.
  */
-template <class T> T select_random_element(std::vector<T> v, std::mt19937 gen, std::uniform_int_distribution<int> dist) {
+template <class T> T select_random_element(std::vector<T> v, std::mt19937 gen, std::uniform_real_distribution<double> uni_dist) {
   using namespace std;
   T element;
   if (v.size() == 0) {
@@ -21,7 +22,15 @@ template <class T> T select_random_element(std::vector<T> v, std::mt19937 gen, s
   }
   else {
     //uniform_int_distribution<> dist(0, v.size() - 1);
-    element = v[dist(gen)];
+    double rand_val = uni_dist(gen);
+    int idx = trunc(rand_val * v.size());
+    //int idx = trunc(uni_dist(gen) * v.size());
+    idx = idx == v.size()? idx-- : idx;
+    dbg(rand_val);
+    dbg(rand_val * v.size());
+    dbg(idx);
+    element = v[idx];
+    //element = v[dist(gen)];
   }
   return element;
 }
@@ -42,7 +51,9 @@ class KDE {
   // Not sure this is the correct way to do it.
   double mu;
 
-  std::vector<double> resample(int n_samples, std::mt19937 rng);
+  std::vector<double> resample(int n_samples, std::mt19937 rng,
+                        std::uniform_real_distribution<double>& uni_dist,
+                        std::normal_distribution<double>& norm_dist);
   std::vector<double> resample(int n_samples);
   double pdf(double x);
   std::vector<double> pdf(std::vector<double> v);
