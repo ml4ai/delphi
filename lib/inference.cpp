@@ -1,7 +1,6 @@
 #include "AnalysisGraph.hpp"
 #include <range/v3/all.hpp>
 #include "spdlog/spdlog.h"
-#include "dbg.h"
 
 using namespace std;
 using fmt::print, fmt::format;
@@ -175,11 +174,9 @@ void AnalysisGraph::run_model(int start_year,
       month++;
     }
   }
-  dbg("Sampling latent states");
 
   this->sample_predicted_latent_state_sequences(
       this->pred_timesteps, 0, total_timesteps, project);
-  dbg("Generating Observed states");
   this->generate_predicted_observed_state_sequences_from_predicted_latent_state_sequences();
 }
 
@@ -206,7 +203,6 @@ FormattedProjectionResult AnalysisGraph::generate_projection(string json_project
 
   //this->construct_beta_pdfs(this->rand_num_generator);
   this->find_all_paths();
-  this->print_all_paths();
 
   auto json_data = nlohmann::json::parse(json_projection);
 
@@ -228,11 +224,9 @@ FormattedProjectionResult AnalysisGraph::generate_projection(string json_project
   cout << end_year << endl;
   cout << end_month << endl;
   */
-  dbg("Json passed");
 
   this->res = 5;
   this->sample_initial_transition_matrix_collection_from_prior();
-  dbg("Matrix collection");
 
   // Create the perturbed initial latent state
   this->set_default_initial_state();
@@ -252,11 +246,9 @@ FormattedProjectionResult AnalysisGraph::generate_projection(string json_project
     }
   }
 
-  dbg("Perturbations");
   this->trained = true;
   this->run_model(start_year, start_month, end_year, end_month, true);
   this->trained = false;
-  dbg("Model run");
 
   return this->format_projection_result();
 }

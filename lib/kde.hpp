@@ -8,7 +8,7 @@
 /**
  * Returns a randomly selected element of a vector.
  */
-template <class T> T select_random_element(std::vector<T> v, std::mt19937 gen) {
+template <class T> T select_random_element(std::vector<T> v, std::mt19937 gen, std::uniform_int_distribution<int> dist) {
   using namespace std;
   T element;
   if (v.size() == 0) {
@@ -20,7 +20,7 @@ template <class T> T select_random_element(std::vector<T> v, std::mt19937 gen) {
     element = v[0];
   }
   else {
-    uniform_int_distribution<> dist(0, v.size() - 1);
+    //uniform_int_distribution<> dist(0, v.size() - 1);
     element = v[dist(gen)];
   }
   return element;
