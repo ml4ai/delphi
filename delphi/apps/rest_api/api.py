@@ -53,7 +53,6 @@ def createNewModel():
     """ Create a new Delphi model. """
     data = json.loads(request.data)
     G = AnalysisGraph.from_uncharted_json_string(request.data)
-    print(G.to_json_string(4))
     G.id = data["id"]
     model=DelphiModel(id=data["id"], model = G.to_json_string())
     db.session.add(model)
