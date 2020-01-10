@@ -9,7 +9,7 @@
 /**
  * Returns a randomly selected element of a vector.
  */
-template <class T> T select_random_element(std::vector<T> v, std::mt19937 gen, std::uniform_real_distribution<double> uni_dist) {
+template <class T> T select_random_element(std::vector<T> v, std::mt19937& gen, std::uniform_real_distribution<double>& uni_dist) {
   using namespace std;
   T element;
   if (v.size() == 0) {
@@ -51,7 +51,7 @@ class KDE {
   // Not sure this is the correct way to do it.
   double mu;
 
-  std::vector<double> resample(int n_samples, std::mt19937 rng,
+  std::vector<double> resample(int n_samples, std::mt19937& rng,
                         std::uniform_real_distribution<double>& uni_dist,
                         std::normal_distribution<double>& norm_dist);
   std::vector<double> resample(int n_samples);
