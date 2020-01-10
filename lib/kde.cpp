@@ -35,15 +35,18 @@ KDE::KDE(std::vector<double> v) : dataset(v) {
   bw = pow(4 * pow(stdev, 5) / (3 * N), 1 / 5);
 }
 
-vector<double> KDE::resample(int n_samples, std::mt19937 gen) {
+vector<double> KDE::resample(int n_samples, std::mt19937 gen,
+                        uniform_real_distribution<double>& uni_dist,
+                        normal_distribution<double>& norm_dist) {
   vector<double> samples;
-  uniform_int_distribution<int> uni_dist(0, dataset.size() - 1);
-  normal_distribution<double> norm_dist{0.0, bw};
+  //uniform_int_distribution<int> uni_dist(0, dataset.size() - 1);
+  //uniform_real_distribution<double> uni_dist(0, 1);
+  //normal_distribution<double> norm_dist{0.0, 1.0};
 
   for (int i : irange(0, n_samples)) {
     double element = select_random_element(dataset, gen, uni_dist);
     //samples.push_back(sample_from_normal(gen, element, bw));
-    samples.push_back(element + norm_dist(gen));
+    samples.push_back(element + bw * norm_dist(gen));
   }
   return samples;
 }

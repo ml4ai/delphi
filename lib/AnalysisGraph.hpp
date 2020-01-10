@@ -786,7 +786,7 @@ class AnalysisGraph {
    ============================================================================
   */
 
-  void construct_beta_pdfs(std::mt19937 rng);
+  //void construct_beta_pdfs(std::mt19937 rng);
   void construct_beta_pdfs();
 
   /*
