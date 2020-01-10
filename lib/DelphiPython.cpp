@@ -212,7 +212,6 @@ PYBIND11_MODULE(DelphiPython, m) {
 
   py::class_<KDE>(m, "KDE")
       .def(py::init<vector<double>>())
-      .def("resample", py::overload_cast<int>(&KDE::resample))
       .def("pdf",
            py::overload_cast<double>(&KDE::pdf),
            "Evaluate pdf for a single value")

@@ -44,21 +44,6 @@ vector<double> KDE::resample(int n_samples, std::mt19937 gen) {
   return samples;
 }
 
-/*
- * TODO: Remove this method
- * This method was introduced to make the old test code happy
- * when the signature of resample() was updated to fix memory
- * leaks.
- * After updating the old test code, this method shoudl be
- * removed from here and DelphiPython.cpp
- */
-vector<double> KDE::resample(int n_samples) {
-  std::mt19937 gen = RNG::rng()->get_RNG();
-  vector<double> samples = this->resample(n_samples, gen);
-  RNG::release_instance();
-  return samples;
-}
-
 double KDE::pdf(double x) {
   double p = 0.0;
   size_t N = this->dataset.size();
