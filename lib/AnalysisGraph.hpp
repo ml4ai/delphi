@@ -915,7 +915,7 @@ class AnalysisGraph {
                                  int end_year,
                                  int end_month);
 
-  FormattedProjectionResult generate_projection(std::string json_projection);
+  FormattedProjectionResult generate_projection(std::string json_projection, int resolution);
 
   /**
    * this->generate_prediction() must be called before callign this method.

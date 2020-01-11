@@ -4,7 +4,6 @@
 #include "utils.hpp"
 #include <boost/range/numeric.hpp>
 #include <random>
-#include "dbg.h"
 
 /**
  * Returns a randomly selected element of a vector.
@@ -21,16 +20,15 @@ template <class T> T select_random_element(std::vector<T> v, std::mt19937& gen, 
     element = v[0];
   }
   else {
-    //uniform_int_distribution<> dist(0, v.size() - 1);
+    // Sample a double between [0, 1]
     double rand_val = uni_dist(gen);
+
+    // Convert random double between [0, 1] into
+    // an integer between [0, v.size() - 1
     int idx = trunc(rand_val * v.size());
-    //int idx = trunc(uni_dist(gen) * v.size());
     idx = idx == v.size()? idx-- : idx;
-    dbg(rand_val);
-    dbg(rand_val * v.size());
-    dbg(idx);
+
     element = v[idx];
-    //element = v[dist(gen)];
   }
   return element;
 }

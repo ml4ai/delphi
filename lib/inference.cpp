@@ -197,11 +197,9 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
       this->training_range, this->pred_range, this->format_prediction_result());
 }
 
-FormattedProjectionResult AnalysisGraph::generate_projection(string json_projection) {
+FormattedProjectionResult AnalysisGraph::generate_projection(string json_projection, int resolution) {
   this->initialize_random_number_generator();
-  //this->uni_disc_dist = uniform_int_distribution<int>(0, this->num_nodes() - 1);
 
-  //this->construct_beta_pdfs(this->rand_num_generator);
   this->find_all_paths();
 
   auto json_data = nlohmann::json::parse(json_projection);
@@ -217,15 +215,7 @@ FormattedProjectionResult AnalysisGraph::generate_projection(string json_project
   int end_year = start_year + (start_month + time_steps) / 12;
   int end_month = (start_month + time_steps) % 12;
 
-  /*
-  cout << start_year << endl;
-  cout << start_month << endl;
-  cout << time_steps << endl;
-  cout << end_year << endl;
-  cout << end_month << endl;
-  */
-
-  this->res = 5;
+  this->res = resolution;
   this->sample_initial_transition_matrix_collection_from_prior();
 
   // Create the perturbed initial latent state
@@ -236,7 +226,6 @@ FormattedProjectionResult AnalysisGraph::generate_projection(string json_project
   for(auto pert : perturbations) {
     string concept = pert["concept"].get<string>();
     double value = pert["value"].get<double>();
-    //cout << concept << ", " << value << endl;
 
     try {
       this->s0(2 * this->name_to_vertex.at(concept) + 1) = value;

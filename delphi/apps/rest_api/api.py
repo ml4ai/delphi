@@ -184,16 +184,8 @@ def createProjection(modelID):
 
     model = DelphiModel.query.filter_by(id=modelID).first().model
     G = AnalysisGraph.from_json_string(model)
-    '''
-    G.train_model(start_year = 2012,
-                  start_month = 1,
-                  end_year = 2012,
-                  end_month = 1,
-                  res = 5,
-                  burn = 10)
-    '''
 
-    projection_result = G.generate_projection(request.data)
+    projection_result = G.generate_projection(request.data, resolution = 200)
     print(projection_result)
 
     id = str(uuid4())
