@@ -1,7 +1,6 @@
 #include "kde.hpp"
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/lambda.hpp>
-#include <boost/random/mersenne_twister.hpp>
 #include <boost/range/adaptors.hpp>
 #include <boost/range/algorithm/for_each.hpp>
 #include <boost/range/irange.hpp>

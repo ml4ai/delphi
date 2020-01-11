@@ -2,6 +2,7 @@
 
 #include <fmt/core.h>
 #include <iostream>
+#include <nlohmann/json.hpp>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -59,5 +60,8 @@ double sum(std::vector<double> v);
 double mean(std::vector<double> v);
 
 double log_normpdf(double x, double mean, double sd);
+
+/** Load JSON data from a file */
+nlohmann::json load_json(std::string filename);
 
 } // namespace delphi::utils
