@@ -14,7 +14,7 @@ nlohmann::json load_json(string filename) {
   return j;
 }
 
-AnalysisGraph AnalysisGraph::from_json_file(string filename,
+AnalysisGraph AnalysisGraph::from_indra_statements_json_file(string filename,
                                             double belief_score_cutoff,
                                             double grounding_score_cutoff,
                                             string ontology) {
