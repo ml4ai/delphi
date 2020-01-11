@@ -105,7 +105,51 @@ AnalysisGraph::from_indra_statements_json_file(string filename,
 }
 
 AnalysisGraph
-AnalysisGraph::from_uncharted_json_dict(nlohmann::json json_data) {
+AnalysisGraph::from_causal_fragments(vector<CausalFragment> causal_fragments) {
+  AnalysisGraph G;
+
+  for (CausalFragment cf : causal_fragments) {
+    Event subject = Event(cf.first);
+    Event object = Event(cf.second);
+
+    string subj_name = subject.concept_name;
+    string obj_name = object.concept_name;
+
+    if (subj_name.compare(obj_name) != 0) { // Guard against self loops
+      // Add the nodes to the graph if they are not in it already
+      for (string name : {subj_name, obj_name}) {
+        G.add_node(name);
+      }
+      G.add_edge(cf);
+    }
+  }
+  return G;
+}
+
+AnalysisGraph AnalysisGraph::from_json_string(string json_string) {
+  auto data = nlohmann::json::parse(json_string);
+  AnalysisGraph G;
+  G.id = data["id"];
+  for (auto e : data["edges"]) {
+    string source = e["source"].get<string>();
+    string target = e["target"].get<string>();
+    G.add_node(source);
+    G.add_node(target);
+    G.add_edge(source, target);
+    G.edge(source, target).kde.dataset = e["kernels"].get<vector<double>>();
+  }
+  for (auto& [concept, indicator] : data["indicatorData"].items()) {
+    string indicator_name = indicator["name"].get<string>();
+    G[concept].add_indicator(indicator_name, indicator["source"].get<string>());
+    G[concept]
+        .get_indicator(indicator_name)
+        .set_mean(indicator["mean"].get<double>());
+  }
+  return G;
+}
+
+// CauseMos integration
+AnalysisGraph AnalysisGraph::from_causemos_json_dict(nlohmann::json json_data) {
   AnalysisGraph G;
 
   auto statements = json_data["statements"];
@@ -208,56 +252,12 @@ AnalysisGraph::from_uncharted_json_dict(nlohmann::json json_data) {
   return G;
 }
 
-AnalysisGraph AnalysisGraph::from_uncharted_json_string(string json_string) {
+AnalysisGraph AnalysisGraph::from_causemos_json_string(string json_string) {
   auto json_data = nlohmann::json::parse(json_string);
-  return AnalysisGraph::from_uncharted_json_dict(json_data);
+  return AnalysisGraph::from_causemos_json_dict(json_data);
 }
 
-AnalysisGraph AnalysisGraph::from_uncharted_json_file(string filename) {
+AnalysisGraph AnalysisGraph::from_causemos_json_file(string filename) {
   auto json_data = load_json(filename);
-  return AnalysisGraph::from_uncharted_json_dict(json_data);
-}
-
-AnalysisGraph
-AnalysisGraph::from_causal_fragments(vector<CausalFragment> causal_fragments) {
-  AnalysisGraph G;
-
-  for (CausalFragment cf : causal_fragments) {
-    Event subject = Event(cf.first);
-    Event object = Event(cf.second);
-
-    string subj_name = subject.concept_name;
-    string obj_name = object.concept_name;
-
-    if (subj_name.compare(obj_name) != 0) { // Guard against self loops
-      // Add the nodes to the graph if they are not in it already
-      for (string name : {subj_name, obj_name}) {
-        G.add_node(name);
-      }
-      G.add_edge(cf);
-    }
-  }
-  return G;
-}
-
-AnalysisGraph AnalysisGraph::from_json_string(string json_string) {
-  auto data = nlohmann::json::parse(json_string);
-  AnalysisGraph G;
-  G.id = data["id"];
-  for (auto e : data["edges"]) {
-    string source = e["source"].get<string>();
-    string target = e["target"].get<string>();
-    G.add_node(source);
-    G.add_node(target);
-    G.add_edge(source, target);
-    G.edge(source, target).kde.dataset = e["kernels"].get<vector<double>>();
-  }
-  for (auto& [concept, indicator] : data["indicatorData"].items()) {
-    string indicator_name = indicator["name"].get<string>();
-    G[concept].add_indicator(indicator_name, indicator["source"].get<string>());
-    G[concept]
-        .get_indicator(indicator_name)
-        .set_mean(indicator["mean"].get<double>());
-  }
-  return G;
+  return AnalysisGraph::from_causemos_json_dict(json_data);
 }

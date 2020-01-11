@@ -33,10 +33,10 @@ PYBIND11_MODULE(DelphiPython, m) {
                   "belief_score_cutoff"_a = 0.9,
                   "grounding_score_cutoff"_a = 0.0,
                   "ontology"_a = "WM")
-      .def_static("from_uncharted_json_string",
-                  &AnalysisGraph::from_uncharted_json_string)
-      .def_static("from_uncharted_json_file",
-                  &AnalysisGraph::from_uncharted_json_file)
+      .def_static("from_causemos_json_string",
+                  &AnalysisGraph::from_causemos_json_string)
+      .def_static("from_causemos_json_file",
+                  &AnalysisGraph::from_causemos_json_file)
       .def_static("from_causal_fragments",
                   &AnalysisGraph::from_causal_fragments,
                   "causal_fragments"_a)
