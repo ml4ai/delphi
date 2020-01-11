@@ -14,13 +14,12 @@ nlohmann::json load_json(string filename) {
   return j;
 }
 
-AnalysisGraph AnalysisGraph::from_indra_statements_json_file(string filename,
-                                            double belief_score_cutoff,
-                                            double grounding_score_cutoff,
-                                            string ontology) {
+AnalysisGraph
+AnalysisGraph::from_indra_statements_json_dict(nlohmann::json json_data,
+                                               double belief_score_cutoff,
+                                               double grounding_score_cutoff,
+                                               string ontology) {
   debug("Loading INDRA statements JSON file.");
-  auto json_data = load_json(filename);
-
   AnalysisGraph G;
 
   debug("Processing INDRA statements...");
@@ -81,6 +80,28 @@ AnalysisGraph AnalysisGraph::from_indra_statements_json_file(string filename,
     }
   }
   return G;
+}
+
+AnalysisGraph
+AnalysisGraph::from_indra_statements_json_string(string json_string,
+                                                 double belief_score_cutoff,
+                                                 double grounding_score_cutoff,
+                                                 string ontology) {
+  auto json_data = nlohmann::json::parse(json_string);
+  return AnalysisGraph::from_indra_statements_json_dict(
+      json_data, belief_score_cutoff, grounding_score_cutoff, ontology);
+}
+
+AnalysisGraph
+AnalysisGraph::from_indra_statements_json_file(string filename,
+                                               double belief_score_cutoff,
+                                               double grounding_score_cutoff,
+                                               string ontology) {
+  debug("Loading INDRA statements JSON file.");
+  auto json_data = load_json(filename);
+
+  return AnalysisGraph::from_indra_statements_json_dict(
+      json_data, belief_score_cutoff, grounding_score_cutoff, ontology);
 }
 
 AnalysisGraph
@@ -234,7 +255,9 @@ AnalysisGraph AnalysisGraph::from_json_string(string json_string) {
   for (auto& [concept, indicator] : data["indicatorData"].items()) {
     string indicator_name = indicator["name"].get<string>();
     G[concept].add_indicator(indicator_name, indicator["source"].get<string>());
-    G[concept].get_indicator(indicator_name).set_mean(indicator["mean"].get<double>());
+    G[concept]
+        .get_indicator(indicator_name)
+        .set_mean(indicator["mean"].get<double>());
   }
   return G;
 }

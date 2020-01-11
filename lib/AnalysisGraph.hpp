@@ -610,6 +610,18 @@ class AnalysisGraph {
    * statements.
    */
   static AnalysisGraph
+  from_indra_statements_json_dict(nlohmann::json json_data,
+                                  double belief_score_cutoff = 0.9,
+                                  double grounding_score_cutoff = 0.0,
+                                  std::string ontology = "WM");
+
+  static AnalysisGraph
+  from_indra_statements_json_string(std::string json_string,
+                                    double belief_score_cutoff = 0.9,
+                                    double grounding_score_cutoff = 0.0,
+                                    std::string ontology = "WM");
+
+  static AnalysisGraph
   from_indra_statements_json_file(std::string filename,
                                   double belief_score_cutoff = 0.9,
                                   double grounding_score_cutoff = 0.0,
