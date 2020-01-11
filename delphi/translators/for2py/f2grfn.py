@@ -423,7 +423,7 @@ def generate_grfn(
 
     log_generated_files([grfn_file])
     if tester_call:
-        cleanup_files(GENERATED_FILE_PATHS)
+        cleanup_files(GENERATED_FILE_PATHS, save_file, "grfn")
         return grfn_dict
     else:
         # Write GrFN JSON into a file.
@@ -534,7 +534,7 @@ def check_classpath():
             sys.exit(1)
 
 
-def cleanup_files(generated_file_paths):
+def cleanup_files(generated_file_paths, save_file, source):
     """This function cleans up all generated files.
     Args:
         generated_file_paths (list): List of all files that were generated.
@@ -544,7 +544,32 @@ def cleanup_files(generated_file_paths):
     """
     for filepath in generated_file_paths:
         if os.path.isfile(filepath):
-            os.remove(filepath)
+            base = np.basename(filepath)
+            if not save_file:
+            # Remove all files if no explicit file saving option given.
+                os.remove(filepath)
+            elif (
+                    save_file 
+                    and source == "grfn"
+                    and "_GrFN.json" not in base
+            ):
+            # Else if file saving option was given and cleanup_files function
+            # was called from generate_grfn, then remove all files except
+            # _Grfn.json file.
+                os.remove(filepath)
+            elif (
+                    save_file 
+                    and source == "python"
+                    and ".py" not in base
+            ):
+            # Else if file saving option was given and cleanup_files function
+            # was called from fortran_to_grfn, then remove all files except
+            # generated python file(s).
+                os.remove(filepath)
+            else:
+                pass
+        else:
+            pass
 
 
 def log_generated_files(file_paths):
@@ -610,7 +635,7 @@ def fortran_to_grfn(
     root_dir_path=".",
     module_file_name=MODULE_FILE_NAME,
     processing_modules=False,
-    save_file=True
+    save_file=False
 ):
     """This function invokes other appropriate functions
     to process and generate objects to translate fortran
