@@ -32,7 +32,7 @@ void AnalysisGraph::train_model(int start_year,
       start_year, start_month, end_year, end_month);
   this->res = res;
   this->init_betas_to(initial_beta);
-  this->sample_initial_transition_matrix_from_prior();
+  this->set_transition_matrix_from_betas();
   this->set_default_initial_state();
   this->parameterize(country, state, county, start_year, start_month, units);
 
