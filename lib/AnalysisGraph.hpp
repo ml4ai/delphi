@@ -598,7 +598,7 @@ class AnalysisGraph {
 
   /*
    ============================================================================
-   Constructors (in constructors.cpp)
+   Constructors from INDRA-exported JSON (in constructors.cpp)
    ============================================================================
   */
 
@@ -627,14 +627,6 @@ class AnalysisGraph {
                                   double grounding_score_cutoff = 0.0,
                                   std::string ontology = "WM");
 
-  /*
-   * Construct an AnalysisGraph object from a dict of INDRA statements
-     exported by Uncharted's CauseMos webapp, and stored in a file.
-  */
-  static AnalysisGraph from_uncharted_json_dict(nlohmann::json json_data);
-  static AnalysisGraph from_uncharted_json_string(std::string json_string);
-  static AnalysisGraph from_uncharted_json_file(std::string filename);
-
   /**
    * A method to construct an AnalysisGraph object given from a std::vector of
    * ( subject, object ) pairs (Statements)
@@ -646,6 +638,27 @@ class AnalysisGraph {
 
   /** From internal string representation output by to_json_string */
   static AnalysisGraph from_json_string(std::string);
+
+  /*
+   ============================================================================
+   Public: Integration with Uncharted's CauseMos interface
+   ============================================================================
+  */
+
+  /** Construct an AnalysisGraph object from JSON exported by CauseMos. */
+  static AnalysisGraph from_causemos_json_dict(nlohmann::json json_data);
+
+  /** Construct an AnalysisGraph object from a JSON string exported by CauseMos.
+   */
+  static AnalysisGraph from_causemos_json_string(std::string json_string);
+
+  /** Construct an AnalysisGraph object from a file containing JSON data from
+   * CauseMos. */
+  static AnalysisGraph from_causemos_json_file(std::string filename);
+
+  /** Calculate and return edge weights for visualizing AnalysisGraph models in
+   * CauseMos. */
+  std::string get_edge_weights_for_causemos_viz();
 
   /*
    ============================================================================
@@ -875,7 +888,6 @@ class AnalysisGraph {
    * @param units       : Units for each indicator. Maps
    *                      indicator name --> unit
    * @param initial_beta: Criteria to initialize β
-   *
    */
   void train_model(int start_year = 2012,
                    int start_month = 1,
