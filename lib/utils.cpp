@@ -1,5 +1,6 @@
 #include "utils.hpp"
 #include <cmath>
+#include <fstream>
 #include <boost/range/numeric.hpp>
 
 using namespace std;
@@ -27,6 +28,12 @@ double log_normpdf(double x, double mean, double sd) {
   double log_nume = pow(x - mean, 2) / (2 * var);
 
   return log_denom - log_nume;
+}
+
+nlohmann::json load_json(string filename) {
+  ifstream i(filename);
+  nlohmann::json j = nlohmann::json::parse(i);
+  return j;
 }
 
 } // namespace delphi::utils

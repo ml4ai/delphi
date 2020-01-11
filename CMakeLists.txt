@@ -77,6 +77,7 @@ add_library(Delphi
   lib/Indicator.cpp
   lib/subgraphs.cpp
   lib/constructors.cpp
+  lib/causemos_integration.cpp
   lib/sampling.cpp
   lib/inference.cpp
   lib/synthetic_data.cpp
