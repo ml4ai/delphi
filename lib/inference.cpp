@@ -216,7 +216,7 @@ FormattedProjectionResult AnalysisGraph::generate_projection(string json_project
   int end_month = (start_month + time_steps) % 12;
 
   this->res = resolution;
-  this->sample_initial_transition_matrix_collection_from_prior();
+  this->sample_transition_matrix_collection_from_prior();
 
   // Create the perturbed initial latent state
   this->set_default_initial_state();

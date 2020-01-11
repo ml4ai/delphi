@@ -430,9 +430,9 @@ class AnalysisGraph {
 
   // Sample elements of the stochastic transition matrix from the
   // prior distribution, based on gradable adjectives.
-  void sample_initial_transition_matrix_from_prior();
+  void set_transition_matrix_from_betas();
 
-  void sample_initial_transition_matrix_collection_from_prior();
+  void sample_transition_matrix_collection_from_prior();
 
   /**
    * Utility function that sets an initial latent state from observed data.

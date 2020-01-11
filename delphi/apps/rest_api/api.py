@@ -186,7 +186,6 @@ def createProjection(modelID):
     G = AnalysisGraph.from_json_string(model)
 
     projection_result = G.generate_projection(request.data, resolution = 200)
-    print(projection_result)
 
     id = str(uuid4())
 

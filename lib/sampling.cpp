@@ -13,7 +13,7 @@ using Eigen::VectorXd;
 // Sample elements of the stochastic transition matrix from the
 // prior distribution, based on gradable adjectives.
 // TODO: Fix the name and description of this function.
-void AnalysisGraph::sample_initial_transition_matrix_from_prior() {
+void AnalysisGraph::set_transition_matrix_from_betas() {
   int num_verts = this->num_vertices();
 
   // A base transition matrix with the entries that does not change across
@@ -47,7 +47,7 @@ void AnalysisGraph::sample_initial_transition_matrix_from_prior() {
   }
 }
 
-void AnalysisGraph::sample_initial_transition_matrix_collection_from_prior() {
+void AnalysisGraph::sample_transition_matrix_collection_from_prior() {
   this->transition_matrix_collection.clear();
   this->transition_matrix_collection = vector<Eigen::MatrixXd>(this->res);
 
@@ -57,7 +57,7 @@ void AnalysisGraph::sample_initial_transition_matrix_collection_from_prior() {
     }
 
     // Create this->A_original based on the sampled β and remember it
-    this->sample_initial_transition_matrix_from_prior(); 
+    this->set_transition_matrix_from_betas();
     this->transition_matrix_collection[i] = this->A_original;
   }
 }
