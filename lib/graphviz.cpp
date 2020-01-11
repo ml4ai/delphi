@@ -4,7 +4,6 @@
 #include <range/v3/all.hpp>
 
 using namespace std;
-using boost::source, boost::target;
 
 /*
  ============================================================================
@@ -51,8 +50,8 @@ pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph(bool simplified_labels,
 
   // Add CAG links
   for (auto e : this->edges()) {
-    string source_name = this->graph[source(e, this->graph)].name;
-    string target_name = this->graph[target(e, this->graph)].name;
+    string source_name = this->source(e).name;
+    string target_name = this->target(e).name;
 
     // TODO Implement a refined version of this that checks for set size
     // equality, a la the Python implementation (i.e. check if the length of

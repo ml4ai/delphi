@@ -1,11 +1,15 @@
+// CauseMos integration methods
+
 #include "AnalysisGraph.hpp"
 #include "utils.hpp"
+#include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/statistics/median.hpp>
 #include <fstream>
 #include <range/v3/all.hpp>
 
 using namespace std;
 using namespace delphi::utils;
-// CauseMos integration
+
 AnalysisGraph AnalysisGraph::from_causemos_json_dict(nlohmann::json json_data) {
   AnalysisGraph G;
 
@@ -117,4 +121,35 @@ AnalysisGraph AnalysisGraph::from_causemos_json_string(string json_string) {
 AnalysisGraph AnalysisGraph::from_causemos_json_file(string filename) {
   auto json_data = load_json(filename);
   return AnalysisGraph::from_causemos_json_dict(json_data);
+}
+
+double median(vector<double> xs) {
+  using namespace boost::accumulators;
+  accumulator_set<double, features<tag::median>> acc;
+  for (auto x : xs) { acc(x); }
+  return boost::accumulators::median(acc);
+}
+
+string AnalysisGraph::get_edge_weights_for_causemos_viz() {
+  using nlohmann::json;
+  json j;
+  j["relations"] = {};
+  vector<double> all_weights = {};
+  for (auto e : this->edges()) {
+    int n_samples = 1000;
+    vector<double> sampled_betas = this->edge(e).kde.resample(
+        n_samples, this->rand_num_generator, this->uni_dist, this->norm_dist);
+    double weight = abs(median(sampled_betas));
+    all_weights.push_back(weight);
+    json edge_json = {{"source", this->source(e).name},
+                      {"target", this->target(e).name},
+                      {"weight", weight}};
+    j["relations"].push_back(edge_json);
+  }
+  double max_weight = ranges::max(all_weights);
+  // Divide the weights by the max weight so they all lie between 0-1
+  for (auto& relation : j["relations"]) {
+    relation["weight"] = relation["weight"].get<double>()/max_weight;
+  }
+  return j.dump();
 }
