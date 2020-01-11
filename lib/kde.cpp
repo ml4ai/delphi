@@ -7,7 +7,6 @@
 #include <boost/range/irange.hpp>
 #include <boost/range/numeric.hpp>
 #include <random>
-#include <algorithm>
 
 using namespace std;
 using boost::irange;
@@ -40,26 +39,18 @@ vector<double> KDE::resample(int n_samples, std::mt19937& gen,
                         uniform_real_distribution<double>& uni_dist,
                         normal_distribution<double>& norm_dist) {
   vector<double> samples(n_samples);
-  //uniform_int_distribution<int> uni_dist(0, dataset.size() - 1);
-  //uniform_real_distribution<double> uni_dist(0, 1);
-  //normal_distribution<double> norm_dist{0.0, 1.0};
 
-
-  //boost::iterator_range dataset_it = this->dataset();
-  vector<double> dataset_sample(n_samples);
-  sample(
-      dataset.begin(), dataset.end(), dataset_sample.begin(), n_samples, gen);
-
-  transform(dataset_sample.begin(), dataset_sample.end(), samples.begin(),
-            [&](double element) {return element + bw * norm_dist(gen);});
-
-  /*
   for (int i : irange(0, n_samples)) {
     double element = select_random_element(dataset, gen, uni_dist);
-    //samples.push_back(sample_from_normal(gen, element, bw));
-    samples.push_back(element + bw * norm_dist(gen));
+
+    // Transform the sampled values using a Gaussian distribution
+    // ~ ( sampled value, bw)
+    // We sample from a standard Gaussian and transform that sample
+    // to the desired Gaussian distribution by
+    // μ + σ * standard Gaussian sample
+    samples[i] = element + bw * norm_dist(gen);
   }
-  */
+
   return samples;
 }
 
