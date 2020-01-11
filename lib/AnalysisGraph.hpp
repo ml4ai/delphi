@@ -99,7 +99,7 @@ class AnalysisGraph {
   // A_beta_factors is a 2D array (std::vector of std::vectors) that keeps track
   // of the β factors involved with each cell of the transition matrix A.
   //
-  // Accordign to our current model, which uses variables and their partial
+  // According to our current model, which uses variables and their partial
   // derivatives with respect to each other ( x --> y, βxy = ∂y/∂x ),
   // atmost half of the transition matrix cells can be affected by βs.
   // According to the way we organize the transition matrix, the cells
@@ -323,6 +323,14 @@ class AnalysisGraph {
     return boost::make_iterator_range(boost::out_edges(i, graph));
   }
 
+  Node& source(EdgeDescriptor e) {
+    return (*this)[boost::source(e, this->graph)];
+  };
+
+  Node& target(EdgeDescriptor e) {
+    return (*this)[boost::target(e, this->graph)];
+  };
+
   auto successors(int i) {
     return boost::make_iterator_range(boost::adjacent_vertices(i, this->graph));
   }
@@ -349,7 +357,6 @@ class AnalysisGraph {
     return this->predecessors(this->name_to_vertex.at(node_name));
   }
 
-  // std::vector<Node> get_predecessor_list(std::string node_name);
   std::vector<Node> get_predecessor_list(std::string node) {
     std::vector<Node> predecessors = {};
     for (int predecessor : this->predecessors(node)) {
@@ -656,8 +663,8 @@ class AnalysisGraph {
    * CauseMos. */
   static AnalysisGraph from_causemos_json_file(std::string filename);
 
-  /** Calculate and return edge weights for visualizing AnalysisGraph models in
-   * CauseMos. */
+  /** Calculate and return a JSON string with edge weight information for
+   * visualizing AnalysisGraph models in CauseMos. */
   std::string get_edge_weights_for_causemos_viz();
 
   /*

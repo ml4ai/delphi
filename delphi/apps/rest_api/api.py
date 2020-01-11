@@ -50,12 +50,13 @@ def listAllModels():
 def createNewModel():
     """ Create a new Delphi model. """
     data = json.loads(request.data)
-    G = AnalysisGraph.from_uncharted_json_string(request.data)
+    G = AnalysisGraph.from_causemos_json_string(request.data)
     G.id = data["id"]
     model=DelphiModel(id=data["id"], model = G.to_json_string())
     db.session.add(model)
     db.session.commit()
-    return jsonify({"status": "success"})
+    edge_weights = G.get_edge_weights_for_causemos_viz()
+    return jsonify({"status": "success", "relations": edge_weights})
 
 
 @bp.route("/delphi/search", methods=["POST"])
@@ -260,9 +261,9 @@ def getExperimentResults(modelID: str, experimentID: str):
     return jsonify(experimentResult.deserialize())
 
 
-# ============
+# =======
 # ICM API
-# ============
+# =======
 
 
 @bp.route("/icm", methods=["POST"])
