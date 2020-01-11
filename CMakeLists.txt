@@ -23,11 +23,12 @@ include_directories(external/cppitertools)
 
 option(USE_BUNDLED_SPDLOG "Use spdlog bundled with Delphi" ON)
 
-find_package(fmt)
 
 if(NOT APPLE)
   include_directories(external/fmt/include)
   add_subdirectory(external/fmt)
+else()
+  find_package(fmt)
 endif()
 
 
