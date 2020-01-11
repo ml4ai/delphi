@@ -24,9 +24,7 @@ models from information extracted from two sources:
 Usage
 -----
 
-- Assembling a model from text: This section is under construction. Please
-  refer to the C++ API for now.
-
+- Assembling a model from text: [UNDER CONSTRUCTION]
 
 - Assembling a model from Fortran code:
 
