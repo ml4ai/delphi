@@ -104,7 +104,3 @@ target_link_libraries(cpptests PRIVATE doctest Delphi)
 
 pybind11_add_module(DelphiPython MODULE lib/DelphiPython.cpp)
 target_link_libraries(DelphiPython PRIVATE Delphi)
-
-# Executables
-add_executable(create_model apps/create_model.cpp)
-target_link_libraries(create_model PRIVATE Delphi)
