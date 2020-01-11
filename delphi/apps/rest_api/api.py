@@ -13,13 +13,11 @@ from typing import Optional, List
 from itertools import product
 from statistics import median, mean
 from delphi.cpp.DelphiPython import AnalysisGraph
-from delphi.random_variables import LatentVar
-from delphi.utils import flatten, lmap
+from delphi.utils import lmap
 from flask import jsonify, request, Blueprint
 from delphi.db import engine
 from delphi.apps.rest_api import db
 from delphi.apps.rest_api.models import *
-from delphi.random_variables import Indicator
 import numpy as np
 from flask import current_app
 import scipy.stats

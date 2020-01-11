@@ -1,10 +1,5 @@
 import json
-from datetime import date
-from uuid import uuid4
-
-import numpy as np
 import pytest
-
 from delphi.cpp.DelphiPython import AnalysisGraph
 
 from delphi.apps.rest_api import create_app, db
@@ -16,7 +11,6 @@ from delphi.apps.rest_api.models import (
     ForwardProjection,
     ICMMetadata,
 )
-from delphi.random_variables import LatentVar
 
 
 @pytest.fixture(scope="module")
