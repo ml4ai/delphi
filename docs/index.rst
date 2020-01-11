@@ -11,7 +11,7 @@ over multiple levels of abstraction and fully utilizing expert
 knowledge about multiple disparate domains, ranging from the
 environmental to the sociopolitical.
 
-Delphi is a Python library (3.6+) for assembling causal, dynamic, probabilistic
+Delphi is a C++/Python library for assembling causal, dynamic, probabilistic
 models from information extracted from two sources:
 
 - *Text*: Delphi utilizes causal relations extracted using machine
@@ -24,23 +24,9 @@ models from information extracted from two sources:
 Usage
 -----
 
-- Assembling a model from text:
+- Assembling a model from text: This section is under construction. Please
+  refer to the C++ API for now.
 
-.. code-block:: python
-
-  from delphi.AnalysisGraph import AnalysisGraph
-
-  G = AnalysisGraph.from_text(
-      "Significantly increased conflict seen in South Sudan forced many"
-      " families to flee in 2017.")
-  G.map_concepts_to_indicators()
-  G.parameterize(country="South Sudan", year=2017, month=4)
-  A = G.to_agraph()
-  A.draw("CAG.png", prog="dot")
-
-.. figure:: CAG.png
-  :alt: Causal analysis graph example
-  :width: 100 %
 
 - Assembling a model from Fortran code:
 
