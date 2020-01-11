@@ -20,15 +20,15 @@ PYBIND11_MODULE(DelphiPython, m) {
 
   py::class_<AnalysisGraph>(m, "AnalysisGraph")
       .def_readwrite("id", &AnalysisGraph::id)
-      .def("to_json_string", &AnalysisGraph::to_json_string, "indent"_a=0)
+      .def("to_json_string", &AnalysisGraph::to_json_string, "indent"_a = 0)
       .def("from_json_string", &AnalysisGraph::from_json_string)
       .def_readwrite("data_heuristic", &AnalysisGraph::data_heuristic)
       .def_readwrite("res", &AnalysisGraph::res)
       .def_property("s0",
                     &AnalysisGraph::get_initial_latent_state,
                     &AnalysisGraph::set_initial_latent_state)
-      .def_static("from_json_file",
-                  &AnalysisGraph::from_json_file,
+      .def_static("from_indra_statements_json_file",
+                  &AnalysisGraph::from_indra_statements_json_file,
                   "filename"_a,
                   "belief_score_cutoff"_a = 0.9,
                   "grounding_score_cutoff"_a = 0.0,

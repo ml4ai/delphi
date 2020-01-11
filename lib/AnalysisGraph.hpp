@@ -16,7 +16,7 @@
 #include <nlohmann/json.hpp>
 
 const double TAU = 1;
-const double tuning_param = 1;//0.0001;
+const double tuning_param = 1; // 0.0001;
 
 const size_t DEFAULT_N_SAMPLES = 200;
 
@@ -81,7 +81,6 @@ class AnalysisGraph {
   // Uniform discrete distribution used by the MCMC sampler
   // to perturb the initial latent state
   std::uniform_int_distribution<int> uni_disc_dist;
-
 
   /*
    ============================================================================
@@ -180,7 +179,7 @@ class AnalysisGraph {
   // prediction_initial_latent_states.size() = this->res
   // TODO: If we make the code using this variable to directly fetch the values
   // from this->training_latent_state_sequences, we can get rid of this
-  //std::vector<Eigen::VectorXd> prediction_initial_latent_states;
+  // std::vector<Eigen::VectorXd> prediction_initial_latent_states;
 
   // Access this as
   // prediction_latent_state_sequences[ sample ][ time step ]
@@ -529,7 +528,11 @@ class AnalysisGraph {
 
   FormattedProjectionResult format_projection_result();
 
-  void run_model(int start_year, int start_month, int end_year, int end_month, bool project = false);
+  void run_model(int start_year,
+                 int start_month,
+                 int end_year,
+                 int end_month,
+                 bool project = false);
 
   /*
    ============================================================================
@@ -587,7 +590,7 @@ class AnalysisGraph {
   ~AnalysisGraph() {}
 
   std::string id;
-  std::string to_json_string(int indent=0);
+  std::string to_json_string(int indent = 0);
   bool data_heuristic = false;
 
   // Sampling resolution. Default is 200
@@ -606,10 +609,11 @@ class AnalysisGraph {
    * @param filename: The path to the file containing the JSON-serialized INDRA
    * statements.
    */
-  static AnalysisGraph from_json_file(std::string filename,
-                                      double belief_score_cutoff = 0.9,
-                                      double grounding_score_cutoff = 0.0,
-                                      std::string ontology = "WM");
+  static AnalysisGraph
+  from_indra_statements_json_file(std::string filename,
+                                  double belief_score_cutoff = 0.9,
+                                  double grounding_score_cutoff = 0.0,
+                                  std::string ontology = "WM");
 
   /*
    * Construct an AnalysisGraph object from a dict of INDRA statements
@@ -786,7 +790,7 @@ class AnalysisGraph {
    ============================================================================
   */
 
-  //void construct_beta_pdfs(std::mt19937 rng);
+  // void construct_beta_pdfs(std::mt19937 rng);
   void construct_beta_pdfs();
 
   /*
@@ -915,7 +919,8 @@ class AnalysisGraph {
                                  int end_year,
                                  int end_month);
 
-  FormattedProjectionResult generate_projection(std::string json_projection, int resolution);
+  FormattedProjectionResult generate_projection(std::string json_projection,
+                                                int resolution);
 
   /**
    * this->generate_prediction() must be called before callign this method.
