@@ -28,7 +28,6 @@ def get_python_source(
                 temp_dir=TEMP_DIR,
                 root_dir_path=root_dir,
                 processing_modules=False,
-                save_file=False
            )
 
 
