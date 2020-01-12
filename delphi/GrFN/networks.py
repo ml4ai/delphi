@@ -476,12 +476,12 @@ class GroundedFunctionNetwork(ComputationalGraph):
                                     temp_dir=str(tmpdir),
                                     root_dir_path=root_dir,
                                     processing_modules=False,
-                                    save_file=save_file
             )
 
         generated_files = []
         for python_file in translated_python_files:
             lambdas_path = python_file[0:-3] + lambda_file_suffix
+            grfn_path = python_file[0:-3] + grfn_file_suffix
             G = cls.from_python_src(
                                     pySrc[0][0],
                                     lambdas_path,
