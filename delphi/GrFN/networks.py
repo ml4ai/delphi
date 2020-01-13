@@ -476,7 +476,6 @@ class GroundedFunctionNetwork(ComputationalGraph):
                                     temp_dir=str(tmpdir),
                                     root_dir_path=root_dir,
                                     processing_modules=False,
-                                    save_file=save_file
             )
 
         generated_files = []

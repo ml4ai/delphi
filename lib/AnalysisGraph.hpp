@@ -16,7 +16,7 @@
 #include <nlohmann/json.hpp>
 
 const double TAU = 1;
-const double tuning_param = 0.0001;
+const double tuning_param = 1;//0.0001;
 
 const size_t DEFAULT_N_SAMPLES = 200;
 
@@ -69,6 +69,10 @@ class AnalysisGraph {
 
   // Normal distrubution used to perturb β
   std::normal_distribution<double> norm_dist;
+
+  // Uniform discrete distribution used by the MCMC sampler
+  // to perturb the initial latent state
+  std::uniform_int_distribution<int> uni_disc_dist;
 
 
   /*
@@ -132,13 +136,23 @@ class AnalysisGraph {
   double log_likelihood = 0.0;
   double previous_log_likelihood = 0.0;
 
+  // To decide whether to perturb a β or a derivative
+  // If coin_flip < coin_flip_thresh perturb β else perturb derivative
+  double coin_flip = 0;
+  double coin_flip_thresh = 0.5;
+
   // Remember the old β and the edge where we perturbed the β.
   // We need this to revert the system to the previous state if the proposal
   // gets rejected.
   std::pair<EdgeDescriptor, double> previous_beta;
 
+  // Remember the old derivative and the concept we perturbed the derivative
+  int changed_derivative;
+  double previous_derivative;
+
   // Latent state that is evolved by sampling.
   Eigen::VectorXd s0;
+  Eigen::VectorXd s0_prev;
 
   // Transition matrix that is evolved by sampling.
   // Since variable A has been already used locally in other methods,
@@ -159,7 +173,7 @@ class AnalysisGraph {
   // prediction_initial_latent_states.size() = this->res
   // TODO: If we make the code using this variable to directly fetch the values
   // from this->training_latent_state_sequences, we can get rid of this
-  std::vector<Eigen::VectorXd> prediction_initial_latent_states;
+  //std::vector<Eigen::VectorXd> prediction_initial_latent_states;
 
   // Access this as
   // prediction_latent_state_sequences[ sample ][ time step ]
@@ -174,6 +188,7 @@ class AnalysisGraph {
   PredictedObservedStateSequence test_observed_state_sequence;
 
   std::vector<Eigen::MatrixXd> transition_matrix_collection;
+  std::vector<Eigen::VectorXd> initial_latent_state_collection;
 
   std::vector<Eigen::VectorXd> synthetic_latent_state_sequence;
   // ObservedStateSequence synthetic_observed_state_sequence;
