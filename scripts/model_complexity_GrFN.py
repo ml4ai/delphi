@@ -42,23 +42,25 @@ def model_complexity(num, shared_vars, non_shared_vars):
     petasce_bounds = dict()
     for var_name in petpt_var_names:
         key1 = "PETPT::@global::petpt::0::" + var_name + "::-1"
-        key2 = "PETASCE::@global::petasce::0::" + var_name + "::-1"
+        key2 = "PETASCE_simple::@global::petasce::0::" + var_name + "::-1"
         if shared_dict[var_name + '_lb'] == shared_dict[var_name + '_ub']:
             val =  float(shared_dict[var_name + '_lb'])
         else:
-            val = np.linspace(float(shared_dict[var_name + '_lb']), float(shared_dict[var_name + '_ub']), num)
+            # val = np.linspace(float(shared_dict[var_name + '_lb']), float(shared_dict[var_name + '_ub']), num)
+            val = [float(shared_dict[var_name + '_lb']), float(shared_dict[var_name + '_ub'])]
         petpt_bounds.update({key1:val})
         petasce_bounds.update({key2:val})
    
     print(petpt_bounds)
 
     for var_name in petasce_non_shared_var_names:
-        key = "PETASCE::@global::petasce::0::" + var_name + "::-1"
+        key = "PETASCE_simple::@global::petasce::0::" + var_name + "::-1"
         if var_name != 'meevp':
             if non_shared_dict[var_name + '_lb'] == non_shared_dict[var_name + '_ub']:
                 val =  float(non_shared_dict[var_name + '_lb'])
             else:
-                val = np.linspace(float(non_shared_dict[var_name + '_lb']), float(non_shared_dict[var_name + '_ub']), num)
+                # val = np.linspace(float(non_shared_dict[var_name + '_lb']), float(non_shared_dict[var_name + '_ub']), num)
+                val = [float(non_shared_dict[var_name + '_lb']), float(non_shared_dict[var_name + '_ub'])]
         else:
             # print(non_shared_dict[var_name + '_lb'])
             val = 'A'
@@ -75,8 +77,18 @@ def model_complexity(num, shared_vars, non_shared_vars):
     # "PETPT::@global::petpt::0::xhlai::-1": 5,
     # } 
 
+    # bounds = {
+    # "PETPT::@global::petpt::0::msalb::-1": 0.18,
+    # "PETPT::@global::petpt::0::srad::-1": 10.0,
+    # "PETPT::@global::petpt::0::tmax::-1": 40.0,
+    # "PETPT::@global::petpt::0::tmin::-1": -20.0,
+    # "PETPT::@global::petpt::0::xhlai::-1": 5,
+    # } 
 
     # petpt_vals = G1.run(bounds)
+    petpt_vals = G1.run(petpt_bounds)
+
+    print(petpt_vals)
 
 file1 = 'shared_vars_bounds.txt'
 file2 = 'non_shared_vars_bounds.txt'
