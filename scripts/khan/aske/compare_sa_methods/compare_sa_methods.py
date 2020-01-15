@@ -12,7 +12,8 @@ sns.set_style('whitegrid')
 import time
 
 
-
+class InputError(Exception):
+    pass
 
 def sobol_index_from_GrFN(model, file_bounds):
     sys.path.insert(0, "../tests/data/program_analysis")
@@ -20,14 +21,19 @@ def sobol_index_from_GrFN(model, file_bounds):
         fortran_code = 'PETPT.for'
     elif model == 'PETASCE':
         fortran_code = 'PETASCE_simple.for'
+    else:
+        raise InputError("Model Name Invalid!")
 
     tG = GroundedFunctionNetwork.from_fortran_file("../tests/data/program_analysis/" + fortran_code)
 
     args = tG.inputs
     var_names = [args[i].split('::')[4] for i in range(len(args))]
     
-    var_df = pd.read_csv(file_bounds, sep='\s+', header=0)
-    var_dict = pd.Series(var_df.Vals.values, index=var_df.Var).to_dict()
+    # var_df = pd.read_csv(file_bounds, sep='\s+', header=0)
+    var_df = pd.read_csv(file_bounds, sep=',', header=0)
+    # var_dict = pd.Series(var_df.Vals.values, index=var_df.Var).to_dict()
+    var_dict_lb = pd.Series(var_df.Lower.values, index=var_df.Var).to_dict()
+    var_dict_ub = pd.Series(var_df.Upper.values, index=var_df.Var).to_dict()
     
     var_bounds = dict()
     type_dict  = dict()
@@ -38,7 +44,8 @@ def sobol_index_from_GrFN(model, file_bounds):
         else:
             key = model + "_simple::@global::" + model.lower() + "::0::" + var_name + "::-1"
         
-        val = [var_dict[var_name+ '_lb'], var_dict[var_name + '_ub']]
+        # val = [var_dict[var_name+ '_lb'], var_dict[var_name + '_ub']]
+        val = [var_dict_lb[var_name], var_dict_ub[var_name]]
         
         var_bounds.update({key:val})
         
@@ -62,7 +69,7 @@ def sobol_index_from_GrFN(model, file_bounds):
             'bounds': [var_bounds[arg] for arg in args]
             }
 
-    Ns = [10**x for x in range(1,5)]
+    Ns = [10**x for x in range(1,2)]
 
     S1_Sobol, S2_Sobol = [], []
     clocktime_Sobol = []
@@ -89,7 +96,7 @@ def sobol_index_from_GrFN(model, file_bounds):
         plt.legend(loc='best', fontsize=20)
         plt.xlabel("Number of samples (log scale)", fontsize=30)
         plt.ylabel("Indices in Sobol method", fontsize=30)
-        plt.title(r"First Order Sobol Index S$_i$ in PETASCE Model for different sample size (log10 scale)", fontsize=20)
+        plt.title(r"First Order Sobol Index S$_i$ in " + model + " Model for different sample size (log10 scale)", fontsize=20)
         plt.xticks(fontsize=20)
         plt.yticks(fontsize=20)
 
@@ -127,7 +134,6 @@ def sobol_index_from_GrFN(model, file_bounds):
     plt.yticks(fontsize=20)
     plt.show()
 
-
-# sobol_index_from_GrFN('PETPT', 'petpt_var_bounds.txt')
-# sobol_index_from_GrFN('PETASCE', 'petasce_var_bounds.txt')
+# sobol_index_from_GrFN('PETPT', 'petpt_var_bounds.csv')
+# sobol_index_from_GrFN('PETASCE', 'petasce_var_bounds.csv')
 
