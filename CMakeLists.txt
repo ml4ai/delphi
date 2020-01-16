@@ -13,7 +13,7 @@ find_package(Graphviz)
 
 include_directories(${GRAPHVIZ_INCLUDE_DIRS})
 # Add and link pybind11 modules
-find_package(Boost COMPONENTS program_options REQUIRED)
+find_package(Boost COMPONENTS graph REQUIRED)
 include_directories(lib)
 include_directories(external)
 include_directories(${Boost_INCLUDE_DIR})
@@ -96,12 +96,6 @@ target_link_libraries(Delphi
                               spdlog::spdlog
                               SQLite::SQLite3
                               ${GRAPHVIZ_LIBS})
-
-# Tests
-add_library(doctest INTERFACE)
-add_executable(cpptests tests/cpptests.cpp)
-target_include_directories(doctest INTERFACE external/doctest)
-target_link_libraries(cpptests PRIVATE doctest Delphi)
 
 pybind11_add_module(DelphiPython MODULE lib/DelphiPython.cpp)
 target_link_libraries(DelphiPython PRIVATE Delphi)
