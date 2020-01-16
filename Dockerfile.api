@@ -31,7 +31,6 @@ RUN alternatives --install /usr/local/bin/cmake cmake /usr/bin/cmake3 20 \
     --family cmake
 
 RUN yum -y install make \
-    && yum -y install boost-devel \
     && yum -y install sqlite-devel
 
 # Setup python virtual environment
@@ -39,15 +38,15 @@ RUN pip3.6 install virtualenv \
     && virtualenv delphi-env \
     && source delphi-env/bin/activate \
     && pip install Cython \
-    && pip install conan \
     && pip install pyscaffold \
     && pip install botocore \
     && pip install flask_executor \
-    && yum -y install git \
-    && git clone https://github.com/adamocarolli/delphi \
+    && yum -y install git wget
+
+RUN git clone https://github.com/ml4ai/delphi \
     && cd delphi \
-    && git checkout -b rest_api origin/rest_api \
-    && git submodule update --init --recursive \
+    && git checkout rest_api_cpp \
+    && ./scripts/install_boost_from_source.sh \
     && make extensions \
     && pip install -e .[test,docs]
 
