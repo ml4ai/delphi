@@ -43,11 +43,18 @@ RUN pip3.6 install virtualenv \
     && pip install flask_executor \
     && yum -y install git wget
 
+RUN yum -y install zlib-devel bzip2-devel
+RUN wget https://dl.bintray.com/boostorg/release/1.71.0/source/boost_1_71_0.tar.gz \
+    && tar xfz boost_1_71_0.tar.gz && cd boost_1_71_0 
+WORKDIR /boost_1_71_0
+RUN ./bootstrap.sh --with-libraries="graph,headers"
+RUN ./b2 install
+WORKDIR /
+
 RUN git clone https://github.com/ml4ai/delphi \
     && cd delphi \
     && git checkout rest_api_cpp \
-    && ./scripts/install_boost_from_source.sh \
-    && make extensions \
-    && pip install -e .[test,docs]
+    && pip3.6 install cython \
+    && pip3.6 install -e .[wm]
 
 CMD delphi-env/bin/delphi_rest_api
