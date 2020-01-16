@@ -4,11 +4,13 @@
 #include "utils.hpp"
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/median.hpp>
+#include <fmt/format.h>
 #include <fstream>
 #include <range/v3/all.hpp>
 
 using namespace std;
 using namespace delphi::utils;
+using namespace fmt::literals;
 
 AnalysisGraph AnalysisGraph::from_causemos_json_dict(nlohmann::json json_data) {
   AnalysisGraph G;
@@ -43,8 +45,6 @@ AnalysisGraph AnalysisGraph::from_causemos_json_dict(nlohmann::json json_data) {
       continue;
     }
 
-    // TODO: Not sure why python version is doing a split on / and
-    // then again a join on /!!
     string subj_name = subj_concept_json.get<string>();
     string obj_name = obj_concept_json.get<string>();
 
@@ -82,31 +82,43 @@ AnalysisGraph AnalysisGraph::from_causemos_json_dict(nlohmann::json json_data) {
     G.add_edge(causal_fragment);
   }
 
-  for (auto& [concept, mapping] : json_data["conceptIndicators"].items()) {
-    string indicator_name = mapping["name"].get<string>();
-    string indicator_source = mapping["name"].get<string>();
-    G[concept].add_indicator(indicator_name, indicator_source);
-    // Calculate aggregate from the values given
-    vector<double> values = {};
-    for (auto& data_point : mapping["values"]) {
-      values.push_back(data_point["value"].get<double>());
-    }
-    // Aggregation function
-    string func = mapping["func"].get<string>();
-    double aggregated_value = 0.0;
-    if (func == "max") {
-      aggregated_value = ranges::max(values);
-    }
-    else if (func == "min") {
-      aggregated_value = ranges::min(values);
-    }
-    else if (func == "mean") {
-      aggregated_value = mean(values);
+  for (Node& n : G.nodes()) {
+    if (json_data["conceptIndicators"][n.name].is_null()) {
+      string indicator_name = "Qualitative measure of {}"_format(n.name);
+      string indicator_source = "Delphi";
+      G[n.name].add_indicator(indicator_name, indicator_source);
+      G[n.name].get_indicator(indicator_name).set_mean(1.0);
     }
     else {
-      throw runtime_error("\"func\" must be one of [max|min|mean]");
+      auto mapping = json_data["conceptIndicators"][n.name];
+      string indicator_name = mapping["name"].get<string>();
+      string indicator_source = mapping["name"].get<string>();
+
+      // Calculate aggregate from the values given
+      vector<double> values = {};
+      for (auto& data_point : mapping["values"]) {
+        values.push_back(data_point["value"].get<double>());
+      }
+      // Aggregation function
+      string func = mapping["func"].get<string>();
+      double aggregated_value = 0.0;
+      if (func == "max") {
+        aggregated_value = ranges::max(values);
+      }
+      else if (func == "min") {
+        aggregated_value = ranges::min(values);
+      }
+      else if (func == "mean") {
+        aggregated_value = mean(values);
+      }
+      else {
+        throw runtime_error(
+            "Invalid value of \"func\": {}. It must be one of [max|min|mean]"_format(
+                func));
+      }
+      G[n.name].add_indicator(indicator_name, indicator_source);
+      G[n.name].get_indicator(indicator_name).set_mean(aggregated_value);
     }
-    G[concept].get_indicator(indicator_name).set_mean(aggregated_value);
   }
   G.initialize_random_number_generator();
   G.construct_beta_pdfs();
@@ -126,7 +138,9 @@ AnalysisGraph AnalysisGraph::from_causemos_json_file(string filename) {
 double median(vector<double> xs) {
   using namespace boost::accumulators;
   accumulator_set<double, features<tag::median>> acc;
-  for (auto x : xs) { acc(x); }
+  for (auto x : xs) {
+    acc(x);
+  }
   return boost::accumulators::median(acc);
 }
 
@@ -149,7 +163,7 @@ string AnalysisGraph::get_edge_weights_for_causemos_viz() {
   double max_weight = ranges::max(all_weights);
   // Divide the weights by the max weight so they all lie between 0-1
   for (auto& relation : j["relations"]) {
-    relation["weight"] = relation["weight"].get<double>()/max_weight;
+    relation["weight"] = relation["weight"].get<double>() / max_weight;
   }
   return j.dump();
 }
