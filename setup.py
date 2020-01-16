@@ -49,7 +49,8 @@ class CMakeBuild(build_ext):
 
 EXTRAS_REQUIRE = {
     "wm": [
-        "flask" "pybind11",
+        "flask",
+        "pybind11",
         "indra[eidos_offline]",
         "SQLAlchemy",
         "flask-sqlalchemy",
