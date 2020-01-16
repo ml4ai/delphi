@@ -7,7 +7,7 @@ tar xfz boost_1_71_0.tar.gz
 pushd boost_1_71_0
   ./bootstrap.sh
   if [[ $? -ne 0 ]]; then exit 1; fi;
-  sudo ./b2 -j8 install
+  ./b2 -j8 install
   if [[ $? -ne 0 ]]; then exit 1; fi;
 popd
 rm -rf boost_1_71_0*
