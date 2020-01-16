@@ -14,9 +14,9 @@ from itertools import product
 from statistics import median, mean
 from delphi.cpp.DelphiPython import AnalysisGraph
 from delphi.utils import lmap
-from flask import jsonify, request, Blueprint
+from flask import jsonify, request, Blueprint, current_app
 from delphi.db import engine
-from delphi.apps.rest_api import db
+from delphi.apps.rest_api import db, executor
 from delphi.apps.rest_api.models import *
 import numpy as np
 from flask import current_app
@@ -52,11 +52,153 @@ def createNewModel():
     data = json.loads(request.data)
     G = AnalysisGraph.from_causemos_json_string(request.data)
     G.id = data["id"]
-    model=DelphiModel(id=data["id"], model = G.to_json_string())
-    db.session.add(model)
+    model = DelphiModel(id=data["id"], model=G.to_json_string())
+    db.session.merge(model)
     db.session.commit()
     edge_weights = G.get_edge_weights_for_causemos_viz()
     return jsonify({"status": "success", "relations": edge_weights})
+
+
+@bp.route("/delphi/search-indicators", methods=["POST"])
+def search_indicators():
+    """
+    A very basic, naive text search for indicators with the following search criteria
+    - start: start year
+    - end: end year
+    - geolocation: location text
+    - match: matching string
+
+    The search returns a listing of distinct indicator names/variables that match the criteria
+    """
+    args = request.get_json()
+    start = args.get("start")
+    end = args.get("end")
+    geolocation = args.get("geolocation")
+    match = args.get("match")
+
+    sql = "SELECT DISTINCT `Variable` from indicator WHERE 1 = 1"
+    if match is not None:
+        sql = (
+            sql
+            + f" AND (`Variable` LIKE '{match}%' OR `Variable` LIKE '% {match}%')"
+        )  # trying to match prefix
+    if start is not None:
+        sql = sql + f" AND `Year` > {start}"
+    if end is not None:
+        sql = sql + f" AND `Year` < {end}"
+
+    print("Running SQL: ", sql)
+    records = list(engine.execute(sql))
+
+    result = []
+    for r in records:
+        result.append(r["Variable"])
+
+    return jsonify(result)
+
+
+def get_indicator_detail(indicator, start, end, geolocation):
+    """
+    Helper method to return raw indicator data, applying the following filters
+    - indicator: indicator string
+    - start: start yaer
+    - end: end year
+    - geolocation: geolocation string
+    """
+    indicator = indicator.replace("'", "''")
+
+    sql = "SELECT * from indicator WHERE 1 = 1"
+    if start is not None:
+        sql = sql + f" AND `Year` > {start}"
+    if end is not None:
+        sql = sql + f" AND `Year` < {end}"
+    sql = sql + f" AND `Variable` = '{indicator}'"
+    records = list(engine.execute(sql))
+    result = {}
+    for r in records:
+        unit, value, year, month, source = (
+            r["Unit"],
+            r["Value"],
+            r["Year"],
+            r["Month"],
+            r["Source"],
+        )
+        value = float(re.findall(r"-?\d+\.?\d*", value)[0])
+
+        if unit is None:
+            unit = PLACEHOLDER_UNIT
+
+        _dict = {
+            "year": year,
+            "month": month,
+            "value": float(value),
+            "source": source,
+        }
+
+        if unit not in result:
+            result[unit] = []
+
+        result[unit].append(_dict)
+    return result
+
+
+@bp.route("/delphi/indicator-detail", methods=["POST"])
+def indicator_detail():
+    """
+    Returns raw indicator data given the following search criteria
+    - indicator: indicator string
+    - start: start year
+    - end: end year
+    - geolocation: geolocation string
+    """
+    args = request.get_json()
+    start = args.get("start")
+    end = args.get("end")
+    geolocation = args.get("geolocation")
+    indicator = args.get("indicator")
+
+    result = detail = get_indicator_detail(indicator, start, end, geolocation)
+    return jsonify(result)
+
+
+@bp.route("/delphi/search-concept-indicators", methods=["POST"])
+def search_concept_indicators():
+    """
+    Given a list of concepts,  this endpoint returns their respective matching
+    indicators. The search parameters are:
+    - concepts: a list of concepts
+    - start: start year
+    - end: end year
+    - geolocation: geolocation string
+    """
+    args = request.get_json()
+    concepts = args.get("concepts")
+    start = args.get("start")
+    end = args.get("end")
+    geolocation = args.get("geolocation")
+
+    result = {}
+    for concept in args.get("concepts"):
+        sql = "SELECT `Concept`, `Source`, `Indicator`, `Score` FROM concept_to_indicator_mapping "
+        sql = sql + f" WHERE `Concept` = '{concept}'"
+
+        mappings = engine.execute(sql)
+        concept_result = []
+        for mapping in mappings:
+            indicator = mapping["Indicator"]
+            source = mapping["Source"]
+            score = mapping["Score"]
+            detail = get_indicator_detail(indicator, start, end, geolocation)
+            concept_result.append(
+                {
+                    "name": indicator,
+                    "score": score,
+                    "source": source,
+                    "value": detail,
+                }
+            )
+        result[concept] = concept_result
+    return jsonify(result)
 
 
 @bp.route("/delphi/search", methods=["POST"])
@@ -76,7 +218,6 @@ def getIndicators():
     returned.
     """
 
-    # args = request.args
     args = request.get_json()
 
     func_dict = {
@@ -184,69 +325,77 @@ def createProjection(modelID):
     model = DelphiModel.query.filter_by(id=modelID).first().model
     G = AnalysisGraph.from_json_string(model)
 
-    projection_result = G.generate_projection(request.data, resolution = 200)
+    projection_result = G.generate_projection(request.data, resolution=200)
 
-    id = str(uuid4())
+    experiment_id = str(uuid4())
 
-    result = CauseMosForwardProjectionResult(
-        id=id, baseType="CauseMosForwardProjectionResult"
-    )
-    result.results = {
-        G[n].name: {
-            "values": [],
-            "confidenceInterval": {"upper": [], "lower": []},
-        }
-        for n in G
-    }
-    db.session.add(result)
+    def runExperiment():
+        experiment = ForwardProjection(
+            baseType="ForwardProjection", id=experiment_id
+        )
+        db.session.add(experiment)
+        db.session.commit()
 
-    data = json.loads(request.data)
-    startTime = data["startTime"]
-    #d = dateutil.parser.parse(f"{startTime['year']} {startTime['month']}")
-    d = parse(f"{startTime['year']} {startTime['month']}")
-
-    τ = 1.0  # Time constant to control the rate of the decay
-
-    # # From https://www.ucl.ac.uk/child-health/short-courses-events/
-    # #     about-statistical-courses/research-methods-and-statistics/chapter-8-content-8
-    n = G.res
-    lower_rank = int((n - 1.96 * sqrt(n)) / 2)
-    upper_rank = int((2 + n + 1.96 * sqrt(n)) / 2)
-
-    lower_rank = 0 if lower_rank < 0 else lower_rank
-    upper_rank = n-1 if upper_rank >= n else upper_rank
-
-    for concept, samples in projection_result.items():
-        for ts in range(int(data["timeStepsInMonths"])):
-            d = d + relativedelta(months=1)
-
-            median_value = median(samples[ts])
-            lower_limit = samples[ts][lower_rank]
-            upper_limit = samples[ts][upper_rank]
-
-            value_dict = {
-                "year": d.year,
-                "month": d.month,
-                "value": median_value,
+        result = CauseMosForwardProjectionResult(
+            id=experiment_id, baseType="CauseMosForwardProjectionResult"
+        )
+        result.results = {
+            G[n].name: {
+                "values": [],
+                "confidenceInterval": {"upper": [], "lower": []},
             }
+            for n in G
+        }
+        db.session.add(result)
 
-            result.results[concept]["values"].append(value_dict.copy())
-            value_dict.update({"value": lower_limit})
-            result.results[concept]["confidenceInterval"]["lower"].append(
-                value_dict.copy()
-            )
-            value_dict.update({"value": upper_limit})
-            result.results[concept]["confidenceInterval"]["upper"].append(
-                value_dict.copy()
-            )
+        data = json.loads(request.data)
+        startTime = data["startTime"]
+        d = parse(f"{startTime['year']} {startTime['month']}")
 
-    db.session.add(result)
-    db.session.commit()
+        # # From https://www.ucl.ac.uk/child-health/short-courses-events/
+        # #     about-statistical-courses/research-methods-and-statistics/chapter-8-content-8
+        n = G.res
+        lower_rank = int((n - 1.96 * sqrt(n)) / 2)
+        upper_rank = int((2 + n + 1.96 * sqrt(n)) / 2)
 
-    return jsonify({"experimentId": id})
+        lower_rank = 0 if lower_rank < 0 else lower_rank
+        upper_rank = n - 1 if upper_rank >= n else upper_rank
 
-    # What does this do?
-    #G.update(update_indicators=False, dampen=True, τ=τ)
+        for concept, samples in projection_result.items():
+            for ts in range(int(data["timeStepsInMonths"])):
+                d = d + relativedelta(months=1)
+
+                median_value = median(samples[ts])
+                lower_limit = samples[ts][lower_rank]
+                upper_limit = samples[ts][upper_rank]
+
+                value_dict = {
+                    "year": d.year,
+                    "month": d.month,
+                    "value": median_value,
+                }
+
+                result.results[concept]["values"].append(value_dict.copy())
+                value_dict.update({"value": lower_limit})
+                result.results[concept]["confidenceInterval"]["lower"].append(
+                    value_dict.copy()
+                )
+                value_dict.update({"value": upper_limit})
+                result.results[concept]["confidenceInterval"]["upper"].append(
+                    value_dict.copy()
+                )
+
+        db.session.add(result)
+        db.session.commit()
+
+    executor.submit_stored(experiment_id, runExperiment)
+
+    return jsonify(
+        {
+            "experimentId": experiment_id,
+            "results": executor.futures._state(experiment_id),
+        }
+    )
 
 
 @bp.route(
@@ -255,15 +404,35 @@ def createProjection(modelID):
 )
 def getExperimentResults(modelID: str, experimentID: str):
     """ Fetch experiment results"""
-    experimentResult = CauseMosForwardProjectionResult.query.filter_by(
-        id=experimentID
-    ).first()
-    return jsonify(experimentResult.deserialize())
+    if not executor.futures.done(experimentID):
+        return jsonify(
+            {
+                "id": experimentID,
+                "status": executor.futures._state(experimentID),
+            }
+        )
+    else:
+        experimentResult = CauseMosForwardProjectionResult.query.filter_by(
+            id=experimentID
+        ).first()
+        return jsonify(
+            {
+                "id": experimentID,
+                "results": experimentResult.deserialize()["results"],
+                "status": "COMPLETE",
+            }
+        )
 
 
 # =======
 # ICM API
 # =======
+
+
+@bp.route("/ping", methods=["GET"])
+def ping():
+    """ Health-check / Ping """
+    return jsonify({})
 
 
 @bp.route("/icm", methods=["POST"])
@@ -303,6 +472,14 @@ def getICMByUUID(uuid: str):
     """ Fetch an ICM by UUID"""
     _metadata = ICMMetadata.query.filter_by(id=uuid).first().deserialize()
     del _metadata["model_id"]
+    _metadata["icmProvider"] = "DUMMY"
+    _metadata["title"] = _metadata["id"]
+    _metadata["version"] = 1
+    _metadata["createdByUser"] = {"id": 1}
+    _metadata["lastUpdatedByUser"] = {"id": 1}
+    _metadata["created"] = _metadata["created"] + "T00:00:00Z"
+    _metadata["lastAccessed"] = _metadata["created"]
+    _metadata["lastUpdated"] = _metadata["created"]
     return jsonify(_metadata)
 
 
@@ -543,10 +720,4 @@ def traverse(uuid: str, prim_id: str):
 @bp.route("/version", methods=["GET"])
 def getVersion():
     """ Get the version of the ICM API supported"""
-    return "", 415
-
-
-@bp.route("/ping", methods=["GET"])
-def ping():
-    """ Get the health status of the ICM server"""
     return "", 415

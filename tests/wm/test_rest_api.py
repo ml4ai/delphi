@@ -49,6 +49,11 @@ def test_createModel(client):
     experimentId = rv.json["experimentId"]
     url = f"delphi/models/{data['id']}/experiment/{experimentId}"
     rv = client.get(url)
+
+    # Test overwriting
+    rv = client.post(f"/delphi/create-model", json=data)
+    rv = client.post(f"/delphi/models/{data['id']}/projection", json=post_data)
+    rv = client.get(url)
     assert True
 
 

@@ -54,11 +54,13 @@ EXTRAS_REQUIRE = {
         "indra[eidos_offline]",
         "SQLAlchemy",
         "flask-sqlalchemy",
+        "flask-executor",
         "python-dateutil",
     ],
     "aske": [
         "plotly",
         "sympy",
+        "flask",
         "flask-WTF",
         "flask-codemirror",
         "salib",
