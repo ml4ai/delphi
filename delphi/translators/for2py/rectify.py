@@ -3365,8 +3365,6 @@ class RectifyOFPXML:
             # declarations will follow.
             derived_type = ET.SubElement(self.parent_type, "derived-types")
             for elem in self.derived_type_var_holder_list:
-                # DEBUG
-                print ("    elem: ", elem)
                 if elem.tag == "intrinsic-type-spec":
                     keyword2 = ""
                     if elem.attrib['keyword2'] == "":
@@ -3402,14 +3400,15 @@ class RectifyOFPXML:
                 elif elem.tag == "component-array-spec":
                     is_dimension = True
                     dim += 1
+                elif elem.tag == "component-decl-list__begin":
+                    if len(counts) > count:
+                        attr = {"count": counts[count]}
+                        new_variables = ET.SubElement(
+                            derived_type, "variables", attr
+                        )  # <variables _attribs_>
+                        count += 1
                 elif elem.tag == "component-decl":
                     if not is_dimension:
-                        if len(counts) > count:
-                            attr = {"count": counts[count]}
-                            new_variables = ET.SubElement(
-                                derived_type, "variables", attr
-                            )  # <variables _attribs_>
-                            count += 1
                         var_attribs = {
                             "has_initial_value": elem.attrib[
                                 "hasComponentInitialization"
@@ -3498,7 +3497,6 @@ class RectifyOFPXML:
                                     )  # <dimension type="simple">
                                     new_range = ET.SubElement(new_dimension, "range")
                                     need_new_dimension = False
-                                    
 
                         if len(counts) > count:
                             attr = {"count": counts[count]}
