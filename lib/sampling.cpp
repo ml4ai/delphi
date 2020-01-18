@@ -209,7 +209,7 @@ void AnalysisGraph::sample_from_proposal() {
 
     // Perturb the β
     // TODO: Check whether this perturbation is accurate
-    graph[e[0]].beta += this->norm_dist(this->rand_num_generator);
+    this->graph[e[0]].beta += this->norm_dist(this->rand_num_generator);
 
     this->update_transition_matrix_cells(e[0]);
   }

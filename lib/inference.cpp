@@ -1,6 +1,7 @@
 #include "AnalysisGraph.hpp"
 #include <range/v3/all.hpp>
 #include "spdlog/spdlog.h"
+#include <unsupported/Eigen/MatrixFunctions>
 
 using namespace std;
 using fmt::print, fmt::format;
@@ -28,16 +29,19 @@ void AnalysisGraph::sample_predicted_latent_state_sequences(
 
   for (int samp = 0; samp < this->res; samp++) {
     for (int t = 0; t < this->n_timesteps; t++) {
-      const Eigen::MatrixXd& A_t =
-          tuning_param * t * this->transition_matrix_collection[samp];
+      const Eigen::MatrixXd& A_d = this->transition_matrix_collection[samp];
+      Eigen::MatrixPower<Eigen::MatrixXd> Apow(A_d);
       if (project) {
-        // Perform projection based on the perturbed initial latenet state s0
-        this->predicted_latent_state_sequences[samp][t] = A_t.exp() * this->s0;
+        // Perform projection based on the perturbed initial latent state s0
+        // FIXME The A_t here is the transition matrix for a discrete update.
+        // In order to use the matrix exponential it must be the the matrix for
+        // the continuous 'differential' update equation.
+        this->predicted_latent_state_sequences[samp][t] = Apow(t) * this->s0;
       }
       else {
         // Perform inference based on the sampled initial latent states
         const Eigen::VectorXd& s0_samp = this->initial_latent_state_collection[samp];
-        this->predicted_latent_state_sequences[samp][t] = A_t.exp() * s0_samp;
+        this->predicted_latent_state_sequences[samp][t] = Apow(t) * s0_samp;
       }
     }
   }

@@ -11,6 +11,8 @@ from delphi.apps.rest_api.models import (
     ForwardProjection,
     ICMMetadata,
 )
+from time import sleep
+from matplotlib import pyplot as plt
 
 
 @pytest.fixture(scope="module")
@@ -40,20 +42,36 @@ def test_createModel(client):
     post_data = {
         "startTime": {"year": 2017, "month": 4},
         "perturbations": [
-            {"concept": "wm/concept/indicator_and_reported_property/weather/rainfall", "value": 0.2}
+            {"concept": "wm/concept/indicator_and_reported_property/weather/rainfall", "value": 0.1}
         ],
-        "timeStepsInMonths": 3,
+        "timeStepsInMonths": 6,
     }
 
     rv = client.post(f"/delphi/models/{data['id']}/projection", json=post_data)
     experimentId = rv.json["experimentId"]
     url = f"delphi/models/{data['id']}/experiment/{experimentId}"
+    sleep(10)
     rv = client.get(url)
+    output = rv.json['results']
+    # This chunk of code is for plotting outputs to compare with CauseMos views
+    # and debug. Set plot_figs=True to create plots.
+
+    plot_figs = False
+    if plot_figs:
+        for concept, results in output.items():
+            xs = []
+            ys = []
+            for datapoint in results['values']:
+                xs.append(datapoint['month'])
+                ys.append(datapoint['value'])
+            fig, ax = plt.subplots()
+            ax.plot(xs, ys, label=concept)
+            ax.legend()
+            plt.savefig(f"{concept.replace('/','_')}.pdf")
+
 
     # Test overwriting
     rv = client.post(f"/delphi/create-model", json=data)
-    rv = client.post(f"/delphi/models/{data['id']}/projection", json=post_data)
-    rv = client.get(url)
     assert True
 
 

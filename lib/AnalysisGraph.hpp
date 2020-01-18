@@ -15,8 +15,8 @@
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
 
-const double TAU = 1;
-const double tuning_param = 1; // 0.0001;
+const double TAU = 1.0;
+const double tuning_param = 1.0;
 
 const size_t DEFAULT_N_SAMPLES = 200;
 
