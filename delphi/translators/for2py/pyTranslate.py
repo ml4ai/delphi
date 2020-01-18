@@ -1774,13 +1774,32 @@ def create_python_source_list(outputDict: Dict):
         "from random import random\n",
     ]
     for module in module_index_dict:
+        code_generator = PythonCodeGenerator()
+        code_generator.pyStrings.append("\n".join(import_lines))
         if "module" in module_index_dict[module]:
             ast = [outputDict["ast"][module_index_dict[module][1]]]
+            # Copy the derived type ast from the main_ast into the separate list,
+            # so it can be printed outside (above) the main method
+            derived_type_ast = []
+            for index in list(ast[0]["body"]):
+                if "is_derived_type" in index and index["is_derived_type"] == "true":
+                    if "tag" not in index:
+                        derived_type_ast.append(index)
+                        ast[0]["body"].remove(index)
+            # Print derived type declaration(s)
+            if derived_type_ast:
+                for i in range(len(derived_type_ast)):
+                    code_generator.pyStrings.append("\n@dataclass")
+                    assert (
+                            derived_type_ast[i]["is_derived_type"] == "true"
+                    ), "[derived_type_ast] holds non-derived type ast"
+                    code_generator.nameMapping([derived_type_ast[i]])
+                    code_generator.printDerivedType(
+                        [derived_type_ast[i]], PrintState()
+                    )
         else:
             main_ast.append(outputDict["ast"][module_index_dict[module][1]])
             continue
-        code_generator = PythonCodeGenerator()
-        code_generator.pyStrings.append("\n".join(import_lines))
 
         # Fill the name mapper dictionary
         code_generator.nameMapping(ast)

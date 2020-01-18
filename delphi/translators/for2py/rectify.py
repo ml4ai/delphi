@@ -951,6 +951,7 @@ class RectifyOFPXML:
                 elif (
                         child.tag == "component-decl"
                         or child.tag == "component-decl-list"
+                        or child.tag == "component-decl-list__begin"
                 ):
                     current.attrib['type'] = "derived-type"
                     self.derived_type_var_holder_list.append(child)
@@ -1085,6 +1086,7 @@ class RectifyOFPXML:
             elif (
                     child.tag == "component-decl"
                     or child.tag == "component-decl-list"
+                    or child.tag == "component-decl-list__begin"
             ):
                 self.derived_type_var_holder_list.append(child)
             elif child.tag == "length":
@@ -3363,6 +3365,8 @@ class RectifyOFPXML:
             # declarations will follow.
             derived_type = ET.SubElement(self.parent_type, "derived-types")
             for elem in self.derived_type_var_holder_list:
+                # DEBUG
+                print ("    elem: ", elem)
                 if elem.tag == "intrinsic-type-spec":
                     keyword2 = ""
                     if elem.attrib['keyword2'] == "":
