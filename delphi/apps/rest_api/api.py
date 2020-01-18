@@ -350,7 +350,6 @@ def createProjection(modelID):
 
         data = json.loads(request.data)
         startTime = data["startTime"]
-        d = parse(f"{startTime['year']} {startTime['month']}")
 
         # # From https://www.ucl.ac.uk/child-health/short-courses-events/
         # #     about-statistical-courses/research-methods-and-statistics/chapter-8-content-8
@@ -362,6 +361,7 @@ def createProjection(modelID):
         upper_rank = n - 1 if upper_rank >= n else upper_rank
 
         for concept, samples in projection_result.items():
+            d = parse(f"{startTime['year']} {startTime['month']}")
             for ts in range(int(data["timeStepsInMonths"])):
                 d = d + relativedelta(months=1)
 
