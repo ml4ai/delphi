@@ -17,10 +17,39 @@ class PrintState:
 
 class genCode:
     def __init__(self,
+                 use_numpy=False,
                  string_length=None,
                  lambda_string="",
                  ):
         self.lambda_string = lambda_string
+        # Setting the flag below creates the lambda file using numpy
+        # functions instead of the previous Python approach
+        self.use_numpy = use_numpy
+        self.numpy_math_map = {
+            "acos": "arccos",
+            "acosh": "arccosh",
+            "asin": "arcsin",
+            "asinh": "arcsinh",
+            "atan": "arctan",
+            "atanh": "arctanh",
+            "ceil": "ceil",
+            "cos": "cos",
+            "cosh": "cosh",
+            "exp": "exp",
+            "floor": "floor",
+            "hypot": "hypot",
+            "isnan": "isnan",
+            "log": "log",
+            "log10": "log10",
+            "sin": "sin",
+            "sinh": "sinh",
+            "sqrt": "sqrt",
+            "tan": "tan",
+            "tanh": "tanh",
+        }
+        self.current_function = None
+        self.target_arr = None
+
         if string_length:
             self.string_length = string_length
         else:
@@ -58,7 +87,7 @@ class genCode:
             "ast.Expr": self.process_expression,
             "ast.Compare": self.process_compare,
             "ast.Subscript": self.process_subscript,
-            "ast.Name": self._process_name,
+            "ast.Name": self.process_name,
             "ast.AnnAssign": self.process_annotated_assign,
             "ast.Assign": self.process_assign,
             "ast.Call": self.process_call,
@@ -66,10 +95,10 @@ class genCode:
             "ast.alias": self._process_alias,
             "ast.Module": self.process_module,
             "ast.BoolOp": self.process_boolean_operation,
-            "ast.Attribute": self._process_attribute,
+            "ast.Attribute": self.process_attribute,
             "ast.AST": self.process_ast,
             "ast.Tuple": self.process_tuple,
-            "ast.NameConstant": self.process_name_constant,
+            "ast.NameConstant": self._process_name_constant,
         }
 
     def generate_code(self, node, state, length=None):
@@ -127,7 +156,8 @@ class genCode:
         code_string = "[{0}]".format(self.generate_code(node.value, state))
         return code_string
 
-    def process_name_constant(self, node, state):
+    @staticmethod
+    def _process_name_constant(node, _):
         code_string = str(node.value)
         return code_string
 
@@ -156,14 +186,13 @@ class genCode:
             low_bound = None
             # Calculate the size of each dimension
             for elem in elements:
-                if low_bound == None:
+                if low_bound is None:
                     low_bound = elem
                 else:
                     code_string += f"{elem} - {low_bound}"
                     low_bound = None
         code_string += ")"
         return code_string
-
 
     @staticmethod
     def _process_str(node, *_):
@@ -306,9 +335,13 @@ class genCode:
         code_string = self.generate_code(node.value, state)
         return code_string
 
-    @staticmethod
-    def _process_name(node, *_):
+    def process_name(self, node, *_):
         code_string = node.id
+        if self.use_numpy:
+            if self.current_function in ["np.maximum", "np.minimum"] and not \
+                    self.target_arr:
+                self.target_arr = code_string
+
         return code_string
 
     def process_annotated_assign(self, node, state):
@@ -330,9 +363,19 @@ class genCode:
                 call = node.func.value.value
                 module = call.func.value.id
             function_name = function_node.attr
+            if module == "math" and \
+                self.use_numpy and \
+                    function_name in self.numpy_math_map:
+                module = "np"
+                function_name = self.numpy_math_map[function_name]
             function_name = module + "." + function_name
         else:
             function_name = node.func.id
+            if self.use_numpy:
+                if function_name == "max":
+                    function_name = "np.maximum"
+                elif function_name == "min":
+                    function_name = "np.minimum"
 
         if function_name is not "Array":
             # Check for setter and getter functions to differentiate between
@@ -418,12 +461,23 @@ class genCode:
                         code_string = f"{prefix}+{new_string}+{suffix}"
                         return code_string
 
+                    self.current_function = function_name
                     for arg_index in range(arg_count):
                         arg_string = self.generate_code(node.args[arg_index],
                                                         state)
                         arg_list.append(arg_string)
+
+                    # Change the max() and min() functions for numpy
+                    # implementation
+                    if self.use_numpy and self.target_arr:
+                        for index, arg_string in enumerate(arg_list):
+                            if self._is_number(arg_string):
+                                arg_list[index] = f"np.full_like(" \
+                                             f"{self.target_arr}, {arg_string})"
+
                     code_string += ", ".join(arg_list)
                 code_string += ")"
+                self.current_function = None
         else:
             code_string = self.generate_code(node.args[1], state)
 
@@ -456,8 +510,7 @@ class genCode:
 
         return f"({code_string})"
 
-    @staticmethod
-    def _process_attribute(node, *_):
+    def process_attribute(self, node, *_):
         # Code below will be kept until all tests pass and removed if they do
         # lambda_string = genCode(node.value, state)
 
@@ -466,6 +519,11 @@ class genCode:
         # <function_name>.<variable_name>. So the code below only returns the
         # <variable_name> which is stored under `node.attr`.
         code_string = node.attr
+        if self.use_numpy:
+            if self.current_function in ["np.maximum", "np.minimum"] and not \
+                    self.target_arr:
+                self.target_arr = code_string
+
         return code_string
 
     @staticmethod
@@ -475,3 +533,11 @@ class genCode:
                 node.__class__.__name__, node._fields
             )
         )
+
+    @staticmethod
+    def _is_number(s):
+        try:
+            float(s)
+            return True
+        except ValueError:
+            return False
