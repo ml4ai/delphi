@@ -1,0 +1,244 @@
+{
+  "containers": [
+    {
+      "arguments": [
+        "@variable::s::-1",
+        "@variable::i::-1",
+        "@variable::r::-1",
+        "@variable::beta::-1",
+        "@variable::gamma::-1",
+        "@variable::dt::-1"
+      ],
+      "body": [
+        {
+          "function": {
+            "name": "SIR_simple__sir__assign__infected__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::beta::-1",
+            "@variable::s::-1",
+            "@variable::i::-1",
+            "@variable::r::-1",
+            "@variable::dt::-1"
+          ],
+          "output": [
+            "@variable::infected::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_simple__sir__assign__recovered__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::gamma::-1",
+            "@variable::i::-1",
+            "@variable::dt::-1"
+          ],
+          "output": [
+            "@variable::recovered::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_simple__sir__assign__s__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::s::-1",
+            "@variable::infected::0"
+          ],
+          "output": [
+            "@variable::s::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_simple__sir__assign__i__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::i::-1",
+            "@variable::infected::0",
+            "@variable::recovered::0"
+          ],
+          "output": [
+            "@variable::i::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "SIR_simple__sir__assign__r__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::r::-1",
+            "@variable::recovered::0"
+          ],
+          "output": [
+            "@variable::r::0"
+          ],
+          "updated": []
+        }
+      ],
+      "name": "@container::SIR-simple::@global::sir",
+      "repeat": false,
+      "return_value": [],
+      "source_refs": [],
+      "updated": [
+        "@variable::s::0",
+        "@variable::i::0",
+        "@variable::r::0"
+      ]
+    }
+  ],
+  "grounding": [],
+  "source": [
+    "SIR-simple.f"
+  ],
+  "source_comments": {
+    "$file_foot": [],
+    "$file_head": [],
+    "@container::SIR-simple::@global::sir": {
+      "foot": [],
+      "head": [
+        "********************************************************************************\n",
+        "C     Input Variables:\n",
+        "C     S        Number of susceptible members\n",
+        "C     I        Number of infected members\n",
+        "C     R        Number of recovered members\n",
+        "C     beta     Rate of infection\n",
+        "C     gamma    Rate of recovery from an infection\n",
+        "C     dt       Next inter-event time\n",
+        "C\n",
+        "C     State Variables:\n",
+        "C     infected    Current state dependent rate of infection\n",
+        "C     recovered   Current state dependent rate of recovery\n",
+        "********************************************************************************\n"
+      ],
+      "internal": {},
+      "neck": []
+    }
+  },
+  "start": [
+    "@container::SIR-simple::@global::sir"
+  ],
+  "types": [],
+  "variables": [
+    {
+      "domain": {
+        "mutable": false,
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))",
+      "name": "@variable::SIR-simple::sir::s::-1",
+      "source_refs": []
+    },
+    {
+      "domain": {
+        "mutable": false,
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))",
+      "name": "@variable::SIR-simple::sir::i::-1",
+      "source_refs": []
+    },
+    {
+      "domain": {
+        "mutable": false,
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))",
+      "name": "@variable::SIR-simple::sir::r::-1",
+      "source_refs": []
+    },
+    {
+      "domain": {
+        "mutable": false,
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))",
+      "name": "@variable::SIR-simple::sir::beta::-1",
+      "source_refs": []
+    },
+    {
+      "domain": {
+        "mutable": false,
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))",
+      "name": "@variable::SIR-simple::sir::gamma::-1",
+      "source_refs": []
+    },
+    {
+      "domain": {
+        "mutable": false,
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))",
+      "name": "@variable::SIR-simple::sir::dt::-1",
+      "source_refs": []
+    },
+    {
+      "domain": {
+        "mutable": false,
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))",
+      "name": "@variable::SIR-simple::sir::infected::0",
+      "source_refs": []
+    },
+    {
+      "domain": {
+        "mutable": false,
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))",
+      "name": "@variable::SIR-simple::sir::recovered::0",
+      "source_refs": []
+    },
+    {
+      "domain": {
+        "mutable": false,
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))",
+      "name": "@variable::SIR-simple::sir::s::0",
+      "source_refs": []
+    },
+    {
+      "domain": {
+        "mutable": false,
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))",
+      "name": "@variable::SIR-simple::sir::i::0",
+      "source_refs": []
+    },
+    {
+      "domain": {
+        "mutable": false,
+        "name": "float",
+        "type": "type"
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))",
+      "name": "@variable::SIR-simple::sir::r::0",
+      "source_refs": []
+    }
+  ]
+}

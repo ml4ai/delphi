@@ -1,0 +1,17 @@
+{
+  "systems": [
+    {
+      "date_created": "2020-01-14T15:41:32.020079Z",
+      "name": "SIR-simple",
+      "components": [
+        {
+          "grfn_source": "./SIR-simple_GrFN.json",
+          "code_source": [
+            "files/SIR-simple.f"
+          ],
+          "imports": []
+        }
+      ]
+    }
+  ]
+}
