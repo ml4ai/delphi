@@ -53,9 +53,10 @@ def test_petpt_creation_and_execution(petpt_grfn):
     assert len(petpt_grfn.inputs) == 5
     assert len(petpt_grfn.outputs) == 1
 
-    values = {name: 1.0 for name in petpt_grfn.inputs}
-    res = petpt_grfn.run(values)
-    assert res[0] == np.float32(0.029983712)
+    values = {name: np.array([1.0], dtype=np.float32) for name in petpt_grfn.inputs}
+    outputs = petpt_grfn.run(values)
+    res = outputs[0]
+    assert res[0] == np.float32(0.02998372)
 
 
 def test_petasce_creation(petasce_grfn):
@@ -66,23 +67,25 @@ def test_petasce_creation(petasce_grfn):
     CAG.draw('PETASCE--CAG.pdf', prog='dot')
 
     values = {
-        "PETASCE_simple::@global::petasce::0::doy::-1": 20.0,
-        "PETASCE_simple::@global::petasce::0::meevp::-1": "A",
-        "PETASCE_simple::@global::petasce::0::msalb::-1": 0.5,
-        "PETASCE_simple::@global::petasce::0::srad::-1": 15.0,
-        "PETASCE_simple::@global::petasce::0::tmax::-1": 10.0,
-        "PETASCE_simple::@global::petasce::0::tmin::-1": -10.0,
-        "PETASCE_simple::@global::petasce::0::xhlai::-1": 10.0,
-        "PETASCE_simple::@global::petasce::0::tdew::-1": 20.0,
-        "PETASCE_simple::@global::petasce::0::windht::-1": 5.0,
-        "PETASCE_simple::@global::petasce::0::windrun::-1": 450.0,
-        "PETASCE_simple::@global::petasce::0::xlat::-1": 45.0,
-        "PETASCE_simple::@global::petasce::0::xelev::-1": 3000.0,
-        "PETASCE_simple::@global::petasce::0::canht::-1": 2.0,
+        "PETASCE_simple::@global::petasce::0::doy::-1": np.array([20.0], dtype=np.float32),
+        "PETASCE_simple::@global::petasce::0::meevp::-1": np.array(["A"], dtype=np.str),
+        "PETASCE_simple::@global::petasce::0::msalb::-1": np.array([0.5], dtype=np.float32),
+        "PETASCE_simple::@global::petasce::0::srad::-1": np.array([15.0], dtype=np.float32),
+        "PETASCE_simple::@global::petasce::0::tmax::-1": np.array([10.0], dtype=np.float32),
+        "PETASCE_simple::@global::petasce::0::tmin::-1": np.array([-10.0], dtype=np.float32),
+        "PETASCE_simple::@global::petasce::0::xhlai::-1": np.array([10.0], dtype=np.float32),
+        "PETASCE_simple::@global::petasce::0::tdew::-1": np.array([20.0], dtype=np.float32),
+        "PETASCE_simple::@global::petasce::0::windht::-1": np.array([5.0], dtype=np.float32),
+        "PETASCE_simple::@global::petasce::0::windrun::-1": np.array([450.0], dtype=np.float32),
+        "PETASCE_simple::@global::petasce::0::xlat::-1": np.array([45.0], dtype=np.float32),
+        "PETASCE_simple::@global::petasce::0::xelev::-1": np.array([3000.0], dtype=np.float32),
+        "PETASCE_simple::@global::petasce::0::canht::-1": np.array([2.0], dtype=np.float32),
     }
 
-    res = petasce_grfn.run(values)
-    assert res == np.float32(0.00012496980836348878)
+    outputs = petasce_grfn.run(values)
+    res = outputs[0]
+    print(res)
+    assert res[0] == np.float32(0.00012496980836348878)
 
 
 def test_crop_yield_creation(crop_yield_grfn):

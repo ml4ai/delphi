@@ -111,8 +111,10 @@ class ComputationalGraph(nx.DiGraph):
                 signature = self.nodes[func_name]["func_inputs"]
                 input_values = [self.nodes[n]["value"] for n in signature]
                 res = lambda_fn(*input_values)
+
+                # Convert output to a NumPy matrix if a constant was returned
                 if len(input_values) == 0:
-                    res = Float32(res)
+                    res = np.array(res, dtype=np.float32)
 
                 if torch_size is not None and len(signature) == 0:
                     self.nodes[output_node]["value"] = torch.tensor(
@@ -122,6 +124,8 @@ class ComputationalGraph(nx.DiGraph):
                     self.nodes[output_node]["value"] = res
 
         # Return the output
+        for o in self.outputs:
+            print(self.nodes[o]["value"])
         return [self.nodes[o]["value"] for o in self.outputs]
 
     def to_CAG(self):
@@ -470,7 +474,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
             module_log_file_path,
             processing_modules,
         ) = f2grfn.fortran_to_grfn(
-                                    fortran_file, 
+                                    fortran_file,
                                     tester_call=True,
                                     network_test=True,
                                     temp_dir=str(tmpdir),
@@ -489,7 +493,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
                                     python_file,
                                     fortran_file,
                                     module_log_file_path,
-                                    mode_mapper_dict, 
+                                    mode_mapper_dict,
                                     processing_modules,
                                     generated_files,
                                     save_file=save_file)
