@@ -95,7 +95,7 @@ class GrFNGenerator(object):
                  ):
         self.annotated_assigned = annotated_assigned
         self.function_definitions = function_definitions
-        self.use_numpy = False
+        self.use_numpy = True
         self.fortran_file = None
         self.exclude_list = []
         self.loop_input = []
