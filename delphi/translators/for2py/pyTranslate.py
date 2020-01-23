@@ -33,7 +33,7 @@ from delphi.translators.for2py import For2PyError, syntax
 
 # TYPE_MAP gives the mapping from Fortran types to Python types
 TYPE_MAP = {
-    "character": "str",
+#     "character": "str",
     "double": "float",
     "float": "float",
     "int": "int",
@@ -1346,7 +1346,13 @@ class PythonCodeGenerator(object):
 
             if derived_type_variables[var]["is_array"] == "false":
                 if not is_derived_type_declaration:
-                    self.pyStrings.append(f"        self.{name} : {var_type}")
+                    if var_type == "String":
+                        str_length = derived_type_variables[var]["length"]
+                        self.pyStrings.append(
+                            f"        self.{name} = {var_type}({str_length})"
+                        )
+                    else:
+                        self.pyStrings.append(f"        self.{name} : {var_type}")
                 else:
                     self.pyStrings.append(
                         f"        self.{name} = {var_type}()"
@@ -1691,6 +1697,8 @@ class PythonCodeGenerator(object):
             return mapped_type
         else:
             if node["is_derived_type"] == "true":
+                if variable_type == "character":
+                    variable_type = "String"
                 self.var_type.setdefault(self.current_module, []).append({
                     "name": var_name,
                     "type": variable_type

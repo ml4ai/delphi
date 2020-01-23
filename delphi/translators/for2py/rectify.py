@@ -3382,7 +3382,7 @@ class RectifyOFPXML:
                         "keyword2": keyword2,
                     }
                     newType = ET.SubElement(derived_type, "type", attributes)
-                    if newType.attrib['name'] == "character":
+                    if newType.attrib['name'].lower() == "character":
                         assert (
                             literal_value != None
                         ), "Literal value (String length) for character cannot be None."
