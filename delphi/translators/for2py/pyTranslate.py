@@ -656,6 +656,8 @@ class PythonCodeGenerator(object):
         try:
             if node["type"].lower() in TYPE_MAP:
                 var_type = TYPE_MAP[node["type"].lower()]
+            elif node["type"].lower() == "character":
+                var_type = "str"
             elif node["is_derived_type"] == "true":
                 var_type = node["type"].lower()
         except KeyError:
@@ -666,7 +668,6 @@ class PythonCodeGenerator(object):
             "type": node["type"],
             "parameter": False,
         }
-
         self.var_type.setdefault(self.current_module, []).append({
             "name": arg_name,
             "type": var_type
