@@ -11,11 +11,52 @@ import delphi.translators.for2py.math_ext as math
 from numbers import Real
 from random import random
 
+@dataclass
+class ControlType:
+    def __init__(self):
+        self.mesic : str
+        self.crop : str
+        self.model : str
+        self.filex : str
+        self.fileio : str
+        self.dssatp : str
+        self.das : int
+        self.nyrs : int
+        self.yrdif : int
+
+@dataclass
+class SwitchType:
+    def __init__(self):
+        self.fname : str
+        self.idetc : str
+        self.ideto : str
+        self.ihari : str
+        self.iswche : str
+        self.iswpho : str
+        self.meevp : str
+        self.mesom : str
+        self.metmp : str
+        self.iferi : str
+        self.nswi : int
+
+@dataclass
+class TransferType:
+    def __init__(self):
+        self.control : controltype
+        self.iswitch : switchtype
+        self.output : outputtype
+        self.plant : planttype
+        self.mgmt : mgmttype
+        self.nitr : nitype
+        self.orgc : orgctype
+        self.soilprop : soiltype
+        self.spam : spamtype
+        self.water : wattype
+        self.weather : weathtype
+        self.pdlabeta : pdlabetatype
+
 
 maxfiles: List[int] = [500]
-
-
-
 save_data =  transfertype()
 def get (arg1=None):
     num_passed_args = 0
