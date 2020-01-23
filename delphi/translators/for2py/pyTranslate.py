@@ -33,7 +33,7 @@ from delphi.translators.for2py import For2PyError, syntax
 
 # TYPE_MAP gives the mapping from Fortran types to Python types
 TYPE_MAP = {
-#     "character": "str",
+#    "character": "str",
     "double": "float",
     "float": "float",
     "int": "int",
@@ -1690,19 +1690,13 @@ class PythonCodeGenerator(object):
         if variable_type in TYPE_MAP:
             mapped_type = TYPE_MAP[variable_type]
             if node.get("is_derived_type") == "false":
-                self.var_type.setdefault(self.current_module, []).append({
-                    "name": var_name,
-                    "type": mapped_type
-                })
+                self.set_default_var_type(var_name, mapped_type)
             return mapped_type
         else:
             if node["is_derived_type"] == "true":
                 if variable_type == "character":
                     variable_type = "String"
-                self.var_type.setdefault(self.current_module, []).append({
-                    "name": var_name,
-                    "type": variable_type
-                })
+                self.set_default_var_type(var_name, variable_type)
                 # Add each element of the derived type into self.var_type as
                 # well
                 if variable_type in self.var_type:
@@ -1711,9 +1705,25 @@ class PythonCodeGenerator(object):
                             "name": f"{var_name}.{var['name']}",
                             "type": var['type']
                         })
-                return variable_type
+            elif (
+                    node["is_derived_type"] == "false"
+                    and variable_type == "character"
+            ):
+                variable_type == "str"
+                self.set_default_var_type(var_name, variable_type)
             else:
                 assert False, f"Unrecognized variable type: {variable_type}"
+
+            return variable_type
+
+    def set_default_var_type(self, var_name, var_type):
+        """ Thu=is function sets the default variable type of the declared
+        variable."""
+
+        self.var_type.setdefault(self.current_module, []).append({
+            "name": var_name,
+            "type": var_type
+        })
 
     def get_array_dimension(self, node):
         """ This function is for extracting the dimensions' range information

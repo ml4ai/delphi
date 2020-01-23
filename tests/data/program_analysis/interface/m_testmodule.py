@@ -14,12 +14,12 @@ from random import random
 @dataclass
 class ControlType:
     def __init__(self):
-        self.mesic : str
-        self.crop : str
-        self.model : str
-        self.filex : str
-        self.fileio : str
-        self.dssatp : str
+        self.mesic = String(1)
+        self.crop = String(2)
+        self.model = String(8)
+        self.filex = String(12)
+        self.fileio = String(30)
+        self.dssatp = String(102)
         self.das : int
         self.nyrs : int
         self.yrdif : int
@@ -27,16 +27,16 @@ class ControlType:
 @dataclass
 class SwitchType:
     def __init__(self):
-        self.fname : str
-        self.idetc : str
-        self.ideto : str
-        self.ihari : str
-        self.iswche : str
-        self.iswpho : str
-        self.meevp : str
-        self.mesom : str
-        self.metmp : str
-        self.iferi : str
+        self.fname = String(1)
+        self.idetc = String(1)
+        self.ideto = String(1)
+        self.ihari = String(1)
+        self.iswche = String(1)
+        self.iswpho = String(1)
+        self.meevp = String(1)
+        self.mesom = String(1)
+        self.metmp = String(1)
+        self.iferi = String(1)
         self.nswi : int
 
 @dataclass
