@@ -7,6 +7,7 @@
 #include <fmt/format.h>
 #include <fstream>
 #include <range/v3/all.hpp>
+#include "dbg.h"
 
 using namespace std;
 using namespace delphi::utils;
@@ -82,7 +83,9 @@ AnalysisGraph AnalysisGraph::from_causemos_json_dict(nlohmann::json json_data) {
     G.add_edge(causal_fragment);
   }
 
+  dbg("Processing Indicators");
   for (Node& n : G.nodes()) {
+    dbg(n.name);
     if (json_data["conceptIndicators"][n.name].is_null()) {
       string indicator_name = "Qualitative measure of {}"_format(n.name);
       string indicator_source = "Delphi";
@@ -91,33 +94,47 @@ AnalysisGraph AnalysisGraph::from_causemos_json_dict(nlohmann::json json_data) {
     }
     else {
       auto mapping = json_data["conceptIndicators"][n.name];
-      string indicator_name = mapping["name"].get<string>();
-      string indicator_source = mapping["name"].get<string>();
 
-      // Calculate aggregate from the values given
-      vector<double> values = {};
-      for (auto& data_point : mapping["values"]) {
-        values.push_back(data_point["value"].get<double>());
+      string indicator_name = "Qualitative measure of {}"_format(n.name);
+      string indicator_source = "Delphi";
+
+      if (!mapping["source"].is_null()) {
+        string indicator_source = mapping["source"].get<string>();
       }
-      // Aggregation function
-      string func = mapping["func"].get<string>();
-      double aggregated_value = 0.0;
-      if (func == "max") {
-        aggregated_value = ranges::max(values);
-      }
-      else if (func == "min") {
-        aggregated_value = ranges::min(values);
-      }
-      else if (func == "mean") {
-        aggregated_value = mean(values);
+
+
+      if (mapping["name"].is_null()) {
+        G[n.name].add_indicator(indicator_name, indicator_source);
+        G[n.name].get_indicator(indicator_name).set_mean(1.0);
       }
       else {
-        throw runtime_error(
-            "Invalid value of \"func\": {}. It must be one of [max|min|mean]"_format(
+        string indicator_name = mapping["name"].get<string>();
+
+        // Calculate aggregate from the values given
+        vector<double> values = {};
+        for (auto& data_point : mapping["values"]) {
+          values.push_back(data_point["value"].get<double>());
+        }
+        // Aggregation function
+        string func = mapping["func"].get<string>();
+        double aggregated_value = 0.0;
+        if (func == "max") {
+          aggregated_value = ranges::max(values);
+        }
+        else if (func == "min") {
+          aggregated_value = ranges::min(values);
+        }
+        else if (func == "mean") {
+          aggregated_value = mean(values);
+        }
+        else {
+          throw runtime_error(
+              "Invalid value of \"func\": {}. It must be one of [max|min|mean]"_format(
                 func));
+        }
+        G[n.name].add_indicator(indicator_name, indicator_source);
+        G[n.name].get_indicator(indicator_name).set_mean(aggregated_value);
       }
-      G[n.name].add_indicator(indicator_name, indicator_source);
-      G[n.name].get_indicator(indicator_name).set_mean(aggregated_value);
     }
   }
   G.initialize_random_number_generator();
