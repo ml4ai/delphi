@@ -4,6 +4,7 @@
 #include <fmt/format.h>
 #include <sqlite3.h>
 #include <chrono>
+#include <range/v3/all.hpp>
 #include <thread>
 
 using namespace std;
@@ -116,7 +117,7 @@ vector<double> get_data_value(string indicator,
       sqlite3_finalize(stmt);
       stmt = nullptr;
       if (!units.empty()) {
-        sort(units.begin(), units.end());
+        ranges::sort(units);
         query = "{0} and `Unit` is '{1}'"_format(query, units.front());
       }
       else {

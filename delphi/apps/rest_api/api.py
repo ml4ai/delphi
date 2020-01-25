@@ -325,7 +325,7 @@ def createProjection(modelID):
     model = DelphiModel.query.filter_by(id=modelID).first().model
     G = AnalysisGraph.from_json_string(model)
 
-    projection_result = G.generate_projection(request.data, resolution=200)
+    projection_result = G.generate_causemos_projection(request.data)
 
     experiment_id = str(uuid4())
 

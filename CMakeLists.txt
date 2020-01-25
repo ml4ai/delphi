@@ -16,6 +16,7 @@ include_directories(${GRAPHVIZ_INCLUDE_DIRS})
 find_package(Boost COMPONENTS graph REQUIRED)
 include_directories(lib)
 include_directories(external)
+include_directories(external/range-v3/include)
 include_directories(${Boost_INCLUDE_DIR})
 
 include_directories(external/nlohmann-json)
@@ -70,6 +71,7 @@ add_library(Delphi
   lib/rng.hpp
   lib/train_model.cpp
   lib/tran_mat_cell.hpp
+  lib/tran_mat_cell.cpp
   lib/utils.cpp
   lib/utils.hpp
   lib/Node.hpp
@@ -89,7 +91,6 @@ add_library(Delphi
   lib/indicator_manipulation.cpp
 )
 
-target_include_directories(Delphi PRIVATE external/range-v3/include)
 target_link_libraries(Delphi
                       PRIVATE ${Boost_LIBRARIES}
                               fmt::fmt

@@ -6,9 +6,9 @@ using namespace std;
 using namespace delphi::utils;
 
 AdjectiveResponseMap construct_adjective_response_map(
-    std::mt19937 gen,
-    std::uniform_real_distribution<double>& uni_dist,
-    std::normal_distribution<double>& norm_dist,
+    mt19937 gen,
+    uniform_real_distribution<double>& uni_dist,
+    normal_distribution<double>& norm_dist,
     size_t n_kernels = DEFAULT_N_SAMPLES) {
   sqlite3* db = nullptr;
   int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
@@ -52,6 +52,8 @@ AdjectiveResponseMap construct_adjective_response_map(
 
 void AnalysisGraph::construct_beta_pdfs() {
 
+  // The choice of sigma_X and sigma_Y is somewhat arbitrary here - we need to
+  // come up with a principled way to select this value, or infer it from data.
   double sigma_X = 1.0;
   double sigma_Y = 1.0;
   AdjectiveResponseMap adjective_response_map =

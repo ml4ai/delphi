@@ -2,6 +2,7 @@
 
 using namespace std;
 using namespace delphi::utils;
+using delphi::utils::mean;
 using Eigen::VectorXd;
 
 /*
@@ -53,7 +54,8 @@ void AnalysisGraph::sample_transition_matrix_collection_from_prior() {
 
   for (int i = 0; i < this->res; i++) {
     for (auto e : this->edges()) {
-      this->graph[e].beta = this->graph[e].kde.resample(1, this->rand_num_generator, this->uni_dist, this->norm_dist)[0];
+      this->graph[e].beta = this->graph[e].kde.resample(
+          1, this->rand_num_generator, this->uni_dist, this->norm_dist)[0];
     }
 
     // Create this->A_original based on the sampled β and remember it
@@ -63,10 +65,7 @@ void AnalysisGraph::sample_transition_matrix_collection_from_prior() {
 }
 
 void AnalysisGraph::set_initial_latent_state_from_observed_state_sequence() {
-  int num_verts = this->num_vertices();
-
-
-  for (int v = 0; v < num_verts; v++) {
+  for (int v = 0; v < this->num_vertices(); v++) {
     vector<Indicator>& indicators = (*this)[v].indicators;
     vector<double> next_state_values;
     for (int i = 0; i < indicators.size(); i++) {
@@ -82,23 +81,20 @@ void AnalysisGraph::set_initial_latent_state_from_observed_state_sequence() {
         next_ind_value = 0;
       }
       else {
-        next_ind_value =
-            delphi::utils::mean(this->observed_state_sequence[1][v][i]);
+        next_ind_value = mean(this->observed_state_sequence[1][v][i]);
       }
       next_state_values.push_back(next_ind_value / ind_mean);
     }
-    double diff = delphi::utils::mean(next_state_values) - this->s0(2 * v);
+    double diff = mean(next_state_values) - this->s0(2 * v);
     this->s0(2 * v + 1) = diff;
   }
 }
 
 void AnalysisGraph::set_initial_latent_from_end_of_training() {
-  using delphi::utils::mean;
-  int num_verts = this->num_vertices();
 
   this->set_default_initial_state();
 
-  for (int v = 0; v < num_verts; v++) {
+  for (int v = 0; v < this->num_vertices(); v++) {
     vector<Indicator>& indicators = (*this)[v].indicators;
     vector<double> state_values;
     for (int i = 0; i < indicators.size(); i++) {
@@ -168,8 +164,8 @@ void AnalysisGraph::set_log_likelihood() {
 }
 
 void AnalysisGraph::set_current_latent_state(int ts) {
-  const Eigen::MatrixXd& A_t = tuning_param * ts * this->A_original;
-  this->current_latent_state = A_t.exp() * this->s0;
+  const Eigen::MatrixXd& A_t = this->A_original;
+  this->current_latent_state = A_t.pow(ts) * this->s0;
 }
 
 void AnalysisGraph::sample_from_posterior() {
@@ -214,10 +210,11 @@ void AnalysisGraph::sample_from_proposal() {
     this->update_transition_matrix_cells(e[0]);
   }
   else {
-    //this->s0_prev = s0;
-    //this->set_random_initial_latent_state();
+    // this->s0_prev = s0;
+    // this->set_random_initial_latent_state();
     // Randomly select a concept to change the derivative
-    this->changed_derivative = 2 * this->uni_disc_dist(this->rand_num_generator) + 1;
+    this->changed_derivative =
+        2 * this->uni_disc_dist(this->rand_num_generator) + 1;
     this->previous_derivative = s0[this->changed_derivative];
     s0[this->changed_derivative] += this->norm_dist(this->rand_num_generator);
   }
@@ -256,7 +253,7 @@ double AnalysisGraph::calculate_delta_log_prior() {
 
     // We have to return: log( p( β_new )) - log( p( β_old ))
     return kde.logpdf(this->graph[this->previous_beta.first].beta) -
-         kde.logpdf(this->previous_beta.second);
+           kde.logpdf(this->previous_beta.second);
   }
   else {
     return 0.0;
@@ -275,12 +272,10 @@ void AnalysisGraph::revert_back_to_previous_state() {
     this->update_transition_matrix_cells(this->previous_beta.first);
   }
   else {
-    //this->s0 = this->s0_prev;
+    // this->s0 = this->s0_prev;
     s0[this->changed_derivative] = this->previous_derivative;
   }
 }
-
-
 
 /*
  ============================================================================
@@ -293,8 +288,7 @@ void AnalysisGraph::set_default_initial_state() {
   // Then,
   //    indexes 2*v keeps track of the state of each variable v
   //    indexes 2*v+1 keeps track of the state of ∂v/∂t
-  int num_verts = this->num_vertices();
-  int num_els = num_verts * 2;
+  int num_els = this->num_vertices() * 2;
 
   this->s0 = VectorXd(num_els);
   this->s0.setZero();
@@ -303,4 +297,3 @@ void AnalysisGraph::set_default_initial_state() {
     this->s0(i) = 1.0;
   }
 }
-

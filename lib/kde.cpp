@@ -8,10 +8,8 @@
 #include <random>
 
 using namespace std;
-using boost::irange;
-using boost::adaptors::transformed;
-using boost::lambda::_1;
 using namespace delphi::utils;
+using boost::irange, boost::adaptors::transformed, boost::lambda::_1;
 
 double sample_from_normal(
     std::mt19937 gen,

@@ -157,10 +157,9 @@ PYBIND11_MODULE(DelphiPython, m) {
            "start_month"_a,
            "end_year"_a,
            "end_month"_a)
-      .def("generate_projection",
-           &AnalysisGraph::generate_projection,
-           "json_projection"_a,
-           "resolution"_a = 200)
+      .def("generate_causemos_projection",
+           &AnalysisGraph::generate_causemos_projection,
+           "json_projection"_a)
       .def("prediction_to_array",
            &AnalysisGraph::prediction_to_array,
            "indicator"_a)

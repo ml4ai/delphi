@@ -8,7 +8,10 @@
 /**
  * Returns a randomly selected element of a vector.
  */
-template <class T> T select_random_element(std::vector<T> v, std::mt19937& gen, std::uniform_real_distribution<double>& uni_dist) {
+template <class T>
+T select_random_element(std::vector<T> v,
+                        std::mt19937& gen,
+                        std::uniform_real_distribution<double>& uni_dist) {
   using namespace std;
   T element;
   if (v.size() == 0) {
@@ -26,7 +29,7 @@ template <class T> T select_random_element(std::vector<T> v, std::mt19937& gen, 
     // Convert random double between [0, 1] into
     // an integer between [0, v.size() - 1
     int idx = trunc(rand_val * v.size());
-    idx = idx == v.size()? idx-- : idx;
+    idx = (idx == v.size() ? idx-- : idx);
 
     element = v[idx];
   }
@@ -49,9 +52,10 @@ class KDE {
   // Not sure this is the correct way to do it.
   double mu;
 
-  std::vector<double> resample(int n_samples, std::mt19937& rng,
-                        std::uniform_real_distribution<double>& uni_dist,
-                        std::normal_distribution<double>& norm_dist);
+  std::vector<double> resample(int n_samples,
+                               std::mt19937& rng,
+                               std::uniform_real_distribution<double>& uni_dist,
+                               std::normal_distribution<double>& norm_dist);
   std::vector<double> resample(int n_samples);
   double pdf(double x);
   std::vector<double> pdf(std::vector<double> v);
