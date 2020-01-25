@@ -1,5 +1,4 @@
 #include "AnalysisGraph.hpp"
-#include "dbg.h"
 #include "spdlog/spdlog.h"
 #include <range/v3/all.hpp>
 #include <unsupported/Eigen/MatrixFunctions>
@@ -47,9 +46,6 @@ void AnalysisGraph::sample_predicted_latent_state_sequences(
         // the continuous 'differential' update equation.
         this->predicted_latent_state_sequences[samp][t] = A_d.pow(t) * this->s0;
         if (samp == 0) {
-          dbg(t);
-          dbg("");
-          dbg(A_d.pow(t));
           this->print_latent_state(this->predicted_latent_state_sequences[samp][t]);
         }
       }
