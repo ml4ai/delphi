@@ -7,7 +7,6 @@
 #include <fmt/format.h>
 #include <fstream>
 #include <range/v3/all.hpp>
-#include "dbg.h"
 
 using namespace std;
 using namespace delphi::utils;
@@ -55,6 +54,7 @@ AnalysisGraph AnalysisGraph::from_causemos_json_dict(nlohmann::json json_data) {
     auto subj_polarity_json = subj_delta["polarity"];
     auto obj_polarity_json = obj_delta["polarity"];
 
+    // We set polarities to 1 (positive) by default if they are not specified.
     int subj_polarity = 1;
     int obj_polarity = 1;
     if (!subj_polarity_json.is_null()) {
@@ -83,9 +83,7 @@ AnalysisGraph AnalysisGraph::from_causemos_json_dict(nlohmann::json json_data) {
     G.add_edge(causal_fragment);
   }
 
-  dbg("Processing Indicators");
   for (Node& n : G.nodes()) {
-    dbg(n.name);
     if (json_data["conceptIndicators"][n.name].is_null()) {
       string indicator_name = "Qualitative measure of {}"_format(n.name);
       string indicator_source = "Delphi";
@@ -101,7 +99,6 @@ AnalysisGraph AnalysisGraph::from_causemos_json_dict(nlohmann::json json_data) {
       if (!mapping["source"].is_null()) {
         string indicator_source = mapping["source"].get<string>();
       }
-
 
       if (mapping["name"].is_null()) {
         G[n.name].add_indicator(indicator_name, indicator_source);
@@ -130,7 +127,7 @@ AnalysisGraph AnalysisGraph::from_causemos_json_dict(nlohmann::json json_data) {
         else {
           throw runtime_error(
               "Invalid value of \"func\": {}. It must be one of [max|min|mean]"_format(
-                func));
+                  func));
         }
         G[n.name].add_indicator(indicator_name, indicator_source);
         G[n.name].get_indicator(indicator_name).set_mean(aggregated_value);
@@ -162,25 +159,62 @@ double median(vector<double> xs) {
 }
 
 string AnalysisGraph::get_edge_weights_for_causemos_viz() {
-  using nlohmann::json;
+  using nlohmann::json, ranges::max;
   json j;
   j["relations"] = {};
   vector<double> all_weights = {};
   for (auto e : this->edges()) {
-    int n_samples = 1000;
+    int n_samples = DEFAULT_N_SAMPLES;
     vector<double> sampled_betas = this->edge(e).kde.resample(
         n_samples, this->rand_num_generator, this->uni_dist, this->norm_dist);
-    double weight = abs(median(sampled_betas));
+    double weight = abs(median(this->edge(e).kde.dataset));
     all_weights.push_back(weight);
     json edge_json = {{"source", this->source(e).name},
                       {"target", this->target(e).name},
                       {"weight", weight}};
     j["relations"].push_back(edge_json);
   }
-  double max_weight = ranges::max(all_weights);
+  double max_weight = max(all_weights);
   // Divide the weights by the max weight so they all lie between 0-1
   for (auto& relation : j["relations"]) {
     relation["weight"] = relation["weight"].get<double>() / max_weight;
   }
   return j.dump();
+}
+
+FormattedProjectionResult
+AnalysisGraph::generate_causemos_projection(string json_projection) {
+  auto json_data = nlohmann::json::parse(json_projection);
+  this->initialize_random_number_generator();
+  this->find_all_paths();
+  this->sample_transition_matrix_collection_from_prior();
+
+  auto start_time = json_data["startTime"];
+  int start_year = start_time["year"].get<int>();
+  int start_month = start_time["month"].get<int>();
+
+  int time_steps = json_data["timeStepsInMonths"].get<int>();
+
+  // This calculation adds one more month to the time steps
+  // To avoid that we need to check some corner cases
+  int end_year = start_year + (start_month + time_steps) / 12;
+  int end_month = (start_month + time_steps) % 12;
+
+  // Create the perturbed initial latent state
+  this->set_default_initial_state();
+
+  auto perturbations = json_data["perturbations"];
+
+  for (auto pert : perturbations) {
+    string concept = pert["concept"].get<string>();
+    double value = pert["value"].get<double>();
+
+    this->s0(2 * this->name_to_vertex.at(concept) + 1) = value;
+  }
+
+  this->trained = true;
+  this->run_model(start_year, start_month, end_year, end_month, true);
+  this->trained = false;
+
+  return this->format_projection_result();
 }

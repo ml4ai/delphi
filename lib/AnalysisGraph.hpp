@@ -15,10 +15,9 @@
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
 
-const double TAU = 1.0;
 const double tuning_param = 1.0;
 
-const size_t DEFAULT_N_SAMPLES = 200;
+const size_t DEFAULT_N_SAMPLES = 10000;
 
 enum InitialBeta { ZERO, ONE, HALF, MEAN, RANDOM };
 
@@ -950,8 +949,8 @@ class AnalysisGraph {
                                  int end_year,
                                  int end_month);
 
-  FormattedProjectionResult generate_projection(std::string json_projection,
-                                                int resolution);
+  FormattedProjectionResult
+  generate_causemos_projection(std::string json_projection);
 
   /**
    * this->generate_prediction() must be called before callign this method.
@@ -1015,6 +1014,7 @@ class AnalysisGraph {
   void print_name_to_vertex();
   void print_indicators();
   void print_A_beta_factors();
+  void print_latent_state(const Eigen::VectorXd&);
 
   /*
    * Prints the simple paths found between all pairs of nodes of the graph

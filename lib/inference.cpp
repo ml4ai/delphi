@@ -1,18 +1,28 @@
 #include "AnalysisGraph.hpp"
-#include <range/v3/all.hpp>
+#include "dbg.h"
 #include "spdlog/spdlog.h"
+#include <range/v3/all.hpp>
 #include <unsupported/Eigen/MatrixFunctions>
+#include <boost/range/adaptors.hpp>
 
 using namespace std;
+using Eigen::VectorXd, Eigen::MatrixXd;
 using fmt::print, fmt::format;
-using Eigen::VectorXd;
 using spdlog::warn;
+namespace rs = ranges;
+using boost::adaptors::transformed;
 
 /*
  ============================================================================
  Private: Inference
  ============================================================================
 */
+
+void AnalysisGraph::print_latent_state(const VectorXd& v) {
+  for (int i=0; i < this->num_vertices(); i++){
+    cout << (*this)[i].name << " " << v[2*i] << endl;
+  }
+}
 
 void AnalysisGraph::sample_predicted_latent_state_sequences(
     int prediction_timesteps,
@@ -29,19 +39,24 @@ void AnalysisGraph::sample_predicted_latent_state_sequences(
 
   for (int samp = 0; samp < this->res; samp++) {
     for (int t = 0; t < this->n_timesteps; t++) {
-      const Eigen::MatrixXd& A_d = this->transition_matrix_collection[samp];
-      Eigen::MatrixPower<Eigen::MatrixXd> Apow(A_d);
+      const MatrixXd& A_d = this->transition_matrix_collection.at(samp);
       if (project) {
         // Perform projection based on the perturbed initial latent state s0
         // FIXME The A_t here is the transition matrix for a discrete update.
         // In order to use the matrix exponential it must be the the matrix for
         // the continuous 'differential' update equation.
-        this->predicted_latent_state_sequences[samp][t] = Apow(t) * this->s0;
+        this->predicted_latent_state_sequences[samp][t] = A_d.pow(t) * this->s0;
+        if (samp == 0) {
+          dbg(t);
+          dbg("");
+          dbg(A_d.pow(t));
+          this->print_latent_state(this->predicted_latent_state_sequences[samp][t]);
+        }
       }
       else {
         // Perform inference based on the sampled initial latent states
-        const Eigen::VectorXd& s0_samp = this->initial_latent_state_collection[samp];
-        this->predicted_latent_state_sequences[samp][t] = Apow(t) * s0_samp;
+        const VectorXd& s0_samp = this->initial_latent_state_collection[samp];
+        this->predicted_latent_state_sequences[samp][t] = A_d.pow(t) * s0_samp;
       }
     }
   }
@@ -49,8 +64,7 @@ void AnalysisGraph::sample_predicted_latent_state_sequences(
 
 void AnalysisGraph::
     generate_predicted_observed_state_sequences_from_predicted_latent_state_sequences() {
-  using ranges::to;
-  using ranges::views::transform;
+  using rs::to, rs::views::transform;
 
   // Allocate memory for observed_state_sequences
   this->predicted_observed_state_sequences.clear();
@@ -100,15 +114,15 @@ FormattedProjectionResult AnalysisGraph::format_projection_result() {
   FormattedProjectionResult result;
 
   for (auto [vert_name, vert_id] : this->name_to_vertex) {
-    result[vert_name] = vector<vector<double>>(this->pred_timesteps,
-                               vector<double>(this->res));
+    result[vert_name] =
+        vector<vector<double>>(this->pred_timesteps, vector<double>(this->res));
     for (int ts = 0; ts < this->pred_timesteps; ts++) {
       for (int samp = 0; samp < this->res; samp++) {
         result[vert_name][ts][samp] =
-          //this->predicted_latent_state_sequences[samp][ts](2 * vert_id);
-          this->predicted_observed_state_sequences[samp][ts][vert_id][0];
+            // this->predicted_latent_state_sequences[samp][ts](2 * vert_id);
+            this->predicted_observed_state_sequences[samp][ts][vert_id][0];
       }
-      sort(result[vert_name][ts].begin(), result[vert_name][ts].end());
+      rs::sort(result[vert_name][ts]);
     }
   }
 
@@ -184,7 +198,6 @@ void AnalysisGraph::run_model(int start_year,
   this->generate_predicted_observed_state_sequences_from_predicted_latent_state_sequences();
 }
 
-
 /*
  ============================================================================
  Public: Inference
@@ -199,51 +212,6 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
 
   return make_tuple(
       this->training_range, this->pred_range, this->format_prediction_result());
-}
-
-FormattedProjectionResult AnalysisGraph::generate_projection(string json_projection, int resolution) {
-  this->initialize_random_number_generator();
-
-  this->find_all_paths();
-
-  auto json_data = nlohmann::json::parse(json_projection);
-
-  auto start_time = json_data["startTime"];
-  int start_year = start_time["year"].get<int>();
-  int start_month = start_time["month"].get<int>();
-
-  int time_steps = json_data["timeStepsInMonths"].get<int>();
-
-  // This calculation adds one more month to the time steps
-  // To avoid that we need to check some corner cases
-  int end_year = start_year + (start_month + time_steps) / 12;
-  int end_month = (start_month + time_steps) % 12;
-
-  this->res = resolution;
-  this->sample_transition_matrix_collection_from_prior();
-
-  // Create the perturbed initial latent state
-  this->set_default_initial_state();
-
-  auto perturbations =json_data["perturbations"];
-
-  for(auto pert : perturbations) {
-    string concept = pert["concept"].get<string>();
-    double value = pert["value"].get<double>();
-
-    try {
-      this->s0(2 * this->name_to_vertex.at(concept) + 1) = value;
-    }
-    catch (const out_of_range& oor) {
-      cout << "Concept: " << concept << " Not present in the CAG. Cannot perturb\n";
-    }
-  }
-
-  this->trained = true;
-  this->run_model(start_year, start_month, end_year, end_month, true);
-  this->trained = false;
-
-  return this->format_projection_result();
 }
 
 vector<vector<double>> AnalysisGraph::prediction_to_array(string indicator) {
