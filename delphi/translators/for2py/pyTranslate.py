@@ -1718,7 +1718,7 @@ class PythonCodeGenerator(object):
             return variable_type
 
     def set_default_var_type(self, var_name, var_type):
-        """ Thu=is function sets the default variable type of the declared
+        """ This function sets the default variable type of the declared
         variable."""
 
         self.var_type.setdefault(self.current_module, []).append({

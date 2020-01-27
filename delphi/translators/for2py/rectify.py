@@ -471,6 +471,12 @@ class RectifyOFPXML:
         "operation",
     ]
 
+    dtype_var_declaration_tags = [
+        "component-decl",
+        "component-decl-list",
+        "component-decl-list__begin"
+    ]
+
     #################################################################
     #                                                               #
     #                       HANDLER FUNCTIONS                       #
@@ -1085,11 +1091,7 @@ class RectifyOFPXML:
                     self.derived_type_array_dimensions[self.dim].append(child)
             elif child.tag == "component-array-spec":
                 self.derived_type_var_holder_list.append(child)
-            elif (
-                    child.tag == "component-decl"
-                    or child.tag == "component-decl-list"
-                    or child.tag == "component-decl-list__begin"
-            ):
+            elif child.tag in self.dtype_var_declaration_tags:
                 self.derived_type_var_holder_list.append(child)
             elif child.tag == "length":
                 cur_elem = ET.SubElement(current, child.tag, child.attrib)
