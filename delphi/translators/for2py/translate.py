@@ -422,24 +422,24 @@ class XML_to_JSON_translator(object):
                 elif node.tag == "derived-types":
                     derived_type[-1].update(self.parseTree(node, state))
             return derived_type
-        elif root.attrib["name"] == "character":
-            # Check if this is a string
-            declared_type = {
-                "type": root.attrib["name"],
-                "length": root.attrib["string_length"],
-                "is_derived_type": root.attrib["is_derived_type"].lower(),
-                "is_string": "true",
-                "keyword2": root.attrib["keyword2"],
-            }
-            return [declared_type]
         else:
-            # Else, this represents an empty element, which is the case of (1).
-            declared_type = {
-                "type": root.attrib["name"],
-                "is_derived_type": root.attrib["is_derived_type"].lower(),
-                "keyword2": root.attrib["keyword2"],
-                "is_string": "false",
-            }
+            if root.attrib["name"].lower() == "character":
+                # Check if this is a string
+                declared_type = {
+                    "type": root.attrib["name"],
+                    "length": root.attrib["string_length"],
+                    "is_derived_type": root.attrib["is_derived_type"].lower(),
+                    "is_string": "true",
+                    "keyword2": root.attrib["keyword2"],
+                }
+            else:
+                # Else, this represents an empty element, which is the case of (1).
+                declared_type = {
+                    "type": root.attrib["name"],
+                    "is_derived_type": root.attrib["is_derived_type"].lower(),
+                    "keyword2": root.attrib["keyword2"],
+                    "is_string": "false",
+                }
             return [declared_type]
 
     def process_length(self, root, state) -> List[Dict]:
