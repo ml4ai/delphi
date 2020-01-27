@@ -15,28 +15,71 @@ from random import random
 class ControlType:
     def __init__(self):
         self.mesic = String(1)
+        self.rnmode = String(1)
         self.crop = String(2)
         self.model = String(8)
+        self.ename = String(8)
         self.filex = String(12)
         self.fileio = String(30)
         self.dssatp = String(102)
         self.das : int
+        self.dynamic : int
+        self.frop : int
+        self.errcode : int
+        self.lunio : int
+        self.multi : int
+        self.n_elems : int
         self.nyrs : int
+        self.repno : int
+        self.rotnum : int
+        self.run : int
+        self.trtnum : int
         self.yrdif : int
+        self.yrdoy : int
+        self.yrsim : int
 
 @dataclass
 class SwitchType:
     def __init__(self):
         self.fname = String(1)
         self.idetc = String(1)
+        self.idetd = String(1)
+        self.idetg = String(1)
+        self.ideth = String(1)
+        self.idetl = String(1)
+        self.idetn = String(1)
         self.ideto = String(1)
+        self.idetp = String(1)
+        self.idetr = String(1)
+        self.idets = String(1)
+        self.idetw = String(1)
         self.ihari = String(1)
+        self.iplti = String(1)
+        self.iirri = String(1)
+        self.isimi = String(1)
         self.iswche = String(1)
+        self.iswdis = String(1)
+        self.iswnit = String(1)
         self.iswpho = String(1)
+        self.iswpot = String(1)
+        self.iswsym = String(1)
+        self.iswtil = String(1)
+        self.iswwat = String(1)
         self.meevp = String(1)
+        self.meghg = String(1)
+        self.mehyd = String(1)
+        self.meinf = String(1)
+        self.meli = String(1)
+        self.mepho = String(1)
         self.mesom = String(1)
+        self.mesol = String(1)
+        self.mesev = String(1)
+        self.mewth = String(1)
         self.metmp = String(1)
         self.iferi = String(1)
+        self.iresi = String(1)
+        self.ico2 = String(1)
+        self.fmopt = String(1)
         self.nswi : int
 
 @dataclass

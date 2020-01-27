@@ -3,28 +3,28 @@
       INTEGER, PARAMETER :: MaxFiles = 500
 
       TYPE ControlType
-        CHARACTER (len=1)  MESIC
+        CHARACTER (len=1)  MESIC, RNMODE
         CHARACTER (len=2)  CROP
-        CHARACTER (len=8)  MODEL
+        CHARACTER (len=8)  MODEL, ENAME
         CHARACTER (len=12) FILEX
         CHARACTER (len=30) FILEIO
         CHARACTER (len=102)DSSATP
-        INTEGER   DAS
-        INTEGER   NYRS
-        INTEGER   YRDIF
+        INTEGER   DAS, DYNAMIC, FROP, ErrCode, LUNIO, MULTI, N_ELEMS
+        INTEGER   NYRS, REPNO, ROTNUM, RUN, TRTNUM
+        INTEGER   YRDIF, YRDOY, YRSIM
       END TYPE ControlType
 
       TYPE SwitchType
         CHARACTER (len=1) FNAME
-        CHARACTER (len=1) IDETC
-        CHARACTER (len=1) IDETO
-        CHARACTER (len=1) IHARI
-        CHARACTER (len=1) ISWCHE
-        CHARACTER (len=1) ISWPHO
-        CHARACTER (len=1) MEEVP
-        CHARACTER (len=1) MESOM
+        CHARACTER (len=1) IDETC, IDETD, IDETG, IDETH, IDETL, IDETN
+        CHARACTER (len=1) IDETO, IDETP, IDETR, IDETS, IDETW
+        CHARACTER (len=1) IHARI, IPLTI, IIRRI, ISIMI
+        CHARACTER (len=1) ISWCHE, ISWDIS, ISWNIT
+        CHARACTER (len=1) ISWPHO, ISWPOT, ISWSYM, ISWTIL, ISWWAT
+        CHARACTER (len=1) MEEVP, MEGHG, MEHYD, MEINF, MELI, MEPHO
+        CHARACTER (len=1) MESOM, MESOL, MESEV, MEWTH
         CHARACTER (len=1) METMP !Temperature, EPIC
-        CHARACTER (len=1) IFERI
+        CHARACTER (len=1) IFERI, IRESI, ICO2, FMOPT
         INTEGER NSWI
       END TYPE SwitchType
 
