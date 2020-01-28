@@ -319,7 +319,7 @@ def generate_grfn(
     network_test,
     mod_log_file_path,
     processing_modules,
-    save_file=True
+    save_file=False
 ):
     """This function generates GrFN dictionary object and file.
 
@@ -421,14 +421,14 @@ def generate_grfn(
             original_fortran_file
     )
 
+    # Write GrFN JSON into a file.
+    with open(grfn_file, "w") as file_handle:
+        file_handle.write(json.dumps(grfn_dict, sort_keys=True, indent=2))
+
     log_generated_files([grfn_file])
     if tester_call:
-        cleanup_files(GENERATED_FILE_PATHS)
+        cleanup_files(GENERATED_FILE_PATHS, save_file, "grfn")
         return grfn_dict
-    else:
-        # Write GrFN JSON into a file.
-        with open(grfn_file, "w") as file_handle:
-            file_handle.write(json.dumps(grfn_dict, sort_keys=True, indent=2))
 
 
 def is_module_file(filename):
@@ -534,17 +534,39 @@ def check_classpath():
             sys.exit(1)
 
 
-def cleanup_files(generated_file_paths):
+def cleanup_files(generated_file_paths, save_file, source):
     """This function cleans up all generated files.
     Args:
         generated_file_paths (list): List of all files that were generated.
-
+        save_file (bool): A boolean condition to mark whether to save the
+        generated files or not.
+        source (src): To indicate where this function is being called. Currently,
+        it's called only in the generate_grfn function, but it's for the possible
+        future need.
     Returns:
         None
     """
     for filepath in generated_file_paths:
         if os.path.isfile(filepath):
-            os.remove(filepath)
+            base = np.basename(filepath)
+            if not save_file:
+            # Remove all files if no explicit file saving option given.
+                os.remove(filepath)
+            elif (
+                    save_file 
+                    and source == "grfn"
+                    and "_GrFN.json" not in base
+            ):
+            # Else if file saving option was given and cleanup_files function
+            # was called from generate_grfn, then remove all files except
+            # _Grfn.json file.
+                os.remove(filepath)
+            else:
+            # Else, nothing to perform.
+                pass
+        else:
+        # Else, nothing to perform.
+            pass
 
 
 def log_generated_files(file_paths):
@@ -610,7 +632,6 @@ def fortran_to_grfn(
     root_dir_path=".",
     module_file_name=MODULE_FILE_NAME,
     processing_modules=False,
-    save_file=True
 ):
     """This function invokes other appropriate functions
     to process and generate objects to translate fortran
@@ -631,8 +652,6 @@ def fortran_to_grfn(
         module_file_name (str): A module log file name.
         processing_modules (bool): A boolean condition marker to indicate
         whether current fortran_to_grfn execution is for processing a module.
-        save_file (bool): A boolean condition to mark whether to save the
-        generated files or not.
 
     Returns:
         str {

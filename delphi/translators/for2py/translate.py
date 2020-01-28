@@ -113,6 +113,8 @@ class XML_to_JSON_translator(object):
             "save-stmt",
             "saved-entity",
             "constants",
+            "interface",
+            "names",
         ]
         self.handled_tags += self.libRtns
 
@@ -157,6 +159,8 @@ class XML_to_JSON_translator(object):
             "select": self.process_select,
             "case": self.process_case,
             "value-range": self.process_value_range,
+            "interface": self.process_interface,
+            "argument-types": self.process_argument_types,
         }
 
         self.unhandled_tags = set()  # unhandled xml tags in the current input
@@ -187,6 +191,7 @@ class XML_to_JSON_translator(object):
         self.cycle_index = 0
         self.return_index = 0
         self.loop_active = False
+        self.derived_type_list = []
 
     def process_subroutine_or_program_module(self, root, state):
         """ This function should be the very first function to be called """
@@ -199,10 +204,10 @@ class XML_to_JSON_translator(object):
             if node.tag == "header":
                 subroutine["args"] = self.parseTree(node, state)
             elif node.tag == "body":
-                subState = state.copy(subroutine)
-                subroutine["body"] = self.parseTree(node, subState)
+                sub_state = state.copy(subroutine)
+                subroutine["body"] = self.parseTree(node, sub_state)
             elif node.tag == "members":
-                subroutine["body"] += self.parseTree(node, subState)
+                subroutine["body"] += self.parseTree(node, sub_state)
 
         # Check if this subroutine had a save statement and if so, process
         # the saved node to add it to the ast
@@ -211,7 +216,8 @@ class XML_to_JSON_translator(object):
             self.is_save = False
         elif self.saved_filehandle:
             subroutine["body"] += [{"tag": "save", "scope":
-                        self.current_module, "var_list": self.saved_filehandle}]
+                                    self.current_module, "var_list":
+                                    self.saved_filehandle}]
             self.saved_filehandle = []
 
         self.asts[root.attrib["name"]] = [subroutine]
@@ -235,9 +241,16 @@ class XML_to_JSON_translator(object):
     def process_argument(self, root, state) -> List[Dict]:
         """ This function handles <argument> tag. It simply create a new AST
         list and copy the values (tag and attributes) to it.  """
-
         assert root.tag == "argument", "The root must be <argument>"
         var_name = root.attrib["name"].lower()
+        if (
+                "type" in root.attrib
+                and root.attrib["type"] in self.derived_type_list
+        ):
+            is_derived_type = "true"
+        else:
+            is_derived_type = "false"
+
         array_status = root.attrib["is_array"]
         # If the root does not have any children, this argument tag is a
         # function argument variable. Otherwise, this argument is a named
@@ -251,13 +264,15 @@ class XML_to_JSON_translator(object):
                  "name": var_name,
                  "is_array": array_status,
                  "value": value,
+                 "is_derived_type": is_derived_type
                  }
             ]
         else:
             # Store each argument respective to the function it is defined in
             self.argument_list.setdefault(self.current_module, []).append(
                  var_name)
-            return [{"tag": "arg", "name": var_name, "is_array": array_status}]
+            return [{"tag": "arg", "name": var_name, "is_array":
+                    array_status, "is_derived_type": is_derived_type}]
 
     def process_declaration(self, root, state) -> List[Dict]:
         """ This function handles <declaration> tag and its sub-elements by
@@ -293,6 +308,7 @@ class XML_to_JSON_translator(object):
                     # AST list object into the declared_variable object. No
                     # other work is done in the current function.
                     declared_variable += self.parseTree(node, state)
+                    self.derived_type_list.append(declared_variable[0]["type"])
             elif node.tag == "dimensions":
                 num_of_dimensions = int(node.attrib["count"])
                 dimensions = {
@@ -331,7 +347,11 @@ class XML_to_JSON_translator(object):
                                     declared_variable[index]["name"]
                                 )
                             ]["type"] = declared_variable[index]["type"]
-            elif node.tag == "save-stmt":
+            elif (
+                    node.tag == "save-stmt"
+                    or node.tag == "interface"
+                    or node.tag == "names"
+            ):
                 declared_variable = self.parseTree(node, state)
 
         # Create an exclusion list of all variables which are arguments
@@ -404,24 +424,25 @@ class XML_to_JSON_translator(object):
                 elif node.tag == "derived-types":
                     derived_type[-1].update(self.parseTree(node, state))
             return derived_type
-        elif root.attrib["name"].lower() == "character":
-            # Check if this is a string
-            declared_type = {
-                "type": root.attrib["name"],
-                "length": root.attrib["string_length"],
-                "is_derived_type": root.attrib["is_derived_type"].lower(),
-                "is_string": "true",
-                "keyword2": root.attrib["keyword2"],
-            }
-            return [declared_type]
         else:
-            # Else, this represents an empty element, which is the case of (1).
-            declared_type = {
-                "type": root.attrib["name"],
-                "is_derived_type": root.attrib["is_derived_type"].lower(),
-                "keyword2": root.attrib["keyword2"],
-                "is_string": "false",
-            }
+            if root.attrib["name"].lower() == "character":
+                # Check if this is a string
+                declared_type = {
+                    "type": root.attrib["name"],
+                    "length": root.attrib["string_length"],
+                    "is_derived_type": root.attrib["is_derived_type"].lower(),
+                    "is_string": "true",
+                    "keyword2": root.attrib["keyword2"],
+                }
+            else:
+                # Else, this represents an empty element, which is the case
+                # of (1)
+                declared_type = {
+                    "type": root.attrib["name"],
+                    "is_derived_type": root.attrib["is_derived_type"].lower(),
+                    "keyword2": root.attrib["keyword2"],
+                    "is_string": "false",
+                }
             return [declared_type]
 
     def process_length(self, root, state) -> List[Dict]:
@@ -551,7 +572,6 @@ class XML_to_JSON_translator(object):
             f"{root.attrib} attributes."
         derived_types = {"derived-types": []}
         declared_type = []
-        declared_variable = []
         for node in root:
             if node.tag not in self.handled_tags:
                 self.unhandled_tags.add(node.tag)
@@ -781,6 +801,8 @@ class XML_to_JSON_translator(object):
                 "is_array": is_array,
                 "is_arg": "false",
                 "is_parameter": "false",
+                "is_interface_func": "false",
+                "func_arg_types": []
             }
             # Check whether the passed element is for derived type reference
             if "is_derived_type_ref" in root.attrib:
@@ -800,7 +822,21 @@ class XML_to_JSON_translator(object):
                     if node.tag == "subscripts":
                         ref["subscripts"] = self.parseTree(node, state)
 
+            for node in root:
+                if node.tag == "argument-types":
+                    ref["is_interface_func"] = "true"
+                    ref["func_arg_types"] = self.parseTree(node, state)
+
             return [ref]
+
+    def process_argument_types(self, root, state) -> List[Dict]:
+        """This function handles <argument-types> tag that only appears
+        under the interface function names. It will extract the argument
+        types and add to the list, then return the list"""
+        argument_types = []
+        for node in root:
+            argument_types.append(node.attrib["type"])
+        return argument_types
 
     def process_assignment(self, root, state) -> List[Dict]:
         """ This function handles <assignment> tag that nested elements of
@@ -844,8 +880,8 @@ class XML_to_JSON_translator(object):
                     arg["is_arg"] = "true"
                 subroutine["args"] = args
             elif node.tag == "body":
-                subState = state.copy(subroutine)
-                subroutine["body"] = self.parseTree(node, subState)
+                sub_state = state.copy(subroutine)
+                subroutine["body"] = self.parseTree(node, sub_state)
 
         # Check if this subroutine had a save statement and if so, process
         # the saved node to add it to the ast
@@ -1086,6 +1122,23 @@ class XML_to_JSON_translator(object):
 
         return [value_range_spec]
 
+    def process_interface(self, root, state) -> List[Dict]:
+        """This function handles interface"""
+        interface = {"tag": root.tag, "name": "", "functions": {},
+                     "max_argument": root.attrib["max_arg"]}
+        for node in root:
+            if node.tag == "header":
+                header = self.parseTree(node, state)
+                interface["name"] = header[0]["name"]
+            elif node.tag == "body":
+                body = self.parseTree(node, state)
+                for elem in body:
+                    interface["functions"][elem["name"]] = elem[
+                        "func_arg_types"]
+            else:
+                pass
+        return [interface]
+
     def parseTree(self, root, state: ParseState) -> List[Dict]:
         """
         Parses the XML ast tree recursively to generate a JSON AST
@@ -1204,7 +1257,7 @@ def xml_to_py(trees, fortran_file):
     # so I'm commenting out this call for now.  Eventually this code (and all 
     # the code that keeps track of unhandled tags) should go away.vi au
     # --SKD 06/2019
-    #translator.print_unhandled_tags()
+    # translator.print_unhandled_tags()
 
     return output_dict
 
@@ -1239,12 +1292,12 @@ def parse_args():
     fortran_file = args.input[0]
     pickle_file = args.gen[0]
 
-    return (fortran_file, pickle_file, args)
+    return fortran_file, pickle_file, args
 
 
-def gen_pickle_file(outputDict, pickle_file):
-    with open(pickle_file, "wb") as f:
-        pickle.dump(outputDict, f)
+def gen_pickle_file(output_dictionary, pickle_filename):
+    with open(pickle_filename, "wb") as f:
+        pickle.dump(output_dictionary, f)
 
 
 if __name__ == "__main__":

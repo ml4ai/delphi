@@ -157,7 +157,10 @@ class ModuleGenerator(object):
                 self.current_context = item.attrib["name"].lower()
                 self.modules.append(item.attrib["name"].lower())
 
-            elif item.tag.lower() == "type":
+            elif (
+                    item.tag.lower() == "type"
+                    and "name" in item.attrib
+            ):
                 variable_type = item.attrib["name"].lower()
             elif item.tag.lower() == "variable":
                 if item.attrib.get("name"):
