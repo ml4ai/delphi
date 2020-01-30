@@ -216,7 +216,7 @@ class RectifyOFPXML:
         self.cur_interface_name = None
         # Keep a track of interface XML object for later update
         self.interface_xml = {}
-        self.str_lengths = []
+        self.dimensions_holder = None
 
     #################################################################
     #                                                               #
@@ -474,7 +474,13 @@ class RectifyOFPXML:
     dtype_var_declaration_tags = [
         "component-decl",
         "component-decl-list",
-        "component-decl-list__begin"
+        "component-decl-list__begin",
+    ]
+
+    variable_child_tags = [
+        "initial-value",
+        "length",
+        "dimensions",
     ]
 
     #################################################################
@@ -990,6 +996,11 @@ class RectifyOFPXML:
 
         self.variable_type = None
 
+        if self.dimensions_holder:
+            self.restruct_declaration(current, parent)
+            parent.remove(current)
+            self.dimensions_holder = None
+
     def handle_tag_type(
             self, root, current, parent, _, traverse
     ):
@@ -1076,7 +1087,6 @@ class RectifyOFPXML:
             elif child.tag == "literal":
                 if self.is_character:
                     self.derived_type_var_holder_list.append(child)
-                    self.str_lengths.append(str(child.attrib["value"]))
                     current.set("string_length", str(child.attrib["value"]))
                 elif is_derived_type_dimension_setting:
                     child.attrib["dim-number"] = str(dim_number)
@@ -1173,14 +1183,12 @@ class RectifyOFPXML:
                 cur_elem = ET.SubElement(
                     current, child.tag, child.attrib
                 )
-                if child.tag == "initial-value":
+                if child.tag in self.variable_child_tags:
                     self.parseXMLTree(
                         child, cur_elem, current, parent, traverse
                     )
-                elif child.tag == "length":
-                    self.parseXMLTree(
-                        child, cur_elem, current, parent, traverse
-                    )
+                    if child.tag == "dimensions":
+                        current.remove(self.dimensions_holder)
                 else:
                     assert (
                         False
@@ -1793,6 +1801,9 @@ class RectifyOFPXML:
                     ), f'In handle_tag_dimensions: Empty "{child.tag}" not ' \
                        f'handled'
 
+        if parent.tag == "variable":
+            self.dimensions_holder = current
+
     def handle_tag_dimension(
             self, root, current, parent, _, traverse
     ):
@@ -1822,6 +1833,10 @@ class RectifyOFPXML:
                         assert (
                             False
                         ), f'In handle_tag_dimension: "{child.tag}" not handled'
+            elif child.tag == "literal":
+                cur_elem = ET.SubElement(
+                    current, child.tag, child.attrib
+                )
             else:
                 try:
                     _ = self.unnecessary_tags.index(child.tag)
@@ -4244,6 +4259,40 @@ class RectifyOFPXML:
                     else:
                         pass
 
+
+    def restruct_declaration(self, elem_declaration, parent):
+        """This function is to restructure declaration to have an uniform
+        xml structure."""
+        
+        declaration = ET.SubElement(
+            parent, elem_declaration.tag, elem_declaration.attrib
+        )
+
+        for child in elem_declaration:
+            self.generate_element(child, declaration)
+            if child.tag == "type":
+                dimensions = ET.SubElement(
+                    declaration,
+                    self.dimensions_holder.tag,
+                    self.dimensions_holder.attrib
+                )
+                self.handle_tag_dimensions(self.dimensions_holder, dimensions, parent, parent, 1)
+
+    def generate_element(self, current_elem, parent_elem):
+        elem = ET.SubElement(
+            parent_elem, current_elem.tag, current_elem.attrib
+        )
+
+        if len(current_elem) > 0 or current_elem.text:
+            for child in current_elem:
+                if len(child) > 0:
+                    self.generate_element(child, current_elem)
+                else:
+                    subelem = ET.SubElement(
+                            elem, child.tag,  child.attrib
+                    )
+                    if subelem.tag == "variable":
+                        subelem.attrib['is_array'] = "true"
 
     #################################################################
     #                                                               #
