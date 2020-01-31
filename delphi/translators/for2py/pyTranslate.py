@@ -33,7 +33,7 @@ from delphi.translators.for2py import For2PyError, syntax
 
 # TYPE_MAP gives the mapping from Fortran types to Python types
 TYPE_MAP = {
-    "character": "str",
+#    "character": "str",
     "double": "float",
     "float": "float",
     "int": "int",
@@ -656,6 +656,8 @@ class PythonCodeGenerator(object):
         try:
             if node["type"].lower() in TYPE_MAP:
                 var_type = TYPE_MAP[node["type"].lower()]
+            elif node["type"].lower() == "character":
+                var_type = "str"
             elif node["is_derived_type"] == "true":
                 var_type = node["type"].lower()
         except KeyError:
@@ -666,7 +668,6 @@ class PythonCodeGenerator(object):
             "type": node["type"],
             "parameter": False,
         }
-
         self.var_type.setdefault(self.current_module, []).append({
             "name": arg_name,
             "type": var_type
@@ -1346,7 +1347,13 @@ class PythonCodeGenerator(object):
 
             if derived_type_variables[var]["is_array"] == "false":
                 if not is_derived_type_declaration:
-                    self.pyStrings.append(f"        self.{name} : {var_type}")
+                    if var_type == "String":
+                        str_length = derived_type_variables[var]["length"]
+                        self.pyStrings.append(
+                            f"        self.{name} = {var_type}({str_length})"
+                        )
+                    else:
+                        self.pyStrings.append(f"        self.{name} : {var_type}")
                 else:
                     self.pyStrings.append(
                         f"        self.{name} = {var_type}()"
@@ -1684,17 +1691,13 @@ class PythonCodeGenerator(object):
         if variable_type in TYPE_MAP:
             mapped_type = TYPE_MAP[variable_type]
             if node.get("is_derived_type") == "false":
-                self.var_type.setdefault(self.current_module, []).append({
-                    "name": var_name,
-                    "type": mapped_type
-                })
+                self.set_default_var_type(var_name, mapped_type)
             return mapped_type
         else:
             if node["is_derived_type"] == "true":
-                self.var_type.setdefault(self.current_module, []).append({
-                    "name": var_name,
-                    "type": variable_type
-                })
+                if variable_type == "character":
+                    variable_type = "String"
+                self.set_default_var_type(var_name, variable_type)
                 # Add each element of the derived type into self.var_type as
                 # well
                 if variable_type in self.var_type:
@@ -1703,9 +1706,25 @@ class PythonCodeGenerator(object):
                             "name": f"{var_name}.{var['name']}",
                             "type": var['type']
                         })
-                return variable_type
+            elif (
+                    node["is_derived_type"] == "false"
+                    and variable_type == "character"
+            ):
+                variable_type == "str"
+                self.set_default_var_type(var_name, variable_type)
             else:
                 assert False, f"Unrecognized variable type: {variable_type}"
+
+            return variable_type
+
+    def set_default_var_type(self, var_name, var_type):
+        """ This function sets the default variable type of the declared
+        variable."""
+
+        self.var_type.setdefault(self.current_module, []).append({
+            "name": var_name,
+            "type": var_type
+        })
 
     def get_array_dimension(self, node):
         """ This function is for extracting the dimensions' range information
@@ -1774,13 +1793,32 @@ def create_python_source_list(outputDict: Dict):
         "from random import random\n",
     ]
     for module in module_index_dict:
+        code_generator = PythonCodeGenerator()
+        code_generator.pyStrings.append("\n".join(import_lines))
         if "module" in module_index_dict[module]:
             ast = [outputDict["ast"][module_index_dict[module][1]]]
+            # Copy the derived type ast from the main_ast into the separate list,
+            # so it can be printed outside (above) the main method
+            derived_type_ast = []
+            for index in list(ast[0]["body"]):
+                if "is_derived_type" in index and index["is_derived_type"] == "true":
+                    if "tag" not in index:
+                        derived_type_ast.append(index)
+                        ast[0]["body"].remove(index)
+            # Print derived type declaration(s)
+            if derived_type_ast:
+                for i in range(len(derived_type_ast)):
+                    code_generator.pyStrings.append("\n@dataclass")
+                    assert (
+                            derived_type_ast[i]["is_derived_type"] == "true"
+                    ), "[derived_type_ast] holds non-derived type ast"
+                    code_generator.nameMapping([derived_type_ast[i]])
+                    code_generator.printDerivedType(
+                        [derived_type_ast[i]], PrintState()
+                    )
         else:
             main_ast.append(outputDict["ast"][module_index_dict[module][1]])
             continue
-        code_generator = PythonCodeGenerator()
-        code_generator.pyStrings.append("\n".join(import_lines))
 
         # Fill the name mapper dictionary
         code_generator.nameMapping(ast)
