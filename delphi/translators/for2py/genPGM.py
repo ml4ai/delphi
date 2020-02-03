@@ -1964,7 +1964,8 @@ class GrFNGenerator(object):
                             state.next_definitions,
                             state.last_definition_default
                         )
-                        state.variable_types[function_name] = state.variable_types[call_var]
+                        state.variable_types[function_name] = \
+                            state.variable_types[call_var]
                         self.arrays[function_name] = self.arrays[call_var]
 
                     arr_index = self._generate_array_index(node)
@@ -2094,7 +2095,7 @@ class GrFNGenerator(object):
                         generate_lambda_for_arr = True
 
                     if (
-                            generate_lambda_for_arr
+                            generate_lambda_for_arr and state.array_assign_name
                     ):
                         argument_list.append(function_name)
                         lambda_string = self.generate_lambda_function(
@@ -2476,7 +2477,6 @@ class GrFNGenerator(object):
         is_function_call = False
         maybe_d_type_object_assign = False
         d_type_object_name = None
-        reference = None
         # Get the GrFN element of the RHS side of the assignment which are
         # the variables involved in the assignment operations.
         sources = self.gen_grfn(node.value, state, "assign")
@@ -2510,7 +2510,7 @@ class GrFNGenerator(object):
         # generated
         is_string_assign = False
         is_string_annotation = False
-        if "call" in sources[0]:
+        if len(sources) > 0 and "call" in sources[0]:
             type_name = sources[0]["call"]["function"]
             if type_name == "String":
                 is_string_assign = True
@@ -3936,7 +3936,7 @@ class GrFNGenerator(object):
 
         return function
 
-    def _generate_array_index (self, node):
+    def _generate_array_index(self, node):
         """This function is for generating array index grfn
         handling both single and multi-dimensional arrays.
 
@@ -3951,6 +3951,8 @@ class GrFNGenerator(object):
         # Case 1: Single dimensional array
         if args_name == "ast.Subscript":
             return [args.value.id]
+        elif args_name == "ast.Num":
+            return [int(args.n)-1]
         # Case 1.1: Single dimensional array with arithmetic
         # operation as setter index
         elif args_name == "ast.BinOp":
