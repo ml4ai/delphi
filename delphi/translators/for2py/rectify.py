@@ -463,6 +463,8 @@ class RectifyOFPXML:
         "explicit-shape-spec-list",
         "component-attr-spec",
         "component-attr-spec-list",
+        "sequence-stmt",
+        "private-or-sequence",
     ]
 
     output_child_tags = [
@@ -4279,14 +4281,20 @@ class RectifyOFPXML:
                 self.handle_tag_dimensions(self.dimensions_holder, dimensions, parent, parent, 1)
 
     def generate_element(self, current_elem, parent_elem):
+        """This function is to traverse the existing xml and generate
+        a new copy to the given parent element."""
+        # DEBUG
+        print ("    current_elem: ",  current_elem.tag, current_elem.attrib, len(current_elem))
+        print ("    parent_elem: ",  parent_elem.tag, parent_elem.attrib, len(parent_elem))
         elem = ET.SubElement(
             parent_elem, current_elem.tag, current_elem.attrib
         )
 
         if len(current_elem) > 0 or current_elem.text:
             for child in current_elem:
-                if len(child) > 0:
+                if len(child) > 0 or child.text:
                     self.generate_element(child, current_elem)
+                    continue
                 else:
                     subelem = ET.SubElement(
                             elem, child.tag,  child.attrib
