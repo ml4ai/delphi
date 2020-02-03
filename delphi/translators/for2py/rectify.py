@@ -3343,10 +3343,6 @@ class RectifyOFPXML:
         elif root.tag == "value-range":
             self.handle_tag_value_range(root, current, parent, grandparent,
                                         traverse)
-        elif root.tag == "operation":
-            self.handle_tag_operation(root, current, parent, gparent, traverse)
-        elif root.tag == "operand":
-            self.handle_tag_operand(root, current, parent, gparent, traverse)
         else:
             assert (
                 False
@@ -3391,9 +3387,8 @@ class RectifyOFPXML:
             # declarations will follow.
             derived_type = ET.SubElement(self.parent_type, "derived-types")
             literal_value = None
+            str_value = None
             for elem in self.derived_type_var_holder_list:
-                # DEBUG
-                print ("    elem: ", elem.tag, elem.attrib)
                 if elem.tag == "intrinsic-type-spec":
                     keyword2 = ""
                     if elem.attrib['keyword2'] == "":
@@ -3448,10 +3443,11 @@ class RectifyOFPXML:
                         )  # <variables _attribs_>
                         count += 1
                 elif elem.tag == "operation":
-                    operation = ET.SubElement(
-                            new_variables, elem.tag, elem.attrib
-                    )
-                    self.generate_element(elem, operation) 
+                    str_value = ""
+                    for op in elem.iter():
+                        if op.tag == "char-literal-constant":
+                            str_value += op.attrib['str']
+                    str_value = str_value.replace('"','')
                 elif elem.tag == "component-decl":
                     if not is_dimension:
                         var_attribs = {
@@ -3472,6 +3468,9 @@ class RectifyOFPXML:
                             init_value_attrib = ET.SubElement(
                                 new_variable, "initial-value"
                             )
+                            if str_value:
+                                value.attrib['value'] = str_value
+                                str_value = None
                             new_size = ET.SubElement(
                                 init_value_attrib, tag_name, value.attrib
                             )  # <initial-value _attribs_>
@@ -4298,9 +4297,6 @@ class RectifyOFPXML:
     def generate_element(self, current_elem, parent_elem):
         """This function is to traverse the existing xml and generate
         a new copy to the given parent element."""
-        # DEBUG
-        print ("    current_elem: ",  current_elem.tag, current_elem.attrib, len(current_elem))
-        print ("    parent_elem: ",  parent_elem.tag, parent_elem.attrib, len(parent_elem))
 
         for child in current_elem:
             if len(child) > 0 or child.text:

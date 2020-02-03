@@ -1350,20 +1350,74 @@ class PythonCodeGenerator(object):
                     if var_type == "String":
                         str_length = derived_type_variables[var]["length"]
                         self.pyStrings.append(
-                            f"        self.{name} = {var_type}({str_length})"
+                            f"        self.{name} = {var_type}({str_length}"
                         )
+
+                        if "value" in derived_type_variables[var]:
+                            value = self.proc_literal(
+                                derived_type_variables[var]["value"][0]
+                            )
+                            self.pyStrings.append(f", \"{value}\"")
+                        self.pyStrings.append(")")
                     else:
                         self.pyStrings.append(f"        self.{name} : {var_type}")
+                        if "value" in derived_type_variables[var]:
+                            value = self.proc_literal(
+                                derived_type_variables[var]["value"][0]
+                            )
+                            self.pyStrings.append(f" = {value}")
                 else:
                     self.pyStrings.append(
                         f"        self.{name} = {var_type}()"
                     )
 
-                if "value" in derived_type_variables[var]:
-                    value = self.proc_literal(
-                        derived_type_variables[var]["value"][0]
+            else:
+                array_range = self.get_array_dimension(
+                    derived_type_variables[var]
+                )
+                self.pyStrings.append(
+                    f"        self.{name} = Array({var_type}, [{array_range}])"
+                )
+            self.pyStrings.append(printState.sep)
+
+    def printSave(self, node, printState: PrintState):
+        """
+        This function adds the Python string to handle Fortran SAVE
+        statements. It adds a decorator above a function definition and makes
+        a call to static_save function with the list of saved variables as
+        its argument.
+        """
+        self.is_save = True
+        parent = node["name"]
+        self.saved_variables[parent] = []
+        for item in node["body"]:
+            if item.get("tag") == "save":
+                to_delete = item
+                self.pyStrings.append("\n@static_vars([")
+                variables = ''
+                for var in item["var_list"]:
+                    if var["tag"] == "open":
+                        variable_type = "file_handle"
+                    else:
+                        variable_type = TYPE_MAP[var["type"].lower()]
+                    if var.get("name"):
+                        self.saved_variables[parent].append(var["name"])
+                    if var["tag"] == "array":
+                        # Call printArray to get the initialization code for
+                        # Array declaration. This will be on the argument to
+                        # the decorator.
+                        save_argument = self.printArray(var, printState)
+                        variables += f"{save_argument}, "
+                    elif var["tag"] == "variable":
+                        if var["is_derived_type"] == "true":
+                            save_argument = f"{{'name': '{var['name']}', " \
+                                f"'call': {var['type']}(), 'type': " \
+                                f"'{variable_type}'}}"
+                else:
+                    self.pyStrings.append(
+                        f"        self.{name} = {var_type}()"
                     )
-                    self.pyStrings.append(f" = {value}")
+
             else:
                 array_range = self.get_array_dimension(
                     derived_type_variables[var]
