@@ -96,8 +96,10 @@ class ComputationalGraph(nx.DiGraph):
         # Set input values
         for i in self.inputs:
             value = inputs[i]
-            if isinstance(value, float) or isinstance(value, int):
-                value = Float32(value)
+            if isinstance(value, float):
+                value = np.array([value], dtype=np.float32)
+            if isinstance(value, int):
+                value = np.array([value], dtype=np.int32)
             elif isinstance(value, list):
                 value = np.array(value, dtype=np.float32)
 
