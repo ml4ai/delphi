@@ -15,20 +15,21 @@ import numpy as np
 sys.path.insert(0, "tests/data/program_analysis")
 
 
+PETPT_BOUNDS = {
+    "PETPT::@global::petpt::0::msalb::-1": [0, 1],
+    "PETPT::@global::petpt::0::srad::-1": [1, 20],
+    "PETPT::@global::petpt::0::tmax::-1": [-30, 60],
+    "PETPT::@global::petpt::0::tmin::-1": [-30, 60],
+    "PETPT::@global::petpt::0::xhlai::-1": [0, 20],
+}
+
 def test_regular_PETPT(petpt_grfn):
     args = petpt_grfn.inputs
-    bounds = {
-        "PETPT::@global::petpt::0::msalb::-1": [0, 1],
-        "PETPT::@global::petpt::0::srad::-1": [1, 20],
-        "PETPT::@global::petpt::0::tmax::-1": [-30, 60],
-        "PETPT::@global::petpt::0::tmin::-1": [-30, 60],
-        "PETPT::@global::petpt::0::xhlai::-1": [0, 20],
-    }
 
     problem = {
         'num_vars': len(args),
         'names': args,
-        'bounds': [bounds[arg] for arg in args]
+        'bounds': [PETPT_BOUNDS[arg] for arg in args]
     }
 
     Ns = 1000
@@ -44,18 +45,10 @@ def test_PETPT_with_torch():
     G = GroundedFunctionNetwork.from_dict(pgm, lambdas)
 
     args = G.inputs
-    bounds = {
-        "petpt::msalb_-1": [0, 1],
-        "petpt::srad_-1": [1, 20],
-        "petpt::tmax_-1": [-30, 60],
-        "petpt::tmin_-1": [-30, 60],
-        "petpt::xhlai_-1": [0, 20],
-    }
-
     problem = {
         'num_vars': len(args),
         'names': args,
-        'bounds': [bounds[arg] for arg in args]
+        'bounds': [PETPT_BOUNDS[arg] for arg in args]
     }
 
     Ns = 1000                      # TODO: Khan, experiment with this value
