@@ -1,6 +1,7 @@
 // Usage: ./create_model <path_to_JSON_file>
 
 #include "AnalysisGraph.hpp"
+#include "rng.hpp"
 #include "spdlog/spdlog.h"
 #include <boost/program_options.hpp>
 
@@ -118,6 +119,7 @@ int main(int argc, char* argv[]) {
                                  vm["country"].as<string>());
   }
   if (vm["quantify"].as<bool>()) {
+    //G.construct_beta_pdfs(RNG::rng()->get_RNG());
     G.construct_beta_pdfs();
   }
 

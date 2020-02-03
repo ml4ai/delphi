@@ -36,6 +36,70 @@ def line_is_comment(line: str) -> bool:
 
 ################################################################################
 #                                                                              #
+#                              CONTINUATION LINES                              #
+#                                                                              #
+################################################################################
+
+FIXED_FORM_EXT = ('.f', '.for')
+
+def line_is_continuation(line: str, f_ext: str) -> bool:
+    """ From FORTRAN 77  Language Reference
+        (https://docs.oracle.com/cd/E19957-01/805-4939/6j4m0vn6l/index.html)
+
+    A statement takes one or more lines; the first line is called the initial line; 
+    the subsequent lines are called the continuation lines.  You can format a 
+    source line in either of two ways: Standard fixed format, or Tab format.
+
+    In Standard Fixed Format, continuation lines are identified by a nonblank, 
+    nonzero in column 6.
+
+    Tab-Format source lines are defined as follows: A tab in any of columns 
+    1 through 6, or an ampersand in column 1, establishes the line as a 
+    tab-format source line.  If the tab is the first nonblank character, the 
+    text following the tab is scanned as if it started in column 7.
+    Continuation lines are identified by an ampersand (&) in column 1, or a 
+    nonzero digit after the first tab.    
+
+    Args:
+        line
+    Returns:
+        True iff line is a continuation line, else False.  Currently this
+        is used only for fixed-form input files, i.e., f_ext in ('.f', '.for')
+    """
+
+    if line_is_comment(line):
+        return False
+
+    if f_ext in FIXED_FORM_EXT:
+        if line[0] == '\t':
+            return (line[1] in "123456789")
+        else:
+            return (len(line) > 5 and not (line[5] == ' ' or line[5] == '0'))
+ 
+    if line[0] == '&':
+        return True
+
+    return False
+
+
+def line_is_continued(line: str) -> bool:
+    """
+    Args:
+        line
+    Returns:
+        True iff line is continued on the next line.  This is a Fortran-90
+        feature and indicated by a '&' at the end of the line.
+    """
+
+    if line_is_comment(line):
+        return False
+
+    llstr = line.rstrip()
+    return len(llstr) > 0 and llstr[-1] == "&"
+
+
+################################################################################
+#                                                                              #
 #                           FORTRAN LINE PROCESSING                            #
 #                                                                              #
 ################################################################################
@@ -68,6 +132,11 @@ RE_SUBPGM_END = re.compile(SUBPGM_END, re.I)
 
 ASSG_STMT = r"\s*(\d+|&)?\s*.*=\s*"
 RE_ASSG_STMT = re.compile(ASSG_STMT, re.I)
+
+INCLUDE_STMT_1 = r"\s*(\d+)?\s*include\s+'(\w+(\.\w*)?)'"
+RE_INCLUDE_STMT_1 = re.compile(INCLUDE_STMT_1, re.I)
+INCLUDE_STMT_2 = r'\s*(\d+)?\s*include\s+"(\w+(\.\w*)?)"'
+RE_INCLUDE_STMT_2 = re.compile(INCLUDE_STMT_2, re.I)
 
 CALL_STMT = r"\s*(\d+|&)?\s*call\s*"
 RE_CALL_STMT = re.compile(CALL_STMT, re.I)
@@ -162,7 +231,7 @@ def line_starts_subpgm(line: str) -> Tuple[bool, Optional[str]]:
         return (True, f_name)
 
     match = RE_FN_START.match(line)
-    if match != None:
+    if match is not None:
         f_name = match.group(2)
         return (True, f_name)
 
@@ -171,17 +240,17 @@ def line_starts_subpgm(line: str) -> Tuple[bool, Optional[str]]:
 
 def line_is_pgm_unit_start(line):
     match = RE_PGM_UNIT_START.match(line)
-    return match != None
+    return match is not None
 
 
 def line_is_pgm_unit_end(line):
     match = RE_PGM_UNIT_END.match(line)
-    return match != None
+    return match is not None
 
 
 def line_is_pgm_unit_separator(line):
     match = RE_PGM_UNIT_SEP.match(line)
-    return match != None
+    return match is not None
 
 
 def program_unit_name(line:str) -> str:
@@ -189,38 +258,8 @@ def program_unit_name(line:str) -> str:
       subprogram, or function, this function returns the name associated
       with that program unit."""
    match = RE_PGM_UNIT_START.match(line)
-   assert match != None
+   assert match is not None
    return match.group(2)
-
-def line_is_continuation(line: str) -> bool:
-    """
-    Args:
-        line
-    Returns:
-        True iff line is a continuation line, else False.
-    """
-
-    if line_is_comment(line):
-        return False
-
-    llstr = line.lstrip()
-    return len(llstr) > 0 and llstr[0] == "&"
-
-
-def line_is_continued(line: str) -> bool:
-    """
-    Args:
-        line
-    Returns:
-        True iff line is continued on the next line.  This is a Fortran-90
-        feature and indicated by a '&' at the end of the line.
-    """
-
-    if line_is_comment(line):
-        return False
-
-    llstr = line.rstrip()
-    return len(llstr) > 0 and llstr[-1] == "&"
 
 
 def line_ends_subpgm(line: str) -> bool:
@@ -231,7 +270,7 @@ def line_ends_subpgm(line: str) -> bool:
         True if line is the last line of a subprogram definition, else False.
     """
     match = RE_SUBPGM_END.match(line)
-    return match != None
+    return match is not None
 
 
 def line_is_executable(line: str) -> bool:
@@ -245,11 +284,26 @@ def line_is_executable(line: str) -> bool:
         return False
 
     for exp in EXECUTABLE_CODE_START:
-        if re.match(exp, line) != None:
+        if re.match(exp, line) is not None:
             return True
 
     return False
             
+
+def line_is_include(line: str) -> str:
+    """ line_is_include() : if the argument is an INCLUDE statement, returns
+        the argument to the INCLUDE statement (a file name); otherwise
+        returns None.
+    """
+    match = RE_INCLUDE_STMT_1.match(line)
+    if match is not None:
+        return match.group(2)
+
+    match = RE_INCLUDE_STMT_2.match(line)
+    if match is not None:
+        return match.group(2)
+
+    return None
 
 
 ################################################################################
@@ -334,3 +388,24 @@ F_INTRINSICS = frozenset(['abs', 'abort', 'access', 'achar', 'acos', 'acosd',
     'time', 'time8', 'tiny', 'trailz', 'transfer', 'transpose', 'trim', 'ttynam', 
     'ubound', 'ucobound', 'umask', 'unlink', 'unpack', 'verify', 'xor'])
 
+
+################################################################################
+#                                                                              #
+#                       NEGATED OPERATIONS MAPPING                             #
+#                                                                              #
+################################################################################
+
+NEGATED_OP = {
+                ".le." : ".gt.",
+                ".ge." : ".lt.",
+                ".lt." : ".ge.",
+                ".gt." : ".le.",
+                ".eq." : ".ne.",
+                ".ne." : ".eq.",
+                "<=" : ">",
+                ">=" : "<",
+                "==" : "!=",
+                "<" : ">=",
+                ">" : "<=",
+                "!=" : "==",
+              }

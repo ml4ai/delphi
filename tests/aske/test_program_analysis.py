@@ -13,29 +13,62 @@ from typing import Dict, Tuple
 
 
 DATA_DIR = "tests/data/program_analysis"
+TEMP_DIR = "."
 
 
 def get_python_source(
     original_fortran_file
-) -> Tuple[str, str, str, str, list, str]:
-    return f2grfn.fortran_to_grfn(original_fortran_file, True, False, ".")
+):
+    # Setting a root directory to absolute path of /tests directory.
+    root_dir = os.path.abspath(".")
+    return f2grfn.fortran_to_grfn(
+                original_fortran_file, 
+                tester_call=True,
+                network_test=False, 
+                temp_dir=TEMP_DIR,
+                root_dir_path=root_dir,
+                processing_modules=False,
+           )
 
 
 def make_grfn_dict(original_fortran_file) -> Dict:
-    pySrc, lambdas_filename, json_filename, python_filename, \
-        mode_mapper_dict, original_fortran = get_python_source(
-            original_fortran_file)
-    _dict = f2grfn.generate_grfn(
-        pySrc[0][0],
-        python_filename,
-        lambdas_filename,
-        mode_mapper_dict,
-        str(original_fortran_file),
-        True
-    )
+    lambda_file_suffix = "_lambdas.py"
+    tester_call = True
+    save_file = False
+    network_test = False
 
-    return json.dumps(_dict, sort_keys=True, indent=2)
+    (
+        pySrc, 
+        json_filename, 
+        python_file_paths,
+        base, 
+        mode_mapper_dict, 
+        original_fortran, 
+        module_log_file_path,
+        processing_modules,
+    ) = get_python_source(original_fortran_file)
 
+    for python_file_path in python_file_paths:
+        python_file_path_wo_extension = python_file_path[0:-3]
+        lambdas_file_path = python_file_path_wo_extension + lambda_file_suffix
+        _dict = f2grfn.generate_grfn(
+                                        pySrc[0][0],
+                                        python_file_path,
+                                        lambdas_file_path,
+                                        mode_mapper_dict[0],
+                                        str(original_fortran_file),
+                                        tester_call,
+                                        network_test,
+                                        module_log_file_path,
+                                        processing_modules,
+                                        save_file
+        )
+
+        # This blocks system.json to be fully populated.
+        # Since the purpose of test_program_analysis is to compare
+        # the output GrFN JSON of the main program, I will leave this
+        # return as it is to return the only one translated GrFN string.
+        return (json.dumps(_dict, sort_keys=True, indent=2), lambdas_file_path)
 
 
 def postprocess_test_data_grfn_dict(_dict):
@@ -138,13 +171,60 @@ def array_to_func_python_IR_test():
     yield get_python_source(
         Path(f"{DATA_DIR}" f"/array_func_loop/array-to-func_06.f"))[0][0]
 
+
 @pytest.fixture
 def multidimensional_array_test():
     yield make_grfn_dict(Path(f"{DATA_DIR}/arrays/arrays-basic-06.f"))
 
+
+@pytest.fixture
+def sir_gillespie_sd_test():
+    yield make_grfn_dict(Path(f"{DATA_DIR}/SIR-Gillespie-SD.f"))
+
+
+@pytest.fixture
+def sir_gillespie_sd_multi_test():
+    yield make_grfn_dict(Path(f"{DATA_DIR}/SIR-Gillespie-SD_multi_module.f"))
+
+
+@pytest.fixture
+def strings_test():
+    yield get_python_source(Path(f"{DATA_DIR}/strings/str06.f"))[0][0]
+
+
+@pytest.fixture
+def derived_type_grfn_test():
+    yield make_grfn_dict(Path(f"{DATA_DIR}/derived-types/derived-types-04.f"))
+
+
+@pytest.fixture
+def derived_type_array_grfn_test():
+    yield make_grfn_dict(Path(f"{DATA_DIR}/derived-types/derived-types-02.f"))
+
+
+@pytest.fixture
+def select_case_python_IR_test():
+    yield get_python_source(Path(f"{DATA_DIR}/select_case/select02.f"))[0][0]
+
+
+@pytest.fixture
+def select_case_grfn_test():
+    yield make_grfn_dict(Path(f"{DATA_DIR}/select_case/select02.f"))
+
+
+@pytest.fixture
+def interface_python_IR_test():
+    yield get_python_source(Path(f"{DATA_DIR}/interface/interface_01.f"))[0][0]
+
+
+@pytest.fixture
+def multiple_interface_python_IR_test():
+    yield get_python_source(Path(f"{DATA_DIR}/interface/interface_03.f"))[0][0]
+
+
 #########################################################
 #                                                       #
-#               TARGET PYTHON TEST FILE                 #
+#                   PYTHON IR TEST                      #
 #                                                       #
 #########################################################
 
@@ -252,7 +332,91 @@ def test_array_to_func_pythonIR_generation(array_to_func_python_IR_test):
     assert array_to_func_python_IR_test[0] == python_src
 
 
+def test_strings_pythonIR_generation(strings_test):
+    with open(f"{DATA_DIR}/strings/str06.py", "r") as f:
+        python_src = f.read()
+    assert strings_test[0] == python_src
+
+
+def test_select_case_pythonIR_generation(select_case_python_IR_test):
+    with open(f"{DATA_DIR}/select_case/select02.py", "r") as f:
+        python_src = f.read()
+    assert select_case_python_IR_test[0] == python_src
+
+
+def test_interface_pythonIR_generation(interface_python_IR_test):
+    with open(f"{DATA_DIR}/interface/m_mymod.py", "r") as f:
+        python_src = f.read()
+    assert interface_python_IR_test[0] == python_src
+
+
+def test_multiple_interface_pythonIR_generation(multiple_interface_python_IR_test):
+    with open(f"{DATA_DIR}/interface/m_testmodule.py", "r") as f:
+        python_src = f.read()
+    assert multiple_interface_python_IR_test[0] == python_src
+
+
+############################################################################
+#                                                                          #
+#                               GrFN TEST                                  #
+#                                                                          #
+############################################################################
+
 def test_multidimensional_array_grfn_generation(multidimensional_array_test):
     with open(f"{DATA_DIR}/arrays/arrays-basic-06_GrFN.json", "r") as f:
         grfn_dict = f.read()
-    assert str(multidimensional_array_test) == grfn_dict
+    assert str(multidimensional_array_test[0]) == grfn_dict
+
+    with open(f"{DATA_DIR}/arrays/arrays-basic-06_lambdas.py", "r") as f:
+        target_lambda_functions = f.read()
+    with open(f"{TEMP_DIR}/{multidimensional_array_test[1]}", "r") as l:
+        generated_lamdba_functions = l.read()
+    assert str(target_lambda_functions) == str(generated_lamdba_functions)
+
+
+def test_sir_gillespie_sd_multi_grfn_generation(sir_gillespie_sd_multi_test):
+    with open(f"{DATA_DIR}/SIR-Gillespie-SD_multi_module_GrFN.json", "r") as f:
+        grfn_dict = f.read()
+    assert str(sir_gillespie_sd_multi_test[0]) == grfn_dict
+
+    with open(f"{DATA_DIR}/SIR-Gillespie-SD_multi_module_lambdas.py", "r") as f:
+        target_lambda_functions = f.read()
+    with open(f"{TEMP_DIR}/{sir_gillespie_sd_multi_test[1]}", "r") as l:
+        generated_lamdba_functions = l.read()
+    assert str(target_lambda_functions) == str(generated_lamdba_functions)
+
+
+def test_derived_type_grfn_generation(derived_type_grfn_test):
+    with open(f"{DATA_DIR}/derived-types-04_GrFN.json", "r") as f:
+        grfn_dict = f.read()
+    assert str(derived_type_grfn_test[0]) == grfn_dict
+
+    with open(f"{DATA_DIR}/derived-types-04_lambdas.py", "r") as f:
+        target_lambda_functions = f.read()
+    with open(f"{TEMP_DIR}/{derived_type_grfn_test[1]}", "r") as l:
+        generated_lamdba_functions = l.read()
+    assert str(target_lambda_functions) == str(generated_lamdba_functions)
+
+
+def test_derived_type_array_grfn_generation(derived_type_array_grfn_test):
+    with open(f"{DATA_DIR}/derived-types/derived-types-02_GrFN.json", "r") as f:
+        grfn_dict = f.read()
+    assert str(derived_type_array_grfn_test[0]) == grfn_dict
+
+    with open(f"{DATA_DIR}/derived-types/derived-types-02_lambdas.py", "r") as f:
+        target_lambda_functions = f.read()
+    with open(f"{TEMP_DIR}/{derived_type_array_grfn_test[1]}", "r") as l:
+        generated_lamdba_functions = l.read()
+    assert str(target_lambda_functions) == str(generated_lamdba_functions)
+
+
+def test_select_case_grfn_generation(select_case_grfn_test):
+    with open(f"{DATA_DIR}/select_case/select02_GrFN.json", "r") as f:
+        grfn_dict = f.read()
+    assert str(select_case_grfn_test[0]) == grfn_dict
+
+    with open(f"{DATA_DIR}/select_case/select02_lambdas_numpy.py", "r") as f:
+        target_lambda_functions = f.read()
+    with open(f"{TEMP_DIR}/{select_case_grfn_test[1]}", "r") as l:
+        generated_lamdba_functions = l.read()
+    assert str(target_lambda_functions) == str(generated_lamdba_functions)

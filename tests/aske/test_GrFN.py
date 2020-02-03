@@ -6,8 +6,9 @@ import sys
 import numpy as np
 
 from delphi.GrFN.networks import GroundedFunctionNetwork
-from delphi.GrFN.linking import make_link_tables
-from delphi.translators.GrFN2WiringDiagram.translate import to_wiring_diagram
+import delphi.GrFN.linking as linking
+import delphi.translators.GrFN2WiringDiagram.translate as GrFN2WD
+import delphi.translators.for2py.f2grfn as f2grfn
 
 data_dir = "tests/data/GrFN/"
 sys.path.insert(0, "tests/data/program_analysis")
@@ -52,9 +53,10 @@ def test_petpt_creation_and_execution(petpt_grfn):
     assert len(petpt_grfn.inputs) == 5
     assert len(petpt_grfn.outputs) == 1
 
-    values = {name: 1.0 for name in petpt_grfn.inputs}
-    res = petpt_grfn.run(values)
-    assert res[0] == np.float32(0.029983712)
+    values = {name: np.array([1.0], dtype=np.float32) for name in petpt_grfn.inputs}
+    outputs = petpt_grfn.run(values)
+    res = outputs[0]
+    assert res[0] == np.float32(0.02998372)
 
 
 def test_petasce_creation(petasce_grfn):
@@ -65,22 +67,24 @@ def test_petasce_creation(petasce_grfn):
     CAG.draw('PETASCE--CAG.pdf', prog='dot')
 
     values = {
-        "PETASCE_simple::@global::petasce::0::doy::-1": 20.0,
-        "PETASCE_simple::@global::petasce::0::meevp::-1": "A",
-        "PETASCE_simple::@global::petasce::0::msalb::-1": 0.5,
-        "PETASCE_simple::@global::petasce::0::srad::-1": 15.0,
-        "PETASCE_simple::@global::petasce::0::tmax::-1": 10.0,
-        "PETASCE_simple::@global::petasce::0::tmin::-1": -10.0,
-        "PETASCE_simple::@global::petasce::0::xhlai::-1": 10.0,
-        "PETASCE_simple::@global::petasce::0::tdew::-1": 20.0,
-        "PETASCE_simple::@global::petasce::0::windht::-1": 5.0,
-        "PETASCE_simple::@global::petasce::0::windrun::-1": 450.0,
-        "PETASCE_simple::@global::petasce::0::xlat::-1": 45.0,
-        "PETASCE_simple::@global::petasce::0::xelev::-1": 3000.0,
-        "PETASCE_simple::@global::petasce::0::canht::-1": 2.0,
+        "PETASCE_simple::@global::petasce::0::doy::-1": np.array([20.0], dtype=np.float32),
+        "PETASCE_simple::@global::petasce::0::meevp::-1": np.array(["A"], dtype=np.str),
+        "PETASCE_simple::@global::petasce::0::msalb::-1": np.array([0.5], dtype=np.float32),
+        "PETASCE_simple::@global::petasce::0::srad::-1": np.array([15.0], dtype=np.float32),
+        "PETASCE_simple::@global::petasce::0::tmax::-1": np.array([10.0], dtype=np.float32),
+        "PETASCE_simple::@global::petasce::0::tmin::-1": np.array([-10.0], dtype=np.float32),
+        "PETASCE_simple::@global::petasce::0::xhlai::-1": np.array([10.0], dtype=np.float32),
+        "PETASCE_simple::@global::petasce::0::tdew::-1": np.array([20.0], dtype=np.float32),
+        "PETASCE_simple::@global::petasce::0::windht::-1": np.array([5.0], dtype=np.float32),
+        "PETASCE_simple::@global::petasce::0::windrun::-1": np.array([450.0], dtype=np.float32),
+        "PETASCE_simple::@global::petasce::0::xlat::-1": np.array([45.0], dtype=np.float32),
+        "PETASCE_simple::@global::petasce::0::xelev::-1": np.array([3000.0], dtype=np.float32),
+        "PETASCE_simple::@global::petasce::0::canht::-1": np.array([2.0], dtype=np.float32),
     }
 
-    res = petasce_grfn.run(values)
+    outputs = petasce_grfn.run(values)
+    res = outputs[0]
+    print(res)
     assert res[0] == np.float32(0.00012496980836348878)
 
 
@@ -98,8 +102,10 @@ def test_sir_simple_creation(sir_simple_grfn):
     G.draw('SIR-simple--GrFN.pdf', prog='dot')
     CAG = sir_simple_grfn.to_CAG_agraph()
     CAG.draw('SIR-simple--CAG.pdf', prog='dot')
+    # This importlib look up the lambdas file. Thus, the program must
+    # maintain the files up to this level before clean up.
     lambdas = importlib.__import__(f"SIR-simple_lambdas")
-    (D, I, S, F) = to_wiring_diagram(sir_simple_grfn, lambdas)
+    (D, I, S, F) = GrFN2WD.to_wiring_diagram(sir_simple_grfn, lambdas)
     assert len(D) == 3
     assert len(I) == 3
     assert len(S) == 9
@@ -123,9 +129,10 @@ def test_sir_gillespie_ms_creation(sir_gillespie_ms_grfn):
 
 
 def test_linking_graph():
-    grfn = json.load(open("tests/data/program_analysis/SIR-Gillespie-SD_GrFN_with_groundings.json", "r"))
-    tables = make_link_tables(grfn)
-    assert len(tables.keys()) == 207
+    grfn = json.load(open("tests/data/program_analysis/SIR-simple_with_groundings.json", "r"))
+    tables = linking.make_link_tables(grfn)
+    linking.print_table_data(tables)
+    assert len(tables.keys()) == 11
 
 
 @pytest.mark.skip("Need to update to latest JSON")

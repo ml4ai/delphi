@@ -28,7 +28,6 @@ TEST_CASE("Testing model training") {
   G[migration].replace_indicator(
       "Net migration", "New asylum seeking applicants", "UNHCR");
 
-  G.construct_beta_pdfs();
   G.train_model(2015, 1, 2015, 12, 100, 900);
 
   Prediction preds = G.generate_prediction(2015, 1, 2015, 12);

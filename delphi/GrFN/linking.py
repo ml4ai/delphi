@@ -27,23 +27,23 @@ def make_link_tables(GrFN):
                         for n3 in G.neighbors(n2):
                             if n3.startswith("<EQN>"):
                                 var_table.append({
-                                    "link-score": min([
+                                    "link_score": min([
                                         G[var_name][n1]["label"],
                                         G[n1][n2]["label"],
                                         G[n2][n3]["label"]
                                     ]),
-                                    "comm": n1,
-                                    "var--comm": G[var_name][n1]["label"],
-                                    "txt": n2,
-                                    "comm--txt": G[n1][n2]["label"],
-                                    "eqn": n3,
-                                    "txt--eqn": G[n2][n3]["label"]
+                                    "comm": n1.split("\n")[1],
+                                    "vc_score": G[var_name][n1]["label"],
+                                    "txt": n2.split("\n")[1],
+                                    "ct_score": G[n1][n2]["label"],
+                                    "eqn": n3.split("\n")[1],
+                                    "te_score": G[n2][n3]["label"]
                                 })
         var_table.sort(
-            key=lambda r: (r["link-score"],
-                           r["var--comm"],
-                           r["comm--txt"],
-                           r["txt--eqn"]),
+            key=lambda r: (r["link_score"],
+                           r["vc_score"],
+                           r["ct_score"],
+                           r["te_score"]),
             reverse=True
         )
         table_data[var] = var_table
@@ -81,9 +81,9 @@ def output_link_graph(G):
 def print_table_data(table_data):
     for (_, scope, name, idx), table in table_data.items():
         print("::".join([scope, name, idx]))
-        print("L-SCORE\tV-C\tC-T\tT-E")
+        print("L-SCORE\tComment\tV-C\tText-span\tC-T\tEquation\tT-E")
         for row in table:
-            print(f"{row['link-score']}\t{row['var--comm']}\t{row['comm--txt']}\t{row['txt--eqn']}")
+            print(f"{row['link_score']}\t{row['comm']}\t{row['vc_score']}\t{row['txt']}\t{row['ct_score']}\t{row['eqn']}\t{row['te_score']}")
         print("\n\n")
 
 
@@ -116,12 +116,15 @@ def get_id(el_data):
         tokens = el_data["content"].split()
         name = tokens[0]
         desc = " ".join(format_long_text(tokens[1:]))
+        return ("<CMS>", f"{name}: {desc}")
         return ("<CMS>", name, desc)
     elif el_type == "text_span":
         desc = " ".join(format_long_text(el_data["content"].split()))
+        desc = el_data["content"]
         return ("<TXT>", desc)
     elif el_type == "equation_span":
         desc = " ".join(format_long_text(el_data["content"].split()))
+        desc = el_data["content"]
         return ("<EQN>", desc)
     else:
         raise ValueError(f"Unrecognized link type: {el_type}")

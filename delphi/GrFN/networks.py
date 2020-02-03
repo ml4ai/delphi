@@ -26,6 +26,7 @@ from delphi.translators.for2py import (
 )
 import numpy as np
 import torch
+import re
 
 FONT = choose_font()
 
@@ -110,8 +111,10 @@ class ComputationalGraph(nx.DiGraph):
                 signature = self.nodes[func_name]["func_inputs"]
                 input_values = [self.nodes[n]["value"] for n in signature]
                 res = lambda_fn(*input_values)
+
+                # Convert output to a NumPy matrix if a constant was returned
                 if len(input_values) == 0:
-                    res = Float32(res)
+                    res = np.array(res, dtype=np.float32)
 
                 if torch_size is not None and len(signature) == 0:
                     self.nodes[output_node]["value"] = torch.tensor(
@@ -121,6 +124,8 @@ class ComputationalGraph(nx.DiGraph):
                     self.nodes[output_node]["value"] = res
 
         # Return the output
+        for o in self.outputs:
+            print(self.nodes[o]["value"])
         return [self.nodes[o]["value"] for o in self.outputs]
 
     def to_CAG(self):
@@ -419,44 +424,82 @@ class GroundedFunctionNetwork(ComputationalGraph):
         lambdas_path,
         json_filename: str,
         stem: str,
+        python_file: str,
         fortran_file: str,
+        module_log_file_path: str,
         mode_mapper_dict: list,
-        save_file: bool = False
+        processing_modules: bool,
+        generated_files_list: list,
+        save_file: bool = False,
     ):
-        """Builds GrFN object from Python source code."""
-        asts = [ast.parse(pySrc)]
-        pgm_dict = genPGM.create_grfn_dict(
-            lambdas_path,
-            asts,
-            json_filename,
-            mode_mapper_dict,
-            fortran_file,
-            save_file=save_file
-        )
+        module_file_exist = False
+        module_import_paths = {}
 
+        tester_call = True
+        network_test = True
+        """Builds GrFN object from Python source code."""
+        pgm_dict = f2grfn.generate_grfn(
+                                        pySrc,
+                                        python_file,
+                                        lambdas_path,
+                                        mode_mapper_dict,
+                                        fortran_file,
+                                        tester_call,
+                                        network_test,
+                                        module_log_file_path,
+                                        processing_modules,
+                                        save_file
+        )
         lambdas = importlib.__import__(stem + "_lambdas")
+        """Add generated GrFN and lambdas file paths to the list"""
         return cls.from_dict(pgm_dict, lambdas)
 
     @classmethod
     def from_fortran_file(cls, fortran_file: str, tmpdir: str = ".", save_file: bool = False):
         """Builds GrFN object from a Fortran program."""
 
+        lambda_file_suffix = "_lambdas.py"
+
         if tmpdir == "." and "/" in fortran_file:
-            tmpdir = Path(fortran_file).parent
+            tmpdir_path = Path(fortran_file).parent
+        root_dir = os.path.abspath(tmpdir)
 
         (
             pySrc,
-            lambdas_path,
             json_filename,
+            translated_python_files,
             stem,
             mode_mapper_dict,
-            fortran_filename
-        ) = f2grfn.fortran_to_grfn(fortran_file, True, True, str(tmpdir))
+            fortran_filename,
+            module_log_file_path,
+            processing_modules,
+        ) = f2grfn.fortran_to_grfn(
+                                    fortran_file,
+                                    tester_call=True,
+                                    network_test=True,
+                                    temp_dir=str(tmpdir),
+                                    root_dir_path=root_dir,
+                                    processing_modules=False,
+            )
 
-        G = cls.from_python_src(pySrc, lambdas_path, json_filename, stem,
-                                fortran_file, mode_mapper_dict, save_file=save_file)
+        generated_files = []
+        for python_file in translated_python_files:
+            lambdas_path = python_file[0:-3] + lambda_file_suffix
+            G = cls.from_python_src(
+                                    pySrc[0][0],
+                                    lambdas_path,
+                                    json_filename,
+                                    stem,
+                                    python_file,
+                                    fortran_file,
+                                    module_log_file_path,
+                                    mode_mapper_dict,
+                                    processing_modules,
+                                    generated_files,
+                                    save_file=save_file)
 
-        return G
+            """Return GrFN object"""
+            return G
 
     @classmethod
     def from_fortran_src(cls, fortran_src: str, dir: str = "."):
@@ -490,55 +533,44 @@ class GroundedFunctionNetwork(ComputationalGraph):
     def sobol_analysis(
         self, num_samples, prob_def, use_torch=False, var_types=None
     ):
-        def create_input_tensor(name, samples):
-            type_info = var_types[name]
-            if type_info[0] == str:
-                (val1, val2) = type_info[1]
-                return np.where(samples >= 0.5, val1, val2)
-            else:
-                return torch.tensor(samples)
+        def create_input_vector(name, vector):
+            if var_types is None:
+                return vector
 
-        def get_input(name, sample):
             type_info = var_types[name]
-            if type_info[0] == str:
-                (val1, val2) = type_info[1]
-                return val1 if sample >= 0.5 else val2
-            else:
-                return sample
+            if type_info[0] != str:
+                return vector
 
+            if type_info[0] == str:
+                (str1, str2) = type_info[1]
+                return np.where(vector >= 0.5, str1, str2)
+            else:
+                raise ValueError(f"Unrecognized value type: {type_info[0]}")
+
+        # Create an array of samples from the bounds supplied in prob_def
         samples = saltelli.sample(
             prob_def, num_samples, calc_second_order=True
         )
-        if use_torch:
-            samples = np.split(samples, samples.shape[1], axis=1)
-            samples = [s.squeeze() for s in samples]
-            if var_types is None:
-                values = {
-                    n: torch.tensor(s)
-                    for n, s in zip(prob_def["names"], samples)
-                }
-            else:
-                values = {
-                    n: create_input_tensor(n, s)
-                    for n, s in zip(prob_def["names"], samples)
-                }
-            Y = self.run(values, torch_size=len(samples[0])).numpy()
-        else:
-            Y = np.zeros(samples.shape[0])
-            for i, sample in enumerate(samples):
-                if var_types is None:
-                    values = {n: v for n, v in zip(prob_def["names"], sample)}
-                else:
-                    values = {n: get_input(n, val)
-                              for n, val in zip(prob_def["names"], sample)}
 
-                res = self.run(values)
-                Y[i] = res[0]
+        # Create vectors of sample inputs to run through the model
+        vectorized_sample_list = np.split(samples, samples.shape[1], axis=1)
+        vectorized_input_samples = {
+            name: create_input_vector(name, vector)
+            for name, vector in zip(prob_def["names"], vectorized_sample_list)
+        }
 
-        return sobol.analyze(prob_def, Y)
+        # Produce model output and reshape for analysis
+        outputs = self.run(vectorized_input_samples)
+        Y = outputs[0]
+        Y = Y.reshape((Y.shape[0],))
 
-    def S2_surface(self, sizes, bounds, presets, use_torch=False,
-            num_samples=10):
+        # Recover the sensitivity indices from the sampled outputs
+        S = sobol.analyze(prob_def, Y)
+        return S
+
+    def S2_surface(
+        self, sizes, bounds, presets, use_torch=False, num_samples=10
+    ):
         """Calculates the sensitivity surface of a GrFN for the two variables with
         the highest S2 index.
 
@@ -567,33 +599,24 @@ class GroundedFunctionNetwork(ComputationalGraph):
         S2 = Si["S2"]
         (s2_max, v1, v2) = get_max_s2_sensitivity(S2)
 
-        x_var = args[v1]
-        y_var = args[v2]
-        search_space = [(x_var, bounds[x_var]), (y_var, bounds[y_var])]
-        preset_vals = {
-            arg: presets[arg]
+        x_var, y_var = args[v1], args[v2]
+        x_bounds, y_bounds = bounds[x_var], bounds[y_var]
+        (x_sz, y_sz) = sizes
+        X = np.linspace(*x_bounds, x_sz)
+        Y = np.linspace(*y_bounds, y_sz)
+        Xv, Yv = np.meshgrid(X, Y)
+
+        input_vectors = {
+            arg: np.full_like(Xv, presets[arg])
             for i, arg in enumerate(args)
             if i != v1 and i != v2
         }
+        input_vectors.update({x_var: Xv, y_var: Yv})
 
-        X = np.linspace(*search_space[0][1], sizes[0])
-        Y = np.linspace(*search_space[1][1], sizes[1])
-
-        if use_torch:
-            Xm, Ym = torch.meshgrid(torch.tensor(X), torch.tensor(Y))
-            inputs = {n: torch.full_like(Xm, v) for n, v in presets.items()}
-            inputs.update({search_space[0][0]: Xm, search_space[1][0]: Ym})
-            Z = self.run(inputs).numpy()
-        else:
-            Xm, Ym = np.meshgrid(X, Y)
-            Z = np.zeros((len(X), len(Y)))
-            for x, y in itertools.product(range(len(X)), range(len(Y))):
-                inputs = {n: v for n, v in presets.items()}
-                inputs.update({search_space[0][0]: x, search_space[1][0]: y})
-                Z[x][y] = self.run(inputs)[0]
+        outputs = self.run(input_vectors)
+        Z = outputs[0]
 
         return X, Y, Z, x_var, y_var
-
 
     def to_FIB(self, other):
         """ Creates a ForwardInfluenceBlanket object representing the
@@ -696,7 +719,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
         functions. """
 
         A = nx.nx_agraph.to_agraph(self.call_graph)
-        A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo"})
+        A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo", "rankdir": "TB"})
         A.node_attr.update(
             {"shape": "rectangle", "color": "#650021", "style": "rounded"}
         )

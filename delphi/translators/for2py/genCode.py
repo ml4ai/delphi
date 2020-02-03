@@ -14,11 +14,46 @@ class PrintState:
             self.sep if sep is None else sep, self.add if add is None else add
         )
 
+
 class genCode:
     def __init__(self,
-                 lambda_string=""
+                 use_numpy=False,
+                 string_length=None,
+                 lambda_string="",
                  ):
         self.lambda_string = lambda_string
+        # Setting the flag below creates the lambda file using numpy
+        # functions instead of the previous Python approach
+        self.use_numpy = use_numpy
+        self.numpy_math_map = {
+            "acos": "arccos",
+            "acosh": "arccosh",
+            "asin": "arcsin",
+            "asinh": "arcsinh",
+            "atan": "arctan",
+            "atanh": "arctanh",
+            "ceil": "ceil",
+            "cos": "cos",
+            "cosh": "cosh",
+            "exp": "exp",
+            "floor": "floor",
+            "hypot": "hypot",
+            "isnan": "isnan",
+            "log": "log",
+            "log10": "log10",
+            "sin": "sin",
+            "sinh": "sinh",
+            "sqrt": "sqrt",
+            "tan": "tan",
+            "tanh": "tanh",
+        }
+        self.current_function = None
+        self.target_arr = None
+
+        if string_length:
+            self.string_length = string_length
+        else:
+            self.string_length = None
 
         self.process_lambda_node = {
             "ast.FunctionDef": self.process_function_definition,
@@ -41,6 +76,8 @@ class genCode:
             "ast.Div": self._process_divide,
             "ast.USub": self._process_unary_subtract,
             "ast.Eq": self._process_equals_to,
+            "ast.NotEq": self._process_not_equal_to,
+            "ast.Not": self._process_not,
             "ast.LtE": self._process_less_than_or_equal_to,
             "ast.Lt": self._process_less_than,
             "ast.Gt": self._process_greater_than,
@@ -50,7 +87,7 @@ class genCode:
             "ast.Expr": self.process_expression,
             "ast.Compare": self.process_compare,
             "ast.Subscript": self.process_subscript,
-            "ast.Name": self._process_name,
+            "ast.Name": self.process_name,
             "ast.AnnAssign": self.process_annotated_assign,
             "ast.Assign": self.process_assign,
             "ast.Call": self.process_call,
@@ -58,13 +95,13 @@ class genCode:
             "ast.alias": self._process_alias,
             "ast.Module": self.process_module,
             "ast.BoolOp": self.process_boolean_operation,
-            "ast.Attribute": self._process_attribute,
+            "ast.Attribute": self.process_attribute,
             "ast.AST": self.process_ast,
             "ast.Tuple": self.process_tuple,
-            "ast.NameConstant": self.process_name_constant,
+            "ast.NameConstant": self._process_name_constant,
         }
 
-    def generate_code(self, node, state):
+    def generate_code(self, node, state, length=None):
         """
             This function parses the ast node of the python file and generates
             python code relevant to the information in the ast. This is used as
@@ -119,7 +156,8 @@ class genCode:
         code_string = "[{0}]".format(self.generate_code(node.value, state))
         return code_string
 
-    def process_name_constant(self, node, state):
+    @staticmethod
+    def _process_name_constant(node, _):
         code_string = str(node.value)
         return code_string
 
@@ -148,14 +186,13 @@ class genCode:
             low_bound = None
             # Calculate the size of each dimension
             for elem in elements:
-                if low_bound == None:
+                if low_bound is None:
                     low_bound = elem
                 else:
                     code_string += f"{elem} - {low_bound}"
                     low_bound = None
         code_string += ")"
         return code_string
-
 
     @staticmethod
     def _process_str(node, *_):
@@ -233,6 +270,16 @@ class genCode:
         return code_string
 
     @staticmethod
+    def _process_not_equal_to(*_):
+        code_string = "!="
+        return code_string
+
+    @staticmethod
+    def _process_not(*_):
+        code_string = "not"
+        return code_string
+
+    @staticmethod
     def _process_less_than_or_equal_to(*_):
         code_string = "<="
         return code_string
@@ -288,9 +335,13 @@ class genCode:
         code_string = self.generate_code(node.value, state)
         return code_string
 
-    @staticmethod
-    def _process_name(node, *_):
+    def process_name(self, node, *_):
         code_string = node.id
+        if self.use_numpy:
+            if self.current_function in ["np.maximum", "np.minimum"] and not \
+                    self.target_arr:
+                self.target_arr = code_string
+
         return code_string
 
     def process_annotated_assign(self, node, state):
@@ -304,31 +355,129 @@ class genCode:
     def process_call(self, node, state):
         if isinstance(node.func, ast.Attribute):
             function_node = node.func
-            module = function_node.value.id
+            if not isinstance(function_node.value, ast.Attribute):
+                module = function_node.value.id
+            elif isinstance(node.func.value.value, ast.Name):
+                module = function_node.value.value.id
+            elif isinstance(node.func.value.value, ast.Call):
+                call = node.func.value.value
+                module = call.func.value.id
             function_name = function_node.attr
+            if module == "math" and \
+                self.use_numpy and \
+                    function_name in self.numpy_math_map:
+                module = "np"
+                function_name = self.numpy_math_map[function_name]
             function_name = module + "." + function_name
         else:
             function_name = node.func.id
+            if self.use_numpy:
+                if function_name == "max":
+                    function_name = "np.maximum"
+                elif function_name == "min":
+                    function_name = "np.minimum"
 
         if function_name is not "Array":
-            if ".set_" in function_name:
+            # Check for setter and getter functions to differentiate between
+            # array and string operations
+            if ".set_" in function_name and len(node.args) > 1 and \
+                    function_name.split('.')[1] != "set_substr":
+                # This is an Array operation
                 # Remove the first argument of <.set_>
                 # function of array as it is not needed
                 del node.args[0]
                 code_string = ""
                 for arg in node.args:
-                    code_string += self.generate_code(arg, state) 
-            elif ".get_" in function_name:
+                    code_string += self.generate_code(arg, state)
+            elif ".get_" in function_name and \
+                    function_name.split('.')[1] != "get_substr":
+                # This is an Array operation
                 code_string = function_name.replace(".get_", "[")
                 for arg in node.args:
                     code_string += self.generate_code(arg, state)
                 code_string += "]"
             else:
+                # This is a String operation
+                module_parts = function_name.split('.')
+                module = module_parts[-1]
+                function = module_parts[0]
+
+                if module == "__str__":
+                    code_string = function
+                    return code_string
+
                 code_string = f"{function_name}("
                 if len(node.args) > 0:
-                    code_string += ", ".join([self.generate_code(arg, state) for arg in
-                                             node.args])
+                    arg_list = []
+                    arg_count = len(node.args)
+                    if arg_count == 1 and \
+                       module == "set_":
+                        # This is a setter function for the string
+                        arg_string = self.generate_code(node.args[0],
+                                                        state)
+                        if arg_string[0] != '"' and arg_string[-1] != '"':
+                            # This is a variable assignment and not a direct
+                            # string assignment
+                            arg_string = f"{arg_string}[0:{self.string_length}]"
+                        code_string = f'{arg_string}.' \
+                                      f'ljust({self.string_length}, " ")'
+                        return code_string
+                    elif function_name == "String":
+                        # This is a String annotated assignment i.e.
+                        # String(10, "abcdef")
+                        arg_string = self.generate_code(node.args[1],
+                                                        state)
+                        code_string = f'{arg_string}.' \
+                                      f'ljust({self.string_length}, " ")'
+                        return code_string
+                    elif module == "f_index":
+                        # This is the f_index function
+                        find_string = self.generate_code(node.args[0],
+                                                         state)
+                        if arg_count == 1:
+                            code_string = f"{function}.find({find_string})+1"
+                        else:
+                            code_string = f"{function}.rfind({find_string})+1"
+                        return code_string
+                    elif module == "get_substr":
+                        start_id = self.generate_code(node.args[0],
+                                                      state)
+                        end_id = self.generate_code(node.args[1],
+                                                    state)
+                        code_string = f"{function}[{start_id}-1:{end_id}]"
+                        return code_string
+                    elif module == "set_substr":
+                        start_id = self.generate_code(node.args[0],
+                                                      state)
+                        end_id = self.generate_code(node.args[1],
+                                                    state)
+                        source_string = self.generate_code(node.args[2],
+                                                           state)
+                        new_index = f"{end_id}-{start_id}+1"
+                        prefix = f"{function_name}[:{start_id}-1]"
+                        suffix = f"{function_name}[{end_id}:]"
+                        new_string = f"{source_string}[:{new_index}]"
+
+                        code_string = f"{prefix}+{new_string}+{suffix}"
+                        return code_string
+
+                    self.current_function = function_name
+                    for arg_index in range(arg_count):
+                        arg_string = self.generate_code(node.args[arg_index],
+                                                        state)
+                        arg_list.append(arg_string)
+
+                    # Change the max() and min() functions for numpy
+                    # implementation
+                    if self.use_numpy and self.target_arr:
+                        for index, arg_string in enumerate(arg_list):
+                            if self._is_number(arg_string):
+                                arg_list[index] = f"np.full_like(" \
+                                             f"{self.target_arr}, {arg_string})"
+
+                    code_string += ", ".join(arg_list)
                 code_string += ")"
+                self.current_function = None
         else:
             code_string = self.generate_code(node.args[1], state)
 
@@ -354,14 +503,14 @@ class genCode:
         return code_string
 
     def process_boolean_operation(self, node, state):
-        code_string = "({0} {1} {2})".format(
-            self.generate_code(node.values[0], state),
-            self.generate_code(node.op, state),
-            self.generate_code(node.values[1], state))
-        return code_string
+        bool_tests = [self.generate_code(node.values[i], state) for i in range(
+            len(node.values))]
+        bool_operation = self.generate_code(node.op, state)
+        code_string = f" {bool_operation} ".join(bool_tests)
 
-    @staticmethod
-    def _process_attribute(node, *_):
+        return f"({code_string})"
+
+    def process_attribute(self, node, *_):
         # Code below will be kept until all tests pass and removed if they do
         # lambda_string = genCode(node.value, state)
 
@@ -370,6 +519,11 @@ class genCode:
         # <function_name>.<variable_name>. So the code below only returns the
         # <variable_name> which is stored under `node.attr`.
         code_string = node.attr
+        if self.use_numpy:
+            if self.current_function in ["np.maximum", "np.minimum"] and not \
+                    self.target_arr:
+                self.target_arr = code_string
+
         return code_string
 
     @staticmethod
@@ -379,3 +533,11 @@ class genCode:
                 node.__class__.__name__, node._fields
             )
         )
+
+    @staticmethod
+    def _is_number(s):
+        try:
+            float(s)
+            return True
+        except ValueError:
+            return False

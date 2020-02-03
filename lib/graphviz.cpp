@@ -9,6 +9,13 @@
 using namespace std;
 using boost::source, boost::target;
 
+
+/*
+ ============================================================================
+ Private: Graph Visualization (in graphviz.cpp)
+ ============================================================================
+*/
+
 pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph(bool simplified_labels,
                                                  int label_depth,
                                                  string node_to_highlight,
@@ -104,6 +111,13 @@ pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph(bool simplified_labels,
   gvLayout(gvc, G, "dot");
   return make_pair(G, gvc);
 }
+
+
+/*
+ ============================================================================
+ Public: Graph Visualization
+ ============================================================================
+*/
 
 void AnalysisGraph::to_png(string filename,
                            bool simplified_labels,

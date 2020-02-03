@@ -27,6 +27,7 @@ import xml.etree.ElementTree as ET
 from typing import List, Dict
 from collections import OrderedDict
 from delphi.translators.for2py.get_comments import get_comments
+from delphi.translators.for2py.loop_handle import RefactorConstructs
 
 
 class ParseState(object):
@@ -69,6 +70,9 @@ class XML_to_JSON_translator(object):
             "atan",
             "sqrt",
             "log",
+            "len",
+            "adjustl",
+            "adjustr",
         ]
         self.handled_tags = [
             "access-spec",
@@ -109,6 +113,8 @@ class XML_to_JSON_translator(object):
             "save-stmt",
             "saved-entity",
             "constants",
+            "interface",
+            "names",
         ]
         self.handled_tags += self.libRtns
 
@@ -150,6 +156,11 @@ class XML_to_JSON_translator(object):
             "length": self.process_length,
             "save-stmt": self.process_save,
             "cycle": self.process_continue,
+            "select": self.process_select,
+            "case": self.process_case,
+            "value-range": self.process_value_range,
+            "interface": self.process_interface,
+            "argument-types": self.process_argument_types,
         }
 
         self.unhandled_tags = set()  # unhandled xml tags in the current input
@@ -173,6 +184,14 @@ class XML_to_JSON_translator(object):
         # This list holds the nodes of the file handles that needs to be
         # SAVEd in the python translated code.
         self.saved_filehandle = []
+        # Dictionary to hold the different loop constructs present with a loop
+        self.loop_constructs = {}
+        self.loop_index = 0
+        self.break_index = 0
+        self.cycle_index = 0
+        self.return_index = 0
+        self.loop_active = False
+        self.derived_type_list = []
 
     def process_subroutine_or_program_module(self, root, state):
         """ This function should be the very first function to be called """
@@ -221,14 +240,37 @@ class XML_to_JSON_translator(object):
     def process_argument(self, root, state) -> List[Dict]:
         """ This function handles <argument> tag. It simply create a new AST
         list and copy the values (tag and attributes) to it.  """
-
         assert root.tag == "argument", "The root must be <argument>"
         var_name = root.attrib["name"].lower()
-        array_status = root.attrib["is_array"]
-        # Store each argument respective to the function it is defined in
-        self.argument_list.setdefault(self.current_module, []).append(var_name)
+        if (
+                "type" in root.attrib
+                and root.attrib["type"] in self.derived_type_list
+        ):
+            is_derived_type = "true"
+        else:
+            is_derived_type = "false"
 
-        return [{"tag": "arg", "name": var_name, "is_array": array_status}]
+        array_status = root.attrib["is_array"]
+        # If the root does not have any children, this argument tag is a
+        # function argument variable. Otherwise, this argument is a named
+        # argument to a function (E.g.: index(back = ".true."))
+        if len(root) > 0:
+            value = []
+            for node in root:
+                value += self.parseTree(node, state)
+            return [
+                {"tag": "arg",
+                 "name": var_name,
+                 "is_array": array_status,
+                 "value": value,
+                 "is_derived_type": is_derived_type
+                 }
+            ]
+        else:
+            # Store each argument respective to the function it is defined in
+            self.argument_list.setdefault(self.current_module, []).append(
+                 var_name)
+            return [{"tag": "arg", "name": var_name, "is_array": array_status, "is_derived_type": is_derived_type}]
 
     def process_declaration(self, root, state) -> List[Dict]:
         """ This function handles <declaration> tag and its sub-elements by
@@ -264,6 +306,7 @@ class XML_to_JSON_translator(object):
                     # AST list object into the declared_variable object. No
                     # other work is done in the current function.
                     declared_variable += self.parseTree(node, state)
+                    self.derived_type_list.append(declared_variable[0]["type"])
             elif node.tag == "dimensions":
                 num_of_dimensions = int(node.attrib["count"])
                 dimensions = {
@@ -284,7 +327,7 @@ class XML_to_JSON_translator(object):
                 # for index in range(int(node.attrib["count"])):
                 for index in range(len(variables)):
                     if len(declared_type) > 0:
-                        combined = declared_type[-1]
+                        combined = declared_type[-1].copy()
                         combined.update(variables[index])
                         declared_variable.append(combined.copy())
                         if (
@@ -302,7 +345,11 @@ class XML_to_JSON_translator(object):
                                     declared_variable[index]["name"]
                                 )
                             ]["type"] = declared_variable[index]["type"]
-            elif node.tag == "save-stmt":
+            elif (
+                    node.tag == "save-stmt"
+                    or node.tag == "interface"
+                    or node.tag == "names"
+            ):
                 declared_variable = self.parseTree(node, state)
 
         # Create an exclusion list of all variables which are arguments
@@ -322,7 +369,7 @@ class XML_to_JSON_translator(object):
                     (var.get("is_derived_type") is True and var.get("type")
                      not in exclusion_list):
                     self.variable_list.setdefault(self.current_module,
-                                          []).append(var)
+                                                  []).append(var)
         return declared_variable
 
     def process_type(self, root, state) -> List[Dict]:
@@ -337,7 +384,6 @@ class XML_to_JSON_translator(object):
             root.tag == "type"
         ), f"The root must be <type>. Current tag is {root.tag} with " \
             f"{root.attrib} attributes."
-        declared_type = {}
         derived_type = []
         if (
             root.text
@@ -346,31 +392,54 @@ class XML_to_JSON_translator(object):
                 if node.tag == "type":
                     derived_type += self.parseTree(node, state)
                 elif node.tag == "length":
-                    is_derived_type = False
-                    if "is_derived_type" in root.attrib:
-                        is_derived_type = root.attrib[
-                            "is_derived_type"
-                        ].lower()
-                    keyword2 = "none"
-                    if "keyword2" in root.attrib:
-                        keyword2 = root.attrib["keyword2"]
-                    declared_type = {
-                        "type": root.attrib["name"],
-                        "is_derived_type": is_derived_type,
-                        "keyword2": keyword2,
-                    }
-                    declared_type["value"] = self.parseTree(node, state)
-                    return [declared_type]
+                    if root.attrib["name"].lower() == "character":
+                        string_length = self.parseTree(node, state)
+                        declared_type = {
+                            "type": root.attrib["name"].lower(),
+                            "length": string_length[0]["value"],
+                            "is_derived_type": root.attrib[
+                                "is_derived_type"].lower(),
+                            "is_string": "true",
+                            "keyword2": root.attrib["keyword2"],
+                        }
+                        return [declared_type]
+                    else:
+                        is_derived_type = False
+                        if "is_derived_type" in root.attrib:
+                            is_derived_type = root.attrib[
+                                "is_derived_type"
+                            ].lower()
+                        keyword2 = "none"
+                        if "keyword2" in root.attrib:
+                            keyword2 = root.attrib["keyword2"]
+                        declared_type = {
+                            "type": root.attrib["name"],
+                            "is_derived_type": is_derived_type,
+                            "keyword2": keyword2,
+                            }
+                        declared_type["value"] = self.parseTree(node, state)
+                        return [declared_type]
                 elif node.tag == "derived-types":
                     derived_type[-1].update(self.parseTree(node, state))
             return derived_type
         else:
-            # Else, this represents an empty element, which is the case of (1).
-            declared_type = {
-                "type": root.attrib["name"],
-                "is_derived_type": root.attrib["is_derived_type"].lower(),
-                "keyword2": root.attrib["keyword2"],
-            }
+            if root.attrib["name"].lower() == "character":
+                # Check if this is a string
+                declared_type = {
+                    "type": root.attrib["name"],
+                    "length": root.attrib["string_length"],
+                    "is_derived_type": root.attrib["is_derived_type"].lower(),
+                    "is_string": "true",
+                    "keyword2": root.attrib["keyword2"],
+                }
+            else:
+                # Else, this represents an empty element, which is the case of (1).
+                declared_type = {
+                    "type": root.attrib["name"],
+                    "is_derived_type": root.attrib["is_derived_type"].lower(),
+                    "keyword2": root.attrib["keyword2"],
+                    "is_string": "false",
+                }
             return [declared_type]
 
     def process_length(self, root, state) -> List[Dict]:
@@ -430,6 +499,9 @@ class XML_to_JSON_translator(object):
                     if node.tag == "initial-value":
                         value = self.parseTree(node, state)
                         variable["value"] = value
+                    elif node.tag == "length":
+                        variable["length"] = self.parseTree(node, state)[0][
+                            "value"]
             return [variable]
         except:
             return []
@@ -506,11 +578,15 @@ class XML_to_JSON_translator(object):
             elif node.tag == "dimensions":
                 dimensions = {
                     "count": node.attrib["count"],
-                    "dimensions": [{"tag": "dimension"}],
+                    "dimensions": [],
                 }
-                dimensions["dimensions"][0].update(
-                    self.parseTree(node, state)[-1]
-                )
+                dims = self.parseTree(node, state)
+                for dim in dims:
+                    dim_info = {
+                            "tag": "dimension",
+                            "range": dim["range"]
+                    }
+                    dimensions["dimensions"].append(dim_info)
                 declared_type[-1].update(dimensions)
             elif node.tag == "variables":
                 variables = self.parseTree(node, state)
@@ -529,7 +605,9 @@ class XML_to_JSON_translator(object):
             root.tag == "loop"
         ), f"The root must be <loop>. Current tag is {root.tag} with " \
             f"{root.attrib} attributes."
+        self.loop_active = True
         if root.attrib["type"] == "do":
+            self.loop_index += 1
             do = {"tag": "do"}
             for node in root:
                 if node.tag == "header":
@@ -541,14 +619,17 @@ class XML_to_JSON_translator(object):
                         False
                     ), f"Unrecognized tag in the process_loop for 'do' type." \
                         f"{node.tag}"
+            self.loop_active = False
             return [do]
         elif root.attrib["type"] == "do-while":
+            self.loop_index += 1
             doWhile = {"tag": "do-while"}
             for node in root:
                 if node.tag == "header":
                     doWhile["header"] = self.parseTree(node, state)
                 elif node.tag == "body":
                     doWhile["body"] = self.parseTree(node, state)
+            self.loop_active = False
             return [doWhile]
         else:
             self.unhandled_tags.add(root.attrib["type"])
@@ -718,8 +799,9 @@ class XML_to_JSON_translator(object):
                 "is_array": is_array,
                 "is_arg": "false",
                 "is_parameter": "false",
+                "is_interface_func": "false",
+                "func_arg_types": []
             }
-
             # Check whether the passed element is for derived type reference
             if "is_derived_type_ref" in root.attrib:
                 ref["is_derived_type_ref"] = "true"
@@ -738,7 +820,21 @@ class XML_to_JSON_translator(object):
                     if node.tag == "subscripts":
                         ref["subscripts"] = self.parseTree(node, state)
 
+            for node in root:
+                if node.tag == "argument-types":
+                    ref["is_interface_func"] = "true"
+                    ref["func_arg_types"] = self.parseTree(node, state)
+
             return [ref]
+
+    def process_argument_types(self, root, state) -> List[Dict]:
+        """This function handles <argument-types> tag that only appears
+        under the interface function names. It will extract the argument
+        types and add to the list, then return the list"""
+        argument_types = []
+        for node in root:
+            argument_types.append(node.attrib["type"])
+        return argument_types
 
     def process_assignment(self, root, state) -> List[Dict]:
         """ This function handles <assignment> tag that nested elements of
@@ -806,12 +902,16 @@ class XML_to_JSON_translator(object):
             root.tag == "dimension"
         ), f"The root must be <dimension>. Current tag is {root.tag} with " \
             f"{root.attrib} attributes."
-        dimension = {"tag": "dimension"}
+        dimension = {}
         for node in root:
             if node.tag == "range":
                 dimension["range"] = self.parseTree(node, state)
             if node.tag == "literal":
                 dimension["literal"] = self.parseTree(node, state)
+            if node.tag == "name":
+                dimension_info = self.parseTree(node, state)
+                dimension = dimension_info[0]
+        dimension["tag"] = "dimension"
         return [dimension]
 
     def process_range(self, root, state) -> List[Dict]:
@@ -866,8 +966,22 @@ class XML_to_JSON_translator(object):
     def process_terminal(self, root, state) -> List[Dict]:
         """Handles tags that terminate the computation of a
         program unit, namely, "return", "stop", and "exit" """
-
-        return [{"tag": root.tag}]
+        index = 0
+        if root.tag == 'exit':
+            self.break_index += 1
+            index = self.break_index
+            if self.loop_active:
+                self.loop_constructs.setdefault(
+                    f"loop", []).append(f"break"
+                                                          f"_{self.break_index}")
+        elif root.tag == "stop":
+            self.return_index += 1
+            index = self.return_index
+            if self.loop_active:
+                self.loop_constructs.setdefault(
+                    f"loop", []).append(f"return"
+                                                          f"_{self.return_index}")
+        return [{"tag": root.tag, "index": index}]
 
     """
         This function handles <format> tag.
@@ -963,7 +1077,63 @@ class XML_to_JSON_translator(object):
     def process_continue(self, root, state) -> List[Dict]:
         """This function handles cycle (continue in Python)
            tag."""
-        return [{"tag":root.tag}]
+        self.cycle_index += 1
+        if self.loop_active:
+            self.loop_constructs.setdefault(
+                f"loop", []).append(f"cycle_{self.cycle_index}")
+        return [{"tag": root.tag, "index": self.cycle_index}]
+
+    def process_select(self, root, state) -> List[Dict]:
+        """This function handles select statements tag."""
+        select_spec = {"tag": "select"}
+        for node in root:
+            if node.tag == "header":
+                select_spec["args"] = self.parseTree(node, state)
+            elif node.tag == "body":
+                select_spec["body"] = self.parseTree(node, state)
+
+        return [select_spec]
+
+    def process_case(self, root, state) -> List[Dict]:
+        """This function handles the CASE statement in Fortran. This should
+        be modeled as an if-else statement in languages like Python
+        """
+        case_spec = {"tag": "case"}
+        for node in root:
+            if node.tag == "header":
+                for child in node:
+                    if child.tag == "value-ranges":
+                        case_spec["args"] = self.parseTree(child, state)
+                    else:
+                        assert False, f"Unhandled type {child.tag} in case"
+            elif node.tag == "body":
+                case_spec["body"] = self.parseTree(node, state)
+
+        return [case_spec]
+
+    def process_value_range(self, root, state) -> List[Dict]:
+        """This function handles the range of values inside CASE statements"""
+        value_range_spec = {"tag": "case_range", "args": []}
+        for node in root:
+            if node.tag == "value":
+                value_range_spec["args"] += self.parseTree(node, state)
+
+        return [value_range_spec]
+
+    def process_interface(self, root, state) -> List[Dict]:
+        """This function handles interface"""
+        interface = {"tag": root.tag, "name": "", "functions": {}, "max_argument": root.attrib["max_arg"]}
+        for node in root:
+            if node.tag == "header":
+                header = self.parseTree(node, state)
+                interface["name"] = header[0]["name"]
+            elif node.tag == "body":
+                body = self.parseTree(node, state)
+                for elem in body:
+                    interface["functions"][elem["name"]] = elem["func_arg_types"]
+            else:
+                pass
+        return [interface]
 
     def parseTree(self, root, state: ParseState) -> List[Dict]:
         """
@@ -1067,13 +1237,21 @@ def get_trees(files: List[str]) -> List[ET.ElementTree]:
 def xml_to_py(trees, fortran_file):
     translator = XML_to_JSON_translator()
     output_dict = translator.analyze(trees)
+
+    # Only go through with the handling of breaks and returns if they are
+    # actually there
+    if len(translator.loop_constructs) > 0:
+        refactor_breaks = RefactorConstructs()
+        output_dict = refactor_breaks.refactor(output_dict,
+                                               translator.loop_constructs)
+
     comments = get_comments(fortran_file)
     output_dict["comments"] = comments
 
     # print_unhandled_tags() was originally intended to alert us to program
     # constructs we were not handling.  It isn't clear we actually use this
     # so I'm commenting out this call for now.  Eventually this code (and all 
-    # the code that keeps track of unhandled tags) should go away.
+    # the code that keeps track of unhandled tags) should go away.vi au
     # --SKD 06/2019
     #translator.print_unhandled_tags()
 
@@ -1123,5 +1301,5 @@ if __name__ == "__main__":
     trees = get_trees(args.files)
 
     output_dict = xml_to_py(trees, fortran_file)
-    
+
     gen_pickle_file(output_dict, pickle_file)

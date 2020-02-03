@@ -3,6 +3,8 @@
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+//#include <chrono>
+//#include <boost/random/mersenne_twister.hpp>
 
 #include "AnalysisGraph.hpp"
 
@@ -65,8 +67,8 @@ PYBIND11_MODULE(DelphiPython, m) {
           py::keep_alive<0, 1>())
       .def("num_vertices", &AnalysisGraph::num_vertices)
       .def("num_edges", &AnalysisGraph::num_edges)
-      .def("get_successor_list", &AnalysisGraph::get_successor_list)
-      .def("get_predecessor_list", &AnalysisGraph::get_predecessor_list)
+      //.def("get_successor_list", &AnalysisGraph::get_successor_list)
+      //.def("get_predecessor_list", &AnalysisGraph::get_predecessor_list)
       .def("edge", py::overload_cast<string, string>(&AnalysisGraph::edge))
       .def("print_nodes", &AnalysisGraph::print_nodes)
       .def("print_edges", &AnalysisGraph::print_edges)
@@ -79,7 +81,9 @@ PYBIND11_MODULE(DelphiPython, m) {
            "label_depth"_a = 1,
            "node_to_highlight"_a = "",
            "rankdir"_a = "TB")
-      .def("construct_beta_pdfs", &AnalysisGraph::construct_beta_pdfs)
+      //.def("construct_beta_pdfs", &AnalysisGraph::construct_beta_pdfs)
+      //.def("construct_beta_pdfs", py::overload_cast<>(&AnalysisGraph::construct_beta_pdfs)
+      .def("construct_beta_pdfs", (void (AnalysisGraph::*)()) &AnalysisGraph::construct_beta_pdfs)
       .def("add_node", &AnalysisGraph::add_node, "concept"_a)
       .def("remove_node",
            py::overload_cast<string>(&AnalysisGraph::remove_node), "concept"_a)
@@ -101,10 +105,10 @@ PYBIND11_MODULE(DelphiPython, m) {
            &AnalysisGraph::print_cells_affected_by_beta,
            "source"_a,
            "target"_a)
-      .def("get_beta",
-           &AnalysisGraph::get_beta,
-           "source_vertex_name"_a,
-           "target_vertex_name"_a)
+      //.def("get_beta",
+      //     &AnalysisGraph::get_beta,
+      //     "source_vertex_name"_a,
+      //     "target_vertex_name"_a)
       .def("print_name_to_vertex", &AnalysisGraph::print_name_to_vertex)
       .def("map_concepts_to_indicators",
            &AnalysisGraph::map_concepts_to_indicators,
@@ -162,7 +166,8 @@ PYBIND11_MODULE(DelphiPython, m) {
            "indicator"_a)
       .def("set_derivative", &AnalysisGraph::set_derivative)
       .def("set_default_initial_state",
-           &AnalysisGraph::set_default_initial_state);
+           &AnalysisGraph::set_default_initial_state)
+      .def("set_random_seed", &AnalysisGraph::set_random_seed);
 
   py::class_<RV>(m, "RV")
       .def(py::init<std::string>())
@@ -192,11 +197,6 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def("get_timeseries", &Indicator::get_timeseries)
       .def("get_samples", &Indicator::get_samples);
 
-  py::class_<RNG>(m, "RNG")
-      .def_static("rng", &RNG::rng)
-      .def("set_seed", &RNG::set_seed, "seed"_a)
-      .def("get_seed", &RNG::get_seed);
-
   py::class_<Node>(m, "Node")
       .def_readwrite("name", &Node::name)
       .def("__repr__", &Node::to_string)
@@ -221,7 +221,7 @@ PYBIND11_MODULE(DelphiPython, m) {
 
   py::class_<KDE>(m, "KDE")
       .def(py::init<vector<double>>())
-      .def("resample", &KDE::resample)
+      .def("resample", py::overload_cast<int>(&KDE::resample))
       .def("pdf",
            py::overload_cast<double>(&KDE::pdf),
            "Evaluate pdf for a single value")

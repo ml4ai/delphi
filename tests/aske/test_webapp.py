@@ -1,5 +1,6 @@
 import csv
 from test_GrFN import petpt_grfn
+import delphi.translators.for2py.f2grfn as f2grfn
 
 
 def test_PETPT_GrFN_wiring(petpt_grfn):

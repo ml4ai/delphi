@@ -8,6 +8,7 @@ from delphi.GrFN.networks import GroundedFunctionNetwork
 from delphi.GrFN.sensitivity import FAST_analysis, RBD_FAST_analysis
 import delphi.GrFN.analysis as analysis
 from test_GrFN import petpt_grfn, petasce_grfn
+import delphi.translators.for2py.f2grfn as f2grfn
 
 import numpy as np
 
@@ -182,7 +183,7 @@ def test_PETPT_sensitivity_surface(petpt_grfn):
 
     assert X.shape == (80,)
     assert Y.shape == (60,)
-    assert Z.shape == (80, 60)
+    assert Z.shape == (60, 80)
 
 
 @pytest.mark.skip("Need to update FIB for new GrFN schema")
@@ -213,8 +214,8 @@ def test_FIB_execution(petpt_grfn, petasce_grfn):
         "PETASCE_simple::@global::petasce::0::wnd::0": 3.5,
     }
 
-    res = petpt_fib.run(pt_inputs, {})
+    res = petpt_fib[0].run(pt_inputs, {})
     assert res[0] == np.float32(0.029983712)
 
-    res = petasce_fib.run(asce_inputs, asce_covers)
+    res = petasce_fib[0].run(asce_inputs, asce_covers)
     assert res[0] == np.float32(0.00012496980836348878)

@@ -1,5 +1,5 @@
 import delphi.evaluation as EN
-from delphi.cpp.DelphiPython import RNG, AnalysisGraph
+from delphi.cpp.DelphiPython import AnalysisGraph
 
 
 def create_base_CAG(uncharted_json_file):
@@ -75,9 +75,8 @@ def draw_CAG(G):
 
 
 if __name__ == "__main__":
-    r = RNG.rng()
-    r.set_seed(2018)
     G = create_base_CAG("data/Model4.json")
+    G.set_random_seed(2018)
     curate_indicators(G)
     G.data_heuristic = False
     G.parameterize("South Sudan", "Jonglei", "", 2017, 4, {})
@@ -92,8 +91,8 @@ if __name__ == "__main__":
         2016,
         3,
         country="South Sudan",
-        res=200,
-        burn=10000,
+        res=20,
+        burn=100,
         use_heuristic=False,
     )
     G.set_default_initial_state()
