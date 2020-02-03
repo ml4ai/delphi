@@ -95,6 +95,7 @@ class GrFNGenerator(object):
                  ):
         self.annotated_assigned = annotated_assigned
         self.function_definitions = function_definitions
+        self.use_numpy = True
         self.fortran_file = None
         self.exclude_list = []
         self.loop_input = []
@@ -3415,7 +3416,7 @@ class GrFNGenerator(object):
         
         # We need to remove the attribute (class member var) from
         # the source_list as we do not need it in the lambda function
-        # argument. Also, form an __object.attribtue__ string.
+        # argument. Also, form an __object.attribute__ string.
         if d_type_assign:
             d_type = state.variable_types[self.current_d_object_name]
             target_name = self.current_d_object_name
@@ -3439,7 +3440,7 @@ class GrFNGenerator(object):
                 elif isinstance(node, int):
                     lambda_strings.append(f"return {node}")
                 else:
-                    lambda_code_generator = genCode()
+                    lambda_code_generator = genCode(self.use_numpy)
                     code = lambda_code_generator.generate_code(
                         node,
                         PrintState("\n    ")
@@ -3491,9 +3492,12 @@ class GrFNGenerator(object):
         # If a `decision` tag comes up, override the call to genCode to manually
         # enter the python script for the lambda file.
         if "__decision__" in function_name:
-            code = f"{inputs[1]} if {inputs[2]} else {inputs[0]}"
+            if self.use_numpy:
+                code = f"np.where({inputs[2]}, {inputs[1]}, {inputs[0]})"
+            else:
+                code = f"{inputs[1]} if {inputs[2]} else {inputs[0]}"
         elif not string_assign:
-            lambda_code_generator = genCode()
+            lambda_code_generator = genCode(self.use_numpy)
             code = lambda_code_generator.generate_code(
                 node,
                 PrintState("\n    ")
@@ -3510,6 +3514,7 @@ class GrFNGenerator(object):
                 state.array_assign_name = None
             elif string_assign:
                 lambda_code_generator = genCode(
+                    self.use_numpy,
                     self.strings[state.string_assign_name]["length"]
                 )
                 code = lambda_code_generator.generate_code(
@@ -4253,6 +4258,7 @@ def create_grfn_dict(
         "from numbers import Real\n",
         "from random import random\n",
         "from delphi.translators.for2py.strings import *\n"
+        "import numpy as np\n"
         "import delphi.translators.for2py.math_ext as math\n\n"
     ]
 

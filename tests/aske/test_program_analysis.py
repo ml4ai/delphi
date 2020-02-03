@@ -415,7 +415,7 @@ def test_select_case_grfn_generation(select_case_grfn_test):
         grfn_dict = f.read()
     assert str(select_case_grfn_test[0]) == grfn_dict
 
-    with open(f"{DATA_DIR}/select_case/select02_lambdas.py", "r") as f:
+    with open(f"{DATA_DIR}/select_case/select02_lambdas_numpy.py", "r") as f:
         target_lambda_functions = f.read()
     with open(f"{TEMP_DIR}/{select_case_grfn_test[1]}", "r") as l:
         generated_lamdba_functions = l.read()
