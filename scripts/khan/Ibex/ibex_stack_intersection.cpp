@@ -1,6 +1,6 @@
 #include "ibex.h"
 #include <iostream>
-//#include <fstream>
+#include <fstream>
 
 using namespace std;
 using namespace ibex;
@@ -25,31 +25,41 @@ int main()
 
     double _box[2][2] = {{tmax_lb[num], tmax_ub[num]}, {tmin_lb[num], tmin_ub[num]}};
     IntervalVector box(2, _box);
+    
+    Set s3(box);
 
+    //s.push_back(s3);
     s.push_back(box);
 
     num++;
   }
 
-  //cout << s.pop() << endl;
-  //Set s1(s);
   double _x[2][2] = {{0, 0.4}, {0.1, 0.3}};
   IntervalVector x(2, _x);
+  cout  << x << endl;
   Set s1(x);
-  cout << s1 << endl;
+  //cout << s1 << endl;
 
   double _y[2][2] = {{0.3, 0.5}, {0.2, 0.4}};
   IntervalVector y(2, _y);
+  cout  << y << endl;
   Set s2(y);
-  cout << s2 << endl;
-  
+  //cout << s2 << endl;
+
+  double _z[2][2] = {{1, 1.5}, {1.2, 1.4}};
+  IntervalVector z(2, _z);
+
+  y &= x;
+  cout  << y << endl;
+  //cout << y.intersects(x) << endl;
+  //cout << z.intersects(x) << endl;
   
   //Interval y(0.3, 0.5);
   //Set s2(y);
   //cout << s2 << endl;
 
   s2 &= s1;
-  cout << s2.Rn << endl;
+  //cout << s2 << endl;
   
   //Set set(IntervalVector(2, Interval(0,1)));
   //cout << set << endl;
