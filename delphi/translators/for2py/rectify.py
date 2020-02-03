@@ -934,6 +934,7 @@ class RectifyOFPXML:
                         )
                 elif (
                         child.tag == "component-array-spec"
+                        or child.tag == "operation"
                 ):
                     self.derived_type_var_holder_list.append(child)
                 else:
@@ -3342,6 +3343,10 @@ class RectifyOFPXML:
         elif root.tag == "value-range":
             self.handle_tag_value_range(root, current, parent, grandparent,
                                         traverse)
+        elif root.tag == "operation":
+            self.handle_tag_operation(root, current, parent, gparent, traverse)
+        elif root.tag == "operand":
+            self.handle_tag_operand(root, current, parent, gparent, traverse)
         else:
             assert (
                 False
@@ -3387,6 +3392,8 @@ class RectifyOFPXML:
             derived_type = ET.SubElement(self.parent_type, "derived-types")
             literal_value = None
             for elem in self.derived_type_var_holder_list:
+                # DEBUG
+                print ("    elem: ", elem.tag, elem.attrib)
                 if elem.tag == "intrinsic-type-spec":
                     keyword2 = ""
                     if elem.attrib['keyword2'] == "":
@@ -3440,6 +3447,11 @@ class RectifyOFPXML:
                             derived_type, "variables", attr
                         )  # <variables _attribs_>
                         count += 1
+                elif elem.tag == "operation":
+                    operation = ET.SubElement(
+                            new_variables, elem.tag, elem.attrib
+                    )
+                    self.generate_element(elem, operation) 
                 elif elem.tag == "component-decl":
                     if not is_dimension:
                         var_attribs = {
@@ -4271,7 +4283,10 @@ class RectifyOFPXML:
         )
 
         for child in elem_declaration:
-            self.generate_element(child, declaration)
+            subelem = ET.SubElement(
+                declaration, child.tag, child.attrib
+            )
+            self.generate_element(child, subelem)
             if child.tag == "type":
                 dimensions = ET.SubElement(
                     declaration,
@@ -4286,21 +4301,19 @@ class RectifyOFPXML:
         # DEBUG
         print ("    current_elem: ",  current_elem.tag, current_elem.attrib, len(current_elem))
         print ("    parent_elem: ",  parent_elem.tag, parent_elem.attrib, len(parent_elem))
-        elem = ET.SubElement(
-            parent_elem, current_elem.tag, current_elem.attrib
-        )
 
-        if len(current_elem) > 0 or current_elem.text:
-            for child in current_elem:
-                if len(child) > 0 or child.text:
-                    self.generate_element(child, current_elem)
-                    continue
-                else:
-                    subelem = ET.SubElement(
-                            elem, child.tag,  child.attrib
-                    )
-                    if subelem.tag == "variable":
-                        subelem.attrib['is_array'] = "true"
+        for child in current_elem:
+            if len(child) > 0 or child.text:
+                elem = ET.SubElement(
+                    parent_elem, child.tag, child.attrib
+                )
+                self.generate_element(child, elem)
+            else:
+                subelem = ET.SubElement(
+                        parent_elem, child.tag,  child.attrib
+                )
+                if subelem.tag == "variable":
+                    subelem.attrib['is_array'] = "true"
 
     #################################################################
     #                                                               #
