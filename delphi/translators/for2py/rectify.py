@@ -76,6 +76,9 @@ class RectifyOFPXML:
         # Keep a track where goto was declared
         # whether it's under program(main) or loop body
         self.goto_under_loop = False
+        # Keeps track of the signed real/int literal constant inside data
+        # statements
+        self.is_data_stmt_constant = False
         # Keeps records of encountered <goto-stmt> lbl value
         self.goto_target_lbl_after = []
         self.goto_target_lbl_before = []
@@ -298,6 +301,7 @@ class RectifyOFPXML:
         "names",
         "procedure-stmt",
         "literal",
+        "values"
     ]
 
     value_child_tags = [
@@ -463,6 +467,11 @@ class RectifyOFPXML:
         "explicit-shape-spec-list",
         "component-attr-spec",
         "component-attr-spec-list",
+        "data-stmt-set",
+        "data-stmt",
+        "signed-real-literal-constant",
+        "signed-int-literal-constant",
+        "data-stmt-constant",
     ]
 
     output_child_tags = [
@@ -1722,7 +1731,7 @@ class RectifyOFPXML:
                 self.reconstruct_name_element(cur_elem, current)
 
     def handle_tag_literal(
-            self, root, current, parent, _, traverse
+            self, root, current, parent, grandparent, traverse
     ):
         """This function handles cleaning up the XML elements
         between the literal elements.
@@ -1732,6 +1741,7 @@ class RectifyOFPXML:
         """
         if '"' in current.attrib['value']:
             current.attrib['value'] = self.clean_id(current.attrib['value'])
+
         for child in root:
             self.clean_attrib(child)
             if len(child) > 0 or child.text:
@@ -1742,6 +1752,13 @@ class RectifyOFPXML:
                     self.parseXMLTree(
                         child, cur_elem, current, parent, traverse
                     )
+                elif child.tag == "literal":
+                    cur_elem = ET.SubElement(
+                        parent, child.tag, child.attrib
+                    )
+                    self.parseXMLTree(
+                        child, cur_elem, parent, grandparent, traverse
+                    )
                 else:
                     try:
                         _ = self.unnecessary_tags.index(child.tag)
@@ -1750,6 +1767,10 @@ class RectifyOFPXML:
                             False
                         ), f'In handle_tag_literal: "{child.tag}" not handled'
             else:
+                if child.tag == "data-stmt-constant":
+                    cur_elem = ET.SubElement(
+                        current, child.tag, child.attrib
+                    )
                 try:
                     _ = self.unnecessary_tags.index(child.tag)
                 except ValueError:
@@ -3137,8 +3158,51 @@ class RectifyOFPXML:
                 except ValueError:
                     assert (
                         False
-                    ), f'In handle_tag_value_range: Empty eleme' \
-                       f'nts "{child.tag}"'
+                    ), f'In handle_tag_value_range: Empty elements ' \
+                       f'"{child.tag}"'
+
+    def handle_tag_values(
+            self, root, current, parent, grandparent, traverse
+    ):
+        """This function handles cleaning up the XML elements
+        between the values elements.
+
+        <values>
+        </values>
+        """
+        for child in root:
+            self.clean_attrib(child)
+
+            if child.tag == "literal":
+                cur_elem = ET.SubElement(
+                    current, child.tag, child.attrib
+                )
+                if len(child) > 0 or child.text:
+                    self.parseXMLTree(
+                        child, cur_elem, current, parent, traverse
+                    )
+            else:
+                try:
+                    _ = self.unnecessary_tags.index(child.tag)
+                except ValueError:
+                    assert (
+                        False
+                    ), f'In handle_tag_values: Empty elements "{child.tag}"'
+
+        # For DATA statements, further indentation might be required
+        target_child = None
+        delete_child = []
+        for child in current:
+            if len(child) == 0:
+                target_child = child
+            else:
+                cur_elem = ET.SubElement(
+                    target_child, child.tag, child.attrib
+                )
+                delete_child.append(child)
+
+        for child in delete_child:
+            current.remove(child)
 
     #################################################################
     #                                                               #
@@ -3325,6 +3389,8 @@ class RectifyOFPXML:
         elif root.tag == "value-range":
             self.handle_tag_value_range(root, current, parent, grandparent,
                                         traverse)
+        elif root.tag == "values":
+            self.handle_tag_values(root, current, parent, grandparent, traverse)
         else:
             assert (
                 False
