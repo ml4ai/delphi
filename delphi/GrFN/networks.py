@@ -8,7 +8,7 @@ import json
 import os
 import ast
 import itertools
-
+import time
 import torch
 from SALib.analyze import sobol, fast, rbd_fast
 from SALib.sample import saltelli, fast_sampler, latin
@@ -96,13 +96,10 @@ class ComputationalGraph(nx.DiGraph):
         # Set input values
         for i in self.inputs:
             value = inputs[i]
-            if isinstance(value, float) or isinstance(value, int):
-                value = Float32(value)
-            elif isinstance(value, list):
+            if isinstance(value, list):
                 value = np.array(value, dtype=np.float32)
 
             self.nodes[i]["value"] = value
-
         for func_set in self.function_sets:
             for func_name in func_set:
                 lambda_fn = self.nodes[func_name]["lambda_fn"]
@@ -124,8 +121,8 @@ class ComputationalGraph(nx.DiGraph):
                     self.nodes[output_node]["value"] = res
 
         # Return the output
-        for o in self.outputs:
-            print(self.nodes[o]["value"])
+        # for o in self.outputs:
+            # print(self.nodes[o]["value"])
         return [self.nodes[o]["value"] for o in self.outputs]
 
     def to_CAG(self):
@@ -548,9 +545,12 @@ class GroundedFunctionNetwork(ComputationalGraph):
                 raise ValueError(f"Unrecognized value type: {type_info[0]}")
 
         # Create an array of samples from the bounds supplied in prob_def
+        start = time.clock()
         samples = saltelli.sample(
             prob_def, num_samples, calc_second_order=True
         )
+        end = time.clock()
+        sample_time = end - start
 
         # Create vectors of sample inputs to run through the model
         vectorized_sample_list = np.split(samples, samples.shape[1], axis=1)
@@ -565,8 +565,12 @@ class GroundedFunctionNetwork(ComputationalGraph):
         Y = Y.reshape((Y.shape[0],))
 
         # Recover the sensitivity indices from the sampled outputs
+        start = time.clock()
         S = sobol.analyze(prob_def, Y)
-        return S
+        end = time.clock()
+        analyze_time = end - start
+
+        return S, sample_time, analyze_time
 
     def S2_surface(
         self, sizes, bounds, presets, use_torch=False, num_samples=10
