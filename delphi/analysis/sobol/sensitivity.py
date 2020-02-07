@@ -79,13 +79,10 @@ class SobolIndex(object):
         Ns = self.sample_size
 
         sobol_indices_lst = []
-        clocktime_Sobol = []
 
         for i in range(len(Ns)):
 
-            start = time.clock()
-            Si = tG.sobol_analysis(Ns[i], problem, var_types=type_dict)        
-            end = time.clock()
+            Si, sample_time, analysis_time = tG.sobol_analysis(Ns[i], problem, var_types=type_dict)        
             S1_dict = dict(zip(var_names,Si["S1"].tolist()))
 
             for k in range(Si["S2"].shape[0]):
@@ -97,7 +94,7 @@ class SobolIndex(object):
 
             S2_dataframe = pd.DataFrame(data = Si["S2"], columns = var_names).to_json()
 
-            sobol_dict = {"sample size": np.log10(Ns[i]), "First Order": S1_dict, "Second Order (DataFrame)": S2_dataframe, "Clocktime": end-start}
+            sobol_dict = {"sample size": np.log10(Ns[i]), "First Order": S1_dict, "Second Order (DataFrame)": S2_dataframe, "Sample Time": sample_time, "Analysis Time": analysis_time}
 
             sobol_indices_lst.append(sobol_dict)
 
