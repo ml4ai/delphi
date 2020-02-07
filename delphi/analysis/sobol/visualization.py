@@ -28,15 +28,17 @@ class SobolVisualizer(object):
         Ns = list()
         S1_Sobol = list()
         S2_data = list()
-        clocktime_sobol = list()
+        sample_time_sobol = list()
+        analysis_time_sobol = list()
 
         for item in js:
             Ns.append(float(item['sample size']))
             S1_Sobol.append(item['First Order'])
             S2_data.append(item['Second Order (DataFrame)'])
-            clocktime_sobol.append(float(item['Clocktime']))
+            sample_time_sobol.append(float(item['Sample Time']))
+            analysis_time_sobol.append(float(item['Analysis Time']))
 
-        return Ns, S1_Sobol, S2_data, clocktime_sobol
+        return Ns, S1_Sobol, S2_data, sample_time_sobol, analysis_time_sobol
 
 
     def S1_Sobol_plot(self, sobol_dict):
@@ -102,21 +104,25 @@ class SobolVisualizer(object):
         """ Function to plot Runtime versus log N plots for each computation """
 
         Ns = list()
-        clocktime_sobol = list()
+        sample_time_sobol = list()
+        analysis_time_sobol = list()
 
         for item in sobol_dict:
             Ns.append(float(item['sample size']))
-            clocktime_sobol.append(float(item['Clocktime']))
+            sample_time_sobol.append(float(item['Sample Time']))
+            analysis_time_sobol.append(float(item['Analysis Time']))
 
         fig = plt.figure(figsize=(15,8))
         ax = fig.add_subplot(111)
 
-        ax.scatter(Ns, clocktime_sobol, label='Sobol', color='r', s=50)
-        ax.plot(Ns, clocktime_sobol, color ='black')
+        ax.scatter(Ns, sample_time_sobol, color='r', s=50)
+        ax.plot(Ns, sample_time_sobol, color ='black', label='Sample Time Sobol')
+        ax.scatter(Ns, analysis_time_sobol, color='r', s=50)
+        ax.plot(Ns, analysis_time_sobol, color ='g', label='Analysis Time Sobol')
         plt.legend()
         plt.xlabel('Number of Samples (log10 scale)', fontsize=30)
-        plt.ylabel('Clocktime (in seconds)', fontsize=30)
-        plt.title('Time taken for computation of Sobol Indices ('  + self.model + ') as a function of sample size (log10 scale)', fontsize=30)
+        plt.ylabel('Runtime (in seconds)', fontsize=30)
+        plt.title('Time taken for computation (Sampling, Analysis) of Sobol Indices ('  + self.model + ') as a function of sample size (log10 scale)', fontsize=30)
         plt.xticks(fontsize=20)
         plt.yticks(fontsize=20)
         plt.show()
