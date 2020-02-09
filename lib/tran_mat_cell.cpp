@@ -3,6 +3,7 @@
 
 using namespace std;
 namespace rs = ranges;
+using boost::edge;
 
 Tran_Mat_Cell::Tran_Mat_Cell(int source, int target) {
   this->source = source;
@@ -46,7 +47,7 @@ double Tran_Mat_Cell::compute_cell(const DiGraph& CAG) {
     this->products[p] = 1; // 0;
 
     for (int v = 0; v < this->paths[p].size() - 1; v++) {
-      auto edg = boost::edge(paths[p][v], paths[p][v + 1], CAG);
+      auto edg = edge(paths[p][v], paths[p][v + 1], CAG);
       const double& beta = CAG[edg.first].beta;
 
       this->products[p] *= beta; //+= 1;
@@ -67,22 +68,13 @@ double Tran_Mat_Cell::sample_from_prior(const DiGraph& CAG, int samp_num) {
     bool hasKDE = false;
 
     for (int v = 0; v < this->paths[p].size() - 1; v++) {
-      // Check wheather this edge has a KDE assigned to it
-      // TODO: Why does KDE of an edge is optional?
-      // I guess, there could be edges that do not have a KDE assigned.
-      // What should we do when one of more edges along a path does not have
-      // a KDE assigned?
-      // At the moment, the code silently skips that edge as if that edge
-      // does not exist in the path. Is this the correct thing to do?
-      // What happens when all the edges of a path do not have KDEs assigned?
-      // Vector of all the samples for this edge
       const vector<double>& samples =
-          CAG[boost::edge(v, v + 1, CAG).first].kde.dataset;
+          CAG[edge(v, v + 1, CAG).first].kde.dataset;
 
       // Check whether we have enough samples to fulfil this request
       if (samples.size() > samp_num) {
         this->products[p] *=
-            CAG[boost::edge(v, v + 1, CAG).first].kde.dataset[samp_num];
+            CAG[edge(v, v + 1, CAG).first].kde.dataset[samp_num];
       }
     }
 
