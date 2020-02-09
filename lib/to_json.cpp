@@ -1,6 +1,5 @@
 #include "AnalysisGraph.hpp"
 #include <fmt/format.h>
-#include <nlohmann/json.hpp>
 
 using namespace std;
 using namespace fmt::literals;
