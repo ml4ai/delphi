@@ -23,25 +23,17 @@ RUN apt-get update \
       libeigen3-dev \
       libspdlog-dev \
       pybind11-dev \
-      libfmt-dev
+      libfmt-dev \
+    && pip3 install cython futures \
+    && echo 'alias python=python3' >> ~/.bashrc \
+    && git clone https://github.com/ml4ai/delphi \
+    && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o delphi/data/delphi.db \
+    && curl http://vanga.sista.arizona.edu/delphi_data/model_files.tar.gz -o delphi/data/model_files.tar.gz
 
-# Setup the correct version of Python and install/update pip
-RUN echo  'alias python=python3' >> ~/.bashrc
-
-WORKDIR /data
-# Download SQLite3 database containing model parameterization data.
-RUN curl -O http://vanga.sista.arizona.edu/delphi_data/delphi.db
-RUN curl -O http://vanga.sista.arizona.edu/delphi_data/model_files.tar.gz
 
 # Set the environment variable DELPHI_DB to point to the SQLite3 database.
-ENV DELPHI_DB=/data/delphi.db
-ENV MODEL_FILES=/data/source_model_files
-ENV AUTOMATES_LOC=/fake/path/for/now
-ENV EMB_LOC=/fake/path/for/now
+ENV DELPHI_DB=/delphi/data/delphi.db
+ENV MODEL_FILES=/delphi/data/source_model_files
 
 # Build the delphi testing environment
-WORKDIR /repo
-RUN git clone https://github.com/ml4ai/delphi.git
-
-WORKDIR /repo/delphi
-RUN pip3 install cython futures
+WORKDIR /delphi
