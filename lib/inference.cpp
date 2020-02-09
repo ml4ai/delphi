@@ -41,7 +41,7 @@ void AnalysisGraph::sample_predicted_latent_state_sequences(
       const MatrixXd& A_d = this->transition_matrix_collection.at(samp);
       if (project) {
         // Perform projection based on the perturbed initial latent state s0
-        // FIXME The A_t here is the transition matrix for a discrete update.
+        // FIXME The matrix A_d here is the transition matrix for a discrete update.
         // In order to use the matrix exponential it must be the the matrix for
         // the continuous 'differential' update equation.
         this->predicted_latent_state_sequences[samp][t] = A_d.pow(t) * this->s0;
