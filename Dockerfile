@@ -22,6 +22,7 @@ RUN apt-get update \
       libboost-all-dev \
       libeigen3-dev \
       libspdlog-dev \
+      pybind11-dev \
       libfmt-dev
 
 # Setup the correct version of Python and install/update pip
