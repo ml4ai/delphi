@@ -52,7 +52,7 @@ class Tran_Mat_Cell {
   bool add_path(std::vector<int>& path);
 
   // Allocates the prodcut std::vector with the same length as the paths
-  // std::vector Populates the beat2prodcut multimap linking each β (edge - A
+  // std::vector Populates the beta2product multimap linking each β (edge - A
   // pair) to all the products that depend on it. This **MUST** be called after
   // adding all the paths usign add_path(). After populating the beta2product
   // multimap, the length of the products std::vector **MUST NOT** be changed.
