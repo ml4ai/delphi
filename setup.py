@@ -48,15 +48,6 @@ class CMakeBuild(build_ext):
 
 
 EXTRAS_REQUIRE = {
-    "wm": [
-        "flask",
-        "pybind11",
-        "indra[eidos_offline]",
-        "SQLAlchemy",
-        "flask-sqlalchemy",
-        "flask-executor",
-        "python-dateutil",
-    ],
     "aske": [
         "plotly",
         "sympy",
@@ -74,7 +65,6 @@ EXTRAS_REQUIRE = {
         "shapely",
         "pyshp",
         "xlrd",
-        "pyjnius",
     ],
     "test": ["pytest>=4.4.0", "pytest-cov", "pytest-sugar", "pytest-xdist"],
     "docs": [
@@ -126,6 +116,12 @@ setup(
         "flask",
         "ruamel.yaml",
         "pygments",
+        "flask",
+        "pybind11",
+        "SQLAlchemy",
+        "flask-sqlalchemy",
+        "flask-executor",
+        "python-dateutil",
     ],
     extras_require=EXTRAS_REQUIRE,
     python_requires=">=3.6",
