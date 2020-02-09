@@ -11,6 +11,7 @@ RUN apt-get update \
       build-essential \
       pkg-config \
       curl \
+      cmake \
       git \
       tar \
       wget \
