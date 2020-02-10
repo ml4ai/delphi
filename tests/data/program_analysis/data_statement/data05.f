@@ -2,44 +2,20 @@
 * This file uses the DATA statement to assign arrays
 
 **********************************************************************
-* Expected Output:  VEC:
-*                   9.0
-*                   9.0
-*                   9.0
-*                   0.1
-*                   0.5
+* Expected Output:  X: 2
+
+*                   VEC:
+*                   3.0
+*                   4.0
+*                   5.0
+*
+*                   Y: 6  Z: 6
 *
 *                   PAIR1:
-*                   4.0
-*                   2.0
+*                   7.0
+*                   8.0
 *
-*                   PAIR2:
-*                   4.0
-*                   0.0
-*
-*                   PAIR3:
-*                   0.0
-*                   2.0
-*
-*                   MULTI:
-*                   2.5  2.5  2.5  2.5
-*                   2.5  2.5  2.5  2.5
-*                   2.5  2.5  2.5  2.5
-*                   2.5  2.5  2.5  2.5
-*                   2.5  2.5  2.5  2.5
-*
-*                   XYZ:
-*                   1  3  5
-*                   2  4  6
-*
-*                   N1: # This part commented out
-*                   1.0 # This part commented out
-*                   2.0 # This part commented out
-*                   3.0 # This part commented out
-*
-*                   N2:
-*                   2  3  4
-*                   3  4  5
+*                   HELLO!
 **********************************************************************
 
       PROGRAM MAIN
