@@ -4502,7 +4502,6 @@ def generate_system_def(
         for path in import_grfn_paths[grfn]:
             grfn_components[0]["imports"].append(path)
     system_def = {
-        "date_created": f"{datetime.utcnow().isoformat('T')}Z",
         "name": system_name,
         "components": grfn_components
     }
@@ -4513,8 +4512,9 @@ def generate_system_def(
     else:
         systems_def = {'systems': [system_def]}
 
-    with open(system_filepath, "w") as system_file:
-        system_file.write(json.dumps(systems_def, indent=2))
+    return  system_def
+    # with open(system_filepath, "w") as system_file:
+    #    system_file.write(json.dumps(systems_def, indent=2))
 
 
 def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
@@ -4575,7 +4575,7 @@ def process_files(python_list: List[str], grfn_tail: str, lambda_tail: str,
 
     # Finally, write the <systems.json> file which gives a mapping of all the
     # GrFN files related to the system.
-    generate_system_def(python_list, grfn_filepath_list, module_import_paths)
+    # generate_system_def(python_list, grfn_filepath_list, module_import_paths)
 
 
 def get_original_file_name(original_file_path):
