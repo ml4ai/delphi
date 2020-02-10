@@ -351,8 +351,6 @@ def generate_grfn(
             "<genPGM.py>"
         )
 
-    module_file_exist = False
-    module_paths = []
     grfn_filepath_list = []
 
     # Regular expression to identify the path and name of all python files
@@ -383,6 +381,10 @@ def generate_grfn(
 
     # Build GrFN and lambdas
     asts = [ast.parse(python_source_string)]
+
+    # Uncomment the line below to print the AST produced by Python's AST module
+    # print(genPGM.dump_ast(asts[-1]))
+
     grfn_dict = genPGM.create_grfn_dict(
                                         lambdas_file_path,
                                         asts,
@@ -498,7 +500,7 @@ def parse_args():
         out_directory = "tmp"
 
     if args.root:
-        root_dir  = args.root[0]
+        root_dir = args.root[0]
     else:
         root_dir = "."
 
@@ -540,9 +542,9 @@ def cleanup_files(generated_file_paths, save_file, source):
         generated_file_paths (list): List of all files that were generated.
         save_file (bool): A boolean condition to mark whether to save the
         generated files or not.
-        source (src): To indicate where this function is being called. Currently,
-        it's called only in the generate_grfn function, but it's for the possible
-        future need.
+        source (src): To indicate where this function is being called.
+        Currently, it's called only in the generate_grfn function, but it's
+        for the possible future need.
     Returns:
         None
     """
@@ -550,22 +552,22 @@ def cleanup_files(generated_file_paths, save_file, source):
         if os.path.isfile(filepath):
             base = np.basename(filepath)
             if not save_file:
-            # Remove all files if no explicit file saving option given.
+                # Remove all files if no explicit file saving option given.
                 os.remove(filepath)
             elif (
                     save_file 
                     and source == "grfn"
                     and "_GrFN.json" not in base
             ):
-            # Else if file saving option was given and cleanup_files function
-            # was called from generate_grfn, then remove all files except
-            # _Grfn.json file.
+                # Else if file saving option was given and cleanup_files
+                # function was called from generate_grfn, then remove all
+                # files except _Grfn.json file.
                 os.remove(filepath)
             else:
-            # Else, nothing to perform.
+                # Else, nothing to perform.
                 pass
         else:
-        # Else, nothing to perform.
+            # Else, nothing to perform.
             pass
 
 

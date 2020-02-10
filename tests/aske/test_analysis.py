@@ -190,7 +190,7 @@ def test_PETPT_sensitivity_surface(petpt_grfn):
 
     assert X.shape == (80,)
     assert Y.shape == (60,)
-    assert Z.shape == (80, 60)
+    assert Z.shape == (60, 80)
 
 
 @pytest.mark.skip("Need to update FIB for new GrFN schema")
