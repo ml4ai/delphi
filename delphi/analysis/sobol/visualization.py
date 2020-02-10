@@ -9,7 +9,10 @@ sns.set_style('whitegrid')
 class SobolVisualizer(object):
 
     """ This class is responsible for generating plots of the first and second order
-    sobol indices as well as the runtime of each computation as a function of the log of sample sizes
+        sobol indices as well as the runtime of each computation as a function of the log of sample sizes
+
+        Attributes:
+                model (str) : Name of model (Upper Case) 
     """
 
     def __init__(self, model):
@@ -19,8 +22,13 @@ class SobolVisualizer(object):
 
     def index_from_json(self, filename):
         
-        """ input <- json file 
-            output -> sample sizes, S1 & S2 indices, runtime"""
+        """ 
+            Args: 
+                JSON file 
+        
+            Returns: 
+                sample sizes, S1 & S2 indices, runtime
+        """
         
         data = open(filename, encoding='utf-8').read()
         js = json.loads(data)
@@ -43,7 +51,13 @@ class SobolVisualizer(object):
 
     def S1_Sobol_plot(self, sobol_dict):
         
-        """ Function to plot S1 versus log N plots"""
+        """ 
+            Args:
+                sobol_dict: Dictionary with sample sizes, sobol indices, sample
+                            time, analysis time
+            Returns:
+                Plot of S1 versus log (base 10) of sample sizes
+        """
 
         Ns = list()
         S1_Sobol = list()
@@ -74,8 +88,14 @@ class SobolVisualizer(object):
 
     def S2_Sobol_plot(self, sobol_dict):
 
-        """ Function to plot second order sobol index matrices for different sample sizes on log
-        scale"""
+        """ 
+            Args:
+                sobol_dict: Dictionary with sample sizes, sobol indices, sample
+                            time, analysis time
+            Returns:
+                Plot of second order sobol index matrices for different sample
+                sizes on log (base 10) scale
+        """
 
         Ns = list()
         S2_dataframe = list()
@@ -101,7 +121,13 @@ class SobolVisualizer(object):
 
     def clocktime_sobol_plot(self, sobol_dict):
 
-        """ Function to plot Runtime versus log N plots for each computation """
+        """ 
+            Args:
+                sobol_dict: Dictionary with sample sizes, sobol indices, sample
+                            time, analysis time
+            Returns:
+                Plot of Runtime (Sample Time, Analysis Time)  versus log (base 10) of sample sizes
+        """
 
         Ns = list()
         sample_time_sobol = list()

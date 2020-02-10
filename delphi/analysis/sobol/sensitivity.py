@@ -10,8 +10,15 @@ class InputError(Exception):
     pass
 
 class SobolIndex(object):
-
-    """ This class computes sobol indices from the SALib library """
+    """ This class computes sobol indices from the SALib library 
+    
+    Attributes:
+        model (str): Name of Model (Upper Case)
+        file_bounds (str): Name of csv file containing Upper and Lower Bounds
+        of Variables
+        sample_size (list): List of sample sizes required for sobol index
+        computation
+    """
 
     def __init__(self, model, file_bounds, sample_size):
 
@@ -21,9 +28,14 @@ class SobolIndex(object):
 
     def sobol_index_from_GrFN(self, GrFN):
 
-        """ input <- GroundedFunctionNetwork
-            output -> Returns a dictionary with sample sizes, first and second order sobol
-        indices for a particular model"""
+        """ 
+            Args:
+                GrFN : GroundedFunctionNetwork
+
+            Returns: 
+                    Dictionary with sample sizes, first and second order sobol
+                    indices for a particular model
+        """
 
         sys.path.insert(0, "../../../tests/data/program_analysis")
 
@@ -104,7 +116,10 @@ class SobolIndex(object):
 
     def generate_json(self):
 
-        """ Returns a json file with sample sizes and sobol indices """
+        """ 
+            Returns:
+                    JSON file with sample sizes and sobol indices 
+        """
 
         with open("sobol_indices_" + self.model + ".json", "w") as fout:
             json.dump(self.sobol_index_from_GrFN(), fout)
