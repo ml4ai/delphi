@@ -21,31 +21,19 @@ include_directories(${Boost_INCLUDE_DIR})
 #include_directories(external/nlohmann-json)
 include_directories(external/cppitertools)
 
-option(USE_BUNDLED_SPDLOG "Use spdlog bundled with Delphi" ON)
+find_package(spdlog 1.4.1 REQUIRED)
+find_package(range-v3 REQUIRED)
+find_package(Eigen3 REQUIRED NO_MODULE)
+find_package(fmt REQUIRED)
+find_package(nlohmann_json REQUIRED)
+find_package(pybind11 CONFIG REQUIRED)
+message(STATUS "Found pybind11 v${pybind11_VERSION}: ${pybind11_INCLUDE_DIRS}")
 
-if(NOT APPLE)
-  include_directories(external/range-v3/include)
-else()
-  set(USE_BUNDLED_SPDLOG OFF)
-  find_package(range-v3 REQUIRED)
-  find_package(Eigen3 REQUIRED NO_MODULE)
-  find_package(fmt REQUIRED)
-  find_package(nlohmann_json REQUIRED)
-endif()
-
-
-if(USE_BUNDLED_SPDLOG)
-  add_subdirectory(external/spdlog)
-  include_directories(external/spdlog/include)
-else()
-  find_package(spdlog 1.4.1 REQUIRED)
-endif()
 
 find_package(Python3 REQUIRED)
 
 set(PYBIND11_PYTHON_VERSION "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
 set(PYBIND11_CPP_STANDARD -std=c++17)
-add_subdirectory(external/pybind11)
 
 file(GLOB SRC_FILES ${PROJECT_SOURCE_DIR}/lib/*.cpp)
 
@@ -103,4 +91,4 @@ target_link_libraries(Delphi
 target_link_libraries(Delphi INTERFACE range-v3)
 
 pybind11_add_module(DelphiPython MODULE lib/DelphiPython.cpp)
-target_link_libraries(DelphiPython PRIVATE Delphi)
+target_link_libraries(DelphiPython PRIVATE Delphi Eigen3::Eigen)
