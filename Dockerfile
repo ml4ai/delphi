@@ -11,8 +11,6 @@ RUN apt-get update \
       build-essential \
       pkg-config \
       curl \
-      cmake \
-      time \
       git \
       tar \
       wget \
@@ -26,6 +24,7 @@ RUN apt-get update \
       libspdlog-dev \
       pybind11-dev \
       libfmt-dev \
+      librange-v3-dev \
     && pip3 install cython futures \
     && echo 'alias python=python3' >> ~/.bashrc \
     && git clone https://github.com/ml4ai/delphi \
