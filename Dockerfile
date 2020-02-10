@@ -12,6 +12,7 @@ RUN apt-get update \
       pkg-config \
       curl \
       cmake \
+      time \
       git \
       tar \
       wget \
