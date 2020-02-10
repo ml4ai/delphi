@@ -224,7 +224,7 @@ def multiple_interface_python_IR_test():
 
 @pytest.fixture
 def derived_type_with_default():
-    yield get_python_source(Path(f"{DATA_DIR}/derived-types/derived-types-07.f"))
+    yield get_python_source(Path(f"{DATA_DIR}/derived-types/derived-types-07.f"))[0][0]
 
 #########################################################
 #                                                       #
@@ -361,7 +361,7 @@ def test_multiple_interface_pythonIR_generation(multiple_interface_python_IR_tes
 
 
 def test_derived_type_with_default_pythonIR_generation(derived_type_with_default):
-    with open(f"{DATA_DIR}/derived-types/derived-types-07.py.", "r") as f:
+    with open(f"{DATA_DIR}/derived-types/derived-types-07.py", "r") as f:
         python_src = f.read()
     assert derived_type_with_default[0] == python_src
 
