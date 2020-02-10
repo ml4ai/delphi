@@ -1155,7 +1155,7 @@ class XML_to_JSON_translator(object):
                         assignment_list.append(item)
                     tmp_assign = []
                 # Get the number of variables being assigned
-                current_var_count = node.attrib["count"]
+                current_var_count = int(node.attrib["count"])
                 # For every variable, create an assignment ast and fill it up
                 # with the `tag` and `target` information
                 for var in node:
@@ -1167,7 +1167,7 @@ class XML_to_JSON_translator(object):
             # values to the respective variables
             elif node.tag == "values":
                 # Get the number of values present
-                current_value_count = node.attrib["count"]
+                current_value_count = int(node.attrib["count"])
                 # If for every variable, there is a value assignment i.e.
                 # one-to-one E.g. data x,y,z /1,2,3*2/ (z is an array)
                 # TODO: Not handled -> data x(1) /2/ where x is an array of
@@ -1198,16 +1198,41 @@ class XML_to_JSON_translator(object):
                                 # If a single array is assigned multiple same
                                 # values using an '*' operator, create a
                                 # do-while loop to assign each index
-                                array_ast = self.create_array_ast(
-                                    var,
-                                    tmp_assign[index],
-                                    state)
+                                variable_name = target["name"]
+                                for var_name in self.variable_list[
+                                                self.current_module]:
+                                    if var_name["name"] == variable_name:
+                                        if len(var_name["dimensions"]) == 1:
+                                            dimension = (int(var_name[
+                                                            "dimensions"][0][
+                                                            "literal"][0][
+                                                            "value"]))
+                                        else:
+                                            dimension = (int(var_name[
+                                                            "dimensions"][0][
+                                                            "literal"][0][
+                                                            "value"]),
+                                                         int(var_name[
+                                                            "dimensions"][1][
+                                                            "literal"][0][
+                                                            "value"]))
+                                if len(dimension) == 1:
+                                    array_ast = self.create_1d_array_ast(
+                                        var,
+                                        tmp_assign[index],
+                                        state)
+                                else:
+                                    array_ast = self.create_2d_array_ast(
+                                        var,
+                                        tmp_assign[index],
+                                        dimension,
+                                        state)
                                 if len(array_ast) == 1:
                                     tmp_assign[index] = array_ast[0]
                                 else:
                                     tmp_assign = tmp_assign[:index] \
                                                  + array_ast \
-                                                 + tmp_assign[index:]
+                                                 + tmp_assign[index+1:]
                                     index += 1
                         else:
                             # For every respective variable, assign the `value`
@@ -1215,15 +1240,7 @@ class XML_to_JSON_translator(object):
                             tmp_assign[index]["value"] = \
                                 self.parseTree(var, state)
                         index += 1
-                # If there are more variables but only one value present.
-                # This means the `*` operation is present that repeats the
-                # same value a fixed number of times which is equal to the
-                # number of variables E.g. data x,y,z /3*2/
-                elif current_value_count == 1 and current_var_count > 1:
-                    for index in range(int(node[0].attrib["value"])):
-                        tmp_assign[index]["value"] = \
-                            self.parseTree(node[0][0], state)
-                elif current_value_count > current_var_count:
+                else:
                     # If the number of values is more than the number of
                     # variables, the variable assignment includes an array
                     # assignment of the form: DATA X /1,2,3,4/ where X has a
@@ -1240,36 +1257,54 @@ class XML_to_JSON_translator(object):
                                     # This is very hard-coded. What other
                                     # kinds of dimensions are present other
                                     # than in literal forms?
-                                    dimension = int(var["dimensions"][0][
-                                        "literal"][0]["value"])
-                            # for index in range(dimension):
-                            #     arr_target = copy.deepcopy(variable)
-                            #     arr_target["target"][0]["subscripts"] = [
-                            #         {
-                            #             "tag": "literal",
-                            #             "type": "int",
-                            #             "value": str(index+1)
-                            #         }]
-                            #     arr_target["target"][0]["hasSubscripts"] = \
-                            #         "true"
-                            #     arr_target["value"] = \
-                            #         self.parseTree(node[value_index + index],
-                            #                        state)
-                            #     array_assign.append(arr_target)
-                            # value_index += dimension
-
+                                    if len(var["dimensions"]) == 1:
+                                        dimension = [int(var["dimensions"][0][
+                                                             "literal"][0][
+                                                             "value"])]
+                                    else:
+                                        dimension = [int(var["dimensions"][0][
+                                                             "literal"][0][
+                                                             "value"]),
+                                                     int(var["dimensions"][1][
+                                                             "literal"][0][
+                                                             "value"])]
                             arr_index = 0
-                            repeat_limit = 0
+                            if len(dimension) > 1:
+                                two_dim_arr = True
+                                row_count = dimension[0]
+                                column_count = dimension[1]
+                                current_row = 1
+                                current_column = 1
+                            else:
+                                two_dim_arr = False
                             while True:
-                                if arr_index >= dimension:
-                                    break
+                                if two_dim_arr:
+                                    if arr_index >= row_count * column_count:
+                                        break
+                                else:
+                                    if arr_index >= dimension[0]:
+                                        break
                                 arr_target = copy.deepcopy(variable)
-                                arr_target["target"][0]["subscripts"] = [
-                                    {
-                                        "tag": "literal",
-                                        "type": "int",
-                                        "value": str(arr_index + 1)
-                                    }]
+                                if two_dim_arr:
+                                    arr_target["target"][0]["subscripts"] = [
+                                        {
+                                            "tag": "literal",
+                                            "type": "int",
+                                            "value": str(current_row)
+                                        },
+                                        {
+                                            "tag": "literal",
+                                            "type": "int",
+                                            "value": str(current_column)
+                                        }
+                                    ]
+                                else:
+                                    arr_target["target"][0]["subscripts"] = [
+                                        {
+                                            "tag": "literal",
+                                            "type": "int",
+                                            "value": str(arr_index + 1)
+                                        }]
                                 arr_target["target"][0]["hasSubscripts"] = \
                                     "true"
                                 if len(node[value_index]) == 0:
@@ -1278,17 +1313,23 @@ class XML_to_JSON_translator(object):
                                     array_assign.append(arr_target)
                                     value_index += 1
                                 else:
-                                    if repeat_limit == 0:
-                                        repeat_limit = \
+                                    if loop_limit == 0:
+                                        loop_limit = \
                                             int(node[value_index].attrib[
                                                     "value"])
                                     arr_target["value"] = \
                                         self.parseTree(node[value_index][0],
                                                        state)
                                     array_assign.append(arr_target)
-                                    repeat_limit -= 1
-                                    if repeat_limit == 0:
+                                    loop_limit -= 1
+                                    if loop_limit == 0:
                                         value_index += 1
+                                if two_dim_arr:
+                                    if current_row == row_count:
+                                        current_row = 1
+                                        current_column += 1
+                                    else:
+                                        current_row += 1
                                 arr_index += 1
                         else:
                             if len(node[value_index]) == 0:
@@ -1307,28 +1348,16 @@ class XML_to_JSON_translator(object):
                                 if loop_limit == 0:
                                     value_index += 1
                     tmp_assign = array_assign
-                else:
-                    index = 0
-                    for var in node:
-                        if len(var) == 0:
-                            tmp_assign[index]["value"] = \
-                                self.parseTree(var, state)
-                            index += 1
-                        else:
-                            for count in range(int(var.attrib["value"])):
-                                tmp_assign[index]["value"] = \
-                                    self.parseTree(var[0], state)
-                                index += 1
 
         for item in tmp_assign:
             assignment_list.append(item)
 
         return assignment_list
 
-    def create_array_ast(self, root, assign_ast, state):
+    def create_1d_array_ast(self, root, assign_ast, state):
         """
         This function creates the do-while loop ast which assigns values to
-        an array according to the data statement operation
+        a one-dimensional array according to the data statement operation
         """
         # First, we need a variable for the iteration. Check if an integer
         # variable 'iterator' has already been defined. If yes, use it,
@@ -1383,6 +1412,110 @@ class XML_to_JSON_translator(object):
         do_ast["body"] = [assign_ast]
 
         array_ast.append(do_ast)
+        return array_ast
+
+    def create_2d_array_ast(self, root, assign_ast, dimension, state):
+        """
+        This function creates the do-while loop ast which assigns values to a
+        two-dimensional array according to the data statement operation
+        """
+        # First, we need a variable for the iteration. Check if an integer
+        # variable 'i_iterator' has already been defined. If yes, use it,
+        # else define it. Do the same for 'j_iterator'
+        array_ast = []
+        i_iterator_ast = {
+            "type": "integer",
+            "is_derived_type": "false",
+            "keyword2": "none",
+            "is_string": "false",
+            "name": "i_iterator",
+            "is_array": "false",
+            "tag": "variable"
+        }
+        if i_iterator_ast not in self.variable_list[self.current_module]:
+            array_ast.append(i_iterator_ast)
+
+        j_iterator_ast = {
+            "type": "integer",
+            "is_derived_type": "false",
+            "keyword2": "none",
+            "is_string": "false",
+            "name": "j_iterator",
+            "is_array": "false",
+            "tag": "variable"
+        }
+        if j_iterator_ast not in self.variable_list[self.current_module]:
+            array_ast.append(j_iterator_ast)
+
+        # Now, define the inner do-while loop first
+        inner_do_ast = dict()
+        inner_do_ast["tag"] = "do"
+        inner_do_ast["header"] = [{
+            "tag": "index",
+            "name": "j_iterator",
+            "low": [{
+                "tag": "literal",
+                "type": "int",
+                "value": "1"
+            }],
+            "high": [{
+                "tag": "literal",
+                "type": "int",
+                "value": str(dimension[1])
+            }]
+        }
+        ]
+        if not assign_ast["target"][0].get("subscripts"):
+            assign_ast["target"][0]["subscripts"] = [
+                {
+                    "tag": "ref",
+                    "name": "i_iterator",
+                    "numPartRef": "1",
+                    "hasSubscripts": "false",
+                    "is_array": "false",
+                    "is_arg": "false",
+                    "is_parameter": "false",
+                    "is_interface_func": "false",
+                    "func_arg_types": [],
+                    "is_derived_type_ref": "false"
+                },
+                {
+                    "tag": "ref",
+                    "name": "j_iterator",
+                    "numPartRef": "1",
+                    "hasSubscripts": "false",
+                    "is_array": "false",
+                    "is_arg": "false",
+                    "is_parameter": "false",
+                    "is_interface_func": "false",
+                    "func_arg_types": [],
+                    "is_derived_type_ref": "false"
+                }
+            ]
+            assign_ast["target"][0]["hasSubscripts"] = "true"
+        assign_ast["value"] = self.parseTree(root[0], state)
+        inner_do_ast["body"] = [assign_ast]
+
+        # Now the outer do-while loop
+        outer_do_ast = dict()
+        outer_do_ast["tag"] = "do"
+        outer_do_ast["header"] = [{
+            "tag": "index",
+            "name": "i_iterator",
+            "low": [{
+                "tag": "literal",
+                "type": "int",
+                "value": "1"
+            }],
+            "high": [{
+                "tag": "literal",
+                "type": "int",
+                "value": str(dimension[0])
+            }]
+        }
+        ]
+        outer_do_ast["body"] = [inner_do_ast]
+        array_ast.append(outer_do_ast)
         return array_ast
 
     def parseTree(self, root, state: ParseState) -> List[Dict]:
@@ -1444,8 +1577,6 @@ class XML_to_JSON_translator(object):
         # format to a format that can be used to generate Python statements.
         for tree in trees:
             ast += self.parseTree(tree, ParseState())
-
-        # print(ast)
 
         """
         Find the entry point for the Fortran file.

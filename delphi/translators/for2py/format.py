@@ -157,13 +157,16 @@ class Format:
             out_fmt = self._out_gen_fmt[i]
             out_width = self._out_widths[i]
 
-            out_val = out_fmt.format(values[i])
-            # out_width == "*" indicates that the field can be arbitrarily wide 
-            if out_width != "*":
-                if len(out_val) > out_width:  # value too big for field
-                    out_val = "*" * out_width
-
-            out_strs.append(out_val)
+            if values[i] is None:
+                out_strs.append(values[i])
+            else:
+                out_val = out_fmt.format(values[i])
+                # out_width == "*" indicates that the field can be
+                # arbitrarily wide
+                if out_width != "*":
+                    if len(out_val) > out_width:  # value too big for field
+                        out_val = "*" * out_width
+                out_strs.append(out_val)
 
         out_str_exp = (
             '"' + self._output_fmt + '".format' + str(tuple(out_strs))
