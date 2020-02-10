@@ -1578,6 +1578,8 @@ class XML_to_JSON_translator(object):
         for tree in trees:
             ast += self.parseTree(tree, ParseState())
 
+        # print(ast)
+
         """
         Find the entry point for the Fortran file.
         The entry point for a conventional Fortran file is always the PROGRAM

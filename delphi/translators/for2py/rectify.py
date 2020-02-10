@@ -5391,7 +5391,7 @@ def parse_args():
 
 
 def fileChecker(filename, mode):
-    """This function checks for the validity (file existance and
+    """This function checks for the validity (file existence and
     mode). If either the file does not exist or the mode is
     not valid, throws an IO exception and terminates the program
 
