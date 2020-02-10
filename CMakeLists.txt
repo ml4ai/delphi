@@ -21,7 +21,7 @@ include_directories(${Boost_INCLUDE_DIR})
 #include_directories(external/nlohmann-json)
 include_directories(external/cppitertools)
 
-find_package(spdlog 1.4.1 REQUIRED)
+find_package(spdlog REQUIRED)
 find_package(range-v3 REQUIRED)
 find_package(Eigen3 REQUIRED NO_MODULE)
 find_package(fmt REQUIRED)
