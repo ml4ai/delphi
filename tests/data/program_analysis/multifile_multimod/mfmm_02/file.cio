@@ -1,0 +1,31 @@
+file.cio: Filenames (input/output) - Coon Creek
+SIMULATION        time.sim          print.prt         object.prt        object.cnt        null        
+BASIN             codes.bsn         parameters.bsn 
+CLIMATE           weather-sta.cli   weather-wgn.cli   null              pcp.cli           tmp.cli           null     null     null     null           
+CONNECT           hru.con           null              rout_unit.con     null              aquifer.con       null     channel.con     null     null     null     null     null        chandeg.con       
+CHANNEL           initial.cha       channel.cha       hydrology.cha     sediment.cha      nutrients.cha     channel-lte.cha    hyd-sed-lte.cha     temperature.cha    
+RESERVOIR         null     null     null     null     null     null     null     null          
+ROUTING_UNIT      rout_unit.def     rout_unit.ele     rout_unit.rtu     null     
+HRU               hru-data.hru      null       
+EXCO              null     null     null     null     null     null
+RECALL            null
+DR                null     null     null     null     null     null      
+AQUIFER           initial.aqu       aquifer.aqu       
+HERD              null     null     null         
+WATER_RIGHTS      null     null     null 
+LINK              chan-surf.lin     aqu_cha.lin         
+HYDROLOGY         hydrology.hyd     topography.hyd    field.fld                        
+STRUCTURAL        null              septic.str        null     null     null       
+HRU_PARM_DB       plants.plt        fertilizer.frt    tillage.til       pesticide.pst     pathogens.pth     null     null     urban.urb         septic.sep        snow.sno      
+OPS               harv.ops          graze.ops         irr.ops           chem_app.ops      fire.ops          sweep.ops        
+LUM               landuse.lum       management.sch    cntable.lum       cons_practice.lum     ovn_table.lum       
+CHG               null   null   null   null   null   null   null   null   null
+INIT              plant.ini         soil_plant.ini    om_water.ini      null     null     null     null     null     null     null     null     null         
+SOILS             soils.sol         nutrients.sol     null     
+DECISION_TABLE    lum.dtl           res_rel.dtl       scen_lu.dtl       flo_con.dtl        
+REGIONS           ls_unit.ele       ls_unit.def       null     null     null     null     null     null    aqu_unit.ele     null     null    null     null     null     null     null     null                        
+PATH_PCP          null
+PATH_TMP          null
+PATH_SLR          null
+PATH_HMD          null
+PATH_WND          null

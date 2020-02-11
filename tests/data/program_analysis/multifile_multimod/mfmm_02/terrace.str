@@ -1,0 +1,6 @@
+terrace.str - Little River Experimental Watershed
+      NUMB       NAME   	DB_NUM    P       CN2      SL_LEN
+         1   broad_based    	1   	0.02      72.0       0.003
+         2   grassed_back_slope	1    	0.02      72.0       0.003
+         3   narrow_based     	1    	0.02      72.0       0.003
+         4   level_bench     	1    	0.02      72.0       0.003

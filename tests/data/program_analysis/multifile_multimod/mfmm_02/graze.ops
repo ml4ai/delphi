@@ -1,0 +1,4 @@
+graze.ops: Grazing operations - SB_LS1
+  GRZ_OP_NAME   FERT_NAME    GRZ_DAYS    BIO_EAT  BIO_TRAMP    MAN_AMT GRZ_BIO_MIN
+   fr_gr        dairy_fr      365        10.000      5.000      5.000     500.000
+   fr_congr     dairy_fr      365        10.000      5.000      5.000    4000.000
