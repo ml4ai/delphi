@@ -407,7 +407,7 @@ def getExperimentResults(modelID: str, experimentID: str):
     if not executor.futures.done(experimentID):
         return jsonify(
             {
-                "id": experimentID,
+                "experimentId": experimentID,
                 "status": executor.futures._state(experimentID),
             }
         )
@@ -417,7 +417,7 @@ def getExperimentResults(modelID: str, experimentID: str):
         ).first()
         return jsonify(
             {
-                "id": experimentID,
+                "experimentId": experimentID,
                 "results": experimentResult.deserialize()["results"],
                 "status": "COMPLETE",
             }
