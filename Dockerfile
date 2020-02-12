@@ -10,6 +10,7 @@ RUN apt-get update \
       apt-utils \
       build-essential \
       pkg-config \
+      cmake \
       curl \
       git \
       tar \
