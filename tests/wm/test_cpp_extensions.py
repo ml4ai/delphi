@@ -16,10 +16,6 @@ crop_production = (
 )
 
 
-def test_cpp_extensions():
-    G = AnalysisGraph.from_indra_statements_json_file("tests/data/indra_statements_format.json")
-
-
 def test_simple_path_construction():
     G = AnalysisGraph.from_indra_statements_json_file("tests/data/indra_statements_format.json")
     G.add_node("c0")
