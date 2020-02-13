@@ -154,3 +154,5 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 delphi.db
+
+!scripts/program_analysis/code-types/*
