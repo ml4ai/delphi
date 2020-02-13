@@ -36,11 +36,12 @@ RUN apt-get update \
 
 
 # Set the environment variable DELPHI_DB to point to the SQLite3 database.
-RUN apt-get install -y python3-venv && python3 -m venv delphi_venv \
-    && . delphi_venv/bin/activate
-WORKDIR /delphi
-RUN pip install -e .[test,docs,aske]
+RUN apt-get install -y python3-venv && python3 -m venv delphi_venv
+
 ENV DELPHI_DB=/delphi/data/delphi.db
 ENV MODEL_FILES=/delphi/data/source_model_files
+WORKDIR /delphi
+RUN . /delphi_venv/bin/activate
+
 
 # Build the delphi testing environment
