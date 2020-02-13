@@ -111,7 +111,6 @@ setup(
         "future==0.16.0",
         "networkx",
         "pygraphviz",
-        "cython",
         "dataclasses",
         "flask",
         "ruamel.yaml",
