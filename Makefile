@@ -12,8 +12,8 @@ test: extensions
 	time pytest \
 	  --cov-report term-missing:skip-covered --cov=delphi\
 	  --doctest-modules\
+	  --ignore=delphi/cpp\
 	  --ignore=delphi/analysis/sensitivity/tests\
-	  --ignore=delphi/cpp/pybind11\
 	  --ignore=delphi/translators/for2py/data\
 	  --ignore=tests/data\
 	  delphi tests
