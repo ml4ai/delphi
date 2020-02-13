@@ -10,6 +10,8 @@ RUN apt-get update \
       apt-utils \
       build-essential \
       pkg-config \
+      cmake \
+      time \
       curl \
       git \
       tar \
@@ -18,6 +20,7 @@ RUN apt-get update \
       doxygen \
       openjdk-8-jdk \
       libgraphviz-dev \
+      nlohmann-json3-dev \
       libsqlite3-dev \
       libboost-all-dev \
       libeigen3-dev \
