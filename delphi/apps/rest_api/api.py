@@ -9,8 +9,6 @@ from datetime import date, timedelta, datetime
 import dateutil
 from dateutil.relativedelta import relativedelta
 from dateutil.parser import parse
-from typing import Optional, List
-from itertools import product
 from statistics import median, mean
 from delphi.cpp.DelphiPython import AnalysisGraph
 from delphi.utils import lmap
@@ -18,9 +16,7 @@ from flask import jsonify, request, Blueprint, current_app
 from delphi.db import engine
 from delphi.apps.rest_api import db, executor
 from delphi.apps.rest_api.models import *
-import numpy as np
 from flask import current_app
-import scipy.stats
 
 bp = Blueprint("rest_api", __name__)
 
