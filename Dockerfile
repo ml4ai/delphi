@@ -28,7 +28,6 @@ RUN apt-get update \
       pybind11-dev \
       libfmt-dev \
       librange-v3-dev \
-    && pip3 install cython futures \
     && echo 'alias python=python3' >> ~/.bashrc \
     && git clone https://github.com/ml4ai/delphi \
     && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o delphi/data/delphi.db \
@@ -41,7 +40,33 @@ RUN apt-get install -y python3-venv && python3 -m venv delphi_venv
 ENV DELPHI_DB=/delphi/data/delphi.db
 ENV MODEL_FILES=/delphi/data/source_model_files
 WORKDIR /delphi
-RUN . /delphi_venv/bin/activate
-
+RUN . /delphi_venv/bin/activate && \
+    pip3 install wheel && \
+    pip3 install scipy \
+      matplotlib \
+      pandas \
+      seaborn \
+      sphinx \
+      sphinx-rtd-theme \
+      recommonmark \
+      ruamel.yaml \
+      breathe \
+      exhale \
+      pytest \
+      pytest-cov \
+      pytest-sugar \
+      pytest-xdist \
+      plotly \
+      sympy \
+      flask \
+      flask-WTF \
+      flask-codemirror \
+      salib \
+      torch \
+      tqdm \
+      SQLAlchemy \
+      flask-sqlalchemy \
+      flask-executor \
+      python-dateutil
 
 # Build the delphi testing environment
