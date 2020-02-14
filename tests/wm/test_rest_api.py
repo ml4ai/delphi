@@ -50,6 +50,7 @@ def test_createModel(client):
     rv = client.post(f"/delphi/models/{data['id']}/projection", json=post_data)
     experimentId = rv.json["experimentId"]
     url = f"delphi/models/{data['id']}/experiment/{experimentId}"
+    print("Waiting 10 seconds to query for results")
     sleep(10)
     rv = client.get(url)
     output = rv.json['results']
