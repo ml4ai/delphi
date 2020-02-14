@@ -1,24 +1,22 @@
 #include "AnalysisGraph.hpp"
-#include "spdlog/spdlog.h"
-#include "tqdm.hpp"
 #include "utils.hpp"
 #include <fstream>
 #include <range/v3/all.hpp>
 
 using namespace std;
 using namespace delphi::utils;
-using spdlog::debug, spdlog::error, spdlog::warn, tq::tqdm;
+using fmt::print;
 
 AnalysisGraph
 AnalysisGraph::from_indra_statements_json_dict(nlohmann::json json_data,
                                                double belief_score_cutoff,
                                                double grounding_score_cutoff,
                                                string ontology) {
-  debug("Loading INDRA statements JSON file.");
+  print("Loading INDRA statements JSON file.");
   AnalysisGraph G;
 
-  debug("Processing INDRA statements...");
-  for (auto stmt : tqdm(json_data)) {
+  print("Processing INDRA statements...");
+  for (auto stmt : json_data) {
     if (stmt["type"] == "Influence") {
       auto subj_ground = stmt["subj"]["concept"]["db_refs"][ontology][0][1];
       auto obj_ground = stmt["obj"]["concept"]["db_refs"][ontology][0][1];
@@ -92,7 +90,7 @@ AnalysisGraph::from_indra_statements_json_file(string filename,
                                                double belief_score_cutoff,
                                                double grounding_score_cutoff,
                                                string ontology) {
-  debug("Loading INDRA statements JSON file.");
+  print("Loading INDRA statements JSON file.");
   auto json_data = load_json(filename);
 
   return AnalysisGraph::from_indra_statements_json_dict(
