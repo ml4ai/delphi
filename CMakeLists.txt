@@ -17,7 +17,6 @@ find_package(Boost COMPONENTS graph REQUIRED)
 include_directories(lib)
 include_directories(external)
 include_directories(${Boost_INCLUDE_DIR})
-include_directories(external/cppitertools)
 
 find_package(range-v3 REQUIRED)
 find_package(Eigen3 REQUIRED NO_MODULE)
