@@ -36,6 +36,7 @@ RUN apt-get update \
 
 # Set the environment variable DELPHI_DB to point to the SQLite3 database.
 RUN apt-get install -y python3-venv && python3 -m venv delphi_venv
+ENV VIRTUAL_ENV=/delphi_venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 ENV DELPHI_DB=/delphi/data/delphi.db
