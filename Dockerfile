@@ -64,6 +64,7 @@ RUN pip3 install wheel && \
       flask-WTF \
       flask-codemirror \
       salib \
+      torch \
       tqdm \
       SQLAlchemy \
       flask-sqlalchemy \
