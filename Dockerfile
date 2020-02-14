@@ -43,8 +43,8 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 ENV DELPHI_DB=/delphi/data/delphi.db
 ENV MODEL_FILES=/delphi/data/source_model_files
 WORKDIR /delphi
-RUN pip3 install wheel && \
-    pip3 install scipy \
+RUN pip install wheel && \
+    pip install scipy \
       matplotlib \
       pandas \
       seaborn \
