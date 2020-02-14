@@ -1,5 +1,5 @@
 #include "AnalysisGraph.hpp"
-#include "itertools.hpp"
+#include <range/v3/all.hpp>
 #include <sqlite3.h>
 
 using namespace std;
@@ -90,7 +90,7 @@ void AnalysisGraph::construct_beta_pdfs() {
           [&](auto x) { return x * object.polarity; },
           get(adjective_response_map, obj_adjective, marginalized_responses));
 
-      for (auto [x, y] : iter::product(subj_responses, obj_responses)) {
+      for (auto [x, y] : ranges::views::cartesian_product(subj_responses, obj_responses)) {
         all_thetas.push_back(atan2(sigma_Y * y, sigma_X * x));
       }
     }
