@@ -17,11 +17,8 @@ find_package(Boost COMPONENTS graph REQUIRED)
 include_directories(lib)
 include_directories(external)
 include_directories(${Boost_INCLUDE_DIR})
-
-#include_directories(external/nlohmann-json)
 include_directories(external/cppitertools)
 
-find_package(spdlog REQUIRED)
 find_package(range-v3 REQUIRED)
 find_package(Eigen3 REQUIRED NO_MODULE)
 find_package(fmt REQUIRED)
@@ -83,7 +80,6 @@ add_library(Delphi
 target_link_libraries(Delphi
                       PRIVATE ${Boost_LIBRARIES}
                               fmt::fmt
-                              spdlog::spdlog
                               SQLite::SQLite3
                               nlohmann_json::nlohmann_json
                               Eigen3::Eigen

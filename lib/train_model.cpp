@@ -1,11 +1,9 @@
 #include "AnalysisGraph.hpp"
 #include "data.hpp"
-#include "spdlog/spdlog.h"
 #include <tqdm.hpp>
 #include <range/v3/all.hpp>
 
 using namespace std;
-using spdlog::debug;
 using tq::trange;
 
 void AnalysisGraph::train_model(int start_year,

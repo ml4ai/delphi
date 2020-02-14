@@ -1,5 +1,4 @@
 #include "AnalysisGraph.hpp"
-#include "spdlog/spdlog.h"
 #include <range/v3/all.hpp>
 #include <unsupported/Eigen/MatrixFunctions>
 #include <boost/range/adaptors.hpp>
@@ -7,7 +6,6 @@
 using namespace std;
 using Eigen::VectorXd, Eigen::MatrixXd;
 using fmt::print, fmt::format;
-using spdlog::warn;
 namespace rs = ranges;
 using boost::adaptors::transformed;
 
@@ -140,7 +138,7 @@ void AnalysisGraph::run_model(int start_year,
   if (start_year < this->training_range.first.first ||
       (start_year == this->training_range.first.first &&
        start_month < this->training_range.first.second)) {
-    warn("The initial prediction date can't be before the "
+    print("The initial prediction date can't be before the "
          "inital training date. Defaulting initial prediction date "
          "to initial training date.");
     start_year = this->training_range.first.first;
