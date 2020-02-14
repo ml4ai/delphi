@@ -9,10 +9,8 @@ extensions:
 	cp *.so ../delphi/cpp
 
 test: extensions
-	time pytest \ 
-	  --cov-report term-missing:skip-covered --cov=delphi\
-	  --ignore=tests/data\
-	  tests
+	time pytest --cov-report term-missing:skip-covered --cov=delphi \
+	--ignore=tests/data tests
 
 pypi_upload:
 	rm -rf dist
