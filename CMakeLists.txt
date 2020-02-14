@@ -32,10 +32,6 @@ set(PYBIND11_PYTHON_VERSION "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
 set(PYBIND11_CPP_STANDARD -std=c++17)
 
 file(GLOB SRC_FILES ${PROJECT_SOURCE_DIR}/lib/*.cpp)
-
-#message("-- Using Eigen3 version 3.3 bundled with Delphi")
-#include_directories(external/eigen)
-
 find_package(SQLite3 REQUIRED)
 
 add_library(Delphi
