@@ -16,9 +16,9 @@ before_install:
   - docker pull $CACHE_IMAGE:latest
   - CI_ENV=`bash <(curl -s https://codecov.io/env)`
   - docker run $CI_ENV -itd --rm --name build-con $CACHE_IMAGE:latest
-  - docker exec build-con git fetch && git checkout $TRAVIS_BRANCH
 
 script:
+  - docker exec build-con git fetch && git checkout $TRAVIS_BRANCH
   - docker exec build-con pip install -e .[test,docs,aske]
   - docker exec build-con make test
   - docker exec --workdir /delphi/docs build-con make apidocs
