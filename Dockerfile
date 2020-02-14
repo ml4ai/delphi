@@ -29,14 +29,14 @@ RUN apt-get update \
       pybind11-dev \
       libfmt-dev \
       librange-v3-dev \
-    && echo 'alias python=python3' >> ~/.bashrc \
+      python3-venv \
     && git clone https://github.com/ml4ai/delphi \
     && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o delphi/data/delphi.db \
     && curl http://vanga.sista.arizona.edu/delphi_data/model_files.tar.gz -o delphi/data/model_files.tar.gz
 
 
 # Set the environment variable DELPHI_DB to point to the SQLite3 database.
-RUN apt-get install -y python3-venv && python3 -m venv delphi_venv
+RUN python3 -m venv delphi_venv
 ENV VIRTUAL_ENV=/delphi_venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
@@ -70,5 +70,3 @@ RUN pip3 install wheel && \
       flask-sqlalchemy \
       flask-executor \
       python-dateutil
-
-# Build the delphi testing environment
