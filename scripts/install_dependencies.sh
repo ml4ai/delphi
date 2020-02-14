@@ -44,7 +44,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
             cmake \
             libfmt \
             doxygen \
-            nlohmann-json
+            nlohmann-json \
             eigen3 \
             pybind11
         if [[ $? -ne 0 ]]; then exit 1; fi;
