@@ -18,9 +18,6 @@ void AnalysisGraph::add_node(string concept) {
     this->name_to_vertex[concept] = v;
     (*this)[v].name = concept;
   }
-  else {
-    print("AnalysisGraph::add_node()\n\tconcept {} already exists!\n", concept);
-  }
 }
 
 void AnalysisGraph::add_edge(CausalFragment causal_fragment) {
