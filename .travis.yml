@@ -19,12 +19,12 @@ before_install:
 
 script:
   - docker exec build-con git fetch 
-  - docker exec build-con git checkout $TRAVIS_BRANCH 
+  - docker exec build-con git checkout $TRAVIS_BRANCH
   - docker exec build-con make extensions
-  - docker exec build-con pip3 install -e .[test,docs,aske] 
-  - docker exec build-con make test 
-  - docker exec build-con --workdir=/delphi/docs make apidocs 
-  - docker exec build-con --workdir=/delphi/docs make html
+  - docker exec build-con pip install -e .[test,docs,aske]
+  - docker exec build-con make test
+  - docker exec --workdir /delphi/docs build-con make apidocs
+  - docker exec --workdir /delphi/docs build-con make html
   - docker cp build-con:/delphi/docs .
   - docker exec -e CODECOV_TOKEN=$CODECOV_TOKEN build-con bash -c 'bash <(curl -s https://codecov.io/bash)'
 

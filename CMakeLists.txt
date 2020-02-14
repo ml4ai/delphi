@@ -18,10 +18,6 @@ include_directories(lib)
 include_directories(external)
 include_directories(${Boost_INCLUDE_DIR})
 
-#include_directories(external/nlohmann-json)
-include_directories(external/cppitertools)
-
-find_package(spdlog REQUIRED)
 find_package(range-v3 REQUIRED)
 find_package(Eigen3 REQUIRED NO_MODULE)
 find_package(fmt REQUIRED)
@@ -36,10 +32,6 @@ set(PYBIND11_PYTHON_VERSION "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
 set(PYBIND11_CPP_STANDARD -std=c++17)
 
 file(GLOB SRC_FILES ${PROJECT_SOURCE_DIR}/lib/*.cpp)
-
-#message("-- Using Eigen3 version 3.3 bundled with Delphi")
-#include_directories(external/eigen)
-
 find_package(SQLite3 REQUIRED)
 
 add_library(Delphi
@@ -83,7 +75,6 @@ add_library(Delphi
 target_link_libraries(Delphi
                       PRIVATE ${Boost_LIBRARIES}
                               fmt::fmt
-                              spdlog::spdlog
                               SQLite::SQLite3
                               nlohmann_json::nlohmann_json
                               Eigen3::Eigen

@@ -76,6 +76,9 @@ class RectifyOFPXML:
         # Keep a track where goto was declared
         # whether it's under program(main) or loop body
         self.goto_under_loop = False
+        # Keeps track of the signed real/int literal constant inside data
+        # statements
+        self.is_data_stmt_constant = False
         # Keeps records of encountered <goto-stmt> lbl value
         self.goto_target_lbl_after = []
         self.goto_target_lbl_before = []
@@ -216,7 +219,7 @@ class RectifyOFPXML:
         self.cur_interface_name = None
         # Keep a track of interface XML object for later update
         self.interface_xml = {}
-
+        self.str_lengths = []
 
     #################################################################
     #                                                               #
@@ -298,6 +301,7 @@ class RectifyOFPXML:
         "names",
         "procedure-stmt",
         "literal",
+        "values"
     ]
 
     value_child_tags = [
@@ -463,12 +467,23 @@ class RectifyOFPXML:
         "explicit-shape-spec-list",
         "component-attr-spec",
         "component-attr-spec-list",
+        "data-stmt-set",
+        "data-stmt",
+        "signed-real-literal-constant",
+        "signed-int-literal-constant",
+        "data-stmt-constant",
     ]
 
     output_child_tags = [
         "name",
         "literal",
         "operation",
+    ]
+
+    dtype_var_declaration_tags = [
+        "component-decl",
+        "component-decl-list",
+        "component-decl-list__begin"
     ]
 
     #################################################################
@@ -951,6 +966,7 @@ class RectifyOFPXML:
                 elif (
                         child.tag == "component-decl"
                         or child.tag == "component-decl-list"
+                        or child.tag == "component-decl-list__begin"
                 ):
                     current.attrib['type'] = "derived-type"
                     self.derived_type_var_holder_list.append(child)
@@ -1068,6 +1084,8 @@ class RectifyOFPXML:
                     self.derived_type_var_holder_list.append(child)
             elif child.tag == "literal":
                 if self.is_character:
+                    self.derived_type_var_holder_list.append(child)
+                    self.str_lengths.append(str(child.attrib["value"]))
                     current.set("string_length", str(child.attrib["value"]))
                 elif is_derived_type_dimension_setting:
                     child.attrib["dim-number"] = str(dim_number)
@@ -1082,10 +1100,7 @@ class RectifyOFPXML:
                     self.derived_type_array_dimensions[self.dim].append(child)
             elif child.tag == "component-array-spec":
                 self.derived_type_var_holder_list.append(child)
-            elif (
-                    child.tag == "component-decl"
-                    or child.tag == "component-decl-list"
-            ):
+            elif child.tag in self.dtype_var_declaration_tags:
                 self.derived_type_var_holder_list.append(child)
             elif child.tag == "length":
                 cur_elem = ET.SubElement(current, child.tag, child.attrib)
@@ -1716,7 +1731,7 @@ class RectifyOFPXML:
                 self.reconstruct_name_element(cur_elem, current)
 
     def handle_tag_literal(
-            self, root, current, parent, _, traverse
+            self, root, current, parent, grandparent, traverse
     ):
         """This function handles cleaning up the XML elements
         between the literal elements.
@@ -1726,6 +1741,7 @@ class RectifyOFPXML:
         """
         if '"' in current.attrib['value']:
             current.attrib['value'] = self.clean_id(current.attrib['value'])
+
         for child in root:
             self.clean_attrib(child)
             if len(child) > 0 or child.text:
@@ -1736,6 +1752,13 @@ class RectifyOFPXML:
                     self.parseXMLTree(
                         child, cur_elem, current, parent, traverse
                     )
+                elif child.tag == "literal":
+                    cur_elem = ET.SubElement(
+                        parent, child.tag, child.attrib
+                    )
+                    self.parseXMLTree(
+                        child, cur_elem, parent, grandparent, traverse
+                    )
                 else:
                     try:
                         _ = self.unnecessary_tags.index(child.tag)
@@ -1744,6 +1767,10 @@ class RectifyOFPXML:
                             False
                         ), f'In handle_tag_literal: "{child.tag}" not handled'
             else:
+                if child.tag == "data-stmt-constant":
+                    cur_elem = ET.SubElement(
+                        current, child.tag, child.attrib
+                    )
                 try:
                     _ = self.unnecessary_tags.index(child.tag)
                 except ValueError:
@@ -3131,8 +3158,51 @@ class RectifyOFPXML:
                 except ValueError:
                     assert (
                         False
-                    ), f'In handle_tag_value_range: Empty eleme' \
-                       f'nts "{child.tag}"'
+                    ), f'In handle_tag_value_range: Empty elements ' \
+                       f'"{child.tag}"'
+
+    def handle_tag_values(
+            self, root, current, parent, grandparent, traverse
+    ):
+        """This function handles cleaning up the XML elements
+        between the values elements.
+
+        <values>
+        </values>
+        """
+        for child in root:
+            self.clean_attrib(child)
+
+            if child.tag == "literal":
+                cur_elem = ET.SubElement(
+                    current, child.tag, child.attrib
+                )
+                if len(child) > 0 or child.text:
+                    self.parseXMLTree(
+                        child, cur_elem, current, parent, traverse
+                    )
+            else:
+                try:
+                    _ = self.unnecessary_tags.index(child.tag)
+                except ValueError:
+                    assert (
+                        False
+                    ), f'In handle_tag_values: Empty elements "{child.tag}"'
+
+        # For DATA statements, further indentation might be required
+        target_child = None
+        delete_child = []
+        for child in current:
+            if len(child) == 0:
+                target_child = child
+            else:
+                cur_elem = ET.SubElement(
+                    target_child, child.tag, child.attrib
+                )
+                delete_child.append(child)
+
+        for child in delete_child:
+            current.remove(child)
 
     #################################################################
     #                                                               #
@@ -3319,6 +3389,8 @@ class RectifyOFPXML:
         elif root.tag == "value-range":
             self.handle_tag_value_range(root, current, parent, grandparent,
                                         traverse)
+        elif root.tag == "values":
+            self.handle_tag_values(root, current, parent, grandparent, traverse)
         else:
             assert (
                 False
@@ -3362,6 +3434,7 @@ class RectifyOFPXML:
             # of all the derived type member variable
             # declarations will follow.
             derived_type = ET.SubElement(self.parent_type, "derived-types")
+            literal_value = None
             for elem in self.derived_type_var_holder_list:
                 if elem.tag == "intrinsic-type-spec":
                     keyword2 = ""
@@ -3377,6 +3450,12 @@ class RectifyOFPXML:
                         "keyword2": keyword2,
                     }
                     newType = ET.SubElement(derived_type, "type", attributes)
+                    if newType.attrib['name'].lower() == "character":
+                        assert (
+                            literal_value != None
+                        ), "Literal value (String length) for character cannot be None."
+                        newType.set("string_length", literal_value)
+                        literal_value = None  # Reset literal_value to None
                 elif elem.tag == "derived-type-spec":
                     attributes = {
                         "hasKind": "false",
@@ -3393,19 +3472,25 @@ class RectifyOFPXML:
                     value = elem
                     if elem.tag == "literal":
                         tag_name = "literal"
+                        literal_value = elem.attrib['value']
                     else:
                         tag_name = "name"
                 elif elem.tag == "component-array-spec":
                     is_dimension = True
                     dim += 1
+                elif (
+                    elem.tag == "component-decl-list__begin"
+                    and not is_dimension
+
+                ):
+                    if len(counts) > count:
+                        attr = {"count": counts[count]}
+                        new_variables = ET.SubElement(
+                            derived_type, "variables", attr
+                        )  # <variables _attribs_>
+                        count += 1
                 elif elem.tag == "component-decl":
                     if not is_dimension:
-                        if len(counts) > count:
-                            attr = {"count": counts[count]}
-                            new_variables = ET.SubElement(
-                                derived_type, "variables", attr
-                            )  # <variables _attribs_>
-                            count += 1
                         var_attribs = {
                             "has_initial_value": elem.attrib[
                                 "hasComponentInitialization"
@@ -3494,7 +3579,6 @@ class RectifyOFPXML:
                                     )  # <dimension type="simple">
                                     new_range = ET.SubElement(new_dimension, "range")
                                     need_new_dimension = False
-                                    
 
                         if len(counts) > count:
                             attr = {"count": counts[count]}

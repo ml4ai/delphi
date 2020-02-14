@@ -1,11 +1,9 @@
 #include "AnalysisGraph.hpp"
-#include "spdlog/spdlog.h"
 
 using namespace std;
 using namespace delphi::utils;
+using fmt::print;
 using namespace fmt::literals;
-using spdlog::debug;
-using spdlog::error;
 
 
 /*
@@ -19,9 +17,6 @@ void AnalysisGraph::add_node(string concept) {
     int v = boost::add_vertex(this->graph);
     this->name_to_vertex[concept] = v;
     (*this)[v].name = concept;
-  }
-  else {
-    debug("AnalysisGraph::add_node()\n\tconcept {} already exists!\n", concept);
   }
 }
 
@@ -45,7 +40,7 @@ void AnalysisGraph::add_edge(CausalFragment causal_fragment) {
     this->graph[e].evidence.push_back(Statement{subject, object});
   }
   else {
-    debug("AnalysisGraph::add_edge\n"
+    print("AnalysisGraph::add_edge\n"
           "\tWARNING: Prevented adding a self loop for the concept {}",
           subj_name);
   }
@@ -108,7 +103,7 @@ void AnalysisGraph::remove_nodes(unordered_set<string> concepts) {
 
   if (invalid_concepts.size() > 0) {
     // There were some invalid concepts
-    error("AnalysisGraph::remove_nodes()\n"
+    print("AnalysisGraph::remove_nodes()\n"
           "\tThe following concepts were not present in the CAG!\n");
     for (string invalid_concept : invalid_concepts) {
       cerr << "\t\t" << invalid_concept << endl;
@@ -196,7 +191,7 @@ void AnalysisGraph::remove_edges(vector<pair<string, string>> edges) {
   }
 
   if (has_invalid_sources || has_invalid_targets || has_invalid_edges) {
-    error("AnalysisGraph::remove_edges");
+    print("AnalysisGraph::remove_edges");
 
     if (has_invalid_sources) {
       cerr << "\tFollowing source vertexes are not in the CAG!" << endl;

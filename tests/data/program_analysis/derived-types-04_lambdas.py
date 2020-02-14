@@ -1,6 +1,7 @@
 from numbers import Real
 from random import random
 from delphi.translators.for2py.strings import *
+import numpy as np
 import delphi.translators.for2py.math_ext as math
 
 def derived_types_04__main__assign__var_x_a__0(var: mytype_123_456):

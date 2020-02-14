@@ -1,13 +1,11 @@
 #include "AnalysisGraph.hpp"
 #include "data.hpp"
-#include "spdlog/spdlog.h"
 #include <sqlite3.h>
 
 using namespace std;
 using namespace delphi::utils;
+using fmt::print;
 using namespace fmt::literals;
-using spdlog::debug;
-using spdlog::error;
 
 
 
@@ -21,7 +19,7 @@ void AnalysisGraph::set_indicator(string concept,
                                   string indicator,
                                   string source) {
   if (in(this->indicators_in_CAG, indicator)) {
-    debug("{0} already exists in Causal Analysis Graph, Indicator {0} was "
+    print("{0} already exists in Causal Analysis Graph, Indicator {0} was "
           "not added to Concept {1}.",
           indicator,
           concept);
@@ -42,7 +40,6 @@ void AnalysisGraph::delete_all_indicators(string concept) {
 
 void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
                                                string country) {
-  spdlog::set_level(spdlog::level::debug);
   sqlite3* db = nullptr;
   int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
   if (rc != SQLITE_OK) {
@@ -108,7 +105,7 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
         }
       }
       if (!at_least_one_indicator_found) {
-        debug("No suitable indicators found for concept '{0}' for country "
+        print("No suitable indicators found for concept '{0}' for country "
               "'{1}', please select "
               "one manually.",
               node.name,

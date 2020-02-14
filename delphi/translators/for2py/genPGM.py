@@ -95,6 +95,7 @@ class GrFNGenerator(object):
                  ):
         self.annotated_assigned = annotated_assigned
         self.function_definitions = function_definitions
+        self.use_numpy = True
         self.fortran_file = None
         self.exclude_list = []
         self.loop_input = []
@@ -231,7 +232,9 @@ class GrFNGenerator(object):
         self.bypass_io = r"^format_\d+$|^format_\d+_obj$|^file_\d+$" \
                          r"|^write_list_\d+$|^write_line$|^format_\d+_obj" \
                          r".*|^Format$|^list_output_formats$|" \
-                         r"^write_list_stream$|^file_\d+\.write$"
+                         r"^write_list_stream$|^file_\d+\.write$|" \
+                         r"^output_fmt$"
+
         self.re_bypass_io = re.compile(self.bypass_io, re.I)
 
         self.process_grfn = {
@@ -1962,7 +1965,8 @@ class GrFNGenerator(object):
                             state.next_definitions,
                             state.last_definition_default
                         )
-                        state.variable_types[function_name] = state.variable_types[call_var]
+                        state.variable_types[function_name] = \
+                            state.variable_types[call_var]
                         self.arrays[function_name] = self.arrays[call_var]
 
                     arr_index = self._generate_array_index(node)
@@ -2092,7 +2096,7 @@ class GrFNGenerator(object):
                         generate_lambda_for_arr = True
 
                     if (
-                            generate_lambda_for_arr
+                            generate_lambda_for_arr and state.array_assign_name
                     ):
                         argument_list.append(function_name)
                         lambda_string = self.generate_lambda_function(
@@ -2151,7 +2155,7 @@ class GrFNGenerator(object):
                                 # In some cases, the target array itself will
                                 # be an input as well. Don't add such arrays
                                 # again.
-                                if not True in [function_name in i for i in
+                                if True not in [function_name in i for i in
                                                 function["input"]]:
                                     function["input"].append(
                                         f"@variable::"
@@ -2168,7 +2172,8 @@ class GrFNGenerator(object):
                                             f"@variable::"
                                             f"{var['var']['variable']}::"
                                             f"{var['var']['index']}")
-                                        if var['var']['variable'] not in argument_list:
+                                        if var['var']['variable'] not in \
+                                                argument_list:
                                             argument_list.append(var['var']['variable'])
 
                 function["input"] = self._remove_duplicate_from_list(
@@ -2239,7 +2244,8 @@ class GrFNGenerator(object):
                             index = input_var[2]
                             if (
                                 input_var[1] in self.f_array_arg
-                                or var in self.function_argument_map[functions]["updated_list"]
+                                or var in self.function_argument_map[
+                                functions]["updated_list"]
                             ):
                                 variable_name = input_var[1]
                                 function["updated"].append(
@@ -2472,7 +2478,6 @@ class GrFNGenerator(object):
         is_function_call = False
         maybe_d_type_object_assign = False
         d_type_object_name = None
-        reference = None
         # Get the GrFN element of the RHS side of the assignment which are
         # the variables involved in the assignment operations.
         sources = self.gen_grfn(node.value, state, "assign")
@@ -2506,7 +2511,7 @@ class GrFNGenerator(object):
         # generated
         is_string_assign = False
         is_string_annotation = False
-        if "call" in sources[0]:
+        if len(sources) > 0 and "call" in sources[0]:
             type_name = sources[0]["call"]["function"]
             if type_name == "String":
                 is_string_assign = True
@@ -2527,8 +2532,10 @@ class GrFNGenerator(object):
                     variable_name = node.targets[0].id
                     if variable_name not in self.module_variable_types:
                         for program in self.mode_mapper['public_objects']:
-                            if variable_name in self.mode_mapper['public_objects'][program]:
-                                self.module_variable_types[variable_name] = [program, type_name]
+                            if variable_name in self.mode_mapper[
+                                    'public_objects'][program]:
+                                self.module_variable_types[variable_name] = [
+                                    program, type_name]
             else:
                 pass
         else:
@@ -2620,7 +2627,8 @@ class GrFNGenerator(object):
                 maybe_d_type_object_assign 
                 and object_type
                 and object_type in self.derived_types_attributes
-                and target_names[0] in self.derived_types_attributes[object_type]
+                and target_names[0] in self.derived_types_attributes[
+                 object_type]
             ):
                 self.current_d_object_name = d_type_object_name
                 is_d_type_object_assignment = True
@@ -2635,17 +2643,18 @@ class GrFNGenerator(object):
                 ):
                     object_attr_num += 1
                     # Therefore, we do not want to go any further before
-                    # collecting all the information of the attribute information,
-                    # so we need to simply return back to the beginning of loop and
-                    # restart the process.
+                    # collecting all the information of the attribute
+                    # information, so we need to simply return back to the
+                    # beginning of loop and restart the process
                     continue
             else:
                 is_d_type_object_assignment = False
 
-            variable_spec = self.generate_variable_definition(target_names,
-                                                              d_type_object_name,
-                                                              is_d_type_object_assignment,
-                                                              state)
+            variable_spec = self.generate_variable_definition(
+                target_names,
+                d_type_object_name,
+                is_d_type_object_assignment,
+                state)
 
             # Do not add the variable spec if this is a string annotation
             # since this can collide with the variable spec of the first
@@ -2654,9 +2663,10 @@ class GrFNGenerator(object):
                 grfn["variables"].append(variable_spec)
 
             # Since a Python class (derived type) object declaration has syntax
-            # is __object_name__ = __class_name__, it's considered as an assignment
-            # that will create __assign__ function GrFN, which should not. Thus,
-            # simply return the [grfn] here to avoid generating __assign__ function.
+            # is __object_name__ = __class_name__, it's considered as an
+            # assignment that will create __assign__ function GrFN,
+            # which should not. Thus, simply return the [grfn] here to avoid
+            # generating __assign__ function.
             if is_d_type_obj_declaration:
                 return [grfn]
 
@@ -2690,14 +2700,15 @@ class GrFNGenerator(object):
                     variable_spec['name'],
                     None
                 )
-            # If current assignment process is for a derivec type object (i.e x.k), then
+            # If current assignment process is for a derived type object (i.e
+            # x.k), then
             if is_d_type_object_assignment:
-                # (1) we need to add derived tyoe object as function input.
+                # (1) we need to add derived type object as function input.
                 src = [
                         {"var": {
-                                    "variable": d_type_object_name,
-                                    "index": state.last_definitions[d_type_object_name]}
-                        }
+                            "variable": d_type_object_name,
+                            "index": state.last_definitions[d_type_object_name]}
+                         }
                 ]
                 sources.extend(src)
                
@@ -2707,7 +2718,7 @@ class GrFNGenerator(object):
                     new_var_name += f"_{target_name}"
                     self.current_d_object_attributes.append(target_name)
 
-                # (3) we need to modify thee target to be "objectName_attribute".
+                # (3) we need to modify thee target to be "objectName_attribute"
                 # For example, variable: x_k and index: __index_of_x_y__.
                 target["var"] = {
                                     "variable": new_var_name,
@@ -2786,6 +2797,8 @@ class GrFNGenerator(object):
                     function_name = self.current_d_object_name + "."
                     self.is_d_object_array_assign = False
                 function_name += module + "." + func_name
+            elif isinstance(function_node.value, ast.Call):
+                return self.gen_grfn(function_node.value, state, "call")
             else:
                 assert False, f"Invalid expression call {function_node}"
         else:
@@ -2874,10 +2887,16 @@ class GrFNGenerator(object):
                 # TODO Change the format according to the new spec
                 return [{"var": {"variable": node.attr, "index": last_definition}}]
             else:
-                attributes, last_definitions = self.get_derived_type_attributes(node, state) 
+                attributes, last_definitions = \
+                    self.get_derived_type_attributes(node, state)
                 attribs = []
                 for attr in attributes:
-                    variable_info = {"var": {"variable": attr, "index": last_definitions[attr]}}
+                    variable_info = {
+                        "var": {
+                            "variable": attr,
+                            "index": last_definitions[attr]
+                        }
+                    }
                     attribs.append(variable_info)
 
                 return attribs
@@ -2924,7 +2943,7 @@ class GrFNGenerator(object):
         self.derived_types_attributes[node.name] = []
 
         attributes = node.body[0].body
-        # Populate class memeber variables into attributes array.
+        # Populate class member variables into attributes array.
         for attrib in attributes:
             attrib_is_array = False
             attrib_ast = attrib.__repr__().split()[0][2:]
@@ -2968,7 +2987,9 @@ class GrFNGenerator(object):
                     else:
                         assert (
                                 False
-                        ), f"Currently, ast type [{type(dimension_info.elts[0].elts[1])}] is not supported."
+                        ), f"Currently, ast type " \
+                           f"[{type(dimension_info.elts[0].elts[1])}] is not " \
+                           f"supported."
 
                     if is_literal:
                         dimension = (upper_bound - lower_bound) + 1
@@ -2984,7 +3005,8 @@ class GrFNGenerator(object):
                     if isinstance(dimension_info.elts[0].func.elts[1], ast.Num):
                         upper_bound = int(dimension_info.elts[0].func.elts[1].n)
                         is_literal = True
-                    elif isinstance(dimension_info.elts[0].func.elts[1], ast.Name):
+                    elif isinstance(dimension_info.elts[0].func.elts[1],
+                                    ast.Name):
                         upper_bound = dimension_info.elts[0].func.elts[1].id
                         is_name = True
 
@@ -3415,7 +3437,7 @@ class GrFNGenerator(object):
         
         # We need to remove the attribute (class member var) from
         # the source_list as we do not need it in the lambda function
-        # argument. Also, form an __object.attribtue__ string.
+        # argument. Also, form an __object.attribute__ string.
         if d_type_assign:
             d_type = state.variable_types[self.current_d_object_name]
             target_name = self.current_d_object_name
@@ -3439,7 +3461,7 @@ class GrFNGenerator(object):
                 elif isinstance(node, int):
                     lambda_strings.append(f"return {node}")
                 else:
-                    lambda_code_generator = genCode()
+                    lambda_code_generator = genCode(self.use_numpy)
                     code = lambda_code_generator.generate_code(
                         node,
                         PrintState("\n    ")
@@ -3491,9 +3513,12 @@ class GrFNGenerator(object):
         # If a `decision` tag comes up, override the call to genCode to manually
         # enter the python script for the lambda file.
         if "__decision__" in function_name:
-            code = f"{inputs[1]} if {inputs[2]} else {inputs[0]}"
+            if self.use_numpy:
+                code = f"np.where({inputs[2]}, {inputs[1]}, {inputs[0]})"
+            else:
+                code = f"{inputs[1]} if {inputs[2]} else {inputs[0]}"
         elif not string_assign:
-            lambda_code_generator = genCode()
+            lambda_code_generator = genCode(self.use_numpy)
             code = lambda_code_generator.generate_code(
                 node,
                 PrintState("\n    ")
@@ -3510,6 +3535,7 @@ class GrFNGenerator(object):
                 state.array_assign_name = None
             elif string_assign:
                 lambda_code_generator = genCode(
+                    self.use_numpy,
                     self.strings[state.string_assign_name]["length"]
                 )
                 code = lambda_code_generator.generate_code(
@@ -3551,7 +3577,8 @@ class GrFNGenerator(object):
 
         return container_id
 
-    def generate_variable_definition(self, variables, reference, d_type_object_assign, state):
+    def generate_variable_definition(self, variables, reference,
+                                     d_type_object_assign, state):
         """
             This function generates the GrFN structure for a variable
             definition, of the form:
@@ -3564,8 +3591,9 @@ class GrFNGenerator(object):
                         }
             Args:
                 variables (list): List of variables.
-                reefeerence (str): Either array's indexing variable (i.e. i for array[i])
-                or derived type object's referencing class member variable (i.e. k for x.k).
+                reference (str): Either array's indexing variable (i.e. i
+                for array[i]) or derived type object's referencing class
+                member variable (i.e. k for x.k)
 
             Returns:
                 list : Generated GrFN.
@@ -3576,7 +3604,8 @@ class GrFNGenerator(object):
         for variable in variables:
             if variable in state.last_definitions:
                 index.append(state.last_definitions[variable])
-            elif variable in self.strings and self.strings[variable]["annotation"]:
+            elif variable in self.strings and \
+                    self.strings[variable]["annotation"]:
                 # If this is a string initialization without assignment,
                 # the index will be 0 by default
                 index.append(0)
@@ -3672,14 +3701,15 @@ class GrFNGenerator(object):
                 and variable_type == "array"
             ):
                 self.f_array_arg.append(variable)
-            # Retrieve variable type name (i.e. integer, float, __derived_type__)
+            # Retrieve variable type name (i.e. integer, float,
+            # __derived_type__)
             if variable_type in self.type_def_map:
                 type_name = self.type_def_map[variable_type]
             elif variable_type in self.derived_types:
                 type_name = variable_type
                 # Since derived type variables are not a regular type variable,
-                # we need to needs to them manually here into variable_types dictionary
-                # to be referenced later in the stream.
+                # we need to needs to them manually here into variable_types
+                # dictionary to be referenced later in the stream.
                 state.variable_types[variable] = type_name
             else:
                 assert (
@@ -3911,7 +3941,7 @@ class GrFNGenerator(object):
 
         return function
 
-    def _generate_array_index (self, node):
+    def _generate_array_index(self, node):
         """This function is for generating array index grfn
         handling both single and multi-dimensional arrays.
 
@@ -3926,6 +3956,8 @@ class GrFNGenerator(object):
         # Case 1: Single dimensional array
         if args_name == "ast.Subscript":
             return [args.value.id]
+        elif args_name == "ast.Num":
+            return [int(args.n)-1]
         # Case 1.1: Single dimensional array with arithmetic
         # operation as setter index
         elif args_name == "ast.BinOp":
@@ -3958,12 +3990,13 @@ class GrFNGenerator(object):
                 else:
                     assert (
                         ast_name == "ast.Num"
-                    ), f"Unable to handle {ast_name} for multi-dimensional array"
+                    ), f"Unable to handle {ast_name} for multi-dimensional " \
+                       f"array"
             return dimension_list
         else:
             assert False, f"Unable to handle {args_name}"
 
-    def get_derived_type_attributes (self, node, state):
+    def get_derived_type_attributes(self, node, state):
         """ This function retrieves the derived type attributes
         from the ast and return the updated last definition dict
         and populated attribute list"""
@@ -4253,6 +4286,7 @@ def create_grfn_dict(
         "from numbers import Real\n",
         "from random import random\n",
         "from delphi.translators.for2py.strings import *\n"
+        "import numpy as np\n"
         "import delphi.translators.for2py.math_ext as math\n\n"
     ]
 
@@ -4312,7 +4346,8 @@ def create_grfn_dict(
                     not import_function_list
                     and import_module_name in module_logs["mod_info"]
             ):
-                symbols = module_logs["mod_info"][import_module_name]["symbol_types"]
+                symbols = module_logs["mod_info"][import_module_name][
+                    "symbol_types"]
                 for key, value in symbols.items():
                     if value == "func":
                         generator.module_subprograms.append(key)
@@ -4331,7 +4366,8 @@ def create_grfn_dict(
                 module_paths = []
                 for import_mods in module:
                     for mod_name, target in import_mods.items():
-                        module_path = path + module_file_prefix + mod_name + "_GrFN.json"
+                        module_path = path + module_file_prefix + mod_name + \
+                                      "_GrFN.json"
                         module_paths.append(module_path)
                 module_import_paths[user] = module_paths
 
@@ -4442,7 +4478,8 @@ def generate_system_def(
     """
     (system_name, path) = get_system_name(python_list)
     system_filepath = f"{path}/system.json"
-    module_name_regex = re.compile(r"(?P<path>.*/)m_(?P<module_name>.*)_GrFN.json")
+    module_name_regex = re.compile(r"(?P<path>.*/)m_("
+                                   r"?P<module_name>.*)_GrFN.json")
 
     grfn_components = []
     for module_grfn in module_grfn_list:
