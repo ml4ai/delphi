@@ -9,7 +9,8 @@ extensions:
 	cp *.so ../delphi/cpp
 
 test: extensions
-	pytest \
+<<<<<<< HEAD
+	time pytest \ 
 	  --cov-report term-missing:skip-covered --cov=delphi\
 	  --ignore=tests/data\
 	  tests
