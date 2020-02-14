@@ -36,12 +36,12 @@ RUN apt-get update \
 
 # Set the environment variable DELPHI_DB to point to the SQLite3 database.
 RUN apt-get install -y python3-venv && python3 -m venv delphi_venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 ENV DELPHI_DB=/delphi/data/delphi.db
 ENV MODEL_FILES=/delphi/data/source_model_files
 WORKDIR /delphi
-RUN . /delphi_venv/bin/activate && \
-    pip3 install wheel && \
+RUN pip3 install wheel && \
     pip3 install scipy \
       matplotlib \
       pandas \
@@ -62,7 +62,6 @@ RUN . /delphi_venv/bin/activate && \
       flask-WTF \
       flask-codemirror \
       salib \
-      torch \
       tqdm \
       SQLAlchemy \
       flask-sqlalchemy \
