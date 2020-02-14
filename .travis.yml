@@ -18,7 +18,8 @@ before_install:
   - docker run $CI_ENV -itd --rm --name build-con $CACHE_IMAGE:latest
 
 script:
-  - docker exec build-con git fetch && git checkout $TRAVIS_BRANCH
+  - docker exec build-con git fetch 
+  - docker exec build-con git checkout $TRAVIS_BRANCH
   - docker exec build-con pip install -e .[test,docs,aske]
   - docker exec build-con make test
   - docker exec --workdir /delphi/docs build-con make apidocs
