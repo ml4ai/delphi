@@ -9,7 +9,7 @@ extensions:
 	cp *.so ../delphi/cpp
 
 test: extensions
-	time pytest \
+	pytest \
 	  --cov-report term-missing:skip-covered --cov=delphi\
 	  --doctest-modules\
 	  --ignore=delphi/analysis/sensitivity/tests\
