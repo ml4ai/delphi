@@ -1,11 +1,7 @@
 import json
-from datetime import date
-from uuid import uuid4
-
-import numpy as np
 import pytest
+from delphi.cpp.DelphiPython import AnalysisGraph
 
-from conftest import G, concepts
 from delphi.apps.rest_api import create_app, db
 from delphi.apps.rest_api.models import (
     CausalRelationship,
@@ -15,11 +11,12 @@ from delphi.apps.rest_api.models import (
     ForwardProjection,
     ICMMetadata,
 )
-from delphi.random_variables import LatentVar
+from time import sleep
+from matplotlib import pyplot as plt
 
 
 @pytest.fixture(scope="module")
-def app(G):
+def app():
     app = create_app(debug=True)
     app.testing = True
 
@@ -27,7 +24,7 @@ def app(G):
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 
     with app.app_context():
-        G.to_sql(app)
+        db.create_all()
         yield app
         db.drop_all()
 
@@ -38,67 +35,6 @@ def client(app):
     return app.test_client()
 
 
-@pytest.mark.skip
-def test_listAllICMs(G, client):
-    rv = client.get("/icm")
-    assert G.id in rv.json
-
-
-def test_getICMByUUID(G, client):
-    rv = client.get(f"/icm/{G.id}")
-    assert G.id == rv.json["id"]
-
-
-def test_getICMPrimitives(G, client):
-    rv = client.get(f"/icm/{G.id}/primitive")
-    assert len(rv.json) == 3
-
-
-def test_createExperiment(G, client):
-    timestamp = "2018-11-01"
-    post_data = {
-        "interventions": [
-            {
-                "id": G.nodes[concepts["conflict"]["grounding"]]["id"],
-                "values": {
-                    "active": "ACTIVE",
-                    "time": timestamp,
-                    "value": {"baseType": "FloatValue", "value": 0.77},
-                },
-            },
-            {
-                "id": G.nodes[concepts["food security"]["grounding"]]["id"],
-                "values": {
-                    "active": "ACTIVE",
-                    "time": timestamp,
-                    "value": {"baseType": "FloatValue", "value": 0.01},
-                },
-            },
-        ],
-        "projection": {
-            "numSteps": 4,
-            "stepSize": "MONTH",
-            "startTime": "2018-10-25T15:10:37.419Z",
-        },
-        "options": {"timeout": 3600},
-    }
-    rv = client.post(f"icm/{G.id}/experiment", json=post_data)
-    assert b"Forward projection sent successfully" in rv.data
-
-
-def test_getExperiment(G, client):
-    experiment = ForwardProjection.query.first()
-    url = "/".join(["icm", G.id, "experiment", experiment.id])
-    rv = client.get(url)
-    assert rv.json["id"] == experiment.id
-
-
-@pytest.mark.skip
-def test_getAllModels(G, client):
-    rv = client.get("/delphi/models")
-    assert G.id in rv.json
-
-
 def test_createModel(client):
     with open("tests/data/delphi_create_model_payload.json", encoding="utf-8") as f:
         data = json.load(f)
@@ -106,18 +42,41 @@ def test_createModel(client):
     post_data = {
         "startTime": {"year": 2017, "month": 4},
         "perturbations": [
-            {"concept": "UN/entities/human/food/food_price", "value": 0.2}
+            {"concept": "wm/concept/indicator_and_reported_property/weather/rainfall", "value": 0.1}
         ],
-        "timeStepsInMonths": 3,
+        "timeStepsInMonths": 6,
     }
 
     rv = client.post(f"/delphi/models/{data['id']}/projection", json=post_data)
     experimentId = rv.json["experimentId"]
     url = f"delphi/models/{data['id']}/experiment/{experimentId}"
+    print("Waiting 10 seconds to query for results")
+    sleep(10)
     rv = client.get(url)
-    print(json.dumps(rv.json["results"]["UN/events/human/famine"], indent=2))
+    output = rv.json['results']
+    # This chunk of code is for plotting outputs to compare with CauseMos views
+    # and debug. Set plot_figs=True to create plots.
+
+    plot_figs = False
+    if plot_figs:
+        for concept, results in output.items():
+            xs = []
+            ys = []
+            for datapoint in results['values']:
+                xs.append(datapoint['month'])
+                ys.append(datapoint['value'])
+            fig, ax = plt.subplots()
+            ax.plot(xs, ys, label=concept)
+            ax.legend()
+            plt.savefig(f"{concept.replace('/','_')}.pdf")
 
 
+    # Test overwriting
+    rv = client.post(f"/delphi/create-model", json=data)
+    assert True
+
+
+@pytest.mark.skip
 def test_getIndicators(client):
     with open("tests/data/causemos_cag.json", "r") as f:
         data = json.load(f)

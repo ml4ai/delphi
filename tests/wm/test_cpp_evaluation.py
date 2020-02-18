@@ -1,13 +1,12 @@
 from delphi.cpp.DelphiPython import AnalysisGraph, InitialBeta
 from delphi.evaluation import pred_plot
-import pytest
 from matplotlib import pyplot as plt
 from tqdm import trange
 import numpy as np
 import seaborn as sns
 
 
-def test_cpp_extensions():
+def test_cpp_extensions_preds():
     statements = [
         (
             ("large", -1, "UN/entities/human/financial/economic/inflation"),
