@@ -4,8 +4,10 @@
 #include <vector>
 #include <iostream>
 #include "Indicator.hpp"
+#include <range/v3/all.hpp>
 
 using namespace std;
+namespace rs = ranges;
 
 void Indicator::set_default_unit() {
   sqlite3* db;
@@ -25,7 +27,7 @@ void Indicator::set_default_unit() {
     units.push_back(ind_unit);
   }
   if (!units.empty()) {
-    sort(units.begin(), units.end());
+    rs::sort(units);
     this->unit = units.front();
   }
   else {

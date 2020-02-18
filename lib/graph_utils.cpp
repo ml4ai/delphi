@@ -30,7 +30,7 @@ void AnalysisGraph::initialize_random_number_generator() {
   // Uniform distribution used by the MCMC sampler
   this->uni_dist = uniform_real_distribution<double>(0.0, 1.0);
 
-  // Normal distrubution used to perturb β
+  // Normal distribution used to perturb β
   this->norm_dist = normal_distribution<double>(0.0, 1.0);
 }
 
@@ -96,7 +96,7 @@ void AnalysisGraph::find_all_paths_between_util(int start,
     // This transition matrix cell is dependent upon Each β along this path.
     pair<int, int> this_cell = make_pair(path.back(), path[0]);
 
-    beta_dependent_cells.insert(this_cell);
+    this->beta_dependent_cells.insert(this_cell);
 
     for (int v = 0; v < path.size() - 1; v++) {
       this->beta2cell.insert(

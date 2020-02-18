@@ -5,18 +5,12 @@ docs:
 
 extensions: 
 	mkdir -p build && \
-	cd build  && cmake .. &&  cmake --build . -- -j DelphiPython && \
+	cd build  && cmake .. &&  cmake --build . -- -j8 DelphiPython && \
 	cp *.so ../delphi/cpp
 
 test: extensions
-	pytest \
-	  --cov-report term-missing:skip-covered --cov=delphi\
-	  --doctest-modules\
-	  --ignore=delphi/analysis/sensitivity/tests\
-	  --ignore=delphi/cpp/pybind11\
-	  --ignore=delphi/translators/for2py/data\
-	  --ignore=tests/data\
-	  delphi tests
+	time pytest --cov-report term-missing:skip-covered --cov=delphi \
+	--ignore=tests/data tests
 
 pypi_upload:
 	rm -rf dist

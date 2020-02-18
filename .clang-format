@@ -10,3 +10,4 @@ BraceWrapping:
 IndentWidth: 2
 AccessModifierOffset: 0
 CommentPragmas:  '^\\.+'
+IndentCaseLabels: true
