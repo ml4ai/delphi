@@ -222,6 +222,12 @@ def multiple_interface_python_IR_test():
     yield get_python_source(Path(f"{DATA_DIR}/interface/interface_03.f"))[0][0]
 
 
+@pytest.fixture
+def data_statement_python_IR_test():
+    yield get_python_source(Path(f"{DATA_DIR}/data_statement/data_test.f"))[
+        0][0]
+
+
 #########################################################
 #                                                       #
 #                   PYTHON IR TEST                      #
@@ -354,6 +360,12 @@ def test_multiple_interface_pythonIR_generation(multiple_interface_python_IR_tes
     with open(f"{DATA_DIR}/interface/m_testmodule.py", "r") as f:
         python_src = f.read()
     assert multiple_interface_python_IR_test[0] == python_src
+
+
+def test_data_statment_pythonIR_generation(data_statement_python_IR_test):
+    with open(f"{DATA_DIR}/data_statement/data_test.py", "r") as f:
+        python_src = f.read()
+    assert data_statement_python_IR_test[0] == python_src
 
 
 ############################################################################
