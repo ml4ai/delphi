@@ -16,12 +16,8 @@ crop_production = (
 )
 
 
-def test_cpp_extensions():
-    G = AnalysisGraph.from_json_file("tests/data/indra_statements_format.json")
-
-
 def test_simple_path_construction():
-    G = AnalysisGraph.from_json_file("tests/data/indra_statements_format.json")
+    G = AnalysisGraph.from_indra_statements_json_file("tests/data/indra_statements_format.json")
     G.add_node("c0")
     G.add_node("c1")
     G.add_node("c2")
@@ -45,7 +41,7 @@ def test_simple_path_construction():
     G.print_cells_affected_by_beta(0, 1)
     G.print_cells_affected_by_beta(1, 2)
 
-    G2 = AnalysisGraph.from_json_file(
+    G2 = AnalysisGraph.from_indra_statements_json_file(
         "tests/data/indra_statements_format.json"
     )
 

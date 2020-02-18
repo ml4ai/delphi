@@ -13,48 +13,31 @@ find_package(Graphviz)
 
 include_directories(${GRAPHVIZ_INCLUDE_DIRS})
 # Add and link pybind11 modules
-find_package(Boost COMPONENTS program_options REQUIRED)
+find_package(Boost COMPONENTS graph REQUIRED)
 include_directories(lib)
 include_directories(external)
 include_directories(${Boost_INCLUDE_DIR})
 
-include_directories(external/nlohmann-json)
-include_directories(external/cppitertools)
+find_package(range-v3 REQUIRED)
+find_package(Eigen3 REQUIRED NO_MODULE)
+find_package(fmt REQUIRED)
+find_package(nlohmann_json REQUIRED)
+find_package(pybind11 CONFIG REQUIRED)
+message(STATUS "Found pybind11 v${pybind11_VERSION}: ${pybind11_INCLUDE_DIRS}")
 
-option(USE_BUNDLED_FMT "Use fmtlib bundled with Delphi" ON)
-option(USE_BUNDLED_SPDLOG "Use spdlog bundled with Delphi" ON)
-
-if(USE_BUNDLED_FMT)
-  include_directories(external/fmt/include)
-  add_subdirectory(external/fmt)
-else()
-  find_package(fmt REQUIRED)
-endif()
-
-
-if(USE_BUNDLED_SPDLOG)
-  add_subdirectory(external/spdlog)
-  include_directories(external/spdlog/include)
-else()
-  find_package(spdlog 1.4.1 REQUIRED)
-endif()
 
 find_package(Python3 REQUIRED)
 
 set(PYBIND11_PYTHON_VERSION "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
 set(PYBIND11_CPP_STANDARD -std=c++17)
-add_subdirectory(external/pybind11)
 
 file(GLOB SRC_FILES ${PROJECT_SOURCE_DIR}/lib/*.cpp)
-
-message("-- Using Eigen3 version 3.3 bundled with Delphi")
-include_directories(external/eigen)
-
 find_package(SQLite3 REQUIRED)
 
 add_library(Delphi
   lib/AnalysisGraph.hpp
   lib/construct_beta_pdfs.cpp
+  lib/to_json.cpp
   lib/data.cpp
   lib/data.hpp
   lib/DiGraph.hpp
@@ -69,6 +52,7 @@ add_library(Delphi
   lib/rng.hpp
   lib/train_model.cpp
   lib/tran_mat_cell.hpp
+  lib/tran_mat_cell.cpp
   lib/utils.cpp
   lib/utils.hpp
   lib/Node.hpp
@@ -77,6 +61,7 @@ add_library(Delphi
   lib/Indicator.cpp
   lib/subgraphs.cpp
   lib/constructors.cpp
+  lib/causemos_integration.cpp
   lib/sampling.cpp
   lib/inference.cpp
   lib/synthetic_data.cpp
@@ -87,23 +72,14 @@ add_library(Delphi
   lib/indicator_manipulation.cpp
 )
 
-target_include_directories(Delphi PRIVATE external/range-v3/include)
 target_link_libraries(Delphi
                       PRIVATE ${Boost_LIBRARIES}
                               fmt::fmt
-                              spdlog::spdlog
                               SQLite::SQLite3
+                              nlohmann_json::nlohmann_json
+                              Eigen3::Eigen
                               ${GRAPHVIZ_LIBS})
-
-# Tests
-add_library(doctest INTERFACE)
-add_executable(cpptests tests/cpptests.cpp)
-target_include_directories(doctest INTERFACE external/doctest)
-target_link_libraries(cpptests PRIVATE doctest Delphi)
+target_link_libraries(Delphi INTERFACE range-v3)
 
 pybind11_add_module(DelphiPython MODULE lib/DelphiPython.cpp)
-target_link_libraries(DelphiPython PRIVATE Delphi)
-
-# Executables
-add_executable(create_model apps/create_model.cpp)
-target_link_libraries(create_model PRIVATE Delphi)
+target_link_libraries(DelphiPython PRIVATE Delphi Eigen3::Eigen)

@@ -1,12 +1,15 @@
 #include "AnalysisGraph.hpp"
-#include "itertools.hpp"
+#include <range/v3/all.hpp>
 #include <sqlite3.h>
 
 using namespace std;
 using namespace delphi::utils;
 
-AdjectiveResponseMap
-construct_adjective_response_map(std::mt19937 gen, size_t n_kernels = DEFAULT_N_SAMPLES) {
+AdjectiveResponseMap construct_adjective_response_map(
+    mt19937 gen,
+    uniform_real_distribution<double>& uni_dist,
+    normal_distribution<double>& norm_dist,
+    size_t n_kernels = DEFAULT_N_SAMPLES) {
   sqlite3* db = nullptr;
   int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
 
@@ -32,7 +35,7 @@ construct_adjective_response_map(std::mt19937 gen, size_t n_kernels = DEFAULT_N_
   }
 
   for (auto& [k, v] : adjective_response_map) {
-    v = KDE(v).resample(n_kernels, gen);
+    v = KDE(v).resample(n_kernels, gen, uni_dist, norm_dist);
   }
   sqlite3_finalize(stmt);
   sqlite3_close(db);
@@ -41,18 +44,21 @@ construct_adjective_response_map(std::mt19937 gen, size_t n_kernels = DEFAULT_N_
   return adjective_response_map;
 }
 
-
 /*
  ============================================================================
- Public: Construct Beta Pdfs 
+ Public: Construct Beta Pdfs
  ============================================================================
 */
 
-void AnalysisGraph::construct_beta_pdfs(std::mt19937 gen) {
+void AnalysisGraph::construct_beta_pdfs() {
 
+  // The choice of sigma_X and sigma_Y is somewhat arbitrary here - we need to
+  // come up with a principled way to select this value, or infer it from data.
   double sigma_X = 1.0;
   double sigma_Y = 1.0;
-  AdjectiveResponseMap adjective_response_map = construct_adjective_response_map(gen);
+  AdjectiveResponseMap adjective_response_map =
+      construct_adjective_response_map(
+          this->rand_num_generator, this->uni_dist, this->norm_dist);
   vector<double> marginalized_responses;
   for (auto [adjective, responses] : adjective_response_map) {
     for (auto response : responses) {
@@ -60,8 +66,11 @@ void AnalysisGraph::construct_beta_pdfs(std::mt19937 gen) {
     }
   }
 
-  marginalized_responses =
-      KDE(marginalized_responses).resample(DEFAULT_N_SAMPLES, gen);
+  marginalized_responses = KDE(marginalized_responses)
+                               .resample(DEFAULT_N_SAMPLES,
+                                         this->rand_num_generator,
+                                         this->uni_dist,
+                                         this->norm_dist);
 
   for (auto e : this->edges()) {
     vector<double> all_thetas = {};
@@ -81,7 +90,7 @@ void AnalysisGraph::construct_beta_pdfs(std::mt19937 gen) {
           [&](auto x) { return x * object.polarity; },
           get(adjective_response_map, obj_adjective, marginalized_responses));
 
-      for (auto [x, y] : iter::product(subj_responses, obj_responses)) {
+      for (auto [x, y] : ranges::views::cartesian_product(subj_responses, obj_responses)) {
         all_thetas.push_back(atan2(sigma_Y * y, sigma_X * x));
       }
     }
@@ -93,18 +102,3 @@ void AnalysisGraph::construct_beta_pdfs(std::mt19937 gen) {
     this->graph[e].beta = this->graph[e].kde.mu;
   }
 }
-
-/*
- * TODO: Remove this method
- * This method was introduced to make the old test code happy
- * when the signature of construct_beta_pdfs was updated to fix memory
- * leaks.
- * After updating the old test code, this method shoudl be
- * removed from here and DelphiPython.cpp
- */
-void AnalysisGraph::construct_beta_pdfs() {
-  std::mt19937 gen = RNG::rng()->get_RNG();
-  this->construct_beta_pdfs(gen);
-  RNG::release_instance();
-}
-

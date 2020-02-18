@@ -3,8 +3,6 @@
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-//#include <chrono>
-//#include <boost/random/mersenne_twister.hpp>
 
 #include "AnalysisGraph.hpp"
 
@@ -21,21 +19,25 @@ PYBIND11_MODULE(DelphiPython, m) {
       .value("RANDOM", InitialBeta::RANDOM);
 
   py::class_<AnalysisGraph>(m, "AnalysisGraph")
+      .def_readwrite("id", &AnalysisGraph::id)
+      .def("to_json_string", &AnalysisGraph::to_json_string, "indent"_a = 0)
+      .def("from_json_string", &AnalysisGraph::from_json_string)
+      .def("get_edge_weights_for_causemos_viz", &AnalysisGraph::get_edge_weights_for_causemos_viz)
       .def_readwrite("data_heuristic", &AnalysisGraph::data_heuristic)
       .def_readwrite("res", &AnalysisGraph::res)
       .def_property("s0",
                     &AnalysisGraph::get_initial_latent_state,
                     &AnalysisGraph::set_initial_latent_state)
-      .def_static("from_json_file",
-                  &AnalysisGraph::from_json_file,
+      .def_static("from_indra_statements_json_file",
+                  &AnalysisGraph::from_indra_statements_json_file,
                   "filename"_a,
                   "belief_score_cutoff"_a = 0.9,
                   "grounding_score_cutoff"_a = 0.0,
                   "ontology"_a = "WM")
-      .def_static("from_uncharted_json_string",
-                  &AnalysisGraph::from_uncharted_json_string)
-      .def_static("from_uncharted_json_file",
-                  &AnalysisGraph::from_uncharted_json_file)
+      .def_static("from_causemos_json_string",
+                  &AnalysisGraph::from_causemos_json_string)
+      .def_static("from_causemos_json_file",
+                  &AnalysisGraph::from_causemos_json_file)
       .def_static("from_causal_fragments",
                   &AnalysisGraph::from_causal_fragments,
                   "causal_fragments"_a)
@@ -67,8 +69,6 @@ PYBIND11_MODULE(DelphiPython, m) {
           py::keep_alive<0, 1>())
       .def("num_vertices", &AnalysisGraph::num_vertices)
       .def("num_edges", &AnalysisGraph::num_edges)
-      //.def("get_successor_list", &AnalysisGraph::get_successor_list)
-      //.def("get_predecessor_list", &AnalysisGraph::get_predecessor_list)
       .def("edge", py::overload_cast<string, string>(&AnalysisGraph::edge))
       .def("print_nodes", &AnalysisGraph::print_nodes)
       .def("print_edges", &AnalysisGraph::print_edges)
@@ -81,12 +81,12 @@ PYBIND11_MODULE(DelphiPython, m) {
            "label_depth"_a = 1,
            "node_to_highlight"_a = "",
            "rankdir"_a = "TB")
-      //.def("construct_beta_pdfs", &AnalysisGraph::construct_beta_pdfs)
-      //.def("construct_beta_pdfs", py::overload_cast<>(&AnalysisGraph::construct_beta_pdfs)
-      .def("construct_beta_pdfs", (void (AnalysisGraph::*)()) &AnalysisGraph::construct_beta_pdfs)
+      .def("construct_beta_pdfs",
+           (void (AnalysisGraph::*)()) & AnalysisGraph::construct_beta_pdfs)
       .def("add_node", &AnalysisGraph::add_node, "concept"_a)
       .def("remove_node",
-           py::overload_cast<string>(&AnalysisGraph::remove_node), "concept"_a)
+           py::overload_cast<string>(&AnalysisGraph::remove_node),
+           "concept"_a)
       .def("remove_nodes", &AnalysisGraph::remove_nodes, "concepts"_a)
       .def("add_edge",
            py::overload_cast<CausalFragment>(&AnalysisGraph::add_edge),
@@ -105,10 +105,6 @@ PYBIND11_MODULE(DelphiPython, m) {
            &AnalysisGraph::print_cells_affected_by_beta,
            "source"_a,
            "target"_a)
-      //.def("get_beta",
-      //     &AnalysisGraph::get_beta,
-      //     "source_vertex_name"_a,
-      //     "target_vertex_name"_a)
       .def("print_name_to_vertex", &AnalysisGraph::print_name_to_vertex)
       .def("map_concepts_to_indicators",
            &AnalysisGraph::map_concepts_to_indicators,
@@ -161,6 +157,9 @@ PYBIND11_MODULE(DelphiPython, m) {
            "start_month"_a,
            "end_year"_a,
            "end_month"_a)
+      .def("generate_causemos_projection",
+           &AnalysisGraph::generate_causemos_projection,
+           "json_projection"_a)
       .def("prediction_to_array",
            &AnalysisGraph::prediction_to_array,
            "indicator"_a)
@@ -214,7 +213,6 @@ PYBIND11_MODULE(DelphiPython, m) {
 
   py::class_<KDE>(m, "KDE")
       .def(py::init<vector<double>>())
-      .def("resample", py::overload_cast<int>(&KDE::resample))
       .def("pdf",
            py::overload_cast<double>(&KDE::pdf),
            "Evaluate pdf for a single value")
