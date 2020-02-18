@@ -45,9 +45,9 @@ def sir_gillespie_ms_grfn():
 
 
 def test_petpt_creation_and_execution(petpt_grfn):
-    A = petpt_grfn.to_agraph()
+    A = petpt_grfn.to_AGraph()
     A.draw("PETPT--GrFN.pdf", prog="dot")
-    CAG = petpt_grfn.to_CAG_agraph()
+    CAG = petpt_grfn.CAG_to_AGraph()
     CAG.draw('PETPT--CAG.pdf', prog='dot')
     assert isinstance(petpt_grfn, GroundedFunctionNetwork)
     assert len(petpt_grfn.inputs) == 5
@@ -60,9 +60,9 @@ def test_petpt_creation_and_execution(petpt_grfn):
 
 
 def test_petasce_creation(petasce_grfn):
-    A = petasce_grfn.to_agraph()
-    CAG = petasce_grfn.to_CAG_agraph()
-    CG = petasce_grfn.to_call_agraph()
+    A = petasce_grfn.to_AGraph()
+    CAG = petasce_grfn.CAG_to_AGraph()
+    CG = petasce_grfn.FCG_to_AGraph()
     A.draw('PETASCE--GrFN.pdf', prog='dot')
     CAG.draw('PETASCE--CAG.pdf', prog='dot')
 
@@ -90,17 +90,17 @@ def test_petasce_creation(petasce_grfn):
 
 def test_crop_yield_creation(crop_yield_grfn):
     assert isinstance(crop_yield_grfn, GroundedFunctionNetwork)
-    G = crop_yield_grfn.to_agraph()
+    G = crop_yield_grfn.to_AGraph()
     G.draw('crop_yield--GrFN.pdf', prog='dot')
-    CAG = crop_yield_grfn.to_CAG_agraph()
+    CAG = crop_yield_grfn.CAG_to_AGraph()
     CAG.draw('crop_yield--CAG.pdf', prog='dot')
 
 
 def test_sir_simple_creation(sir_simple_grfn):
     assert isinstance(sir_simple_grfn, GroundedFunctionNetwork)
-    G = sir_simple_grfn.to_agraph()
+    G = sir_simple_grfn.to_AGraph()
     G.draw('SIR-simple--GrFN.pdf', prog='dot')
-    CAG = sir_simple_grfn.to_CAG_agraph()
+    CAG = sir_simple_grfn.CAG_to_AGraph()
     CAG.draw('SIR-simple--CAG.pdf', prog='dot')
     # This importlib look up the lambdas file. Thus, the program must
     # maintain the files up to this level before clean up.
@@ -114,17 +114,17 @@ def test_sir_simple_creation(sir_simple_grfn):
 
 def test_sir_gillespie_inline_creation(sir_gillespie_inline_grfn):
     assert isinstance(sir_gillespie_inline_grfn, GroundedFunctionNetwork)
-    G = sir_gillespie_inline_grfn.to_agraph()
+    G = sir_gillespie_inline_grfn.to_AGraph()
     G.draw('SIR-Gillespie_inline--GrFN.pdf', prog='dot')
-    CAG = sir_gillespie_inline_grfn.to_CAG_agraph()
+    CAG = sir_gillespie_inline_grfn.CAG_to_AGraph()
     CAG.draw('SIR-Gillespie_inline--CAG.pdf', prog='dot')
 
 
 def test_sir_gillespie_ms_creation(sir_gillespie_ms_grfn):
     assert isinstance(sir_gillespie_ms_grfn, GroundedFunctionNetwork)
-    G = sir_gillespie_ms_grfn.to_agraph()
+    G = sir_gillespie_ms_grfn.to_AGraph()
     G.draw('SIR-Gillespie_ms--GrFN.pdf', prog='dot')
-    CAG = sir_gillespie_ms_grfn.to_CAG_agraph()
+    CAG = sir_gillespie_ms_grfn.CAG_to_AGraph()
     CAG.draw('SIR-Gillespie_ms--CAG.pdf', prog='dot')
 
 

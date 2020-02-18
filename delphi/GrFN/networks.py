@@ -1,12 +1,13 @@
+from abc import ABCMeta, abstractmethod
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from typing import Dict, Iterable, Union, Set, Optional
+from typing import Dict, Iterable, Union, Set, Optional, Number
 import subprocess as sp
+from typing import List
 import importlib
 import inspect
 import json
 import os
-import ast
 import itertools
 import time
 import torch
@@ -25,8 +26,6 @@ from delphi.translators.for2py import (
     f2grfn,
 )
 import numpy as np
-import torch
-import re
 
 FONT = choose_font()
 
@@ -35,10 +34,22 @@ forestgreen = "#228b22"
 
 
 class ComputationalGraph(nx.DiGraph):
+    __metaclass__ = ABCMeta
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.FCG = self.to_FCG()
+        self.function_sets = self.build_function_sets()
 
-    def build_call_graph(self):
+    def get_input_nodes(self) -> List[str]:
+        """ Get all input nodes from a network. """
+        return [n for n, d in self.in_degree() if d == 0]
+
+    def get_output_nodes(self) -> List[str]:
+        """ Get all output nodes from a network. """
+        return [n for n, d in self.out_degree() if d == 0]
+
+    def to_FCG(self):
         G = nx.DiGraph()
         for (name, attrs) in self.nodes(data=True):
             if attrs["type"] == "function":
@@ -52,14 +63,14 @@ class ComputationalGraph(nx.DiGraph):
     def build_function_sets(self):
         # TODO - this fails when there is only one function node in the graph -
         # need to fix!
-        initial_funcs = [n for n, d in self.call_graph.in_degree() if d == 0]
+        initial_funcs = [n for n, d in self.FCG.in_degree() if d == 0]
         distances = dict()
 
         def find_distances(funcs, dist):
             all_successors = list()
             for func in funcs:
                 distances[func] = dist
-                all_successors.extend(self.call_graph.successors(func))
+                all_successors.extend(self.FCG.successors(func))
             if len(all_successors) > 0:
                 find_distances(list(set(all_successors)), dist + 1)
 
@@ -76,6 +87,10 @@ class ComputationalGraph(nx.DiGraph):
         )
         function_sets = [func_set for _, func_set in function_set_dists]
         return function_sets
+
+    @abstractmethod
+    def run(self, inputs, covers=None) -> Union[Number, Iterable]:
+        return NotImplemented
 
     def run(
         self,
@@ -172,8 +187,6 @@ class GroundedFunctionNetwork(ComputationalGraph):
             for n, d in self.in_degree()
             if d == 0 and self.nodes[n]["type"] == "variable"
         ]
-        self.call_graph = self.build_call_graph()
-        self.function_sets = self.build_function_sets()
 
     def __repr__(self):
         return self.__str__()
@@ -626,51 +639,11 @@ class GroundedFunctionNetwork(ComputationalGraph):
 
         return X, Y, Z, x_var, y_var
 
-    def to_FIB(self, other):
-        """ Creates a ForwardInfluenceBlanket object representing the
-        intersection of this model with the other input model.
 
-        Args:
-            other: The GroundedFunctionNetwork object to compare this model to.
 
-        Returns:
-            A ForwardInfluenceBlanket object to use for model comparison.
-        """
-
-        if not isinstance(other, GroundedFunctionNetwork):
-            raise TypeError(
-                f"Expected GroundedFunctionNetwork, but got {type(other)}"
-            )
-
-        def shortname(var):
-            return var[var.find("::") + 2 : var.rfind("_")]
-
-        def shortname_vars(graph, shortname):
-            return [v for v in graph.nodes() if shortname in v]
-
-        this_var_nodes = [
-            shortname(n)
-            for (n, d) in self.nodes(data=True)
-            if d["type"] == "variable"
-        ]
-        other_var_nodes = [
-            shortname(n)
-            for (n, d) in other.nodes(data=True)
-            if d["type"] == "variable"
-        ]
-
-        shared_vars = set(this_var_nodes).intersection(set(other_var_nodes))
-        full_shared_vars = {
-            full_var
-            for shared_var in shared_vars
-            for full_var in shortname_vars(self, shared_var)
-        }
-
-        return ForwardInfluenceBlanket(self, full_shared_vars)
-
-    def to_agraph(self):
+    def to_AGraph(self):
         """ Export to a PyGraphviz AGraph object. """
-        A = nx.nx_agraph.to_agraph(self)
+        A = nx.nx_agraph.to_AGraph(self)
         A.graph_attr.update(
             {"dpi": 227, "fontsize": 20, "fontname": "Menlo", "rankdir": "LR"}
         )
@@ -699,7 +672,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
         build_tree(root, node_data, A)
         return A
 
-    def to_CAG_agraph(self):
+    def CAG_to_AGraph(self):
         """Returns a variable-only view of the GrFN in the form of an AGraph.
 
         Returns:
@@ -709,7 +682,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
         CAG = self.to_CAG()
         for name, data in CAG.nodes(data=True):
             CAG.nodes[name]["label"] = data["cag_label"]
-        A = nx.nx_agraph.to_agraph(CAG)
+        A = nx.nx_agraph.to_AGraph(CAG)
         A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo", "rankdir": "LR"})
         A.node_attr.update(
             {
@@ -722,11 +695,11 @@ class GroundedFunctionNetwork(ComputationalGraph):
         A.edge_attr.update({"color": "#650021", "arrowsize": 0.5})
         return A
 
-    def to_call_agraph(self):
+    def FCG_to_AGraph(self):
         """ Build a PyGraphviz AGraph object corresponding to a call graph of
         functions. """
 
-        A = nx.nx_agraph.to_agraph(self.call_graph)
+        A = nx.nx_agraph.to_AGraph(self.FCG)
         A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo", "rankdir": "TB"})
         A.node_attr.update(
             {"shape": "rectangle", "color": "#650021", "style": "rounded"}
@@ -823,8 +796,50 @@ class ForwardInfluenceBlanket(ComputationalGraph):
         self.nodes[self.output_node]["fontcolor"] = dodgerblue3
 
         self.add_edges_from(main_edges)
-        self.call_graph = self.build_call_graph()
+        self.FCG = self.to_FCG()
         self.function_sets = self.build_function_sets()
+
+    @classmethod
+    def from_GrFN(cls, G1, G2):
+        """ Creates a ForwardInfluenceBlanket object representing the
+        intersection of this model with the other input model.
+
+        Args:
+            G1: The GrFN model to use as the basis for this FIB
+            G2: The GroundedFunctionNetwork object to compare this model to.
+
+        Returns:
+            A ForwardInfluenceBlanket object to use for model comparison.
+        """
+
+        if not (isinstance(G1, GroundedFunctionNetwork)
+                and isinstance(G2, GroundedFunctionNetwork)):
+            raise TypeError(
+                f"Expected two GrFNs, but got ({type(G1)}, {type(G2)})"
+            )
+
+        def shortname(var):
+            return var[var.find("::") + 2: var.rfind("_")]
+
+        def shortname_vars(graph, shortname):
+            return [v for v in graph.nodes() if shortname in v]
+
+        g1_var_nodes = {
+            shortname(n)
+            for (n, d) in G1.nodes(data=True) if d["type"] == "variable"
+        }
+        g2_var_nodes = {
+            shortname(n)
+            for (n, d) in G2.nodes(data=True) if d["type"] == "variable"
+        }
+
+        shared_vars = {
+            full_var
+            for shared_var in g1_var_nodes.intersection(g2_var_nodes)
+            for full_var in shortname_vars(G1, shared_var)
+        }
+
+        return cls(G1, shared_vars)
 
     def run(
         self,
@@ -945,8 +960,8 @@ class ForwardInfluenceBlanket(ComputationalGraph):
 
         return X, Y, Z, x_var, y_var
 
-    def to_agraph(self):
-        A = nx.nx_agraph.to_agraph(self)
+    def to_AGraph(self):
+        A = nx.nx_agraph.to_AGraph(self)
         A.graph_attr.update({"dpi": 227, "fontsize": 20})
         A.node_attr.update({"shape": "rectangle", "style": "rounded"})
         A.edge_attr.update({"arrowsize": 0.5})
