@@ -474,6 +474,7 @@ class RectifyOFPXML:
         "signed-real-literal-constant",
         "signed-int-literal-constant",
         "data-stmt-constant",
+        "data-i-do-object-list__begin",
     ]
 
     output_child_tags = [
@@ -1143,9 +1144,11 @@ class RectifyOFPXML:
                 if (
                         child.tag == "variable"
                         and self.current_scope in self.argument_types
-                        and child.attrib['name'] in self.argument_types[self.current_scope]
+                        and child.attrib['name'] in self.argument_types[
+                        self.current_scope]
                 ):
-                    self.argument_types[self.current_scope][child.attrib['name']] = self.variable_type
+                    self.argument_types[self.current_scope][child.attrib[
+                        'name']] = self.variable_type
                 # Up to this point, all the child (nested or sub) elements were
                 # <variable>
                 cur_elem = ET.SubElement(
@@ -1164,9 +1167,12 @@ class RectifyOFPXML:
                         current, child.tag, child.attrib
                     )
                 else:
-                    assert (
-                        child.tag == "variable"
-                    ), f'In handle_tag_variables: "{child.tag}" not handled'
+                    try:
+                        _ = self.unnecessary_tags.index(child.tag)
+                    except ValueError:
+                        assert (
+                            child.tag == "variable"
+                        ), f'In handle_tag_variables: "{child.tag}" not handled'
 
     def handle_tag_variable(
             self, root, current, parent, _, traverse
@@ -1546,8 +1552,10 @@ class RectifyOFPXML:
                     current, child.tag, child.attrib
                 )
                 if "id" in child.attrib and self.is_interface:
-                    self.interface_functions[self.cur_interface_name].append(child.attrib['id'])
-                    self.interface_function_xml[self.cur_interface_name][child.attrib['id']] = cur_elem
+                    self.interface_functions[self.cur_interface_name].append(
+                        child.attrib['id'])
+                    self.interface_function_xml[self.cur_interface_name][
+                        child.attrib['id']] = cur_elem
                 if grandparent.tag == "function":
                     self.args_for_function.append(cur_elem.attrib['id'])
                 # If the element holds sub-elements, call the XML tree parser
@@ -5449,7 +5457,7 @@ def parse_args():
 
 
 def fileChecker(filename, mode):
-    """This function checks for the validity (file existance and
+    """This function checks for the validity (file existence and
     mode). If either the file does not exist or the mode is
     not valid, throws an IO exception and terminates the program
 
