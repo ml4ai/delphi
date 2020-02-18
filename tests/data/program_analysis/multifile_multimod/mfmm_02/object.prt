@@ -1,0 +1,3 @@
+object.prt: User-defined output files - SB_LS1
+        NUMB       OBTYP     OBTYPNO      HYDTYP    FILENAME
+           1         cha          72         tot  outlet.out
