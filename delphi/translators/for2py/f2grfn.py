@@ -423,7 +423,7 @@ def generate_grfn(
             original_fortran_file
     )
 
-    grfn_dict.update(system_def)
+    grfn_dict["system"] = system_def
 
     # Write GrFN JSON into a file.
     with open(grfn_file, "w") as file_handle:
