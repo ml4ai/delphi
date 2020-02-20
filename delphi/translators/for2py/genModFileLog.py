@@ -244,12 +244,13 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
                                 else:
                                     # Remove assignment syntax and only extract variable names
                                     variables  = variables.partition('=')[0].strip()
-                            #  DEBUG
-                            print ("    @ variables: ", variables)
-
                             var_list = variables.split(',')
                             for var in var_list:
-
+                                # Search for an implicit array variable declaration
+                                arrayVar = re.match("(?P<var>\w*)\s*\(", var)
+                                if arrayVar:
+                                    var = arrayVar['var']
+                                    var_type = "Array"
                                 if (
                                         current_subr in module_summary[current_modu]
                                         and var.strip() in module_summary[current_modu][current_subr]
