@@ -183,6 +183,7 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
             endfunc_regex = re.compile('\s*endfunction (?P<function>(?P<name>(\w*)\n))')
 
             var_dec_regex = re.compile('\s*(?P<type>(double precision|double|float|int|integer|logical|real|str|string))\s(::)*(?P<variables>(.*))\n')
+            dev_type_regex = re.compile('\s*type\s*\((?P<type>.*)\)\s(?P<variables>(.*))')
 
             current_modu = None
             current_subr = None
@@ -222,19 +223,20 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
                                 module_summary[current_modu][current_subr][arg] = None
                     elif current_subr:
                         variable_dec = var_dec_regex.match(line)
-                        if variable_dec and not func:
-                            # DEBUG
-                            # print ("    @ line: ", line)
-                            # print ("        current_modu: ", current_modu)
-                            # print ("        current_subr: ", current_subr)
-                            # print ("        type: ", variable_dec['type'])
-                            # print ("        variables: ", variable_dec['variables'])
-                            var_type = variable_dec['type']
-                            variables = variable_dec['variables']
+                        dev_type_var = dev_type_regex.match(line)
+                        if (
+                                variable_dec and not func
+                                or dev_type_var
+                        ):
+                            if variable_dec:
+                                var_type = variable_dec['type']
+                                variables = variable_dec['variables']
+                            else:
+                                var_type = dev_type_var['type']
+                                variables = dev_type_var['variables']
+
                             if "precision" not in variables and "dimension" not in variables:
                                 var_list = variables.split(',')
-                                # DEBUG
-                                # print ("       module_summary[current_modu]: ", module_summary[current_modu])
                                 for var in var_list:
                                     if (
                                             current_subr in module_summary[current_modu]
