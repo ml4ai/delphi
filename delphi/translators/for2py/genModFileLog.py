@@ -171,8 +171,8 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
             endmodu_regex = re.compile('\s*endmodule (?P<module>(?P<name>(\w*)\n))')
             
             interface_regex  = re.compile('\s*interface (?P<interface>(?P<name>(\w*)\n))')
-            end_intr_regex = re.compile('\s*end interface (?P<interface>(?P<name>(\w*)\n))')
-            endintr_regex = re.compile('\s*endinterface (?P<interface>(?P<name>(\w*)\n))')
+            end_intr_regex = re.compile('\s*end interface\n')
+            endintr_regex = re.compile('\s*endinterface\n')
 
             subr_regex = re.compile('\s*subroutine (?P<subroutine>(?P<name>.*?)\((?P<args>.*)\))')
             end_subr_regex = re.compile('\s*end subroutine (?P<subroutine>(?P<name>(\w*)\n))')
@@ -188,7 +188,11 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
 
             current_modu = None
             current_subr = None
+            current_intr = None
             current_func = None
+
+            isProcedure =False
+            procedure_functions = {}
 
             line = f.readline().lower()
             while (line):
@@ -201,14 +205,22 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
                 end_modu = end_modu_regex.match(line)
                 endmodu = endmodu_regex.match(line)
 
+                # Check center and exit of interface
+                interface =  interface_regex.match(line)
+                end_intr = end_intr_regex.match(line)
+                endintr = endintr_regex.match(line)
+
                 # Check enter and exit of subroutine
                 subr = subr_regex.match(line)
+                end_subr = end_subr_regex.match(line)
+                endsubr = endsubr_regex.match(line)
                 # Check enter and exit of function
                 func = func_regex.match(line)
 
                 if modu:
                     current_modu = modu['name'].strip()
                     module_summary[current_modu] = {}
+                    procedure_functions[current_modu] = {}
                 elif end_modu or endmodu:
                     current_modu = None
                 else:
@@ -222,6 +234,8 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
                         for arg in subr_args:
                             if arg:
                                 module_summary[current_modu][current_subr][arg] = None
+                    elif end_subr or endsubr:
+                        current_subr = None
                     elif current_subr:
                         variable_dec = var_dec_regex.match(line)
                         dev_type_var = dev_type_regex.match(line)
@@ -270,12 +284,35 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
                                         and var.strip() in module_summary[current_modu][current_subr]
                                 ):
                                     module_summary[current_modu][current_subr][var.strip()] = var_type
-                    elif end_subr_regex or endsubr_regex:
-                        current_subr = None
-                    elif func:
+                    else:
+                        pass
+
+                    if interface:
+                        current_intr  = interface['name'].strip()
+                    elif end_intr or endintr:
+                        current_intr = None
+                        if isProcedure:
+                            isProceddure = False
+                    elif current_intr:
+                        if "procedure" in line:
+                            first_function = line.strip().split(' ')[-1]
+                            procedure_functions[current_modu][current_intr] = [first_function]
+                            isProcedure = True
+                        elif isProcedure:
+                            pFunc = line.strip().split(' ')[-1]
+                            if pFunc:
+                                procedure_functions[current_modu][current_intr].append(pFunc)
+                    else:
+                        pass
+
+                    if func:
                         func_name = func["name"]
                         func_args = func["args"]
+                    else:
+                        pass
                 line  = f.readline().lower()
+            # DEBUG
+            print ("    @ procedure_functions: ", procedure_functions)
 
     for mod in module_names_lowered:
         mod_to_file_mapper[mod] = [file_path]
@@ -288,7 +325,6 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
         }
         if mod in module_summary:
             mod_info_dict[mod]["function_summary"] = module_summary[mod]
-
     f.close()
 
 
