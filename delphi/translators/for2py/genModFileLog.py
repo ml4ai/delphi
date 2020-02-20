@@ -182,8 +182,9 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
             end_func_regex = re.compile('\s*end function (?P<function>(?P<name>(\w*)\n))')
             endfunc_regex = re.compile('\s*endfunction (?P<function>(?P<name>(\w*)\n))')
 
-            var_dec_regex = re.compile('\s*(?P<type>(double precision|double|float|int|integer|logical|real|str|string))\s(::)*(?P<variables>(.*))\n')
+            var_dec_regex = re.compile('\s*(?P<type>(double|float|int|integer|logical|real|str|string)),?\s(::)*(?P<variables>(.*))\n')
             dev_type_regex = re.compile('\s*type\s*\((?P<type>.*)\)\s(?P<variables>(.*))')
+            char_type_regex = re.compile('\s*(character\*(\(\*\)|\d*))\s*(?P<variables>.*)')
 
             current_modu = None
             current_subr = None
@@ -194,7 +195,7 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
                 #  Removing any inline comments
                 if  '!' in line:
                     line = line.partition('!')[0].strip()
-                
+
                 # Check enter and exit of module
                 modu = modu_regex.match(line)
                 end_modu = end_modu_regex.match(line)
@@ -224,26 +225,38 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
                     elif current_subr:
                         variable_dec = var_dec_regex.match(line)
                         dev_type_var = dev_type_regex.match(line)
+                        char_type_var = char_type_regex.match(line)
                         if (
-                                variable_dec and not func
+                                (variable_dec and not func)
                                 or dev_type_var
+                                or char_type_var
                         ):
                             if variable_dec:
                                 var_type = variable_dec['type']
                                 variables = variable_dec['variables']
-                            else:
+                            elif dev_type_var:
                                 var_type = dev_type_var['type']
                                 variables = dev_type_var['variables']
-                            
-                            # Handle syntax like: precision, dimension(0:tmax) :: means, vars
-                            if "precision" in variables:
-                                # Extract only variable names follow by '::'
-                                variables = variables.partition('::')[-1].strip()
+                            else:
+                                var_type = "character"
+                                variables = char_type_var['variables']
+
+                            # Handle syntax like:
+                            #   precision, dimension(0:tmax) :: means, vars
+                            #   precision, parameter :: var = 1.234
+                            if (
+                                    "precision" in variables
+                                    or "dimension" in variables
+                            ):
+                                # Handle dimension (array)
                                 if "dimension" in variables:
                                     var_type = "Array"
-                                else:
+                                # Extract only variable names follow by '::'
+                                variables = variables.partition('::')[-1].strip()
+                                if '=' in variables:
                                     # Remove assignment syntax and only extract variable names
                                     variables  = variables.partition('=')[0].strip()
+
                             var_list = variables.split(',')
                             for var in var_list:
                                 # Search for an implicit array variable declaration
@@ -251,6 +264,7 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
                                 if arrayVar:
                                     var = arrayVar['var']
                                     var_type = "Array"
+                                # Map each subroutine argument with its type
                                 if (
                                         current_subr in module_summary[current_modu]
                                         and var.strip() in module_summary[current_modu][current_subr]
