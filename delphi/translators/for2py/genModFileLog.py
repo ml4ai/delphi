@@ -130,11 +130,14 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
     Returns:
         None.
     """
-    with open(file_path, encoding="ISO-8859-1") as f:
-        file_content = f.read()
+    f = open(file_path, encoding="ISO-8859-1")
+    f_pos = f.tell()
+    file_content = f.read()
+
     module_names = []
     module_names_lowered = []
-    # Checks if file contains "end module" or "end module",
+    module_summary = {}
+    # Checks if file contains "end module" or "endmodule",
     # which only appears in case of module declaration.
     # If not, there is no need to look into the file any further,
     # so ignore it.
@@ -152,14 +155,82 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
         file_to_mod_mapper[file_path] = module_names_lowered.copy()
         file_to_mod_mapper[file_path].append(get_file_last_modified_time(
             file_path))
+        if (
+            ("end subroutine" in file_content.lower()
+                or "endsubroutine" in file_content.lower())
+            or ("end function" in file_content.lower()
+                    or "endfunction" in file_content.lower())
+        ):
+            # Bring the pointer back to the first character position of a file
+            f.seek(f_pos)
+            # regex for module, subroutine, and function
+            # Because Fortran allows two different syntax for end (i.e. end module and
+            # endmodule), we need to check both cases.
+            modu_regex = re.compile('\s*module (?P<module>(?P<name>(.*)\n))')
+            end_modu_regex = re.compile('\s*end module (?P<module>(?P<name>(.*)\n))')
+            endmodu_regex = re.compile('\s*endmodule (?P<module>(?P<name>(.*)\n))')
+            
+            subr_regex = re.compile('\s*subroutine (?P<subroutine>(?P<name>.*?)\((?P<args>.*)\))')
+            end_subr_regex = re.compile('\s*end subroutine (?P<subroutine>(?P<name>(.*)\n))')
+            endsubr_regex = re.compile('\s*endsubroutine (?P<subroutine>(?P<name>(.*)\n))')
+            
+            func_regex = re.compile('\s*function (?P<function>(?P<name>.*?)\((?P<args>.*)\))')
+            end_func_regex = re.compile('\s*end function (?P<function>(?P<name>(.*)\n))')
+            endfunc_regex = re.compile('\s*endfunction (?P<function>(?P<name>(.*)\n))')
+
+            current_modu = None
+            current_subr = None
+            current_func = None
+
+            line = f.readline()
+            while (line):
+                # Check enter and exit of module
+                modu = modu_regex.match(line)
+                end_modu = end_modu_regex.match(line)
+                endmodu = endmodu_regex.match(line)
+
+                # Check enter and exit of subroutine
+                subr = subr_regex.match(line)
+                # Check enter and exit of function
+                func = func_regex.match(line)
+
+                if modu:
+                    current_modu = modu['name'].strip()
+                    module_summary[current_modu] = {}
+                elif end_modu or endmodu:
+                    current_modu = None
+                else:
+                    pass
+
+                if current_modu:
+                    if subr:
+                        current_subr = subr["name"].strip()
+                        subr_args = subr["args"].replace(' ','').split(',')
+                        # DEBUG
+                        print (current_modu, subr)
+                        module_summary[current_modu][current_subr] = {}
+                        for arg in subr_args:
+                            module_summary[current_modu][current_subr][arg] = None
+                    elif end_func_regex or endfunc_regex:
+                        current_subr = None
+                    elif func:
+                        func_name = func["name"]
+                        func_args = func["args"]
+                line  = f.readline()
 
     for mod in module_names_lowered:
         mod_to_file_mapper[mod] = [file_path]
         mod_info_dict[mod] = {
             "exports": {},
             "symbol_types": {},
-            "imports": {}
+            "imports": {},
+            "function_summary": {},
+            "interface_functions": {}
         }
+        if mod in module_summary:
+            mod_info_dict[mod]["function_summary"] = module_summary[mod]
+
+    f.close()
 
 
 def get_file_last_modified_time(file_path):
