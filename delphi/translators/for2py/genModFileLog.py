@@ -234,15 +234,27 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
                             else:
                                 var_type = dev_type_var['type']
                                 variables = dev_type_var['variables']
+                            
+                            # Handle syntax like: precision, dimension(0:tmax) :: means, vars
+                            if "precision" in variables:
+                                # Extract only variable names follow by '::'
+                                variables = variables.partition('::')[-1].strip()
+                                if "dimension" in variables:
+                                    var_type = "Array"
+                                else:
+                                    # Remove assignment syntax and only extract variable names
+                                    variables  = variables.partition('=')[0].strip()
+                            #  DEBUG
+                            print ("    @ variables: ", variables)
 
-                            if "precision" not in variables and "dimension" not in variables:
-                                var_list = variables.split(',')
-                                for var in var_list:
-                                    if (
-                                            current_subr in module_summary[current_modu]
-                                            and var.strip() in module_summary[current_modu][current_subr]
-                                    ):
-                                        module_summary[current_modu][current_subr][var.strip()] = var_type
+                            var_list = variables.split(',')
+                            for var in var_list:
+
+                                if (
+                                        current_subr in module_summary[current_modu]
+                                        and var.strip() in module_summary[current_modu][current_subr]
+                                ):
+                                    module_summary[current_modu][current_subr][var.strip()] = var_type
                     elif end_subr_regex or endsubr_regex:
                         current_subr = None
                     elif func:
