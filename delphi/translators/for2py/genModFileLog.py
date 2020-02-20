@@ -178,9 +178,11 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
             end_subr_regex = re.compile('\s*end subroutine (?P<subroutine>(?P<name>(\w*)\n))')
             endsubr_regex = re.compile('\s*endsubroutine (?P<subroutine>(?P<name>(\w*)\n))')
             
-            func_regex = re.compile('\s*function (?P<function>(?P<name>.*?)\((?P<args>.*)\))')
+            func_regex = re.compile('\s*(?P<type>(double precision|double|float|int|integer|logical|real|str|string))\sfunction (?P<function>(?P<name>.*?)\((?P<args>.*)\))')
             end_func_regex = re.compile('\s*end function (?P<function>(?P<name>(\w*)\n))')
             endfunc_regex = re.compile('\s*endfunction (?P<function>(?P<name>(\w*)\n))')
+
+            var_dec_regex = re.compile('\s*(?P<type>(double precision|double|float|int|integer|logical|real|str|string))\s(::)*(?P<variables>(.*))\n')
 
             current_modu = None
             current_subr = None
@@ -188,6 +190,10 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
 
             line = f.readline().lower()
             while (line):
+                #  Removing any inline comments
+                if  '!' in line:
+                    line = line.partition('!')[0].strip()
+                
                 # Check enter and exit of module
                 modu = modu_regex.match(line)
                 end_modu = end_modu_regex.match(line)
@@ -200,8 +206,6 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
 
                 if modu:
                     current_modu = modu['name'].strip()
-                    # DEBUG
-                    print ("    @  current_modu: ", current_modu)
                     module_summary[current_modu] = {}
                 elif end_modu or endmodu:
                     current_modu = None
@@ -212,12 +216,32 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
                     if subr:
                         current_subr = subr["name"].strip()
                         subr_args = subr["args"].replace(' ','').split(',')
-                        # DEBUG
-                        # print ("    @  current_modu: ", current_modu, "; # subr", subr)
                         module_summary[current_modu][current_subr] = {}
                         for arg in subr_args:
-                            module_summary[current_modu][current_subr][arg] = None
-                    elif end_func_regex or endfunc_regex:
+                            if arg:
+                                module_summary[current_modu][current_subr][arg] = None
+                    elif current_subr:
+                        variable_dec = var_dec_regex.match(line)
+                        if variable_dec and not func:
+                            # DEBUG
+                            # print ("    @ line: ", line)
+                            # print ("        current_modu: ", current_modu)
+                            # print ("        current_subr: ", current_subr)
+                            # print ("        type: ", variable_dec['type'])
+                            # print ("        variables: ", variable_dec['variables'])
+                            var_type = variable_dec['type']
+                            variables = variable_dec['variables']
+                            if "precision" not in variables and "dimension" not in variables:
+                                var_list = variables.split(',')
+                                # DEBUG
+                                # print ("       module_summary[current_modu]: ", module_summary[current_modu])
+                                for var in var_list:
+                                    if (
+                                            current_subr in module_summary[current_modu]
+                                            and var.strip() in module_summary[current_modu][current_subr]
+                                    ):
+                                        module_summary[current_modu][current_subr][var.strip()] = var_type
+                    elif end_subr_regex or endsubr_regex:
                         current_subr = None
                     elif func:
                         func_name = func["name"]
