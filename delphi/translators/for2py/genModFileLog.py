@@ -166,23 +166,27 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
             # regex for module, subroutine, and function
             # Because Fortran allows two different syntax for end (i.e. end module and
             # endmodule), we need to check both cases.
-            modu_regex = re.compile('\s*module (?P<module>(?P<name>(.*)\n))')
-            end_modu_regex = re.compile('\s*end module (?P<module>(?P<name>(.*)\n))')
-            endmodu_regex = re.compile('\s*endmodule (?P<module>(?P<name>(.*)\n))')
+            modu_regex = re.compile('\s*module (?P<module>(?P<name>(\w*)\n))')
+            end_modu_regex = re.compile('\s*end module (?P<module>(?P<name>(\w*)\n))')
+            endmodu_regex = re.compile('\s*endmodule (?P<module>(?P<name>(\w*)\n))')
             
+            interface_regex  = re.compile('\s*interface (?P<interface>(?P<name>(\w*)\n))')
+            end_intr_regex = re.compile('\s*end interface (?P<interface>(?P<name>(\w*)\n))')
+            endintr_regex = re.compile('\s*endinterface (?P<interface>(?P<name>(\w*)\n))')
+
             subr_regex = re.compile('\s*subroutine (?P<subroutine>(?P<name>.*?)\((?P<args>.*)\))')
-            end_subr_regex = re.compile('\s*end subroutine (?P<subroutine>(?P<name>(.*)\n))')
-            endsubr_regex = re.compile('\s*endsubroutine (?P<subroutine>(?P<name>(.*)\n))')
+            end_subr_regex = re.compile('\s*end subroutine (?P<subroutine>(?P<name>(\w*)\n))')
+            endsubr_regex = re.compile('\s*endsubroutine (?P<subroutine>(?P<name>(\w*)\n))')
             
             func_regex = re.compile('\s*function (?P<function>(?P<name>.*?)\((?P<args>.*)\))')
-            end_func_regex = re.compile('\s*end function (?P<function>(?P<name>(.*)\n))')
-            endfunc_regex = re.compile('\s*endfunction (?P<function>(?P<name>(.*)\n))')
+            end_func_regex = re.compile('\s*end function (?P<function>(?P<name>(\w*)\n))')
+            endfunc_regex = re.compile('\s*endfunction (?P<function>(?P<name>(\w*)\n))')
 
             current_modu = None
             current_subr = None
             current_func = None
 
-            line = f.readline()
+            line = f.readline().lower()
             while (line):
                 # Check enter and exit of module
                 modu = modu_regex.match(line)
@@ -196,6 +200,8 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
 
                 if modu:
                     current_modu = modu['name'].strip()
+                    # DEBUG
+                    print ("    @  current_modu: ", current_modu)
                     module_summary[current_modu] = {}
                 elif end_modu or endmodu:
                     current_modu = None
@@ -207,7 +213,7 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
                         current_subr = subr["name"].strip()
                         subr_args = subr["args"].replace(' ','').split(',')
                         # DEBUG
-                        print (current_modu, subr)
+                        # print ("    @  current_modu: ", current_modu, "; # subr", subr)
                         module_summary[current_modu][current_subr] = {}
                         for arg in subr_args:
                             module_summary[current_modu][current_subr][arg] = None
@@ -216,7 +222,7 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
                     elif func:
                         func_name = func["name"]
                         func_args = func["args"]
-                line  = f.readline()
+                line  = f.readline().lower()
 
     for mod in module_names_lowered:
         mod_to_file_mapper[mod] = [file_path]
