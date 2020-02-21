@@ -21,8 +21,8 @@
 
       IMPLICIT NONE
 
-!      CHARACTER*3 MonthTxt(12)
-      CHARACTER*3, DIMENSION(12) :: MonthTxt
+      CHARACTER*3 MonthTxt(12)
+!      CHARACTER*3, DIMENSION(12) :: MonthTxt
       DATA MonthTxt /'JAN','FEB','MAR','APR','MAY','JUN',
      &               'JUL','AUG','SEP','OCT','NOV','DEC'/
 
