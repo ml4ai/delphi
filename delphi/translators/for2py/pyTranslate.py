@@ -230,6 +230,8 @@ class PythonCodeGenerator(object):
         # This flag remains False until the first case statement is started
         # in every select block
         self.case_started = False
+        # This dictionary holds the defined arrays along with their data types
+        self.array_map = {}
 
         self.printFn = {
             "subroutine": self.printSubroutine,
@@ -288,7 +290,7 @@ class PythonCodeGenerator(object):
                            definedVars=args,
                            indexRef=False,
                        ),
-        )
+                       )
         self.pyStrings.append(f"\ndef {self.nameMapper[node['name']]}(")
         self.printAst(
             node["args"],
@@ -594,11 +596,12 @@ class PythonCodeGenerator(object):
 
         if node["tag"] == "literal":
             literal = self.proc_literal(node)
-
             # If the literal is an argument to a function (when proc_expr has
             # been called from proc_call), the literal needs to be sent using
             # a list wrapper (e.g. f([1]) instead of f(1)
             if wrapper and self.current_call != "print":
+                if node["type"] == "char":
+                    return f"String({len(literal[1:-1])}, {literal})"
                 return f"[{literal}]"
             else:
                 return literal
@@ -657,7 +660,7 @@ class PythonCodeGenerator(object):
             if node["type"].lower() in TYPE_MAP:
                 var_type = TYPE_MAP[node["type"].lower()]
             elif node["type"].lower() == "character":
-                var_type = "str"
+                var_type = "String"
             elif node["is_derived_type"] == "true":
                 var_type = node["type"].lower()
         except KeyError:
@@ -674,6 +677,8 @@ class PythonCodeGenerator(object):
         })
         if "is_array" in node and node["is_array"] == "true":
             self.pyStrings.append(f"{arg_name}: Array")
+        elif var_type == "String":
+            self.pyStrings.append(f"{arg_name}: String")
         else:
             if node["type"].lower() == "real":
                 var_type = "Real"
@@ -859,7 +864,16 @@ class PythonCodeGenerator(object):
             rhs_str = f"Float32({rhs_str})"
 
         if "set_" in assg_str:
-            assg_str += f"{rhs_str})"
+            # If the assignment is to an array and the value is a string,
+            # a String object has to be created
+            if "is_array" in lhs and lhs["is_array"] == "true":
+                if "String" in self.array_map[lhs['name']]:
+                    length = self.array_map[lhs['name']][7:-1]
+                    assg_str += f"String({length}, {rhs_str}))"
+                else:
+                    assg_str += f"{rhs_str})"
+            else:
+                assg_str += f"{rhs_str})"
         else:
             assg_str += f" = {rhs_str}"
 
@@ -1289,7 +1303,12 @@ class PythonCodeGenerator(object):
         ):
             printState.definedVars += [self.nameMapper[node["name"]]]
             var_type = self.get_type(node)
+            # If the array has string elements, then we need the length
+            # information as well
+            if var_type == "character":
+                var_type = f"String({node['length']})"
 
+            self.array_map[self.nameMapper[node["name"]]] = var_type
             array_range = self.get_array_dimension(node)
 
             # If the printArray function is being called from printSave,
@@ -1375,6 +1394,9 @@ class PythonCodeGenerator(object):
                 array_range = self.get_array_dimension(
                     derived_type_variables[var]
                 )
+                if var_type == "character":
+                    var_type = f"String(" \
+                               f"{derived_type_variables[var]['length']})"
                 self.pyStrings.append(
                     f"        self.{name} = Array({var_type}, [{array_range}])"
                 )

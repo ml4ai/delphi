@@ -457,6 +457,9 @@ class XML_to_JSON_translator(object):
         for node in root:
             if node.tag == "literal":
                 length.update(self.parseTree(node, state)[-1])
+            elif node.tag == "type-param-value" and node.attrib[
+                 "hasAsterisk"] == "true":
+                length["value"] = "*"
             else:
                 self.unhandled_tags.add(node.tag)
         return [length]
