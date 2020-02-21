@@ -21,8 +21,8 @@ class SensitivityIndices(object):
     indices as well as the total sensitivty index for a given sample size. It
     also contains the confidence interval associated with the computation of
     each index. The indices are in the form of a dictionary and they can be saved
-    to or read from a JSON, pickle and csv file. In addition, the maximum and
-    minimum second order indices between any two input variables can be
+    to or read from JSON, pickle, and csv files. In addition, the maximum and
+    minimum second order of the indices between any two input variables can be
     determined using the max (min) and argmax (argmin) methods.
     """
     def __init__(self, S: dict):
@@ -40,23 +40,44 @@ class SensitivityIndices(object):
     def check_first_order(self):
         if self.O1_indices is None:
             raise ValueError("No first order indices present")
+        else:
+            return True
 
     def check_second_order(self):
         if self.O2_indices is None:
             raise ValueError("No second order indices present")
+        else:
+            return True
 
     def check_total_order(self):
         if self.OT_indices is None:
             raise ValueError("No total order indices present")
+        else:
+            return True
 
     @classmethod
     def from_csv(cls, filepath: str):
         # TODO khan: implement this so that Si_dict is a sensitivity index
         # dictionary loaded from the CSV file provided by filepath
-        
-        with open(filepath, 'r') as fin:
-            reader = csv.reader(fin)
-            Si_dict = {row[0]:row[1] for row in reader}
+
+        S1 = list()
+        S2 = list()
+        ST = list()
+        S1_conf = list()
+        S2_conf = list()
+        ST_conf = list()
+
+        with open(filepath) as fin:
+            reader = csv.DictReader(fin)
+            for row in reader:
+                S1.append(row['S1'])
+                S2.append(row['S2'])
+                ST.append(row['ST'])
+                S1_conf.append(row['S1_conf'])
+                S2_conf.append(row['S2_conf'])
+                ST_conf.append(row['ST_conf'])
+            
+        Si_dict = {'S1': S1, 'S2': S2, 'ST': ST, 'S1_conf': S1_conf, 'S2_conf': S2_conf, 'ST_conf': ST_conf}
 
         return cls(Si_dict)
 
@@ -70,11 +91,11 @@ class SensitivityIndices(object):
         # TODO khan: implement this so that Si_dict is a sensitivity index
         # dictionary loaded from the JSON file provided by filepath
 
-        with open(filename, encoding='utf-8').read() as data:
-            js = json.loads(data)
+        data = open(filepath, encoding='utf-8').read()
+        js = json.loads(data)
+
 
         Si_dict = {'S1':float(js['S1']), 'S2':float(js['S2']), 'ST':float(js['ST']), 'S1_conf':float(js['S1_conf']), 'S2_conf':float(js['S2_conf']), 'ST_conf':float(js['ST_conf'])}
-
 
         return cls(Si_dict)
 
@@ -83,7 +104,7 @@ class SensitivityIndices(object):
         # TODO khan: implement this so that Si_dict is a sensitivity index
         # dictionary loaded from the PKL file provided by filepath
         
-        with open(filename, 'rb') as fin:
+        with open(filepath, 'rb') as fin:
             Si_dict = pickle.load(fin)
 
         return cls(Si_dict)
@@ -110,37 +131,34 @@ class SensitivityIndices(object):
         full_index = np.argmax(self.O2_indices)
         return np.unravel_index(full_index, self.O2_indices.shape)
 
-    def to_csv(self, filepath: str):
+    def to_csv(self, filepath: str, S: dict):
         # TODO khan: Save the data in this class to a CSV file
-
-        column_names = ['S1', 'S2', 'ST', 'S1_conf', 'S2_conf', 'ST_conf']
-
+       
         try:
-            with open(filepath, 'w') as fout:
-                writer = csv.DictWriter(fout, fieldnames= column_names)
+            with  open(filepath, 'w') as  fout:
+                writer = csv.DictWriter(fout, fieldnames=S.keys())
                 writer.writeheader()
-                for data in self.S:
-                    writer.writerow(data)
-        except IOError:
+                writer.writerow(S)
+        except IOerror:
             print("Input File Missing!")
 
 
-    def to_json(self, filepath: str):
+    def to_json(self, filepath: str, S: dict):
         # TODO khan: Save the data in this class to a JSON file
         
         try:
             with open(filepath, 'w') as fout:
-                json.dump(self.S, fout())
+                json.dump(S, fout)
         except IOError:
             print("Input File Missing!")
         
         
-    def to_pickle(self, filepath: str):
+    def to_pickle(self, filepath: str, S: dict):
         # TODO khan: Save the data in this class to a PKL file
 
         try:
             fout = open(filepath, 'wb')
-            pickle.dump(self.S, fout)
+            pickle.dump(S, fout)
             fout.close()
         except IOError:
             print("Input File Missing!")
@@ -254,8 +272,8 @@ class SensitivityAnalyzer(object):
         (S, analyze_time) = cls.__run_analysis(SAL.analyze.fast.analyze, prob_def, Y, M=M,
                 print_to_console=Flase, seed=seed)
 
-       Si = SensitivityIndices(S)
-       return Si if not save_time \
+        Si = SensitivityIndices(S)
+        return Si if not save_time \
                else (Si, (sample_time, exec_time, analyze_time))
 
 
@@ -272,13 +290,16 @@ class SensitivityAnalyzer(object):
         (samples, sample_time) = cls.__run_sampling(SAL.sample.latin.sample,
                 prob_def, N, seed=seed)
 
+        X = samples
+
         (Y, exec_time) = cls.__execute_CG(G, samples, prob_def, C, V)
 
-        (S, analyze_time) = cls.__run_analysis(SAL.analyze.rbd_fast.analyze,
-                X=samples, Y, M=M, print_to_console=False, seed=seed)
+        (S, analyze_time) = cls.__run_analysis(SAL.analyze.rbd_fast.analyze, X, Y, M=M, print_to_console=False, seed=seed)
 
 
-       Si = SensitivityIndices(S)
-       return Si if not save_time \
+        Si = SensitivityIndices(S)
+        return Si if not save_time \
                else (Si, (sample_time, exec_time, analyze_time))
+
+
 
