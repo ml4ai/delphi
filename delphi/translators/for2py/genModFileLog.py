@@ -137,6 +137,8 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
     module_names = []
     module_names_lowered = []
     module_summary = {}
+    procedure_functions = {}
+
     # Checks if file contains "end module" or "endmodule",
     # which only appears in case of module declaration.
     # If not, there is no need to look into the file any further,
@@ -192,7 +194,6 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
             current_func = None
 
             isProcedure =False
-            procedure_functions = {}
 
             line = f.readline().lower()
             while (line):
@@ -296,12 +297,12 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
                     elif current_intr:
                         if "procedure" in line:
                             first_function = line.strip().split(' ')[-1]
-                            procedure_functions[current_modu][current_intr] = [first_function]
+                            procedure_functions[current_modu][current_intr] = {first_function:None}
                             isProcedure = True
                         elif isProcedure:
                             pFunc = line.strip().split(' ')[-1]
                             if pFunc:
-                                procedure_functions[current_modu][current_intr].append(pFunc)
+                                procedure_functions[current_modu][current_intr][pFunc] = None
                     else:
                         pass
 
@@ -311,8 +312,14 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
                     else:
                         pass
                 line  = f.readline().lower()
-            # DEBUG
-            print ("    @ procedure_functions: ", procedure_functions)
+
+    for mod in procedure_functions:
+        if mod in module_summary:
+            mod_functions = module_summary[mod]
+            for interface in procedure_functions[mod]:
+                for function in procedure_functions[mod][interface]:
+                    if function in mod_functions:
+                        procedure_functions[mod][interface][function] = mod_functions[function]
 
     for mod in module_names_lowered:
         mod_to_file_mapper[mod] = [file_path]
@@ -320,11 +327,10 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
             "exports": {},
             "symbol_types": {},
             "imports": {},
-            "function_summary": {},
             "interface_functions": {}
         }
         if mod in module_summary:
-            mod_info_dict[mod]["function_summary"] = module_summary[mod]
+            mod_info_dict[mod]["interface_functions"] = procedure_functions[mod]
     f.close()
 
 
