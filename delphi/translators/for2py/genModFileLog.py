@@ -296,12 +296,13 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
                             isProceddure = False
                     elif current_intr:
                         if "procedure" in line:
-                            first_function = line.strip().split(' ')[-1]
+                            first_function = line.strip().split(' ')[-1].replace(',','')
                             procedure_functions[current_modu][current_intr] = {first_function:None}
                             isProcedure = True
                         elif isProcedure:
                             pFunc = line.strip().split(' ')[-1]
                             if pFunc:
+                                pFunc = pFunc.replace(',','')
                                 procedure_functions[current_modu][current_intr][pFunc] = None
                     else:
                         pass
@@ -313,6 +314,8 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
                         pass
                 line  = f.readline().lower()
 
+    # Using collected function information, populate interface function information
+    # by each module.
     for mod in procedure_functions:
         if mod in module_summary:
             mod_functions = module_summary[mod]
@@ -321,6 +324,8 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
                     if function in mod_functions:
                         procedure_functions[mod][interface][function] = mod_functions[function]
 
+    # Populate actual module information (summary)
+    # that will be written to thee JSONN file.
     for mod in module_names_lowered:
         mod_to_file_mapper[mod] = [file_path]
         mod_info_dict[mod] = {
