@@ -3544,7 +3544,9 @@ class GrFNGenerator(object):
             else:
                 code = f"{inputs[1]} if {inputs[2]} else {inputs[0]}"
         elif not string_assign:
-            array_name = state.array_assign_name.split('[')[0]
+            array_name = None
+            if state.array_assign_name:
+                array_name = state.array_assign_name.split('[')[0]
             if array_name in self.strings:
                 lambda_code_generator = genCode(self.use_numpy, self.strings[
                     array_name]["length"])

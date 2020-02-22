@@ -167,7 +167,7 @@ class XML_to_JSON_translator(object):
         self.unhandled_tags = set()  # unhandled xml tags in the current input
         self.summaries = {}
         self.asts = {}
-        self.functionList = []
+        self.functionList = {}
         self.subroutineList = []
         self.entryPoint = []
         # Dictionary to map all the variables defined in each function
@@ -335,7 +335,8 @@ class XML_to_JSON_translator(object):
                         combined.update(variables[index])
                         declared_variable.append(combined.copy())
                         if (
-                            state.subroutine["name"] in self.functionList
+                            state.subroutine["name"].lower() in list(
+                             self.functionList.keys())
                             and declared_variable[-1]["name"] in state.args
                         ):
                             state.subroutine["args"][
@@ -359,7 +360,7 @@ class XML_to_JSON_translator(object):
         # Create an exclusion list of all variables which are arguments
         # to the function/subroutine in context and to
         # function/subroutine names themselves
-        exclusion_list = self.functionList + self.subroutineList
+        exclusion_list = list(self.functionList.keys()) + self.subroutineList
         if self.argument_list.get(self.current_module):
             exclusion_list += self.argument_list[self.current_module]
         exclusion_list = list(set([x.lower() for x in exclusion_list]))
@@ -491,7 +492,7 @@ class XML_to_JSON_translator(object):
             f"{root.attrib} attributes."
         try:
             # First check if the variables are actually function names
-            if root.attrib["name"] in self.functionList:
+            if root.attrib["name"].lower() in list(self.functionList.keys()):
                 return []
             var_name = root.attrib["name"].lower()
             is_array = root.attrib["is_array"].lower()
@@ -777,7 +778,7 @@ class XML_to_JSON_translator(object):
                 fn["args"] += self.parseTree(node, state)
             return [fn]
         elif (
-            root.attrib["id"] in self.functionList
+            root.attrib["id"].lower() in list(self.functionList.keys())
             # and state.subroutine["tag"] != "function"
         ):
             fn = {"tag": "call", "name": root.attrib["id"].lower(), "args": []}
@@ -857,16 +858,82 @@ class XML_to_JSON_translator(object):
             elif node.tag == "value":
                 assign["value"] = self.parseTree(node, state)
 
+        search_for_functions = False
+        if len(assign["value"]) == 1 and assign["value"][0]["tag"] == "op":
+            search_for_functions = True
+        extra_tags = []
+
+        # If the assignment is to the function/subroutine name,
+        # then this is a return value. So, create a dummy variable and assign
+        # the value to it. Then, return this dummy variable
         if (
             assign["target"][0]["name"]
-            in [x.lower() for x in self.functionList]
+            in list(self.functionList.keys())
         ) and (
             assign["target"][0]["name"] == state.subroutine["name"].lower()
         ):
-            assign["value"][0]["tag"] = "ret"
-            return assign["value"]
+            # Create the dummy variable name
+            dummy_variable = f'{assign["target"][0]["name"]}_return'
+            # We need to make sure that this dummy variable is not already
+            # present in this module scope. If it is, throw and error for now
+            check_list = []
+            if self.variable_list.get(self.current_module):
+                check_list = [x['name'] for x in self.variable_list[
+                    self.current_module]]
+            if self.argument_list.get(self.current_module):
+                check_list += self.argument_list[self.current_module]
+            if dummy_variable in check_list:
+                assert False, "Return variable name is already present, " \
+                              "choose a different name."
+            else:
+                return_type = self.functionList[assign["target"][0]["name"]][
+                    'type']
+                if return_type == "CHARACTER":
+                    is_string = "true"
+                else:
+                    is_string = "false"
+                # If the dummy variable is not present, then create a new
+                # variable and then add it
+                variable_spec = {
+                    "type": return_type,
+                    "is_derived_type": "false",
+                    "keyword2": "none",
+                    "is_string": is_string,
+                    "name": dummy_variable,
+                    "is_array": "false",
+                    "tag": "variable"
+                }
+                assign["target"][0] = {
+                    "tag": "ref",
+                    "name": dummy_variable,
+                    "numPartRef": "1",
+                    "hasSubscripts": "false",
+                    "is_array": "false",
+                    "is_arg": "false",
+                    "is_parameter": "false",
+                    "is_interface_func": "false",
+                    "func_arg_types": [],
+                    "is_derived_type_ref": "false"
+                }
+                return_spec = {
+                    "tag": "ret",
+                    "name": dummy_variable,
+                    "numPartRef": "1",
+                    "hasSubscripts": "false",
+                    "is_array": "false",
+                    "is_arg": "false",
+                    "is_parameter": "false",
+                    "is_interface_func": "false",
+                    "func_arg_types": [],
+                    "is_derived_type_ref": "false"
+                }
+                if search_for_functions:
+                    extra_tags = self.check_function_call(assign["value"])
+            return extra_tags + [variable_spec, assign, return_spec]
         else:
-            return [assign]
+            if search_for_functions:
+                extra_tags = self.check_function_call(assign["value"])
+            return extra_tags + [assign]
 
     def process_function(self, root, state) -> List[Dict]:
         """ This function handles <function> tag.  """
@@ -875,6 +942,7 @@ class XML_to_JSON_translator(object):
         ), f"The root must be <function>. Current tag is {root.tag} with" \
             f"{root.attrib} attributes."
         subroutine = {"tag": root.tag, "name": root.attrib["name"].lower()}
+        self.current_module = root.attrib["name"].lower()
         self.summaries[root.attrib["name"]] = None
         for node in root:
             if node.tag == "header":
@@ -1521,6 +1589,72 @@ class XML_to_JSON_translator(object):
         array_ast.append(outer_do_ast)
         return array_ast
 
+    def check_function_call(self, value):
+        """
+            This function checks whether there is a function call in the
+            value of an assignment. If there is one, remove the function
+            call into a separate assignment
+        """
+        extra_tags = []
+        if value[0]["left"][0]["tag"] == "op":
+            extra_tags += self.check_function_call(value[0]["left"])
+        elif value[0]["left"][0]["tag"] == "call":
+            function_name = value[0]["left"][0]["name"]
+            if function_name.lower() in self.functionList:
+                extra_tags += self.replace_function_call(value[0]["left"],
+                                                         function_name)
+
+        if value[0]["right"][0]["tag"] == "op":
+            extra_tags += self.check_function_call(value[0]["right"])
+        elif value[0]["right"][0]["tag"] == "call":
+            function_name = value[0]["right"][0]["name"]
+            if function_name.lower() in self.functionList:
+                extra_tags += self.replace_function_call(value[0]["right"],
+                                                         function_name)
+
+        return extra_tags
+
+    def replace_function_call(self, tag, function_name):
+        call_spec = copy.deepcopy(tag[0])
+        self.functionList[function_name.lower()]['call_count'] += 1
+        call_count = self.functionList[function_name.lower()][
+            'call_count']
+        return_type = self.functionList[function_name.lower()]['type']
+        if return_type == "CHARACTER":
+            is_string = "true"
+        else:
+            is_string = "false"
+        call_var = {
+            "type": return_type,
+            "is_derived_type": "false",
+            "keyword2": "none",
+            "is_string": is_string,
+            "name": f"{function_name}__{call_count}",
+            "is_array": "false",
+            "tag": "variable"
+        }
+        target_var = {
+            "tag": "ref",
+            "name": f"{function_name}__{call_count}",
+            "numPartRef": "1",
+            "hasSubscripts": "false",
+            "is_array": "false",
+            "is_arg": "false",
+            "is_parameter": "false",
+            "is_interface_func": "false",
+            "func_arg_types": [],
+            "is_derived_type_ref": "false"
+        }
+        assignment_tag = {
+            "tag": "assignment",
+            "target": [target_var],
+            "value": [call_spec],
+        }
+        tag[0] = target_var
+        extra_tags = [call_var, assignment_tag]
+
+        return extra_tags
+
     def parseTree(self, root, state: ParseState) -> List[Dict]:
         """
         Parses the XML ast tree recursively to generate a JSON AST
@@ -1561,9 +1695,15 @@ class XML_to_JSON_translator(object):
         and self.subroutineList) that contains all the functions and
         subroutines in the Fortran File respectively.
         """
+        return_type = None
         for element in root.iter():
+            if element.tag == "declaration" and element[0].tag == "type":
+                return_type = element[0].attrib["name"]
             if element.tag == "function":
-                self.functionList.append(element.attrib["name"])
+                self.functionList[element.attrib["name"].lower()] = {
+                    'type': return_type,
+                    'call_count': 0
+                }
             elif element.tag == "subroutine":
                 self.subroutineList.append(element.attrib["name"])
 
@@ -1598,7 +1738,7 @@ class XML_to_JSON_translator(object):
         else:
             entry = {}
             if self.functionList:
-                entry["function"] = self.functionList
+                entry["function"] = list(self.functionList.keys())
             if self.subroutineList:
                 entry["subroutine"] = self.subroutineList
 
@@ -1606,7 +1746,7 @@ class XML_to_JSON_translator(object):
         # which can be pickled and hence is portable across various scripts and
         # usages.
         outputDict["ast"] = ast
-        outputDict["functionList"] = self.functionList
+        outputDict["functionList"] = list(self.functionList.keys())
         return outputDict
 
     def print_unhandled_tags(self):
@@ -1639,7 +1779,7 @@ def xml_to_py(trees, fortran_file):
     # print_unhandled_tags() was originally intended to alert us to program
     # constructs we were not handling.  It isn't clear we actually use this
     # so I'm commenting out this call for now.  Eventually this code (and all 
-    # the code that keeps track of unhandled tags) should go away.vi au
+    # the code that keeps track of unhandled tags) should go away.
     # --SKD 06/2019
     # translator.print_unhandled_tags()
 
