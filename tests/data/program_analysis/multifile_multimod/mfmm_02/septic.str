@@ -1,0 +1,3 @@
+septic.str: Septic system properties - SB_LS1
+    SEP_NAME         TYP          YR         OPT        CAP       AREA       TFAIL          Z        THK  STRM_DIST    DENSITY         BD     BOD_DC    BOD_COV        FC1        FC2      FECAL        PLQ        MRT        RSP       SLG1       SLG2       NITR     DENITR    PDISTRB   PSORPMAX    SOLPSLP   SOLPINTC
+        null           0           0           0      0.000      0.000           0      0.000      0.000      0.000      0.000      0.000      0.000      0.000      0.000      0.000      0.000      0.000      0.000      0.000      0.000      0.000      0.000      0.000      0.000      0.000      0.000      0.000

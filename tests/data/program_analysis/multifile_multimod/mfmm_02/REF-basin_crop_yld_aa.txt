@@ -1,0 +1,3 @@
+ TX_COON_CRK               SWAT+ Oct 10 2019    MODULAR Rev 2019.60.1                                     
+       year     plant_no   plant_name       harv_area(ha)    yld(t)         yld(t/ha)      
+        1988           1 frsd               0.00000000       0.00000000       0.00000000    

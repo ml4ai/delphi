@@ -23,6 +23,7 @@ supporting information. """
 import sys
 import argparse
 import pickle
+import copy
 import xml.etree.ElementTree as ET
 from typing import List, Dict
 from collections import OrderedDict
@@ -204,10 +205,10 @@ class XML_to_JSON_translator(object):
             if node.tag == "header":
                 subroutine["args"] = self.parseTree(node, state)
             elif node.tag == "body":
-                subState = state.copy(subroutine)
-                subroutine["body"] = self.parseTree(node, subState)
+                sub_state = state.copy(subroutine)
+                subroutine["body"] = self.parseTree(node, sub_state)
             elif node.tag == "members":
-                subroutine["body"] += self.parseTree(node, subState)
+                subroutine["body"] += self.parseTree(node, sub_state)
 
         # Check if this subroutine had a save statement and if so, process
         # the saved node to add it to the ast
@@ -216,7 +217,8 @@ class XML_to_JSON_translator(object):
             self.is_save = False
         elif self.saved_filehandle:
             subroutine["body"] += [{"tag": "save", "scope":
-                        self.current_module, "var_list": self.saved_filehandle}]
+                                    self.current_module, "var_list":
+                                    self.saved_filehandle}]
             self.saved_filehandle = []
 
         self.asts[root.attrib["name"]] = [subroutine]
@@ -270,7 +272,8 @@ class XML_to_JSON_translator(object):
             # Store each argument respective to the function it is defined in
             self.argument_list.setdefault(self.current_module, []).append(
                  var_name)
-            return [{"tag": "arg", "name": var_name, "is_array": array_status, "is_derived_type": is_derived_type}]
+            return [{"tag": "arg", "name": var_name, "is_array":
+                    array_status, "is_derived_type": is_derived_type}]
 
     def process_declaration(self, root, state) -> List[Dict]:
         """ This function handles <declaration> tag and its sub-elements by
@@ -290,7 +293,8 @@ class XML_to_JSON_translator(object):
             for node in root:
                 parameter_assignment += self.parseTree(node, state)
             return parameter_assignment
-
+        elif root.attrib.get("type") == "data":
+            return self.handle_data_statements(root, state)
         for node in root:
             if node.tag not in self.handled_tags:
                 self.unhandled_tags.add(node.tag)
@@ -422,24 +426,25 @@ class XML_to_JSON_translator(object):
                 elif node.tag == "derived-types":
                     derived_type[-1].update(self.parseTree(node, state))
             return derived_type
-        elif root.attrib["name"] == "character":
-            # Check if this is a string
-            declared_type = {
-                "type": root.attrib["name"],
-                "length": root.attrib["string_length"],
-                "is_derived_type": root.attrib["is_derived_type"].lower(),
-                "is_string": "true",
-                "keyword2": root.attrib["keyword2"],
-            }
-            return [declared_type]
         else:
-            # Else, this represents an empty element, which is the case of (1).
-            declared_type = {
-                "type": root.attrib["name"],
-                "is_derived_type": root.attrib["is_derived_type"].lower(),
-                "keyword2": root.attrib["keyword2"],
-                "is_string": "false",
-            }
+            if root.attrib["name"].lower() == "character":
+                # Check if this is a string
+                declared_type = {
+                    "type": root.attrib["name"],
+                    "length": root.attrib["string_length"],
+                    "is_derived_type": root.attrib["is_derived_type"].lower(),
+                    "is_string": "true",
+                    "keyword2": root.attrib["keyword2"],
+                }
+            else:
+                # Else, this represents an empty element, which is the case
+                # of (1)
+                declared_type = {
+                    "type": root.attrib["name"],
+                    "is_derived_type": root.attrib["is_derived_type"].lower(),
+                    "keyword2": root.attrib["keyword2"],
+                    "is_string": "false",
+                }
             return [declared_type]
 
     def process_length(self, root, state) -> List[Dict]:
@@ -569,7 +574,6 @@ class XML_to_JSON_translator(object):
             f"{root.attrib} attributes."
         derived_types = {"derived-types": []}
         declared_type = []
-        declared_variable = []
         for node in root:
             if node.tag not in self.handled_tags:
                 self.unhandled_tags.add(node.tag)
@@ -623,14 +627,14 @@ class XML_to_JSON_translator(object):
             return [do]
         elif root.attrib["type"] == "do-while":
             self.loop_index += 1
-            doWhile = {"tag": "do-while"}
+            do_while = {"tag": "do-while"}
             for node in root:
                 if node.tag == "header":
-                    doWhile["header"] = self.parseTree(node, state)
+                    do_while["header"] = self.parseTree(node, state)
                 elif node.tag == "body":
-                    doWhile["body"] = self.parseTree(node, state)
+                    do_while["body"] = self.parseTree(node, state)
             self.loop_active = False
-            return [doWhile]
+            return [do_while]
         else:
             self.unhandled_tags.add(root.attrib["type"])
             return []
@@ -708,7 +712,7 @@ class XML_to_JSON_translator(object):
                     op["operator"] = node.attrib["operator"]
         return [op]
 
-    def process_literal(self, root, state) -> List[Dict]:
+    def process_literal(self, root, _) -> List[Dict]:
         """ This function handles <literal> tag """
         assert (
             root.tag == "literal"
@@ -727,7 +731,6 @@ class XML_to_JSON_translator(object):
                 "value": root.attrib["value"],
             }
         ]
-
 
     def process_io_control(self, root, state) -> List[Dict]:
         """ This function checks for an asterisk in the argument of a
@@ -827,7 +830,7 @@ class XML_to_JSON_translator(object):
 
             return [ref]
 
-    def process_argument_types(self, root, state) -> List[Dict]:
+    def process_argument_types(self, root, _) -> List[Dict]:
         """This function handles <argument-types> tag that only appears
         under the interface function names. It will extract the argument
         types and add to the list, then return the list"""
@@ -845,7 +848,6 @@ class XML_to_JSON_translator(object):
         ), f"The root must be <assignment>. Current tag is {root.tag} with " \
             f"{root.attrib} attributes."
         assign = {"tag": "assignment"}
-        devTypeAssignment = False
         for node in root:
             if node.tag == "target":
                 assign["target"] = self.parseTree(node, state)
@@ -878,8 +880,8 @@ class XML_to_JSON_translator(object):
                     arg["is_arg"] = "true"
                 subroutine["args"] = args
             elif node.tag == "body":
-                subState = state.copy(subroutine)
-                subroutine["body"] = self.parseTree(node, subState)
+                sub_state = state.copy(subroutine)
+                subroutine["body"] = self.parseTree(node, sub_state)
 
         # Check if this subroutine had a save statement and if so, process
         # the saved node to add it to the ast
@@ -887,8 +889,11 @@ class XML_to_JSON_translator(object):
             subroutine["body"] += self.process_save(self.saved_node, state)
             self.is_save = False
         elif self.saved_filehandle:
-            subroutine["body"] += [{"tag": "save", "scope":
-                        self.current_module, "var_list": self.saved_filehandle}]
+            subroutine["body"] += [{
+                "tag": "save",
+                "scope": self.current_module,
+                "var_list": self.saved_filehandle
+            }]
             self.saved_filehandle = []
 
         self.asts[root.attrib["name"]] = [subroutine]
@@ -963,7 +968,7 @@ class XML_to_JSON_translator(object):
             self.saved_filehandle += [val]
         return [val]
 
-    def process_terminal(self, root, state) -> List[Dict]:
+    def process_terminal(self, root, _) -> List[Dict]:
         """Handles tags that terminate the computation of a
         program unit, namely, "return", "stop", and "exit" """
         index = 0
@@ -972,20 +977,15 @@ class XML_to_JSON_translator(object):
             index = self.break_index
             if self.loop_active:
                 self.loop_constructs.setdefault(
-                    f"loop", []).append(f"break"
-                                                          f"_{self.break_index}")
+                    f"loop", []).append(f"break_{self.break_index}")
         elif root.tag == "stop":
             self.return_index += 1
             index = self.return_index
             if self.loop_active:
                 self.loop_constructs.setdefault(
-                    f"loop", []).append(f"return"
-                                                          f"_{self.return_index}")
+                    f"loop", []).append(f"return_{self.return_index}")
         return [{"tag": root.tag, "index": index}]
 
-    """
-        This function handles <format> tag.
-    """
     def process_format(self, root, state) -> List[Dict]:
         """ This function handles <format> tag. """
 
@@ -1000,10 +1000,7 @@ class XML_to_JSON_translator(object):
             format_spec["args"] += self.parseTree(node, state)
         return [format_spec]
 
-    """
-        This function handles <format-item> tag.
-    """
-    def process_format_item(self, root, state) -> List[Dict]:
+    def process_format_item(self, root, _) -> List[Dict]:
         """ This function handles <format-item> tag. """
 
         assert root.tag == "format-item", "The root must be <format-item>"
@@ -1014,7 +1011,7 @@ class XML_to_JSON_translator(object):
         }
         return [variable_spec]
 
-    def process_use(self, root, state) -> List[Dict]:
+    def process_use(self, root, _) -> List[Dict]:
         """
             This function adds the tag for use statements
             In case of "USE .. ONLY .." statements, the symbols to be included
@@ -1031,7 +1028,7 @@ class XML_to_JSON_translator(object):
 
         return [tag_spec]
     
-    def process_private_variable(self, root, state) -> List[Dict]:
+    def process_private_variable(self, root, _) -> List[Dict]:
         """ This function adds the tag for private symbols. Any
         variable/function being initialized as private is added in this tag.
         """
@@ -1041,7 +1038,7 @@ class XML_to_JSON_translator(object):
 
         return []
 
-    def process_save(self, root, state) -> List[Dict]:
+    def process_save(self, root, _) -> List[Dict]:
         """
         This function parses the XML tag for the Fortran save statement and
         adds the tag that holds the function under which SAVE has been
@@ -1074,7 +1071,7 @@ class XML_to_JSON_translator(object):
             return [{"tag": "save", "scope": self.current_module, "var_list":
                     var_list}]
 
-    def process_continue(self, root, state) -> List[Dict]:
+    def process_continue(self, root, _) -> List[Dict]:
         """This function handles cycle (continue in Python)
            tag."""
         self.cycle_index += 1
@@ -1122,7 +1119,8 @@ class XML_to_JSON_translator(object):
 
     def process_interface(self, root, state) -> List[Dict]:
         """This function handles interface"""
-        interface = {"tag": root.tag, "name": "", "functions": {}, "max_argument": root.attrib["max_arg"]}
+        interface = {"tag": root.tag, "name": "", "functions": {},
+                     "max_argument": root.attrib["max_arg"]}
         for node in root:
             if node.tag == "header":
                 header = self.parseTree(node, state)
@@ -1130,10 +1128,395 @@ class XML_to_JSON_translator(object):
             elif node.tag == "body":
                 body = self.parseTree(node, state)
                 for elem in body:
-                    interface["functions"][elem["name"]] = elem["func_arg_types"]
+                    interface["functions"][elem["name"]] = elem[
+                        "func_arg_types"]
             else:
                 pass
         return [interface]
+
+    def handle_data_statements(self, root, state):
+        """
+        This function handles the data statements that occurs in the
+        declaration tag
+        """
+        # The main list of assignment inside a single data statement
+        assignment_list = []
+        tmp_assign = []
+        current_var_count = None
+        # Iterate over each node in the data statement
+        for node in root:
+            # The 'variable' tag must always come first, followed by the
+            # `value` tag and then possible other `variable-value` pairs
+            if node.tag == "variables":
+                # Transfer everything from the previous `variable-value`
+                # assignment into the main list
+                if len(tmp_assign) > 0:
+                    for item in tmp_assign:
+                        assignment_list.append(item)
+                    tmp_assign = []
+                # Get the number of variables being assigned
+                current_var_count = int(node.attrib["count"])
+                # For every variable, create an assignment ast and fill it up
+                # with the `tag` and `target` information
+                for var in node:
+                    assign = dict()
+                    assign["tag"] = "assignment"
+                    assign["target"] = self.parseTree(var, state)
+                    tmp_assign.append(assign)
+            # The `values` tag will come after the `variables` tag and assign
+            # values to the respective variables
+            elif node.tag == "values":
+                # Get the number of values present
+                current_value_count = int(node.attrib["count"])
+                # If for every variable, there is a value assignment i.e.
+                # one-to-one E.g. data x,y,z /1,2,3*2/ (z is an array)
+                # TODO: Not handled -> data x(1) /2/ where x is an array of
+                #  dimension > 1
+                if current_value_count == current_var_count:
+                    index = 0
+                    for var in node:
+                        target = tmp_assign[index]["target"][0]
+                        # Check if this value assignment is for an array
+                        if target["is_array"] == "true":
+                            # Check if only one value is assigned or if it is
+                            # a range of values using the '*' operator
+                            if len(var) == 0:
+                                if not tmp_assign[index]["target"][0].get(
+                                        "subscripts"):
+                                    tmp_assign[index]["target"][0][
+                                        "subscripts"] = [
+                                        {
+                                            "tag": "literal",
+                                            "type": "int",
+                                            "value": "1"
+                                        }]
+                                    tmp_assign[index]["target"][0][
+                                        "hasSubscripts"] = "true"
+                                tmp_assign[index]["value"] = \
+                                    self.parseTree(var, state)
+                            else:
+                                # If a single array is assigned multiple same
+                                # values using an '*' operator, create a
+                                # do-while loop to assign each index
+                                variable_name = target["name"]
+                                for var_name in self.variable_list[
+                                                self.current_module]:
+                                    if var_name["name"] == variable_name:
+                                        if len(var_name["dimensions"]) == 1:
+                                            dimension = (int(var_name[
+                                                            "dimensions"][0][
+                                                            "literal"][0][
+                                                            "value"]))
+                                        else:
+                                            dimension = (int(var_name[
+                                                            "dimensions"][0][
+                                                            "literal"][0][
+                                                            "value"]),
+                                                         int(var_name[
+                                                            "dimensions"][1][
+                                                            "literal"][0][
+                                                            "value"]))
+                                if len(dimension) == 1:
+                                    array_ast = self.create_1d_array_ast(
+                                        var,
+                                        tmp_assign[index],
+                                        state)
+                                else:
+                                    array_ast = self.create_2d_array_ast(
+                                        var,
+                                        tmp_assign[index],
+                                        dimension,
+                                        state)
+                                if len(array_ast) == 1:
+                                    tmp_assign[index] = array_ast[0]
+                                else:
+                                    tmp_assign = tmp_assign[:index] \
+                                                 + array_ast \
+                                                 + tmp_assign[index+1:]
+                                    index += 1
+                        else:
+                            # For every respective variable, assign the `value`
+                            # information into the AST
+                            tmp_assign[index]["value"] = \
+                                self.parseTree(var, state)
+                        index += 1
+                else:
+                    # If the number of values is more than the number of
+                    # variables, the variable assignment includes an array
+                    # assignment of the form: DATA X /1,2,3,4/ where X has a
+                    # dimension of 4
+                    value_index = 0
+                    loop_limit = 0
+                    array_assign = []
+                    for variable in tmp_assign:
+                        variable_name = variable["target"][0]["name"]
+                        is_array = variable["target"][0]["is_array"]
+                        if is_array == "true":
+                            for var in self.variable_list[self.current_module]:
+                                if var["name"] == variable_name:
+                                    # This is very hard-coded. What other
+                                    # kinds of dimensions are present other
+                                    # than in literal forms?
+                                    if len(var["dimensions"]) == 1:
+                                        dimension = [int(var["dimensions"][0][
+                                                             "literal"][0][
+                                                             "value"])]
+                                    else:
+                                        dimension = [int(var["dimensions"][0][
+                                                             "literal"][0][
+                                                             "value"]),
+                                                     int(var["dimensions"][1][
+                                                             "literal"][0][
+                                                             "value"])]
+                            arr_index = 0
+                            if len(dimension) > 1:
+                                two_dim_arr = True
+                                row_count = dimension[0]
+                                column_count = dimension[1]
+                                current_row = 1
+                                current_column = 1
+                            else:
+                                two_dim_arr = False
+                            while True:
+                                if two_dim_arr:
+                                    if arr_index >= row_count * column_count:
+                                        break
+                                else:
+                                    if arr_index >= dimension[0]:
+                                        break
+                                arr_target = copy.deepcopy(variable)
+                                if two_dim_arr:
+                                    arr_target["target"][0]["subscripts"] = [
+                                        {
+                                            "tag": "literal",
+                                            "type": "int",
+                                            "value": str(current_row)
+                                        },
+                                        {
+                                            "tag": "literal",
+                                            "type": "int",
+                                            "value": str(current_column)
+                                        }
+                                    ]
+                                else:
+                                    arr_target["target"][0]["subscripts"] = [
+                                        {
+                                            "tag": "literal",
+                                            "type": "int",
+                                            "value": str(arr_index + 1)
+                                        }]
+                                arr_target["target"][0]["hasSubscripts"] = \
+                                    "true"
+                                if len(node[value_index]) == 0:
+                                    arr_target["value"] = \
+                                        self.parseTree(node[value_index], state)
+                                    array_assign.append(arr_target)
+                                    value_index += 1
+                                else:
+                                    if loop_limit == 0:
+                                        loop_limit = \
+                                            int(node[value_index].attrib[
+                                                    "value"])
+                                    arr_target["value"] = \
+                                        self.parseTree(node[value_index][0],
+                                                       state)
+                                    array_assign.append(arr_target)
+                                    loop_limit -= 1
+                                    if loop_limit == 0:
+                                        value_index += 1
+                                if two_dim_arr:
+                                    if current_row == row_count:
+                                        current_row = 1
+                                        current_column += 1
+                                    else:
+                                        current_row += 1
+                                arr_index += 1
+                        else:
+                            if len(node[value_index]) == 0:
+                                variable["value"] = \
+                                    self.parseTree(node[value_index], state)
+                                array_assign.append(variable)
+                                value_index += 1
+                            else:
+                                if loop_limit == 0:
+                                    loop_limit = int(node[value_index].attrib[
+                                                         "value"])
+                                variable["value"] = \
+                                    self.parseTree(node[value_index][0], state)
+                                array_assign.append(variable)
+                                loop_limit -= 1
+                                if loop_limit == 0:
+                                    value_index += 1
+                    tmp_assign = array_assign
+
+        for item in tmp_assign:
+            assignment_list.append(item)
+
+        return assignment_list
+
+    def create_1d_array_ast(self, root, assign_ast, state):
+        """
+        This function creates the do-while loop ast which assigns values to
+        a one-dimensional array according to the data statement operation
+        """
+        # First, we need a variable for the iteration. Check if an integer
+        # variable 'iterator' has already been defined. If yes, use it,
+        # else define it
+        array_ast = []
+        iterator_ast = {
+            "type": "integer",
+            "is_derived_type": "false",
+            "keyword2": "none",
+            "is_string": "false",
+            "name": "iterator",
+            "is_array": "false",
+            "tag": "variable"
+        }
+        if iterator_ast not in self.variable_list[self.current_module]:
+            array_ast.append(iterator_ast)
+
+        # Now, define the do-while loop
+        do_ast = dict()
+        do_ast["tag"] = "do"
+        do_ast["header"] = [{
+            "tag": "index",
+            "name": "iterator",
+            "low": [{
+                "tag": "literal",
+                "type": "int",
+                "value": "1"
+            }],
+            "high": [{
+                "tag": "literal",
+                "type": "int",
+                "value": root.attrib["value"]
+            }]
+            }
+        ]
+        if not assign_ast["target"][0].get("subscripts"):
+            assign_ast["target"][0]["subscripts"] = [
+                {
+                    "tag": "ref",
+                    "name": "iterator",
+                    "numPartRef": "1",
+                    "hasSubscripts": "false",
+                    "is_array": "false",
+                    "is_arg": "false",
+                    "is_parameter": "false",
+                    "is_interface_func": "false",
+                    "func_arg_types": [],
+                    "is_derived_type_ref": "false"
+                }]
+            assign_ast["target"][0]["hasSubscripts"] = "true"
+        assign_ast["value"] = self.parseTree(root[0], state)
+        do_ast["body"] = [assign_ast]
+
+        array_ast.append(do_ast)
+        return array_ast
+
+    def create_2d_array_ast(self, root, assign_ast, dimension, state):
+        """
+        This function creates the do-while loop ast which assigns values to a
+        two-dimensional array according to the data statement operation
+        """
+        # First, we need a variable for the iteration. Check if an integer
+        # variable 'i_iterator' has already been defined. If yes, use it,
+        # else define it. Do the same for 'j_iterator'
+        array_ast = []
+        i_iterator_ast = {
+            "type": "integer",
+            "is_derived_type": "false",
+            "keyword2": "none",
+            "is_string": "false",
+            "name": "i_iterator",
+            "is_array": "false",
+            "tag": "variable"
+        }
+        if i_iterator_ast not in self.variable_list[self.current_module]:
+            array_ast.append(i_iterator_ast)
+
+        j_iterator_ast = {
+            "type": "integer",
+            "is_derived_type": "false",
+            "keyword2": "none",
+            "is_string": "false",
+            "name": "j_iterator",
+            "is_array": "false",
+            "tag": "variable"
+        }
+        if j_iterator_ast not in self.variable_list[self.current_module]:
+            array_ast.append(j_iterator_ast)
+
+        # Now, define the inner do-while loop first
+        inner_do_ast = dict()
+        inner_do_ast["tag"] = "do"
+        inner_do_ast["header"] = [{
+            "tag": "index",
+            "name": "j_iterator",
+            "low": [{
+                "tag": "literal",
+                "type": "int",
+                "value": "1"
+            }],
+            "high": [{
+                "tag": "literal",
+                "type": "int",
+                "value": str(dimension[1])
+            }]
+        }
+        ]
+        if not assign_ast["target"][0].get("subscripts"):
+            assign_ast["target"][0]["subscripts"] = [
+                {
+                    "tag": "ref",
+                    "name": "i_iterator",
+                    "numPartRef": "1",
+                    "hasSubscripts": "false",
+                    "is_array": "false",
+                    "is_arg": "false",
+                    "is_parameter": "false",
+                    "is_interface_func": "false",
+                    "func_arg_types": [],
+                    "is_derived_type_ref": "false"
+                },
+                {
+                    "tag": "ref",
+                    "name": "j_iterator",
+                    "numPartRef": "1",
+                    "hasSubscripts": "false",
+                    "is_array": "false",
+                    "is_arg": "false",
+                    "is_parameter": "false",
+                    "is_interface_func": "false",
+                    "func_arg_types": [],
+                    "is_derived_type_ref": "false"
+                }
+            ]
+            assign_ast["target"][0]["hasSubscripts"] = "true"
+        assign_ast["value"] = self.parseTree(root[0], state)
+        inner_do_ast["body"] = [assign_ast]
+
+        # Now the outer do-while loop
+        outer_do_ast = dict()
+        outer_do_ast["tag"] = "do"
+        outer_do_ast["header"] = [{
+            "tag": "index",
+            "name": "i_iterator",
+            "low": [{
+                "tag": "literal",
+                "type": "int",
+                "value": "1"
+            }],
+            "high": [{
+                "tag": "literal",
+                "type": "int",
+                "value": str(dimension[0])
+            }]
+        }
+        ]
+        outer_do_ast["body"] = [inner_do_ast]
+        array_ast.append(outer_do_ast)
+        return array_ast
 
     def parseTree(self, root, state: ParseState) -> List[Dict]:
         """
@@ -1195,6 +1578,8 @@ class XML_to_JSON_translator(object):
         for tree in trees:
             ast += self.parseTree(tree, ParseState())
 
+        # print(ast)
+
         """
         Find the entry point for the Fortran file.
         The entry point for a conventional Fortran file is always the PROGRAM
@@ -1253,7 +1638,7 @@ def xml_to_py(trees, fortran_file):
     # so I'm commenting out this call for now.  Eventually this code (and all 
     # the code that keeps track of unhandled tags) should go away.vi au
     # --SKD 06/2019
-    #translator.print_unhandled_tags()
+    # translator.print_unhandled_tags()
 
     return output_dict
 
@@ -1288,12 +1673,12 @@ def parse_args():
     fortran_file = args.input[0]
     pickle_file = args.gen[0]
 
-    return (fortran_file, pickle_file, args)
+    return fortran_file, pickle_file, args
 
 
-def gen_pickle_file(outputDict, pickle_file):
-    with open(pickle_file, "wb") as f:
-        pickle.dump(outputDict, f)
+def gen_pickle_file(output_dictionary, pickle_filename):
+    with open(pickle_filename, "wb") as f:
+        pickle.dump(output_dictionary, f)
 
 
 if __name__ == "__main__":

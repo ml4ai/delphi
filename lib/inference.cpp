@@ -1,11 +1,13 @@
 #include "AnalysisGraph.hpp"
 #include <range/v3/all.hpp>
-#include "spdlog/spdlog.h"
+#include <unsupported/Eigen/MatrixFunctions>
+#include <boost/range/adaptors.hpp>
 
 using namespace std;
+using Eigen::VectorXd, Eigen::MatrixXd;
 using fmt::print, fmt::format;
-using Eigen::VectorXd;
-using spdlog::warn;
+namespace rs = ranges;
+using boost::adaptors::transformed;
 
 /*
  ============================================================================
@@ -13,10 +15,17 @@ using spdlog::warn;
  ============================================================================
 */
 
+void AnalysisGraph::print_latent_state(const VectorXd& v) {
+  for (int i=0; i < this->num_vertices(); i++){
+    cout << (*this)[i].name << " " << v[2*i] << endl;
+  }
+}
+
 void AnalysisGraph::sample_predicted_latent_state_sequences(
     int prediction_timesteps,
     int initial_prediction_step,
-    int total_timesteps) {
+    int total_timesteps,
+    bool project) {
   this->n_timesteps = prediction_timesteps;
 
   // Allocate memory for prediction_latent_state_sequences
@@ -27,17 +36,29 @@ void AnalysisGraph::sample_predicted_latent_state_sequences(
 
   for (int samp = 0; samp < this->res; samp++) {
     for (int t = 0; t < this->n_timesteps; t++) {
-      const Eigen::MatrixXd& A_t =
-          tuning_param * t * this->transition_matrix_collection[samp];
-      this->predicted_latent_state_sequences[samp][t] = A_t.exp() * this->s0;
+      const MatrixXd& A_d = this->transition_matrix_collection.at(samp);
+      if (project) {
+        // Perform projection based on the perturbed initial latent state s0
+        // FIXME The matrix A_d here is the transition matrix for a discrete update.
+        // In order to use the matrix exponential it must be the the matrix for
+        // the continuous 'differential' update equation.
+        this->predicted_latent_state_sequences[samp][t] = A_d.pow(t) * this->s0;
+        if (samp == 0) {
+          this->print_latent_state(this->predicted_latent_state_sequences[samp][t]);
+        }
+      }
+      else {
+        // Perform inference based on the sampled initial latent states
+        const VectorXd& s0_samp = this->initial_latent_state_collection[samp];
+        this->predicted_latent_state_sequences[samp][t] = A_d.pow(t) * s0_samp;
+      }
     }
   }
 }
 
 void AnalysisGraph::
     generate_predicted_observed_state_sequences_from_predicted_latent_state_sequences() {
-  using ranges::to;
-  using ranges::views::transform;
+  using rs::to, rs::views::transform;
 
   // Allocate memory for observed_state_sequences
   this->predicted_observed_state_sequences.clear();
@@ -81,17 +102,32 @@ FormattedPredictionResult AnalysisGraph::format_prediction_result() {
   return result;
 }
 
+FormattedProjectionResult AnalysisGraph::format_projection_result() {
+  // Access
+  // [ vertex_name ][ timestep ][ sample ]
+  FormattedProjectionResult result;
 
-/*
- ============================================================================
- Public: Inference
- ============================================================================
-*/
+  for (auto [vert_name, vert_id] : this->name_to_vertex) {
+    result[vert_name] =
+        vector<vector<double>>(this->pred_timesteps, vector<double>(this->res));
+    for (int ts = 0; ts < this->pred_timesteps; ts++) {
+      for (int samp = 0; samp < this->res; samp++) {
+        result[vert_name][ts][samp] =
+            // this->predicted_latent_state_sequences[samp][ts](2 * vert_id);
+            this->predicted_observed_state_sequences[samp][ts][vert_id][0];
+      }
+      rs::sort(result[vert_name][ts]);
+    }
+  }
 
-Prediction AnalysisGraph::generate_prediction(int start_year,
-                                              int start_month,
-                                              int end_year,
-                                              int end_month) {
+  return result;
+}
+
+void AnalysisGraph::run_model(int start_year,
+                              int start_month,
+                              int end_year,
+                              int end_month,
+                              bool project) {
   if (!this->trained) {
     print("Passed untrained Causal Analysis Graph (CAG) Model. \n",
           "Try calling <CAG>.train_model(...) first!");
@@ -102,11 +138,11 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
   if (start_year < this->training_range.first.first ||
       (start_year == this->training_range.first.first &&
        start_month < this->training_range.first.second)) {
-    warn("The initial prediction date can't be before the "
+    print("The initial prediction date can't be before the "
          "inital training date. Defaulting initial prediction date "
          "to initial training date.");
     start_year = this->training_range.first.first;
-    start_month = this->training_range.first.first;
+    start_month = this->training_range.first.second;
   }
 
   /*
@@ -152,8 +188,21 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
   }
 
   this->sample_predicted_latent_state_sequences(
-      this->pred_timesteps, 0, total_timesteps);
+      this->pred_timesteps, 0, total_timesteps, project);
   this->generate_predicted_observed_state_sequences_from_predicted_latent_state_sequences();
+}
+
+/*
+ ============================================================================
+ Public: Inference
+ ============================================================================
+*/
+
+Prediction AnalysisGraph::generate_prediction(int start_year,
+                                              int start_month,
+                                              int end_year,
+                                              int end_month) {
+  this->run_model(start_year, start_month, end_year, end_month);
 
   return make_tuple(
       this->training_range, this->pred_range, this->format_prediction_result());

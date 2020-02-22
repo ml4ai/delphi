@@ -1,6 +1,6 @@
-from delphi.AnalysisGraph import AnalysisGraph
+from indra.sources import eidos
 
-G = AnalysisGraph.from_text(
+ep = eidos.process_text 
     "Significantly increased conflict seen in "
     "South Sudan forced many families to flee in 2017."
 )

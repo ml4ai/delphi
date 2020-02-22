@@ -1,0 +1,11 @@
+urban.urb: Urban parameters
+urbnm                  fimp      fcimp    curbden    urbcoef     dirtmx      thalf     tnconc     tpconc   tno3conc     urbcn2                 Description
+residen_high_den      0.600      0.440      0.240      0.180    225.000      0.750    550.000    223.000      7.200     98.000    Residential-High Density
+residen_med_den       0.380      0.300      0.240      0.180    225.000      0.750    550.000    223.000      7.200     98.000  Residential-Medium Density
+residen_ml_den        0.200      0.170      0.240      0.180    225.000      0.750    460.000    196.000      6.000     98.000 Residential-Med/Low Density
+residen_low_den       0.120      0.100      0.240      0.180    225.000      0.750    460.000    196.000      6.000     98.000     Residential-Low Density
+commercial            0.670      0.620      0.280      0.180    200.000      1.600    420.000    240.000      5.500     98.000                  Commercial
+industrial            0.840      0.790      0.140      0.180    400.000      2.350    430.000    104.000      5.600     98.000                  Industrial
+transportation        0.980      0.950      0.120      0.180    340.000      3.900    480.000    212.000      6.300     98.000              Transportation
+institutional         0.510      0.470      0.120      0.180    340.000      3.900    480.000    212.000      6.300     98.000               Institutional
+residential           0.380      0.300      0.240      0.180    225.000      0.750    550.000    223.000      7.200     98.000                 Residential

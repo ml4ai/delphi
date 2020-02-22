@@ -8,7 +8,6 @@ networkx
 numpy
 pandas
 pygraphviz
-scipy
 tqdm
 pygments
 future

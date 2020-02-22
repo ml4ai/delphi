@@ -1,11 +1,9 @@
 #include "AnalysisGraph.hpp"
 #include "data.hpp"
-#include "spdlog/spdlog.h"
 #include <tqdm.hpp>
 #include <range/v3/all.hpp>
 
 using namespace std;
-using spdlog::debug;
 using tq::trange;
 
 void AnalysisGraph::train_model(int start_year,
@@ -22,7 +20,9 @@ void AnalysisGraph::train_model(int start_year,
                                 bool use_heuristic) {
 
   this->initialize_random_number_generator();
-  this->construct_beta_pdfs(this->rand_num_generator);
+  this->uni_disc_dist = uniform_int_distribution<int>(0, this->num_nodes() - 1);
+
+  this->construct_beta_pdfs();
   this->find_all_paths();
   this->data_heuristic = use_heuristic;
 
@@ -30,7 +30,8 @@ void AnalysisGraph::train_model(int start_year,
       start_year, start_month, end_year, end_month);
   this->res = res;
   this->init_betas_to(initial_beta);
-  this->sample_initial_transition_matrix_from_prior();
+  this->set_transition_matrix_from_betas();
+  this->set_default_initial_state();
   this->parameterize(country, state, county, start_year, start_month, units);
 
   this->training_range = make_pair(make_pair(start_year, start_month),
@@ -41,7 +42,7 @@ void AnalysisGraph::train_model(int start_year,
         start_year, start_month, end_year, end_month, country, state, county);
   }
 
-  this->set_initial_latent_state_from_observed_state_sequence();
+  //this->set_initial_latent_state_from_observed_state_sequence();
 
   this->set_log_likelihood();
 
@@ -65,7 +66,9 @@ void AnalysisGraph::train_model(int start_year,
   // matrices.
   //
   this->transition_matrix_collection.clear();
+  this->initial_latent_state_collection.clear();
   this->transition_matrix_collection = vector<Eigen::MatrixXd>(this->res);
+  this->initial_latent_state_collection = vector<Eigen::VectorXd>(this->res);
 
   for (int i : trange(burn)) {
     this->sample_from_posterior();
@@ -74,6 +77,7 @@ void AnalysisGraph::train_model(int start_year,
   for (int i : trange(this->res)) {
     this->sample_from_posterior();
     this->transition_matrix_collection[i] = this->A_original;
+    this->initial_latent_state_collection[i] = this->s0;
   }
 
   this->trained = true;

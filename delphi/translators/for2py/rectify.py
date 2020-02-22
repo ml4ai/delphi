@@ -76,6 +76,9 @@ class RectifyOFPXML:
         # Keep a track where goto was declared
         # whether it's under program(main) or loop body
         self.goto_under_loop = False
+        # Keeps track of the signed real/int literal constant inside data
+        # statements
+        self.is_data_stmt_constant = False
         # Keeps records of encountered <goto-stmt> lbl value
         self.goto_target_lbl_after = []
         self.goto_target_lbl_before = []
@@ -216,7 +219,7 @@ class RectifyOFPXML:
         self.cur_interface_name = None
         # Keep a track of interface XML object for later update
         self.interface_xml = {}
-
+        self.dimensions_holder = None
 
     #################################################################
     #                                                               #
@@ -298,6 +301,7 @@ class RectifyOFPXML:
         "names",
         "procedure-stmt",
         "literal",
+        "values"
     ]
 
     value_child_tags = [
@@ -463,12 +467,32 @@ class RectifyOFPXML:
         "explicit-shape-spec-list",
         "component-attr-spec",
         "component-attr-spec-list",
+        "sequence-stmt",
+        "private-or-sequence",
+        "data-stmt-set",
+        "data-stmt",
+        "signed-real-literal-constant",
+        "signed-int-literal-constant",
+        "data-stmt-constant",
+        "data-i-do-object-list__begin",
     ]
 
     output_child_tags = [
         "name",
         "literal",
         "operation",
+    ]
+
+    dtype_var_declaration_tags = [
+        "component-decl",
+        "component-decl-list",
+        "component-decl-list__begin",
+    ]
+
+    variable_child_tags = [
+        "initial-value",
+        "length",
+        "dimensions",
     ]
 
     #################################################################
@@ -920,6 +944,7 @@ class RectifyOFPXML:
                         )
                 elif (
                         child.tag == "component-array-spec"
+                        or child.tag == "operation"
                 ):
                     self.derived_type_var_holder_list.append(child)
                 else:
@@ -951,6 +976,7 @@ class RectifyOFPXML:
                 elif (
                         child.tag == "component-decl"
                         or child.tag == "component-decl-list"
+                        or child.tag == "component-decl-list__begin"
                 ):
                     current.attrib['type'] = "derived-type"
                     self.derived_type_var_holder_list.append(child)
@@ -982,6 +1008,11 @@ class RectifyOFPXML:
             self.is_derived_type = False
 
         self.variable_type = None
+
+        if self.dimensions_holder:
+            self.restruct_declaration(current, parent)
+            parent.remove(current)
+            self.dimensions_holder = None
 
     def handle_tag_type(
             self, root, current, parent, _, traverse
@@ -1068,6 +1099,7 @@ class RectifyOFPXML:
                     self.derived_type_var_holder_list.append(child)
             elif child.tag == "literal":
                 if self.is_character:
+                    self.derived_type_var_holder_list.append(child)
                     current.set("string_length", str(child.attrib["value"]))
                 elif is_derived_type_dimension_setting:
                     child.attrib["dim-number"] = str(dim_number)
@@ -1082,10 +1114,7 @@ class RectifyOFPXML:
                     self.derived_type_array_dimensions[self.dim].append(child)
             elif child.tag == "component-array-spec":
                 self.derived_type_var_holder_list.append(child)
-            elif (
-                    child.tag == "component-decl"
-                    or child.tag == "component-decl-list"
-            ):
+            elif child.tag in self.dtype_var_declaration_tags:
                 self.derived_type_var_holder_list.append(child)
             elif child.tag == "length":
                 cur_elem = ET.SubElement(current, child.tag, child.attrib)
@@ -1115,9 +1144,11 @@ class RectifyOFPXML:
                 if (
                         child.tag == "variable"
                         and self.current_scope in self.argument_types
-                        and child.attrib['name'] in self.argument_types[self.current_scope]
+                        and child.attrib['name'] in self.argument_types[
+                        self.current_scope]
                 ):
-                    self.argument_types[self.current_scope][child.attrib['name']] = self.variable_type
+                    self.argument_types[self.current_scope][child.attrib[
+                        'name']] = self.variable_type
                 # Up to this point, all the child (nested or sub) elements were
                 # <variable>
                 cur_elem = ET.SubElement(
@@ -1136,9 +1167,12 @@ class RectifyOFPXML:
                         current, child.tag, child.attrib
                     )
                 else:
-                    assert (
-                        child.tag == "variable"
-                    ), f'In handle_tag_variables: "{child.tag}" not handled'
+                    try:
+                        _ = self.unnecessary_tags.index(child.tag)
+                    except ValueError:
+                        assert (
+                            child.tag == "variable"
+                        ), f'In handle_tag_variables: "{child.tag}" not handled'
 
     def handle_tag_variable(
             self, root, current, parent, _, traverse
@@ -1167,14 +1201,12 @@ class RectifyOFPXML:
                 cur_elem = ET.SubElement(
                     current, child.tag, child.attrib
                 )
-                if child.tag == "initial-value":
+                if child.tag in self.variable_child_tags:
                     self.parseXMLTree(
                         child, cur_elem, current, parent, traverse
                     )
-                elif child.tag == "length":
-                    self.parseXMLTree(
-                        child, cur_elem, current, parent, traverse
-                    )
+                    if child.tag == "dimensions":
+                        current.remove(self.dimensions_holder)
                 else:
                     assert (
                         False
@@ -1520,8 +1552,10 @@ class RectifyOFPXML:
                     current, child.tag, child.attrib
                 )
                 if "id" in child.attrib and self.is_interface:
-                    self.interface_functions[self.cur_interface_name].append(child.attrib['id'])
-                    self.interface_function_xml[self.cur_interface_name][child.attrib['id']] = cur_elem
+                    self.interface_functions[self.cur_interface_name].append(
+                        child.attrib['id'])
+                    self.interface_function_xml[self.cur_interface_name][
+                        child.attrib['id']] = cur_elem
                 if grandparent.tag == "function":
                     self.args_for_function.append(cur_elem.attrib['id'])
                 # If the element holds sub-elements, call the XML tree parser
@@ -1716,7 +1750,7 @@ class RectifyOFPXML:
                 self.reconstruct_name_element(cur_elem, current)
 
     def handle_tag_literal(
-            self, root, current, parent, _, traverse
+            self, root, current, parent, grandparent, traverse
     ):
         """This function handles cleaning up the XML elements
         between the literal elements.
@@ -1726,6 +1760,7 @@ class RectifyOFPXML:
         """
         if '"' in current.attrib['value']:
             current.attrib['value'] = self.clean_id(current.attrib['value'])
+
         for child in root:
             self.clean_attrib(child)
             if len(child) > 0 or child.text:
@@ -1736,6 +1771,13 @@ class RectifyOFPXML:
                     self.parseXMLTree(
                         child, cur_elem, current, parent, traverse
                     )
+                elif child.tag == "literal":
+                    cur_elem = ET.SubElement(
+                        parent, child.tag, child.attrib
+                    )
+                    self.parseXMLTree(
+                        child, cur_elem, parent, grandparent, traverse
+                    )
                 else:
                     try:
                         _ = self.unnecessary_tags.index(child.tag)
@@ -1744,6 +1786,10 @@ class RectifyOFPXML:
                             False
                         ), f'In handle_tag_literal: "{child.tag}" not handled'
             else:
+                if child.tag == "data-stmt-constant":
+                    cur_elem = ET.SubElement(
+                        current, child.tag, child.attrib
+                    )
                 try:
                     _ = self.unnecessary_tags.index(child.tag)
                 except ValueError:
@@ -1787,6 +1833,9 @@ class RectifyOFPXML:
                     ), f'In handle_tag_dimensions: Empty "{child.tag}" not ' \
                        f'handled'
 
+        if parent.tag == "variable":
+            self.dimensions_holder = current
+
     def handle_tag_dimension(
             self, root, current, parent, _, traverse
     ):
@@ -1816,6 +1865,10 @@ class RectifyOFPXML:
                         assert (
                             False
                         ), f'In handle_tag_dimension: "{child.tag}" not handled'
+            elif child.tag == "literal":
+                cur_elem = ET.SubElement(
+                    current, child.tag, child.attrib
+                )
             else:
                 try:
                     _ = self.unnecessary_tags.index(child.tag)
@@ -3131,8 +3184,51 @@ class RectifyOFPXML:
                 except ValueError:
                     assert (
                         False
-                    ), f'In handle_tag_value_range: Empty eleme' \
-                       f'nts "{child.tag}"'
+                    ), f'In handle_tag_value_range: Empty elements ' \
+                       f'"{child.tag}"'
+
+    def handle_tag_values(
+            self, root, current, parent, grandparent, traverse
+    ):
+        """This function handles cleaning up the XML elements
+        between the values elements.
+
+        <values>
+        </values>
+        """
+        for child in root:
+            self.clean_attrib(child)
+
+            if child.tag == "literal":
+                cur_elem = ET.SubElement(
+                    current, child.tag, child.attrib
+                )
+                if len(child) > 0 or child.text:
+                    self.parseXMLTree(
+                        child, cur_elem, current, parent, traverse
+                    )
+            else:
+                try:
+                    _ = self.unnecessary_tags.index(child.tag)
+                except ValueError:
+                    assert (
+                        False
+                    ), f'In handle_tag_values: Empty elements "{child.tag}"'
+
+        # For DATA statements, further indentation might be required
+        target_child = None
+        delete_child = []
+        for child in current:
+            if len(child) == 0:
+                target_child = child
+            else:
+                cur_elem = ET.SubElement(
+                    target_child, child.tag, child.attrib
+                )
+                delete_child.append(child)
+
+        for child in delete_child:
+            current.remove(child)
 
     #################################################################
     #                                                               #
@@ -3319,6 +3415,8 @@ class RectifyOFPXML:
         elif root.tag == "value-range":
             self.handle_tag_value_range(root, current, parent, grandparent,
                                         traverse)
+        elif root.tag == "values":
+            self.handle_tag_values(root, current, parent, grandparent, traverse)
         else:
             assert (
                 False
@@ -3362,6 +3460,8 @@ class RectifyOFPXML:
             # of all the derived type member variable
             # declarations will follow.
             derived_type = ET.SubElement(self.parent_type, "derived-types")
+            literal_value = None
+            str_value = None
             for elem in self.derived_type_var_holder_list:
                 if elem.tag == "intrinsic-type-spec":
                     keyword2 = ""
@@ -3377,6 +3477,12 @@ class RectifyOFPXML:
                         "keyword2": keyword2,
                     }
                     newType = ET.SubElement(derived_type, "type", attributes)
+                    if newType.attrib['name'].lower() == "character":
+                        assert (
+                            literal_value != None
+                        ), "Literal value (String length) for character cannot be None."
+                        newType.set("string_length", literal_value)
+                        literal_value = None  # Reset literal_value to None
                 elif elem.tag == "derived-type-spec":
                     attributes = {
                         "hasKind": "false",
@@ -3393,19 +3499,31 @@ class RectifyOFPXML:
                     value = elem
                     if elem.tag == "literal":
                         tag_name = "literal"
+                        literal_value = elem.attrib['value']
                     else:
                         tag_name = "name"
                 elif elem.tag == "component-array-spec":
                     is_dimension = True
                     dim += 1
+                elif (
+                    elem.tag == "component-decl-list__begin"
+                    and not is_dimension
+
+                ):
+                    if len(counts) > count:
+                        attr = {"count": counts[count]}
+                        new_variables = ET.SubElement(
+                            derived_type, "variables", attr
+                        )  # <variables _attribs_>
+                        count += 1
+                elif elem.tag == "operation":
+                    str_value = ""
+                    for op in elem.iter():
+                        if op.tag == "char-literal-constant":
+                            str_value += op.attrib['str']
+                    str_value = str_value.replace('"','')
                 elif elem.tag == "component-decl":
                     if not is_dimension:
-                        if len(counts) > count:
-                            attr = {"count": counts[count]}
-                            new_variables = ET.SubElement(
-                                derived_type, "variables", attr
-                            )  # <variables _attribs_>
-                            count += 1
                         var_attribs = {
                             "has_initial_value": elem.attrib[
                                 "hasComponentInitialization"
@@ -3424,6 +3542,9 @@ class RectifyOFPXML:
                             init_value_attrib = ET.SubElement(
                                 new_variable, "initial-value"
                             )
+                            if str_value:
+                                value.attrib['value'] = str_value
+                                str_value = None
                             new_size = ET.SubElement(
                                 init_value_attrib, tag_name, value.attrib
                             )  # <initial-value _attribs_>
@@ -3494,7 +3615,6 @@ class RectifyOFPXML:
                                     )  # <dimension type="simple">
                                     new_range = ET.SubElement(new_dimension, "range")
                                     need_new_dimension = False
-                                    
 
                         if len(counts) > count:
                             attr = {"count": counts[count]}
@@ -4226,6 +4346,44 @@ class RectifyOFPXML:
                     else:
                         pass
 
+
+    def restruct_declaration(self, elem_declaration, parent):
+        """This function is to restructure declaration to have an uniform
+        xml structure."""
+        
+        declaration = ET.SubElement(
+            parent, elem_declaration.tag, elem_declaration.attrib
+        )
+
+        for child in elem_declaration:
+            subelem = ET.SubElement(
+                declaration, child.tag, child.attrib
+            )
+            self.generate_element(child, subelem)
+            if child.tag == "type":
+                dimensions = ET.SubElement(
+                    declaration,
+                    self.dimensions_holder.tag,
+                    self.dimensions_holder.attrib
+                )
+                self.handle_tag_dimensions(self.dimensions_holder, dimensions, parent, parent, 1)
+
+    def generate_element(self, current_elem, parent_elem):
+        """This function is to traverse the existing xml and generate
+        a new copy to the given parent element."""
+
+        for child in current_elem:
+            if len(child) > 0 or child.text:
+                elem = ET.SubElement(
+                    parent_elem, child.tag, child.attrib
+                )
+                self.generate_element(child, elem)
+            else:
+                subelem = ET.SubElement(
+                        parent_elem, child.tag,  child.attrib
+                )
+                if subelem.tag == "variable":
+                    subelem.attrib['is_array'] = "true"
 
     #################################################################
     #                                                               #
@@ -5299,7 +5457,7 @@ def parse_args():
 
 
 def fileChecker(filename, mode):
-    """This function checks for the validity (file existance and
+    """This function checks for the validity (file existence and
     mode). If either the file does not exist or the mode is
     not valid, throws an IO exception and terminates the program
 

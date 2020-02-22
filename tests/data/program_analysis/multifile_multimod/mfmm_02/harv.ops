@@ -1,0 +1,16 @@
+harv.ops: Harvest operations
+  HARV_OP_NAME   HARV_TYPE HARV_INDEX   HARV_EFF HARV_BIO_MIN
+         grain       grain      0.000      0.950        0.000
+   grass_mulch     biomass      0.500      0.000     2000.000
+     grass_bag     biomass      0.500      1.000     2000.000
+        silage     biomass      0.900      0.950        0.000
+    forest_cut        tree      0.950      0.990        0.000
+   stover_high     residue      0.900      1.000     1000.000
+    stover_med     residue      0.600      1.000     2000.000
+    stover_los     residue      0.300      1.000     3000.000
+  hay_cut_high     biomass      0.800      1.000     3000.000
+   hay_cut_low     biomass      0.800      1.000     1000.000
+      potatoes       tuber      1.100      0.950        0.000
+       peanuts       tuber      1.100      0.950        0.000
+ cotton_picker       grain      0.000      0.950        0.000
+  cotton_strip       grain      0.000      0.950        0.000

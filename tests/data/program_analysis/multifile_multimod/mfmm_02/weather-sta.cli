@@ -1,0 +1,3 @@
+weather-sta.cli: Weather stations - SB_LS1
+WST_NAME    WGN_NAME    PCP_NAME   TMP_NAME   SLR_NAME   HMD_NAME   WND_NAME  WIND_DIR_NAME  ATMO_DEP_NAME
+    wea1      wgn001   ccw01.pcp  ccw01.tmp        sim        sim        sim           null           null

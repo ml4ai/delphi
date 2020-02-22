@@ -1,0 +1,3 @@
+temperature.cha: Channel temperature inputs
+NAME     SNO_MLT  GW    SUR_LAT   BULK_CO   AIR_LAG
+CHA1     1.0     0.97     1.0      .0025      6.0

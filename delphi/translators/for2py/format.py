@@ -49,8 +49,10 @@ Usage:
         There are some examples towards the end of this file.
 """
 
-import re, sys
+import re
+import sys
 from . import For2PyError
+
 
 class Format:
     def __init__(self, format_list):
@@ -79,7 +81,8 @@ class Format:
         self._match_exps = [
             subs[1] for subs in self._re_cvt if subs[1] is not None
         ]
-        self._divisors = [subs[2] for subs in self._re_cvt if subs[2] is not None]
+        self._divisors = [subs[2] for subs in self._re_cvt if subs[2] is not
+                          None]
         self._in_cvt_fns = [
             subs[3] for subs in self._re_cvt if subs[3] is not None
         ]
@@ -90,10 +93,10 @@ class Format:
         format_list = self._format_list
         output_info = self.gen_output_fmt(format_list)
         self._output_fmt = "".join([sub[0] for sub in output_info])
-        self._out_gen_fmt = [sub[1] for sub in output_info if sub[1] is not None]
+        self._out_gen_fmt = [sub[1] for sub in output_info if sub[1] is not
+                             None]
         self._out_widths = [sub[2] for sub in output_info if sub[2] is not None]
         self._write_line_init = True
-
 
     def read_line(self, line):
         """
@@ -146,20 +149,24 @@ class Format:
             self.init_write_line()
 
         if len(self._out_widths) > len(values):
-            raise For2PyError(f"ERROR: too few values for format {self._format_list}\n")
+            raise For2PyError(f"ERROR: too few values for format"
+                              f" {self._format_list}\n")
 
         out_strs = []
         for i in range(len(self._out_widths)):
             out_fmt = self._out_gen_fmt[i]
             out_width = self._out_widths[i]
 
-            out_val = out_fmt.format(values[i])
-            # out_width == "*" indicates that the field can be arbitrarily wide 
-            if out_width != "*":
-                if len(out_val) > out_width:  # value too big for field
-                    out_val = "*" * out_width
-
-            out_strs.append(out_val)
+            if values[i] is None:
+                out_strs.append(values[i])
+            else:
+                out_val = out_fmt.format(values[i])
+                # out_width == "*" indicates that the field can be
+                # arbitrarily wide
+                if out_width != "*":
+                    if len(out_val) > out_width:  # value too big for field
+                        out_val = "*" * out_width
+                out_strs.append(out_val)
 
         out_str_exp = (
             '"' + self._output_fmt + '".format' + str(tuple(out_strs))
@@ -177,8 +184,8 @@ class Format:
     ###########################################################################
 
     def match_input_fmt(self, fmt_list):
-        """Given a list of Fortran format specifiers, e.g., ['I5', '2X', 'F4.1'],
-        this function constructs a list of tuples for matching an input
+        """Given a list of Fortran format specifiers, e.g., ['I5', '2X',
+        'F4.1'], this function constructs a list of tuples for matching an input
         string against those format specifiers."""
 
         rexp_list = []
@@ -226,7 +233,7 @@ class Format:
         else:
             if fmt[0] in "iI":  # integer
                 sz = fmt[1:]
-                xtract_rexp = 'r"(.{' + sz +'})"'  # r.e. for extraction
+                xtract_rexp = 'r"(.{' + sz + '})"'  # r.e. for extraction
                 rexp1 = r" *-?\d+"  # r.e. for matching
                 divisor = 1
                 rexp = [(xtract_rexp, rexp1, divisor, "int")]
@@ -238,7 +245,7 @@ class Format:
             elif fmt[0] in "fF":  # floating point
                 idx0 = fmt.find(".")
                 sz = fmt[1:idx0]
-                divisor = 10 ** (int(fmt[idx0 + 1 :]))
+                divisor = 10 ** (int(fmt[idx0 + 1:]))
                 xtract_rexp = 'r"(.{,' + sz + '})"'  # r.e. for extraction
                 rexp1 = r" *-?\d+(\.\d+)?"  # r.e. for matching
                 rexp = [(xtract_rexp, rexp1, divisor, "float")]
@@ -247,7 +254,8 @@ class Format:
                     f"ERROR: Unrecognized format specifier {fmt}\n"
                 )
 
-        # replicate the regular expression by the repetition factor in the format
+        # replicate the regular expression by the repetition factor in the
+        # format
         rexp *= reps
 
         return rexp
@@ -259,8 +267,9 @@ class Format:
     ###########################################################################
 
     def gen_output_fmt(self, fmt_list):
-        """given a list of Fortran format specifiers, e.g., ['I5', '2X', 'F4.1'],
-        this function constructs a list of tuples for constructing an output
+        """given a list of Fortran format specifiers, e.g., ['I5', '2X',
+        'F4.1'], this function constructs a list of tuples for constructing
+        an output
         string based on those format specifiers."""
 
         rexp_list = []
@@ -270,8 +279,8 @@ class Format:
         return rexp_list
 
     def gen_output_fmt_1(self, fmt):
-        """given a single format specifier, get_output_fmt_1() constructs and returns
-        a list of tuples for matching against that specifier.
+        """given a single format specifier, get_output_fmt_1() constructs and
+        returns a list of tuples for matching against that specifier.
 
         Each element of this list is a tuple
             (gen_fmt, cvt_fmt, sz)
@@ -319,7 +328,7 @@ class Format:
             elif fmt[0] in "eEfFgG":  # various floating point formats
                 idx0 = fmt.find(".")
                 sz = fmt[1:idx0]
-                suffix = fmt[idx0 + 1 :]
+                suffix = fmt[idx0 + 1:]
                 # The 'E' and G formats can optionally specify the width of
                 # the exponent, e.g.: 'E15.3E2'.  For now we ignore any such
                 # the exponent width -- but if it's there, we need to extract
@@ -333,7 +342,7 @@ class Format:
 
             elif fmt[0] in "pP":  # scaling factor
                 # For now we ignore scaling: there are lots of other things we
-                # need to spend time on.  To fix later if necessary.
+                # need to spend time on. To fix later if necessary.
                 rest_of_fmt = fmt[1:]
                 rexp = self.gen_output_fmt_1(rest_of_fmt)
 
@@ -352,7 +361,8 @@ class Format:
                     f"ERROR: Unrecognized format specifier {fmt[0]}\n"
                 )
 
-        # replicate the regular expression by the repetition factor in the format
+        # replicate the regular expression by the repetition factor in the
+        # format
         rexp *= reps
 
         return rexp
@@ -419,8 +429,8 @@ def list_input_formats(type_list):
 
 
 def list_data_type(type_list):
-    """This function takes a list of format specifiers and returns a list of data
-    types represented by the format specifiers."""
+    """This function takes a list of format specifiers and returns a list of
+    data types represented by the format specifiers."""
     data_type = []
     for item in type_list:
         match = re.match(r"(\d+)(.+)", item)
@@ -456,12 +466,13 @@ def list_data_type(type_list):
 
 
 def example_1():
-    ################################# EXAMPLE 1 ################################
+
+    ################################# EXAMPLE 1 ###############################
     # Format from read statement in the file Weather.for
     # The relevant Fortran code is:
     #
     #         OPEN (4,FILE='WEATHER.INP',STATUS='UNKNOWN')
-    #         ...
+    #         ...s
     #         READ(4,20) DATE,SRAD,TMAX,TMIN,RAIN,PAR
     #   20   FORMAT(I5,2X,F4.1,2X,F4.1,2X,F4.1,F6.1,14X,F4.1)
     #
