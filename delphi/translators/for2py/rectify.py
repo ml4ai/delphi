@@ -30,6 +30,10 @@ import copy
 from delphi.translators.for2py import For2PyError, syntax, f2grfn
 from os.path import isfile, join
 
+TYPE_MAP = {
+    "int": "integer",
+    "bool": "logical",
+}
 
 class RectifyOFPXML:
     def __init__(self):
@@ -223,6 +227,10 @@ class RectifyOFPXML:
         # Keep a dictionary of declared variables {"var_name":"type"}
         # by their scope
         self.variables_by_scope = {}
+        # Keep a track of used module in the current program
+        self.used_modules = []
+        # Holds module summary imported from modFileLog.json file
+        self.module_summary = {}
 
     #################################################################
     #                                                               #
@@ -2550,7 +2558,44 @@ class RectifyOFPXML:
         self.update_function_arguments(current)
         # Update call function arguments with their types
         update = False
-        self.update_call_argument_type(current, update, self.current_scope)
+        arguments_info = []
+        self.update_call_argument_type(current, update, self.current_scope, arguments_info)
+        
+        cur_function = current.attrib['fname']
+        target_function = None
+        for module in self.used_modules:
+            if module in self.module_summary:
+                interface_funcs = self.module_summary[module]['interface_functions']
+                if cur_function in interface_funcs:
+                    interface_func_list = interface_funcs[cur_function]
+                    for func in interface_func_list:
+                        function_args = interface_func_list[func]
+                        found_target_function = False
+                        if len(arguments_info) == len(function_args):
+                            i = 0
+                            #  a: argument, t: type
+                            for a, t in function_args.items():
+                                if t == arguments_info[i]:
+                                    found_target_function = True
+                                else:
+                                    found_target_function = False
+                                    break
+                                i += 1
+                        # If target function was found in the interface function list,
+                        # modify the current <call> element name and its child <name>
+                        # element id with the target function name from the interface name.
+                        if found_target_function:
+                            # The order of modifying is important.
+                            # MUST modify child element <name> first before modifying
+                            # current <call>.
+                            for elem in current:
+                                if (
+                                        elem.tag == "name"
+                                        and elem.attrib['id'] == current.attrib['fname']
+                                ):
+                                    elem.attrib['id'] = func
+                            current.attrib['fname'] = func
+                    
 
     def handle_tag_subroutine(
             self, root, current, parent, _, traverse
@@ -2887,8 +2932,10 @@ class RectifyOFPXML:
 
         file_to_mod_mapper = module_logs["file_to_mod"]
         mod_to_file_mapper = module_logs["mod_to_file"]
+        self.module_summary = module_logs["mod_info"]
 
         use_module = root.attrib['name']
+        self.used_modules.append(use_module.lower())
         if use_module.lower() in mod_to_file_mapper:
             use_module_file_path = mod_to_file_mapper[use_module.lower()]
             if (
@@ -4925,7 +4972,7 @@ class RectifyOFPXML:
         # re-initialize back to initial values
         self.call_function = False
 
-    def update_call_argument_type(self, current, update, scope):
+    def update_call_argument_type(self, current, update, scope, arguments_info):
         """This function updates call statement function argument xml
         with variable type."""
         if (
@@ -4936,11 +4983,18 @@ class RectifyOFPXML:
         ):
 
             current.attrib['type'] = self.variables_by_scope[scope][current.attrib['id']]
+            arguments_info.append(current.attrib['type'])
+        elif current.tag == "literal":
+            if current.attrib['type'] in TYPE_MAP:
+                type_info = TYPE_MAP[current.attrib['type']]
+            else:
+                type_info = current.attrib['type']
+            arguments_info.append(type_info)
 
         for child in current:
             if current.tag == "subscript":
                 update = True
-            self.update_call_argument_type(child, update, scope)
+            self.update_call_argument_type(child, update, scope, arguments_info)
 
 
     #################################################################
