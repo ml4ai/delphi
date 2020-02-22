@@ -220,6 +220,9 @@ class RectifyOFPXML:
         # Keep a track of interface XML object for later update
         self.interface_xml = {}
         self.dimensions_holder = None
+        # Keep a dictionary of declared variables {"var_name":"type"}
+        # by their scope
+        self.variables_by_scope = {}
 
     #################################################################
     #                                                               #
@@ -1014,6 +1017,20 @@ class RectifyOFPXML:
             parent.remove(current)
             self.dimensions_holder = None
 
+        # Keep a track of all declared variables by scope
+        if (
+                "type" in current.attrib
+                and current.attrib['type'] == "variable"
+        ):
+            self.variables_by_scope[self.current_scope] = {}
+            for elem in current:
+                if elem.tag == "type":
+                    var_type = elem.attrib['name']
+                elif elem.tag == "variables":
+                    for subElem in elem:
+                        if subElem.tag == "variable":
+                            self.variables_by_scope[self.current_scope][subElem.attrib['id']] = var_type
+
     def handle_tag_type(
             self, root, current, parent, _, traverse
     ):
@@ -1741,7 +1758,7 @@ class RectifyOFPXML:
             # If current assignment is done with a function call,
             # then update function definition's arguments with array status
             if function_call:
-                self.update_arguments(current)
+                self.update_function_arguments(current)
 
             if (
                     child.tag == "name"
@@ -2529,8 +2546,11 @@ class RectifyOFPXML:
                         False
                     ), f'In handle_tag_call: Empty elements "{child.tag}"'
 
-        # Update function definition's arguments with array status
-        self.update_arguments(current)
+        # Update call function definition's arguments with array status
+        self.update_function_arguments(current)
+        # Update call function arguments with their types
+        update = False
+        self.update_call_argument_type(current, update, self.current_scope)
 
     def handle_tag_subroutine(
             self, root, current, parent, _, traverse
@@ -4370,7 +4390,7 @@ class RectifyOFPXML:
 
     def generate_element(self, current_elem, parent_elem):
         """This function is to traverse the existing xml and generate
-        a new copy to the given parent element."""
+        a new copy to the given parent element - This is a recursive function."""
 
         for child in current_elem:
             if len(child) > 0 or child.text:
@@ -4875,7 +4895,7 @@ class RectifyOFPXML:
                 self.statements_to_reconstruct_after['stmts-follow-label']
         )
 
-    def update_arguments(self, current):
+    def update_function_arguments(self, current):
         """This function handles function definition's
         arguments with array status based on the information
         that was observed during the function call
@@ -4904,6 +4924,24 @@ class RectifyOFPXML:
                     arg.attrib['is_array'] = "false"
         # re-initialize back to initial values
         self.call_function = False
+
+    def update_call_argument_type(self, current, update, scope):
+        """This function updates call statement function argument xml
+        with variable type."""
+        if (
+                (current.tag == "name"
+                and update)
+                and (scope in self.variables_by_scope
+                and current.attrib['id'] in self.variables_by_scope[scope])
+        ):
+
+            current.attrib['type'] = self.variables_by_scope[scope][current.attrib['id']]
+
+        for child in current:
+            if current.tag == "subscript":
+                update = True
+            self.update_call_argument_type(child, update, scope)
+
 
     #################################################################
     #                                                               #
