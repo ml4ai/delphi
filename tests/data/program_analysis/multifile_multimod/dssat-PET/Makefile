@@ -1,6 +1,6 @@
 # make file to compile and link the Fortran files
 
-DEST = csm.out
+DEST = dscsm047
 SRC_FOR = CSMVersion.for OSDefinitions.for ModuleDefs.for CSM.for LAND.for \
 	SOIL.for WATBAL.for MULCHWAT.for OPMULCH.for DATES.for WBAL.for \
 	UTILS.for OPWBAL.for OPSUM.for READS.for WBSUBS.for TILEDRAIN.for \
