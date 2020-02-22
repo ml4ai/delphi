@@ -40,7 +40,7 @@ def line_is_comment(line: str) -> bool:
 #                                                                              #
 ################################################################################
 
-FIXED_FORM_EXT = ('.f', '.for')
+FIXED_FORM_EXT = ('.f', '.for', '.blk', '.inc', '.gin')
 
 def line_is_continuation(line: str, f_ext: str) -> bool:
     """ From FORTRAN 77  Language Reference

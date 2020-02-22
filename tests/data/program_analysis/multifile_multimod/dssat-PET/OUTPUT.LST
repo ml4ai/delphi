@@ -1,0 +1,10 @@
+*Output file list
+
+@FILENAME          DESCRIPTION
+OVERVIEW.OUT       Seasonal overview output file                     
+PlantNBal.OUT      Plant nitrogen balance                            
+SoilNiBal.OUT      Seasonal inorganic soil N balance                 
+SoilNoBal.OUT      Seasonal organic soil N balance                   
+SoilWatBal.OUT     Seasonal soil water balance                       
+INFO.OUT           Information output file                           
+LUN.LST            List of output files generated                    
