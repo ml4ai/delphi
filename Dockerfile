@@ -32,7 +32,7 @@ RUN apt-get update \
       librange-v3-dev \
     && git clone https://github.com/ml4ai/delphi \
     && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o delphi/data/delphi.db \
-    && curl http://vanga.sista.arizona.edu/delphi_data/model_files.tar.gz -o delphi/data/model_files.tar.gz \
+    && curl http://vanga.sista.arizona.edu/delphi_data/model_files.tar.gz -o delphi/data/model_files.tar.gz
 
 
 # Set up virtual environment
