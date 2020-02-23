@@ -229,7 +229,7 @@ C***********************************************************************
       CONTROL % RUN = RUN
       CONTROL % YRDOY = 0
       CALL PUT(CONTROL)
-
+      write(*,*) "@@@ RUN = ", RUN
       IF ((INDEX('NSFBT',RNMODE) .GT. 0) .OR. (INDEX('E',RNMODE) .GT.
      &     0 .AND. RUN .EQ. 1)) THEN
         CALL IGNORE (LUNBIO,LINBIO,ISECT,CHARTEST)
@@ -468,6 +468,9 @@ C***********************************************************************
       CALL LAND(CONTROL, ISWITCH, 
      &          YRPLT, MDATE, YREND)
 
+      WRITE (*,11) "EXITING (since this is just a test benchmark)"
+ 11   FORMAT(A)
+      CALL EXIT(0)
 C***********************************************************************
       ENDDO DAY_LOOP   !End of daily loop
 C-----------------------------------------------------------------------
