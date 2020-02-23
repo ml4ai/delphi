@@ -1,0 +1,172 @@
+*** *  DSSAT PROFILE LINUX* ***
+DDB // /usr/local
+DTB // /usr/local
+DTE // /usr/local
+DTO // /usr/local
+DAT // /usr/local
+DPT // /usr/local
+DIM // /usr/local
+DTP // /usr/local
+DPF // /usr/local
+DFO // /usr/local
+DIS // /usr/local
+DDW // /usr/local
+DWG // /usr/local
+DWC // /usr/local
+DDS // /usr/local
+DTS // /usr/local
+DDG // /usr/local
+DCG // /usr/local/TOOLS/GENCALC GENCALC2.EXE
+DGL // /usr/local/TOOLS/GLUE GLUE.BAT
+DPM // /usr/local
+DDE // /usr/local
+TOG // /usr/local/TOOLS/GBUILD GBUILD.EXE
+
+MAL // /usr/local dscsm047 PRFRM047
+MAR // /usr/local
+MBA // /usr/local dscsm047 CSCER047
+MBH // /usr/local dscsm047 CRGRO047
+MBM // /usr/local dscsm047 PRFRM047
+MBN // /usr/local dscsm047 CRGRO047
+MBR // /usr/local dscsm047 PRFRM047
+MBS // /usr/local dscsm047 BSCER047
+MBW // /usr/local
+MCB // /usr/local dscsm047 CRGRO047
+MCH // /usr/local dscsm047 CRGRO047
+MCT // /usr/local
+MCN // /usr/local dscsm047 CRGRO047
+MCO // /usr/local dscsm047 CRGRO047
+MCP // /usr/local dscsm047 CRGRO047
+MCS // /usr/local dscsm047 CSYCA047
+MCV // /usr/local
+MFA // /usr/local dscsm047 CRGRO047
+MFB // /usr/local dscsm047 CRGRO047
+MGB // /usr/local dscsm047 CRGRO047
+MGW // /usr/local
+MLT // /usr/local dscsm047 CRGRO047
+MML // /usr/local dscsm047 MLCER047
+MMZ // /usr/local dscsm047 MZCER047
+MNN // /usr/local
+MNP // /usr/local dscsm047 CRGRO047
+MOA // /usr/local
+MPE // /usr/local
+MPI // /usr/local dscsm047 PIALO047
+MPN // /usr/local dscsm047 CRGRO047
+MPO // /usr/local
+MPP // /usr/local dscsm047 CRGRO047
+MPR // /usr/local dscsm047 CRGRO047
+MPT // /usr/local dscsm047 PTSUB047
+MRI // /usr/local dscsm047 RICER047
+MRP // /usr/local
+MSB // /usr/local dscsm047 CRGRO047
+MSC // /usr/local dscsm047 SCCAN047
+MSF // /usr/local dscsm047 CRGRO047
+MSG // /usr/local dscsm047 SGCER047
+MSI // /usr/local
+MSS // /usr/local
+MSU // /usr/local dscsm047 CRGRO047
+MSW // /usr/local dscsm047 SWCER047
+MTM // /usr/local dscsm047 CRGRO047
+MTN // /usr/local dscsm047 TNARO047
+MTR // /usr/local dscsm047 TRARO047
+MVB // /usr/local dscsm047 CRGRO047
+MVI // /usr/local
+MWH // /usr/local dscsm047 CSCER047
+MOT // /usr/local
+MU1 // /usr/local
+MU2 // /usr/local
+MIO // /usr/local
+MLO // /usr/local
+MG0 // /usr/local dscsm047 PRFRM047
+
+MGR // /usr/local
+NSH // /usr/local
+ASP // /usr/local
+ASS // /usr/local dscsm047
+ASA // /usr/local VARAN2.EXE
+AGR // /usr/local
+AQS // /usr/local dscsm047
+AQA // /usr/local SUSTAIN2.EXE
+ASX // /usr/local
+APS // /usr/local dscsm047
+APV // /usr/local
+APM // /usr/local
+APA // /usr/local VARAN2.EXE
+APJ // /usr/local
+APF // /usr/local
+APP // /usr/local
+APK // /usr/local DISC9801.EXE
+TOE // /WINDOWS NOTEPAD.EXE
+TOS // /
+TOM // /
+BGD // /usr/local/BACKGROUND
+STD // /usr/local/StandardData
+CDD // /usr/local
+WED // /usr/local/Weather
+WGD // /usr/local/Weather/Gen
+CLD // /usr/local/Weather/Climate
+WMD // /usr/local/Weather/Month
+SLD // /usr/local/Soil
+CRD // /usr/local/Genotype
+FID // /usr/local/Background
+ALD // /usr/local/Alfalfa
+GCD // /usr/local/GCWork
+GUD // /usr/local/GLWork
+ARD // /usr/local/
+BAD // /usr/local/Barley
+BHD // /usr/local/Bahia
+BMD // /usr/local/Bermudagrass
+BND // /usr/local/Drybean
+BRD // /usr/local/Brachiaria
+BSD // /usr/local/Sugarbeet
+BWD // /usr/local/
+CBD // /usr/local/Cabbage
+CHD // /usr/local/Chickpea
+CTD // /usr/local/Citrus
+CND // /usr/local/Canola
+COD // /usr/local/Cotton
+CPD // /usr/local/Cowpea
+CSD // /usr/local/Cassava
+CVD // /usr/local/Clover
+FAD // /usr/local/Fallow
+FBD // /usr/local/Fababean
+GBD // /usr/local/GreenBean
+GWD // /usr/local/Weeds
+LTD // /usr/local/Lentil
+MLD // /usr/local/Millet
+MZD // /usr/local/Maize
+NND // /usr/local/Banana
+NPD // /usr/local/Napier
+OAD // /usr/local/Oats
+PED // /usr/local/Pea
+PID // /usr/local/Pineapple
+PND // /usr/local/Peanut
+POD // /usr/local/PerennialPeanut
+PPD // /usr/local/Pigeonpea
+PRD // /usr/local/Pepper
+PTD // /usr/local/Potato
+RID // /usr/local/Rice
+RPD // /usr/local/Rhizomapeanut
+SBD // /usr/local/Soybean
+SCD // /usr/local/Sugarcane
+SFD // /usr/local/Safflower
+SGD // /usr/local/Sorghum
+SSD // /usr/local/
+SID // /usr/local
+SUD // /usr/local/Sunflower
+SWD // /usr/local/SweetCorn
+TMD // /usr/local/Tomato
+TND // /usr/local/Tanier
+TRD // /usr/local/Taro
+VBD // /usr/local/Velvetbean
+VID // /usr/local/
+WHD // /usr/local/Wheat
+U1D // /usr/local/CROP1
+U2D // /usr/local/CROP2
+OTD // /
+ASD // /usr/local/Seasonal
+AQD // /usr/local/Sequence
+APD // /usr/local/Spatial
+PSD // /usr/local/Pest
+ECD // /usr/local/Economic
+TOD // /

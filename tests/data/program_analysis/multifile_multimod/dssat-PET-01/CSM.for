@@ -259,7 +259,6 @@ C***********************************************************************
         READ (CHARTEST(93:113),110,IOSTAT=ERRNUM) TRTNUM,TRTREP,ROTNUM
         IF (ERRNUM .NE. 0) CALL ERROR (ERRKEY,26,FILEB,LINBIO)
       ENDIF
-      write (*,*) "@@@ AT 2"
 
       CONTROL % FILEIO  = FILEIO
       CONTROL % FILEX   = FILEX
