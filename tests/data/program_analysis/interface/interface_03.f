@@ -96,11 +96,11 @@
 
       PROGRAM MAIN
       USE INTERFACE03_MOD
-      TYPE (ControlType) Control
-      TYPE (SwitchType) Switch
+      TYPE (ControlType) Control_arg
+      TYPE (SwitchType) ISwitch_arg
 
-      call GET (Control)
-      call GET (Switch)
-      call PUT (Control)
-      call PUT (Switch)
+      call GET (Control_arg)
+      call GET (ISwitch_arg)
+      call PUT (Control_arg)
+      call PUT (ISwitch_arg)
       END PROGRAM MAIN

@@ -101,26 +101,6 @@ class TransferType:
 
 maxfiles: List[int] = [500]
 save_data =  transfertype()
-def get (arg1=None):
-    num_passed_args = 0
-    if arg1 != None:
-        num_passed_args += 1
-
-    if num_passed_args == 1:
-        if isinstance(arg1[0], ControlType):
-            get_control(arg1)
-        if isinstance(arg1[0], SwitchType):
-            get_iswitch(arg1)
-
-def put (arg1=None):
-    num_passed_args = 0
-    if arg1 != None:
-        num_passed_args += 1
-
-    if num_passed_args == 1:
-        if isinstance(arg1[0], SwitchType):
-            put_iswitch(arg1)
-
 
 def get_control(control_arg: List[controltype]):
     control_arg[0] = save_data.control
