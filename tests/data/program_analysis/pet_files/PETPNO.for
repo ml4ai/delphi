@@ -48,6 +48,9 @@ C=======================================================================
 
 C-----------------------------------------------------------------------
 C     Compute air properties.
+
+C      ESAT = VPSAT(VPSLOP(VPSAT(TMIN))) + VPSLOP(VPSLOP(VPSAT(TMAX)))
+
       LHVAP = (2501.0-2.373*TAVG) * 1000.0                 ! J/kg
       PSYCON = SHAIR * PATM / (0.622*LHVAP)                ! Pa/K
       ESAT = (VPSAT(TMAX)+VPSAT(TMIN)) / 2.0               ! Pa
