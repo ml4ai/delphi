@@ -58,7 +58,7 @@ class ComputationalGraph(nx.DiGraph):
          container_index,
          var_name,
          var_index) = long_var_name.split("::")
-         return var_name
+        return var_name
 
     def get_input_nodes(self) -> List[str]:
         """ Get all input nodes from a network. """
