@@ -10,6 +10,7 @@ import json
 import os
 import itertools
 import time
+
 from SALib.analyze import sobol, fast, rbd_fast
 from SALib.sample import saltelli, fast_sampler, latin
 import networkx as nx
@@ -35,10 +36,29 @@ forestgreen = "#228b22"
 class ComputationalGraph(nx.DiGraph):
     __metaclass__ = ABCMeta
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, network, output_vars, *args, **kwargs):
+        super().__init__(network, *args, **kwargs)
+        self.outputs = outputs
+        self.inputs = [
+            n
+            for n, d in self.in_degree()
+            if d == 0 and self.nodes[n]["type"] == "variable"
+        ]
+        self.input_name_map = {
+            var_shortname(name): name for name in self.inputs
+        }
         self.FCG = self.to_FCG()
         self.function_sets = self.build_function_sets()
+
+    @staticmethod
+    def var_shortname(long_var_name):
+        (module,
+         var_scope,
+         container_name,
+         container_index,
+         var_name,
+         var_index) = long_var_name.split("::")
+         return var_name
 
     def get_input_nodes(self) -> List[str]:
         """ Get all input nodes from a network. """
@@ -166,14 +186,14 @@ class GroundedFunctionNetwork(ComputationalGraph):
     """
 
     def __init__(self, G, scope_tree, outputs):
-        super().__init__(G)
-        self.outputs = outputs
+        super().__init__(G, outputs)
+        # self.outputs = outputs
         self.scope_tree = scope_tree
-        self.inputs = [
-            n
-            for n, d in self.in_degree()
-            if d == 0 and self.nodes[n]["type"] == "variable"
-        ]
+        # self.inputs = [
+        #     n
+        #     for n, d in self.in_degree()
+        #     if d == 0 and self.nodes[n]["type"] == "variable"
+        # ]
 
     def __repr__(self):
         return self.__str__()
@@ -602,12 +622,12 @@ class ForwardInfluenceBlanket(ComputationalGraph):
     """
 
     def __init__(self, G: GroundedFunctionNetwork, shared_nodes: Set[str]):
-        super().__init__()
-        self.output_node = G.output_node
-        self.inputs = set(G.inputs).intersection(shared_nodes)
+        # super().__init__()
+        outputs = G.outputs
+        inputs = set(G.inputs).intersection(shared_nodes)
 
         # Get all paths from shared inputs to shared outputs
-        path_inputs = shared_nodes - {self.output_node}
+        path_inputs = shared_nodes - set(outputs)
         io_pairs = [(inp, G.output_node) for inp in path_inputs]
         paths = [
             p for (i, o) in io_pairs for p in all_simple_paths(G, i, o)
@@ -618,7 +638,7 @@ class ForwardInfluenceBlanket(ComputationalGraph):
         main_edges = {
             (n1, n2) for path in paths for n1, n2 in zip(path, path[1:])
         }
-        self.cover_nodes = set()
+        blanket_nodes = set()
         add_nodes, add_edges = list(), list()
 
         def place_var_node(var_node):
@@ -631,7 +651,7 @@ class ForwardInfluenceBlanket(ComputationalGraph):
                 add_nodes.extend([var_node, prev_func])
                 add_edges.append((prev_func, var_node))
             else:
-                self.cover_nodes.add(var_node)
+                blanket_nodes.add(var_node)
 
         for node in main_nodes:
             if G.nodes[node]["type"] == "function":
@@ -650,37 +670,42 @@ class ForwardInfluenceBlanket(ComputationalGraph):
 
         main_nodes |= set(add_nodes)
         main_edges |= set(add_edges)
-        main_nodes = main_nodes - self.inputs - {self.output_node}
+        main_nodes = main_nodes - inputs - set(outputs)
 
         orig_nodes = G.nodes(data=True)
 
-        self.add_nodes_from([(n, d) for n, d in orig_nodes if n in self.inputs])
-        for node in self.inputs:
-            self.nodes[node]["color"] = dodgerblue3
-            self.nodes[node]["fontcolor"] = dodgerblue3
-            self.nodes[node]["penwidth"] = 3.0
-            self.nodes[node]["fontname"] = FONT
+        F = nx.DiGraph()
 
-        self.inputs = list(self.inputs)
+        F.add_nodes_from([(n, d) for n, d in orig_nodes if n in inputs])
+        for node in inputs:
+            F.nodes[node]["color"] = dodgerblue3
+            F.nodes[node]["fontcolor"] = dodgerblue3
+            F.nodes[node]["penwidth"] = 3.0
+            F.nodes[node]["fontname"] = FONT
 
-        self.add_nodes_from([(n, d) for n, d in orig_nodes
-                            if n in self.cover_nodes])
-        for node in self.cover_nodes:
-            self.nodes[node]["fontname"] = FONT
-            self.nodes[node]["color"] = forestgreen
-            self.nodes[node]["fontcolor"] = forestgreen
+        F.inputs = list(F.inputs)
 
-        self.add_nodes_from([(n, d) for n, d in orig_nodes if n in main_nodes])
+        F.add_nodes_from([(n, d) for n, d in orig_nodes
+                            if n in blanket_nodes])
+        for node in blanket_nodes:
+            F.nodes[node]["fontname"] = FONT
+            F.nodes[node]["color"] = forestgreen
+            F.nodes[node]["fontcolor"] = forestgreen
+
+        F.add_nodes_from([(n, d) for n, d in orig_nodes if n in main_nodes])
         for node in main_nodes:
-            self.nodes[node]["fontname"] = FONT
+            F.nodes[node]["fontname"] = FONT
 
-        self.add_node(self.output_node, **G.nodes[self.output_node])
-        self.nodes[self.output_node]["color"] = dodgerblue3
-        self.nodes[self.output_node]["fontcolor"] = dodgerblue3
+        for out_var_node in outputs:
+            F.add_node(out_var_node, **G.nodes[out_var_node])
+            F.nodes[out_var_node]["color"] = dodgerblue3
+            F.nodes[out_var_node]["fontcolor"] = dodgerblue3
 
-        self.add_edges_from(main_edges)
-        self.FCG = self.to_FCG()
-        self.function_sets = self.build_function_sets()
+        F.add_edges_from(main_edges)
+        super().__init__(F, outputs)
+
+        # self.FCG = self.to_FCG()
+        # self.function_sets = self.build_function_sets()
 
     @classmethod
     def from_GrFN(cls, G1, G2):
@@ -739,7 +764,7 @@ class ForwardInfluenceBlanket(ComputationalGraph):
             inputs.
         """
         # Abort run if covers does not match our expected cover set
-        if len(covers) != len(self.cover_nodes):
+        if len(covers) != len(blanket_nodes):
             raise ValueError("Incorrect number of cover values.")
 
         # Set the cover node values
