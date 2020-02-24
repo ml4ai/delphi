@@ -60,24 +60,17 @@ class SensitivityIndices(object):
         # TODO khan: implement this so that Si_dict is a sensitivity index
         # dictionary loaded from the CSV file provided by filepath
 
-        S1 = list()
-        S2 = list()
-        ST = list()
-        S1_conf = list()
-        S2_conf = list()
-        ST_conf = list()
-
         with open(filepath) as fin:
             reader = csv.DictReader(fin)
             for row in reader:
-                S1.append(row['S1'])
-                S2.append(row['S2'])
-                ST.append(row['ST'])
-                S1_conf.append(row['S1_conf'])
-                S2_conf.append(row['S2_conf'])
-                ST_conf.append(row['ST_conf'])
+                S1 = float(row['S1'])
+                S2 = np.array(row['S2'])
+                ST = float(row['ST'])
+                S1_conf = float(row['S1_conf'])
+                S2_conf = float(row['S2_conf'])
+                ST_conf = float(row['ST_conf'])
             
-        Si_dict = {'S1': S1, 'S2': S2, 'ST': ST, 'S1_conf': S1_conf, 'S2_conf': S2_conf, 'ST_conf': ST_conf}
+        Si_dict = {'S1': np.array(S1), 'S2': np.array(S2), 'ST': np.array(ST), 'S1_conf': S1_conf, 'S2_conf': S2_conf, 'ST_conf': ST_conf}
 
         return cls(Si_dict)
 
@@ -95,7 +88,7 @@ class SensitivityIndices(object):
         js = json.loads(data)
 
 
-        Si_dict = {'S1':float(js['S1']), 'S2':float(js['S2']), 'ST':float(js['ST']), 'S1_conf':float(js['S1_conf']), 'S2_conf':float(js['S2_conf']), 'ST_conf':float(js['ST_conf'])}
+        Si_dict = {'S1':np.array(js['S1']), 'S2':np.array(js['S2']), 'ST':np.array(js['ST']), 'S1_conf':float(js['S1_conf']), 'S2_conf':float(js['S2_conf']), 'ST_conf':float(js['ST_conf'])}
 
         return cls(Si_dict)
 
@@ -139,13 +132,16 @@ class SensitivityIndices(object):
                 writer = csv.DictWriter(fout, fieldnames=S.keys())
                 writer.writeheader()
                 writer.writerow(S)
-        except IOerror:
+        except IOError:
             print("Input File Missing!")
-
+        
 
     def to_json(self, filepath: str, S: dict):
         # TODO khan: Save the data in this class to a JSON file
         
+        S['S2'] = S['S2'].tolist()
+        print(S['S2'])
+
         try:
             with open(filepath, 'w') as fout:
                 json.dump(S, fout)
