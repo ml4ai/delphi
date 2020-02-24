@@ -53,8 +53,10 @@ def test_petpt_creation_and_execution(petpt_grfn):
     assert len(petpt_grfn.inputs) == 5
     assert len(petpt_grfn.outputs) == 1
 
-    values = {name: np.array([1.0], dtype=np.float32) for name in petpt_grfn.inputs}
-    outputs = petpt_grfn.run(values)
+    outputs = petpt_grfn.run({
+        name: np.array([1.0], dtype=np.float32)
+        for name in petpt_grfn.input_name_map.keys()
+    })
     res = outputs[0]
     assert res[0] == np.float32(0.02998372)
 
