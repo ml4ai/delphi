@@ -1030,7 +1030,8 @@ class RectifyOFPXML:
                 "type" in current.attrib
                 and current.attrib['type'] == "variable"
         ):
-            self.variables_by_scope[self.current_scope] = {}
+            if self.current_scope not in self.variables_by_scope:
+                self.variables_by_scope[self.current_scope] = {}
             for elem in current:
                 if elem.tag == "type":
                     var_type = elem.attrib['name']
@@ -4971,7 +4972,7 @@ class RectifyOFPXML:
         """This function will check whether replacing function name is needed
         or not. That is if the Fortran source code has module with interface
         and does dynamic dispatching to functions."""
-        cur_function = current.attrib['fname']
+        cur_function = current.attrib['fname'].lower()
         target_function = None
         for module in self.used_modules:
             if module in self.module_summary:
@@ -4985,7 +4986,7 @@ class RectifyOFPXML:
                             i = 0
                             #  a: argument, t: type
                             for a, t in function_args.items():
-                                if t == arguments_info[i]:
+                                if t == arguments_info[i].lower():
                                     found_target_function = True
                                 else:
                                     found_target_function = False
@@ -5004,6 +5005,9 @@ class RectifyOFPXML:
                                         and elem.attrib['id'] == current.attrib['fname']
                                 ):
                                     elem.attrib['id'] = func
+                                for subElem in elem:
+                                    if subElem.tag == "subscripts":
+                                        subElem.attrib['fname'] = func
                             current.attrib['fname'] = func
 
 
