@@ -14,8 +14,6 @@ class InputError(Exception):
     pass
 
 
-# TODO khan: add documentation to this class (this should help you ensure you
-# understand the code)
 class SensitivityIndices(object):
     """ This class creates an object with first and second order sensitivity
     indices as well as the total sensitivty index for a given sample size. It
@@ -33,9 +31,9 @@ class SensitivityIndices(object):
         self.O1_indices = np.array(S["S1"]) if "S1" in S else None
         self.O2_indices = np.array(S["S2"]) if "S2" in S else None
         self.OT_indices = np.array(S["ST"]) if "ST" in S else None
-        self.O1_confidence = S["S1_conf"] if "S1_conf" in S else None
-        self.O2_confidence = S["S2_conf"] if "S2_conf" in S else None
-        self.OT_confidence = S["ST_conf"] if "ST_conf" in S else None
+        self.O1_confidence = np.array(S["S1_conf"]) if "S1_conf" in S else None
+        self.O2_confidence = np.array(S["S2_conf"]) if "S2_conf" in S else None
+        self.OT_confidence = np.array(S["ST_conf"]) if "ST_conf" in S else None
 
     def check_first_order(self):
         if self.O1_indices is None:
@@ -57,8 +55,6 @@ class SensitivityIndices(object):
 
     @classmethod
     def from_csv(cls, filepath: str):
-        # TODO khan: implement this so that Si_dict is a sensitivity index
-        # dictionary loaded from the CSV file provided by filepath
 
         with open(filepath) as fin:
             reader = csv.DictReader(fin)
@@ -81,8 +77,6 @@ class SensitivityIndices(object):
 
     @classmethod
     def from_json(cls, filepath: str):
-        # TODO khan: implement this so that Si_dict is a sensitivity index
-        # dictionary loaded from the JSON file provided by filepath
 
         data = open(filepath, encoding='utf-8').read()
         js = json.loads(data)
@@ -94,8 +88,6 @@ class SensitivityIndices(object):
 
     @classmethod
     def from_pickle(cls, filepath: str):
-        # TODO khan: implement this so that Si_dict is a sensitivity index
-        # dictionary loaded from the PKL file provided by filepath
         
         with open(filepath, 'rb') as fin:
             Si_dict = pickle.load(fin)
@@ -125,7 +117,6 @@ class SensitivityIndices(object):
         return np.unravel_index(full_index, self.O2_indices.shape)
 
     def to_csv(self, filepath: str, S: dict):
-        # TODO khan: Save the data in this class to a CSV file
        
         try:
             with  open(filepath, 'w') as  fout:
@@ -137,11 +128,8 @@ class SensitivityIndices(object):
         
 
     def to_json(self, filepath: str, S: dict):
-        # TODO khan: Save the data in this class to a JSON file
         
         S['S2'] = S['S2'].tolist()
-        print(S['S2'])
-
         try:
             with open(filepath, 'w') as fout:
                 json.dump(S, fout)
@@ -150,7 +138,6 @@ class SensitivityIndices(object):
         
         
     def to_pickle(self, filepath: str, S: dict):
-        # TODO khan: Save the data in this class to a PKL file
 
         try:
             fout = open(filepath, 'wb')
@@ -246,6 +233,11 @@ class SensitivityAnalyzer(object):
             conf_level=0.95, seed=None
         )
 
+        print(S)
+        print("sample_time", sample_time)
+        print("exec_time", exec_time)
+        print("analyze_time", analyze_time)
+
         Si = SensitivityIndices(S)
         return Si if not save_time \
             else (Si, (sample_time, exec_time, analyze_time))
@@ -256,7 +248,6 @@ class SensitivityAnalyzer(object):
         M: int=4,
         save_time: bool=False, verbose: bool=False
     ) -> dict:
-        # TODO Khan: adapt this method to be the same style as Si_from_Sobol
        
         prob_def = cls.setup_problem_def(G.inputs, B)
 
@@ -279,7 +270,6 @@ class SensitivityAnalyzer(object):
         M: int=10,
         save_time: bool=False, verbose: bool=False
     ):
-        # TODO Khan: adapt this method to be the same style as Si_from_Sobol
         
         prob_def = cls.setup_problem_def(G.inputs, B)
 
