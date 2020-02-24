@@ -355,7 +355,7 @@ def test_interface_pythonIR_generation(interface_python_IR_test):
 
 
 def test_multiple_interface_pythonIR_generation(multiple_interface_python_IR_test):
-    with open(f"{DATA_DIR}/interface/m_testmodule.py", "r") as f:
+    with open(f"{DATA_DIR}/interface/m_interface03_mod.py", "r") as f:
         python_src = f.read()
     assert multiple_interface_python_IR_test[0] == python_src
 
