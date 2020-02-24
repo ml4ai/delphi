@@ -13,7 +13,7 @@ from typing import Dict, Tuple
 
 
 DATA_DIR = "tests/data/program_analysis"
-TEMP_DIR = "."
+TEMP_DIR = "./tmp"
 
 
 def get_python_source(
