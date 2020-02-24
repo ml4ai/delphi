@@ -602,7 +602,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
         """ Build a PyGraphviz AGraph object corresponding to a call graph of
         functions. """
 
-        A = nx.nx_agraph.to_AGraph(self.FCG)
+        A = nx.nx_agraph.to_agraph(self.FCG)
         A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo", "rankdir": "TB"})
         A.node_attr.update(
             {"shape": "rectangle", "color": "#650021", "style": "rounded"}
