@@ -859,7 +859,8 @@ class XML_to_JSON_translator(object):
                 assign["value"] = self.parseTree(node, state)
 
         search_for_functions = False
-        if len(assign["value"]) == 1 and assign["value"][0]["tag"] == "op":
+        if len(assign["value"]) == 1 and assign["value"][0]["tag"] in ["op",
+                                                                       "call"]:
             search_for_functions = True
         extra_tags = []
 
@@ -1596,23 +1597,39 @@ class XML_to_JSON_translator(object):
             call into a separate assignment
         """
         extra_tags = []
-        if value[0]["left"][0]["tag"] == "op":
-            extra_tags += self.check_function_call(value[0]["left"])
-        elif value[0]["left"][0]["tag"] == "call":
-            function_name = value[0]["left"][0]["name"]
-            if function_name.lower() in self.functionList:
-                extra_tags += self.replace_function_call(value[0]["left"],
-                                                         function_name)
+        if value[0]["tag"] == "op":
+            if value[0]["left"][0]["tag"] == "op":
+                extra_tags += self.check_function_call(value[0]["left"])
+            elif value[0]["left"][0]["tag"] == "call":
+                extra_tags += self.initiate_function_replacement(value[0][
+                                                                     "left"])[0]
 
-        if value[0]["right"][0]["tag"] == "op":
-            extra_tags += self.check_function_call(value[0]["right"])
-        elif value[0]["right"][0]["tag"] == "call":
-            function_name = value[0]["right"][0]["name"]
-            if function_name.lower() in self.functionList:
-                extra_tags += self.replace_function_call(value[0]["right"],
-                                                         function_name)
+            if value[0]["right"][0]["tag"] == "op":
+                extra_tags += self.check_function_call(value[0]["right"])
+            elif value[0]["right"][0]["tag"] == "call":
+                extra_tags += self.initiate_function_replacement(value[0][
+                                                                     "right"])[0]
+        elif value[0]["tag"] == "call":
+            extra_tags += self.initiate_function_replacement(value[0][
+                                                                 "args"])[0]
 
         return extra_tags
+
+    def initiate_function_replacement(self, function_tag):
+        tags = []
+        function_name = function_tag[0]["name"]
+        if function_name.lower() in self.functionList:
+            function_arguments = function_tag[0]["args"]
+            for index, arg in enumerate(function_arguments):
+                if arg["tag"] == "call":
+                    results = self.initiate_function_replacement([arg])
+                    tags += results[0]
+                    if isinstance(results[1], dict):
+                        function_tag[0]["args"][index] = results[1]
+                    else:
+                        function_tag[0]["args"][index] = results[1][0]
+            tags += self.replace_function_call(function_tag, function_name)
+        return tags, function_tag
 
     def replace_function_call(self, tag, function_name):
         call_spec = copy.deepcopy(tag[0])
