@@ -1,0 +1,95 @@
+*EXP.DETAILS: UFGA7801SB BRAGG, IRRIGATED & NON-IRRIGATED                            
+
+*FILES
+@N  EXP.DATA    AFILE        ADIR
+  1 EXP         UFGA7801.SBA                                                                                 
+@N  SPECIES     SPFILE       SPDIR
+  1 SPE         SBGRO047.SPE                                                                                 
+@N  ECOTYPE     EFILE        EDIR
+  1 ECO         SBGRO047.ECO                                                                                 
+@N  CULTIVAR    CFILE        CDIR
+  1 CUL         SBGRO047.CUL                                                                                 
+@N  SOIL        SFILE        SDIR
+  1 SOIL        SOIL.SOL                                                                                     
+@N  WEATHER     WFILE        WDIR
+  1 WEATH       UFGA7801.WTH                                                                                 
+
+*SIMULATION CONTROL
+@N  GENERAL     NYERS NREPS START   SDATE RSEED SNAME.................... MODEL...
+  1 GE              1     1     S 1978166  2150 BRAGG, IRRIGATED & NON-I  CRGRO047
+@N  OPTIONS     WATER NITRO SYMBI PHOSP POTAS DISES  CHEM  TILL   CO2
+  1 OP              Y     Y     Y     N     N     N     N     Y     M
+@N  METHODS     WTHER INCON LIGHT EVAPO INFIL PHOTO HYDRO NSWIT SOMDY MESEV MESOL METMP MEGHG
+  1 ME              M     M     E     R     S     L     R     1     G     S     2     D     0
+@N  MANAGEMENT  PLANT IRRIG FERTI RESID HARVS
+  1 MA              R     R     R     R     M
+@N  OUTPUTS     FNAME OVVEW SUMRY FROPT GROUT CAOUT WAOUT NIOUT MIOUT DIOUT  LONG CHOUT OPOUT
+  1 OU              N     Y     Y     1     Y     Y     Y     Y     N     N     Y     N     N
+
+!AUTOMATIC MANAGEM
+@N  PLANTING      PFRST   PLAST PH2OL PH2OU PH2OD PSTMX PSTMN
+  1 PL          1978155 1978200   40.  100.   30.   40.   10.
+@N  IRRIGATION  IMDEP ITHRL ITHRU IROFF IMETH IRAMT IREFF
+  1 IR            30.   70.  100. IB001 IB001  10.0 0.750
+@N  NITROGEN    NMDEP NMTHR NAMNT NCODE NAOFF
+  1 NI            30.   50.   25. IB001 IB001
+@N  RESIDUES    RIPCN RTIME RIDEP
+  1 RE           100.     1   20.
+@N  HARVEST     HFRST   HLAST HPCNP HRCNR
+  1 HA              0 1978365  100.    0.
+
+*TREATMENTS
+@N   R O C TNAME....................  CU  FL  SA  IC  MP  MI  MF  MR  MC  MT  ME  MH  SM
+  2  1 1 0 78 RAINFED BRAGG            1   1   0   1   1   0   0   1   0   0   0   0   1
+
+*CULTIVARS
+@C  CR INGENO CNAME
+  1 SB IB0001 BRAGG           
+
+*FIELDS
+@L  ID_FIELD WSTA....  FLSA  FLOB  FLDT  FLDD  FLDS  FLST SLTX   SLDP ID_SOIL
+  1 UFGA0001 UFGA7801   0.0    0. IB000    0.  100. 00000 -99    180. IBSB910015
+@L             XCRD            YCRD      ELEV              AREA  SLEN  FLWR  SLAS PRMGT
+  1        29.63000       -82.37000     40.00               1.0  100.   1.0   0.0   -99   -99
+
+*INITIAL CONDITIONS
+@C  PCR     ICDAT  ICRT  ICND  ICRN  ICRE  ICWD ICRES ICREN ICREP ICRIP ICRID
+  1 SB    1978166   100     0  1.00  1.00   0.0     0  0.00  0.00  100.    0.
+@C   ICBL  SH2O  SNH4  SNO3
+  1    5. 0.086   0.6   1.5
+  1   15. 0.086   0.6   1.5
+  1   30. 0.086   0.6   1.5
+  1   45. 0.086   0.6   1.5
+  1   60. 0.086   0.6   1.5
+  1   90. 0.076   0.6   0.6
+  1  120. 0.076   0.6   0.5
+  1  150. 0.130   0.6   0.5
+  1  180. 0.258   0.6   0.5
+
+*PLANTING DETAILS
+@P    PDATE   EDATE  PPOP  PPOE  PLME  PLDS  PLRS  PLRD          PLDP  PLWT  PAGE  PENV  PLPH  SPRL
+  1 1978166     -99  29.9  29.9     S     R   91.    0.   4.0  -99.  -99. -99.0 -99.0 -99.0
+
+*IRRIGATION
+@I   IEFF  IDEP  ITHR  IEPT  IOFF  IAME  IAMT
+  0 1.000    0.    0.  -99. GS000 IR001   0.0
+@I    IDATE  IROP IRVAL
+
+*FERTILIZERS
+@F    FDATE  FMCD  FACD  FDEP  FAMN  FAMP  FAMK  FAMC  FAMO  FOCD
+
+*RESIDUES
+@R    RDATE  RCOD  RAMT  RESN  RESP  RESK  RINP  RDEP  RMET
+  1 1978166 RE001  1000  0.80  0.00  0.00  100.   15.   -99
+
+*CHEMICALS
+@C    CDATE CHCOD CHAMT  CHME CHDEP   CHT
+
+*TILLAGE
+@T    TDATE TIMPL  TDEP
+
+*ENVIRONMENT
+@E    ODATE  EDAY  ERAD  EMAX  EMIN ERAIN  ECO2  EDEW EWIND
+
+*HARVEST
+@H    HDATE  HSTG  HCOM HSIZE   HPC  HBPC

@@ -70,4 +70,5 @@ RUN pip install wheel && \
       SQLAlchemy \
       flask-sqlalchemy \
       flask-executor \
-      python-dateutil
+      python-dateutil \
+  && make extensions
