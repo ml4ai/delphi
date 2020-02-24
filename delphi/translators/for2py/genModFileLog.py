@@ -19,11 +19,12 @@ Author: Terrence J. Lim
 """
 
 import os
-from os.path import isfile
 import re
 import sys
 import json
 import argparse
+from os.path import isfile
+from delphi.translators.for2py import syntax
 
 
 def parse_args():
@@ -159,6 +160,7 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
         file_to_mod_mapper[file_path] = module_names_lowered.copy()
         file_to_mod_mapper[file_path].append(get_file_last_modified_time(
             file_path))
+
         if (
             ("end subroutine" in file_content.lower()
                 or "endsubroutine" in file_content.lower())
@@ -167,32 +169,8 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
         ):
             # Bring the pointer back to the first character position of a file
             f.seek(f_pos)
-            # regex for module, subroutine, and function
-            # Because Fortran allows two different syntax for end (i.e. end module and
-            # endmodule), we need to check both cases.
-            modu_regex = re.compile('\s*module (?P<module>(?P<name>(\w*)\n))')
-            end_modu_regex = re.compile('\s*end module (?P<module>(?P<name>(\w*)\n))')
-            endmodu_regex = re.compile('\s*endmodule (?P<module>(?P<name>(\w*)\n))')
-            
-            interface_regex  = re.compile('\s*interface (?P<interface>(?P<name>(\w*)\n))')
-            end_intr_regex = re.compile('\s*end interface\n')
-            endintr_regex = re.compile('\s*endinterface\n')
 
-            subr_regex = re.compile('\s*subroutine (?P<subroutine>(?P<name>.*?)\((?P<args>.*)\))')
-            end_subr_regex = re.compile('\s*end subroutine (?P<subroutine>(?P<name>(\w*)\n))')
-            endsubr_regex = re.compile('\s*endsubroutine (?P<subroutine>(?P<name>(\w*)\n))')
-            
             func_regex = re.compile('\s*(?P<type>(double precision|double|float|int|integer|logical|real|str|string))\sfunction (?P<function>(?P<name>.*?)\((?P<args>.*)\))')
-            end_func_regex = re.compile('\s*end function (?P<function>(?P<name>(\w*)\n))')
-            endfunc_regex = re.compile('\s*endfunction (?P<function>(?P<name>(\w*)\n))')
-
-            var_dec_regex = re.compile('\s*(?P<type>(double|float|int|integer|logical|real|str|string)),?\s(::)*(?P<variables>(.*))\n')
-            dev_type_regex = re.compile('\s*type\s*\((?P<type>.*)\)\s(?P<variables>(.*))')
-            char_type_regex = re.compile('\s*(character\*(\(\*\)|\d*))\s*(?P<variables>.*)')
-
-            dtype_regex = re.compile('\s*type (?P<type>(?P<name>(\w*)\n))')
-            end_dtype_regex = re.compile('\s*end type (?P<type>(?P<name>(\w*)\n))')
-            enddtype_regex = re.compile('\s*endtype (?P<type>(?P<name>(\w*)\n))')
 
             current_modu = None
             current_subr = None
@@ -207,23 +185,20 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
                 if  '!' in line:
                     line = line.partition('!')[0].strip()
 
-                # Check enter and exit of module
+                # Check entering module
                 modu = modu_regex.match(line)
-                end_modu = end_modu_regex.match(line)
-                endmodu = endmodu_regex.match(line)
 
-                # Check center and exit of interface
-                interface =  interface_regex.match(line)
-                end_intr = end_intr_regex.match(line)
-                endintr = endintr_regex.match(line)
+                # Check entering interface
+                interface = syntax.line_starts_interface(line)
 
-                # Check enter and exit of subroutine
-                subr = subr_regex.match(line)
-                end_subr = end_subr_regex.match(line)
-                endsubr = endsubr_regex.match(line)
+                # Check entering subroutine
+                subroutine = syntax.subroutine_definition(line)
 
-                # Check enter and exit of function
+                # Check entering function
                 func = func_regex.match(line)
+
+                # end_modu = end_modu_regex.match(line)
+                end_pgm = syntax.pgm_end(line)
 
                 # Check derived type declaration
                 end_dtype = end_dtype_regex.match(line)
@@ -233,23 +208,23 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
                     current_modu = modu['name'].strip()
                     module_summary[current_modu] = {}
                     procedure_functions[current_modu] = {}
-                elif end_modu or endmodu:
+                elif end_pgm[0] and end_pgm[1] == "module":
                     current_modu = None
                 else:
                     pass
 
                 if current_modu:
-                    if subr:
-                        current_subr = subr["name"].strip()
-                        subr_args = subr["args"].replace(' ','').split(',')
+                    if subroutine[0]:
+                        current_subr = subroutine[1][0]
+                        subroutine_args = subroutine[1][1]
                         module_summary[current_modu][current_subr] = {}
-                        for arg in subr_args:
+                        for arg in subroutine_args:
                             if arg:
                                 module_summary[current_modu][current_subr][arg] = None
-                    elif end_subr or endsubr:
+                    elif end_pgm[0] and end_pgm[1] == "subroutine":
                         current_subr = None
                     elif current_subr:
-                        variable_dec = var_dec_regex.match(line)
+                        variable_dec = syntax.variable_declaration(line)
                         dev_type_var = dev_type_regex.match(line)
                         char_type_var = char_type_regex.match(line)
                         if (
@@ -257,9 +232,9 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
                                 or dev_type_var
                                 or char_type_var
                         ):
-                            if variable_dec:
-                                var_type = variable_dec['type']
-                                variables = variable_dec['variables']
+                            if variable_dec[0]:
+                                var_type = variable_dec[1][0]
+                                variables = variable_dec[1][1]
                             elif dev_type_var:
                                 var_type = dev_type_var['type']
                                 variables = dev_type_var['variables']
@@ -299,9 +274,9 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
                     else:
                         pass
 
-                    if interface:
-                        current_intr  = interface['name'].strip()
-                    elif end_intr or endintr:
+                    if interface[0]:
+                        current_intr  = interface[1]
+                    elif end_pgm[0] and end_pgm[1] == "interface":
                         current_intr = None
                         if isProcedure:
                             isProceddure = False

@@ -212,6 +212,60 @@ EXECUTABLE_CODE_START = [
     RE_STOP_STMT
 ]
 
+SUB_DEF = r"\s*subroutine\s+(?P<subroutine>(?P<name>.*?)\((?P<args>.*)\))"
+RE_SUB_DEF = re.compile(SUB_DEF, re.I)
+
+INTERFACE_START = r"\s*interface\s+(?P<interface>(?P<name>(\w*)\n))"
+RE_INTERFACE_START = re.compile(INTERFACE_START, re.I)
+
+PGM_END = r"\s*[a-z]*\s*end\s+(?P<pgm>(module|subroutine|function|interface|type))\s+(?P<name>(\w*))"
+RE_PGM_END = re.compile(PGM_END, re.I)
+
+VARIABLE_DEC = r"\s*(?P<type>(double|float|int|integer|logical|real|str|string)),?\s(::)*(?P<variables>(.*))\n"
+RE_VARIABLE_DEC = re.compile(VARIABLE_DEC, re.I)
+
+DERIVED_TYPE_DEF = re.compile('\s*type (?P<type>(?P<name>(\w*)\n))')
+RE_DERIVED_TYPE_DEF = re.compile(DERIVED_TYPE_DEF, re.I)
+
+DERIVED_TYPE_VAR = "\s*type\s*\((?P<type>.*)\)\s(?P<variables>(.*))"
+RE_DERIVED_TYPE_VAR = re.compile(DERIVED_TYPE_VAR, re.I)
+
+CHARACTER = r"\s*(character\*(\(\*\)|\d*))\s*(?P<variables>.*)"
+RE_CHARACTER = re.compile(CHARACTER, re.I)
+
+
+def variable_declaration(line: str) -> Tuple[bool, Optional[list]]:
+    match = RE_VARIABLE_DEC.match(line)
+    if match:
+        v_type = match['type']
+        variable_list = match['variables']
+        return (True, [v_type, variable_list])
+    return (False, None)
+
+def subroutine_definition(line: str) -> Tuple[bool, Optional[list]]:
+    match = RE_SUB_DEF.match(line)
+    if match:
+        f_name = match['name'].strip()
+        f_args = match['args'].replace(' ','').split(',')
+        return (True, [f_name, f_args])
+
+    return (False, None)
+
+def pgm_end(line: str) -> Tuple[bool, str, str]:
+    match = RE_PGM_END.match(line)
+    if match:
+        pgm = match['pgm']
+        pgm_name = match['name']
+        return (True, pgm, pgm_name)
+    return (False, None, None)
+
+
+def line_starts_interface(line: str) -> Tuple[bool, Optional[str]]:
+    match = RE_INTERFACE_START.match(line)
+    if match:
+        i_name = match['name'].strip()
+        return (True, i_name)
+    return (False, None)
 
 def line_starts_subpgm(line: str) -> Tuple[bool, Optional[str]]:
     """
