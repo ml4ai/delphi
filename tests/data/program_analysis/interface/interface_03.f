@@ -1,4 +1,4 @@
-      MODULE TestModule
+      MODULE INTERFACE03_MOD
 
       INTEGER, PARAMETER :: MaxFiles = 500
 
@@ -92,4 +92,15 @@
       Return
       End Subroutine PUT_ISWITCH
 
-      END MODULE TestModule
+      END MODULE INTERFACE03_MOD
+
+      PROGRAM MAIN
+      USE INTERFACE03_MOD
+      TYPE (ControlType) Control
+      TYPE (SwitchType) Switch
+
+      call GET (Control)
+      call GET (Switch)
+      call PUT (Control)
+      call PUT (Switch)
+      END PROGRAM MAIN
