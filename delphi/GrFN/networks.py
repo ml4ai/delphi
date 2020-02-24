@@ -38,14 +38,14 @@ class ComputationalGraph(nx.DiGraph):
 
     def __init__(self, network, output_vars, *args, **kwargs):
         super().__init__(network, *args, **kwargs)
-        self.outputs = outputs
+        self.outputs = output_vars
         self.inputs = [
             n
             for n, d in self.in_degree()
             if d == 0 and self.nodes[n]["type"] == "variable"
         ]
         self.input_name_map = {
-            var_shortname(name): name for name in self.inputs
+            self.var_shortname(name): name for name in self.inputs
         }
         self.FCG = self.to_FCG()
         self.function_sets = self.build_function_sets()
@@ -58,7 +58,7 @@ class ComputationalGraph(nx.DiGraph):
          container_index,
          var_name,
          var_index) = long_var_name.split("::")
-         return var_name
+        return var_name
 
     def get_input_nodes(self) -> List[str]:
         """ Get all input nodes from a network. """
@@ -546,7 +546,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
 
     def to_AGraph(self):
         """ Export to a PyGraphviz AGraph object. """
-        A = nx.nx_agraph.to_AGraph(self)
+        A = nx.nx_agraph.to_agraph(self)
         A.graph_attr.update(
             {"dpi": 227, "fontsize": 20, "fontname": "Menlo", "rankdir": "LR"}
         )
@@ -585,7 +585,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
         CAG = self.to_CAG()
         for name, data in CAG.nodes(data=True):
             CAG.nodes[name]["label"] = data["cag_label"]
-        A = nx.nx_agraph.to_AGraph(CAG)
+        A = nx.nx_agraph.to_agraph(CAG)
         A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo", "rankdir": "LR"})
         A.node_attr.update(
             {
