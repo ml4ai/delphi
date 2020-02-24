@@ -29,7 +29,7 @@ class SobolVisualizer(object):
         self.S1_indices = []
         self.S2_dataframe = []
         self.sample_time = []
-        self.exec_time = []
+        self.execution_time = []
         self.analysis_time = []
 
         for item in S:
