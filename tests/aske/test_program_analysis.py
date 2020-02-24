@@ -399,7 +399,7 @@ def test_sir_gillespie_sd_multi_grfn_generation(sir_gillespie_sd_multi_test):
 def test_derived_type_grfn_generation(derived_type_grfn_test):
     with open(f"{DATA_DIR}/derived-types/derived-types-04_GrFN.json", "r") as f:
         grfn_dict = json.load(f)
-    assert json.dumps(derived_type_grfn_test[0], indent=2, sort_keys=True) == str(grfn_dict)
+    assert derived_type_grfn_test[0] == grfn_dict
 
     with open(f"{DATA_DIR}/derived-types/derived-types-04_lambdas.py", "r") as f:
         target_lambda_functions = f.read()
