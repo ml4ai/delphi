@@ -1,14 +1,9 @@
 #include <AnalysisGraph.hpp>
 #include <Node.hpp>
-#include <boost/accumulators/accumulators.hpp>
-#include <boost/accumulators/statistics/median.hpp>
-#include <boost/accumulators/statistics/stats.hpp>
 #include <graphviz_interface.hpp>
 #include <range/v3/all.hpp>
 
 using namespace std;
-using boost::source, boost::target;
-
 
 /*
  ============================================================================
@@ -26,7 +21,6 @@ pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph(bool simplified_labels,
   using ranges::end, ranges::to;
   using ranges::views::slice, ranges::views::replace, ranges::max,
       ranges::views::transform;
-  using namespace boost::accumulators;
 
   Agraph_t* G = agopen(const_cast<char*>("G"), Agdirected, NULL);
   GVC_t* gvc;
@@ -56,8 +50,8 @@ pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph(bool simplified_labels,
 
   // Add CAG links
   for (auto e : this->edges()) {
-    string source_name = this->graph[source(e, this->graph)].name;
-    string target_name = this->graph[target(e, this->graph)].name;
+    string source_name = this->source(e).name;
+    string target_name = this->target(e).name;
 
     // TODO Implement a refined version of this that checks for set size
     // equality, a la the Python implementation (i.e. check if the length of
@@ -111,7 +105,6 @@ pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph(bool simplified_labels,
   gvLayout(gvc, G, "dot");
   return make_pair(G, gvc);
 }
-
 
 /*
  ============================================================================

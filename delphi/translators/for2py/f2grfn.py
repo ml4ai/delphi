@@ -415,13 +415,15 @@ def generate_grfn(
         module_logs = json.load(json_f)
 
     # Generate systems.json linking file.
-    genPGM.generate_system_def(
+    system_def = genPGM.generate_system_def(
             [python_file_path],
             grfn_filepath_list,
             module_import_paths,
             module_logs,
             original_fortran_file
     )
+
+    grfn_dict.update(system_def)
 
     # Write GrFN JSON into a file.
     with open(grfn_file, "w") as file_handle:

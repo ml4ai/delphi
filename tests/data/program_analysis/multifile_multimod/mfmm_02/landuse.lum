@@ -1,0 +1,18 @@
+landuse.lum
+LULC_NAME     CAL_GROUP     PCOM_NAME       MGT_NAME        CN2             CONS_PRAC          URB_NAME       URB_FLAG       OV_MANN      TILE  SEPTIC    VFS    GRWW      BMP
+landuse001         null       pcom001        null           wood_g          up_down_slope           null           null     forest_med    null    null    null    null    null
+landuse002         null       pcom001        null           wood_g          up_down_slope           null           null     forest_med    null    null    null    null    null
+landuse003         null       pcom001        null           wood_g          up_down_slope           null           null     forest_med    null    null    null    null    null
+landuse004         null       pcom001        null           wood_g          up_down_slope           null           null     forest_med    null    null    null    null    null
+landuse005         null       pcom001        null           wood_g          up_down_slope           null           null     forest_med    null    null    null    null    null
+landuse006         null       pcom001        null           wood_g          up_down_slope           null           null     forest_med    null    null    null    null    null
+corn_noprac        null       pcom002        c-o-p          legr_strow_p    up_down_slope           null           null chisplow_nores    null    null    null    null    null
+corn_conprac       null       pcom002        c-o-p-p-p      legr_contter_g  up_down_slope           null           null chisplow_nores    null    null    null    null    null
+oats_noprac        null       pcom002        o-p-c          legr_strow_p    up_down_slope           null           null chisplow_nores    null    null    null    null    null
+oats_conprac       null       pcom002        o-p-p-p-c      legr_contter_g  up_down_slope           null           null chisplow_nores    null    null    null    null    null
+past_noprac        null       pcom002        c-o-p          legr_strow_p    up_down_slope           null           null   range_sparse    null    null    null    null    null
+past_conprac       null       pcom002        p-p-p-c-o      legr_contter_g  up_down_slope           null           null   range_sparse    null    null    null    null    null
+forest_graze       null       pcom001        frsd_gr        woodgr_p        up_down_slope           null           null     forest_med    null    null    null    null    null
+forest_congraze    null       pcom001        frsd_congr     woodgr_g        up_down_slope           null           null     forest_med    null    null    null    null    null
+farmstead          null       pcom001        frsd_congr     farm            up_down_slope           null           null   range_sparse    null    null    null    null    null
+

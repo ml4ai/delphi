@@ -1,9 +1,9 @@
 #include "data.hpp"
-#include "spdlog/spdlog.h"
 #include "utils.hpp"
 #include <fmt/format.h>
 #include <sqlite3.h>
 #include <chrono>
+#include <range/v3/all.hpp>
 #include <thread>
 
 using namespace std;
@@ -18,8 +18,6 @@ vector<double> get_data_value(string indicator,
                               bool use_heuristic) {
   using fmt::print;
   using namespace fmt::literals;
-  using spdlog::debug, spdlog::error, spdlog::info;
-  spdlog::set_level(spdlog::level::warn);
 
   sqlite3* db = nullptr;
 
@@ -50,7 +48,7 @@ vector<double> get_data_value(string indicator,
         query = check_q;
       }
       else {
-        debug("Could not find data for country {}. Averaging data over all "
+        print("Could not find data for country {}. Averaging data over all "
               "countries for given axes (Default Setting)\n",
               country);
       }
@@ -67,7 +65,7 @@ vector<double> get_data_value(string indicator,
       query = check_q;
     }
     else {
-      debug("Could not find data for state {}. Only obtaining data "
+      print("Could not find data for state {}. Only obtaining data "
             "of the country level (Default Setting)\n",
             state);
     }
@@ -83,7 +81,7 @@ vector<double> get_data_value(string indicator,
       query = check_q;
     }
     else {
-      debug("Could not find data for county {}. Only obtaining data "
+      print("Could not find data for county {}. Only obtaining data "
             "of the state level (Default Setting)\n",
             county);
     }
@@ -101,7 +99,7 @@ vector<double> get_data_value(string indicator,
     else {
       sqlite3_finalize(stmt);
       stmt = nullptr;
-      debug("Could not find data for unit {}. Using first unit in "
+      print("Could not find data for unit {}. Using first unit in "
             "alphabetical order (Default Setting)\n",
             unit);
 
@@ -116,11 +114,11 @@ vector<double> get_data_value(string indicator,
       sqlite3_finalize(stmt);
       stmt = nullptr;
       if (!units.empty()) {
-        sort(units.begin(), units.end());
+        ranges::sort(units);
         query = "{0} and `Unit` is '{1}'"_format(query, units.front());
       }
       else {
-        error("No units found for indicator {}", indicator);
+        print("No units found for indicator {}", indicator);
       }
     }
   }
@@ -135,7 +133,7 @@ vector<double> get_data_value(string indicator,
       query = check_q;
     }
     else {
-      debug("Could not find data for year {}. Aggregating data "
+      print("Could not find data for year {}. Aggregating data "
             "over all years (Default Setting)\n",
             county);
     }
@@ -151,7 +149,7 @@ vector<double> get_data_value(string indicator,
       query = check_q;
     }
     else {
-      debug("Could not find data for month {}. Aggregating data "
+      print("Could not find data for month {}. Aggregating data "
             "over all months (Default Setting)\n",
             county);
     }

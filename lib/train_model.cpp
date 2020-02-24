@@ -1,11 +1,9 @@
 #include "AnalysisGraph.hpp"
 #include "data.hpp"
-#include "spdlog/spdlog.h"
 #include <tqdm.hpp>
 #include <range/v3/all.hpp>
 
 using namespace std;
-using spdlog::debug;
 using tq::trange;
 
 void AnalysisGraph::train_model(int start_year,
@@ -24,7 +22,7 @@ void AnalysisGraph::train_model(int start_year,
   this->initialize_random_number_generator();
   this->uni_disc_dist = uniform_int_distribution<int>(0, this->num_nodes() - 1);
 
-  this->construct_beta_pdfs(this->rand_num_generator);
+  this->construct_beta_pdfs();
   this->find_all_paths();
   this->data_heuristic = use_heuristic;
 
@@ -32,7 +30,7 @@ void AnalysisGraph::train_model(int start_year,
       start_year, start_month, end_year, end_month);
   this->res = res;
   this->init_betas_to(initial_beta);
-  this->sample_initial_transition_matrix_from_prior();
+  this->set_transition_matrix_from_betas();
   this->set_default_initial_state();
   this->parameterize(country, state, county, start_year, start_month, units);
 
