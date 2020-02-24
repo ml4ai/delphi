@@ -1,4 +1,5 @@
 import os
+import re
 import json
 from datetime import date
 import xml.etree.ElementTree as ET
@@ -32,6 +33,7 @@ def get_python_source(
 
 
 def make_grfn_dict(original_fortran_file) -> Dict:
+    filename_regex = re.compile(r"(?P<path>.*/)(?P<filename>.*).py")
     lambda_file_suffix = "_lambdas.py"
     tester_call = True
     save_file = False
@@ -49,8 +51,8 @@ def make_grfn_dict(original_fortran_file) -> Dict:
     ) = get_python_source(original_fortran_file)
 
     for python_file_path in python_file_paths:
-        python_file_path_wo_extension = python_file_path[0:-3]
-        lambdas_file_path = python_file_path_wo_extension + lambda_file_suffix
+        python_file_path_wo_extension = filename_regex.match(python_file_path)# python_file_path[0:-3]
+        lambdas_file_path = python_file_path_wo_extension['filename'] + lambda_file_suffix
         _dict = f2grfn.generate_grfn(
                                         pySrc[0][0],
                                         python_file_path,
