@@ -151,7 +151,7 @@ class SensitivityAnalyzer(object):
         pass
 
     @staticmethod
-    def setup_problem_def(input_vars, B):
+    def setup_problem_def(GrFN, B):
         """
         So not all bounds are created uniformly, we can have different types
         that are represented binarily or categorically and we can also have some
@@ -173,6 +173,7 @@ class SensitivityAnalyzer(object):
             else:
                 return [0, 1]
 
+        input_vars = list(GrFN.input_name_map.keys())
         return {
             'num_vars': len(input_vars),
             'names': input_vars,
@@ -243,7 +244,7 @@ class SensitivityAnalyzer(object):
         Returns:
             A SensitivityIndices object containing all data from SALib analysis
         """
-        prob_def = cls.setup_problem_def(G.inputs, B)
+        prob_def = cls.setup_problem_def(G, B)
 
         (samples, sample_time) = cls.__run_sampling(
             SAL.sample.saltelli.sample, prob_def, N,
@@ -258,11 +259,6 @@ class SensitivityAnalyzer(object):
             conf_level=0.95, seed=None
         )
 
-        print(S)
-        print("sample_time", sample_time)
-        print("exec_time", exec_time)
-        print("analyze_time", analyze_time)
-
         Si = SensitivityIndices(S)
         return Si if not save_time \
             else (Si, (sample_time, exec_time, analyze_time))
@@ -274,7 +270,7 @@ class SensitivityAnalyzer(object):
         save_time: bool=False, verbose: bool=False, seed: int=None
     ) -> dict:
 
-        prob_def = cls.setup_problem_def(G.inputs, B)
+        prob_def = cls.setup_problem_def(G, B)
 
         (samples, sample_time) = cls.__run_sampling(
             SAL.sample.fast_sampler.sample, prob_def, N,
@@ -299,7 +295,7 @@ class SensitivityAnalyzer(object):
         save_time: bool=False, verbose: bool=False, seed: int=None
     ):
 
-        prob_def = cls.setup_problem_def(G.inputs, B)
+        prob_def = cls.setup_problem_def(G, B)
 
         (samples, sample_time) = cls.__run_sampling(
             SAL.sample.latin.sample, prob_def, N, seed=seed

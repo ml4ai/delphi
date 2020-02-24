@@ -39,11 +39,11 @@ def test_from_file(Si_Obj):
 def test_Sobol(petpt_grfn):
     N = 1000
     B = {
-        'PETPT::@global::petpt::0::tmax::-1':[0.0, 40.0],
-        'PETPT::@global::petpt::0::tmin::-1':[0.0, 40.0],
-        'PETPT::@global::petpt::0::srad::-1': [0.0, 30.0],
-        'PETPT::@global::petpt::0::msalb::-1': [0.0, 1.0],
-        'PETPT::@global::petpt::0::xhlai::-1': [0.0, 20.0]
+        "tmax":[0.0, 40.0],
+        "tmin":[0.0, 40.0],
+        "srad": [0.0, 30.0],
+        "msalb": [0.0, 1.0],
+        "xhlai": [0.0, 20.0]
     }
 
     (indices, timing_data) = SensitivityAnalyzer.Si_from_Sobol(
