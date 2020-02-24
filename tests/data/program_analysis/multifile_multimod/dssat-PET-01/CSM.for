@@ -229,7 +229,6 @@ C***********************************************************************
       CONTROL % RUN = RUN
       CONTROL % YRDOY = 0
       CALL PUT(CONTROL)
-      write(*,*) "@@@ RUN = ", RUN
       IF ((INDEX('NSFBT',RNMODE) .GT. 0) .OR. (INDEX('E',RNMODE) .GT.
      &     0 .AND. RUN .EQ. 1)) THEN
         CALL IGNORE (LUNBIO,LINBIO,ISECT,CHARTEST)
@@ -468,7 +467,7 @@ C***********************************************************************
       CALL LAND(CONTROL, ISWITCH, 
      &          YRPLT, MDATE, YREND)
 
-      WRITE (*,11) "EXITING (since this is just a test benchmark)"
+      WRITE (*,11) "EXITING AFTER LAND CALLSITE 5 (file: CSM.for)"
  11   FORMAT(A)
       CALL EXIT(0)
 C***********************************************************************
@@ -484,7 +483,11 @@ C***********************************************************************
 
       WRITE (*,10) "CALLING LAND: 6"
       CALL LAND(CONTROL, ISWITCH, 
-     &          YRPLT, MDATE, YREND)
+     &     YRPLT, MDATE, YREND)
+
+      WRITE (*,10) "EXITING AFTER LAND CALLSITE 6 (file: CSM.for)"
+      CALL EXIT(0)
+
 
 C-----------------------------------------------------------------------
       ENDDO SEAS_LOOP  
