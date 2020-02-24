@@ -37,7 +37,7 @@ class SobolVisualizer(object):
             self.S1_indices.append(item['S1'])
             self.S2_dataframe.append(item['S2'])
             self.sample_time.append(float(item['sampling time']))
-            self.execution_time.append(float(item['sampling time']))
+            self.execution_time.append(float(item['execution time']))
             self.analysis_time.append(float(item['analysis time']))
 
     def S1_Sobol_plot(self):
