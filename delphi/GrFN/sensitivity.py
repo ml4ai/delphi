@@ -1,10 +1,6 @@
 from numbers import Number
-import time
-from SALib.sample import saltelli, fast_sampler, latin
 import SALib as SAL
 import numpy as np
-import torch
-import pandas as pd
 import json
 import csv
 import pickle
@@ -83,8 +79,14 @@ class SensitivityIndices(object):
         data = open(filepath, encoding='utf-8').read()
         js = json.loads(data)
 
-
-        Si_dict = {'S1':np.array(js['S1']), 'S2':np.array(js['S2']), 'ST':np.array(js['ST']), 'S1_conf':float(js['S1_conf']), 'S2_conf':float(js['S2_conf']), 'ST_conf':float(js['ST_conf'])}
+        Si_dict = {
+            'S1': np.array(js['S1']),
+            'S2': np.array(js['S2']),
+            'ST': np.array(js['ST']),
+            'S1_conf': float(js['S1_conf']),
+            'S2_conf': float(js['S2_conf']),
+            'ST_conf': float(js['ST_conf'])
+        }
 
         return cls(Si_dict)
 
@@ -119,18 +121,15 @@ class SensitivityIndices(object):
         return np.unravel_index(full_index, self.O2_indices.shape)
 
     def to_csv(self, filepath: str, S: dict):
-
         try:
-            with  open(filepath, 'w') as  fout:
+            with open(filepath, 'w') as fout:
                 writer = csv.DictWriter(fout, fieldnames=S.keys())
                 writer.writeheader()
                 writer.writerow(S)
         except IOError:
             print("Input File Missing!")
 
-
     def to_json(self, filepath: str, S: dict):
-
         S['S2'] = S['S2'].tolist()
         try:
             with open(filepath, 'w') as fout:
@@ -138,17 +137,13 @@ class SensitivityIndices(object):
         except IOError:
             print("Input File Missing!")
 
-
     def to_pickle(self, filepath: str, S: dict):
-
         try:
             fout = open(filepath, 'wb')
             pickle.dump(S, fout)
             fout.close()
         except IOError:
             print("Input File Missing!")
-
-
 
 
 class SensitivityAnalyzer(object):
@@ -276,43 +271,49 @@ class SensitivityAnalyzer(object):
     def Si_from_FAST(
         cls, N: int, G: ComputationalGraph, B: dict, C: dict=None, V: dict=None,
         M: int=4,
-        save_time: bool=False, verbose: bool=False
+        save_time: bool=False, verbose: bool=False, seed: int=None
     ) -> dict:
 
         prob_def = cls.setup_problem_def(G.inputs, B)
 
-        (samples, sample_time) = cls.__run_sampling(SAL.sample.fast_sampler.sample,
-                prob_def, N, M=M, seed=seed)
+        (samples, sample_time) = cls.__run_sampling(
+            SAL.sample.fast_sampler.sample, prob_def, N,
+            M=M, seed=seed
+        )
 
         (Y, exec_time) = cls.__excecute_CG(G, samples, prob_def, C, V)
 
-        (S, analyze_time) = cls.__run_analysis(SAL.analyze.fast.analyze, prob_def, Y, M=M,
-                print_to_console=Flase, seed=seed)
+        (S, analyze_time) = cls.__run_analysis(
+            SAL.analyze.fast.analyze, prob_def, Y,
+            M=M, print_to_console=False, seed=seed
+        )
 
         Si = SensitivityIndices(S)
         return Si if not save_time \
-               else (Si, (sample_time, exec_time, analyze_time))
-
+            else (Si, (sample_time, exec_time, analyze_time))
 
     @classmethod
     def Si_from_RBD_FAST(
         cls, N: int, G: ComputationalGraph, B: dict, C: dict=None, V: dict=None,
         M: int=10,
-        save_time: bool=False, verbose: bool=False
+        save_time: bool=False, verbose: bool=False, seed: int=None
     ):
 
         prob_def = cls.setup_problem_def(G.inputs, B)
 
-        (samples, sample_time) = cls.__run_sampling(SAL.sample.latin.sample,
-                prob_def, N, seed=seed)
+        (samples, sample_time) = cls.__run_sampling(
+            SAL.sample.latin.sample, prob_def, N, seed=seed
+        )
 
         X = samples
 
         (Y, exec_time) = cls.__execute_CG(G, samples, prob_def, C, V)
 
-        (S, analyze_time) = cls.__run_analysis(SAL.analyze.rbd_fast.analyze, X, Y, M=M, print_to_console=False, seed=seed)
-
+        (S, analyze_time) = cls.__run_analysis(
+            SAL.analyze.rbd_fast.analyze, X, Y,
+            M=M, print_to_console=False, seed=seed
+        )
 
         Si = SensitivityIndices(S)
         return Si if not save_time \
-               else (Si, (sample_time, exec_time, analyze_time))
+            else (Si, (sample_time, exec_time, analyze_time))
