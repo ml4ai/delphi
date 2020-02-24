@@ -67,19 +67,19 @@ def test_petasce_creation(petasce_grfn):
     CAG.draw('PETASCE--CAG.pdf', prog='dot')
 
     values = {
-        "PETASCE_simple::@global::petasce::0::doy::-1": np.array([20.0], dtype=np.float32),
-        "PETASCE_simple::@global::petasce::0::meevp::-1": np.array(["A"], dtype=np.str),
-        "PETASCE_simple::@global::petasce::0::msalb::-1": np.array([0.5], dtype=np.float32),
-        "PETASCE_simple::@global::petasce::0::srad::-1": np.array([15.0], dtype=np.float32),
-        "PETASCE_simple::@global::petasce::0::tmax::-1": np.array([10.0], dtype=np.float32),
-        "PETASCE_simple::@global::petasce::0::tmin::-1": np.array([-10.0], dtype=np.float32),
-        "PETASCE_simple::@global::petasce::0::xhlai::-1": np.array([10.0], dtype=np.float32),
-        "PETASCE_simple::@global::petasce::0::tdew::-1": np.array([20.0], dtype=np.float32),
-        "PETASCE_simple::@global::petasce::0::windht::-1": np.array([5.0], dtype=np.float32),
-        "PETASCE_simple::@global::petasce::0::windrun::-1": np.array([450.0], dtype=np.float32),
-        "PETASCE_simple::@global::petasce::0::xlat::-1": np.array([45.0], dtype=np.float32),
-        "PETASCE_simple::@global::petasce::0::xelev::-1": np.array([3000.0], dtype=np.float32),
-        "PETASCE_simple::@global::petasce::0::canht::-1": np.array([2.0], dtype=np.float32),
+        "doy": np.array([20.0], dtype=np.float32),
+        "meevp": np.array(["A"], dtype=np.str),
+        "msalb": np.array([0.5], dtype=np.float32),
+        "srad": np.array([15.0], dtype=np.float32),
+        "tmax": np.array([10.0], dtype=np.float32),
+        "tmin": np.array([-10.0], dtype=np.float32),
+        "xhlai": np.array([10.0], dtype=np.float32),
+        "tdew": np.array([20.0], dtype=np.float32),
+        "windht": np.array([5.0], dtype=np.float32),
+        "windrun": np.array([450.0], dtype=np.float32),
+        "xlat": np.array([45.0], dtype=np.float32),
+        "xelev": np.array([3000.0], dtype=np.float32),
+        "canht": np.array([2.0], dtype=np.float32),
     }
 
     outputs = petasce_grfn.run(values)

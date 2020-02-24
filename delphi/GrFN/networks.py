@@ -120,9 +120,10 @@ class ComputationalGraph(nx.DiGraph):
             A set of outputs from executing the GrFN, one for every set of
             inputs.
         """
+        full_inputs = {self.input_name_map[n]: v for n, v in inputs.items()}
         # Set input values
         for i in self.inputs:
-            value = inputs[i]
+            value = full_inputs[i]
             if isinstance(value, float):
                 value = np.array([value], dtype=np.float32)
             if isinstance(value, int):
