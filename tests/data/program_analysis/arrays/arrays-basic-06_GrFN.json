@@ -430,7 +430,7 @@
         "code_source": [
           "tests/data/program_analysis/arrays/arrays-basic-06.f"
         ],
-        "grfn_source": "./arrays-basic-06_GrFN.json",
+        "grfn_source": "tmp/arrays-basic-06_GrFN.json",
         "imports": []
       }
     ],

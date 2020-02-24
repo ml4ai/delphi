@@ -309,7 +309,7 @@
         "code_source": [
           "tests/data/program_analysis/derived-types/derived-types-02.f"
         ],
-        "grfn_source": "./derived-types-02_GrFN.json",
+        "grfn_source": "tmp/derived-types-02_GrFN.json",
         "imports": []
       }
     ],

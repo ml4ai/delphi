@@ -269,7 +269,7 @@
         "code_source": [
           "tests/data/program_analysis/select_case/select02.f"
         ],
-        "grfn_source": "./select02_GrFN.json",
+        "grfn_source": "tmp/select02_GrFN.json",
         "imports": []
       }
     ],
