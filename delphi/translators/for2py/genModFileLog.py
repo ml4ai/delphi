@@ -138,6 +138,7 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
     module_names_lowered = []
     module_summary = {}
     procedure_functions = {}
+    derived_types = {}
 
     # Checks if file contains "end module" or "endmodule",
     # which only appears in case of module declaration.
@@ -188,6 +189,10 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
             dev_type_regex = re.compile('\s*type\s*\((?P<type>.*)\)\s(?P<variables>(.*))')
             char_type_regex = re.compile('\s*(character\*(\(\*\)|\d*))\s*(?P<variables>.*)')
 
+            dtype_regex = re.compile('\s*type (?P<type>(?P<name>(\w*)\n))')
+            end_dtype_regex = re.compile('\s*end type (?P<type>(?P<name>(\w*)\n))')
+            enddtype_regex = re.compile('\s*endtype (?P<type>(?P<name>(\w*)\n))')
+
             current_modu = None
             current_subr = None
             current_intr = None
@@ -215,8 +220,13 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
                 subr = subr_regex.match(line)
                 end_subr = end_subr_regex.match(line)
                 endsubr = endsubr_regex.match(line)
+
                 # Check enter and exit of function
                 func = func_regex.match(line)
+
+                # Check derived type declaration
+                end_dtype = end_dtype_regex.match(line)
+                enddtype = enddtype_regex.match(line)
 
                 if modu:
                     current_modu = modu['name'].strip()
@@ -312,6 +322,19 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
                         func_args = func["args"]
                     else:
                         pass
+
+                    if end_dtype or enddtype:
+                        if current_modu not in derived_types:
+                            if end_dtype:
+                                derived_types[current_modu] = [end_dtype['name'].strip()]
+                            elif enddtype:
+                                derived_types[current_modu] = [enddtype['name'].strip()]
+                        else:
+                            if end_dtype:
+                                derived_types[current_modu].append(end_dtype['name'].strip())
+                            elif enddtype:
+                                derived_types[current_modu].append(enddtype['name'].strip())
+
                 line  = f.readline().lower()
 
     # Using collected function information, populate interface function information
@@ -332,10 +355,13 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
             "exports": {},
             "symbol_types": {},
             "imports": {},
-            "interface_functions": {}
+            "interface_functions": {},
+            "derived_type_list": []
         }
         if mod in module_summary:
             mod_info_dict[mod]["interface_functions"] = procedure_functions[mod]
+        if mod in derived_types:   
+            mod_info_dict[mod]["derived_type_list"] = derived_types[mod]
     f.close()
 
 
