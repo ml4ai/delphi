@@ -1,4 +1,4 @@
-import time
+from numbers import Number
 
 from SALib.sample import saltelli, fast_sampler, latin
 import SALib as SAL
@@ -108,10 +108,31 @@ class SensitivityAnalyzer(object):
 
     @staticmethod
     def setup_problem_def(input_vars, B):
+        """
+        So not all bounds are created uniformly, we can have different types
+        that are represented binarily or categorically and we can also have some
+        conditions where a modeler may not want to include one of the inputs
+        under sensitivity analysis
+        """
+        def convert_bounds(bound):
+            num_bounds = len(bound)
+            if num_bounds == 0:
+                raise ValueError(f"Found input variable with 0 bounds")
+            elif num_bounds == 1:
+                # NOTE: still going to use a zero to 1 range for now
+                return [0, 1]
+            elif len(bound) == 2:
+                if all([isinstance(b, Number) for b in bound]):
+                    return bound
+                else:
+                    return [0, 1]
+            else:
+                return [0, 1]
+
         return {
             'num_vars': len(input_vars),
             'names': input_vars,
-            'bounds': [B[var] for var in input_vars]
+            'bounds': [convert_bounds(B[var]) for var in input_vars]
         }
 
     @staticmethod
@@ -140,6 +161,13 @@ class SensitivityAnalyzer(object):
                 return np.where(vector >= 0.5, str1, str2)
             else:
                 raise ValueError(f"Unrecognized value type: {type_info[0]}")
+
+        def reals_to_bools(samples):
+            return np.where(samples >= 0.5, True, False)
+
+        def reals_to_strs(samples, str_options):
+            num_strs = len(str_options)
+            return np.choose((samples*num_strs).astype(np.int64), num_strs)
 
         # Create vectors of sample inputs to run through the model
         vectorized_sample_list = np.split(samples, samples.shape[1], axis=1)

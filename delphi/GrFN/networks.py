@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from typing import Dict, Iterable, Union, Set, Optional, Number
+from typing import Dict, Iterable, Union, Set, Optional
 import subprocess as sp
 from typing import List
 import importlib
@@ -10,14 +10,13 @@ import json
 import os
 import itertools
 import time
-import torch
 from SALib.analyze import sobol, fast, rbd_fast
 from SALib.sample import saltelli, fast_sampler, latin
 import networkx as nx
 from networkx.algorithms.simple_paths import all_simple_paths
 
 from delphi.translators.for2py.types_ext import Float32
-from delphi.GrFN.analysis import get_max_s2_sensitivity
+# from delphi.GrFN.analysis import get_max_s2_sensitivity
 import delphi.GrFN.utils as utils
 from delphi.GrFN.utils import ScopeNode
 from delphi.utils.misc import choose_font
@@ -61,8 +60,6 @@ class ComputationalGraph(nx.DiGraph):
         return G
 
     def build_function_sets(self):
-        # TODO - this fails when there is only one function node in the graph -
-        # need to fix!
         initial_funcs = [n for n, d in self.FCG.in_degree() if d == 0]
         distances = dict()
 
@@ -88,14 +85,9 @@ class ComputationalGraph(nx.DiGraph):
         function_sets = [func_set for _, func_set in function_set_dists]
         return function_sets
 
-    @abstractmethod
-    def run(self, inputs, covers=None) -> Union[Number, Iterable]:
-        return NotImplemented
-
     def run(
         self,
         inputs: Dict[str, Union[float, Iterable]],
-        torch_size: Optional[int] = None,
     ) -> Union[float, Iterable]:
         """Executes the GrFN over a particular set of inputs and returns the
         result.
@@ -132,12 +124,7 @@ class ComputationalGraph(nx.DiGraph):
                 if len(input_values) == 0:
                     res = np.array(res, dtype=np.float32)
 
-                if torch_size is not None and len(signature) == 0:
-                    self.nodes[output_node]["value"] = torch.tensor(
-                        [res] * torch_size, dtype=torch.double
-                    )
-                else:
-                    self.nodes[output_node]["value"] = res
+                self.nodes[output_node]["value"] = res
 
         # Return the output
         # for o in self.outputs:
@@ -453,16 +440,16 @@ class GroundedFunctionNetwork(ComputationalGraph):
         network_test = True
         """Builds GrFN object from Python source code."""
         pgm_dict = f2grfn.generate_grfn(
-                                        pySrc,
-                                        python_file,
-                                        lambdas_path,
-                                        mode_mapper_dict,
-                                        fortran_file,
-                                        tester_call,
-                                        network_test,
-                                        module_log_file_path,
-                                        processing_modules,
-                                        save_file
+            pySrc,
+            python_file,
+            lambdas_path,
+            mode_mapper_dict,
+            fortran_file,
+            tester_call,
+            network_test,
+            module_log_file_path,
+            processing_modules,
+            save_file
         )
         lambdas = importlib.__import__(stem + "_lambdas")
         """Add generated GrFN and lambdas file paths to the list"""
@@ -488,29 +475,30 @@ class GroundedFunctionNetwork(ComputationalGraph):
             module_log_file_path,
             processing_modules,
         ) = f2grfn.fortran_to_grfn(
-                                    fortran_file,
-                                    tester_call=True,
-                                    network_test=True,
-                                    temp_dir=str(tmpdir),
-                                    root_dir_path=root_dir,
-                                    processing_modules=False,
-            )
+            fortran_file,
+            tester_call=True,
+            network_test=True,
+            temp_dir=str(tmpdir),
+            root_dir_path=root_dir,
+            processing_modules=False,
+        )
 
         generated_files = []
         for python_file in translated_python_files:
             lambdas_path = python_file[0:-3] + lambda_file_suffix
             G = cls.from_python_src(
-                                    pySrc[0][0],
-                                    lambdas_path,
-                                    json_filename,
-                                    stem,
-                                    python_file,
-                                    fortran_file,
-                                    module_log_file_path,
-                                    mode_mapper_dict,
-                                    processing_modules,
-                                    generated_files,
-                                    save_file=save_file)
+                pySrc[0][0],
+                lambdas_path,
+                json_filename,
+                stem,
+                python_file,
+                fortran_file,
+                module_log_file_path,
+                mode_mapper_dict,
+                processing_modules,
+                generated_files,
+                save_file=save_file
+            )
 
             """Return GrFN object"""
             return G
@@ -535,111 +523,6 @@ class GroundedFunctionNetwork(ComputationalGraph):
         G = cls.from_fortran_file(fp.name, dir)
         os.remove(fp.name)
         return G
-
-    def clear(self):
-        """Clear variable nodes for next computation."""
-        for n in self.nodes():
-            if self.nodes[n]["type"] == "variable":
-                self.nodes[n]["value"] = None
-            elif self.nodes[n]["type"] == "function":
-                self.nodes[n]["visited"] = False
-
-    def sobol_analysis(
-        self, num_samples, prob_def, use_torch=False, var_types=None
-    ):
-        def create_input_vector(name, vector):
-            if var_types is None:
-                return vector
-
-            type_info = var_types[name]
-            if type_info[0] != str:
-                return vector
-
-            if type_info[0] == str:
-                (str1, str2) = type_info[1]
-                return np.where(vector >= 0.5, str1, str2)
-            else:
-                raise ValueError(f"Unrecognized value type: {type_info[0]}")
-
-        # Create an array of samples from the bounds supplied in prob_def
-        start = time.clock()
-        samples = saltelli.sample(
-            prob_def, num_samples, calc_second_order=True
-        )
-        end = time.clock()
-        sample_time = end - start
-
-        # Create vectors of sample inputs to run through the model
-        vectorized_sample_list = np.split(samples, samples.shape[1], axis=1)
-        vectorized_input_samples = {
-            name: create_input_vector(name, vector)
-            for name, vector in zip(prob_def["names"], vectorized_sample_list)
-        }
-
-        # Produce model output and reshape for analysis
-        outputs = self.run(vectorized_input_samples)
-        Y = outputs[0]
-        Y = Y.reshape((Y.shape[0],))
-
-        # Recover the sensitivity indices from the sampled outputs
-        start = time.clock()
-        S = sobol.analyze(prob_def, Y)
-        end = time.clock()
-        analyze_time = end - start
-
-        return S, sample_time, analyze_time
-
-    def S2_surface(
-        self, sizes, bounds, presets, use_torch=False, num_samples=10
-    ):
-        """Calculates the sensitivity surface of a GrFN for the two variables with
-        the highest S2 index.
-
-        Args:
-            num_samples: Number of samples for sensitivity analysis.
-            sizes: Tuple of (number of x inputs, number of y inputs).
-            bounds: Set of bounds for GrFN inputs.
-            presets: Set of standard values for GrFN inputs.
-
-        Returns:
-            Tuple:
-                Tuple: The names of the two variables that were selected
-                Tuple: The X, Y vectors of eval values
-                Z: The numpy matrix of output evaluations
-
-        """
-        args = self.inputs
-        Si = self.sobol_analysis(
-            num_samples,
-            {
-                "num_vars": len(args),
-                "names": args,
-                "bounds": [bounds[arg] for arg in args],
-            },
-        )
-        S2 = Si["S2"]
-        (s2_max, v1, v2) = get_max_s2_sensitivity(S2)
-
-        x_var, y_var = args[v1], args[v2]
-        x_bounds, y_bounds = bounds[x_var], bounds[y_var]
-        (x_sz, y_sz) = sizes
-        X = np.linspace(*x_bounds, x_sz)
-        Y = np.linspace(*y_bounds, y_sz)
-        Xv, Yv = np.meshgrid(X, Y)
-
-        input_vectors = {
-            arg: np.full_like(Xv, presets[arg])
-            for i, arg in enumerate(args)
-            if i != v1 and i != v2
-        }
-        input_vectors.update({x_var: Xv, y_var: Yv})
-
-        outputs = self.run(input_vectors)
-        Z = outputs[0]
-
-        return X, Y, Z, x_var, y_var
-
-
 
     def to_AGraph(self):
         """ Export to a PyGraphviz AGraph object. """
@@ -720,7 +603,7 @@ class ForwardInfluenceBlanket(ComputationalGraph):
 
     def __init__(self, G: GroundedFunctionNetwork, shared_nodes: Set[str]):
         super().__init__()
-        self.output_node=G.output_node
+        self.output_node = G.output_node
         self.inputs = set(G.inputs).intersection(shared_nodes)
 
         # Get all paths from shared inputs to shared outputs
@@ -844,8 +727,7 @@ class ForwardInfluenceBlanket(ComputationalGraph):
     def run(
         self,
         inputs: Dict[str, Union[float, Iterable]],
-        covers: Dict[str, Union[float, Iterable]],
-        torch_size: Optional[int] = None,
+        covers: Dict[str, Union[float, Iterable]]
     ) -> Union[float, Iterable]:
         """Executes the FIB over a particular set of inputs and returns the
         result.
@@ -864,101 +746,7 @@ class ForwardInfluenceBlanket(ComputationalGraph):
         for node_name, val in covers.items():
             self.nodes[node_name]["value"] = val
 
-        return super().run(inputs, torch_size)
-
-    def sobol_analysis(
-        self, num_samples, prob_def, covers, use_torch=False, var_types=None
-    ):
-        def create_input_tensor(name, samples):
-            type_info = var_types[name]
-            if type_info[0] == str:
-                (val1, val2) = type_info[1]
-                return np.where(samples >= 0.5, val1, val2)
-            else:
-                return torch.tensor(samples)
-
-        samples = saltelli.sample(
-            prob_def, num_samples, calc_second_order=True
-        )
-        if use_torch:
-            samples = np.split(samples, samples.shape[1], axis=1)
-            samples = [s.squeeze() for s in samples]
-            if var_types is None:
-                values = {
-                    n: torch.tensor(s)
-                    for n, s in zip(prob_def["names"], samples)
-                }
-            else:
-                values = {
-                    n: create_input_tensor(n, s)
-                    for n, s in zip(prob_def["names"], samples)
-                }
-            Y = self.run(values, covers, torch_size=len(samples[0])).numpy()
-        else:
-            Y = np.zeros(samples.shape[0])
-            for i, sample in enumerate(samples):
-                values = {n: val for n, val in zip(prob_def["names"], sample)}
-                Y[i] = self.run(values, covers)
-
-        return sobol.analyze(prob_def, Y)
-
-    def S2_surface(self, sizes, bounds, presets, covers, use_torch=False,
-            num_samples = 10):
-        """Calculates the sensitivity surface of a GrFN for the two variables with
-        the highest S2 index.
-
-        Args:
-            num_samples: Number of samples for sensitivity analysis.
-            sizes: Tuple of (number of x inputs, number of y inputs).
-            bounds: Set of bounds for GrFN inputs.
-            presets: Set of standard values for GrFN inputs.
-
-        Returns:
-            Tuple:
-                Tuple: The names of the two variables that were selected
-                Tuple: The X, Y vectors of eval values
-                Z: The numpy matrix of output evaluations
-
-        """
-        args = self.inputs
-        Si = self.sobol_analysis(
-            num_samples,
-            {
-                "num_vars": len(args),
-                "names": args,
-                "bounds": [bounds[arg] for arg in args],
-            },
-            covers
-        )
-        S2 = Si["S2"]
-        (s2_max, v1, v2) = get_max_s2_sensitivity(S2)
-
-        x_var = args[v1]
-        y_var = args[v2]
-        search_space = [(x_var, bounds[x_var]), (y_var, bounds[y_var])]
-        preset_vals = {
-            arg: presets[arg]
-            for i, arg in enumerate(args)
-            if i != v1 and i != v2
-        }
-
-        X = np.linspace(*search_space[0][1], sizes[0])
-        Y = np.linspace(*search_space[1][1], sizes[1])
-
-        if use_torch:
-            Xm, Ym = torch.meshgrid(torch.tensor(X), torch.tensor(Y))
-            inputs = {n: torch.full_like(Xm, v) for n, v in presets.items()}
-            inputs.update({search_space[0][0]: Xm, search_space[1][0]: Ym})
-            Z = self.run(inputs, covers).numpy()
-        else:
-            Xm, Ym = np.meshgrid(X, Y)
-            Z = np.zeros((len(X), len(Y)))
-            for x, y in itertools.product(range(len(X)), range(len(Y))):
-                inputs = {n: v for n, v in presets.items()}
-                inputs.update({search_space[0][0]: x, search_space[1][0]: y})
-                Z[x][y] = self.run(inputs, covers)
-
-        return X, Y, Z, x_var, y_var
+        return super().run(inputs)
 
     def to_AGraph(self):
         A = nx.nx_agraph.to_AGraph(self)
