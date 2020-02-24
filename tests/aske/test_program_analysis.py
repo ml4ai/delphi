@@ -14,7 +14,7 @@ from typing import Dict, Tuple
 
 
 DATA_DIR = "tests/data/program_analysis"
-TEMP_DIR = "tmp"
+TEMP_DIR = "."
 
 
 def get_python_source(
