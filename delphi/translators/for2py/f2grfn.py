@@ -403,8 +403,6 @@ def generate_grfn(
 
     # Cleanup GrFN.
     del grfn_dict["date_created"]
-    # DEBUG
-    # print ("    % f2grfn - generaate_grfn - grfn_dict: ", grfn_dict)
     for item in grfn_dict["variables"]:
         if "gensym" in item:
             del item["gensym"]

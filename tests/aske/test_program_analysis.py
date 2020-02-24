@@ -13,7 +13,7 @@ from typing import Dict, Tuple
 
 
 DATA_DIR = "tests/data/program_analysis"
-TEMP_DIR = "./tmp"
+TEMP_DIR = "tmp"
 
 
 def get_python_source(
@@ -145,7 +145,7 @@ def cycle_exit_python_IR_test():
 @pytest.fixture
 def module_python_IR_test():
     yield get_python_source(
-        Path(f"{DATA_DIR}" f"/modules/test_module_08.f"))
+        Path(f"{DATA_DIR}/modules/test_module_08.f"))
 
 
 @pytest.fixture
