@@ -78,7 +78,8 @@ def get_file_list_in_directory(root_dir_path):
                     "_preprocessed" not in f
                     and (f.endswith('.f') or f.endswith('.for'))
             ):
-                files += [os.path.join(dir_path, f)]
+                path = os.path.join(dir_path, f)
+                files += [os.path.abspath(path)]
     return files
 
 
