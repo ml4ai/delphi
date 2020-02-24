@@ -68,7 +68,7 @@ def make_grfn_dict(original_fortran_file) -> Dict:
         # Since the purpose of test_program_analysis is to compare
         # the output GrFN JSON of the main program, I will leave this
         # return as it is to return the only one translated GrFN string.
-        return (json.dumps(_dict, sort_keys=True, indent=2), lambdas_file_path)
+        return _dict, lambdas_file_path
 
 
 def postprocess_test_data_grfn_dict(_dict):
@@ -372,11 +372,10 @@ def test_derived_type_with_default_pythonIR_generation(derived_type_with_default
 #                                                                          #
 ############################################################################
 
-@pytest.mark.skip("FIXME")
 def test_multidimensional_array_grfn_generation(multidimensional_array_test):
     with open(f"{DATA_DIR}/arrays/arrays-basic-06_GrFN.json", "r") as f:
-        grfn_dict = f.read()
-    assert str(multidimensional_array_test[0]) == grfn_dict
+        grfn_dict = json.load(f)
+    assert multidimensional_array_test[0] == grfn_dict
 
     with open(f"{DATA_DIR}/arrays/arrays-basic-06_lambdas.py", "r") as f:
         target_lambda_functions = f.read()
@@ -385,11 +384,10 @@ def test_multidimensional_array_grfn_generation(multidimensional_array_test):
     assert str(target_lambda_functions) == str(generated_lamdba_functions)
 
 
-@pytest.mark.skip("FIXME")
 def test_sir_gillespie_sd_multi_grfn_generation(sir_gillespie_sd_multi_test):
     with open(f"{DATA_DIR}/SIR-Gillespie-SD_multi_module_GrFN.json", "r") as f:
-        grfn_dict = f.read()
-    assert str(sir_gillespie_sd_multi_test[0]) == grfn_dict
+        grfn_dict = json.load(f)
+    assert sir_gillespie_sd_multi_test[0] == grfn_dict
 
     with open(f"{DATA_DIR}/SIR-Gillespie-SD_multi_module_lambdas.py", "r") as f:
         target_lambda_functions = f.read()
@@ -398,11 +396,10 @@ def test_sir_gillespie_sd_multi_grfn_generation(sir_gillespie_sd_multi_test):
     assert str(target_lambda_functions) == str(generated_lamdba_functions)
 
 
-@pytest.mark.skip("FIXME")
 def test_derived_type_grfn_generation(derived_type_grfn_test):
     with open(f"{DATA_DIR}/derived-types/derived-types-04_GrFN.json", "r") as f:
-        grfn_dict = f.read()
-    assert str(derived_type_grfn_test[0]) == grfn_dict
+        grfn_dict = json.load(f)
+    assert json.dumps(derived_type_grfn_test[0], indent=2, sort_keys=True) == str(grfn_dict)
 
     with open(f"{DATA_DIR}/derived-types/derived-types-04_lambdas.py", "r") as f:
         target_lambda_functions = f.read()
@@ -411,11 +408,10 @@ def test_derived_type_grfn_generation(derived_type_grfn_test):
     assert str(target_lambda_functions) == str(generated_lamdba_functions)
 
 
-@pytest.mark.skip("FIXME")
 def test_derived_type_array_grfn_generation(derived_type_array_grfn_test):
     with open(f"{DATA_DIR}/derived-types/derived-types-02_GrFN.json", "r") as f:
-        grfn_dict = f.read()
-    assert str(derived_type_array_grfn_test[0]) == grfn_dict
+        grfn_dict = json.load(f)
+    assert derived_type_array_grfn_test[0] == grfn_dict
 
     with open(f"{DATA_DIR}/derived-types/derived-types-02_lambdas.py", "r") as f:
         target_lambda_functions = f.read()
@@ -424,11 +420,10 @@ def test_derived_type_array_grfn_generation(derived_type_array_grfn_test):
     assert str(target_lambda_functions) == str(generated_lamdba_functions)
 
 
-@pytest.mark.skip("FIXME")
 def test_select_case_grfn_generation(select_case_grfn_test):
     with open(f"{DATA_DIR}/select_case/select02_GrFN.json", "r") as f:
-        grfn_dict = f.read()
-    assert str(select_case_grfn_test[0]) == grfn_dict
+        grfn_dict = json.load(f)
+    assert select_case_grfn_test[0] == grfn_dict
 
     with open(f"{DATA_DIR}/select_case/select02_lambdas_numpy.py", "r") as f:
         target_lambda_functions = f.read()
