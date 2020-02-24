@@ -1,0 +1,3 @@
+object.cnt: Spatial object counts - SB_LS1
+NAME         AREA_LS_HA   AREA_TOT_HA        OBJS         HRU     HRU_LTE         RU     MODFLOW         AQU        CHAN         RES      RECALL        EXCO          DR       CANAL        PUMP      OUTLET     CHANDEG       AQU2D        HERD         WRO
+TX_COON_CRK    36542.88      36542.88        5268        3113          0         166           0         166          0           0           0           0           0           0           0           0        1823           0           0           0

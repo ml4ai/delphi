@@ -1,0 +1,3 @@
+time.sim: Simulation period and time step - Coon Creek
+        IDAF    YRC_START     IDAL_IN     YRC_END     STEP
+		   0         1988           0        1988        0

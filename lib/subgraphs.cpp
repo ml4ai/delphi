@@ -1,15 +1,12 @@
 #include "AnalysisGraph.hpp"
 #include "Node.hpp"
-#include "spdlog/spdlog.h"
 #include "utils.hpp"
 #include <boost/range/algorithm/for_each.hpp>
 #include <range/v3/all.hpp>
 
 using boost::for_each;
 using delphi::utils::in;
-using spdlog::debug;
-using spdlog::error;
-using spdlog::warn;
+using fmt::print;
 
 using namespace std;
 
@@ -103,7 +100,7 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
       transform([&](int v) { return (*this)[v].name; }) | to<unordered_set>();
 
   if (vertices_to_keep.size() == 0) {
-    warn("Subgraph has 0 nodes - returning an empty CAG!");
+    print("Subgraph has 0 nodes - returning an empty CAG!");
   }
 
   // Make a copy of current AnalysisGraph
@@ -131,7 +128,7 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept_pair(
   this->get_subgraph_between(src_id, tgt_id, path, vertices_to_keep, cutoff);
 
   if (vertices_to_keep.size() == 0) {
-    warn("AnalysisGraph::get_subgraph_for_concept_pair(): "
+    print("AnalysisGraph::get_subgraph_for_concept_pair(): "
          "There are no paths of length <= {0} from "
          "source concept {1} --to-> target concept {2}. "
          "Returning an empty CAG!",

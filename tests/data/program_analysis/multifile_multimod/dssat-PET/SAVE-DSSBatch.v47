@@ -1,0 +1,12 @@
+$BATCH(SOYBEAN)
+!
+! Directory    : C:\DSSAT47\Soybean
+! Command Line : C:\DSSAT47\DSCSM047.EXE CRGRO047 B DSSBatch.v47
+! Crop         : Soybean         
+! Experiment   : UFGA7801.SBX
+! ExpNo        : 1
+! Debug        : C:\DSSAT47\DSCSM047.EXE CRGRO047 " B DSSBatch.v47"
+!
+@FILEX                                                                                        TRTNO     RP     SQ     OP     CO
+C:\DSSAT47\Soybean\UFGA7801.SBX                                                                   1      1      0      1      0
+C:\DSSAT47\Soybean\UFGA7801.SBX                                                                   2      1      0      1      0

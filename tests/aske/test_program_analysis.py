@@ -222,6 +222,10 @@ def multiple_interface_python_IR_test():
     yield get_python_source(Path(f"{DATA_DIR}/interface/interface_03.f"))[0][0]
 
 
+@pytest.fixture
+def derived_type_with_default():
+    yield get_python_source(Path(f"{DATA_DIR}/derived-types/derived-types-07.f"))[0][0]
+
 #########################################################
 #                                                       #
 #                   PYTHON IR TEST                      #
@@ -248,7 +252,7 @@ def test_io_test_pythonIR_generation(io_python_IR_test):
 
 
 def test_array_pythonIR_generation(array_python_IR_test):
-    with open(f"{DATA_DIR}/arrays-basic-06.py", "r") as f:
+    with open(f"{DATA_DIR}/arrays/arrays-basic-06.py", "r") as f:
         python_src = f.read()
     assert array_python_IR_test[0] == python_src
 
@@ -356,6 +360,12 @@ def test_multiple_interface_pythonIR_generation(multiple_interface_python_IR_tes
     assert multiple_interface_python_IR_test[0] == python_src
 
 
+def test_derived_type_with_default_pythonIR_generation(derived_type_with_default):
+    with open(f"{DATA_DIR}/derived-types/derived-types-07.py", "r") as f:
+        python_src = f.read()
+    assert derived_type_with_default[0] == python_src
+
+
 ############################################################################
 #                                                                          #
 #                               GrFN TEST                                  #
@@ -374,6 +384,7 @@ def test_multidimensional_array_grfn_generation(multidimensional_array_test):
     assert str(target_lambda_functions) == str(generated_lamdba_functions)
 
 
+@pytest.mark.skip("FIXME")
 def test_sir_gillespie_sd_multi_grfn_generation(sir_gillespie_sd_multi_test):
     with open(f"{DATA_DIR}/SIR-Gillespie-SD_multi_module_GrFN.json", "r") as f:
         grfn_dict = f.read()

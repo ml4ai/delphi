@@ -1,7 +1,6 @@
 #include "kde.hpp"
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/lambda.hpp>
-#include <boost/random/mersenne_twister.hpp>
 #include <boost/range/adaptors.hpp>
 #include <boost/range/algorithm/for_each.hpp>
 #include <boost/range/irange.hpp>
@@ -9,10 +8,8 @@
 #include <random>
 
 using namespace std;
-using boost::irange;
-using boost::adaptors::transformed;
-using boost::lambda::_1;
 using namespace delphi::utils;
+using boost::irange, boost::adaptors::transformed, boost::lambda::_1;
 
 double sample_from_normal(
     std::mt19937 gen,
@@ -35,27 +32,23 @@ KDE::KDE(std::vector<double> v) : dataset(v) {
   bw = pow(4 * pow(stdev, 5) / (3 * N), 1 / 5);
 }
 
-vector<double> KDE::resample(int n_samples, std::mt19937 gen) {
-  vector<double> samples;
-  for (int i : irange(0, n_samples)) {
-    double element = select_random_element(dataset, gen);
-    samples.push_back(sample_from_normal(gen, element, bw));
-  }
-  return samples;
-}
+vector<double> KDE::resample(int n_samples,
+                             std::mt19937& gen,
+                             uniform_real_distribution<double>& uni_dist,
+                             normal_distribution<double>& norm_dist) {
+  vector<double> samples(n_samples);
 
-/*
- * TODO: Remove this method
- * This method was introduced to make the old test code happy
- * when the signature of resample() was updated to fix memory
- * leaks.
- * After updating the old test code, this method shoudl be
- * removed from here and DelphiPython.cpp
- */
-vector<double> KDE::resample(int n_samples) {
-  std::mt19937 gen = RNG::rng()->get_RNG();
-  vector<double> samples = this->resample(n_samples, gen);
-  RNG::release_instance();
+  for (int i : irange(0, n_samples)) {
+    double element = select_random_element(dataset, gen, uni_dist);
+
+    // Transform the sampled values using a Gaussian distribution
+    // ~ ( sampled value, bw)
+    // We sample from a standard Gaussian and transform that sample
+    // to the desired Gaussian distribution by
+    // μ + σ * standard Gaussian sample
+    samples[i] = element + bw * norm_dist(gen);
+  }
+
   return samples;
 }
 

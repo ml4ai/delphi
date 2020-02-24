@@ -1,0 +1,3 @@
+codes.bsn: Basin codes - SB_LS1
+     PETFILE     WWQFILE         PET     EVENT      CRK     SUBWQ    SED_DET      RTE      DEG      WQ   NOSTRESS      CN     CFAC     CSWAT    BF_FLG      UHYD    SED_CH     TDRN     WTDN  SOL_P_MODEL    ABSTR     ATMO     SMAX   I_SUBHW
+        null        null           0         0        0         0          0        0        0       1          0       0        0         0         0         1         0        0        0            0        0        0        0         0

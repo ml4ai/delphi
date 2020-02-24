@@ -16,15 +16,18 @@ before_install:
   - docker pull $CACHE_IMAGE:latest
   - CI_ENV=`bash <(curl -s https://codecov.io/env)`
   - docker run $CI_ENV -itd --rm --name build-con $CACHE_IMAGE:latest
-  - docker exec build-con git fetch
-  - docker exec build-con git checkout $TRAVIS_BRANCH
 
 script:
-  - docker exec build-con pip install -e .[test,docs]
+  - docker exec build-con git fetch 
+  - docker exec build-con git checkout $TRAVIS_BRANCH
+  - if [[ ! -z $TRAVIS_PULL_REQUEST_BRANCH ]]; then docker exec build-con git pull; fi
+  - if [[ ! -z $TRAVIS_PULL_REQUEST_BRANCH ]]; then docker exec build-con git merge origin/$TRAVIS_PULL_REQUEST_BRANCH; fi
+  - docker exec build-con make extensions
+  - docker exec build-con pip install -e .[test,docs,aske]
   - docker exec build-con make test
-  - docker exec --workdir /repo/delphi/docs build-con make apidocs
-  - docker exec --workdir /repo/delphi/docs build-con make html
-  - docker cp build-con:/repo/delphi/docs .
+  - docker exec --workdir /delphi/docs build-con make apidocs
+  - docker exec --workdir /delphi/docs build-con make html
+  - docker cp build-con:/delphi/docs .
   - docker exec -e CODECOV_TOKEN=$CODECOV_TOKEN build-con bash -c 'bash <(curl -s https://codecov.io/bash)'
 
 deploy:
