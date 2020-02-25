@@ -1612,58 +1612,11 @@ class PythonCodeGenerator(object):
         )
 
     def printInterface(self, node, printState: PrintState):
-        """This function prints out the Fortran interface to Python regular def
-        function with isinstance"""
-        # Print function declaration.
-        self.pyStrings.append(f"def {node['name']} (")
-        max_argument = int(node["max_argument"])
-        for i in range(0, max_argument):
-            arg_num = f"arg{i+1}"
-            # A Python function representing Fortran interface can receive
-            # n number of arguments that are not fixed. Thus, as a default,
-            # Python function will be declared with the maximum number of
-            # arguments with default value of None.
-            self.pyStrings.append(f"{arg_num}=None")
-            if i < max_argument - 1:
-                self.pyStrings.append(", ")
-        self.pyStrings.append("):\n")
-
-        # Print code to figure out how many arguments were passed to the function.
-        self.pyStrings.append("    num_passed_args = 0\n")
-        for i in range(0, max_argument):
-            self.pyStrings.append(f"    if arg{i+1} != None:\n")
-            self.pyStrings.append("        num_passed_args += 1\n")
-        self.pyStrings.append("\n")
-        
-        functions_sorted_by_arg_nums = {}
-        for i in range(1, max_argument+1):
-            for function in node["functions"]:
-                if i == len(node["functions"][function]):
-                    if i not in functions_sorted_by_arg_nums:
-                        functions_sorted_by_arg_nums[i] = [function]
-                    else:
-                        functions_sorted_by_arg_nums[i].append(function)
-
-        for num in functions_sorted_by_arg_nums:
-            self.pyStrings.append(f"    if num_passed_args == {num}:\n")
-            for function in functions_sorted_by_arg_nums[num]:
-                types = node["functions"][function]
-                self.pyStrings.append("        if")
-                for i in range(1, num+1):
-                    if types[i-1] in TYPE_MAP:
-                        arg_type = TYPE_MAP[types[i-1]]
-                    else:
-                        arg_type = types[i-1]
-                    self.pyStrings.append(f" isinstance(arg{i}[0], {arg_type})")
-                    if i < num:
-                        self.pyStrings.append(f" and")
-                self.pyStrings.append(f":\n")
-                self.pyStrings.append(f"            {function}(")
-                for i in range(1, num+1):
-                    self.pyStrings.append(f"arg{i}")
-                    if i < num:
-                        self.pyStrings.append(f", ")
-                self.pyStrings.append(")\n")
+        """This function definition is simply a place holder for INTERFACE
+        just in case of any possible usage in the future. For now, it does
+        nothing and pass. Since translate.py also passes interface, this
+        should not be encountered in any case."""
+        assert False, "In printInterface function, which should not be in any case."
 
     ###########################################################################
     #                                                                         #

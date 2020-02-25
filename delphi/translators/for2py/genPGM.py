@@ -151,6 +151,7 @@ class GrFNGenerator(object):
         # Currently handling derived type object's accessing attributes
         self.current_d_object_attributes = []
         self.is_d_object_array_assign = False
+        self.module_summary = None
 
         self.gensym_tag_map = {
             "container": 'c',
@@ -2856,7 +2857,6 @@ class GrFNGenerator(object):
             else:
                 grfn_list += grfn
         merged_grfn = [self._merge_dictionary(grfn_list)]
-
         return merged_grfn
         # TODO Implement this. This needs to be done for generality
         # We fill in the `updated` field of function calls by looking at the
@@ -2965,7 +2965,7 @@ class GrFNGenerator(object):
         grfn["name"] = type_name
 
         # Keep a track of declared user-defined types
-        self.derived_types.append(node.name)
+        self.derived_types.append(node.name.lower())
         self.derived_types_attributes[node.name] = []
 
         attributes = node.body[0].body
@@ -2975,7 +2975,10 @@ class GrFNGenerator(object):
             attrib_ast = attrib.__repr__().split()[0][2:]
             if attrib_ast == "ast.AnnAssign":
                 attrib_name = attrib.target.attr
-                attrib_type = self.annotate_map[attrib.annotation.id]
+                if attrib.annotation.id in self.annotate_map:
+                    attrib_type = self.annotate_map[attrib.annotation.id]
+                elif attrib.annotation.id in self.derived_types:
+                    attrib_type = attrib.annotation.id
             elif attrib_ast == "ast.Assign":
                 attrib_name = attrib.targets[0].attr
                 attrib_type = attrib.value.func.id
@@ -3083,6 +3086,7 @@ class GrFNGenerator(object):
             self.derived_types_attributes[node.name].append(attrib_name)
 
             state.variable_types[attrib_name] = attrib_type
+
         return [grfn]
 
     @staticmethod
@@ -3716,7 +3720,10 @@ class GrFNGenerator(object):
         if variable in self.arrays:
             domain_dictionary = self.arrays[variable]
         else:
-            if variable in state.variable_types:
+            if (
+                    variable in state.variable_types
+                    and state.variable_types[variable]
+            ):
                 variable_type = state.variable_types[variable]
             elif variable in self.module_variable_types:
                 variable_type = self.module_variable_types[variable][1]
@@ -3745,8 +3752,20 @@ class GrFNGenerator(object):
                 # dictionary to be referenced later in the stream.
                 state.variable_types[variable] = type_name
             else:
+                type_found = False
+                if len (self.module_names) > 1:
+                    for mod in self.module_names:
+                        if (
+                                mod != "main" 
+                                and mod in self.module_summary
+                                and variable_type in self.module_summary[mod]["derived_type_list"]
+                        ):
+                            type_found = True
+                            type_name = variable_type
+                            state.variable_types[variable] = type_name
+
                 assert (
-                    False
+                    type_found
                 ), f"Type {variable_type} is not a valid type."
 
             domain_dictionary = {
@@ -4326,6 +4345,10 @@ def create_grfn_dict(
     state = GrFNState(lambda_string_list)
     generator = GrFNGenerator()
     generator.mode_mapper = mode_mapper_dict[0]
+    # Populate list of modules that the program imports
+    for mod in generator.mode_mapper["modules"]:
+        if mod != "main":
+            generator.module_names.append(mod)
     generator.fortran_file = original_file
 
     # Currently, we are specifying the module file with
@@ -4335,6 +4358,8 @@ def create_grfn_dict(
 
     with open(mod_log_file_path) as json_f:
         module_logs = json.load(json_f)
+        # Load module summary on memory for later use
+        generator.module_summary = module_logs['mod_info']
 
     try:
         filename_regex = re.compile(r"(?P<path>.*/)(?P<filename>.*).py")

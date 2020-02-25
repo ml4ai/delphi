@@ -190,6 +190,33 @@ TYPE_NAMES = r"^\s*(integer|real|double\s+precision|complex|character|logical" \
              r"|dimension|type|parameter)\W*"
 RE_TYPE_NAMES = re.compile(TYPE_NAMES, re.I)
 
+SUB_DEF = r"\s*subroutine\s+(?P<subroutine>(?P<name>.*?)\((?P<args>.*)\))"
+RE_SUB_DEF = re.compile(SUB_DEF, re.I)
+
+END_SUB = r"\s*end\s+subroutine\s+"
+END_MODULE = r"\s*end\s+module\s+"
+
+PGM_START = r"\s*(?P<pgm>(interface|module))\s+(?P<name>(\w*))"
+RE_PGM_START = re.compile(PGM_START, re.I)
+
+PGM_END = r"\s*[a-z]*\s*end\s+(?P<pgm>(module|subroutine|function|interface|type))\s*(?P<name>(\w*))"
+RE_PGM_END = re.compile(PGM_END, re.I)
+
+VARIABLE_DEC = r"\s*(?P<type>(double|float|int|integer|logical|real|str|string)),?\s(::)*(?P<variables>(.*))"
+RE_VARIABLE_DEC = re.compile(VARIABLE_DEC, re.I)
+
+DERIVED_TYPE_DEF = r"\s*type\s*(?P<type>(?P<name>(\w*)))"
+RE_DERIVED_TYPE_DEF = re.compile(DERIVED_TYPE_DEF, re.I)
+
+DERIVED_TYPE_VAR = r"\s*type\s*\((?P<type>.*)\)\s(?P<variables>(.*))"
+RE_DERIVED_TYPE_VAR = re.compile(DERIVED_TYPE_VAR, re.I)
+
+CHARACTER = r"\s*(character\*(\(\*\)|\d*))\s*(?P<variables>.*)"
+RE_CHARACTER = re.compile(CHARACTER, re.I)
+
+IMP_ARRAY = r"(?P<var>\w*)\s*\("
+RE_IMP_ARRAY = re.compile(IMP_ARRAY, re.I)
+
 # EXECUTABLE_CODE_START is a list of regular expressions matching
 # lines that can start the executable code in a program or subroutine.
 # It is used to for handling comments internal to subroutine bodies.
@@ -211,7 +238,6 @@ EXECUTABLE_CODE_START = [
     RE_SELECT_STMT,
     RE_STOP_STMT
 ]
-
 
 def line_starts_subpgm(line: str) -> Tuple[bool, Optional[str]]:
     """
@@ -304,6 +330,152 @@ def line_is_include(line: str) -> str:
         return match.group(2)
 
     return None
+
+def line_has_implicit_array(line: str) -> Tuple[bool, Optional[str]]:
+    """
+    This function checks for the implicit array declaration (i.e.
+    real myArray(10)) without DIMENSION keyword.
+
+    Args:
+        line
+    Returns:
+        (True, var) if the line holds implicit array declaration;
+        (False, None) if the line does not hold implicit array declaration
+    """
+
+    match = RE_IMP_ARRAY.match(line)
+    if match:
+        var = match['var']
+        return (True, var)
+    return (False, None)
+
+def has_subroutine(lines: str) -> bool:
+    """
+    This function searches end of subroutine syntax
+    from the passed string of lines to find out whether
+    any subroutines are presented in lines or not.
+
+    Args:
+        lines
+    Returns:
+        (True) if subroutine end syntax presented in lines.
+        (False) if subroutine end syntax does not present in lines.
+    """
+    return re.search(END_SUB, lines)
+
+def has_module(lines: str) -> bool:
+    """This function searches end of module syntax
+    from the passed string of lines to find out whether
+    any modules are presented in lines or not.
+
+    Args:
+        lines
+    Returns:
+        (True) if module end syntax presented in lines.
+        (False) if module end syntax does not present in lines.
+    """
+    return re.search(END_MODULE, lines)
+
+
+def line_is_func_start(line: str) -> bool:
+    """
+    This function checks whether the line indicates a function entry or not.
+
+    Args:
+        line.
+    Returns:
+        (True) if the line is beginning of function definition.
+        (False) if the line is not a beginning of function dedfinition.
+    """
+    match = RE_FN_START.match(line)
+    return match is not None
+
+def variable_declaration(line: str) -> Tuple[bool, Optional[list]]:
+    """
+    Indicates whether a line in the program is a variable declaration or not.
+
+    Args:
+        line
+    Returns:
+       (True, v_type, list) if line has one of variable declaration syntax;
+       (False, None, None) if line does not have any variable declaration syntax .
+    """
+
+    match_var = RE_VARIABLE_DEC.match(line)
+    if match_var:
+        v_type = match_var['type']
+        variable_list = match_var['variables']
+        return (True, v_type, variable_list)
+    
+    match_dtype = RE_DERIVED_TYPE_VAR.match(line)
+    if match_dtype:
+        v_type = match_dtype['type']
+        variable_list = match_dtype['variables']
+        return (True, v_type, variable_list)
+
+    match_char = RE_CHARACTER.match(line)
+    if match_char:
+        variable_list = match_char['variables']
+        return (True, "character", variable_list)
+
+    return (False, None, None)
+
+def subroutine_definition(line: str) -> Tuple[bool, Optional[list]]:
+    """
+    Indicates whether a line in the program is the first line of a subroutine
+    definition and extracts subroutine name and the arguments.
+
+    Args:
+        line
+    Returns:
+       (True, list) if line begins a definition for subroutine;
+       (False, None) if line does not begin a subroutine definition.
+    """
+    match = RE_SUB_DEF.match(line)
+    if match:
+        f_name = match['name'].strip()
+        f_args = match['args'].replace(' ','').split(',')
+        return (True, [f_name, f_args])
+
+    return (False, None)
+
+def pgm_end(line: str) -> Tuple[bool, str, str]:
+    """
+    Indicates whether a line is the last line of a program.
+
+    Args:
+        line
+    Returns:
+       (True, pgm, name) if line is the last line of a definition
+       either for interface or module;
+       (False, None, None) if line is not the last line of either
+       interface or module.
+    """
+    match = RE_PGM_END.match(line)
+    if match:
+        pgm = match['pgm']
+        pgm_name = match['name']
+        return (True, pgm, pgm_name)
+    return (False, None, None)
+
+
+def line_starts_pgm(line: str) -> Tuple[bool, Optional[str], Optional[str]]:
+    """
+    Indicates whether a line is the first line of either interface or module.
+
+    Args:
+        line
+    Returns:
+       (True, pgm, namee) if line begins a definition either for interface or module;
+       (False, None, None) if line is not a beginning of either interface or module.
+    """
+
+    match = RE_PGM_START.match(line)
+    if match:
+        pgm = match['pgm'].strip()
+        name = match['name'].strip()
+        return (True, pgm, name)
+    return (False, None, None)
 
 
 ################################################################################
