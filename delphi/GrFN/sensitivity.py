@@ -308,7 +308,7 @@ class SensitivityAnalyzer(object):
         (Y, exec_time) = cls.__execute_CG(G, samples, prob_def, C, V)
 
         (S, analyze_time) = cls.__run_analysis(
-            SAL.analyze.rbd_fast.analyze, X, Y,
+            SAL.analyze.rbd_fast.analyze, prob_def, Y, X,
             M=M, print_to_console=False, seed=seed
         )
 
