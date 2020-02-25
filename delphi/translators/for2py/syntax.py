@@ -196,16 +196,16 @@ RE_SUB_DEF = re.compile(SUB_DEF, re.I)
 END_SUB = r"\s*end\s+subroutine\s+"
 END_MODULE = r"\s*end\s+module\s+"
 
-PGM_START = r"\s*(?P<pgm>(interface|module))\s+(?P<interface>(?P<name>(\w*)\n))"
+PGM_START = r"\s*(?P<pgm>(interface|module))\s+(?P<name>(\w*))"
 RE_PGM_START = re.compile(PGM_START, re.I)
 
-PGM_END = r"\s*[a-z]*\s*end\s+(?P<pgm>(module|subroutine|function|interface|type))\s+(?P<name>(\w*))"
+PGM_END = r"\s*[a-z]*\s*end\s+(?P<pgm>(module|subroutine|function|interface|type))\s*(?P<name>(\w*))"
 RE_PGM_END = re.compile(PGM_END, re.I)
 
-VARIABLE_DEC = r"\s*(?P<type>(double|float|int|integer|logical|real|str|string)),?\s(::)*(?P<variables>(.*))\n"
+VARIABLE_DEC = r"\s*(?P<type>(double|float|int|integer|logical|real|str|string)),?\s(::)*(?P<variables>(.*))"
 RE_VARIABLE_DEC = re.compile(VARIABLE_DEC, re.I)
 
-DERIVED_TYPE_DEF = r"\s*type (?P<type>(?P<name>(\w*)\n))"
+DERIVED_TYPE_DEF = r"\s*type\s*(?P<type>(?P<name>(\w*)))"
 RE_DERIVED_TYPE_DEF = re.compile(DERIVED_TYPE_DEF, re.I)
 
 DERIVED_TYPE_VAR = r"\s*type\s*\((?P<type>.*)\)\s(?P<variables>(.*))"
@@ -451,7 +451,6 @@ def pgm_end(line: str) -> Tuple[bool, str, str]:
        (False, None, None) if line is not the last line of either
        interface or module.
     """
-
     match = RE_PGM_END.match(line)
     if match:
         pgm = match['pgm']
