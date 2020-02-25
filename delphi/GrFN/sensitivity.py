@@ -21,11 +21,12 @@ class SensitivityIndices(object):
     minimum second order of the indices between any two input variables can be
     determined using the max (min) and argmax (argmin) methods.
     """
-    def __init__(self, S: dict):
+    def __init__(self, S: dict, problem: dict):
         """
         Args:
             S: A SALib dictionary from analysis
         """
+        self.parameter_list = problem["names"]
         self.O1_indices = np.array(S["S1"]) if "S1" in S else None
         self.O2_indices = np.array(S["S2"]) if "S2" in S else None
         self.OT_indices = np.array(S["ST"]) if "ST" in S else None
@@ -69,9 +70,9 @@ class SensitivityIndices(object):
         return cls(Si_dict)
 
     @classmethod
-    def from_dict(cls, Si: dict):
+    def from_dicts(cls, Si: dict, P: dict):
         """Creates a SensitivityIndices object from the provided dictionary."""
-        return cls(Si)
+        return cls(Si, P)
 
     @classmethod
     def from_json(cls, filepath: str):
@@ -87,8 +88,9 @@ class SensitivityIndices(object):
             'S2_conf': float(js['S2_conf']),
             'ST_conf': float(js['ST_conf'])
         }
+        problem = js["names"]
 
-        return cls(Si_dict)
+        return cls(Si_dict, problem)
 
     @classmethod
     def from_pickle(cls, filepath: str):
@@ -259,7 +261,7 @@ class SensitivityAnalyzer(object):
             conf_level=0.95, seed=None
         )
 
-        Si = SensitivityIndices(S)
+        Si = SensitivityIndices(S, prob_def)
         return Si if not save_time \
             else (Si, (sample_time, exec_time, analyze_time))
 
@@ -284,7 +286,7 @@ class SensitivityAnalyzer(object):
             M=M, print_to_console=False, seed=seed
         )
 
-        Si = SensitivityIndices(S)
+        Si = SensitivityIndices(S, prob_def)
         return Si if not save_time \
             else (Si, (sample_time, exec_time, analyze_time))
 
@@ -310,6 +312,6 @@ class SensitivityAnalyzer(object):
             M=M, print_to_console=False, seed=seed
         )
 
-        Si = SensitivityIndices(S)
+        Si = SensitivityIndices(S, prob_def)
         return Si if not save_time \
             else (Si, (sample_time, exec_time, analyze_time))
