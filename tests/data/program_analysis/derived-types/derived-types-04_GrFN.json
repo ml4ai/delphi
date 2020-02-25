@@ -80,7 +80,7 @@
         "code_source": [
           "tests/data/program_analysis/derived-types/derived-types-04.f"
         ],
-        "grfn_source": "tmp/derived-types-04_GrFN.json",
+        "grfn_source": "./derived-types-04_GrFN.json",
         "imports": []
       }
     ],
