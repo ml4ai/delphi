@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import matplotlib
 import matplotlib.pyplot as plt
 import ast
 import seaborn as sns
@@ -60,33 +61,41 @@ class SensitivityVisualizer(object):
             S1_dataframe.reset_index().plot(kind='line', x="index", y=col, ax=ax)
             plt.legend(loc='right', fontsize=20)
             plt.xlim(min(self.N)-1, max(self.N)+1)
-            plt.xlabel("Number of samples (log scale)", fontsize=30)
-            plt.ylabel("Sensitivity Indices", fontsize=30)
-            plt.title(r"First Order Sensitivity Index S$_i$ in for different sample size (log10 scale)", fontsize=20)
+            plt.xlabel("$log_{10}N$", fontsize=30)
+            plt.ylabel("$S_i$", fontsize=30)
+            plt.title(r"$S_i$ vs $log_{10}N$", fontsize=30)
             plt.xticks(fontsize=20)
             plt.yticks(fontsize=20)
-        plt.show()
+            plt.ylim(-0.2, 1.0)
+        
+        return  plt
 
     def S2_plot(self):
 
         """ 
             Returns:
-                Plot of second order sobol index matrices for different sample
-                sizes on log (base 10) scale
+                Plot of second order sobol index matrices for largest sample
+                size on log (base 10) scale
         """
 
-        for i in range(len(self.N)):
-            S2_mat = self.S2_dataframe[i].to_dict()
-            df = pd.DataFrame(S2_mat)
-            if len(df.columns) < 10:
-                plt.figure(figsize=(12,12))
-            else:
-                plt.figure(figsize=(15,15))
-            g = sns.heatmap(df, cmap="Blues", annot=True, xticklabels=df.columns, yticklabels=df.columns, annot_kws={"fontsize":10})
-            plt.title("Second Order Sensitivity Index for sample size {0} (log10 scale)".format(self.N[i]), fontsize=30)
-            plt.xticks(fontsize=15)
-            plt.yticks(fontsize=15)
-            plt.show()
+        elem = len(self.N) - 1
+        
+        S2_mat = self.S2_dataframe[elem].to_dict()
+        df = pd.DataFrame(S2_mat)
+
+        var_names = sorted(df.columns)
+
+        if len(df.columns) < 10:
+            plt.figure(figsize=(12,12))
+        else:
+            plt.figure(figsize=(15,15))
+        cmap = sns.diverging_palette(240, 10, n=9)
+        g = sns.heatmap(df, cmap=cmap, annot=True, xticklabels=var_names, yticklabels=var_names, annot_kws={"fontsize":10})
+        plt.title('$S_{ij}$ ( $log_{10}N$ = ' + str(self.N[elem]) + ' )', fontsize=30)
+        plt.xticks(fontsize=15, rotation = 30)
+        plt.yticks(fontsize=15, rotation = 0)
+        
+        return plt
 
 
     def clocktime_plot(self):
@@ -102,15 +111,16 @@ class SensitivityVisualizer(object):
         ax.scatter(self.N, self.sample_time, color='r', s=50)
         ax.plot(self.N, self.sample_time, color ='black', label='Sample Time')
         ax.scatter(self.N, self.execution_time, color='r', s=50)
-        ax.plot(self.N, self.execution_time, color ='b', label='Analysis Time')
+        ax.plot(self.N, self.execution_time, color ='b', label='Execution Time')
         ax.scatter(self.N, self.analysis_time, color='r', s=50)
         ax.plot(self.N, self.analysis_time, color ='g', label='Analysis Time')
         plt.legend()
-        plt.xlabel('Number of Samples (log10 scale)', fontsize=30)
+        plt.xlabel('$log_{10}N$', fontsize=30)
         plt.ylabel('Runtime (in seconds)', fontsize=30)
-        plt.title('Time taken for computation (Sampling, Execution, Analysis) of Sensitivity Indices as a function of sample size (log10 scale)', fontsize=30)
+        plt.title('Sampling, Execution, and Analysis Times vs $log_{10}N$', fontsize=30)
         plt.xticks(fontsize=20)
         plt.yticks(fontsize=20)
-        plt.show()
+        
+        return  plt
 
 
