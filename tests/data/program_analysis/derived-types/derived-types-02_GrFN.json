@@ -303,6 +303,18 @@
   "start": [
     "@container::derived-types-02::@global::main"
   ],
+  "system": {
+    "components": [
+      {
+        "code_source": [
+          "tests/data/program_analysis/derived-types/derived-types-02.f"
+        ],
+        "grfn_source": "./derived-types-02_GrFN.json",
+        "imports": []
+      }
+    ],
+    "name": "derived-types-02"
+  },
   "types": [
     [
       {
