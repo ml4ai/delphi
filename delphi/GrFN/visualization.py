@@ -6,10 +6,10 @@ import seaborn as sns
 sns.set_style('whitegrid')
 
 
-class SobolVisualizer(object):
+class SensitivityVisualizer(object):
 
     """ This class is responsible for generating plots of the first and second order
-        sobol indices as well as the runtime of each computation as a function of the log of sample sizes
+        sensitivity indices as well as the runtime of each computation as a function of the log of sample sizes
 
         Attributes:
                 S (list) : List of python dictionaries with the following keys - 'N',
@@ -40,7 +40,7 @@ class SobolVisualizer(object):
             self.execution_time.append(float(item['execution time']))
             self.analysis_time.append(float(item['analysis time']))
 
-    def S1_Sobol_plot(self):
+    def S1_plot(self):
         
         """ 
             Returns:
@@ -67,7 +67,7 @@ class SobolVisualizer(object):
             plt.yticks(fontsize=20)
         plt.show()
 
-    def S2_Sobol_plot(self):
+    def S2_plot(self):
 
         """ 
             Returns:
@@ -76,7 +76,7 @@ class SobolVisualizer(object):
         """
 
         for i in range(len(self.N)):
-            S2_mat = ast.literal_eval(self.S2_dataframe[i])
+            S2_mat = self.S2_dataframe[i].to_dict()
             df = pd.DataFrame(S2_mat)
             if len(df.columns) < 10:
                 plt.figure(figsize=(12,12))
@@ -89,7 +89,7 @@ class SobolVisualizer(object):
             plt.show()
 
 
-    def clocktime_sobol_plot(self):
+    def clocktime_plot(self):
 
         """ 
             Returns:
