@@ -146,172 +146,29 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
     # which only appears in case of module declaration.
     # If not, there is no need to look into the file any further,
     # so ignore it.
-    if (
-            "end module" in file_content.lower()
-            or "endmodule" in file_content.lower()
-    ):
-        # Extract the module name that follows 'end module' or 'endmodule'
-        # These two lines will extract all module names in the file.
-        module_names.extend(re.findall(r'(?i)(?<=end module )[^-. \n]*',
-                                       file_content))
-        module_names.extend(re.findall(r'(?i)(?<=endmodule )[^-. \n]*',
-                                       file_content))
+    if syntax.has_module(file_content.lower()):
+        # Extract the module names by inspecting each line in the file.
+        f.seek(f_pos)
+        line = f.readline().lower()
+        while (line):
+            match = syntax.line_starts_pgm(line)
+            if match[0] and match[1] == "module":
+                module_names.append(match[2])
+            line = f.readline().lower()
+
+        # Map current file to modules that it uses.
         module_names_lowered = [mod.lower() for mod in module_names]
         file_to_mod_mapper[file_path] = module_names_lowered.copy()
         file_to_mod_mapper[file_path].append(get_file_last_modified_time(
             file_path))
-
-        if (
-            ("end subroutine" in file_content.lower()
-                or "endsubroutine" in file_content.lower())
-            or ("end function" in file_content.lower()
-                    or "endfunction" in file_content.lower())
-        ):
+        
+        # If current file has subroutines, then extract subroutine information
+        # that are declared within the scope of any module and store in the module
+        # summary dictionary.
+        if syntax.has_subroutine(file_content.lower()):
             # Bring the pointer back to the first character position of a file
             f.seek(f_pos)
-
-            func_regex = re.compile('\s*(?P<type>(double precision|double|float|int|integer|logical|real|str|string))\sfunction (?P<function>(?P<name>.*?)\((?P<args>.*)\))')
-
-            current_modu = None
-            current_subr = None
-            current_intr = None
-            current_func = None
-
-            isProcedure =False
-
-            line = f.readline().lower()
-            while (line):
-                #  Removing any inline comments
-                if  '!' in line:
-                    line = line.partition('!')[0].strip()
-
-                # Check entering module
-                modu = modu_regex.match(line)
-
-                # Check entering interface
-                interface = syntax.line_starts_interface(line)
-
-                # Check entering subroutine
-                subroutine = syntax.subroutine_definition(line)
-
-                # Check entering function
-                func = func_regex.match(line)
-
-                # end_modu = end_modu_regex.match(line)
-                end_pgm = syntax.pgm_end(line)
-
-                # Check derived type declaration
-                end_dtype = end_dtype_regex.match(line)
-                enddtype = enddtype_regex.match(line)
-
-                if modu:
-                    current_modu = modu['name'].strip()
-                    module_summary[current_modu] = {}
-                    procedure_functions[current_modu] = {}
-                elif end_pgm[0] and end_pgm[1] == "module":
-                    current_modu = None
-                else:
-                    pass
-
-                if current_modu:
-                    if subroutine[0]:
-                        current_subr = subroutine[1][0]
-                        subroutine_args = subroutine[1][1]
-                        module_summary[current_modu][current_subr] = {}
-                        for arg in subroutine_args:
-                            if arg:
-                                module_summary[current_modu][current_subr][arg] = None
-                    elif end_pgm[0] and end_pgm[1] == "subroutine":
-                        current_subr = None
-                    elif current_subr:
-                        variable_dec = syntax.variable_declaration(line)
-                        dev_type_var = dev_type_regex.match(line)
-                        char_type_var = char_type_regex.match(line)
-                        if (
-                                (variable_dec and not func)
-                                or dev_type_var
-                                or char_type_var
-                        ):
-                            if variable_dec[0]:
-                                var_type = variable_dec[1][0]
-                                variables = variable_dec[1][1]
-                            elif dev_type_var:
-                                var_type = dev_type_var['type']
-                                variables = dev_type_var['variables']
-                            else:
-                                var_type = "character"
-                                variables = char_type_var['variables']
-
-                            # Handle syntax like:
-                            #   precision, dimension(0:tmax) :: means, vars
-                            #   precision, parameter :: var = 1.234
-                            if (
-                                    "precision" in variables
-                                    or "dimension" in variables
-                            ):
-                                # Handle dimension (array)
-                                if "dimension" in variables:
-                                    var_type = "Array"
-                                # Extract only variable names follow by '::'
-                                variables = variables.partition('::')[-1].strip()
-                                if '=' in variables:
-                                    # Remove assignment syntax and only extract variable names
-                                    variables  = variables.partition('=')[0].strip()
-
-                            var_list = variables.split(',')
-                            for var in var_list:
-                                # Search for an implicit array variable declaration
-                                arrayVar = re.match("(?P<var>\w*)\s*\(", var)
-                                if arrayVar:
-                                    var = arrayVar['var']
-                                    var_type = "Array"
-                                # Map each subroutine argument with its type
-                                if (
-                                        current_subr in module_summary[current_modu]
-                                        and var.strip() in module_summary[current_modu][current_subr]
-                                ):
-                                    module_summary[current_modu][current_subr][var.strip()] = var_type
-                    else:
-                        pass
-
-                    if interface[0]:
-                        current_intr  = interface[1]
-                    elif end_pgm[0] and end_pgm[1] == "interface":
-                        current_intr = None
-                        if isProcedure:
-                            isProceddure = False
-                    elif current_intr:
-                        if "procedure" in line:
-                            first_function = line.strip().split(' ')[-1].replace(',','')
-                            procedure_functions[current_modu][current_intr] = {first_function:None}
-                            isProcedure = True
-                        elif isProcedure:
-                            pFunc = line.strip().split(' ')[-1]
-                            if pFunc:
-                                pFunc = pFunc.replace(',','')
-                                procedure_functions[current_modu][current_intr][pFunc] = None
-                    else:
-                        pass
-
-                    if func:
-                        func_name = func["name"]
-                        func_args = func["args"]
-                    else:
-                        pass
-
-                    if end_dtype or enddtype:
-                        if current_modu not in derived_types:
-                            if end_dtype:
-                                derived_types[current_modu] = [end_dtype['name'].strip()]
-                            elif enddtype:
-                                derived_types[current_modu] = [enddtype['name'].strip()]
-                        else:
-                            if end_dtype:
-                                derived_types[current_modu].append(end_dtype['name'].strip())
-                            elif enddtype:
-                                derived_types[current_modu].append(enddtype['name'].strip())
-
-                line  = f.readline().lower()
+            populate_module_summary(f, module_summary, procedure_functions, derived_types)
 
     # Using collected function information, populate interface function information
     # by each module.
@@ -340,6 +197,188 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
             mod_info_dict[mod]["derived_type_list"] = derived_types[mod]
     f.close()
 
+def populate_module_summary(f, module_summary, procedure_functions, derived_types):
+    """This function extracts module, derived type, and interface information, and
+    populates module summary, procedure functions, and derived types dictionaries.
+
+    Params:
+        f (str): File content.
+        module_summary (dict): A dictionary for holding module-to-subroutine-to-
+        arguments mappings.
+        procedure_functions (dict): A dictionary to hold interface-to-procedure
+        function mappings.
+        derived_types (dict): Dictionary that will hold module-to-derived type
+        mapping.
+    Returns:
+        None.
+    """
+    current_modu = None
+    current_subr = None
+    current_intr = None
+    current_func = None
+
+    isProcedure =False
+
+    line = f.readline().lower()
+    while (line):
+        #  Removing any inline comments
+        if  '!' in line:
+            line = line.partition('!')[0].strip()
+
+        # Detects module and interface entering line.
+        pgm = syntax.line_starts_pgm(line)
+        # Detects subroutine entering line.
+        subroutine = syntax.subroutine_definition(line)
+
+        end_pgm = syntax.pgm_end(line)
+        if pgm[0] and pgm[1] == "module":
+            current_modu = pgm[2].strip()
+            module_summary[current_modu] = {}
+            procedure_functions[current_modu] = {}
+        elif end_pgm[0] and end_pgm[1] == "module":
+            current_modu = None
+        else:
+            pass
+
+        # If currently processing line of code is within the scope of module,
+        # we need to extract subroutine, interface, and derived type information.
+        if current_modu:
+            extract_subroutine_info(pgm, end_pgm, module_summary, current_modu, subroutine)
+            extract_interface_info(pgm, end_pgm, procedure_functions, current_modu)       
+            extract_derived_type_info(end_pgm, current_modu, derived_types)
+
+        line  = f.readline().lower()
+
+def extract_subroutine_info(pgm, end_pgm, module_summary, current_modu, subroutine):
+    """This function extracts information of subroutine declared within the module,
+    and stores those information to module_summary dictionary.
+
+    Params:
+        pgm (tuple): Current program information.
+        end_pgm (typle): End of current program indicator.
+        module_summary (dict): A dictionary for holding module-to-subroutine-to-
+        arguments mappings.
+        current_modu (str): Module name that current interface is located under.
+        subroutine (tuple): Holds information of the subroutine.
+    Returns:
+        None.
+    """
+        
+    current_subr = None
+
+    # If subroutine encountered,
+    if subroutine[0]:
+        # extract the name,
+        current_subr = subroutine[1][0]
+        # extract any existing arguments,
+        subroutine_args = subroutine[1][1]
+        # and populate thee module summary dictionary
+        module_summary[current_modu][current_subr] = {}
+        for arg in subroutine_args:
+            if arg:
+                # Since we cannot find out about the argument types
+                # just looking at the argument, initialize the types
+                # to None as defualt.
+                module_summary[current_modu][current_subr][arg] = None
+    elif end_pgm[0] and end_pgm[1] == "subroutine":
+        # Indication of end of subroutine.
+        current_subr = None
+    elif current_subr:
+        variable_dec = syntax.variable_declaration(line)
+        if (
+                variable_dec[0]
+                and not syntax.line_is_func_start(line)
+        ):
+            if variable_dec[0]:
+                var_type = variable_dec[1]
+                variables = variable_dec[2]
+
+            # Handle syntax like:
+            #   precision, dimension(0:tmax) :: means, vars
+            #   precision, parameter :: var = 1.234
+            if (
+                    "precision" in variables
+                    or "dimension" in variables
+            ):
+                # Handle dimension (array)
+                if "dimension" in variables:
+                    var_type = "Array"
+                # Extract only variable names follow by '::'
+                variables = variables.partition('::')[-1].strip()
+                if '=' in variables:
+                    # Remove assignment syntax and only extract variable names
+                    variables = variables.partition('=')[0].strip()
+
+            var_list = variables.split(',')
+            for var in var_list:
+                # Search for an implicit array variable declaration
+                arrayVar = syntax.line_has_implicit_array(var)
+                if arrayVar[0]:
+                    var = arrayVar[1]
+                    var_type = "Array"
+                # Map each subroutine argument with its type
+                if (
+                        current_subr in module_summary[current_modu]
+                        and var.strip() in module_summary[current_modu][current_subr]
+                ):
+                    module_summary[current_modu][current_subr][var.strip()] = var_type
+    else:
+                pass
+            
+def extract_interface_info(pgm, end_pgm, procedure_functions, current_modu):
+    """This function extracts INTERFACE information, such as the name of
+    interface and procedure function names, and populates procedure_functions
+    dictionary.
+
+    Params:
+        pgm (tuple): Current program information.
+        end_pgm (typle): End of current program indicator.
+        procedure_functions (dict): A dictionary to hold interface-to-procedure
+        function mappings.
+        current_modu (str): Module name that current interface is located under.
+    Returns:
+        None.
+    """
+
+    current_intr = None
+    isProcedure = False
+
+    if pgm[0] and pgm[1] == "interface":
+        current_intr = pgm[2]
+    elif end_pgm[0] and end_pgm[1] == "interface":
+        current_intr = None
+        if isProcedure:
+            isProceddure = False
+    elif current_intr:
+        if "procedure" in line:
+            first_function = line.strip().split(' ')[-1].replace(',','')
+            procedure_functions[current_modu][current_intr] = {first_function:None}
+            isProcedure = True
+        elif isProcedure:
+            pFunc = line.strip().split(' ')[-1]
+            if pFunc:
+                pFunc = pFunc.replace(',','')
+                procedure_functions[current_modu][current_intr][pFunc] = None
+    else:
+        pass
+
+def extract_derived_type_info(end_pgm, current_modu, derived_types):
+    """This function extracts derived types declared under current module.
+
+    Params:
+        end_pgm (tuple): End of current program indicator.
+        current_modu (str): Current module name.
+        derived_types (dict): Dictionary that will hold module-to-derived type
+        mapping.
+    Returns:
+        None.
+    """
+
+    if end_pgm[0] and end_pgm[1] == "type":
+        if current_modu not in derived_types:
+            derived_types[current_modu] = [end_pgm[2]]
+        else:
+            derived_types[current_modu].append(end_pgm[2])
 
 def get_file_last_modified_time(file_path):
     """This function retrieves the file status and assigns the last modified
