@@ -424,6 +424,18 @@
   "start": [
     "@container::arrays-basic-06::@global::main"
   ],
+  "system": {
+    "components": [
+      {
+        "code_source": [
+          "tests/data/program_analysis/arrays/arrays-basic-06.f"
+        ],
+        "grfn_source": "./arrays-basic-06_GrFN.json",
+        "imports": []
+      }
+    ],
+    "name": "arrays-basic-06"
+  },
   "types": [],
   "variables": [
     {

@@ -165,7 +165,7 @@ def process_includes(lines, infile):
             chg = True
             include_f = line_is_include(lines[idx])
             assert include_f is not None
-            include_path = path_to_target(infile, include_f)
+            include_path = path_to_target(infile, include_f) 
             incl_lines = preprocess_file(include_path)
             lines = lines[:idx] + incl_lines + lines[idx+1:]            
 
@@ -197,21 +197,25 @@ def refactor_select_case(lines):
     return lines
 
 
-def preprocess(lines, infile):
+def preprocess(lines, infile, forModLogGen=False):
     _, f_ext = os.path.splitext(infile)
     lines = [line for line in lines if line.rstrip() != ""]
     lines = separate_trailing_comments(lines)
     lines = discard_comments(lines)
     lines = merge_continued_lines(lines, f_ext)
-    lines = process_includes(lines, infile)
+    # For module log file generation, we do not need to
+    # preprocess any included external files, so skip in
+    # such case.
+    if not forModLogGen:
+        lines = process_includes(lines, infile)
     lines = refactor_select_case(lines)
     return lines
 
 
-def process(inputLines: List[str], infile: str) -> str:
+def process(inputLines: List[str], infile: str, forModLogGen: bool=False) -> str:
     """process() provides the interface used by an earlier version of this
        preprocessor."""
-    lines = preprocess(inputLines, infile)
+    lines = preprocess(inputLines, infile, forModLogGen)
     return "".join(lines)
 
 
@@ -220,6 +224,7 @@ def preprocess_file(infile):
         inputLines = f.readlines()
         lines = preprocess(inputLines, infile)
         return lines
+
 
 
 if __name__ == "__main__":
