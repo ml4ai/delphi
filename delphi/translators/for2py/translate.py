@@ -366,7 +366,7 @@ class XML_to_JSON_translator(object):
 
         # Map each variable declaration to this parent
         # function/subroutine to keep a track of local variables
-        if len(declared_variable) > 0:
+        if declared_variable and len(declared_variable) > 0:
             for var in declared_variable:
                 if (var.get("tag") in ["variable", "array"] and
                         var.get("name") not in exclusion_list) or \
@@ -374,6 +374,9 @@ class XML_to_JSON_translator(object):
                      not in exclusion_list):
                     self.variable_list.setdefault(self.current_module,
                                                   []).append(var)
+        else:
+            declared_variable = []
+
         return declared_variable
 
     def process_type(self, root, state) -> List[Dict]:
@@ -1025,7 +1028,6 @@ class XML_to_JSON_translator(object):
                 for item in node:
                     if item.tag == "name":
                         tag_spec["include"] += [item.attrib["id"]]
-
         return [tag_spec]
     
     def process_private_variable(self, root, _) -> List[Dict]:
@@ -1118,21 +1120,11 @@ class XML_to_JSON_translator(object):
         return [value_range_spec]
 
     def process_interface(self, root, state) -> List[Dict]:
-        """This function handles interface"""
-        interface = {"tag": root.tag, "name": "", "functions": {},
-                     "max_argument": root.attrib["max_arg"]}
-        for node in root:
-            if node.tag == "header":
-                header = self.parseTree(node, state)
-                interface["name"] = header[0]["name"]
-            elif node.tag == "body":
-                body = self.parseTree(node, state)
-                for elem in body:
-                    interface["functions"][elem["name"]] = elem[
-                        "func_arg_types"]
-            else:
-                pass
-        return [interface]
+        """This function definition is simply a place holder for INTERFACE
+        just in case of any possible usage in the future. For now, it does
+        nothing when translate.py encountrs interface tag in the rectified
+        xml."""
+        pass
 
     def handle_data_statements(self, root, state):
         """
