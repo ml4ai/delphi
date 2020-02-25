@@ -24,7 +24,7 @@ import sys
 import json
 import argparse
 from os.path import isfile
-from delphi.translators.for2py import syntax
+from delphi.translators.for2py import syntax, preprocessor
 
 
 def parse_args():
@@ -149,12 +149,13 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
     if syntax.has_module(file_content.lower()):
         # Extract the module names by inspecting each line in the file.
         f.seek(f_pos)
-        line = f.readline().lower()
-        while (line):
+        org_lines = f.readlines()
+        preprocessed_lines = preprocessor.process(org_lines, file_path, True).split('\n')
+        for line in preprocessed_lines:
+            line = line.lower()
             match = syntax.line_starts_pgm(line)
             if match[0] and match[1] == "module":
                 module_names.append(match[2])
-            line = f.readline().lower()
 
         # Map current file to modules that it uses.
         module_names_lowered = [mod.lower() for mod in module_names]
@@ -168,17 +169,16 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
         if syntax.has_subroutine(file_content.lower()):
             # Bring the pointer back to the first character position of a file
             f.seek(f_pos)
-            populate_module_summary(f, module_summary, procedure_functions, derived_types)
+            populate_module_summary(
+                    preprocessed_lines, module_summary, 
+                    procedure_functions, derived_types
+            )
 
     # Using collected function information, populate interface function information
     # by each module.
-    for mod in procedure_functions:
-        if mod in module_summary:
-            mod_functions = module_summary[mod]
-            for interface in procedure_functions[mod]:
-                for function in procedure_functions[mod][interface]:
-                    if function in mod_functions:
-                        procedure_functions[mod][interface][function] = mod_functions[function]
+    populate_procedure_functions(procedure_functions, module_summary)
+    # DEBUG
+    #print (procedure_functions)
 
     # Populate actual module information (summary)
     # that will be written to thee JSONN file.
@@ -196,6 +196,26 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
         if mod in derived_types:   
             mod_info_dict[mod]["derived_type_list"] = derived_types[mod]
     f.close()
+
+def populate_procedure_functions(procedure_functions, module_summary):
+    """This function completes procedure_functions dictionary.
+
+    Params:
+        procedure_functions (dict): A dictionary to hold interface-to-procedure
+        function mappings.
+        module_summary (dict): A dictionary for holding module-to-subroutine-to-
+        arguments mappings.
+        
+    Returns:
+        None.
+    """
+    for mod in procedure_functions:
+        if mod in module_summary:
+            mod_functions = module_summary[mod]
+            for interface in procedure_functions[mod]:
+                for function in procedure_functions[mod][interface]:
+                    if function in mod_functions:
+                        procedure_functions[mod][interface][function] = mod_functions[function]
 
 def populate_module_summary(f, module_summary, procedure_functions, derived_types):
     """This function extracts module, derived type, and interface information, and
@@ -219,8 +239,8 @@ def populate_module_summary(f, module_summary, procedure_functions, derived_type
 
     isProcedure =False
 
-    line = f.readline().lower()
-    while (line):
+    for line in f:
+        line = line.lower()
         #  Removing any inline comments
         if  '!' in line:
             line = line.partition('!')[0].strip()
@@ -231,7 +251,7 @@ def populate_module_summary(f, module_summary, procedure_functions, derived_type
         subroutine = syntax.subroutine_definition(line)
 
         end_pgm = syntax.pgm_end(line)
-        if pgm[0] and pgm[1] == "module":
+        if pgm[0] and pgm[1].strip() == "module" and pgm[2].strip() != "procedure":
             current_modu = pgm[2].strip()
             module_summary[current_modu] = {}
             procedure_functions[current_modu] = {}
@@ -243,13 +263,22 @@ def populate_module_summary(f, module_summary, procedure_functions, derived_type
         # If currently processing line of code is within the scope of module,
         # we need to extract subroutine, interface, and derived type information.
         if current_modu:
-            extract_subroutine_info(pgm, end_pgm, module_summary, current_modu, subroutine)
-            extract_interface_info(pgm, end_pgm, procedure_functions, current_modu)       
+            current_subr = extract_subroutine_info(
+                                pgm, end_pgm, module_summary, 
+                                current_modu, subroutine, current_subr,
+                                line
+            )
+            current_intr = extract_interface_info(
+                    pgm, end_pgm, procedure_functions, current_modu,
+                    current_intr, line
+            )       
             extract_derived_type_info(end_pgm, current_modu, derived_types)
 
-        line  = f.readline().lower()
-
-def extract_subroutine_info(pgm, end_pgm, module_summary, current_modu, subroutine):
+def extract_subroutine_info(
+        pgm, end_pgm, module_summary, 
+        current_modu, subroutine, current_subr,
+        line
+):
     """This function extracts information of subroutine declared within the module,
     and stores those information to module_summary dictionary.
 
@@ -260,12 +289,12 @@ def extract_subroutine_info(pgm, end_pgm, module_summary, current_modu, subrouti
         arguments mappings.
         current_modu (str): Module name that current interface is located under.
         subroutine (tuple): Holds information of the subroutine.
+        current_subr (str): Current subroutine name.
+        line (str): A line from Fortran source code.
     Returns:
-        None.
+        (current_subr) Currently handling subroutine name.
     """
         
-    current_subr = None
-
     # If subroutine encountered,
     if subroutine[0]:
         # extract the name,
@@ -324,8 +353,12 @@ def extract_subroutine_info(pgm, end_pgm, module_summary, current_modu, subrouti
                     module_summary[current_modu][current_subr][var.strip()] = var_type
     else:
                 pass
+    return current_subr
             
-def extract_interface_info(pgm, end_pgm, procedure_functions, current_modu):
+def extract_interface_info(
+        pgm, end_pgm, procedure_functions, current_modu,
+        current_intr, line
+):
     """This function extracts INTERFACE information, such as the name of
     interface and procedure function names, and populates procedure_functions
     dictionary.
@@ -336,31 +369,34 @@ def extract_interface_info(pgm, end_pgm, procedure_functions, current_modu):
         procedure_functions (dict): A dictionary to hold interface-to-procedure
         function mappings.
         current_modu (str): Module name that current interface is located under.
+        current_intr (str): Current interface name.
+        line (str): A line from Fortran source code.
     Returns:
-        None.
+        (current_intr) Currently handling interface name.
     """
-
-    current_intr = None
-    isProcedure = False
 
     if pgm[0] and pgm[1] == "interface":
         current_intr = pgm[2]
+        procedure_functions[current_modu][current_intr] = {}
     elif end_pgm[0] and end_pgm[1] == "interface":
         current_intr = None
-        if isProcedure:
-            isProceddure = False
     elif current_intr:
         if "procedure" in line:
-            first_function = line.strip().split(' ')[-1].replace(',','')
-            procedure_functions[current_modu][current_intr] = {first_function:None}
-            isProcedure = True
-        elif isProcedure:
-            pFunc = line.strip().split(' ')[-1]
-            if pFunc:
-                pFunc = pFunc.replace(',','')
-                procedure_functions[current_modu][current_intr][pFunc] = None
+            # Partition the string, which should have one of syntaxes like:
+            #   module procedure __function_name__
+            #   module procedure , __function_name__
+            #   module procedure __function_name__ , __function_name__ , ...
+            # by keyword procedure. Then, only extract function names, which
+            # always will be located at [-1] after partitioning. Finally, split
+            # the string of function names by comma and store in the functions list.
+            functions = line.partition("procedure")[-1].split(',')
+            for func in functions:
+                func = func.strip()
+                procedure_functions[current_modu][current_intr][func] = None
     else:
         pass
+
+    return current_intr
 
 def extract_derived_type_info(end_pgm, current_modu, derived_types):
     """This function extracts derived types declared under current module.
