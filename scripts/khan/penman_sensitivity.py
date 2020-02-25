@@ -32,12 +32,16 @@ def generate_indices_for_plots(model, B, sample_list, method):
         Si, sample_time, exec_time, analysis_time = sensitivity(model, sample_list[i], B, method)
         S1_dict = dict(zip(var_names, Si['O1_indices'].tolist()))
 
-        for k in range(Si['O2_indices'].shape[0]):
-            for l in range(k, Si['O2_indices'].shape[1]):
-                if k != l:
-                    Si['O2_indices'][l][k] =  Si['O2_indices'][k][l]
+        if method == 'Sobol':
 
-        Si['O2_indices']  = np.nan_to_num(Si['O2_indices']).tolist()
+            for k in range(Si['O2_indices'].shape[0]):
+                for l in range(k, Si['O2_indices'].shape[1]):
+                    if k != l:
+                        Si['O2_indices'][l][k] =  Si['O2_indices'][k][l]
+
+            Si['O2_indices']  = np.nan_to_num(Si['O2_indices']).tolist()
+        else:
+            Si['O2_indices'] = None
 
         S2_dataframe = pd.DataFrame(data=Si['O2_indices'], columns=var_names)
 
@@ -56,12 +60,15 @@ def sensitivity_visualization(model, B, sample_list, method):
 
     plots = SensitivityVisualizer(indices_lst)
 
-    plots.S1_plot()
+    S1 = plots.S1_plot()
+    S1.show()
 
-    plots.S2_plot()
+    if method == 'Sobol':
+        S2 = plots.S2_plot()
+        S2.show()
 
-    plots.clocktime_plot()
-
+    runtime = plots.clocktime_plot()
+    runtime.show()
 
 def PETPT_inputs():
 
@@ -154,14 +161,24 @@ def PETASCE_inputs():
 
 if __name__ == '__main__':
 
-    # These are working -- no bugs
-    sensitivity_visualization('PETPT', PETPT_inputs(), [10, 100, 1000, 10000], 'Sobol')
-    sensitivity_visualization('PETPNO', PETPNO_inputs(), [10, 100, 1000, 10000], 'Sobol')
-    sensitivity_visualization('PETPEN', PETPEN_inputs(), [10, 100, 1000, 10000], 'Sobol')
-    sensitivity_visualization('PETDYN', PETDYN_inputs(), [10, 100, 1000, 10000], 'Sobol')
+                            ### ---- Sobol Results ---- ###
 
-    # Not Working!
-    sensitivity_visualization('PETPT', PETPT_inputs(), [100, 1000, 10000], 'FAST')
+    sensitivity_visualization('PETPT', PETPT_inputs(), [10**x for x in range(1, 11)], 'Sobol')
+    sensitivity_visualization('PETPNO', PETPNO_inputs(), [10**x for x in range(1, 11)], 'Sobol')
+    sensitivity_visualization('PETPEN', PETPEN_inputs(), [10**x for x in range(1, 11)], 'Sobol')
+    sensitivity_visualization('PETDYN', PETDYN_inputs(), [10**x for x in range(1, 11)], 'Sobol')
 
-    # Not Working!
+                            ### ---- FAST Results ---- ###
+
+    sensitivity_visualization('PETPT', PETPT_inputs(), [10**x for x in range(2, 11)], 'FAST')
+    sensitivity_visualization('PETPNO', PETPNO_inputs(), [10**x for x in range(2, 11)], 'FAST')
+    sensitivity_visualization('PETPEN', PETPEN_inputs(), [10**x for x in range(2, 11)], 'FAST')
+    sensitivity_visualization('PETDYN', PETDYN_inputs(), [10**x for x in range(2, 11)], 'FAST')
+
+                            ### ---- RBD FAST Results ---- ###
+
     sensitivity_visualization('PETPT', PETPT_inputs(), [100, 1000, 10000], 'RBD FAST')
+    sensitivity_visualization('PETPNO', PETPNO_inputs(), [10**x for x in range(2, 11)], 'RBD FAST')
+    sensitivity_visualization('PETPEN', PETPEN_inputs(), [10**x for x in range(2, 11)], 'RBD FAST')
+    sensitivity_visualization('PETDYN', PETDYN_inputs(), [10**x for x in range(2, 11)], 'RBD FAST')
+
