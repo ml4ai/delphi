@@ -253,14 +253,17 @@ C     !MJ/m2/d
         ET0 = ((S*RNETMG + (DAIR*SHAIR*VPD)/ra)/(S+PSYCON*(1+rs/ra)))
 C     !Converts MJ/m2/d to mm/d
         ET0 = ET0/ (LHVAP / 1000000.)
-        IF (XHLAI .LE. 6.0) THEN
-        XHLAI = XHLAI
-        ELSE
-        XHLAI = 6.0
-        ENDIF
+
+C        HACK: Commenting this out to avoid problems with SA on GrFNs
+C        IF (XHLAI .LE. 6.0) THEN
+C        XHLAI = XHLAI
+C        ELSE
+C        XHLAI = 6.0
+C        ENDIF
 C   KJB LATER, NEED TO PUT VARIABLE IN PLACE OF 1.1
 !      KC=1.0+(1.1-1.0)*XHLAI/6.0
-      KC=1.0+(EORATIO-1.0)*XHLAI/6.0
+C     HACK: added MIN(XHLAI, 6) to preserve functionality
+      KC=1.0+(EORATIO-1.0)*MIN(XHLAI, 6)/6.0
       EO=ET0*KC
 C     EO=ET0
         EO = MAX(EO,0.0)

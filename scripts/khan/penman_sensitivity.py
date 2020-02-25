@@ -6,8 +6,8 @@ from delphi.GrFN.visualization import SensitivityVisualizer
 
 def sensitivity(model, N, B, method):
 
-    tG = GrFN.from_fortran_file("../../tests/data/program_analysis/" + model + ".for")
-   
+    tG = GrFN.from_fortran_file(f"../../tests/data/program_analysis/{model}.for", save_file=True)
+
     if method == 'Sobol':
         (sobol_dict, timing_data) = SensitivityAnalyzer.Si_from_Sobol(N, tG, B, save_time= True)
     elif method == 'FAST':
@@ -19,7 +19,7 @@ def sensitivity(model, N, B, method):
         exit(0)
 
     (sample_time, exec_time, analysis_time) = timing_data
-    
+
     return sobol_dict.__dict__, sample_time, exec_time, analysis_time
 
 
@@ -40,7 +40,7 @@ def generate_indices_for_plots(model, B, sample_list, method):
         Si['O2_indices']  = np.nan_to_num(Si['O2_indices']).tolist()
 
         S2_dataframe = pd.DataFrame(data=Si['O2_indices'], columns=var_names)
-        
+
         sobol_dict = {'sample size':sample_list[i], 'S1': S1_dict, 'S2':
                 S2_dataframe, 'sampling time':  sample_time, 'execution time':
                 exec_time, 'analysis time': analysis_time}
@@ -142,9 +142,9 @@ def PETASCE_inputs():
         "tmin": [-30, 60],
         "xhlai": [0, 20],
         "tdew": [-30, 60],
-        "windht": [0.1, 10],  
+        "windht": [0.1, 10],
         "windrun": [0, 900],
-        "xlat": [3, 12],     
+        "xlat": [3, 12],
         "xelev": [0, 6000],
         "canht": [0.001, 3],
     }
@@ -160,11 +160,8 @@ if __name__ == '__main__':
     sensitivity_visualization('PETPEN', PETPEN_inputs(), [10, 100, 1000, 10000], 'Sobol')
     sensitivity_visualization('PETDYN', PETDYN_inputs(), [10, 100, 1000, 10000], 'Sobol')
 
-    # Not Working!     
+    # Not Working!
     sensitivity_visualization('PETPT', PETPT_inputs(), [100, 1000, 10000], 'FAST')
 
     # Not Working!
     sensitivity_visualization('PETPT', PETPT_inputs(), [100, 1000, 10000], 'RBD FAST')
-
-
-
