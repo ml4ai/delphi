@@ -167,8 +167,6 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
         # that are declared within the scope of any module and store in the module
         # summary dictionary.
         if syntax.has_subroutine(file_content.lower()):
-            # Bring the pointer back to the first character position of a file
-            f.seek(f_pos)
             populate_module_summary(
                     preprocessed_lines, module_summary, 
                     procedure_functions, derived_types
@@ -177,8 +175,6 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
     # Using collected function information, populate interface function information
     # by each module.
     populate_procedure_functions(procedure_functions, module_summary)
-    # DEBUG
-    #print (procedure_functions)
 
     # Populate actual module information (summary)
     # that will be written to thee JSONN file.
@@ -251,7 +247,11 @@ def populate_module_summary(f, module_summary, procedure_functions, derived_type
         subroutine = syntax.subroutine_definition(line)
 
         end_pgm = syntax.pgm_end(line)
-        if pgm[0] and pgm[1].strip() == "module" and pgm[2].strip() != "procedure":
+        if (
+                pgm[0]
+                and pgm[1].strip() == "module"
+                and pgm[2].strip() != "procedure"
+        ):
             current_modu = pgm[2].strip()
             module_summary[current_modu] = {}
             procedure_functions[current_modu] = {}
@@ -279,8 +279,8 @@ def extract_subroutine_info(
         current_modu, subroutine, current_subr,
         line
 ):
-    """This function extracts information of subroutine declared within the module,
-    and stores those information to module_summary dictionary.
+    """This function extracts information of subroutine declared within
+    the module, and stores those information to module_summary dictionary.
 
     Params:
         pgm (tuple): Current program information.
