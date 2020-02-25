@@ -211,13 +211,6 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def_readwrite("subject", &Statement::subject)
       .def_readwrite("object", &Statement::subject);
 
-  py::class_<Edge>(m, "Edge")
-    .def_readwrite("evidence", &Edge::evidence);
-
-  py::class_<Statement>(m, "Statement")
-    .def_readwrite("subject", &Statement::subject)
-    .def_readwrite("object", &Statement::subject);
-
   py::class_<KDE>(m, "KDE")
       .def(py::init<vector<double>>())
       .def("pdf",
