@@ -1,0 +1,157 @@
+*PLANT N BALANCE
+
+*DSSAT Cropping System Model Ver. 4.7.5.012   -develop    FEB 25, 2020; 18:10:47
+                                                                                
+*RUN   1        : 78 IRRIG, light rate,freq CRGRO047 UFGA7801    1              
+ MODEL          : CRGRO047 - Soybean                                            
+ EXPERIMENT     : UFGA7801 SB BRAGG, IRRIGATED & NON-IRRIGATED                  
+ DATA PATH      :                                                               
+ TREATMENT  1   : 78 IRRIG, light rate,freq CRGRO047                            
+                                                                                
+                                                                                
+ CROP           : Soybean          CULTIVAR : BRAGG            ECOTYPE :SB0701  
+ STARTING DATE  : JUN 15 1978                                                   
+ PLANTING DATE  : JUN 15 1978        PLANTS/m2 : 29.9     ROW SPACING :  91.cm  
+ WEATHER        : UFGA   1978                                                   
+ SOIL           : IBSB910015     TEXTURE : -99   - Millhopper Fine Sand         
+ SOIL INITIAL C : DEPTH:180cm EXTR. H2O:158.4mm  NO3: 22.8kg/ha  NH4: 16.5kg/ha 
+ WATER BALANCE  : IRRIGATE ON REPORTED DATE(S)                                  
+ IRRIGATION     :      206 mm IN    21 APPLICATIONS                             
+ NITROGEN BAL.  : SOIL-N, N-UPTAKE & DYNAMIC N-FIXATION SIMULATION              
+ N-FERTILIZER   :        0 kg/ha IN     0 APPLICATIONS                          
+ RESIDUE/MANURE : INITIAL :     0 kg/ha ;    1000 kg/ha IN     1 APPLICATIONS   
+ ENVIRONM. OPT. : DAYL=    0.00  SRAD=    0.00  TMAX=    0.00  TMIN=    0.00    
+                  RAIN=    0.00  CO2 =    0.00  DEW =    0.00  WIND=    0.00    
+ SIMULATION OPT : WATER   :Y  NITROGEN:Y  N-FIX:Y  PHOSPH :N  PESTS  :N         
+                  PHOTO   :L  ET      :R  INFIL:S  HYDROL :R  SOM    :G         
+                  CO2 335ppm  NSWIT   :1  EVAP :S  SOIL   :2  STEMP  :D         
+ MANAGEMENT OPT : PLANTING:R  IRRIG   :R  FERT :R  RESIDUE:R  HARVEST:M         
+                  WEATHER :M  TILLAGE :Y                                        
+                                                                                
+*SUMMARY OF SOIL AND GENETIC INPUT PARAMETERS                                   
+                                                                                
+   SOIL LOWER UPPER   SAT  EXTR  INIT   ROOT   BULK     pH    NO3    NH4    ORG 
+  DEPTH LIMIT LIMIT    SW    SW    SW   DIST   DENS                          C  
+   cm   cm3/cm3    cm3/cm3    cm3/cm3         g/cm3         ugN/g  ugN/g     %  
+------------------------------------------------------------------------------- 
+  0-  5 0.023 0.086 0.230 0.063 0.086   1.00   1.36   5.30   1.50   0.60   0.90 
+  5- 15 0.023 0.086 0.230 0.063 0.086   1.00   1.40   5.40   1.50   0.60   0.69 
+ 15- 30 0.023 0.086 0.230 0.063 0.086   0.50   1.46   5.70   1.50   0.60   0.28 
+ 30- 45 0.023 0.086 0.230 0.063 0.086   0.29   1.46   5.80   1.50   0.60   0.20 
+ 45- 60 0.023 0.086 0.230 0.063 0.086   0.29   1.47   5.80   1.50   0.60   0.20 
+ 60- 90 0.021 0.076 0.230 0.055 0.076   0.38   1.43   5.90   0.60   0.60   0.09 
+ 90-120 0.020 0.076 0.230 0.056 0.076   0.13   1.48   5.90   0.50   0.60   0.03 
+120-150 0.027 0.130 0.230 0.103 0.130   0.06   1.57   5.90   0.50   0.60   0.03 
+150-180 0.070 0.258 0.360 0.188 0.258   0.03   1.79   5.90   0.50   0.60   0.03 
+                                                                                
+TOT-180   5.5  21.4  45.3  15.8  21.4  <--cm   -  kg/ha-->   22.8   16.5  38919 
+SOIL ALBEDO    : 0.18      EVAPORATION LIMIT : 5.00         MIN. FACTOR  : 1.00 
+RUNOFF CURVE # :66.00      DRAINAGE RATE     : 0.50         FERT. FACTOR : 0.92 
+                                                                                
+ Soybean    CULTIVAR :IB0001-BRAGG              ECOTYPE :SB0701                 
+ CSDVAR :12.33  PPSEN  : 0.32  EMG-FLW:19.50  FLW-FSD:15.20  FSD-PHM : 37.60    
+ WTPSD  :0.170  SDPDVR : 2.00  SDFDUR :24.00  PODDUR :10.00  XFRUIT  :  1.00    
+ THRESH : 78.0  SDPRO  :0.400  SDLIP   : 0.200                                  
+
+
+   PLANT COMPONENT  HARVEST     LOST*   TOTAL  BALANCE
+   ---------------  -------- kg[N]/ha -------  -------
+   Leaf N              1.49    35.18    36.66
+   Stem N             14.11     6.20    20.31
+   Shell N            11.88    10.40    22.28
+   Seed N            189.77     0.00   189.77
+   Root N              4.18    13.51    17.69
+   Nodule N            2.18     5.03     7.21
+   Total N           223.61    70.31   293.93
+   N leakage                            11.56
+   TOTAL N                                      305.49
+
+
+   N INPUTS TO SYSTEM                kg[N]/ha
+   ------------------                --------
+   Seed N At Planting                    2.44
+   N2 Fixed                            292.54
+   N Uptake from Soil                   10.59
+   TOTAL N                                      305.56
+
+   * Lost due to senescence, freeze, pest or disease damage.
+
+*******************************************************************************
+
+*DSSAT Cropping System Model Ver. 4.7.5.012   -develop    FEB 25, 2020; 18:10:47
+                                                                                
+*RUN   2        : 78 RAINFED BRAGG          CRGRO047 UFGA7801    2              
+ MODEL          : CRGRO047 - Soybean                                            
+ EXPERIMENT     : UFGA7801 SB BRAGG, IRRIGATED & NON-IRRIGATED                  
+ DATA PATH      :                                                               
+ TREATMENT  2   : 78 RAINFED BRAGG          CRGRO047                            
+                                                                                
+                                                                                
+ CROP           : Soybean          CULTIVAR : BRAGG            ECOTYPE :SB0701  
+ STARTING DATE  : JUN 15 1978                                                   
+ PLANTING DATE  : JUN 15 1978        PLANTS/m2 : 29.9     ROW SPACING :  91.cm  
+ WEATHER        : UFGA   1978                                                   
+ SOIL           : IBSB910015     TEXTURE : -99   - Millhopper Fine Sand         
+ SOIL INITIAL C : DEPTH:180cm EXTR. H2O:158.4mm  NO3: 22.8kg/ha  NH4: 16.5kg/ha 
+ WATER BALANCE  : IRRIGATE ON REPORTED DATE(S)                                  
+ IRRIGATION     :        0 mm IN     0 APPLICATIONS                             
+ NITROGEN BAL.  : SOIL-N, N-UPTAKE & DYNAMIC N-FIXATION SIMULATION              
+ N-FERTILIZER   :        0 kg/ha IN     0 APPLICATIONS                          
+ RESIDUE/MANURE : INITIAL :     0 kg/ha ;    1000 kg/ha IN     1 APPLICATIONS   
+ ENVIRONM. OPT. : DAYL=    0.00  SRAD=    0.00  TMAX=    0.00  TMIN=    0.00    
+                  RAIN=    0.00  CO2 =    0.00  DEW =    0.00  WIND=    0.00    
+ SIMULATION OPT : WATER   :Y  NITROGEN:Y  N-FIX:Y  PHOSPH :N  PESTS  :N         
+                  PHOTO   :L  ET      :R  INFIL:S  HYDROL :R  SOM    :G         
+                  CO2 335ppm  NSWIT   :1  EVAP :S  SOIL   :2  STEMP  :D         
+ MANAGEMENT OPT : PLANTING:R  IRRIG   :R  FERT :R  RESIDUE:R  HARVEST:M         
+                  WEATHER :M  TILLAGE :Y                                        
+                                                                                
+*SUMMARY OF SOIL AND GENETIC INPUT PARAMETERS                                   
+                                                                                
+   SOIL LOWER UPPER   SAT  EXTR  INIT   ROOT   BULK     pH    NO3    NH4    ORG 
+  DEPTH LIMIT LIMIT    SW    SW    SW   DIST   DENS                          C  
+   cm   cm3/cm3    cm3/cm3    cm3/cm3         g/cm3         ugN/g  ugN/g     %  
+------------------------------------------------------------------------------- 
+  0-  5 0.023 0.086 0.230 0.063 0.086   1.00   1.36   5.30   1.50   0.60   0.90 
+  5- 15 0.023 0.086 0.230 0.063 0.086   1.00   1.40   5.40   1.50   0.60   0.69 
+ 15- 30 0.023 0.086 0.230 0.063 0.086   0.50   1.46   5.70   1.50   0.60   0.28 
+ 30- 45 0.023 0.086 0.230 0.063 0.086   0.29   1.46   5.80   1.50   0.60   0.20 
+ 45- 60 0.023 0.086 0.230 0.063 0.086   0.29   1.47   5.80   1.50   0.60   0.20 
+ 60- 90 0.021 0.076 0.230 0.055 0.076   0.38   1.43   5.90   0.60   0.60   0.09 
+ 90-120 0.020 0.076 0.230 0.056 0.076   0.13   1.48   5.90   0.50   0.60   0.03 
+120-150 0.027 0.130 0.230 0.103 0.130   0.06   1.57   5.90   0.50   0.60   0.03 
+150-180 0.070 0.258 0.360 0.188 0.258   0.03   1.79   5.90   0.50   0.60   0.03 
+                                                                                
+TOT-180   5.5  21.4  45.3  15.8  21.4  <--cm   -  kg/ha-->   22.8   16.5  38919 
+SOIL ALBEDO    : 0.18      EVAPORATION LIMIT : 5.00         MIN. FACTOR  : 1.00 
+RUNOFF CURVE # :66.00      DRAINAGE RATE     : 0.50         FERT. FACTOR : 0.92 
+                                                                                
+ Soybean    CULTIVAR :IB0001-BRAGG              ECOTYPE :SB0701                 
+ CSDVAR :12.33  PPSEN  : 0.32  EMG-FLW:19.50  FLW-FSD:15.20  FSD-PHM : 37.60    
+ WTPSD  :0.170  SDPDVR : 2.00  SDFDUR :24.00  PODDUR :10.00  XFRUIT  :  1.00    
+ THRESH : 78.0  SDPRO  :0.400  SDLIP   : 0.200                                  
+
+
+   PLANT COMPONENT  HARVEST     LOST*   TOTAL  BALANCE
+   ---------------  -------- kg[N]/ha -------  -------
+   Leaf N              1.11    51.58    52.69
+   Stem N             14.01     9.99    24.00
+   Shell N             6.56     5.78    12.34
+   Seed N             71.88     0.00    71.88
+   Root N              4.26    14.20    18.47
+   Nodule N            0.49     6.75     7.24
+   Total N            98.31    88.30   186.61
+   N leakage                             0.81
+   TOTAL N                                      187.42
+
+
+   N INPUTS TO SYSTEM                kg[N]/ha
+   ------------------                --------
+   Seed N At Planting                    2.44
+   N2 Fixed                            178.84
+   N Uptake from Soil                    6.21
+   TOTAL N                                      187.49
+
+   * Lost due to senescence, freeze, pest or disease damage.
+
+*******************************************************************************
