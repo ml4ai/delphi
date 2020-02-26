@@ -30,7 +30,7 @@ def test_min_max_S2(Si_Obj):
     assert Si_Obj.get_max_S2() == 0.8
 
 
-def test_from_file(Si_Obj):
+def test_to_from_JSON(Si_Obj):
     json_filepath = "tests/data/GrFN/test_example_SI.json"
     Si_Obj.to_json(json_filepath)
     new_Si = SensitivityIndices.from_json(json_filepath)
