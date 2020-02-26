@@ -1,0 +1,63 @@
+*WATER BALANCE OUTPUT FILE
+
+*DSSAT Cropping System Model Ver. 4.7.5.012   -develop    FEB 25, 2020; 18:10:47
+                                                                                
+*RUN   1        : 78 IRRIG, light rate,freq CRGRO047 UFGA7801    1              
+ MODEL          : CRGRO047 - Soybean                                            
+ EXPERIMENT     : UFGA7801 SB BRAGG, IRRIGATED & NON-IRRIGATED                  
+ DATA PATH      :                                                               
+ TREATMENT  1   : 78 IRRIG, light rate,freq CRGRO047                            
+  
+
+!     WATER BALANCE PARAMETERS
+!     ========================                 --mm--
+
+!     Soil H20 (start) on Year/day 1978/166    213.60
+!     Soil H20 (final) on Year/day 1978/294    149.84
+!     Effective Irrigation                     154.50
+!     Precipitation                            534.10
+!     Water added with new mulch                 0.50
+!     Drainage                                 363.71
+!     Tiledrain flow                             0.00
+!     Runoff                                    36.65
+!     Mulch evaporation                          0.00
+!     Soil Evaporation                           0.00
+!     Transpiration                            351.65
+!     Potential ET                             606.48
+
+!     Initial mulch water content                0.00
+!     Final mulch water content                  0.85
+
+!     Final Balance                            -0.004
+
+
+*DSSAT Cropping System Model Ver. 4.7.5.012   -develop    FEB 25, 2020; 18:10:47
+                                                                                
+*RUN   2        : 78 RAINFED BRAGG          CRGRO047 UFGA7801    2              
+ MODEL          : CRGRO047 - Soybean                                            
+ EXPERIMENT     : UFGA7801 SB BRAGG, IRRIGATED & NON-IRRIGATED                  
+ DATA PATH      :                                                               
+ TREATMENT  2   : 78 RAINFED BRAGG          CRGRO047                            
+  
+
+!     WATER BALANCE PARAMETERS
+!     ========================                 --mm--
+
+!     Soil H20 (start) on Year/day 1978/166    213.60
+!     Soil H20 (final) on Year/day 1978/284    129.13
+!     Effective Irrigation                       0.00
+!     Precipitation                            533.80
+!     Water added with new mulch                 0.49
+!     Drainage                                 337.69
+!     Tiledrain flow                             0.00
+!     Runoff                                    36.56
+!     Mulch evaporation                          0.00
+!     Soil Evaporation                           0.00
+!     Transpiration                            243.72
+!     Potential ET                             570.50
+
+!     Initial mulch water content                0.00
+!     Final mulch water content                  0.80
+
+!     Final Balance                             0.002
+
