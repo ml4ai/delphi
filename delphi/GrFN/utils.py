@@ -6,7 +6,7 @@ from typing import Iterable
 
 
 def timeit(func):
-    """PRecord the runtime of the decorated function."""
+    """Record the runtime of the decorated function."""
     @functools.wraps(func)
     def wrapper_timer(*args, **kwargs):
         start_time = time.perf_counter()
