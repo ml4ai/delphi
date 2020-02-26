@@ -24,6 +24,7 @@ PETPT_BOUNDS = {
     "PETPT::@global::petpt::0::xhlai::-1": [0, 20],
 }
 
+@pytest.mark.skip("OUTDATED")
 def test_regular_PETPT(petpt_grfn):
     args = petpt_grfn.inputs
 
@@ -65,7 +66,7 @@ def test_PETPT_with_torch():
     assert len(Si.keys()) == 2
     assert len(Si["S1"]) == len(args)
 
-
+@pytest.mark.skip("OUTDATED")
 def test_PETASCE_sobol_analysis(petasce_grfn):
     bounds = {
         "PETASCE_simple::@global::petasce::0::doy::-1": [1, 365],
@@ -162,7 +163,7 @@ def test_PETASCE_with_torch():
     assert len(tSi["S1"]) == len(tG.inputs)
     assert len(tSi["S2"][0]) == len(tG.inputs)
 
-
+@pytest.mark.skip("OUTDATED")
 def test_PETPT_sensitivity_surface(petpt_grfn):
     bounds = {
         "PETPT::@global::petpt::0::msalb::-1": (0, 1),

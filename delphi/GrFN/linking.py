@@ -73,9 +73,9 @@ def get_call_conventions(GrFN):
     }
 
 
-def output_link_graph(G):
+def output_link_graph(G, filename="linking-graph.pdf"):
     A = nx.nx_agraph.to_AGraph(G)
-    A.draw("linking-graph2.pdf", prog="circo")
+    A.draw(filename, prog="circo")
 
 
 def print_table_data(table_data):
