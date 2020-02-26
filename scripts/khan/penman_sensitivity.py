@@ -163,22 +163,22 @@ if __name__ == '__main__':
 
                             ### ---- Sobol Results ---- ###
 
-    sensitivity_visualization('PETPT', PETPT_inputs(), [10**x for x in range(1, 11)], 'Sobol')
-    sensitivity_visualization('PETPNO', PETPNO_inputs(), [10**x for x in range(1, 11)], 'Sobol')
-    sensitivity_visualization('PETPEN', PETPEN_inputs(), [10**x for x in range(1, 11)], 'Sobol')
-    sensitivity_visualization('PETDYN', PETDYN_inputs(), [10**x for x in range(1, 11)], 'Sobol')
+    # sensitivity_visualization('PETPT', PETPT_inputs(), [10**x for x in range(1, 6)], 'Sobol')
+    # sensitivity_visualization('PETPNO', PETPNO_inputs(), [10**x for x in range(1, 6)], 'Sobol')
+    # sensitivity_visualization('PETPEN', PETPEN_inputs(), [10**x for x in range(1, 6)], 'Sobol')
+    # sensitivity_visualization('PETDYN', PETDYN_inputs(), [10**x for x in range(1, 6)], 'Sobol')
 
                             ### ---- FAST Results ---- ###
 
-    sensitivity_visualization('PETPT', PETPT_inputs(), [10**x for x in range(2, 11)], 'FAST')
-    sensitivity_visualization('PETPNO', PETPNO_inputs(), [10**x for x in range(2, 11)], 'FAST')
-    sensitivity_visualization('PETPEN', PETPEN_inputs(), [10**x for x in range(2, 11)], 'FAST')
-    sensitivity_visualization('PETDYN', PETDYN_inputs(), [10**x for x in range(2, 11)], 'FAST')
+    # sensitivity_visualization('PETPT', PETPT_inputs(), [10**x for x in range(2, 6)], 'FAST')
+    # sensitivity_visualization('PETPNO', PETPNO_inputs(), [10**x for x in range(2, 6)], 'FAST')
+    # sensitivity_visualization('PETPEN', PETPEN_inputs(), [10**x for x in range(2, 6)], 'FAST')
+    # sensitivity_visualization('PETDYN', PETDYN_inputs(), [10**x for x in range(2, 6)], 'FAST')
 
                             ### ---- RBD FAST Results ---- ###
 
-    sensitivity_visualization('PETPT', PETPT_inputs(), [100, 1000, 10000], 'RBD FAST')
-    sensitivity_visualization('PETPNO', PETPNO_inputs(), [10**x for x in range(2, 11)], 'RBD FAST')
-    sensitivity_visualization('PETPEN', PETPEN_inputs(), [10**x for x in range(2, 11)], 'RBD FAST')
-    sensitivity_visualization('PETDYN', PETDYN_inputs(), [10**x for x in range(2, 11)], 'RBD FAST')
+    sensitivity_visualization('PETPT', PETPT_inputs(), [10**x for x in range(2, 6)], 'RBD FAST')
+    sensitivity_visualization('PETPNO', PETPNO_inputs(), [10**x for x in range(2, 6)], 'RBD FAST')
+    sensitivity_visualization('PETPEN', PETPEN_inputs(), [10**x for x in range(2, 6)], 'RBD FAST')
+    sensitivity_visualization('PETDYN', PETDYN_inputs(), [10**x for x in range(2, 6)], 'RBD FAST')
 
