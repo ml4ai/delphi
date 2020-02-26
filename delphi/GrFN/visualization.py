@@ -82,7 +82,7 @@ class SensitivityVisualizer(object):
         
         S2_mat = self.S2_dataframe[elem].to_dict()
         df = pd.DataFrame(S2_mat)
-
+        max_val = max(df.max(axis=0).values)
         var_names = sorted(df.columns)
 
         if len(df.columns) < 10:
@@ -90,7 +90,9 @@ class SensitivityVisualizer(object):
         else:
             plt.figure(figsize=(15,15))
         cmap = sns.diverging_palette(240, 10, n=9)
-        g = sns.heatmap(df, cmap=cmap, annot=True, xticklabels=var_names, yticklabels=var_names, annot_kws={"fontsize":10})
+        g = sns.heatmap(df, cmap=cmap, annot=True, xticklabels=var_names,
+                yticklabels=var_names, annot_kws={"fontsize":10}, vmax =
+                max_val, vmin = -max_val)
         plt.title('$S_{ij}$ ( $log_{10}N$ = ' + str(self.N[elem]) + ' )', fontsize=30)
         plt.xticks(fontsize=15, rotation = 30)
         plt.yticks(fontsize=15, rotation = 0)
