@@ -1590,17 +1590,19 @@ class XML_to_JSON_translator(object):
         """
         extra_tags = []
         if value[0]["tag"] == "op":
-            if value[0]["left"][0]["tag"] == "op":
-                extra_tags += self.check_function_call(value[0]["left"])
-            elif value[0]["left"][0]["tag"] == "call":
-                extra_tags += self.initiate_function_replacement(value[0][
+            if value[0].get("left"):
+                if value[0]["left"][0]["tag"] == "op":
+                    extra_tags += self.check_function_call(value[0]["left"])
+                elif value[0]["left"][0]["tag"] == "call":
+                    extra_tags += self.initiate_function_replacement(value[0][
                                                                      "left"])[0]
 
-            if value[0]["right"][0]["tag"] == "op":
-                extra_tags += self.check_function_call(value[0]["right"])
-            elif value[0]["right"][0]["tag"] == "call":
-                extra_tags += self.initiate_function_replacement(value[0][
-                                                                     "right"])[0]
+            if value[0].get("right"):
+                if value[0]["right"][0]["tag"] == "op":
+                    extra_tags += self.check_function_call(value[0]["right"])
+                elif value[0]["right"][0]["tag"] == "call":
+                    extra_tags += \
+                        self.initiate_function_replacement(value[0]["right"])[0]
         elif value[0]["tag"] == "call":
             extra_tags += self.initiate_function_replacement(value[0][
                                                                  "args"])[0]
@@ -1706,8 +1708,10 @@ class XML_to_JSON_translator(object):
         """
         return_type = None
         for element in root.iter():
-            if element.tag == "declaration" and element[0].tag == "type":
-                return_type = element[0].attrib["name"]
+            if element.tag == "declaration" and \
+                    len(element) > 0 and \
+                    element[0].tag == "type":
+                return_type = element[0].attrib.get("name")
             if element.tag == "function":
                 self.functionList[element.attrib["name"].lower()] = {
                     'type': return_type,

@@ -867,7 +867,11 @@ class PythonCodeGenerator(object):
             # If the assignment is to an array and the value is a string,
             # a String object has to be created
             if "is_array" in lhs and lhs["is_array"] == "true":
-                if "String" in self.array_map[lhs['name']]:
+                check_further = False
+                if self.array_map and self.array_map.get(lhs['name']):
+                    check_further = True
+                if check_further and \
+                        "String" in self.array_map.get(lhs['name']):
                     length = self.array_map[lhs['name']][7:-1]
                     assg_str += f"String({length}, {rhs_str}))"
                 else:
