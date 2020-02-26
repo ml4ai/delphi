@@ -10,13 +10,13 @@ from test_GrFN import petpt_grfn, petasce_grfn
 @pytest.fixture
 def Si_Obj():
     return SensitivityIndices({
-        'S1':0.5,
+        'S1':[0.5, 0.5],
         'S2': np.array([[0.5, 0.2], [0.1, 0.8]]),
-        'ST':1.0,
+        'ST':[0.75, 0.25],
         'S1_conf':0.05,
         'S2_conf':0.05,
         'ST_conf':0.05
-    })
+    }, {"names": ["x1", 'x2']})
 
 
 def test_check_order_functions(Si_Obj):
