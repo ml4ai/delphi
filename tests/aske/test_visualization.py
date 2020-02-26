@@ -12,7 +12,7 @@ from delphi.GrFN.visualization import SensitivityVisualizer
 def visualizer_obj():
 
     N = [10, 100, 1000, 10000]
-    tG = GrFN.from_fortran_file("../../tests/data/program_analysis/PETPT.for")
+    tG = GrFN.from_fortran_file("tests/data/program_analysis/PETPT.for")
     var_bounds = {
             'tmax':[-30.0, 60.0],
             'tmin':[-30.0, 60.0],
@@ -23,10 +23,10 @@ def visualizer_obj():
 
     sensitivity_indices_lst = []
 
-    var_names = var_bounds.keys() 
+    var_names = var_bounds.keys()
 
     for i in range(len(N)):
-        (Si, timing_data) = SensitivityAnalyzer.Si_from_Sobol(N[i], tG, var_bounds, save_time = True) 
+        (Si, timing_data) = SensitivityAnalyzer.Si_from_Sobol(N[i], tG, var_bounds, save_time = True)
         (sample_time, exec_time, analysis_time) = timing_data
         sobol_dict = Si.__dict__
         S1_dict = dict(zip(var_names, sobol_dict['O1_indices'].tolist()))
@@ -39,12 +39,12 @@ def visualizer_obj():
         sobol_dict['O2_indices'] = np.nan_to_num(sobol_dict['O2_indices']).tolist()
 
         S2_dataframe = pd.DataFrame(data=sobol_dict['O2_indices'], columns = var_names)
-        
+
         sobol_dict_visualizer = {'sample size': np.log10(N[i]), 'S1': S1_dict,
                 'S2': S2_dataframe, 'sampling time': sample_time, 'execution time': exec_time, 'analysis time': analysis_time}
 
         sensitivity_indices_lst.append(sobol_dict_visualizer)
-            
+
     return SensitivityVisualizer(sensitivity_indices_lst)
 
 def test_plots(visualizer_obj):
