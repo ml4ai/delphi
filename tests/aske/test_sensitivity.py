@@ -13,9 +13,9 @@ def Si_Obj():
         'S1':[0.5, 0.5],
         'S2': [[0.5, 0.2], [0.1, 0.8]],
         'ST':[0.75, 0.25],
-        'S1_conf':0.05,
-        'S2_conf':0.05,
-        'ST_conf':0.05
+        'S1_conf':[-0.05, 0.05],
+        'S2_conf':[-0.05, 0.05],
+        'ST_conf':[-0.05, 0.05]
     }, {"names": ["x1", 'x2']})
 
 
@@ -37,12 +37,17 @@ def test_to_from_JSON(Si_Obj):
 
     assert Si_Obj != new_Si
     assert Si_Obj.parameter_list == new_Si.parameter_list
-    assert Si_Obj.O1_indices == new_Si.O1_indices
-    assert Si_Obj.O2_indices == new_Si.O2_indices
-    assert Si_Obj.OT_indices == new_Si.OT_indices
-    assert Si_Obj.O1_confidence == new_Si.O1_confidence
-    assert Si_Obj.O2_confidence == new_Si.O2_confidence
-    assert Si_Obj.OT_confidence == new_Si.OT_confidence
+    assert all([x1 == x2 for x1, x2 in zip(Si_Obj.O1_indices, new_Si.O1_indices)])
+    assert all([x1 == x2 for x1, x2 in zip(Si_Obj.OT_indices, new_Si.OT_indices)])
+
+    assert all([x1 == x2 for x1, x2 in zip(Si_Obj.O1_confidence, new_Si.O1_confidence)])
+    assert all([x1 == x2 for x1, x2 in zip(Si_Obj.OT_confidence, new_Si.OT_confidence)])
+
+    assert all([
+        x1 == x2 for arr1, arr2 in zip(Si_Obj.O2_indices, new_Si.O2_indices)
+        for x1, x2 in zip(arr1, arr2)
+    ])
+    assert all([x1 == x2 for x1, x2 in zip(Si_Obj.O2_confidence, new_Si.O2_confidence)])
 
 
 

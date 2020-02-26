@@ -58,26 +58,6 @@ class SensitivityIndices(object):
         """Creates a SensitivityIndices object from the provided dictionary."""
         return cls(Si, P)
 
-    @classmethod
-    def from_json(cls, filepath: str):
-
-        data = open(filepath, encoding='utf-8').read()
-        js = json.loads(data)
-
-        Si_dict = {
-            'S1': np.array(js['S1']),
-            'S2': np.array(js['S2']),
-            'ST': np.array(js['ST']),
-            'S1_conf': np.array(js['S1_conf']),
-            'S2_conf': np.array(js['S2_conf']),
-            'ST_conf': np.array(js['ST_conf'])
-        }
-
-        problem = {'names': js["names"]}
-
-        return cls(Si_dict, problem)
-
-
     def get_min_S2(self):
         """Gets the value of the minimum S2 index."""
         self.check_second_order()
@@ -100,15 +80,21 @@ class SensitivityIndices(object):
         full_index = np.argmax(self.O2_indices)
         return np.unravel_index(full_index, self.O2_indices.shape)
 
+    @classmethod
+    def from_json(cls, filepath: str):
+        js_data = json.load(open(filepath, "r", encoding='utf-8'))
+        return cls(js_data, {'names': js_data["names"]})
 
-    def to_json(self, filepath: str, S: dict, P: dict):
-        S['S2'] = S['S2'].tolist()
-        S.update(P)
-        try:
-            with open(filepath, 'w') as fout:
-                json.dump(S, fout)
-        except IOError:
-            print("Input File Missing!")
+    def to_json(self, filepath: str):
+        json.dump({
+            "S1": self.O1_indices.tolist(),
+            "S2": self.O2_indices.tolist(),
+            "ST": self.OT_indices.tolist(),
+            "S1_conf": self.O1_confidence.tolist(),
+            "S2_conf": self.O2_confidence.tolist(),
+            "ST_conf": self.OT_confidence.tolist(),
+            "names": self.parameter_list
+        }, open(filepath, "w"))
 
 
 class SensitivityAnalyzer(object):
