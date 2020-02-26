@@ -11,7 +11,7 @@ from test_GrFN import petpt_grfn, petasce_grfn
 def Si_Obj():
     return SensitivityIndices({
         'S1':[0.5, 0.5],
-        'S2': np.array([[0.5, 0.2], [0.1, 0.8]]),
+        'S2': [[0.5, 0.2], [0.1, 0.8]],
         'ST':[0.75, 0.25],
         'S1_conf':0.05,
         'S2_conf':0.05,
@@ -29,11 +29,21 @@ def test_min_max_S2(Si_Obj):
     assert Si_Obj.get_min_S2() == 0.1
     assert Si_Obj.get_max_S2() == 0.8
 
-@pytest.mark.skip("TODO Khan: add the files for these tests")
+
 def test_from_file(Si_Obj):
-    assert isinstance(Si_Obj.from_csv('test.csv'), dict)
-    assert isinstance(Si_Obj.from_json('test.json'), dict)
-    assert isinstance(Si_Obj.from_pickle('test_pickle'), dict)
+    json_filepath = "tests/data/GrFN/test_example_SI.json"
+    Si_Obj.to_json(json_filepath)
+    new_Si = SensitivityIndices.from_json(json_filepath)
+
+    assert Si_Obj != new_Si
+    assert Si_Obj.parameter_list == new_Si.parameter_list
+    assert Si_Obj.O1_indices == new_Si.O1_indices
+    assert Si_Obj.O2_indices == new_Si.O2_indices
+    assert Si_Obj.OT_indices == new_Si.OT_indices
+    assert Si_Obj.O1_confidence == new_Si.O1_confidence
+    assert Si_Obj.O2_confidence == new_Si.O2_confidence
+    assert Si_Obj.OT_confidence == new_Si.OT_confidence
+
 
 
 def test_Sobol(petpt_grfn):
