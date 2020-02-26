@@ -1,0 +1,166 @@
+*INFO DETAIL FILE
+
+******************************************************************************
+
+*DSSAT Cropping System Model Ver. 4.7.5.012   -develop    FEB 25, 2020; 18:10:47
+                                                                                
+*RUN   1        : 78 IRRIG, light rate,freq CRGRO047 UFGA7801    1              
+ MODEL          : CRGRO047 - Soybean                                            
+ EXPERIMENT     : UFGA7801 SB BRAGG, IRRIGATED & NON-IRRIGATED                  
+ DATA PATH      :                                                               
+ TREATMENT  1   : 78 IRRIG, light rate,freq CRGRO047                            
+  
+
+ CSM     YEAR DOY = 1978 166
+ RNMODE = B                                                                    
+ PATHEX =                                                                      
+ FILEX  = UFGA7801.SBX                                                         
+ FILEB  = DSSBatch.v47                                                         
+ FILEIO = DSSAT47.INP                                                          
+ MODEL  = CRGRO047                                                             
+ TRTNUM =     1                                                                
+
+ SOILDYN  YEAR DOY = 1978 166
+ The soil file has missing or invalid data.                                    
+ Default values have been used for these variables:                            
+   CEC, STONES, ADCOEF                                                         
+ These defaults may or may not be important to your results.                   
+
+ RETC  YEAR DOY = 1978 166
+ Soil RETC parameters:                                                         
+  LYR DS  SWCN   WCR    Hb Lambd  Alpha     m     n Texture                    
+   1   5  7.40 0.014   0.7 0.414  0.036 0.378 1.607 Sand                       
+   2  15  7.40 0.014   0.7 0.414  0.036 0.378 1.607 Sand                       
+   3  30 15.80 0.014   0.7 0.414  0.036 0.378 1.607 Sand                       
+   4  45 28.00 0.014   0.7 0.414  0.036 0.378 1.607 Sand                       
+   5  60 28.00 0.014   0.7 0.414  0.036 0.378 1.607 Sand                       
+   6  90 27.60 0.013   0.5 0.420  0.036 0.404 1.677 LoamySand                  
+   7 120 17.50 0.013   0.6 0.432  0.035 0.408 1.689 LoamySand                  
+   8 150  0.30 0.017   2.7 0.487  0.021 0.352 1.543 LoamySand                  
+   9 180  0.10 0.045   4.0 0.424  0.015 0.309 1.448 LoamySand                  
+
+ SOILDYN  YEAR DOY = 1978 166
+ Soil ID: IBSB910015                                                           
+ MILLHOPPER FINE SAND                                                          
+ LOAMY,SILIC,HYPERTH GROSS. PALEUDULTS                                         
+   SALB SWCON    CN  DMOD  SLPF SMPX                                           
+   0.18  0.50  66.0  1.00  0.92 IB001                                          
+ Soil layer distribution method: 2                                             
+      DS DLAYR    LL   DUL   SAT  Root    BD    OC  CLAY  SILT  SAND           
+ LYR  cm    cm  frac  frac  frac  Grow g/cm3     %     %     %     %    pH     
+   1   5     5 0.023 0.086 0.230 1.000  1.36  0.90   0.9  11.8  87.3   5.3     
+   2  15    10 0.023 0.086 0.230 1.000  1.40  0.69   0.9  11.8  87.3   5.4     
+   3  30    15 0.023 0.086 0.230 0.498  1.46  0.28   4.6   6.4  89.0   5.7     
+   4  45    15 0.023 0.086 0.230 0.294  1.46  0.20   5.8   5.4  88.8   5.8     
+   5  60    15 0.023 0.086 0.230 0.294  1.47  0.20   5.8   5.4  88.8   5.8     
+   6  90    30 0.021 0.076 0.230 0.380  1.43  0.09   9.6   4.2  86.2   5.9     
+   7 120    30 0.020 0.076 0.230 0.133  1.48  0.03   9.6   4.2  86.2   5.9     
+   8 150    30 0.027 0.130 0.230 0.062  1.57  0.03   8.3   3.6  88.1   5.9     
+   9 180    30 0.070 0.258 0.360 0.031  1.79  0.03   8.3   3.6  88.1   5.9     
+
+ SOILDYN  YEAR DOY = 1978 166
+ Additional soil properties                                                    
+                Convert                                                        
+    Cation Adsrp  ppm /  KSAT  SLCF                                            
+   L  Exch  Coef  kg/ha  cm/h     %                                            
+   1  15.5   0.0   1.47   7.4   0.0                                            
+   2  15.5   0.0   0.71   7.4   0.0                                            
+   3  15.5   0.0   0.46  15.8   0.0                                            
+   4  15.5   0.0   0.46  28.0   0.0                                            
+   5  15.5   0.0   0.45  28.0   0.0                                            
+   6  15.5   0.0   0.23  27.6   0.0                                            
+   7  15.5   0.0   0.23  17.5   0.0                                            
+   8  15.5   0.0   0.21   0.3   0.0                                            
+   9  15.5   0.0   0.19   0.1   0.0                                            
+
+ IPWTH   YEAR DOY = 1978 166
+ UFGA7801.WTH                                                                  
+ Found daily weather data headers for:                                         
+   SRAD           Col   7 -  11                                                
+   TMAX           Col  13 -  17                                                
+   TMIN           Col  19 -  23                                                
+   RAIN           Col  25 -  29                                                
+   PAR            Col  31 -  47                                                
+
+ CO2VAL  YEAR DOY = 1978 166
+  721 CO2 data points read from file.                                          
+ CO2047.WDA                                                                    
+
+ ENDRUN  YEAR DOY = 1978 294
+ Normal end of run        1                                                    
+
+******************************************************************************
+
+*DSSAT Cropping System Model Ver. 4.7.5.012   -develop    FEB 25, 2020; 18:10:47
+                                                                                
+*RUN   2        : 78 RAINFED BRAGG          CRGRO047 UFGA7801    2              
+ MODEL          : CRGRO047 - Soybean                                            
+ EXPERIMENT     : UFGA7801 SB BRAGG, IRRIGATED & NON-IRRIGATED                  
+ DATA PATH      :                                                               
+ TREATMENT  2   : 78 RAINFED BRAGG          CRGRO047                            
+  
+
+ CSM     YEAR DOY = 1978 166
+ RNMODE = B                                                                    
+ PATHEX =                                                                      
+ FILEX  = UFGA7801.SBX                                                         
+ FILEB  = DSSBatch.v47                                                         
+ FILEIO = DSSAT47.INP                                                          
+ MODEL  = CRGRO047                                                             
+ TRTNUM =     2                                                                
+
+ SOILDYN  YEAR DOY = 1978 166
+ The soil file has missing or invalid data.                                    
+ Default values have been used for these variables:                            
+   CEC, STONES, ADCOEF                                                         
+ These defaults may or may not be important to your results.                   
+
+ RETC  YEAR DOY = 1978 166
+ Soil RETC parameters:                                                         
+  LYR DS  SWCN   WCR    Hb Lambd  Alpha     m     n Texture                    
+   1   5  7.40 0.014   0.7 0.414  0.036 0.378 1.607 Sand                       
+   2  15  7.40 0.014   0.7 0.414  0.036 0.378 1.607 Sand                       
+   3  30 15.80 0.014   0.7 0.414  0.036 0.378 1.607 Sand                       
+   4  45 28.00 0.014   0.7 0.414  0.036 0.378 1.607 Sand                       
+   5  60 28.00 0.014   0.7 0.414  0.036 0.378 1.607 Sand                       
+   6  90 27.60 0.013   0.5 0.420  0.036 0.404 1.677 LoamySand                  
+   7 120 17.50 0.013   0.6 0.432  0.035 0.408 1.689 LoamySand                  
+   8 150  0.30 0.017   2.7 0.487  0.021 0.352 1.543 LoamySand                  
+   9 180  0.10 0.045   4.0 0.424  0.015 0.309 1.448 LoamySand                  
+
+ SOILDYN  YEAR DOY = 1978 166
+ Soil ID: IBSB910015                                                           
+ MILLHOPPER FINE SAND                                                          
+ LOAMY,SILIC,HYPERTH GROSS. PALEUDULTS                                         
+   SALB SWCON    CN  DMOD  SLPF SMPX                                           
+   0.18  0.50  66.0  1.00  0.92 IB001                                          
+ Soil layer distribution method: 2                                             
+      DS DLAYR    LL   DUL   SAT  Root    BD    OC  CLAY  SILT  SAND           
+ LYR  cm    cm  frac  frac  frac  Grow g/cm3     %     %     %     %    pH     
+   1   5     5 0.023 0.086 0.230 1.000  1.36  0.90   0.9  11.8  87.3   5.3     
+   2  15    10 0.023 0.086 0.230 1.000  1.40  0.69   0.9  11.8  87.3   5.4     
+   3  30    15 0.023 0.086 0.230 0.498  1.46  0.28   4.6   6.4  89.0   5.7     
+   4  45    15 0.023 0.086 0.230 0.294  1.46  0.20   5.8   5.4  88.8   5.8     
+   5  60    15 0.023 0.086 0.230 0.294  1.47  0.20   5.8   5.4  88.8   5.8     
+   6  90    30 0.021 0.076 0.230 0.380  1.43  0.09   9.6   4.2  86.2   5.9     
+   7 120    30 0.020 0.076 0.230 0.133  1.48  0.03   9.6   4.2  86.2   5.9     
+   8 150    30 0.027 0.130 0.230 0.062  1.57  0.03   8.3   3.6  88.1   5.9     
+   9 180    30 0.070 0.258 0.360 0.031  1.79  0.03   8.3   3.6  88.1   5.9     
+
+ SOILDYN  YEAR DOY = 1978 166
+ Additional soil properties                                                    
+                Convert                                                        
+    Cation Adsrp  ppm /  KSAT  SLCF                                            
+   L  Exch  Coef  kg/ha  cm/h     %                                            
+   1  15.5   0.0   1.47   7.4   0.0                                            
+   2  15.5   0.0   0.71   7.4   0.0                                            
+   3  15.5   0.0   0.46  15.8   0.0                                            
+   4  15.5   0.0   0.46  28.0   0.0                                            
+   5  15.5   0.0   0.45  28.0   0.0                                            
+   6  15.5   0.0   0.23  27.6   0.0                                            
+   7  15.5   0.0   0.23  17.5   0.0                                            
+   8  15.5   0.0   0.21   0.3   0.0                                            
+   9  15.5   0.0   0.19   0.1   0.0                                            
+
+ ENDRUN  YEAR DOY = 1978 284
+ Normal end of run        2                                                    

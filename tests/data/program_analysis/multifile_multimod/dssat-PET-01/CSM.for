@@ -188,7 +188,8 @@ C-----------------------------------------------------------------------
         INQUIRE (FILE = FILEIO,EXIST = FEXIST)
         IF (FEXIST) THEN
           OPEN (LUNIO, FILE = FILEIO,STATUS = 'UNKNOWN',IOSTAT=ERRNUM)
-          CLOSE (LUNIO,STATUS = 'DELETE')
+C          CLOSE (LUNIO,STATUS = 'DELETE')
+          CLOSE (LUNIO)
         ENDIF
         LN = LEN(TRIM(FILEIO))
         FILEIOH = FILEIO
@@ -229,7 +230,6 @@ C***********************************************************************
       CONTROL % RUN = RUN
       CONTROL % YRDOY = 0
       CALL PUT(CONTROL)
-
       IF ((INDEX('NSFBT',RNMODE) .GT. 0) .OR. (INDEX('E',RNMODE) .GT.
      &     0 .AND. RUN .EQ. 1)) THEN
         CALL IGNORE (LUNBIO,LINBIO,ISECT,CHARTEST)
@@ -329,7 +329,7 @@ C      ENDIF
       ENDIF
 
       IF (RNMODE .NE. 'Q' .OR. RUN .EQ. 1) THEN
-        YRDOY = YRSIM
+         YRDOY = YRSIM
       ENDIF
 
       MULTI  = 0
@@ -419,6 +419,7 @@ C        CALL MULTIRUN(RUN, 0)  !chp 3/17/2011
      &          YRPLT, MDATE, YREND)
 
       YRDOY = INCYD(YRDOY,-1)
+
 C-----------------------------------------------------------------------
 C-----------------------------------------------------------------------
 C     BEGINNING of DAILY SIMULATION loop
@@ -468,6 +469,9 @@ C***********************************************************************
       CALL LAND(CONTROL, ISWITCH, 
      &          YRPLT, MDATE, YREND)
 
+      WRITE (*,11) "EXITING AFTER LAND CALLSITE 5 (file: CSM.for)"
+ 11   FORMAT(A)
+      CALL EXIT(0)
 C***********************************************************************
       ENDDO DAY_LOOP   !End of daily loop
 C-----------------------------------------------------------------------
@@ -481,7 +485,11 @@ C***********************************************************************
 
       WRITE (*,10) "CALLING LAND: 6"
       CALL LAND(CONTROL, ISWITCH, 
-     &          YRPLT, MDATE, YREND)
+     &     YRPLT, MDATE, YREND)
+
+      WRITE (*,10) "EXITING AFTER LAND CALLSITE 6 (file: CSM.for)"
+      CALL EXIT(0)
+
 
 C-----------------------------------------------------------------------
       ENDDO SEAS_LOOP  

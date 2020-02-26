@@ -1,0 +1,77 @@
+*SOIL INORGANIC N BALANCE
+
+*DSSAT Cropping System Model Ver. 4.7.5.012   -develop    FEB 25, 2020; 18:10:47
+                                                                                
+*RUN   1        : 78 IRRIG, light rate,freq CRGRO047 UFGA7801    1              
+ MODEL          : CRGRO047 - Soybean                                            
+ EXPERIMENT     : UFGA7801 SB BRAGG, IRRIGATED & NON-IRRIGATED                  
+ DATA PATH      :                                                               
+ TREATMENT  1   : 78 IRRIG, light rate,freq CRGRO047                            
+  
+
+
+!SOIL INORGANIC N BALANCE                         Initial               Final
+!                                                Year/Doy            Year/Doy
+!                                                1978/166            1978/294
+!                                               (kg[N]/ha)          (kg[N]/ha)
+! Soil N state variables:
+!   Soil NO3                                        22.83               16.90
+!   Soil NH4                                        16.49                1.25
+!   Soil Urea                                        0.00                0.00
+!   Soil N gases                                     0.00                0.08
+
+! N additions:
+!   Fertilizer N                                     0.00
+!   Mineralized N                                   34.06
+
+! N subtractions:
+!   N immobilized                                                        0.55
+!   N leached                                                           42.71
+!   N loss to tile drainage                                              0.00
+!   N Uptake From Soil                                                  10.56
+!   NH3 loss                                                             0.00
+!   N2O loss                                                             0.07
+!   N2 loss                                                              0.84
+!   NO loss                                                              0.43
+
+!   Total N balance                                 73.38               73.38
+!   Balance                                                             0.000
+
+!===============================================================================
+
+*DSSAT Cropping System Model Ver. 4.7.5.012   -develop    FEB 25, 2020; 18:10:47
+                                                                                
+*RUN   2        : 78 RAINFED BRAGG          CRGRO047 UFGA7801    2              
+ MODEL          : CRGRO047 - Soybean                                            
+ EXPERIMENT     : UFGA7801 SB BRAGG, IRRIGATED & NON-IRRIGATED                  
+ DATA PATH      :                                                               
+ TREATMENT  2   : 78 RAINFED BRAGG          CRGRO047                            
+  
+
+
+!SOIL INORGANIC N BALANCE                         Initial               Final
+!                                                Year/Doy            Year/Doy
+!                                                1978/166            1978/284
+!                                               (kg[N]/ha)          (kg[N]/ha)
+! Soil N state variables:
+!   Soil NO3                                        22.83               18.20
+!   Soil NH4                                        16.49                1.36
+!   Soil Urea                                        0.00                0.00
+!   Soil N gases                                     0.00                0.11
+
+! N additions:
+!   Fertilizer N                                     0.00
+!   Mineralized N                                   28.64
+
+! N subtractions:
+!   N immobilized                                                        0.60
+!   N leached                                                           40.25
+!   N loss to tile drainage                                              0.00
+!   N Uptake From Soil                                                   6.20
+!   NH3 loss                                                             0.00
+!   N2O loss                                                             0.06
+!   N2 loss                                                              0.78
+!   NO loss                                                              0.40
+
+!   Total N balance                                 67.96               67.96
+!   Balance                                                            -0.000
