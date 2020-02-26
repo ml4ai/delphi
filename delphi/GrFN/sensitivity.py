@@ -52,22 +52,6 @@ class SensitivityIndices(object):
         else:
             return True
 
-    @classmethod
-    def from_csv(cls, filepath: str):
-
-        with open(filepath) as fin:
-            reader = csv.DictReader(fin)
-            for row in reader:
-                S1 = float(row['S1'])
-                S2 = np.array(row['S2'])
-                ST = float(row['ST'])
-                S1_conf = float(row['S1_conf'])
-                S2_conf = float(row['S2_conf'])
-                ST_conf = float(row['ST_conf'])
-
-        Si_dict = {'S1': np.array(S1), 'S2': np.array(S2), 'ST': np.array(ST), 'S1_conf': S1_conf, 'S2_conf': S2_conf, 'ST_conf': ST_conf}
-
-        return cls(Si_dict)
 
     @classmethod
     def from_dicts(cls, Si: dict, P: dict):
@@ -84,21 +68,15 @@ class SensitivityIndices(object):
             'S1': np.array(js['S1']),
             'S2': np.array(js['S2']),
             'ST': np.array(js['ST']),
-            'S1_conf': float(js['S1_conf']),
-            'S2_conf': float(js['S2_conf']),
-            'ST_conf': float(js['ST_conf'])
+            'S1_conf': np.array(js['S1_conf']),
+            'S2_conf': np.array(js['S2_conf']),
+            'ST_conf': np.array(js['ST_conf'])
         }
-        problem = js["names"]
+
+        problem = {'names': js["names"]}
 
         return cls(Si_dict, problem)
 
-    @classmethod
-    def from_pickle(cls, filepath: str):
-
-        with open(filepath, 'rb') as fin:
-            Si_dict = pickle.load(fin)
-
-        return cls(Si_dict)
 
     def get_min_S2(self):
         """Gets the value of the minimum S2 index."""
@@ -122,28 +100,13 @@ class SensitivityIndices(object):
         full_index = np.argmax(self.O2_indices)
         return np.unravel_index(full_index, self.O2_indices.shape)
 
-    def to_csv(self, filepath: str, S: dict):
-        try:
-            with open(filepath, 'w') as fout:
-                writer = csv.DictWriter(fout, fieldnames=S.keys())
-                writer.writeheader()
-                writer.writerow(S)
-        except IOError:
-            print("Input File Missing!")
 
-    def to_json(self, filepath: str, S: dict):
+    def to_json(self, filepath: str, S: dict, P: dict):
         S['S2'] = S['S2'].tolist()
+        S.update(P)
         try:
             with open(filepath, 'w') as fout:
                 json.dump(S, fout)
-        except IOError:
-            print("Input File Missing!")
-
-    def to_pickle(self, filepath: str, S: dict):
-        try:
-            fout = open(filepath, 'wb')
-            pickle.dump(S, fout)
-            fout.close()
         except IOError:
             print("Input File Missing!")
 
