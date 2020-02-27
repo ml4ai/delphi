@@ -454,8 +454,6 @@ class GroundedFunctionNetwork(ComputationalGraph):
         module_file_exist = False
         module_import_paths = {}
 
-        tester_call = True
-        network_test = True
         """Builds GrFN object from Python source code."""
         pgm_dict = f2grfn.generate_grfn(
             pySrc,
@@ -463,11 +461,8 @@ class GroundedFunctionNetwork(ComputationalGraph):
             lambdas_path,
             mode_mapper_dict,
             fortran_file,
-            tester_call,
-            network_test,
             module_log_file_path,
             processing_modules,
-            save_file
         )
         lambdas = importlib.__import__(stem + "_lambdas")
         """Add generated GrFN and lambdas file paths to the list"""
@@ -494,8 +489,6 @@ class GroundedFunctionNetwork(ComputationalGraph):
             processing_modules,
         ) = f2grfn.fortran_to_grfn(
             fortran_file,
-            tester_call=True,
-            network_test=True,
             temp_dir=str(tmpdir),
             root_dir_path=root_dir,
             processing_modules=False,
