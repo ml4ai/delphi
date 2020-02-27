@@ -440,6 +440,7 @@ def test_multidimensional_array_grfn_generation(multidimensional_array_test):
     assert str(target_lambda_functions) == str(generated_lambda_functions)
 
 
+@pytest.mark.skip("FIXME")
 def test_sir_gillespie_sd_multi_grfn_generation(sir_gillespie_sd_multi_test):
     with open(f"{DATA_DIR}/SIR-Gillespie-SD_multi_module_GrFN.json", "r") as f:
         grfn_dict = json.load(f)
@@ -452,6 +453,7 @@ def test_sir_gillespie_sd_multi_grfn_generation(sir_gillespie_sd_multi_test):
     with open(f"{TEMP_DIR}/{sir_gillespie_sd_multi_test[1]}", "r") as l:
         generated_lambda_functions = l.read()
     assert str(target_lambda_functions) == str(generated_lambda_functions)
+    os.remove("m_update_mvar_lambdas.py")
 
 
 def test_derived_type_grfn_generation(derived_type_grfn_test):
