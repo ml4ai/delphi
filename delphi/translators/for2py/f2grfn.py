@@ -545,12 +545,15 @@ def fortran_to_grfn(
     output_dict = generate_outputdict(
         rectified_tree, preprocessed_fortran_file
     )
+    os.remove(preprocessed_fortran_file)
 
     translated_python_files = []
     # Create a Python source file.
     python_sources = generate_python_sources(
         output_dict, translated_python_files, python_file, temp_dir,
     )
+    for translated_python_file in translated_python_files:
+        os.remove(translated_python_file)
 
     return (
         python_sources,

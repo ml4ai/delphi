@@ -153,9 +153,9 @@ def populate_mappers(
         # Extract the module names by inspecting each line in the file.
         f.seek(f_pos)
         org_lines = f.readlines()
-        preprocessed_lines = preprocessor.process(
+        preprocessed_lines = preprocessor.preprocess_lines(
             org_lines, file_path, True
-        ).split("\n")
+        )
         for line in preprocessed_lines:
             line = line.lower()
             match = syntax.line_starts_pgm(line)
