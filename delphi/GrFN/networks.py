@@ -467,7 +467,9 @@ class GroundedFunctionNetwork(ComputationalGraph):
         # Cleanup intermediate files.
         variable_map_filename = python_file.replace(".py", "_variable_map.pkl")
         os.remove(variable_map_filename)
-        rectified_xml_filename = "rectified_"+str(Path(python_file)).replace('.py', '.xml')
+        rectified_xml_filename = "rectified_" + str(Path(python_file)).replace(
+            ".py", ".xml"
+        )
         os.remove(rectified_xml_filename)
         return G
 
@@ -481,7 +483,6 @@ class GroundedFunctionNetwork(ComputationalGraph):
 
         (
             python_sources,
-            json_filename,
             translated_python_files,
             mod_mapper_dict,
             fortran_filename,

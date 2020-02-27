@@ -306,9 +306,9 @@ def is_module_file(filename):
 
 
 def check_classpath():
-    """check_classpath() checks whether the files in OFP_JAR_FILES can all
-       be found in via the environment variable CLASSPATH.
-    """
+    """check_classpath() checks whether the files in OFP_JAR_FILES can all be
+    found in via the environment variable CLASSPATH."""
+
     not_found = []
     classpath = os.environ["CLASSPATH"].split(":")
     for jar_file in OFP_JAR_FILES:
@@ -327,37 +327,6 @@ def check_classpath():
             sys.stderr.write("ERROR: JAR files not found via CLASSPATH:\n")
             sys.stderr.write(f" {','.join(not_found)}\n")
             sys.exit(1)
-
-
-def cleanup_files(generated_file_paths, save_file, source):
-    """This function cleans up all generated files.
-    Args:
-        generated_file_paths (list): List of all files that were generated.
-        save_file (bool): A boolean condition to mark whether to save the
-        generated files or not.
-        source (src): To indicate where this function is being called.
-        Currently, it's called only in the generate_grfn function, but it's
-        for the possible future need.
-    Returns:
-        None
-    """
-    for filepath in generated_file_paths:
-        if os.path.isfile(filepath):
-            base = os.path.basename(filepath)
-            if not save_file:
-                # Remove all files if no explicit file saving option given.
-                os.remove(filepath)
-            elif save_file and source == "grfn" and "_GrFN.json" not in base:
-                # Else if file saving option was given and cleanup_files
-                # function was called from generate_grfn, then remove all
-                # files except _Grfn.json file.
-                os.remove(filepath)
-            else:
-                # Else, nothing to perform.
-                pass
-        else:
-            # Else, nothing to perform.
-            pass
 
 
 def indent(elem, level=0):
@@ -391,6 +360,7 @@ def fortran_to_grfn(
     root_dir_path=".",
     module_file_name=MODULE_FILE_NAME,
     processing_modules=False,
+    save_intermediate_files = False,
 ):
     """This function invokes other appropriate functions
     to process and generate objects to translate fortran
@@ -408,15 +378,12 @@ def fortran_to_grfn(
         whether current fortran_to_grfn execution is for processing a module.
 
     Returns:
-        str {
-            'python_src': A string of python code,
+        {
+            'python_src': A string of Python code,
             'python_file': A file name of generated python script,
             'lambdas_file': A file name where lambdas will be,
-            'json_file': A file name where JSON will be written to,
-
+            'mode_mapper_dict': mapper of file info (i.e. filename, module, and exports, etc).
         }
-        dict: mode_mapper_dict, mapper of file info (i.e. filename,
-        module, and exports, etc).
     """
     current_dir = "."
     check_classpath()
@@ -425,7 +392,6 @@ def fortran_to_grfn(
     # programs, it will be passed with an argument
     # of original Fortran file path.
     original_fortran_file = original_fortran
-    temp_out_dir = "tmp"
     root_dir = root_dir_path
     module_file = module_file_name
 
@@ -440,6 +406,7 @@ def fortran_to_grfn(
     # not set by the program that calls this function.
     # Thus, generate the output temporary file based
     # on the user input or the default path "tmp".
+    temp_out_dir = "tmp"
     if temp_dir is None:
         temp_dir = current_dir + "/" + temp_out_dir
 
@@ -454,16 +421,8 @@ def fortran_to_grfn(
 
     print(f"*** ALL OUTPUT FILES LIVE IN [{temp_dir}]")
 
-    # To avoid the system.json conflict between each f2grfn execution,
-    # we need to remove the system.json from the directory first.
-    system_json_path = temp_dir + "/" + "system.json"
-    if os.path.isfile(system_json_path) and not processing_modules:
-        rm_system_json = "rm " + system_json_path
-        os.system(rm_system_json)
-
     # Output files
     python_file = temp_dir + "/" + base + ".py"
-    json_file = temp_dir + "/" + base + ".json"
 
     # TODO Add some code using Pathlib to check the file extension and make
     # sure it's either .f or .for.
@@ -514,19 +473,21 @@ def fortran_to_grfn(
     output_dict = generate_outputdict(
         rectified_tree, preprocessed_fortran_file
     )
-    os.remove(preprocessed_fortran_file)
+
 
     translated_python_files = []
-    # Create a Python source file.
+    # Create a list of tuples with information about the Python source files.
     python_sources = generate_python_sources(
         output_dict, translated_python_files, python_file, temp_dir,
     )
-    for translated_python_file in translated_python_files:
-        os.remove(translated_python_file)
+
+    if not save_intermediate_files:
+        os.remove(preprocessed_fortran_file)
+        for translated_python_file in translated_python_files:
+            os.remove(translated_python_file)
 
     return (
         python_sources,
-        json_file,
         translated_python_files,
         mode_mapper_dict,
         original_fortran_file,
