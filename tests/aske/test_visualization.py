@@ -59,12 +59,13 @@ def sensitivity_visualizer():
         sensitivity_indices_lst.append(sobol_dict_visualizer)
 
     yield SensitivityVisualizer(sensitivity_indices_lst)
-    # Cleanup actions
-    os.remove("s1_plot.pdf")
-    os.remove("s2_plot.pdf")
-    os.remove("clocktime_plot.pdf")
 
 def test_sensitivity_visualization(sensitivity_visualizer):
     sensitivity_visualizer.create_S1_plot()
     sensitivity_visualizer.create_S2_plot()
     sensitivity_visualizer.create_clocktime_plot()
+    # Cleanup actions
+    os.remove("s1_plot.pdf")
+    os.remove("s2_plot.pdf")
+    os.remove("clocktime_plot.pdf")
+
