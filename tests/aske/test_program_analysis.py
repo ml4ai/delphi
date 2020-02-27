@@ -283,6 +283,7 @@ def test_crop_yield_pythonIR_generation(crop_yield_python_IR_test):
     assert crop_yield_python_IR_test[0] == python_src
 
 
+@pytest.mark.skip("This is already being tested by test_GrFN.py")
 def test_PETPT_pythonIR_generation(PETPT_python_IR_test):
     with open(f"{DATA_DIR}/PETPT.py", "r") as f:
         python_src = f.read()
