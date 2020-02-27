@@ -31,7 +31,6 @@ import argparse
 import pickle
 import delphi.paths
 from pathlib import Path
-import ntpath as np
 import subprocess as sp
 import xml.etree.ElementTree as ET
 from os.path import isfile
@@ -344,7 +343,7 @@ def cleanup_files(generated_file_paths, save_file, source):
     """
     for filepath in generated_file_paths:
         if os.path.isfile(filepath):
-            base = np.basename(filepath)
+            base = os.path.basename(filepath)
             if not save_file:
                 # Remove all files if no explicit file saving option given.
                 os.remove(filepath)
@@ -359,17 +358,6 @@ def cleanup_files(generated_file_paths, save_file, source):
         else:
             # Else, nothing to perform.
             pass
-
-
-def log_generated_files(file_paths):
-    """This function will add generated files' paths
-    into the global list GENERATED_FILE_PATHS.
-    Args:
-        file_path (list): List of file paths.
-    Returns:
-        None
-    """
-    GENERATED_FILE_PATHS.extend(file_paths)
 
 
 def indent(elem, level=0):
@@ -395,25 +383,6 @@ def indent(elem, level=0):
     else:
         if level and (not elem.tail or not elem.tail.strip()):
             elem.tail = i
-
-
-def get_file_base(original_fortran_filepath):
-    """This function splits and extracts only the basename
-    from the full path, then returns the tuple of
-    (original_fortran_file, base) to the caller.
-
-    Args:
-        original_fortran_filepath (str): A string of path to
-        the original fortran file.
-
-    Returns:
-        str: 'original_fortran_file'. A fortran file name with extension,
-        str: 'base'. A fortran file without extension.
-    """
-    original_fortran_file = np.basename(original_fortran_filepath)
-    base = os.path.splitext(original_fortran_file)[0]
-
-    return base
 
 
 def fortran_to_grfn(
@@ -465,7 +434,7 @@ def fortran_to_grfn(
         root_dir, module_file
     )
 
-    base = get_file_base(original_fortran_file)
+    base = str(Path(original_fortran_file).stem)
 
     # temp_dir is None means that the output file was
     # not set by the program that calls this function.
@@ -559,7 +528,6 @@ def fortran_to_grfn(
         python_sources,
         json_file,
         translated_python_files,
-        base,
         mode_mapper_dict,
         original_fortran_file,
         module_log_file_path,

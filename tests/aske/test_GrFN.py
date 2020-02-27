@@ -1,3 +1,4 @@
+import os
 import importlib
 import pytest
 import json
@@ -16,32 +17,42 @@ sys.path.insert(0, "tests/data/program_analysis")
 
 @pytest.fixture
 def crop_yield_grfn():
-    return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/crop_yield.f")
+    yield GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/crop_yield.f")
+    os.remove('crop_yield--GrFN.pdf')
+    os.remove('crop_yield--CAG.pdf')
 
 
 @pytest.fixture
 def petpt_grfn():
-    return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/PETPT.for")
+    yield GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/PETPT.for")
 
 
 @pytest.fixture
 def petasce_grfn():
-    return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/PETASCE_simple.for")
+    yield GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/PETASCE_simple.for")
+    os.remove('PETASCE--GrFN.pdf')
+    os.remove('PETASCE--CAG.pdf')
 
 
 @pytest.fixture
 def sir_simple_grfn():
-    return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/SIR-simple.f")
+    yield GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/SIR-simple.f")
+    os.remove('SIR-simple--GrFN.pdf')
+    os.remove('SIR-simple--CAG.pdf')
 
 
 @pytest.fixture
 def sir_gillespie_inline_grfn():
-    return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/SIR-Gillespie-SD_inline.f")
+    yield GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/SIR-Gillespie-SD_inline.f")
+    os.remove('SIR-Gillespie_inline--CAG.pdf')
+    os.remove('SIR-Gillespie_inline--GrFN.pdf')
 
 
 @pytest.fixture
 def sir_gillespie_ms_grfn():
-    return GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/SIR-Gillespie-MS.f")
+    yield GroundedFunctionNetwork.from_fortran_file("tests/data/program_analysis/SIR-Gillespie-MS.f")
+    os.remove('SIR-Gillespie_ms--CAG.pdf')
+    os.remove('SIR-Gillespie_ms--GrFN.pdf')
 
 
 def test_petpt_creation_and_execution(petpt_grfn):
@@ -59,6 +70,8 @@ def test_petpt_creation_and_execution(petpt_grfn):
     })
     res = outputs[0]
     assert res[0] == np.float32(0.02998372)
+    os.remove("PETPT--GrFN.pdf")
+    os.remove('PETPT--CAG.pdf')
 
 
 def test_petasce_creation(petasce_grfn):
@@ -93,8 +106,8 @@ def test_petasce_creation(petasce_grfn):
 def test_crop_yield_creation(crop_yield_grfn):
     assert isinstance(crop_yield_grfn, GroundedFunctionNetwork)
     G = crop_yield_grfn.to_AGraph()
-    G.draw('crop_yield--GrFN.pdf', prog='dot')
     CAG = crop_yield_grfn.CAG_to_AGraph()
+    G.draw('crop_yield--GrFN.pdf', prog='dot')
     CAG.draw('crop_yield--CAG.pdf', prog='dot')
 
 
