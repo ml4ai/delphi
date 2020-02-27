@@ -1,19 +1,16 @@
 import numpy as np
 import pandas as pd
-import matplotlib
 import matplotlib.pyplot as plt
-import ast
 import seaborn as sns
 
 sns.set_style("whitegrid")
-
 
 class SensitivityVisualizer(object):
 
     """
     This class is responsible for generating plots of the first and second
     order sensitivity indices as well as the runtime of each computation as a
-    function of the log of sample sizes
+    function of the logarithm of the sample sizes.
 
     Attributes:
         S (list) : List of python dictionaries with the following keys - 'N',
@@ -21,7 +18,8 @@ class SensitivityVisualizer(object):
         N -- sample size (log 10 scale)
         S1 -- numpy array of First Order Sensitivity Indices
         S2 -- pandas dataframe of Second Order Sensitivity Indices
-        sampling time -- time taken to complete the sampling process after invoking a method from the SALib library
+        sampling time -- time taken to complete the sampling process after
+        invoking a method from the SALib library
         execution time -- time taken for executing the GrFN
         analysis time -- time taken for the computation of Sensitivity Indices
     """
@@ -43,11 +41,10 @@ class SensitivityVisualizer(object):
             self.execution_time.append(float(item["execution time"]))
             self.analysis_time.append(float(item["analysis time"]))
 
-    def S1_plot(self):
-
-        """
-        Returns:
-            Plot of S1 versus log (base 10) of sample sizes
+    def create_S1_plot(self, filename = "s1_plot.pdf"):
+        """ Creates a plot of S1 versus log (base 10) of sample sizes.
+        Args:
+            filename: Filename to save plot to.
         """
 
         S1_dataframe = pd.DataFrame(self.S1_indices)
@@ -55,8 +52,7 @@ class SensitivityVisualizer(object):
 
         cols = list(S1_dataframe.columns)
 
-        fig = plt.figure(figsize=(12, 8))
-        ax = fig.add_subplot(111)
+        fig, ax = plt.subplots(figsize=(12, 8))
 
         for col in cols:
             S1_dataframe.reset_index().plot(
@@ -65,23 +61,24 @@ class SensitivityVisualizer(object):
             S1_dataframe.reset_index().plot(
                 kind="line", x="index", y=col, ax=ax
             )
-            plt.legend(loc="right", fontsize=20)
-            plt.xlim(min(self.N) - 1, max(self.N) + 1)
-            plt.xlabel("$log_{10}N$", fontsize=30)
-            plt.ylabel("$S_i$", fontsize=30)
-            plt.title(r"$S_i$ vs $log_{10}N$", fontsize=30)
-            plt.xticks(fontsize=20)
-            plt.yticks(fontsize=20)
-            plt.ylim(-0.2, 1.0)
+            ax.legend(loc="right", fontsize=20)
+            ax.set_xlim(min(self.N) - 1, max(self.N) + 1)
+            ax.set_xlabel("$log_{10}N$", fontsize=30)
+            ax.set_ylabel("$S_i$", fontsize=30)
+            ax.set_title(r"$S_i$ vs $log_{10}N$", fontsize=30)
+            ax.set_xticks(fontsize=20)
+            ax.set_yticks(fontsize=20)
+            ax.set_ylim(-0.2, 1.0)
 
-        return plt
+        plt.savefig(filename)
 
-    def S2_plot(self):
 
-        """
-        Returns:
-            Plot of second order sobol index matrices for largest sample
-            size on log (base 10) scale
+    def create_S2_plot(self, filename = "s2_plot.pdf"):
+        """ Creates gridplot with second order Sobol index matrices for largest sample
+        size on log (base 10) scale.
+
+        Args:
+            filename: Filename to save plot to.
         """
 
         elem = len(self.N) - 1
@@ -112,18 +109,13 @@ class SensitivityVisualizer(object):
         plt.xticks(fontsize=15, rotation=30)
         plt.yticks(fontsize=15, rotation=0)
 
-        return plt
+        plt.savefig(filename)
 
-    def clocktime_plot(self):
+    def create_clocktime_plot(self, filename = "clocktime_plot.pdf"):
+        """ Creates plot of runtime (Sample Time, Execution Time, and Analysis Time)
+        versus log (base 10) of sample sizes """
 
-        """
-        Returns:
-            Plot of Runtime (Sample Time, Execution Time, and Analysis Time)
-            versus log (base 10) of sample sizes
-        """
-
-        fig = plt.figure(figsize=(15, 8))
-        ax = fig.add_subplot(111)
+        fig, ax = plt.subplots(figsize=(15, 8))
 
         ax.scatter(self.N, self.sample_time, color="r", s=50)
         ax.plot(self.N, self.sample_time, color="black", label="Sample Time")
@@ -140,5 +132,4 @@ class SensitivityVisualizer(object):
         )
         plt.xticks(fontsize=20)
         plt.yticks(fontsize=20)
-
-        return plt
+        plt.savefig(filename)

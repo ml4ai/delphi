@@ -2,15 +2,12 @@ import os
 import re
 import json
 from datetime import date
-import xml.etree.ElementTree as ET
-import subprocess as sp
-import ast
 import pytest
 
 from delphi.translators.for2py import genPGM, f2grfn
 
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Dict
 
 
 DATA_DIR = "tests/data/program_analysis"
