@@ -422,15 +422,6 @@ class GroundedFunctionNetwork(ComputationalGraph):
         return cls(G, scope_tree, returns+updates)
 
     @classmethod
-    def from_python_file(
-        cls, python_file, lambdas_path, json_filename: str, stem: str
-    ):
-        """Builds GrFN object from Python file."""
-        with open(python_file, "r") as f:
-            pySrc = f.read()
-        return cls.from_python_src(pySrc, lambdas_path, json_filename, stem)
-
-    @classmethod
     def from_python_src(
         cls,
         pySrc,
@@ -463,8 +454,6 @@ class GroundedFunctionNetwork(ComputationalGraph):
     def from_fortran_file(cls, fortran_file: str, tmpdir: str = ".", save_file: bool = False):
         """Builds GrFN object from a Fortran program."""
 
-        lambda_file_suffix = "_lambdas.py"
-
         if tmpdir == "." and "/" in fortran_file:
             tmpdir_path = Path(fortran_file).parent
 
@@ -488,7 +477,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
         # For now, just taking the first translated file.
         # TODO - generalize this.
         python_file = translated_python_files[0]
-        lambdas_path = python_file[0:-3] + lambda_file_suffix
+        lambdas_path = python_file.replace(".py", "_lambdas.py")
         G = cls.from_python_src(
             python_sources[0][0],
             lambdas_path,
