@@ -1,5 +1,7 @@
 from numbers import Number
 import SALib as SAL
+from SALib.sample import saltelli
+from SALib.analyze import sobol
 import numpy as np
 import json
 from delphi.GrFN.networks import ComputationalGraph
@@ -214,7 +216,7 @@ class SensitivityAnalyzer(object):
         prob_def = cls.setup_problem_def(G, B)
 
         (samples, sample_time) = cls.__run_sampling(
-            SAL.sample.saltelli.sample,
+            saltelli.sample,
             prob_def,
             N,
             calc_second_order=calc_2nd,
@@ -224,7 +226,7 @@ class SensitivityAnalyzer(object):
         (Y, exec_time) = cls.__execute_CG(G, samples, prob_def, C, V)
 
         (S, analyze_time) = cls.__run_analysis(
-            SAL.analyze.sobol.analyze,
+            sobol.analyze,
             prob_def,
             Y,
             calc_second_order=True,
