@@ -221,10 +221,8 @@ class ModuleGenerator(object):
         return True
 
     def analyze(self, tree: ET.ElementTree, mod_log_path: str) -> List:
-        """
-            Parse the XML file from the root and keep track of all important
-            data structures and object relationships between files
-        """
+        """ Parse the XML file from the root and keep track of all important
+        data structures and object relationships between files. """
         with open(mod_log_path) as json_f:
             module_logs = json.load(json_f)
 
@@ -248,18 +246,9 @@ class ModuleGenerator(object):
 
 
 def get_index(xml_file: str, module_log_file_path: str):
-    """
-        Get the root of the XML ast, instantiate the moduleGenerator and
-        start the analysis process.
+    """ Get the root of the XML ast, instantiate the moduleGenerator and start
+    the analysis process.
     """
     tree = ET.parse(xml_file).getroot()
     generator = ModuleGenerator()
     return generator.analyze(tree, module_log_file_path)
-
-
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        sys.stderr.write(f"Usage: {sys.argv[0]} filename\n")
-        sys.exit(1)
-
-    print(get_index(sys.argv[1]))

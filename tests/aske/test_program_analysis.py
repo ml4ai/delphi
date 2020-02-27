@@ -19,8 +19,6 @@ def get_python_source(original_fortran_file):
     root_dir = os.path.abspath(".")
     return f2grfn.fortran_to_grfn(
         original_fortran_file,
-        tester_call=True,
-        network_test=False,
         temp_dir=TEMP_DIR,
         root_dir_path=root_dir,
         processing_modules=False,
@@ -30,9 +28,6 @@ def get_python_source(original_fortran_file):
 def make_grfn_dict(original_fortran_file) -> Dict:
     filename_regex = re.compile(r"(?P<path>.*/)(?P<filename>.*).py")
     lambda_file_suffix = "_lambdas.py"
-    tester_call = True
-    save_file = False
-    network_test = False
 
     (
         pySrc,
@@ -58,11 +53,8 @@ def make_grfn_dict(original_fortran_file) -> Dict:
             lambdas_file_path,
             mode_mapper_dict[0],
             str(original_fortran_file),
-            tester_call,
-            network_test,
             module_log_file_path,
             processing_modules,
-            save_file,
         )
 
         # This blocks system.json to be fully populated.

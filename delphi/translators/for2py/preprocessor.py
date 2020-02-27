@@ -197,7 +197,9 @@ def refactor_select_case(lines):
     return lines
 
 
-def preprocess(lines, infile, forModLogGen=False):
+def create_preprocessed_file(infile, outfile = None, forModLogGen=False):
+    with open(infile, mode="r", encoding="latin-1") as f:
+        lines = f.readlines()
     _, f_ext = os.path.splitext(infile)
     lines = [line for line in lines if line.rstrip() != ""]
     lines = separate_trailing_comments(lines)
@@ -209,32 +211,7 @@ def preprocess(lines, infile, forModLogGen=False):
     if not forModLogGen:
         lines = process_includes(lines, infile)
     lines = refactor_select_case(lines)
-    return lines
-
-
-def process(inputLines: List[str], infile: str, forModLogGen: bool=False) -> str:
-    """process() provides the interface used by an earlier version of this
-       preprocessor."""
-    lines = preprocess(inputLines, infile, forModLogGen)
-    return "".join(lines)
-
-
-def preprocess_file(infile):
-    with open(infile, mode="r", encoding="latin-1") as f:
-        inputLines = f.readlines()
-        lines = preprocess(inputLines, infile)
-        return lines
-
-
-
-if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        sys.stderr.write("*** USAGE: preprocessor.py <infile> <outfile>\n")
-        sys.exit(1)
-
-    infile, outfile = sys.argv[1], sys.argv[2]
-    lines = preprocess_file(infile)
-
+    if outfile is None:
+        outfile = infile.replace(".f", "_preprocessed.f")
     with open(outfile, "w") as f:
-        for line in lines:
-            f.write(line)
+        f.write("".join(lines))

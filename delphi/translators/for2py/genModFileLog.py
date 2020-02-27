@@ -1,19 +1,18 @@
 """
-This program will scann all Fortran files in the given path
-searching for files that hold modules. Then, it will create
-a log file in JSON format.
+This program will scan all Fortran files in the given path searching for files
+that hold modules. Then, it will create a log file in JSON format.
 
 Example:
         This script can be executed as below:
         $ python genModFileLog.py -d <root_directory> -f <log_file_name>
-        
+
 fortran_file_path: Original input file that uses module file.
 log_file_name: User does not have to provide the name as it is default
 to "modFileLog.json", but (s)he can specify it with -f option follow by
 the file name in string.
 
-Currently, this program assumes that module files reside in
-the same directory as use program file.
+Currently, this program assumes that module files reside in the same directory
+as use program file.
 
 Author: Terrence J. Lim
 """
@@ -41,14 +40,14 @@ def parse_args():
         "-d",
         "--directory",
         nargs="+",
-        help="Root directory to begin the module scan from."
+        help="Root directory to begin the module scan from.",
     )
 
     parser.add_argument(
         "-f",
         "--file",
         nargs="*",
-        help="A user specified module log file name."
+        help="A user specified module log file name.",
     )
 
     args = parser.parse_args(sys.argv[1:])
@@ -63,9 +62,9 @@ def parse_args():
 
 
 def get_file_list_in_directory(root_dir_path):
-    """This function lists all Fortran fi
-    les (excluding directories)
-    in the specified directory.
+    """This function lists all Fortran files (excluding directories) in the
+    specified directory.
+
     Args:
         dir_path (str): Directory path.
 
@@ -75,53 +74,57 @@ def get_file_list_in_directory(root_dir_path):
     files = []
     for (dir_path, dir_names, file_names) in os.walk(root_dir_path):
         for f in file_names:
-            if (
-                    "_preprocessed" not in f
-                    and (f.endswith('.f') or f.endswith('.for'))
+            if "_preprocessed" not in f and (
+                f.endswith(".f") or f.endswith(".for")
             ):
                 path = os.path.join(dir_path, f)
-                files += [os.path.abspath(path)]
+                files.append(os.path.abspath(path))
     return files
 
 
-def modules_from_file(file_path, file_to_mod_mapper, mod_to_file_mapper,
-                      mod_info_dict):
-    """This function checks either the module and file path already exist
-    int the log file. If it does, then it compares the last_modified_time
+def modules_from_file(
+    file_path, file_to_mod_mapper, mod_to_file_mapper, mod_info_dict
+):
+    """This function checks whether the module and file path already exist
+    int the log file. If they do, then it compares the last_modified_time
     in the log file with the last modified time of file in disk. Then, it
     will call 'populate_mapper' function if file was not already looked
-    before or the file was modified since looked last time.
+    before or the file was modified since last analyzed.
     Args:
-        file_path (str): File path that is guaranteed to exist in
-        the directory.
-        file_to_mod_mapper (dict): Dictionary of lists that will
-        hold file-to-module_name mappings.
-        mod_to_file_mapper (dict): Dictionary that holds a module
-        to its residing file path.
+        file_path (str): File path that is guaranteed to exist in the
+            directory.
+        file_to_mod_mapper (dict): Dictionary of lists that will hold
+            file-to-module_name mappings.
+        mod_to_file_mapper (dict): Dictionary that holds a module to its
+            residing file path.
     Returns:
         None.
     """
-    last_modified_time = get_file_last_modified_time(file_path)
 
     if file_path in file_to_mod_mapper:
+        last_modified_time = get_file_last_modified_time(file_path)
         last_modified_time_in_log = file_to_mod_mapper[file_path][-1]
-        if last_modified_time == last_modified_time_in_log:
-            return
-        else:
-            assert (
-                    last_modified_time > last_modified_time_in_log
-            ), "Last modified time in the log file cannot be later than on " \
-               "disk file's time."
-            populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
-                             mod_info_dict)
+        if last_modified_time != last_modified_time_in_log:
+            assert last_modified_time > last_modified_time_in_log, (
+                "Last modified time in the log file cannot be later than on "
+                "disk file's time."
+            )
+            populate_mappers(
+                file_path,
+                file_to_mod_mapper,
+                mod_to_file_mapper,
+                mod_info_dict,
+            )
     else:
-        populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
-                         mod_info_dict)
+        populate_mappers(
+            file_path, file_to_mod_mapper, mod_to_file_mapper, mod_info_dict
+        )
 
 
-def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
-                     mod_info_dict):
-    """This function populates two mappers by checking and extracting 
+def populate_mappers(
+    file_path, file_to_mod_mapper, mod_to_file_mapper, mod_info_dict
+):
+    """This function populates two mappers by checking and extracting
     module names, if exist, from the file, and map it to the file name.
     Args:
         file_path (str): File of a path that will be scanned.
@@ -150,7 +153,9 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
         # Extract the module names by inspecting each line in the file.
         f.seek(f_pos)
         org_lines = f.readlines()
-        preprocessed_lines = preprocessor.process(org_lines, file_path, True).split('\n')
+        preprocessed_lines = preprocessor.process(
+            org_lines, file_path, True
+        ).split("\n")
         for line in preprocessed_lines:
             line = line.lower()
             match = syntax.line_starts_pgm(line)
@@ -160,16 +165,19 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
         # Map current file to modules that it uses.
         module_names_lowered = [mod.lower() for mod in module_names]
         file_to_mod_mapper[file_path] = module_names_lowered.copy()
-        file_to_mod_mapper[file_path].append(get_file_last_modified_time(
-            file_path))
-        
+        file_to_mod_mapper[file_path].append(
+            get_file_last_modified_time(file_path)
+        )
+
         # If current file has subroutines, then extract subroutine information
         # that are declared within the scope of any module and store in the module
         # summary dictionary.
         if syntax.has_subroutine(file_content.lower()):
             populate_module_summary(
-                    preprocessed_lines, module_summary, 
-                    procedure_functions, derived_types
+                preprocessed_lines,
+                module_summary,
+                procedure_functions,
+                derived_types,
             )
 
     # Using collected function information, populate interface function information
@@ -185,23 +193,26 @@ def populate_mappers(file_path, file_to_mod_mapper, mod_to_file_mapper,
             "symbol_types": {},
             "imports": {},
             "interface_functions": {},
-            "derived_type_list": []
+            "derived_type_list": [],
         }
         if mod in module_summary:
-            mod_info_dict[mod]["interface_functions"] = procedure_functions[mod]
-        if mod in derived_types:   
+            mod_info_dict[mod]["interface_functions"] = procedure_functions[
+                mod
+            ]
+        if mod in derived_types:
             mod_info_dict[mod]["derived_type_list"] = derived_types[mod]
     f.close()
+
 
 def populate_procedure_functions(procedure_functions, module_summary):
     """This function completes procedure_functions dictionary.
 
     Params:
         procedure_functions (dict): A dictionary to hold interface-to-procedure
-        function mappings.
+            function mappings.
         module_summary (dict): A dictionary for holding module-to-subroutine-to-
-        arguments mappings.
-        
+            arguments mappings.
+
     Returns:
         None.
     """
@@ -211,20 +222,25 @@ def populate_procedure_functions(procedure_functions, module_summary):
             for interface in procedure_functions[mod]:
                 for function in procedure_functions[mod][interface]:
                     if function in mod_functions:
-                        procedure_functions[mod][interface][function] = mod_functions[function]
+                        procedure_functions[mod][interface][
+                            function
+                        ] = mod_functions[function]
 
-def populate_module_summary(f, module_summary, procedure_functions, derived_types):
+
+def populate_module_summary(
+    f, module_summary, procedure_functions, derived_types
+):
     """This function extracts module, derived type, and interface information, and
     populates module summary, procedure functions, and derived types dictionaries.
 
     Params:
         f (str): File content.
         module_summary (dict): A dictionary for holding module-to-subroutine-to-
-        arguments mappings.
+            arguments mappings.
         procedure_functions (dict): A dictionary to hold interface-to-procedure
-        function mappings.
+            function mappings.
         derived_types (dict): Dictionary that will hold module-to-derived type
-        mapping.
+            mapping.
     Returns:
         None.
     """
@@ -233,13 +249,13 @@ def populate_module_summary(f, module_summary, procedure_functions, derived_type
     current_intr = None
     current_func = None
 
-    isProcedure =False
+    isProcedure = False
 
     for line in f:
         line = line.lower()
         #  Removing any inline comments
-        if  '!' in line:
-            line = line.partition('!')[0].strip()
+        if "!" in line:
+            line = line.partition("!")[0].strip()
 
         # Detects module and interface entering line.
         pgm = syntax.line_starts_pgm(line)
@@ -248,9 +264,9 @@ def populate_module_summary(f, module_summary, procedure_functions, derived_type
 
         end_pgm = syntax.pgm_end(line)
         if (
-                pgm[0]
-                and pgm[1].strip() == "module"
-                and pgm[2].strip() != "procedure"
+            pgm[0]
+            and pgm[1].strip() == "module"
+            and pgm[2].strip() != "procedure"
         ):
             current_modu = pgm[2].strip()
             module_summary[current_modu] = {}
@@ -264,20 +280,27 @@ def populate_module_summary(f, module_summary, procedure_functions, derived_type
         # we need to extract subroutine, interface, and derived type information.
         if current_modu:
             current_subr = extract_subroutine_info(
-                                pgm, end_pgm, module_summary, 
-                                current_modu, subroutine, current_subr,
-                                line
+                pgm,
+                end_pgm,
+                module_summary,
+                current_modu,
+                subroutine,
+                current_subr,
+                line,
             )
             current_intr = extract_interface_info(
-                    pgm, end_pgm, procedure_functions, current_modu,
-                    current_intr, line
-            )       
+                pgm,
+                end_pgm,
+                procedure_functions,
+                current_modu,
+                current_intr,
+                line,
+            )
             extract_derived_type_info(end_pgm, current_modu, derived_types)
 
+
 def extract_subroutine_info(
-        pgm, end_pgm, module_summary, 
-        current_modu, subroutine, current_subr,
-        line
+    pgm, end_pgm, module_summary, current_modu, subroutine, current_subr, line
 ):
     """This function extracts information of subroutine declared within
     the module, and stores those information to module_summary dictionary.
@@ -294,7 +317,7 @@ def extract_subroutine_info(
     Returns:
         (current_subr) Currently handling subroutine name.
     """
-        
+
     # If subroutine encountered,
     if subroutine[0]:
         # extract the name,
@@ -314,10 +337,7 @@ def extract_subroutine_info(
         current_subr = None
     elif current_subr:
         variable_dec = syntax.variable_declaration(line)
-        if (
-                variable_dec[0]
-                and not syntax.line_is_func_start(line)
-        ):
+        if variable_dec[0] and not syntax.line_is_func_start(line):
             if variable_dec[0]:
                 var_type = variable_dec[1]
                 variables = variable_dec[2]
@@ -325,20 +345,17 @@ def extract_subroutine_info(
             # Handle syntax like:
             #   precision, dimension(0:tmax) :: means, vars
             #   precision, parameter :: var = 1.234
-            if (
-                    "precision" in variables
-                    or "dimension" in variables
-            ):
+            if "precision" in variables or "dimension" in variables:
                 # Handle dimension (array)
                 if "dimension" in variables:
                     var_type = "Array"
                 # Extract only variable names follow by '::'
-                variables = variables.partition('::')[-1].strip()
-                if '=' in variables:
+                variables = variables.partition("::")[-1].strip()
+                if "=" in variables:
                     # Remove assignment syntax and only extract variable names
-                    variables = variables.partition('=')[0].strip()
+                    variables = variables.partition("=")[0].strip()
 
-            var_list = variables.split(',')
+            var_list = variables.split(",")
             for var in var_list:
                 # Search for an implicit array variable declaration
                 arrayVar = syntax.line_has_implicit_array(var)
@@ -347,17 +364,20 @@ def extract_subroutine_info(
                     var_type = "Array"
                 # Map each subroutine argument with its type
                 if (
-                        current_subr in module_summary[current_modu]
-                        and var.strip() in module_summary[current_modu][current_subr]
+                    current_subr in module_summary[current_modu]
+                    and var.strip()
+                    in module_summary[current_modu][current_subr]
                 ):
-                    module_summary[current_modu][current_subr][var.strip()] = var_type
+                    module_summary[current_modu][current_subr][
+                        var.strip()
+                    ] = var_type
     else:
-                pass
+        pass
     return current_subr
-            
+
+
 def extract_interface_info(
-        pgm, end_pgm, procedure_functions, current_modu,
-        current_intr, line
+    pgm, end_pgm, procedure_functions, current_modu, current_intr, line
 ):
     """This function extracts INTERFACE information, such as the name of
     interface and procedure function names, and populates procedure_functions
@@ -389,7 +409,7 @@ def extract_interface_info(
             # by keyword procedure. Then, only extract function names, which
             # always will be located at [-1] after partitioning. Finally, split
             # the string of function names by comma and store in the functions list.
-            functions = line.partition("procedure")[-1].split(',')
+            functions = line.partition("procedure")[-1].split(",")
             for func in functions:
                 func = func.strip()
                 procedure_functions[current_modu][current_intr][func] = None
@@ -397,6 +417,7 @@ def extract_interface_info(
         pass
 
     return current_intr
+
 
 def extract_derived_type_info(end_pgm, current_modu, derived_types):
     """This function extracts derived types declared under current module.
@@ -416,15 +437,16 @@ def extract_derived_type_info(end_pgm, current_modu, derived_types):
         else:
             derived_types[current_modu].append(end_pgm[2])
 
+
 def get_file_last_modified_time(file_path):
     """This function retrieves the file status and assigns the last modified
     time of a file at the end of the file_to_mod_mapper[file_path] list.
 
     Params:
-        file_path (str): File path that is guaranteed to exist in
-        the directory.
+        file_path (str): File path that is assumed to exist in the
+            directory.
     Returns:
-        int: Last modified time represented in integer.
+        int: Last modified time represented as an integer.
     """
     file_stat = os.stat(file_path)
     return file_stat[8]
@@ -435,9 +457,9 @@ def update_mod_info_json(module_log_file_path, mode_mapper_dict):
     the declared variables and their types, so that genPGM.py
     can simply reference this dictionary rather than processing
     the file again.
-    
+
     Params:
-        module_log_file_path (str): A path of module log file.
+        module_log_file_path (str): Path to module log file.
         mode_mapper_dict (dict): A dictionary that holds all information
         of a module(s).
     """
@@ -450,8 +472,8 @@ def update_mod_info_json(module_log_file_path, mode_mapper_dict):
                 m_type = mode_mapper_dict["symbol_types"][sym]
                 sym_type[sym] = m_type[1]
             elif (
-                    mod_name in mode_mapper_dict["subprograms"] and
-                    sym in mode_mapper_dict["subprograms"][mod_name]
+                mod_name in mode_mapper_dict["subprograms"]
+                and sym in mode_mapper_dict["subprograms"][mod_name]
             ):
                 sym_type[sym] = "func"
         symbol_types[mod_name] = sym_type
@@ -468,28 +490,28 @@ def update_mod_info_json(module_log_file_path, mode_mapper_dict):
             imports = mode_mapper_dict["imports"][module]
         else:
             imports = []
-        mod["imports"] = imports 
+        mod["imports"] = imports
         module_logs["mod_info"][module] = mod
 
-    with open(module_log_file_path, 'w+') as json_f:
+    with open(module_log_file_path, "w+") as json_f:
         json_f.write(json.dumps(module_logs, indent=2))
 
 
 def mod_file_log_generator(
-        root_dir_path=None,
-        module_log_file_name=None,
+    root_dir_path=None, module_log_file_name=None,
 ):
     """This function is like a main function to invoke other functions
     to perform all checks and population of mappers. Though, loading of
     and writing to JSON file will happen in this function.
 
-    Args: 
-        temp_dir (str): Temporary directory that log JSON file resides.
+    Args:
+        root_dir_path: Directory to examine for Fortran files
+        module_log_file_name: Path to module log file.
 
     Returns:
         None.
     """
-    if not root_dir_path:
+    if root_dir_path is None:
         root_dir_path = "."
     module_log_file_path = root_dir_path + "/" + module_log_file_name
 
@@ -523,18 +545,20 @@ def mod_file_log_generator(
         mod_info_dict = {}
 
     files = get_file_list_in_directory(root_dir_path)
-   
+
     for file_path in files:
-        modules_from_file(file_path, file_to_mod_mapper, mod_to_file_mapper,
-                          mod_info_dict)
+        modules_from_file(
+            file_path, file_to_mod_mapper, mod_to_file_mapper, mod_info_dict
+        )
+
     module_log = {
         "file_to_mod": file_to_mod_mapper,
         "mod_to_file": mod_to_file_mapper,
-        "mod_info": mod_info_dict
+        "mod_info": mod_info_dict,
     }
 
-    with open(module_log_file_path, 'w+') as json_f:
-        json_f.write(json.dumps(module_log, indent=2))
+    with open(module_log_file_path, "w+") as f:
+        f.write(json.dumps(module_log, indent=2))
 
     return module_log_file_path
 

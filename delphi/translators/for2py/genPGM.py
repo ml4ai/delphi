@@ -4498,7 +4498,7 @@ def create_grfn_dict(
         else:
             file_name = path + filename
 
-        with open(f"{file_name}_variables_pickle", "rb") as f:
+        with open(f"{file_name}_variable_map.pkl", "rb") as f:
             variable_map = pickle.load(f)
         generator.variable_map = variable_map
     except IOError:

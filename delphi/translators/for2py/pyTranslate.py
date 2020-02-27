@@ -1781,7 +1781,7 @@ def index_modules(root) -> Dict:
     return module_index_dict
 
 
-def create_python_source_list(outputDict: Dict):
+def get_python_sources_and_variable_map(outputDict: Dict):
     module_index_dict = index_modules(outputDict["ast"])
     py_sourcelist = []
     main_ast = []
