@@ -81,12 +81,17 @@ class SensitivityIndices(object):
         return np.unravel_index(full_index, self.O2_indices.shape)
 
     @classmethod
-    def from_json(cls, filepath: str):
-        js_data = json.load(open(filepath, "r", encoding='utf-8'))
+    def from_json_dict(cls, js_data):
         return cls(js_data, {'names': js_data["names"]})
 
-    def to_json(self, filepath: str):
-        json.dump({
+    @classmethod
+    def from_json_file(cls, filepath: str):
+        with open(filepath, "r", encoding='utf-8') as f:
+            js_data = json.load(f)
+        return cls.from_json_dict(js_data)
+
+    def to_json_dict(self):
+        return {
             "S1": self.O1_indices.tolist(),
             "S2": self.O2_indices.tolist(),
             "ST": self.OT_indices.tolist(),
@@ -94,7 +99,11 @@ class SensitivityIndices(object):
             "S2_conf": self.O2_confidence.tolist(),
             "ST_conf": self.OT_confidence.tolist(),
             "names": self.parameter_list
-        }, open(filepath, "w"))
+        }
+
+    def to_json_file(self, filepath: str):
+        with open(filepath, "w") as f:
+            json.dump(self.to_json_dict(), f)
 
 
 class SensitivityAnalyzer(object):
