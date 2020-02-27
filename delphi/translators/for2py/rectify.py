@@ -1,23 +1,11 @@
 """
-
-The purpose of this program is to do all the clean up for translate.py.
-This (rectify.py) program will receive OFP generated XML file as an input.
-Then, it removes any unnecessary elements and refactor randomly structured
+The purpose of this module is to do all the clean up for translate.py.
+This (rectify.py) module contains functions that receive OFP generated XML as an input.
+Then, the functions removes any unnecessary elements and refactor randomly structured
 (nested) elements into a correct structure. The output file will be
 approximately 30%~40% lighter in terms of number of lines than the OFP XML.
 
-Example:
-    This script is executed by the autoTranslate script as one
-    of the steps in converted a Fortran source file to Python
-    file. For standalone execution:::
-
-        $python rectify.py <ast_file>
-
-ast_file: The XML representation of the AST of the Fortran file. This is
-produced by the OpenFortranParser.
-
 Author: Terrence J. Lim
-
 """
 
 import re
