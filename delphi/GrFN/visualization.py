@@ -61,14 +61,14 @@ class SensitivityVisualizer(object):
             S1_dataframe.reset_index().plot(
                 kind="line", x="index", y=col, ax=ax
             )
-            ax.legend(loc="right", fontsize=20)
-            ax.set_xlim(min(self.N) - 1, max(self.N) + 1)
-            ax.set_xlabel("$log_{10}N$", fontsize=30)
-            ax.set_ylabel("$S_i$", fontsize=30)
-            ax.set_title(r"$S_i$ vs $log_{10}N$", fontsize=30)
-            ax.set_xticks(fontsize=20)
-            ax.set_yticks(fontsize=20)
-            ax.set_ylim(-0.2, 1.0)
+            plt.legend(loc="right", fontsize=20)
+            plt.xlim(min(self.N) - 1, max(self.N) + 1)
+            plt.xlabel("$log_{10}N$", fontsize=30)
+            plt.ylabel("$S_i$", fontsize=30)
+            plt.title(r"$S_i$ vs $log_{10}N$", fontsize=30)
+            plt.xticks(fontsize=20)
+            plt.yticks(fontsize=20)
+            plt.ylim(-0.2, 1.0)
 
         plt.savefig(filename)
 
