@@ -21,6 +21,7 @@ class SensitivityIndices(object):
     minimum second order of the indices between any two input variables can be
     determined using the max (min) and argmax (argmin) methods.
     """
+
     def __init__(self, S: dict, problem: dict):
         """
         Args:
@@ -52,7 +53,6 @@ class SensitivityIndices(object):
         else:
             return True
 
-
     @classmethod
     def from_dicts(cls, Si: dict, P: dict):
         """Creates a SensitivityIndices object from the provided dictionary."""
@@ -82,11 +82,11 @@ class SensitivityIndices(object):
 
     @classmethod
     def from_json_dict(cls, js_data):
-        return cls(js_data, {'names': js_data["names"]})
+        return cls(js_data, {"names": js_data["names"]})
 
     @classmethod
     def from_json_file(cls, filepath: str):
-        with open(filepath, "r", encoding='utf-8') as f:
+        with open(filepath, "r", encoding="utf-8") as f:
             js_data = json.load(f)
         return cls.from_json_dict(js_data)
 
@@ -98,7 +98,7 @@ class SensitivityIndices(object):
             "S1_conf": self.O1_confidence.tolist(),
             "S2_conf": self.O2_confidence.tolist(),
             "ST_conf": self.OT_confidence.tolist(),
-            "names": self.parameter_list
+            "names": self.parameter_list,
         }
 
     def to_json_file(self, filepath: str):
@@ -118,6 +118,7 @@ class SensitivityAnalyzer(object):
         conditions where a modeler may not want to include one of the inputs
         under sensitivity analysis
         """
+
         def convert_bounds(bound):
             num_bounds = len(bound)
             if num_bounds == 0:
@@ -135,9 +136,9 @@ class SensitivityAnalyzer(object):
 
         input_vars = list(GrFN.input_name_map.keys())
         return {
-            'num_vars': len(input_vars),
-            'names': input_vars,
-            'bounds': [convert_bounds(B[var]) for var in input_vars]
+            "num_vars": len(input_vars),
+            "names": input_vars,
+            "bounds": [convert_bounds(B[var]) for var in input_vars],
         }
 
     @staticmethod
@@ -172,7 +173,7 @@ class SensitivityAnalyzer(object):
 
         def reals_to_strs(samples, str_options):
             num_strs = len(str_options)
-            return np.choose((samples*num_strs).astype(np.int64), num_strs)
+            return np.choose((samples * num_strs).astype(np.int64), num_strs)
 
         # Create vectors of sample inputs to run through the model
         vectorized_sample_list = np.split(samples, samples.shape[1], axis=1)
@@ -188,9 +189,17 @@ class SensitivityAnalyzer(object):
 
     @classmethod
     def Si_from_Sobol(
-        cls, N: int, G: ComputationalGraph, B: dict, C: dict=None, V: dict=None,
-        calc_2nd: bool=True, num_resamples=100, conf_level=0.95, seed=None,
-        save_time: bool=False
+        cls,
+        N: int,
+        G: ComputationalGraph,
+        B: dict,
+        C: dict = None,
+        V: dict = None,
+        calc_2nd: bool = True,
+        num_resamples=100,
+        conf_level=0.95,
+        seed=None,
+        save_time: bool = False,
     ) -> dict:
         """Generates Sensitivity indices using the Sobol method
         Args:
@@ -207,52 +216,82 @@ class SensitivityAnalyzer(object):
         prob_def = cls.setup_problem_def(G, B)
 
         (samples, sample_time) = cls.__run_sampling(
-            SAL.sample.saltelli.sample, prob_def, N,
-            calc_second_order=calc_2nd, seed=seed
+            SAL.sample.saltelli.sample,
+            prob_def,
+            N,
+            calc_second_order=calc_2nd,
+            seed=seed,
         )
 
         (Y, exec_time) = cls.__execute_CG(G, samples, prob_def, C, V)
 
         (S, analyze_time) = cls.__run_analysis(
-            SAL.analyze.sobol.analyze, prob_def, Y,
-            calc_second_order=True, num_resamples=100,
-            conf_level=0.95, seed=None
+            SAL.analyze.sobol.analyze,
+            prob_def,
+            Y,
+            calc_second_order=True,
+            num_resamples=100,
+            conf_level=0.95,
+            seed=None,
         )
 
         Si = SensitivityIndices(S, prob_def)
-        return Si if not save_time \
+        return (
+            Si
+            if not save_time
             else (Si, (sample_time, exec_time, analyze_time))
+        )
 
     @classmethod
     def Si_from_FAST(
-        cls, N: int, G: ComputationalGraph, B: dict, C: dict=None, V: dict=None,
-        M: int=4,
-        save_time: bool=False, verbose: bool=False, seed: int=None
+        cls,
+        N: int,
+        G: ComputationalGraph,
+        B: dict,
+        C: dict = None,
+        V: dict = None,
+        M: int = 4,
+        save_time: bool = False,
+        verbose: bool = False,
+        seed: int = None,
     ) -> dict:
 
         prob_def = cls.setup_problem_def(G, B)
 
         (samples, sample_time) = cls.__run_sampling(
-            SAL.sample.fast_sampler.sample, prob_def, N,
-            M=M, seed=seed
+            SAL.sample.fast_sampler.sample, prob_def, N, M=M, seed=seed
         )
 
         (Y, exec_time) = cls.__execute_CG(G, samples, prob_def, C, V)
 
         (S, analyze_time) = cls.__run_analysis(
-            SAL.analyze.fast.analyze, prob_def, Y,
-            M=M, print_to_console=False, seed=seed
+            SAL.analyze.fast.analyze,
+            prob_def,
+            Y,
+            M=M,
+            print_to_console=False,
+            seed=seed,
         )
 
         Si = SensitivityIndices(S, prob_def)
-        return Si if not save_time \
+        return (
+            Si
+            if not save_time
             else (Si, (sample_time, exec_time, analyze_time))
+        )
 
     @classmethod
     def Si_from_RBD_FAST(
-        cls, N: int, G: ComputationalGraph, B: dict, C: dict=None, V: dict=None,
-        M: int=10,
-        save_time: bool=False, verbose: bool=False, seed: int=None
+        cls,
+        N: int,
+        G: ComputationalGraph,
+        B: dict,
+        C: dict = None,
+        V: dict = None,
+        M: int = 10,
+        save_time: bool = False,
+        verbose: bool = False,
+        seed: int = None,
     ):
 
         prob_def = cls.setup_problem_def(G, B)
@@ -266,10 +305,18 @@ class SensitivityAnalyzer(object):
         (Y, exec_time) = cls.__execute_CG(G, samples, prob_def, C, V)
 
         (S, analyze_time) = cls.__run_analysis(
-            SAL.analyze.rbd_fast.analyze, prob_def, Y, X,
-            M=M, print_to_console=False, seed=seed
+            SAL.analyze.rbd_fast.analyze,
+            prob_def,
+            Y,
+            X,
+            M=M,
+            print_to_console=False,
+            seed=seed,
         )
 
         Si = SensitivityIndices(S, prob_def)
-        return Si if not save_time \
+        return (
+            Si
+            if not save_time
             else (Si, (sample_time, exec_time, analyze_time))
+        )
