@@ -24,6 +24,7 @@ import sys
 import argparse
 import pickle
 import copy
+import uuid
 import xml.etree.ElementTree as ET
 from typing import List, Dict
 from collections import OrderedDict
@@ -1628,8 +1629,7 @@ class XML_to_JSON_translator(object):
     def replace_function_call(self, tag, function_name):
         call_spec = copy.deepcopy(tag[0])
         self.functionList[function_name.lower()]['call_count'] += 1
-        call_count = self.functionList[function_name.lower()][
-            'call_count']
+        function_name_tail = uuid.uuid4().hex[:5]
         return_type = self.functionList[function_name.lower()]['type']
         if return_type == "CHARACTER":
             is_string = "true"
@@ -1640,13 +1640,13 @@ class XML_to_JSON_translator(object):
             "is_derived_type": "false",
             "keyword2": "none",
             "is_string": is_string,
-            "name": f"{function_name}__{call_count}",
+            "name": f"{function_name}_{function_name_tail}",
             "is_array": "false",
             "tag": "variable"
         }
         target_var = {
             "tag": "ref",
-            "name": f"{function_name}__{call_count}",
+            "name": f"{function_name}_{function_name_tail}",
             "numPartRef": "1",
             "hasSubscripts": "false",
             "is_array": "false",
