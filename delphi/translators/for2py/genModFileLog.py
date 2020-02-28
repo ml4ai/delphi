@@ -129,9 +129,9 @@ def populate_mappers(
     Args:
         file_path (str): File of a path that will be scanned.
         file_to_mod_mapper (dict): Dictionary of lists that will
-        hold file-to-module_name mappings.
+            hold file-to-module_name mappings.
         mod_to_file_mapper (dict): Dictionary that holds a module
-        to its residing file path.
+            to its residing file path.
     Returns:
         None.
     """
