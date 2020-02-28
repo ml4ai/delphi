@@ -141,8 +141,6 @@ class ComputationalGraph(nx.DiGraph):
                 self.nodes[output_node]["value"] = res
 
         # Return the output
-        # for o in self.outputs:
-        # print(self.nodes[o]["value"])
         return [self.nodes[o]["value"] for o in self.outputs]
 
     def to_CAG(self):
