@@ -1,4 +1,3 @@
-from abc import ABCMeta, abstractmethod
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Dict, Iterable, Union, Set, Optional
@@ -34,19 +33,8 @@ forestgreen = "#228b22"
 
 
 class ComputationalGraph(nx.DiGraph):
-    __metaclass__ = ABCMeta
-
-    def __init__(self, network, output_vars, *args, **kwargs):
-        super().__init__(network, *args, **kwargs)
-        self.outputs = output_vars
-        self.inputs = [
-            n
-            for n, d in self.in_degree()
-            if d == 0 and self.nodes[n]["type"] == "variable"
-        ]
-        self.input_name_map = {
-            self.var_shortname(name): name for name in self.inputs
-        }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.FCG = self.to_FCG()
         self.function_sets = self.build_function_sets()
 
@@ -187,7 +175,16 @@ class GroundedFunctionNetwork(ComputationalGraph):
     """
 
     def __init__(self, G, scope_tree, outputs):
-        super().__init__(G, outputs)
+        super().__init__(G)
+        self.outputs = outputs
+        self.inputs = [
+            n
+            for n, d in self.in_degree()
+            if d == 0 and self.nodes[n]["type"] == "variable"
+        ]
+        self.input_name_map = {
+            self.var_shortname(name): name for name in self.inputs
+        }
         # self.outputs = outputs
         self.scope_tree = scope_tree
         # self.inputs = [
@@ -430,6 +427,9 @@ class GroundedFunctionNetwork(ComputationalGraph):
         returns, updates = process_container(cur_scope, [], root)
         return cls(G, scope_tree, returns+updates)
 
+    @staticmethod
+    def create_container_dict(G: nx.DiGraph):
+        containers = {node_name: dict() for node_name in scope_tree.nodes}
     @classmethod
     def from_python_file(
         cls, python_file, lambdas_path, json_filename: str, stem: str
@@ -544,6 +544,46 @@ class GroundedFunctionNetwork(ComputationalGraph):
         G = cls.from_fortran_file(fp.name, dir)
         os.remove(fp.name)
         return G
+
+    def to_json(self):
+        """Experimental outputting a GrFN to a JSON file."""
+        containers = {name: {
+            "name": name,
+            "parent": None,
+            "exit": True,
+            "nodes": list()
+        } for name in self.scope_tree.nodes}
+
+        nodes_json = list()
+        for name, data in self.nodes(data=True):
+            containers[data["parent"]]["nodes"].append(name)
+            if data["type"] == "variable":
+                nodes_json.append({
+                "name": name,
+                "reference": None,
+                "type": {
+                    "name": "float32",
+                    "domain": [("-inf", "inf")],
+                }
+                })
+            elif data["type"] == "function":
+                (source_list, _) = inspect.getsourcelines(data["lambda_fn"])
+                source_code = "".join(source_list)
+                nodes_json.append({
+                    "name": name,
+                    "inputs": data["func_inputs"],
+                    "reference": None,
+                    "lambda": source_code
+                })
+            else:
+                raise ValueError(f"Unrecognized node type: {data['type']}")
+
+        json_data = {
+            "nodes": nodes_json,
+            "edges": list(self.edges),
+            "containers": list(containers.values())
+        }
+        json.dump(json_data, open("GrFN.json", "w"))
 
     def to_AGraph(self):
         """ Export to a PyGraphviz AGraph object. """
