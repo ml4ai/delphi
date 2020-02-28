@@ -1,23 +1,11 @@
 """
-
-The purpose of this program is to do all the clean up for translate.py.
-This (rectify.py) program will receive OFP generated XML file as an input.
-Then, it removes any unnecessary elements and refactor randomly structured
+The purpose of this module is to do all the clean up for translate.py.
+This (rectify.py) module contains functions that receive OFP generated XML as an input.
+Then, the functions removes any unnecessary elements and refactor randomly structured
 (nested) elements into a correct structure. The output file will be
 approximately 30%~40% lighter in terms of number of lines than the OFP XML.
 
-Example:
-    This script is executed by the autoTranslate script as one
-    of the steps in converted a Fortran source file to Python
-    file. For standalone execution:::
-
-        $python rectify.py <ast_file>
-
-ast_file: The XML representation of the AST of the Fortran file. This is
-produced by the OpenFortranParser.
-
 Author: Terrence J. Lim
-
 """
 
 import re
@@ -29,13 +17,14 @@ import xml.etree.ElementTree as ET
 import copy
 from delphi.translators.for2py import For2PyError, syntax, f2grfn
 from os.path import isfile, join
+from typing import List, Tuple
 
 TYPE_MAP = {
     "int": "integer",
     "bool": "logical",
 }
 
-class RectifyOFPXML:
+class RectifiedXMLGenerator:
     def __init__(self):
         # True if derived type declaration exist
         self.is_derived_type = False
@@ -5463,22 +5452,23 @@ def buildNewASTfromXMLString(
         xmlString: str,
         original_fortran_file: str,
         module_log_file_path: str
-) -> ET.Element:
-    """This function process OFP generated XML and generates
-    a rectified version by recursively calling the appropriate
-    functions.
+) -> Tuple[ET.Element, List]:
+    """This function processes OFP generated XML and generates a rectified
+    version by recursively calling the appropriate functions.
 
     Args:
-        xmlString (str): XML in string type.
+        xmlString (str): XML as a string
+        original_fortran_file (str): Path to the original Fortran file
+        module_log_file_path (str): Path to the module_log_file
 
     Returns:
         ET object: A reconstructed element object.
     """
-    XMLCreator = RectifyOFPXML()
+    xml_generator = RectifiedXMLGenerator()
     # We need the absolute path of Fortran file to lookup in the modLogFile.json
-    XMLCreator.original_fortran_file_abs_path = \
+    xml_generator.original_fortran_file_abs_path = \
         os.path.abspath(original_fortran_file)
-    XMLCreator.module_log_file_path = module_log_file_path
+    xml_generator.module_log_file_path = module_log_file_path
     traverse = 1
 
     ofpAST = ET.XML(xmlString)
@@ -5489,33 +5479,33 @@ def buildNewASTfromXMLString(
         # Handle only non-empty elements
         if child.text:
             cur_elem = ET.SubElement(newRoot, child.tag, child.attrib)
-            XMLCreator.parseXMLTree(child, cur_elem, newRoot, newRoot, traverse)
+            xml_generator.parseXMLTree(child, cur_elem, newRoot, newRoot, traverse)
 
     # Indent and structure the tree properly
     tree = ET.ElementTree(newRoot)
     indent(newRoot)
 
     # Checks if the rectified AST requires goto elimination,
-    # if it does, it does a 2nd traverse to eliminate and
+    # if it does, it does a 2nd traversal to eliminate and
     # reconstruct the AST once more
-    while (XMLCreator.need_goto_elimination):
+    while (xml_generator.need_goto_elimination):
         oldRoot = newRoot
         traverse += 1
 
-        XMLCreator.boundary_identifier()
+        xml_generator.boundary_identifier()
 
         newRoot = ET.Element(oldRoot.tag, oldRoot.attrib)
         for child in oldRoot:
             if child.text:
                 cur_elem = ET.SubElement(newRoot, child.tag, child.attrib)
-                XMLCreator.parseXMLTree(child, cur_elem, newRoot, newRoot,
+                xml_generator.parseXMLTree(child, cur_elem, newRoot, newRoot,
                                         traverse)
         tree = ET.ElementTree(newRoot)
         indent(newRoot)
-        if not XMLCreator.continue_elimination:
-            XMLCreator.need_goto_elimination = False
+        if not xml_generator.continue_elimination:
+            xml_generator.need_goto_elimination = False
 
-    return newRoot, XMLCreator.module_files_to_process
+    return newRoot, xml_generator.module_files_to_process
 
 
 def parse_args():
@@ -5570,7 +5560,7 @@ def fileChecker(filename, mode):
     Args:
         filename (str): A file name that reconstructed XMl
         will be written to.
-        mode (str): Open more for a file.
+        mode (str): Mode to open the file in.
 
     Returns:
         None.

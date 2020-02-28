@@ -1,3 +1,4 @@
+import os
 import pytest
 
 import numpy as np
@@ -30,10 +31,10 @@ def test_min_max_S2(Si_Obj):
     assert Si_Obj.get_max_S2() == 0.8
 
 
-def test_to_from_JSON(Si_Obj):
+def test_roundtrip_json_serialization(Si_Obj):
     json_filepath = "tests/data/GrFN/test_example_SI.json"
-    Si_Obj.to_json(json_filepath)
-    new_Si = SensitivityIndices.from_json(json_filepath)
+    Si_Obj.to_json_file(json_filepath)
+    new_Si = SensitivityIndices.from_json_file(json_filepath)
 
     assert Si_Obj != new_Si
     assert Si_Obj.parameter_list == new_Si.parameter_list
@@ -48,6 +49,7 @@ def test_to_from_JSON(Si_Obj):
         for x1, x2 in zip(arr1, arr2)
     ])
     assert all([x1 == x2 for x1, x2 in zip(Si_Obj.O2_confidence, new_Si.O2_confidence)])
+    os.remove(json_filepath)
 
 
 
@@ -68,8 +70,3 @@ def test_Sobol(petpt_grfn):
     (sample_time_sobol,
      exec_time_sobol,
      analyze_time_sobol) = timing_data
-
-    assert isinstance(indices, SensitivityIndices)
-    assert isinstance(sample_time_sobol, float)
-    assert isinstance(exec_time_sobol, float)
-    assert isinstance(analyze_time_sobol, float)

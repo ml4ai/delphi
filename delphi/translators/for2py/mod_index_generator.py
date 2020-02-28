@@ -1,7 +1,8 @@
 """
-This script generates a module index file. The file describes each module used
-in a program run. The information about each module is represented as a JSON
-dictionary and has the following fields:
+This module contains code to generate a module index file for a set of Fortran
+files that the program analysis pipeline runs over. The file describes each
+module used in a program run. The information about each module is represented
+as a JSON dictionary and has the following fields:
 
     name:              <module_name>
     file:              <file_containing_the_module>
@@ -14,8 +15,6 @@ mapping from each possible tuple of argument types for p to the function to
 invoke for that argument type tuple.
 
 Author: Pratik Bhandari
-Date:   02/19/2019
-Last Updated: 07/02/2019
 """
 
 import sys
@@ -68,10 +67,9 @@ class ModuleGenerator(object):
         self.symbol_type = {}
 
     def populate_symbols(self):
-        """
-            This function populates the dictionary `self.symbols` which stores
-            the set of symbols declared in each module. This is the union of all
-            public variables, private variables and subprograms for each module.
+        """ This function populates the dictionary `self.symbols` which stores
+        the set of symbols declared in each module. This is the union of all
+        public variables, private variables and subprograms for each module.
         """
         for item in self.modules:
             self.symbols[item] = self.public.get(item, []) + \
@@ -79,21 +77,17 @@ class ModuleGenerator(object):
                                  self.subprograms.get(item, [])
 
     def populate_exports(self):
-        """
-            This function populates the `self.exports` dictionary which holds
-            the set of symbols exported by each module. The set of exported
-            symbols is given by: (imports U symbols) - private
-        """
+        """ This function populates the `self.exports` dictionary which holds
+        the set of symbols exported by each module. The set of exported symbols
+        is given by: (imports U symbols) - private """
         for item in self.modules:
             interim = self.imports.get(item, []) + self.symbols.get(item, [])
             self.exports[item] = [x for x in interim if x not in
                                   self.private.get(item, [])]
 
     def populate_imports(self, module_logs):
-        """
-            This function populates the `self.imports` dictionary which holds
-            all the private variables defined in each module.
-        """
+        """ This function populates the `self.imports` dictionary which holds
+        all the private variables defined in each module."""
         for module in self.uses:
             for use_item in self.uses[module]:
                 for key in use_item:
@@ -127,10 +121,8 @@ class ModuleGenerator(object):
                     self.symbol_type[var] = [module, self.variable_types[var]]
 
     def parse_tree(self, root, module_logs) -> bool:
-        """
-            This function parses the XML tree of a Fortran file and tracks
-            and maps relevant object relationships
-        """
+        """ This function parses the XML tree of a Fortran file and tracks and
+        maps relevant object relationships """
 
         # Find name of PROGRAM module
         for item in root.iter():
@@ -221,10 +213,8 @@ class ModuleGenerator(object):
         return True
 
     def analyze(self, tree: ET.ElementTree, mod_log_path: str) -> List:
-        """
-            Parse the XML file from the root and keep track of all important
-            data structures and object relationships between files
-        """
+        """ Parse the XML file from the root and keep track of all important
+        data structures and object relationships between files. """
         with open(mod_log_path) as json_f:
             module_logs = json.load(json_f)
 
@@ -248,18 +238,9 @@ class ModuleGenerator(object):
 
 
 def get_index(xml_file: str, module_log_file_path: str):
-    """
-        Get the root of the XML ast, instantiate the moduleGenerator and
-        start the analysis process.
+    """ Get the root of the XML ast, instantiate the moduleGenerator and start
+    the analysis process.
     """
     tree = ET.parse(xml_file).getroot()
     generator = ModuleGenerator()
     return generator.analyze(tree, module_log_file_path)
-
-
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        sys.stderr.write(f"Usage: {sys.argv[0]} filename\n")
-        sys.exit(1)
-
-    print(get_index(sys.argv[1]))

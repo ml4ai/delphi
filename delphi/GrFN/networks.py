@@ -1,23 +1,16 @@
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from typing import Dict, Iterable, Union, Set, Optional
-import subprocess as sp
+from typing import Dict, Iterable, Set, Union
 from typing import List
 import importlib
 import inspect
 import json
 import os
-import itertools
-import time
 
-from SALib.analyze import sobol, fast, rbd_fast
-from SALib.sample import saltelli, fast_sampler, latin
 import networkx as nx
 from networkx.algorithms.simple_paths import all_simple_paths
 
-from delphi.translators.for2py.types_ext import Float32
 # from delphi.GrFN.analysis import get_max_s2_sensitivity
-import delphi.GrFN.utils as utils
 from delphi.GrFN.utils import ScopeNode
 from delphi.utils.misc import choose_font
 from delphi.translators.for2py import (
@@ -40,12 +33,14 @@ class ComputationalGraph(nx.DiGraph):
 
     @staticmethod
     def var_shortname(long_var_name):
-        (module,
-         var_scope,
-         container_name,
-         container_index,
-         var_name,
-         var_index) = long_var_name.split("::")
+        (
+            module,
+            var_scope,
+            container_name,
+            container_index,
+            var_name,
+            var_index,
+        ) = long_var_name.split("::")
         return var_name
 
     def get_input_nodes(self) -> List[str]:
@@ -94,8 +89,7 @@ class ComputationalGraph(nx.DiGraph):
         return function_sets
 
     def run(
-        self,
-        inputs: Dict[str, Union[float, Iterable]],
+        self, inputs: Dict[str, Union[float, Iterable]],
     ) -> Union[float, Iterable]:
         """Executes the GrFN over a particular set of inputs and returns the
         result.
@@ -136,8 +130,6 @@ class ComputationalGraph(nx.DiGraph):
                 self.nodes[output_node]["value"] = res
 
         # Return the output
-        # for o in self.outputs:
-            # print(self.nodes[o]["value"])
         return [self.nodes[o]["value"] for o in self.outputs]
 
     def to_CAG(self):
@@ -187,11 +179,6 @@ class GroundedFunctionNetwork(ComputationalGraph):
         }
         # self.outputs = outputs
         self.scope_tree = scope_tree
-        # self.inputs = [
-        #     n
-        #     for n, d in self.in_degree()
-        #     if d == 0 and self.nodes[n]["type"] == "variable"
-        # ]
 
     def __repr__(self):
         return self.__str__()
@@ -232,6 +219,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
         Args:
             cls: The class variable for object creation.
             file: Filename of a GrFN JSON file.
+            lambdas: A lambdas module
 
         Returns:
             type: A GroundedFunctionNetwork object.
@@ -243,7 +231,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
         return cls.from_dict(data, lambdas)
 
     @classmethod
-    def from_dict(cls, data: Dict, lambdas):
+    def from_dict(cls, data: Dict, lambdas_path):
         """Builds a GrFN object from a set of extracted function data objects
         and an associated file of lambda functions.
 
@@ -251,13 +239,14 @@ class GroundedFunctionNetwork(ComputationalGraph):
             cls: The class variable for object creation.
             data: A set of function data object that specify the wiring of a
                   GrFN object.
-            lambdas: [Module] A python module containing actual python
-                     functions to be computed during GrFN execution.
+            lambdas_path: Path to a lambdas file containing functions to be
+                computed during GrFN execution.
 
         Returns:
             A GroundedFunctionNetwork object.
 
         """
+        lambdas = importlib.__import__(str(Path(lambdas_path).stem))
         functions = {d["name"]: d for d in data["containers"]}
         occurrences = {}
         G = nx.DiGraph()
@@ -273,7 +262,9 @@ class GroundedFunctionNetwork(ComputationalGraph):
         def make_variable_name(parent: str, basename: str, index: str):
             return f"{parent}::{basename}::{index}"
 
-        def add_variable_node(parent: str, basename: str, index: str, is_exit: bool = False):
+        def add_variable_node(
+            parent: str, basename: str, index: str, is_exit: bool = False
+        ):
             full_var_name = make_variable_name(parent, basename, index)
             G.add_node(
                 full_var_name,
@@ -301,7 +292,9 @@ class GroundedFunctionNetwork(ComputationalGraph):
 
             for output in stmt["output"]:
                 (_, var_name, idx) = output.split("::")
-                node_name = add_variable_node(scope.name, var_name, idx, is_exit=var_name == "EXIT")
+                node_name = add_variable_node(
+                    scope.name, var_name, idx, is_exit=var_name == "EXIT"
+                )
                 G.add_edge(lambda_node_name, node_name)
 
             ordered_inputs = list()
@@ -334,8 +327,12 @@ class GroundedFunctionNetwork(ComputationalGraph):
                 occurrences[container_name] = 0
 
             new_container = functions[container_name]
-            container_color = "navyblue" if new_container["repeat"] else "forestgreen"
-            new_scope = ScopeNode(new_container, occurrences[container_name], parent=scope)
+            container_color = (
+                "navyblue" if new_container["repeat"] else "forestgreen"
+            )
+            new_scope = ScopeNode(
+                new_container, occurrences[container_name], parent=scope
+            )
             scope_tree.add_node(new_scope.name, color=container_color)
             scope_tree.add_edge(scope.name, new_scope.name)
 
@@ -348,7 +345,9 @@ class GroundedFunctionNetwork(ComputationalGraph):
                     (_, var_name, idx) = inp.split("::")
                 input_values.append((parent, var_name, idx))
 
-            callee_ret, callee_up = process_container(new_scope, input_values, container_name)
+            callee_ret, callee_up = process_container(
+                new_scope, input_values, container_name
+            )
 
             caller_ret, caller_up = list(), list()
             for var in stmt["output"]:
@@ -396,9 +395,14 @@ class GroundedFunctionNetwork(ComputationalGraph):
 
         def process_container(scope, input_vals, cname):
             if len(scope.arguments) == len(input_vals):
-                input_vars = {a: v for a, v in zip(scope.arguments, input_vals)}
+                input_vars = {
+                    a: v for a, v in zip(scope.arguments, input_vals)
+                }
             elif len(scope.arguments) > 0:
-                input_vars = {a: (scope.name,) + tuple(a.split("::")[1:]) for a in scope.arguments}
+                input_vars = {
+                    a: (scope.name,) + tuple(a.split("::")[1:])
+                    for a in scope.arguments
+                }
 
             for stmt in scope.body:
                 func_def = stmt["function"]
@@ -413,11 +417,15 @@ class GroundedFunctionNetwork(ComputationalGraph):
             return_list, updated_list = list(), list()
             for var_name in scope.returns:
                 (_, basename, idx) = var_name.split("::")
-                return_list.append(make_variable_name(scope.name, basename, idx))
+                return_list.append(
+                    make_variable_name(scope.name, basename, idx)
+                )
 
             for var_name in scope.updated:
                 (_, basename, idx) = var_name.split("::")
-                updated_list.append(make_variable_name(scope.name, basename, idx))
+                updated_list.append(
+                    make_variable_name(scope.name, basename, idx)
+                )
             return return_list, updated_list
 
         root = data["start"][0]
@@ -425,11 +433,12 @@ class GroundedFunctionNetwork(ComputationalGraph):
         cur_scope = ScopeNode(functions[root], occurrences[root])
         scope_tree.add_node(cur_scope.name, color="forestgreen")
         returns, updates = process_container(cur_scope, [], root)
-        return cls(G, scope_tree, returns+updates)
+        return cls(G, scope_tree, returns + updates)
 
     @staticmethod
     def create_container_dict(G: nx.DiGraph):
         containers = {node_name: dict() for node_name in scope_tree.nodes}
+
     @classmethod
     def from_python_file(
         cls, python_file, lambdas_path, json_filename: str, stem: str
@@ -443,86 +452,72 @@ class GroundedFunctionNetwork(ComputationalGraph):
     def from_python_src(
         cls,
         pySrc,
-        lambdas_path,
-        json_filename: str,
-        stem: str,
         python_file: str,
         fortran_file: str,
         module_log_file_path: str,
-        mode_mapper_dict: list,
+        mod_mapper_dict: list,
         processing_modules: bool,
-        generated_files_list: list,
         save_file: bool = False,
     ):
-        module_file_exist = False
-        module_import_paths = {}
-
-        tester_call = True
-        network_test = True
-        """Builds GrFN object from Python source code."""
+        lambdas_path = python_file.replace(".py", "_lambdas.py")
+        # Builds GrFN object from Python source code.
         pgm_dict = f2grfn.generate_grfn(
             pySrc,
             python_file,
             lambdas_path,
-            mode_mapper_dict,
+            mod_mapper_dict,
             fortran_file,
-            tester_call,
-            network_test,
             module_log_file_path,
             processing_modules,
-            save_file
         )
-        lambdas = importlib.__import__(stem + "_lambdas")
-        """Add generated GrFN and lambdas file paths to the list"""
-        return cls.from_dict(pgm_dict, lambdas)
+
+        G = cls.from_dict(pgm_dict, lambdas_path)
+
+        # Cleanup intermediate files.
+        variable_map_filename = python_file.replace(".py", "_variable_map.pkl")
+        os.remove(variable_map_filename)
+        rectified_xml_filename = "rectified_" + str(Path(python_file)).replace(
+            ".py", ".xml"
+        )
+        os.remove(rectified_xml_filename)
+        return G
 
     @classmethod
-    def from_fortran_file(cls, fortran_file: str, tmpdir: str = ".", save_file: bool = False):
+    def from_fortran_file(
+        cls, fortran_file: str, tmpdir: str = ".", save_file: bool = False
+    ):
         """Builds GrFN object from a Fortran program."""
 
-        lambda_file_suffix = "_lambdas.py"
-
-        if tmpdir == "." and "/" in fortran_file:
-            tmpdir_path = Path(fortran_file).parent
         root_dir = os.path.abspath(tmpdir)
 
         (
-            pySrc,
-            json_filename,
+            python_sources,
             translated_python_files,
-            stem,
-            mode_mapper_dict,
+            mod_mapper_dict,
             fortran_filename,
             module_log_file_path,
             processing_modules,
         ) = f2grfn.fortran_to_grfn(
             fortran_file,
-            tester_call=True,
-            network_test=True,
             temp_dir=str(tmpdir),
             root_dir_path=root_dir,
             processing_modules=False,
         )
 
-        generated_files = []
-        for python_file in translated_python_files:
-            lambdas_path = python_file[0:-3] + lambda_file_suffix
-            G = cls.from_python_src(
-                pySrc[0][0],
-                lambdas_path,
-                json_filename,
-                stem,
-                python_file,
-                fortran_file,
-                module_log_file_path,
-                mode_mapper_dict,
-                processing_modules,
-                generated_files,
-                save_file=save_file
-            )
+        # For now, just taking the first translated file.
+        # TODO - generalize this.
+        python_file = translated_python_files[0]
+        G = cls.from_python_src(
+            python_sources[0][0],
+            python_file,
+            fortran_file,
+            module_log_file_path,
+            mod_mapper_dict,
+            processing_modules,
+            save_file=save_file,
+        )
 
-            """Return GrFN object"""
-            return G
+        return G
 
     @classmethod
     def from_fortran_src(cls, fortran_src: str, dir: str = "."):
@@ -538,7 +533,8 @@ class GroundedFunctionNetwork(ComputationalGraph):
             A GroundedFunctionNetwork instance
         """
         import tempfile
-        fp = tempfile.NamedTemporaryFile('w+t', delete=False, dir=dir)
+
+        fp = tempfile.NamedTemporaryFile("w+t", delete=False, dir=dir)
         fp.writelines(fortran_src)
         fp.close()
         G = cls.from_fortran_file(fp.name, dir)
@@ -547,41 +543,43 @@ class GroundedFunctionNetwork(ComputationalGraph):
 
     def to_json(self):
         """Experimental outputting a GrFN to a JSON file."""
-        containers = {name: {
-            "name": name,
-            "parent": None,
-            "exit": True,
-            "nodes": list()
-        } for name in self.scope_tree.nodes}
+        containers = {
+            name: {"name": name, "parent": None, "exit": True, "nodes": list()}
+            for name in self.scope_tree.nodes
+        }
 
         nodes_json = list()
         for name, data in self.nodes(data=True):
             containers[data["parent"]]["nodes"].append(name)
             if data["type"] == "variable":
-                nodes_json.append({
-                "name": name,
-                "reference": None,
-                "type": {
-                    "name": "float32",
-                    "domain": [("-inf", "inf")],
-                }
-                })
+                nodes_json.append(
+                    {
+                        "name": name,
+                        "reference": None,
+                        "type": {
+                            "name": "float32",
+                            "domain": [("-inf", "inf")],
+                        },
+                    }
+                )
             elif data["type"] == "function":
                 (source_list, _) = inspect.getsourcelines(data["lambda_fn"])
                 source_code = "".join(source_list)
-                nodes_json.append({
-                    "name": name,
-                    "inputs": data["func_inputs"],
-                    "reference": None,
-                    "lambda": source_code
-                })
+                nodes_json.append(
+                    {
+                        "name": name,
+                        "inputs": data["func_inputs"],
+                        "reference": None,
+                        "lambda": source_code,
+                    }
+                )
             else:
                 raise ValueError(f"Unrecognized node type: {data['type']}")
 
         json_data = {
             "nodes": nodes_json,
             "edges": list(self.edges),
-            "containers": list(containers.values())
+            "containers": list(containers.values()),
         }
         json.dump(json_data, open("GrFN.json", "w"))
 
@@ -606,7 +604,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
                 label=cluster_name,
                 style="bold, rounded",
                 rankdir="LR",
-                color=node_attrs[cluster_name]["color"]
+                color=node_attrs[cluster_name]["color"],
             )
             for n in self.scope_tree.successors(cluster_name):
                 build_tree(n, node_attrs, subgraph)
@@ -627,7 +625,9 @@ class GroundedFunctionNetwork(ComputationalGraph):
         for name, data in CAG.nodes(data=True):
             CAG.nodes[name]["label"] = data["cag_label"]
         A = nx.nx_agraph.to_agraph(CAG)
-        A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo", "rankdir": "LR"})
+        A.graph_attr.update(
+            {"dpi": 227, "fontsize": 20, "fontname": "Menlo", "rankdir": "LR"}
+        )
         A.node_attr.update(
             {
                 "shape": "rectangle",
@@ -644,7 +644,9 @@ class GroundedFunctionNetwork(ComputationalGraph):
         functions. """
 
         A = nx.nx_agraph.to_agraph(self.FCG)
-        A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo", "rankdir": "TB"})
+        A.graph_attr.update(
+            {"dpi": 227, "fontsize": 20, "fontname": "Menlo", "rankdir": "TB"}
+        )
         A.node_attr.update(
             {"shape": "rectangle", "color": "#650021", "style": "rounded"}
         )
@@ -670,9 +672,7 @@ class ForwardInfluenceBlanket(ComputationalGraph):
         # Get all paths from shared inputs to shared outputs
         path_inputs = shared_nodes - set(outputs)
         io_pairs = [(inp, G.output_node) for inp in path_inputs]
-        paths = [
-            p for (i, o) in io_pairs for p in all_simple_paths(G, i, o)
-        ]
+        paths = [p for (i, o) in io_pairs for p in all_simple_paths(G, i, o)]
 
         # Get all edges needed to blanket the included nodes
         main_nodes = {node for path in paths for node in path}
@@ -684,10 +684,7 @@ class ForwardInfluenceBlanket(ComputationalGraph):
 
         def place_var_node(var_node):
             prev_funcs = list(G.predecessors(var_node))
-            if (
-                len(prev_funcs) > 0
-                and G.nodes[prev_funcs[0]]["label"] == "L"
-            ):
+            if len(prev_funcs) > 0 and G.nodes[prev_funcs[0]]["label"] == "L":
                 prev_func = prev_funcs[0]
                 add_nodes.extend([var_node, prev_func])
                 add_edges.append((prev_func, var_node))
@@ -726,8 +723,7 @@ class ForwardInfluenceBlanket(ComputationalGraph):
 
         F.inputs = list(F.inputs)
 
-        F.add_nodes_from([(n, d) for n, d in orig_nodes
-                            if n in blanket_nodes])
+        F.add_nodes_from([(n, d) for n, d in orig_nodes if n in blanket_nodes])
         for node in blanket_nodes:
             F.nodes[node]["fontname"] = FONT
             F.nodes[node]["color"] = forestgreen
@@ -761,25 +757,29 @@ class ForwardInfluenceBlanket(ComputationalGraph):
             A ForwardInfluenceBlanket object to use for model comparison.
         """
 
-        if not (isinstance(G1, GroundedFunctionNetwork)
-                and isinstance(G2, GroundedFunctionNetwork)):
+        if not (
+            isinstance(G1, GroundedFunctionNetwork)
+            and isinstance(G2, GroundedFunctionNetwork)
+        ):
             raise TypeError(
                 f"Expected two GrFNs, but got ({type(G1)}, {type(G2)})"
             )
 
         def shortname(var):
-            return var[var.find("::") + 2: var.rfind("_")]
+            return var[var.find("::") + 2 : var.rfind("_")]
 
         def shortname_vars(graph, shortname):
             return [v for v in graph.nodes() if shortname in v]
 
         g1_var_nodes = {
             shortname(n)
-            for (n, d) in G1.nodes(data=True) if d["type"] == "variable"
+            for (n, d) in G1.nodes(data=True)
+            if d["type"] == "variable"
         }
         g2_var_nodes = {
             shortname(n)
-            for (n, d) in G2.nodes(data=True) if d["type"] == "variable"
+            for (n, d) in G2.nodes(data=True)
+            if d["type"] == "variable"
         }
 
         shared_vars = {
@@ -793,7 +793,7 @@ class ForwardInfluenceBlanket(ComputationalGraph):
     def run(
         self,
         inputs: Dict[str, Union[float, Iterable]],
-        covers: Dict[str, Union[float, Iterable]]
+        covers: Dict[str, Union[float, Iterable]],
     ) -> Union[float, Iterable]:
         """Executes the FIB over a particular set of inputs and returns the
         result.
