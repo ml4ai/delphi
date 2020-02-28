@@ -42,7 +42,6 @@ def make_grfn_dict(original_fortran_file) -> Dict:
 
     (
         pySrc,
-        json_filename,
         python_file_paths,
         mode_mapper_dict,
         original_fortran,
