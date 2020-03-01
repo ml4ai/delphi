@@ -446,7 +446,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
         module_log_file_path: str,
         mod_mapper_dict: list,
         processing_modules: bool,
-        save_file: bool = False,
+        save_intermediate_files: bool = False,
     ):
         lambdas_path = python_file.replace(".py", "_lambdas.py")
         # Builds GrFN object from Python source code.
@@ -462,18 +462,20 @@ class GroundedFunctionNetwork(ComputationalGraph):
 
         G = cls.from_dict(pgm_dict, lambdas_path)
 
-        # Cleanup intermediate files.
-        variable_map_filename = python_file.replace(".py", "_variable_map.pkl")
-        os.remove(variable_map_filename)
-        rectified_xml_filename = "rectified_" + str(Path(python_file)).replace(
-            ".py", ".xml"
-        )
-        os.remove(rectified_xml_filename)
+        if not save_intermediate_files:
+            # Cleanup intermediate files.
+            variable_map_filename = python_file.replace(".py", "_variable_map.pkl")
+            rectified_xml_filename = "rectified_" + str(Path(python_file)).replace(
+                ".py", ".xml"
+            )
+            os.remove(variable_map_filename)
+            os.remove(rectified_xml_filename)
+
         return G
 
     @classmethod
     def from_fortran_file(
-        cls, fortran_file: str, tmpdir: str = ".", save_file: bool = False
+        cls, fortran_file: str, tmpdir: str = ".", save_intermediate_files: bool = False
     ):
         """Builds GrFN object from a Fortran program."""
 
@@ -491,6 +493,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
             temp_dir=str(tmpdir),
             root_dir_path=root_dir,
             processing_modules=False,
+            save_intermediate_files = save_intermediate_files
         )
 
         # For now, just taking the first translated file.
@@ -503,7 +506,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
             module_log_file_path,
             mod_mapper_dict,
             processing_modules,
-            save_file=save_file,
+            save_intermediate_files = save_intermediate_files
         )
 
         return G

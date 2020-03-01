@@ -70,7 +70,9 @@ MODULE_FILE_NAME = "modFileLog.json"
 """
 
 
-def generate_ofp_xml(preprocessed_fortran_file) -> str:
+def generate_ofp_xml(
+    preprocessed_fortran_file, save_intermediate_files=False
+) -> str:
     """ This function runs Open Fortran Parser to generate initial AST XML from
     the preprocessed Fortran file.
 
@@ -94,6 +96,12 @@ def generate_ofp_xml(preprocessed_fortran_file) -> str:
         ],
         stdout=sp.PIPE,
     ).stdout
+
+    if save_intermediate_files:
+        tree = ET.ElementTree(ET.fromstring(ofp_xml_string))
+        tree.write(
+            f"{Path(preprocessed_fortran_file).stem}.xml"
+        )
 
     return ofp_xml_string
 
@@ -123,7 +131,9 @@ def generate_rectified_xml(
     )
 
     rectified_tree = ET.ElementTree(rectified_xml)
-    rectified_tree.write("rectified_"+str(Path(original_fortran_file).stem)+".xml")
+    rectified_tree.write(
+        "rectified_" + str(Path(original_fortran_file).stem) + ".xml"
+    )
     return rectified_xml, module_files_to_process
 
 
@@ -145,12 +155,14 @@ def generate_outputdict(rectified_tree, preprocessed_fortran_file) -> Dict:
         preprocessed_fortran_file
     )
 
-
     return output_dictionary
 
 
 def generate_python_sources(
-    output_dictionary, python_files, main_python_file, temp_dir,
+    output_dictionary,
+    python_files,
+    main_python_file,
+    temp_dir,
 ) -> List[Tuple]:
     """This function generates Python source file from generated Python source
     list. This function will return this list back to the caller for GrFN
@@ -168,12 +180,14 @@ def generate_python_sources(
         str: A string of generated Python code.
     """
 
-    python_sources, variable_map = pyTranslate.get_python_sources_and_variable_map(
-        output_dictionary
-    )
+    (
+        python_sources,
+        variable_map,
+    ) = pyTranslate.get_python_sources_and_variable_map(output_dictionary)
 
     with open(main_python_file.replace(".py", "_variable_map.pkl"), "wb") as f:
         pickle.dump(variable_map, f)
+
     for python_src_tuple in python_sources:
         file_path = (
             f"{temp_dir}/{MODULE_FILE_PREFIX}{python_src_tuple[1].lower()}.py"
@@ -360,7 +374,7 @@ def fortran_to_grfn(
     root_dir_path=".",
     module_file_name=MODULE_FILE_NAME,
     processing_modules=False,
-    save_intermediate_files = False,
+    save_intermediate_files=False,
 ):
     """This function invokes other appropriate functions
     to process and generate objects to translate fortran
@@ -434,7 +448,10 @@ def fortran_to_grfn(
     )
 
     # Generate OFP XML from preprocessed fortran
-    ofp_xml_string = generate_ofp_xml(preprocessed_fortran_file)
+    ofp_xml_string = generate_ofp_xml(
+        preprocessed_fortran_file,
+        save_intermediate_files=save_intermediate_files,
+    )
 
     # Rectify and generate a new XML from OFP XML
     rectified_tree, module_files_to_process = generate_rectified_xml(
@@ -456,7 +473,7 @@ def fortran_to_grfn(
                 root_dir,
                 module_file,
                 processing_modules,
-                save_intermediate_files=save_intermediate_files
+                save_intermediate_files=save_intermediate_files,
             )
         processing_modules = False
 
@@ -475,11 +492,14 @@ def fortran_to_grfn(
         rectified_tree, preprocessed_fortran_file
     )
 
-
     translated_python_files = []
     # Create a list of tuples with information about the Python source files.
     python_sources = generate_python_sources(
-        output_dict, translated_python_files, python_file, temp_dir,
+        output_dict,
+        translated_python_files,
+        python_file,
+        temp_dir,
+        save_intermediate_files=save_intermediate_files,
     )
 
     if not save_intermediate_files:
