@@ -499,7 +499,6 @@ def fortran_to_grfn(
         translated_python_files,
         python_file,
         temp_dir,
-        save_intermediate_files=save_intermediate_files,
     )
 
     if not save_intermediate_files:
