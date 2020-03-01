@@ -73,7 +73,11 @@ if __name__ == "__main__":
         module_log_file_path,
         processing_modules,
     ) = f2grfn.fortran_to_grfn(
-        args.file, args.directory, args.root, args.moduleLog
+        args.file,
+        args.directory,
+        args.root,
+        args.moduleLog,
+        save_intermediate_files=True,
     )
     python_file_num = 0
     for python_file in translated_python_files:
@@ -87,6 +91,6 @@ if __name__ == "__main__":
             module_log_file_path,
             processing_modules,
         )
-        with open(python_file.replace(".py","_GrFN.json"), "w") as f:
+        with open(python_file.replace(".py", "_GrFN.json"), "w") as f:
             json.dump(grfn_dict, f, indent=2)
         python_file_num += 1

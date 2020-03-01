@@ -456,6 +456,7 @@ def fortran_to_grfn(
                 root_dir,
                 module_file,
                 processing_modules,
+                save_intermediate_files=save_intermediate_files
             )
         processing_modules = False
 
