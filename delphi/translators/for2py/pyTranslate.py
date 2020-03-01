@@ -1,21 +1,6 @@
-"""
-Purpose:
-    Convert a Fortran AST representation into a Python
-    script having the same functionalities and performing
-    the same operations as the original Fortran file.
-
-Example:
-    This script is executed by the autoTranslate script as one
-    of the steps in converted a Fortran source file to Python
-    file. For standalone execution:
-
-        python pyTranslate.py -f <pickle_file> -g <python_file> -o
-        <outputFileList>
-
-pickle_file: Pickled file containing the ast representation of the Fortran
-file along with other non-source code information.
-python_file: The Python file on which to write the resulting Python script.
-"""
+""" This module contains code to convert a Fortran AST representation into a
+Python script having the same functionalities and performing the same
+operations as the original Fortran file.  """
 
 import sys
 import pickle
@@ -1781,7 +1766,7 @@ def index_modules(root) -> Dict:
     return module_index_dict
 
 
-def create_python_source_list(outputDict: Dict):
+def get_python_sources_and_variable_map(outputDict: Dict):
     module_index_dict = index_modules(outputDict["ast"])
     py_sourcelist = []
     main_ast = []
