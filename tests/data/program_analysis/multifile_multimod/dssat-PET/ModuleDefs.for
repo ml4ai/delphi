@@ -761,94 +761,112 @@ C             CHP Added TRTNUM to CONTROL variable.
       Real Value
       Logical ERR
 
+!     The following *_tmp variables are introduced to get around a bug in OFP 
+!     that causes it to choke on RHS expressions of the form X % Y % Z
+      
+      Type (SPAMType) SPAM_tmp
+      Type (PlantType) Plant_tmp
+      Type (MgmtType) Mgmt_tmp
+      Type (WatType) Wat_tmp
+      Type (NiType) Ni_tmp
+      Type (OrgCType) OrgC_tmp
+      Type (PDLABETATYPE) PDLABETA_tmp
+
       ERR = .FALSE.
 
       SELECT CASE (ModuleName)
       Case ('SPAM')
+        SPAM_tmp = SAVE_data % SPAM
         SELECT CASE (VarName)
-        Case ('AGEFAC'); SAVE_data % SPAM % AGEFAC = Value
-        Case ('PG');     SAVE_data % SPAM % PG     = Value
-        Case ('CEF');    SAVE_data % SPAM % CEF    = Value
-        Case ('CEM');    SAVE_data % SPAM % CEM    = Value
-        Case ('CEO');    SAVE_data % SPAM % CEO    = Value
-        Case ('CEP');    SAVE_data % SPAM % CEP    = Value
-        Case ('CES');    SAVE_data % SPAM % CES    = Value
-        Case ('CET');    SAVE_data % SPAM % CET    = Value
-        Case ('EF');     SAVE_data % SPAM % EF     = Value
-        Case ('EM');     SAVE_data % SPAM % EM     = Value
-        Case ('EO');     SAVE_data % SPAM % EO     = Value
-        Case ('EP');     SAVE_data % SPAM % EP     = Value
-        Case ('ES');     SAVE_data % SPAM % ES     = Value
-        Case ('ET');     SAVE_data % SPAM % ET     = Value
-        Case ('EOP');    SAVE_data % SPAM % EOP    = Value
-        Case ('EVAP');   SAVE_data % SPAM % EVAP   = Value
-        Case ('REFET');  SAVE_data % SPAM % REFET  = Value
-        Case ('SKC');    SAVE_data % SPAM % SKC    = Value
-        Case ('KCBMIN'); SAVE_data % SPAM % KCBMIN = Value
-        Case ('KCBMAX'); SAVE_data % SPAM % KCBMAX = Value
-        Case ('KCB');    SAVE_data % SPAM % KCB    = Value
-        Case ('KE');     SAVE_data % SPAM % KE     = Value
-        Case ('KC');     SAVE_data % SPAM % KC     = Value
+        Case ('AGEFAC'); SPAM_tmp % AGEFAC = Value
+        Case ('PG');     SPAM_tmp % PG     = Value
+        Case ('CEF');    SPAM_tmp % CEF    = Value
+        Case ('CEM');    SPAM_tmp % CEM    = Value
+        Case ('CEO');    SPAM_tmp % CEO    = Value
+        Case ('CEP');    SPAM_tmp % CEP    = Value
+        Case ('CES');    SPAM_tmp % CES    = Value
+        Case ('CET');    SPAM_tmp % CET    = Value
+        Case ('EF');     SPAM_tmp % EF     = Value
+        Case ('EM');     SPAM_tmp % EM     = Value
+        Case ('EO');     SPAM_tmp % EO     = Value
+        Case ('EP');     SPAM_tmp % EP     = Value
+        Case ('ES');     SPAM_tmp % ES     = Value
+        Case ('ET');     SPAM_tmp % ET     = Value
+        Case ('EOP');    SPAM_tmp % EOP    = Value
+        Case ('EVAP');   SPAM_tmp % EVAP   = Value
+        Case ('REFET');  SPAM_tmp % REFET  = Value
+        Case ('SKC');    SPAM_tmp % SKC    = Value
+        Case ('KCBMIN'); SPAM_tmp % KCBMIN = Value
+        Case ('KCBMAX'); SPAM_tmp % KCBMAX = Value
+        Case ('KCB');    SPAM_tmp % KCB    = Value
+        Case ('KE');     SPAM_tmp % KE     = Value
+        Case ('KC');     SPAM_tmp % KC     = Value
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
       Case ('PLANT')
+        Plant_tmp = SAVE_data % PLANT
         SELECT CASE (VarName)
-        Case ('BIOMAS'); SAVE_data % PLANT % BIOMAS = Value
-        Case ('CANHT');  SAVE_data % PLANT % CANHT  = Value
-        Case ('CANWH');  SAVE_data % PLANT % CANWH  = Value
-        Case ('DXR57');  SAVE_data % PLANT % DXR57  = Value
-        Case ('EXCESS'); SAVE_data % PLANT % EXCESS = Value
-        Case ('PLTPOP'); SAVE_data % PLANT % PLTPOP = Value
-        Case ('RNITP');  SAVE_data % PLANT % RNITP  = Value
-        Case ('SLAAD');  SAVE_data % PLANT % SLAAD  = Value
-        Case ('XPOD');   SAVE_data % PLANT % XPOD   = Value
+        Case ('BIOMAS'); PLANT_tmp % BIOMAS = Value
+        Case ('CANHT');  PLANT_tmp % CANHT  = Value
+        Case ('CANWH');  PLANT_tmp % CANWH  = Value
+        Case ('DXR57');  PLANT_tmp % DXR57  = Value
+        Case ('EXCESS'); PLANT_tmp % EXCESS = Value
+        Case ('PLTPOP'); PLANT_tmp % PLTPOP = Value
+        Case ('RNITP');  PLANT_tmp % RNITP  = Value
+        Case ('SLAAD');  PLANT_tmp % SLAAD  = Value
+        Case ('XPOD');   PLANT_tmp % XPOD   = Value
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
       Case ('MGMT')
+        Mgmt_tmp = SAVE_data % MGMT
         SELECT CASE (VarName)
-        Case ('EFFIRR'); SAVE_data % MGMT % EFFIRR = Value
-        Case ('TOTIR');  SAVE_data % MGMT % TOTIR  = Value
-        Case ('TOTEFFIRR');SAVE_data%MGMT % TOTEFFIRR=Value
-        Case ('DEPIR');  SAVE_data % MGMT % DEPIR  = Value
-        Case ('IRRAMT'); SAVE_data % MGMT % IRRAMT = Value
-        Case ('FERNIT'); SAVE_data % MGMT % FERNIT = Value
+        Case ('EFFIRR'); MGMT_tmp % EFFIRR = Value
+        Case ('TOTIR');  MGMT_tmp % TOTIR  = Value
+        Case ('TOTEFFIRR'); MGMT_tmp % TOTEFFIRR=Value
+        Case ('DEPIR');  MGMT_tmp % DEPIR  = Value
+        Case ('IRRAMT'); MGMT_tmp % IRRAMT = Value
+        Case ('FERNIT'); MGMT_tmp % FERNIT = Value
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
       Case ('WATER')
+        Wat_tmp = SAVE_data % WATER
         SELECT CASE (VarName)
-        Case ('DRAIN'); SAVE_data % WATER % DRAIN  = Value
-        Case ('RUNOFF');SAVE_data % WATER % RUNOFF = Value
-        Case ('SNOW');  SAVE_data % WATER % SNOW   = Value
+        Case ('DRAIN'); Wat_tmp % DRAIN  = Value
+        Case ('RUNOFF');Wat_tmp % RUNOFF = Value
+        Case ('SNOW');  Wat_tmp % SNOW   = Value
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
       Case ('NITR')
+        Ni_tmp = SAVE_data % NITR
         SELECT CASE (VarName)
-        Case ('TNOXD'); SAVE_data % NITR % TNOXD = Value
-        Case ('TLCHD'); SAVE_data % NITR % TLeachD = Value
+        Case ('TNOXD'); Ni_tmp % TNOXD = Value
+        Case ('TLCHD'); Ni_tmp % TLeachD = Value
 !       Case ('TN2OD'); SAVE_data % NITR % TN2OD = Value
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
       Case ('ORGC')
+        OrgC_tmp = SAVE_data % ORGC
         SELECT CASE (VarName)
-        Case ('MULCHMASS');SAVE_data % ORGC % MULCHMASS = Value
-        Case ('TOMINFOM'); SAVE_data % ORGC % TOMINFOM  = Value
-        Case ('TOMINSOM'); SAVE_data % ORGC % TOMINSOM  = Value
-        Case ('TOMINSOM1');SAVE_data % ORGC % TOMINSOM1 = Value
-        Case ('TOMINSOM2');SAVE_data % ORGC % TOMINSOM2 = Value
-        Case ('TOMINSOM3');SAVE_data % ORGC % TOMINSOM3 = Value
-        Case ('TNIMBSOM'); SAVE_data % ORGC % TNIMBSOM  = Value
+        Case ('MULCHMASS');OrgC_tmp % MULCHMASS = Value
+        Case ('TOMINFOM'); OrgC_tmp % TOMINFOM  = Value
+        Case ('TOMINSOM'); OrgC_tmp % TOMINSOM  = Value
+        Case ('TOMINSOM1');OrgC_tmp % TOMINSOM1 = Value
+        Case ('TOMINSOM2');OrgC_tmp % TOMINSOM2 = Value
+        Case ('TOMINSOM3');OrgC_tmp % TOMINSOM3 = Value
+        Case ('TNIMBSOM'); OrgC_tmp % TNIMBSOM  = Value
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
       CASE ('PDLABETA')
+        PDLABETA_tmp = SAVE_data % PDLABETA
         SELECT CASE(VarName)
-        CASE('PDLA'); SAVE_data % PDLABETA % PDLA = Value
-        CASE('BETA'); SAVE_data % PDLABETA % BETALS = Value
+        CASE('PDLA'); PDLABETA_tmp % PDLA = Value
+        CASE('BETA'); PDLABETA_tmp % BETALS = Value
         CASE DEFAULT; ERR = .TRUE.
         END SELECT
             
@@ -976,15 +994,17 @@ C             CHP Added TRTNUM to CONTROL variable.
       Character*78 MSG(2)
       Integer Value
       Logical ERR
+      Type (PlantType) Plant_tmp
 
       ERR = .FALSE.
 
       SELECT CASE (ModuleName)
       Case ('PLANT')
+        Plant_tmp = SAVE_data % PLANT
         SELECT CASE (VarName)
-        Case ('NR5');  SAVE_data % PLANT % NR5  = Value
-        Case ('iSTAGE');  SAVE_data % PLANT % iSTAGE  = Value
-        Case ('iSTGDOY'); SAVE_data % PLANT % iSTGDOY = Value
+        Case ('NR5');  PLANT_tmp % NR5  = Value
+        Case ('iSTAGE');  PLANT_tmp % iSTAGE  = Value
+        Case ('iSTGDOY'); PLANT_tmp % iSTGDOY = Value
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
@@ -1008,7 +1028,6 @@ C             CHP Added TRTNUM to CONTROL variable.
       Character*(*) ModuleName, VarName, Value
       Character*78  MSG(2)
       Logical ERR
-      Type (SPAMType) SPAM_tmp
       Type (PlantType) Plant_tmp
       Type (WeathType) Weath_tmp
 
@@ -1052,19 +1071,25 @@ C             CHP Added TRTNUM to CONTROL variable.
       Character*(*) ModuleName, VarName, Value
       Character*78 MSG(2)
       Logical ERR
+      Type (PlantType) Plant_tmp
+      Type (WeathType) Weath_tmp
 
       ERR = .FALSE.
 
       SELECT CASE (ModuleName)
       Case ('WEATHER')
         SELECT CASE (VarName)
-        Case ('WSTA');  SAVE_data % WEATHER % WSTAT  = Value
+        Case ('WSTA');  
+          Weath_tmp = SAVE_data % WEATHER
+          Weath_tmp % WSTAT  = Value
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
       Case ('PLANT')
         SELECT CASE (VarName)
-        Case ('iSTNAME');  SAVE_data % PLANT % iSTNAME = Value
+        Case ('iSTNAME');
+          Plant_tmp = SAVE_data % PLANT
+          PLANT_tmp % iSTNAME = Value
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
