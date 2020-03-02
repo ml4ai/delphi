@@ -226,11 +226,8 @@ def get_preprocessed_lines_from_file(infile):
         lines = preprocess_lines(inputLines, infile)
         return lines
 
-def create_preprocessed_file(infile, outfile=None, forModLogGen=False):
+def create_preprocessed_file(infile, forModLogGen=False):
     with open(infile, mode="r", encoding="latin-1") as f:
         lines = f.readlines()
-    lines = preprocess_lines(lines, infile, forModLogGen)
-    if outfile is None:
-        outfile = infile.replace(".f", "_preprocessed.f")
-    with open(outfile, "w") as f:
-        f.write("".join(lines))
+    return preprocess_lines(lines, infile, forModLogGen)
+    
