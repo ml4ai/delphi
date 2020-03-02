@@ -12,7 +12,7 @@ functionality of test_program_analysis.py and autoTranslate.
 Example:
     This script can be executed as below:
 
-        $ python -f <fortran_file>
+        $ python f2grfn_standalone.py -f <fortran_file>
 
 fortran_file: An original input file to a program that is to be
     translated to GrFN.
@@ -45,7 +45,7 @@ if __name__ == "__main__":
         "--directory",
         nargs="*",
         help="A temporary directory for generated files to be stored.",
-        default=".",
+        default=["."],
     )
 
     parser.add_argument(
@@ -74,7 +74,7 @@ if __name__ == "__main__":
         processing_modules,
     ) = f2grfn.fortran_to_grfn(
         args.file,
-        args.directory,
+        args.directory[0]+"/",
         args.root,
         args.moduleLog,
         save_intermediate_files=True,
