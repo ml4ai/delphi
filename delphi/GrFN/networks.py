@@ -555,8 +555,9 @@ class GroundedFunctionNetwork(ComputationalGraph):
                 nodes_json.append(
                     {
                         "name": name,
+                        "type": "variable",
                         "reference": None,
-                        "type": {
+                        "data-type": {
                             "name": "float32",
                             "domain": [("-inf", "inf")],
                         },
@@ -568,8 +569,9 @@ class GroundedFunctionNetwork(ComputationalGraph):
                 nodes_json.append(
                     {
                         "name": name,
-                        "inputs": data["func_inputs"],
+                        "type": "function",
                         "reference": None,
+                        "inputs": data["func_inputs"],
                         "lambda": source_code,
                     }
                 )
