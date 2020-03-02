@@ -100,7 +100,7 @@ def generate_ofp_xml(
     if save_intermediate_files:
         tree = ET.ElementTree(ET.fromstring(ofp_xml_string))
         tree.write(
-            f"{temp_dir}{Path(preprocessed_fortran_file).stem}.xml"
+            f"{temp_dir}/{Path(preprocessed_fortran_file).stem}.xml"
         )
 
     return ofp_xml_string
@@ -120,7 +120,7 @@ def generate_preprocessed_fortran(original_fortran_file, temp_dir):
     base = os.path.splitext(filename)[0]
     # TODO Add some code using Pathlib to check the file extension and make
     # sure it's either .f or .for.
-    preprocessed_fortran_file_path = temp_dir + str(base) + "_preprocessed.f"
+    preprocessed_fortran_file_path = f"{temp_dir}/{str(base)}_preprocessed.f"
     preprocessed_fortran = preprocessor.create_preprocessed_file(
         original_fortran_file
     )
@@ -158,7 +158,7 @@ def generate_rectified_xml(
 
     rectified_tree = ET.ElementTree(rectified_xml)
     rectified_tree.write(
-        temp_dir + "rectified_" + str(Path(original_fortran_file).stem) + ".xml"
+        f"{temp_dir}/rectified_{str(Path(original_fortran_file).stem)}.xml"
     )
     return rectified_xml, module_files_to_process
 
@@ -446,7 +446,7 @@ def fortran_to_grfn(
     # not set by the program that calls this function.
     # Thus, generate the output temporary file based
     # on the user input or the default path "tmp".
-    temp_out_dir = "tmp/"
+    temp_out_dir = "tmp"
     if temp_dir is None:
         temp_dir = current_dir + "/" + temp_out_dir
 
