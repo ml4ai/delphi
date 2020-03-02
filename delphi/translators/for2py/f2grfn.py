@@ -9,11 +9,6 @@ each program.
 In simplicity, it's a single program that integrates the
 functionality of test_program_analysis.py and autoTranslate.
 
-Example:
-    This script can be executed as below:
-
-        $ python f2grfn -f <fortran_file> -r <root_dir>
-
 fortran_file: An original input file to a program that is to be
     translated to GrFN.
 root_dir: A root directory where module log file should be created or
@@ -55,11 +50,6 @@ OFP_JAR_FILES = [
 ]
 """OFP_JAR_FILES is a list of JAR files used by the Open Fortran Parser (OFP).
 """
-
-GENERATED_FILE_PATHS = []
-"""A list of all the file paths that were generated during f2grfn process.
-"""
-
 
 MODULE_FILE_PREFIX = "m_"
 """Module file prefix that all generated Python module files will be specified
