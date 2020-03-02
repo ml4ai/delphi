@@ -1775,7 +1775,7 @@ def get_trees(files: List[str]) -> List[ET.ElementTree]:
     return [ET.parse(f).getroot() for f in files]
 
 
-def xml_to_py(trees, fortran_file):
+def xml_to_py(trees):
     translator = XML_to_JSON_translator()
     output_dict = translator.analyze(trees)
 
@@ -1785,9 +1785,6 @@ def xml_to_py(trees, fortran_file):
         refactor_breaks = RefactorConstructs()
         output_dict = refactor_breaks.refactor(output_dict,
                                                translator.loop_constructs)
-
-    comments = get_comments(fortran_file)
-    output_dict["comments"] = comments
 
     # print_unhandled_tags() was originally intended to alert us to program
     # constructs we were not handling.  It isn't clear we actually use this
@@ -1800,12 +1797,12 @@ def xml_to_py(trees, fortran_file):
 
 
 def parse_args():
-    """ Parse the arguments passed to the script.  Returns a tuple 
+    """ Parse the arguments passed to the script.  Returns a tuple
         (fortran_file, pickle_file, args) where fortran_file is the
         file containing the input Fortran code, and pickle_file is
         the output pickle file.
     """
-    
+
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-g",

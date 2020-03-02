@@ -11,7 +11,7 @@ source_fortran_file = 'DiscreteSIR-noarrays.f'
 print(f'    source_fortran_file: {source_fortran_file}')
 
 grfn = GroundedFunctionNetwork.from_fortran_file(source_fortran_file)
-agraph = grfn.to_agraph()
+agraph = grfn.to_AGraph()
 agraph.draw('graph.pdf', prog='dot')
 
 # -----------------------------------------------------------------------------

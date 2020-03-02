@@ -106,7 +106,7 @@ setup(
         "numpy",
         "scipy",
         "matplotlib",
-        "seaborn>=0.9.0",
+        "seaborn>=0.10.0",
         "pandas",
         "future==0.16.0",
         "networkx",
