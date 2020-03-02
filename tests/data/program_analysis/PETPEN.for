@@ -9,15 +9,15 @@ C  Input : T (C)
 C  Output: VPSAT (Pa)
 C=======================================================================
 
-      REAL FUNCTION VPSAT(T)
-
-      IMPLICIT NONE
-      REAL T
-
-      VPSAT = 610.78 * EXP(17.269*T/(T+237.30))
-
-      RETURN
-      END FUNCTION VPSAT
+C      REAL FUNCTION VPSAT(T)
+C
+C      IMPLICIT NONE
+C      REAL T
+C
+C      VPSAT = 610.78 * EXP(17.269*T/(T+237.30))
+C
+C      RETURN
+C      END FUNCTION VPSAT
 C=======================================================================
 ! VPSAT Variables
 !-----------------------------------------------------------------------
@@ -39,18 +39,18 @@ C  Input : T (C)
 C  Output: VPSLOP
 C=======================================================================
 
-      REAL FUNCTION VPSLOP(T)
-
-      IMPLICIT NONE
-
-      REAL T,VPSAT
-
-C     dEsat/dTempKel = MolWeightH2O * LatHeatH2O * Esat / (Rgas * TempKel^2)
-
-      VPSLOP = 18.0 * (2501.0-2.373*T) * VPSAT(T) / (8.314*(T+273.0)**2)
-
-      RETURN
-      END FUNCTION VPSLOP
+C      REAL FUNCTION VPSLOP(T)
+C
+C      IMPLICIT NONE
+C
+C      REAL T,VPSAT
+C
+C      dEsat/dTempKel = MolWeightH2O * LatHeatH2O * Esat / (Rgas * TempKel^2)
+C
+C      VPSLOP = 18.0 * (2501.0-2.373*T) * VPSAT(T) / (8.314*(T+273.0)**2)
+C
+C      RETURN
+C      END FUNCTION VPSLOP
 C=======================================================================
 ! VPSLOP variables
 !-----------------------------------------------------------------------
@@ -83,7 +83,7 @@ C  2)  PRESENTLY USING A LOCKED-IN VALUE OF 1.1 TO GIVE KC OF 1.1
 C  I WOULD LIKE TO SEE OPTION OF SPECIES INPUT OF KC=1.1 TO 1.3
 C  3) WINDHT WAS IN OLD, APPARENTLY 2.0, NO LONGER HERE.  ???
 C  02/06/2003 KJB/CHP Added EORATIO as input from plant routines.
-!  07/24/2006 CHP Use MSALB instead of SALB (includes mulch and soil 
+!  07/24/2006 CHP Use MSALB instead of SALB (includes mulch and soil
 !                 water effects on albedo)
 !  09/19/2006 SSJ Fixed error in REFHT calc as noted below.
 !  08/25/2011 CHP Use measured vapor pressure (VAPR), if available
@@ -124,7 +124,7 @@ C     PARAMETER (SHAIR = 1005.0)
       PARAMETER (SBZCON=4.903E-9)   !(MJ/K4/m2/d) fixed constant 5/6/02
 !-----------------------------------------------------------------------
 !     FUNCTION SUBROUTINES:
-      REAL VPSLOP, VPSAT      !Found in file HMET.for
+      REAL VPSLOP_TMAX, VPSLOP_TMIN, VPSAT_TMAX, VPSAT_TMIN, VPSAT_TDEW
 
 C-----------------------------------------------------------------------
 C     Compute air properties.
@@ -132,9 +132,12 @@ C     Compute air properties.
 C     PSYCON = SHAIR * PATM / (0.622*LHVAP)               ! Pa/K
       PSYCON = SHAIR * PATM / (0.622*LHVAP) * 1000000     ! Pa/K
 
-!     Previous code:
-      ESAT = (VPSAT(TMAX)+VPSAT(TMIN)) / 2.0              ! Pa
-      EAIR = VPSAT(TDEW)                                  ! Pa
+      VPSAT_TMAX = 610.78 * EXP(17.269*TMAX/(TMAX+237.30))
+      VPSAT_TMIN = 610.78 * EXP(17.269*TMIN/(TMIN+237.30))
+      VPSAT_TDEW = 610.78 * EXP(17.269*TDEW/(TDEW+237.30))
+
+      ESAT = (VPSAT_TMAX+VPSAT_TMIN) / 2.0               ! Pa
+      EAIR = VPSAT_TDEW                                   ! Pa
 
 !     If actual vapor pressure is available, use it.
       IF (VAPR > 1.E-6) THEN
@@ -142,7 +145,11 @@ C     PSYCON = SHAIR * PATM / (0.622*LHVAP)               ! Pa/K
       ENDIF
 
       VPD = MAX(0.0, ESAT - EAIR)                         ! Pa
-      S = (VPSLOP(TMAX)+VPSLOP(TMIN)) / 2.0               ! Pa/K
+
+      VPSLOP_TMAX = 18.0 * (2501.0-2.373*TMAX) * VPSAT_TMAX / (8.314*(TMAX+273.0)**2)
+      VPSLOP_TMIN = 18.0 * (2501.0-2.373*TMIN) * VPSAT_TMIN / (8.314*(TMIN+273.0)**2)
+
+      S = (VPSLOP_TMAX+VPSLOP_TMIN) / 2.0               ! Pa/K
       RT = 8.314 * (TAVG + 273.0)                         ! N.m/mol
       DAIR = 0.028966*(PATM-0.387*EAIR)/RT                ! kg/m3
 C BAD DAIR = 0.1 * 18.0 / RT * ((PATM  -EAIR)/0.622 + EAIR)   ! kg/m3
@@ -164,11 +171,11 @@ C       d = zero plane displacement height (m)
         WINDSP_M = WINDSP*(1000.)     !Converts km/d to m/d
         k = 0.41                     !von Karman's constant
 
-!       was 2/3, which (for integers) results in zero!! 
+!       was 2/3, which (for integers) results in zero!!
 !       SSJ 9/19/2006 added the decimals
-        !d = (2/3)*REFHT           
-        d = (2./3.)*REFHT 
-       
+        !d = (2/3)*REFHT
+        d = (2./3.)*REFHT
+
         Zom = 0.123*REFHT
         Zoh = 0.1*Zom
         ra = (LOG((WINDHT-d)/Zom)*LOG((WINDHT-d)/Zoh))/((k**2)*WINDSP_M)
@@ -187,12 +194,12 @@ C       by 1000 to convert Pa to KPa.
 
 c     MJ, 2007-04-11
 c     --------------
-c     There appears to be no support for soil heat flux (G), apart 
-c     from the variable already existing; it is just always set to 
+c     There appears to be no support for soil heat flux (G), apart
+c     from the variable already existing; it is just always set to
 c     0, for some reason.
-c     Here is the (improved) CANEGRO method for calculating G 
-c     (Allen, R.G. et al 1989, 
-c     'Operational Estimates of Reference Evapotranspiration', 
+c     Here is the (improved) CANEGRO method for calculating G
+c     (Allen, R.G. et al 1989,
+c     'Operational Estimates of Reference Evapotranspiration',
 c     Agronomy Journal Vol. 81, No. 4),
 c     http://www.kimberly.uidaho.edu/water/papers/evapotranspiration/
 c                   Allen_Operational_Estimates_Reference_ET_1989.pdf
@@ -246,14 +253,17 @@ C     !MJ/m2/d
         ET0 = ((S*RNETMG + (DAIR*SHAIR*VPD)/ra)/(S+PSYCON*(1+rs/ra)))
 C     !Converts MJ/m2/d to mm/d
         ET0 = ET0/ (LHVAP / 1000000.)
-        IF (XHLAI .LE. 6.0) THEN
-        XHLAI = XHLAI
-        ELSE
-        XHLAI = 6.0
-        ENDIF
+
+C        HACK: Commenting this out to avoid problems with SA on GrFNs
+C        IF (XHLAI .LE. 6.0) THEN
+C        XHLAI = XHLAI
+C        ELSE
+C        XHLAI = 6.0
+C        ENDIF
 C   KJB LATER, NEED TO PUT VARIABLE IN PLACE OF 1.1
 !      KC=1.0+(1.1-1.0)*XHLAI/6.0
-      KC=1.0+(EORATIO-1.0)*XHLAI/6.0
+C     HACK: added MIN(XHLAI, 6) to preserve functionality
+      KC=1.0+(EORATIO-1.0)*MIN(XHLAI, 6)/6.0
       EO=ET0*KC
 C     EO=ET0
         EO = MAX(EO,0.0)

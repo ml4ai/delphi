@@ -1,23 +1,16 @@
-import xml.etree.ElementTree as ET
+from abc import ABCMeta
 from pathlib import Path
-from typing import Dict, Iterable, Union, Set, Optional
-import subprocess as sp
+from typing import Dict, Iterable, Set, Union
+from typing import List
 import importlib
 import inspect
 import json
 import os
-import ast
-import itertools
 
-import torch
-from SALib.analyze import sobol, fast, rbd_fast
-from SALib.sample import saltelli, fast_sampler, latin
 import networkx as nx
 from networkx.algorithms.simple_paths import all_simple_paths
 
-from delphi.translators.for2py.types_ext import Float32
-from delphi.GrFN.analysis import get_max_s2_sensitivity
-import delphi.GrFN.utils as utils
+# from delphi.GrFN.analysis import get_max_s2_sensitivity
 from delphi.GrFN.utils import ScopeNode
 from delphi.utils.misc import choose_font
 from delphi.translators.for2py import (
@@ -25,8 +18,6 @@ from delphi.translators.for2py import (
     f2grfn,
 )
 import numpy as np
-import torch
-import re
 
 FONT = choose_font()
 
@@ -35,10 +26,43 @@ forestgreen = "#228b22"
 
 
 class ComputationalGraph(nx.DiGraph):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    __metaclass__ = ABCMeta
 
-    def build_call_graph(self):
+    def __init__(self, network, output_vars, *args, **kwargs):
+        super().__init__(network, *args, **kwargs)
+        self.outputs = output_vars
+        self.inputs = [
+            n
+            for n, d in self.in_degree()
+            if d == 0 and self.nodes[n]["type"] == "variable"
+        ]
+        self.input_name_map = {
+            self.var_shortname(name): name for name in self.inputs
+        }
+        self.FCG = self.to_FCG()
+        self.function_sets = self.build_function_sets()
+
+    @staticmethod
+    def var_shortname(long_var_name):
+        (
+            module,
+            var_scope,
+            container_name,
+            container_index,
+            var_name,
+            var_index,
+        ) = long_var_name.split("::")
+        return var_name
+
+    def get_input_nodes(self) -> List[str]:
+        """ Get all input nodes from a network. """
+        return [n for n, d in self.in_degree() if d == 0]
+
+    def get_output_nodes(self) -> List[str]:
+        """ Get all output nodes from a network. """
+        return [n for n, d in self.out_degree() if d == 0]
+
+    def to_FCG(self):
         G = nx.DiGraph()
         for (name, attrs) in self.nodes(data=True):
             if attrs["type"] == "function":
@@ -50,16 +74,14 @@ class ComputationalGraph(nx.DiGraph):
         return G
 
     def build_function_sets(self):
-        # TODO - this fails when there is only one function node in the graph -
-        # need to fix!
-        initial_funcs = [n for n, d in self.call_graph.in_degree() if d == 0]
+        initial_funcs = [n for n, d in self.FCG.in_degree() if d == 0]
         distances = dict()
 
         def find_distances(funcs, dist):
             all_successors = list()
             for func in funcs:
                 distances[func] = dist
-                all_successors.extend(self.call_graph.successors(func))
+                all_successors.extend(self.FCG.successors(func))
             if len(all_successors) > 0:
                 find_distances(list(set(all_successors)), dist + 1)
 
@@ -78,9 +100,7 @@ class ComputationalGraph(nx.DiGraph):
         return function_sets
 
     def run(
-        self,
-        inputs: Dict[str, Union[float, Iterable]],
-        torch_size: Optional[int] = None,
+        self, inputs: Dict[str, Union[float, Iterable]],
     ) -> Union[float, Iterable]:
         """Executes the GrFN over a particular set of inputs and returns the
         result.
@@ -93,9 +113,10 @@ class ComputationalGraph(nx.DiGraph):
             A set of outputs from executing the GrFN, one for every set of
             inputs.
         """
+        full_inputs = {self.input_name_map[n]: v for n, v in inputs.items()}
         # Set input values
         for i in self.inputs:
-            value = inputs[i]
+            value = full_inputs[i]
             if isinstance(value, float):
                 value = np.array([value], dtype=np.float32)
             if isinstance(value, int):
@@ -104,7 +125,6 @@ class ComputationalGraph(nx.DiGraph):
                 value = np.array(value, dtype=np.float32)
 
             self.nodes[i]["value"] = value
-
         for func_set in self.function_sets:
             for func_name in func_set:
                 lambda_fn = self.nodes[func_name]["lambda_fn"]
@@ -118,16 +138,9 @@ class ComputationalGraph(nx.DiGraph):
                 if len(input_values) == 0:
                     res = np.array(res, dtype=np.float32)
 
-                if torch_size is not None and len(signature) == 0:
-                    self.nodes[output_node]["value"] = torch.tensor(
-                        [res] * torch_size, dtype=torch.double
-                    )
-                else:
-                    self.nodes[output_node]["value"] = res
+                self.nodes[output_node]["value"] = res
 
         # Return the output
-        for o in self.outputs:
-            print(self.nodes[o]["value"])
         return [self.nodes[o]["value"] for o in self.outputs]
 
     def to_CAG(self):
@@ -165,16 +178,8 @@ class GroundedFunctionNetwork(ComputationalGraph):
     """
 
     def __init__(self, G, scope_tree, outputs):
-        super().__init__(G)
-        self.outputs = outputs
+        super().__init__(G, outputs)
         self.scope_tree = scope_tree
-        self.inputs = [
-            n
-            for n, d in self.in_degree()
-            if d == 0 and self.nodes[n]["type"] == "variable"
-        ]
-        self.call_graph = self.build_call_graph()
-        self.function_sets = self.build_function_sets()
 
     def __repr__(self):
         return self.__str__()
@@ -215,6 +220,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
         Args:
             cls: The class variable for object creation.
             file: Filename of a GrFN JSON file.
+            lambdas: A lambdas module
 
         Returns:
             type: A GroundedFunctionNetwork object.
@@ -226,7 +232,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
         return cls.from_dict(data, lambdas)
 
     @classmethod
-    def from_dict(cls, data: Dict, lambdas):
+    def from_dict(cls, data: Dict, lambdas_path):
         """Builds a GrFN object from a set of extracted function data objects
         and an associated file of lambda functions.
 
@@ -234,13 +240,14 @@ class GroundedFunctionNetwork(ComputationalGraph):
             cls: The class variable for object creation.
             data: A set of function data object that specify the wiring of a
                   GrFN object.
-            lambdas: [Module] A python module containing actual python
-                     functions to be computed during GrFN execution.
+            lambdas_path: Path to a lambdas file containing functions to be
+                computed during GrFN execution.
 
         Returns:
             A GroundedFunctionNetwork object.
 
         """
+        lambdas = importlib.__import__(str(Path(lambdas_path).stem))
         functions = {d["name"]: d for d in data["containers"]}
         occurrences = {}
         G = nx.DiGraph()
@@ -256,7 +263,9 @@ class GroundedFunctionNetwork(ComputationalGraph):
         def make_variable_name(parent: str, basename: str, index: str):
             return f"{parent}::{basename}::{index}"
 
-        def add_variable_node(parent: str, basename: str, index: str, is_exit: bool = False):
+        def add_variable_node(
+            parent: str, basename: str, index: str, is_exit: bool = False
+        ):
             full_var_name = make_variable_name(parent, basename, index)
             G.add_node(
                 full_var_name,
@@ -284,7 +293,9 @@ class GroundedFunctionNetwork(ComputationalGraph):
 
             for output in stmt["output"]:
                 (_, var_name, idx) = output.split("::")
-                node_name = add_variable_node(scope.name, var_name, idx, is_exit=var_name == "EXIT")
+                node_name = add_variable_node(
+                    scope.name, var_name, idx, is_exit=var_name == "EXIT"
+                )
                 G.add_edge(lambda_node_name, node_name)
 
             ordered_inputs = list()
@@ -317,8 +328,12 @@ class GroundedFunctionNetwork(ComputationalGraph):
                 occurrences[container_name] = 0
 
             new_container = functions[container_name]
-            container_color = "navyblue" if new_container["repeat"] else "forestgreen"
-            new_scope = ScopeNode(new_container, occurrences[container_name], parent=scope)
+            container_color = (
+                "navyblue" if new_container["repeat"] else "forestgreen"
+            )
+            new_scope = ScopeNode(
+                new_container, occurrences[container_name], parent=scope
+            )
             scope_tree.add_node(new_scope.name, color=container_color)
             scope_tree.add_edge(scope.name, new_scope.name)
 
@@ -331,7 +346,9 @@ class GroundedFunctionNetwork(ComputationalGraph):
                     (_, var_name, idx) = inp.split("::")
                 input_values.append((parent, var_name, idx))
 
-            callee_ret, callee_up = process_container(new_scope, input_values, container_name)
+            callee_ret, callee_up = process_container(
+                new_scope, input_values, container_name
+            )
 
             caller_ret, caller_up = list(), list()
             for var in stmt["output"]:
@@ -379,9 +396,14 @@ class GroundedFunctionNetwork(ComputationalGraph):
 
         def process_container(scope, input_vals, cname):
             if len(scope.arguments) == len(input_vals):
-                input_vars = {a: v for a, v in zip(scope.arguments, input_vals)}
+                input_vars = {
+                    a: v for a, v in zip(scope.arguments, input_vals)
+                }
             elif len(scope.arguments) > 0:
-                input_vars = {a: (scope.name,) + tuple(a.split("::")[1:]) for a in scope.arguments}
+                input_vars = {
+                    a: (scope.name,) + tuple(a.split("::")[1:])
+                    for a in scope.arguments
+                }
 
             for stmt in scope.body:
                 func_def = stmt["function"]
@@ -396,11 +418,15 @@ class GroundedFunctionNetwork(ComputationalGraph):
             return_list, updated_list = list(), list()
             for var_name in scope.returns:
                 (_, basename, idx) = var_name.split("::")
-                return_list.append(make_variable_name(scope.name, basename, idx))
+                return_list.append(
+                    make_variable_name(scope.name, basename, idx)
+                )
 
             for var_name in scope.updated:
                 (_, basename, idx) = var_name.split("::")
-                updated_list.append(make_variable_name(scope.name, basename, idx))
+                updated_list.append(
+                    make_variable_name(scope.name, basename, idx)
+                )
             return return_list, updated_list
 
         root = data["start"][0]
@@ -408,100 +434,82 @@ class GroundedFunctionNetwork(ComputationalGraph):
         cur_scope = ScopeNode(functions[root], occurrences[root])
         scope_tree.add_node(cur_scope.name, color="forestgreen")
         returns, updates = process_container(cur_scope, [], root)
-        return cls(G, scope_tree, returns+updates)
-
-    @classmethod
-    def from_python_file(
-        cls, python_file, lambdas_path, json_filename: str, stem: str
-    ):
-        """Builds GrFN object from Python file."""
-        with open(python_file, "r") as f:
-            pySrc = f.read()
-        return cls.from_python_src(pySrc, lambdas_path, json_filename, stem)
+        G = cls(G, scope_tree, returns + updates)
+        return G
 
     @classmethod
     def from_python_src(
         cls,
         pySrc,
-        lambdas_path,
-        json_filename: str,
-        stem: str,
         python_file: str,
         fortran_file: str,
         module_log_file_path: str,
-        mode_mapper_dict: list,
+        mod_mapper_dict: list,
         processing_modules: bool,
-        generated_files_list: list,
-        save_file: bool = False,
+        save_intermediate_files: bool = False,
     ):
-        module_file_exist = False
-        module_import_paths = {}
-
-        tester_call = True
-        network_test = True
-        """Builds GrFN object from Python source code."""
+        lambdas_path = python_file.replace(".py", "_lambdas.py")
+        # Builds GrFN object from Python source code.
         pgm_dict = f2grfn.generate_grfn(
-                                        pySrc,
-                                        python_file,
-                                        lambdas_path,
-                                        mode_mapper_dict,
-                                        fortran_file,
-                                        tester_call,
-                                        network_test,
-                                        module_log_file_path,
-                                        processing_modules,
-                                        save_file
+            pySrc,
+            python_file,
+            lambdas_path,
+            mod_mapper_dict,
+            fortran_file,
+            module_log_file_path,
+            processing_modules,
         )
-        lambdas = importlib.__import__(stem + "_lambdas")
-        """Add generated GrFN and lambdas file paths to the list"""
-        return cls.from_dict(pgm_dict, lambdas)
+
+        G = cls.from_dict(pgm_dict, lambdas_path)
+
+        if not save_intermediate_files:
+            # Cleanup intermediate files.
+            variable_map_filename = python_file.replace(".py", "_variable_map.pkl")
+            rectified_xml_filename = "rectified_" + str(Path(python_file)).replace(
+                ".py", ".xml"
+            )
+            os.remove(variable_map_filename)
+            os.remove(rectified_xml_filename)
+
+        return G
 
     @classmethod
-    def from_fortran_file(cls, fortran_file: str, tmpdir: str = ".", save_file: bool = False):
+    def from_fortran_file(
+        cls, fortran_file: str, tmpdir: str = ".", save_intermediate_files: bool = False
+    ):
         """Builds GrFN object from a Fortran program."""
 
-        lambda_file_suffix = "_lambdas.py"
-
-        if tmpdir == "." and "/" in fortran_file:
-            tmpdir_path = Path(fortran_file).parent
         root_dir = os.path.abspath(tmpdir)
 
         (
-            pySrc,
-            json_filename,
+            python_sources,
             translated_python_files,
-            stem,
-            mode_mapper_dict,
+            mod_mapper_dict,
             fortran_filename,
             module_log_file_path,
             processing_modules,
         ) = f2grfn.fortran_to_grfn(
-                                    fortran_file,
-                                    tester_call=True,
-                                    network_test=True,
-                                    temp_dir=str(tmpdir),
-                                    root_dir_path=root_dir,
-                                    processing_modules=False,
-            )
+            fortran_file,
+            temp_dir=str(tmpdir),
+            root_dir_path=root_dir,
+            processing_modules=False,
+            save_intermediate_files = save_intermediate_files
+        )
 
-        generated_files = []
-        for python_file in translated_python_files:
-            lambdas_path = python_file[0:-3] + lambda_file_suffix
-            G = cls.from_python_src(
-                                    pySrc[0][0],
-                                    lambdas_path,
-                                    json_filename,
-                                    stem,
-                                    python_file,
-                                    fortran_file,
-                                    module_log_file_path,
-                                    mode_mapper_dict,
-                                    processing_modules,
-                                    generated_files,
-                                    save_file=save_file)
+        # For now, just taking the first translated file.
+        # TODO - generalize this.
+        python_file = translated_python_files[0]
+        G = cls.from_python_src(
+            python_sources[0][0],
+            python_file,
+            fortran_file,
+            module_log_file_path,
+            mod_mapper_dict,
+            processing_modules,
+            save_intermediate_files = save_intermediate_files
+        )
 
-            """Return GrFN object"""
-            return G
+        return G
 
     @classmethod
     def from_fortran_src(cls, fortran_src: str, dir: str = "."):
@@ -517,152 +525,15 @@ class GroundedFunctionNetwork(ComputationalGraph):
             A GroundedFunctionNetwork instance
         """
         import tempfile
-        fp = tempfile.NamedTemporaryFile('w+t', delete=False, dir=dir)
+
+        fp = tempfile.NamedTemporaryFile("w+t", delete=False, dir=dir)
         fp.writelines(fortran_src)
         fp.close()
         G = cls.from_fortran_file(fp.name, dir)
         os.remove(fp.name)
         return G
 
-    def clear(self):
-        """Clear variable nodes for next computation."""
-        for n in self.nodes():
-            if self.nodes[n]["type"] == "variable":
-                self.nodes[n]["value"] = None
-            elif self.nodes[n]["type"] == "function":
-                self.nodes[n]["visited"] = False
-
-    def sobol_analysis(
-        self, num_samples, prob_def, use_torch=False, var_types=None
-    ):
-        def create_input_vector(name, vector):
-            if var_types is None:
-                return vector
-
-            type_info = var_types[name]
-            if type_info[0] != str:
-                return vector
-
-            if type_info[0] == str:
-                (str1, str2) = type_info[1]
-                return np.where(vector >= 0.5, str1, str2)
-            else:
-                raise ValueError(f"Unrecognized value type: {type_info[0]}")
-
-        # Create an array of samples from the bounds supplied in prob_def
-        samples = saltelli.sample(
-            prob_def, num_samples, calc_second_order=True
-        )
-
-        # Create vectors of sample inputs to run through the model
-        vectorized_sample_list = np.split(samples, samples.shape[1], axis=1)
-        vectorized_input_samples = {
-            name: create_input_vector(name, vector)
-            for name, vector in zip(prob_def["names"], vectorized_sample_list)
-        }
-
-        # Produce model output and reshape for analysis
-        outputs = self.run(vectorized_input_samples)
-        Y = outputs[0]
-        Y = Y.reshape((Y.shape[0],))
-
-        # Recover the sensitivity indices from the sampled outputs
-        S = sobol.analyze(prob_def, Y)
-        return S
-
-    def S2_surface(
-        self, sizes, bounds, presets, use_torch=False, num_samples=10
-    ):
-        """Calculates the sensitivity surface of a GrFN for the two variables with
-        the highest S2 index.
-
-        Args:
-            num_samples: Number of samples for sensitivity analysis.
-            sizes: Tuple of (number of x inputs, number of y inputs).
-            bounds: Set of bounds for GrFN inputs.
-            presets: Set of standard values for GrFN inputs.
-
-        Returns:
-            Tuple:
-                Tuple: The names of the two variables that were selected
-                Tuple: The X, Y vectors of eval values
-                Z: The numpy matrix of output evaluations
-
-        """
-        args = self.inputs
-        Si = self.sobol_analysis(
-            num_samples,
-            {
-                "num_vars": len(args),
-                "names": args,
-                "bounds": [bounds[arg] for arg in args],
-            },
-        )
-        S2 = Si["S2"]
-        (s2_max, v1, v2) = get_max_s2_sensitivity(S2)
-
-        x_var, y_var = args[v1], args[v2]
-        x_bounds, y_bounds = bounds[x_var], bounds[y_var]
-        (x_sz, y_sz) = sizes
-        X = np.linspace(*x_bounds, x_sz)
-        Y = np.linspace(*y_bounds, y_sz)
-        Xv, Yv = np.meshgrid(X, Y)
-
-        input_vectors = {
-            arg: np.full_like(Xv, presets[arg])
-            for i, arg in enumerate(args)
-            if i != v1 and i != v2
-        }
-        input_vectors.update({x_var: Xv, y_var: Yv})
-
-        outputs = self.run(input_vectors)
-        Z = outputs[0]
-
-        return X, Y, Z, x_var, y_var
-
-    def to_FIB(self, other):
-        """ Creates a ForwardInfluenceBlanket object representing the
-        intersection of this model with the other input model.
-
-        Args:
-            other: The GroundedFunctionNetwork object to compare this model to.
-
-        Returns:
-            A ForwardInfluenceBlanket object to use for model comparison.
-        """
-
-        if not isinstance(other, GroundedFunctionNetwork):
-            raise TypeError(
-                f"Expected GroundedFunctionNetwork, but got {type(other)}"
-            )
-
-        def shortname(var):
-            return var[var.find("::") + 2 : var.rfind("_")]
-
-        def shortname_vars(graph, shortname):
-            return [v for v in graph.nodes() if shortname in v]
-
-        this_var_nodes = [
-            shortname(n)
-            for (n, d) in self.nodes(data=True)
-            if d["type"] == "variable"
-        ]
-        other_var_nodes = [
-            shortname(n)
-            for (n, d) in other.nodes(data=True)
-            if d["type"] == "variable"
-        ]
-
-        shared_vars = set(this_var_nodes).intersection(set(other_var_nodes))
-        full_shared_vars = {
-            full_var
-            for shared_var in shared_vars
-            for full_var in shortname_vars(self, shared_var)
-        }
-
-        return ForwardInfluenceBlanket(self, full_shared_vars)
-
-    def to_agraph(self):
+    def to_AGraph(self):
         """ Export to a PyGraphviz AGraph object. """
         A = nx.nx_agraph.to_agraph(self)
         A.graph_attr.update(
@@ -683,7 +554,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
                 label=cluster_name,
                 style="bold, rounded",
                 rankdir="LR",
-                color=node_attrs[cluster_name]["color"]
+                color=node_attrs[cluster_name]["color"],
             )
             for n in self.scope_tree.successors(cluster_name):
                 build_tree(n, node_attrs, subgraph)
@@ -693,7 +564,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
         build_tree(root, node_data, A)
         return A
 
-    def to_CAG_agraph(self):
+    def CAG_to_AGraph(self):
         """Returns a variable-only view of the GrFN in the form of an AGraph.
 
         Returns:
@@ -704,7 +575,9 @@ class GroundedFunctionNetwork(ComputationalGraph):
         for name, data in CAG.nodes(data=True):
             CAG.nodes[name]["label"] = data["cag_label"]
         A = nx.nx_agraph.to_agraph(CAG)
-        A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo", "rankdir": "LR"})
+        A.graph_attr.update(
+            {"dpi": 227, "fontsize": 20, "fontname": "Menlo", "rankdir": "LR"}
+        )
         A.node_attr.update(
             {
                 "shape": "rectangle",
@@ -716,12 +589,14 @@ class GroundedFunctionNetwork(ComputationalGraph):
         A.edge_attr.update({"color": "#650021", "arrowsize": 0.5})
         return A
 
-    def to_call_agraph(self):
+    def FCG_to_AGraph(self):
         """ Build a PyGraphviz AGraph object corresponding to a call graph of
         functions. """
 
-        A = nx.nx_agraph.to_agraph(self.call_graph)
-        A.graph_attr.update({"dpi": 227, "fontsize": 20, "fontname": "Menlo", "rankdir": "TB"})
+        A = nx.nx_agraph.to_agraph(self.FCG)
+        A.graph_attr.update(
+            {"dpi": 227, "fontsize": 20, "fontname": "Menlo", "rankdir": "TB"}
+        )
         A.node_attr.update(
             {"shape": "rectangle", "color": "#650021", "style": "rounded"}
         )
@@ -740,36 +615,31 @@ class ForwardInfluenceBlanket(ComputationalGraph):
     """
 
     def __init__(self, G: GroundedFunctionNetwork, shared_nodes: Set[str]):
-        super().__init__()
-        self.output_node=G.output_node
-        self.inputs = set(G.inputs).intersection(shared_nodes)
+        # super().__init__()
+        outputs = G.outputs
+        inputs = set(G.inputs).intersection(shared_nodes)
 
         # Get all paths from shared inputs to shared outputs
-        path_inputs = shared_nodes - {self.output_node}
+        path_inputs = shared_nodes - set(outputs)
         io_pairs = [(inp, G.output_node) for inp in path_inputs]
-        paths = [
-            p for (i, o) in io_pairs for p in all_simple_paths(G, i, o)
-        ]
+        paths = [p for (i, o) in io_pairs for p in all_simple_paths(G, i, o)]
 
         # Get all edges needed to blanket the included nodes
         main_nodes = {node for path in paths for node in path}
         main_edges = {
             (n1, n2) for path in paths for n1, n2 in zip(path, path[1:])
         }
-        self.cover_nodes = set()
+        blanket_nodes = set()
         add_nodes, add_edges = list(), list()
 
         def place_var_node(var_node):
             prev_funcs = list(G.predecessors(var_node))
-            if (
-                len(prev_funcs) > 0
-                and G.nodes[prev_funcs[0]]["label"] == "L"
-            ):
+            if len(prev_funcs) > 0 and G.nodes[prev_funcs[0]]["label"] == "L":
                 prev_func = prev_funcs[0]
                 add_nodes.extend([var_node, prev_func])
                 add_edges.append((prev_func, var_node))
             else:
-                self.cover_nodes.add(var_node)
+                blanket_nodes.add(var_node)
 
         for node in main_nodes:
             if G.nodes[node]["type"] == "function":
@@ -788,43 +658,92 @@ class ForwardInfluenceBlanket(ComputationalGraph):
 
         main_nodes |= set(add_nodes)
         main_edges |= set(add_edges)
-        main_nodes = main_nodes - self.inputs - {self.output_node}
+        main_nodes = main_nodes - inputs - set(outputs)
 
         orig_nodes = G.nodes(data=True)
 
-        self.add_nodes_from([(n, d) for n, d in orig_nodes if n in self.inputs])
-        for node in self.inputs:
-            self.nodes[node]["color"] = dodgerblue3
-            self.nodes[node]["fontcolor"] = dodgerblue3
-            self.nodes[node]["penwidth"] = 3.0
-            self.nodes[node]["fontname"] = FONT
+        F = nx.DiGraph()
 
-        self.inputs = list(self.inputs)
+        F.add_nodes_from([(n, d) for n, d in orig_nodes if n in inputs])
+        for node in inputs:
+            F.nodes[node]["color"] = dodgerblue3
+            F.nodes[node]["fontcolor"] = dodgerblue3
+            F.nodes[node]["penwidth"] = 3.0
+            F.nodes[node]["fontname"] = FONT
 
-        self.add_nodes_from([(n, d) for n, d in orig_nodes
-                            if n in self.cover_nodes])
-        for node in self.cover_nodes:
-            self.nodes[node]["fontname"] = FONT
-            self.nodes[node]["color"] = forestgreen
-            self.nodes[node]["fontcolor"] = forestgreen
+        F.inputs = list(F.inputs)
 
-        self.add_nodes_from([(n, d) for n, d in orig_nodes if n in main_nodes])
+        F.add_nodes_from([(n, d) for n, d in orig_nodes if n in blanket_nodes])
+        for node in blanket_nodes:
+            F.nodes[node]["fontname"] = FONT
+            F.nodes[node]["color"] = forestgreen
+            F.nodes[node]["fontcolor"] = forestgreen
+
+        F.add_nodes_from([(n, d) for n, d in orig_nodes if n in main_nodes])
         for node in main_nodes:
-            self.nodes[node]["fontname"] = FONT
+            F.nodes[node]["fontname"] = FONT
 
-        self.add_node(self.output_node, **G.nodes[self.output_node])
-        self.nodes[self.output_node]["color"] = dodgerblue3
-        self.nodes[self.output_node]["fontcolor"] = dodgerblue3
+        for out_var_node in outputs:
+            F.add_node(out_var_node, **G.nodes[out_var_node])
+            F.nodes[out_var_node]["color"] = dodgerblue3
+            F.nodes[out_var_node]["fontcolor"] = dodgerblue3
 
-        self.add_edges_from(main_edges)
-        self.call_graph = self.build_call_graph()
-        self.function_sets = self.build_function_sets()
+        F.add_edges_from(main_edges)
+        super().__init__(F, outputs)
+
+        # self.FCG = self.to_FCG()
+        # self.function_sets = self.build_function_sets()
+
+    @classmethod
+    def from_GrFN(cls, G1, G2):
+        """ Creates a ForwardInfluenceBlanket object representing the
+        intersection of this model with the other input model.
+
+        Args:
+            G1: The GrFN model to use as the basis for this FIB
+            G2: The GroundedFunctionNetwork object to compare this model to.
+
+        Returns:
+            A ForwardInfluenceBlanket object to use for model comparison.
+        """
+
+        if not (
+            isinstance(G1, GroundedFunctionNetwork)
+            and isinstance(G2, GroundedFunctionNetwork)
+        ):
+            raise TypeError(
+                f"Expected two GrFNs, but got ({type(G1)}, {type(G2)})"
+            )
+
+        def shortname(var):
+            return var[var.find("::") + 2 : var.rfind("_")]
+
+        def shortname_vars(graph, shortname):
+            return [v for v in graph.nodes() if shortname in v]
+
+        g1_var_nodes = {
+            shortname(n)
+            for (n, d) in G1.nodes(data=True)
+            if d["type"] == "variable"
+        }
+        g2_var_nodes = {
+            shortname(n)
+            for (n, d) in G2.nodes(data=True)
+            if d["type"] == "variable"
+        }
+
+        shared_vars = {
+            full_var
+            for shared_var in g1_var_nodes.intersection(g2_var_nodes)
+            for full_var in shortname_vars(G1, shared_var)
+        }
+
+        return cls(G1, shared_vars)
 
     def run(
         self,
         inputs: Dict[str, Union[float, Iterable]],
         covers: Dict[str, Union[float, Iterable]],
-        torch_size: Optional[int] = None,
     ) -> Union[float, Iterable]:
         """Executes the FIB over a particular set of inputs and returns the
         result.
@@ -836,111 +755,17 @@ class ForwardInfluenceBlanket(ComputationalGraph):
             inputs.
         """
         # Abort run if covers does not match our expected cover set
-        if len(covers) != len(self.cover_nodes):
+        if len(covers) != len(blanket_nodes):
             raise ValueError("Incorrect number of cover values.")
 
         # Set the cover node values
         for node_name, val in covers.items():
             self.nodes[node_name]["value"] = val
 
-        return super().run(inputs, torch_size)
+        return super().run(inputs)
 
-    def sobol_analysis(
-        self, num_samples, prob_def, covers, use_torch=False, var_types=None
-    ):
-        def create_input_tensor(name, samples):
-            type_info = var_types[name]
-            if type_info[0] == str:
-                (val1, val2) = type_info[1]
-                return np.where(samples >= 0.5, val1, val2)
-            else:
-                return torch.tensor(samples)
-
-        samples = saltelli.sample(
-            prob_def, num_samples, calc_second_order=True
-        )
-        if use_torch:
-            samples = np.split(samples, samples.shape[1], axis=1)
-            samples = [s.squeeze() for s in samples]
-            if var_types is None:
-                values = {
-                    n: torch.tensor(s)
-                    for n, s in zip(prob_def["names"], samples)
-                }
-            else:
-                values = {
-                    n: create_input_tensor(n, s)
-                    for n, s in zip(prob_def["names"], samples)
-                }
-            Y = self.run(values, covers, torch_size=len(samples[0])).numpy()
-        else:
-            Y = np.zeros(samples.shape[0])
-            for i, sample in enumerate(samples):
-                values = {n: val for n, val in zip(prob_def["names"], sample)}
-                Y[i] = self.run(values, covers)
-
-        return sobol.analyze(prob_def, Y)
-
-    def S2_surface(self, sizes, bounds, presets, covers, use_torch=False,
-            num_samples = 10):
-        """Calculates the sensitivity surface of a GrFN for the two variables with
-        the highest S2 index.
-
-        Args:
-            num_samples: Number of samples for sensitivity analysis.
-            sizes: Tuple of (number of x inputs, number of y inputs).
-            bounds: Set of bounds for GrFN inputs.
-            presets: Set of standard values for GrFN inputs.
-
-        Returns:
-            Tuple:
-                Tuple: The names of the two variables that were selected
-                Tuple: The X, Y vectors of eval values
-                Z: The numpy matrix of output evaluations
-
-        """
-        args = self.inputs
-        Si = self.sobol_analysis(
-            num_samples,
-            {
-                "num_vars": len(args),
-                "names": args,
-                "bounds": [bounds[arg] for arg in args],
-            },
-            covers
-        )
-        S2 = Si["S2"]
-        (s2_max, v1, v2) = get_max_s2_sensitivity(S2)
-
-        x_var = args[v1]
-        y_var = args[v2]
-        search_space = [(x_var, bounds[x_var]), (y_var, bounds[y_var])]
-        preset_vals = {
-            arg: presets[arg]
-            for i, arg in enumerate(args)
-            if i != v1 and i != v2
-        }
-
-        X = np.linspace(*search_space[0][1], sizes[0])
-        Y = np.linspace(*search_space[1][1], sizes[1])
-
-        if use_torch:
-            Xm, Ym = torch.meshgrid(torch.tensor(X), torch.tensor(Y))
-            inputs = {n: torch.full_like(Xm, v) for n, v in presets.items()}
-            inputs.update({search_space[0][0]: Xm, search_space[1][0]: Ym})
-            Z = self.run(inputs, covers).numpy()
-        else:
-            Xm, Ym = np.meshgrid(X, Y)
-            Z = np.zeros((len(X), len(Y)))
-            for x, y in itertools.product(range(len(X)), range(len(Y))):
-                inputs = {n: v for n, v in presets.items()}
-                inputs.update({search_space[0][0]: x, search_space[1][0]: y})
-                Z[x][y] = self.run(inputs, covers)
-
-        return X, Y, Z, x_var, y_var
-
-    def to_agraph(self):
-        A = nx.nx_agraph.to_agraph(self)
+    def to_AGraph(self):
+        A = nx.nx_agraph.to_AGraph(self)
         A.graph_attr.update({"dpi": 227, "fontsize": 20})
         A.node_attr.update({"shape": "rectangle", "style": "rounded"})
         A.edge_attr.update({"arrowsize": 0.5})

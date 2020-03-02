@@ -159,7 +159,7 @@
     "components": [
       {
         "code_source": [
-          "/delphi/tests/data/program_analysis/SIR-Gillespie-SD_multi_module.f"
+          "tests/data/program_analysis/SIR-Gillespie-SD_multi_module.f"
         ],
         "grfn_source": "./m_update_mvar_GrFN.json",
         "imports": [

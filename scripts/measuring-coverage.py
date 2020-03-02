@@ -21,8 +21,8 @@
 import os
 import sys
 import json
-import preprocessor
-from syntax import *
+import delphi.translators.for2py.preprocessor
+from delphi.translators.for2py.syntax import *
 
 FORTRAN_EXTENSIONS = ['.f', '.f90', '.for']
 

@@ -1612,18 +1612,19 @@ class XML_to_JSON_translator(object):
 
     def initiate_function_replacement(self, function_tag):
         tags = []
-        function_name = function_tag[0]["name"]
-        if function_name.lower() in self.functionList:
-            function_arguments = function_tag[0]["args"]
-            for index, arg in enumerate(function_arguments):
-                if arg["tag"] == "call":
-                    results = self.initiate_function_replacement([arg])
-                    tags += results[0]
-                    if isinstance(results[1], dict):
-                        function_tag[0]["args"][index] = results[1]
-                    else:
-                        function_tag[0]["args"][index] = results[1][0]
-            tags += self.replace_function_call(function_tag, function_name)
+        if function_tag[0].get("name"):
+            function_name = function_tag[0]["name"]
+            if function_name.lower() in self.functionList:
+                function_arguments = function_tag[0]["args"]
+                for index, arg in enumerate(function_arguments):
+                    if arg["tag"] == "call":
+                        results = self.initiate_function_replacement([arg])
+                        tags += results[0]
+                        if isinstance(results[1], dict):
+                            function_tag[0]["args"][index] = results[1]
+                        else:
+                            function_tag[0]["args"][index] = results[1][0]
+                tags += self.replace_function_call(function_tag, function_name)
         return tags, function_tag
 
     def replace_function_call(self, tag, function_name):
@@ -1775,7 +1776,7 @@ def get_trees(files: List[str]) -> List[ET.ElementTree]:
     return [ET.parse(f).getroot() for f in files]
 
 
-def xml_to_py(trees, fortran_file):
+def xml_to_py(trees):
     translator = XML_to_JSON_translator()
     output_dict = translator.analyze(trees)
 
@@ -1785,9 +1786,6 @@ def xml_to_py(trees, fortran_file):
         refactor_breaks = RefactorConstructs()
         output_dict = refactor_breaks.refactor(output_dict,
                                                translator.loop_constructs)
-
-    comments = get_comments(fortran_file)
-    output_dict["comments"] = comments
 
     # print_unhandled_tags() was originally intended to alert us to program
     # constructs we were not handling.  It isn't clear we actually use this
@@ -1800,12 +1798,12 @@ def xml_to_py(trees, fortran_file):
 
 
 def parse_args():
-    """ Parse the arguments passed to the script.  Returns a tuple 
+    """ Parse the arguments passed to the script.  Returns a tuple
         (fortran_file, pickle_file, args) where fortran_file is the
         file containing the input Fortran code, and pickle_file is
         the output pickle file.
     """
-    
+
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-g",
