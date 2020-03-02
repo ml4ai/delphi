@@ -1,7 +1,16 @@
+# Purpose: Runs a test experiment in Earliest Common Descendant comparison
+# Q: What is ECD comparison?
+# A: For two models with shared input nodes, find the lambda function in each
+# model that represents the first occurrence of an interaction between those
+# shared input nodes. Return the stringified version of these nodes for later
+# comparison and score the difference between the lambdas with the Levenshtein
+# distance metric.
+# Author: Paul D. Hein
+# Date of Origin: 02/28/2020
+
 import inspect
 import Levenshtein
 
-# from networkx.algorithms.lowest_common_ancestors import lowest_common_ancestor
 import networkx as nx
 import numpy as np
 
