@@ -105,6 +105,32 @@ def generate_ofp_xml(
 
     return ofp_xml_string
 
+def generate_preprocessed_fortran(original_fortran_file, temp_dir):
+    """This function generates preprocessed fortran file.
+    
+    Args:
+        original_fortran_file(str): Original fortran file path.
+        temp_dir(str): Target directory where temporary files will be
+        stored.
+
+    Returns:
+        str: Preprocessed file path.
+    """
+    filename = os.path.basename(original_fortran_file)
+    base = os.path.splitext(filename)[0]
+    # TODO Add some code using Pathlib to check the file extension and make
+    # sure it's either .f or .for.
+    preprocessed_fortran_file_path = temp_dir + str(base) + "_preprocessed.f"
+    preprocessed_fortran = preprocessor.create_preprocessed_file(
+        original_fortran_file
+    )
+
+    with open(preprocessed_fortran_file_path, "w") as f:
+        f.write("".join(preprocessed_fortran))
+
+    return preprocessed_fortran_file_path
+
+
 
 def generate_rectified_xml(
     ofp_xml_string, original_fortran_file, module_log_file_path, temp_dir
@@ -134,8 +160,6 @@ def generate_rectified_xml(
     rectified_tree.write(
         temp_dir + "rectified_" + str(Path(original_fortran_file).stem) + ".xml"
     )
-    # DEBUG
-    print ("rectified_tree: ", rectified_tree)
     return rectified_xml, module_files_to_process
 
 
@@ -426,9 +450,6 @@ def fortran_to_grfn(
     if temp_dir is None:
         temp_dir = current_dir + "/" + temp_out_dir
 
-    # DEBUG
-    print ("temp_dir: ", temp_dir)
-
     # If "tmp" directory does not exist already, simply create one.
     if not os.path.isdir(temp_dir):
         os.mkdir(temp_dir)
@@ -443,13 +464,8 @@ def fortran_to_grfn(
     # Output files
     python_file = temp_dir + "/" + base + ".py"
 
-    # TODO Add some code using Pathlib to check the file extension and make
-    # sure it's either .f or .for.
-    preprocessed_fortran_file = str(original_fortran_file).replace(
-        ".f", "_preprocessed.f"
-    )
-    preprocessor.create_preprocessed_file(
-        original_fortran_file, preprocessed_fortran_file
+    preprocessed_fortran_file = generate_preprocessed_fortran(
+            original_fortran_file, temp_dir
     )
 
     # Generate OFP XML from preprocessed fortran
