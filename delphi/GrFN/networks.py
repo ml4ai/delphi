@@ -576,12 +576,17 @@ class GroundedFunctionNetwork(ComputationalGraph):
             else:
                 raise ValueError(f"Unrecognized node type: {data['type']}")
 
-        json_data = {
-            "nodes": nodes_json,
-            "edges": list(self.edges),
-            "containers": list(containers.values()),
-        }
-        json.dump(json_data, open("GrFN.json", "w"))
+        return json.dumps(
+            {
+                "nodes": nodes_json,
+                "edges": list(self.edges),
+                "containers": list(containers.values()),
+            }
+        )
+
+    def to_json_file(self, filename):
+        GrFN_json = self.to_json()
+        json.dump(GrFN_json, open(filename, "w"))
 
     def to_AGraph(self):
         """ Export to a PyGraphviz AGraph object. """
