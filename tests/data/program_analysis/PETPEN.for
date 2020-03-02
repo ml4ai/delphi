@@ -255,6 +255,7 @@ C     !Converts MJ/m2/d to mm/d
         ET0 = ET0/ (LHVAP / 1000000.)
 
 C        HACK: Commenting this out to avoid problems with SA on GrFNs
+C       NOTE: This is a potential side-effect bug for downsteam PET models
 C        IF (XHLAI .LE. 6.0) THEN
 C        XHLAI = XHLAI
 C        ELSE
