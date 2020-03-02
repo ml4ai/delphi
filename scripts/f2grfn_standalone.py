@@ -74,7 +74,7 @@ if __name__ == "__main__":
         processing_modules,
     ) = f2grfn.fortran_to_grfn(
         args.file,
-        args.directory[0]+"/",
+        args.directory[0],
         args.root,
         args.moduleLog,
         save_intermediate_files=True,
