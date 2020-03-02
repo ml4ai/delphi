@@ -111,7 +111,7 @@ def generate_preprocessed_fortran(original_fortran_file, temp_dir):
     # TODO Add some code using Pathlib to check the file extension and make
     # sure it's either .f or .for.
     preprocessed_fortran_file_path = f"{temp_dir}/{str(base)}_preprocessed.f"
-    preprocessed_fortran = preprocessor.create_preprocessed_file(
+    preprocessed_fortran = preprocessor.get_preprocessed_lines_from_file(
         original_fortran_file
     )
 
