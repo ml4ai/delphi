@@ -12,12 +12,11 @@ functionality of test_program_analysis.py and autoTranslate.
 Example:
     This script can be executed as below:
 
-        $ python -f <fortran_file>
+        $ python f2grfn_standalone.py -f <fortran_file> -d <target_directory>
 
 fortran_file: An original input file to a program that is to be
     translated to GrFN.
-root_dir: A root directory where module log file should be created or
-    found.
+target_directory: A directory where generated temporary files will be stored.
 
 Author: Terrence J. Lim
 """
@@ -43,7 +42,6 @@ if __name__ == "__main__":
     parser.add_argument(
         "-d",
         "--directory",
-        nargs="*",
         help="A temporary directory for generated files to be stored.",
         default=".",
     )
