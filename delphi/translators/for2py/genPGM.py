@@ -56,8 +56,8 @@ class GrFNState:
         lambda_strings: Optional[List[str]] = None,
         last_definitions: Optional[Dict] = None,
         next_definitions: Optional[Dict] = None,
-        last_definition_default = None,
-        function_name = None,
+        last_definition_default=None,
+        function_name=None,
         variable_types: Optional[Dict] = None,
         start: Optional[Dict] = None,
         scope_path: Optional[List] = None,
@@ -2128,9 +2128,8 @@ class GrFNGenerator(object):
                             if arg[0]["call"]["function"] == "String":
                                 value = arg[0]["call"]["inputs"][1][0]["value"]
                                 function["input"].append(
-                                    f"@literal::"
-                                    f"string::"
-                                    f"'{value}'")
+                                    f"@literal::" f"string::" f"'{value}'"
+                                )
                         else:
                             function = self._generate_array_setter(
                                 node, function, arg,
@@ -2603,8 +2602,8 @@ class GrFNGenerator(object):
 
                 # If the array type is string, the structure of inputs will
                 # be a bit different than when it is int of float
-                if 'call' in inputs[0][0]:
-                    if inputs[0][0]['call']['function'] == "String":
+                if "call" in inputs[0][0]:
+                    if inputs[0][0]["call"]["function"] == "String":
                         array_type = "string"
                 else:
                     array_type = inputs[0][0]["var"]["variable"]
@@ -2710,11 +2709,11 @@ class GrFNGenerator(object):
                 self.arrays[var_name] = array_info
                 state.array_types[var_name] = array_type
                 if array_type == "string":
-                    length = inputs[0][0]['call']["inputs"][0][0]['value']
+                    length = inputs[0][0]["call"]["inputs"][0][0]["value"]
                     self.strings[var_name] = {
                         "length": length,
                         "annotation": False,
-                        "annotated_assign": True
+                        "annotated_assign": True,
                     }
 
             if (
@@ -3657,10 +3656,11 @@ class GrFNGenerator(object):
         elif not string_assign:
             array_name = None
             if state.array_assign_name:
-                array_name = state.array_assign_name.split('[')[0]
+                array_name = state.array_assign_name.split("[")[0]
             if array_name in self.strings:
-                lambda_code_generator = genCode(self.use_numpy, self.strings[
-                    array_name]["length"])
+                lambda_code_generator = genCode(
+                    self.use_numpy, self.strings[array_name]["length"]
+                )
             else:
                 lambda_code_generator = genCode(self.use_numpy)
             code = lambda_code_generator.generate_code(
