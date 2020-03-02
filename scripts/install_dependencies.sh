@@ -46,10 +46,9 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
             doxygen \
             nlohmann-json \
             eigen3 \
-            pybind11
-        if [[ $? -ne 0 ]]; then exit 1; fi;
-
-        sudo port -N install boost -no_static
+            pybind11 \
+            boost\
+            range-v3
         if [[ $? -ne 0 ]]; then exit 1; fi;
 
     elif [ -x "$(command -v brew)" ]; then
