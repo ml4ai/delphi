@@ -1,10 +1,69 @@
-from networkx.algorithms.lowest_common_ancestors import lowest_common_ancestor
+import inspect
+import Levenshtein
+
+# from networkx.algorithms.lowest_common_ancestors import lowest_common_ancestor
 import networkx as nx
 import numpy as np
-import matplotlib.pyplot as plt
-import inspect
-import  Levenshtein
+
 from delphi.GrFN.networks import GroundedFunctionNetwork as GrFN
+
+
+def main():
+    PNO_GrFN = GrFN.from_fortran_file(
+        f"../tests/data/program_analysis/PETPNO.for"
+    )
+    PEN_GrFN = GrFN.from_fortran_file(
+        f"../tests/data/program_analysis/PETPEN.for"
+    )
+
+    # Use basenames for variable comparison because the two GrFNs will have those in common
+    PNO_nodes = [
+        d["basename"]
+        for n, d in PNO_GrFN.nodes(data=True)
+        if d["type"] == "variable"
+    ]
+    PEN_nodes = [
+        d["basename"]
+        for n, d in PEN_GrFN.nodes(data=True)
+        if d["type"] == "variable"
+    ]
+
+    shared_nodes = list(set(PNO_nodes).intersection(set(PEN_nodes)))
+    # Make a map so we can access the original variable names from the basenames
+    PNO_input_map = {get_basename(node): node for node in PNO_GrFN.inputs}
+    PEN_input_map = {get_basename(node): node for node in PEN_GrFN.inputs}
+
+    PNO_inputs = list(PNO_input_map.keys())
+    PEN_inputs = list(PEN_input_map.keys())
+
+    # Reverse the graph so that LCA analysis will work
+    mock_PNO_GrFN = nx.DiGraph()
+    mock_PNO_GrFN.add_edges_from([(dst, src) for src, dst in PNO_GrFN.edges])
+
+    mock_PEN_GrFN = nx.DiGraph()
+    mock_PEN_GrFN.add_edges_from([(dst, src) for src, dst in PEN_GrFN.edges])
+
+    # Find both sets of shared inputs
+    shared_input_nodes = list(set(PNO_inputs).intersection(set(shared_nodes)))
+
+    for i, v1 in enumerate(shared_input_nodes):
+        for v2 in shared_input_nodes[i + 1 :]:
+            (L1, L2) = pairwise_LCAs(
+                mock_PNO_GrFN,
+                mock_PEN_GrFN,
+                PNO_input_map,
+                PEN_input_map,
+                v1,
+                v2,
+            )
+            if L1 is None and L2 is None:
+                print(f"SHARED: {v1}, {v2}\t\tFAILED\n\n")
+                continue
+            ((L1, L2), LD) = lambda_levenshtein_dist(
+                PNO_GrFN, PEN_GrFN, L1, L2
+            )
+            print(f"SHARED: {v1}, {v2}\tLev Dist: {LD}")
+            print(f"LAMBDAS:\n\t{v1}: {L1}\n\t{v2}: {L2}\n\n")
 
 
 def get_basename(node_name):
@@ -12,114 +71,63 @@ def get_basename(node_name):
     return basename
 
 
-PNO_GrFN = GrFN.from_fortran_file(f"../tests/data/program_analysis/PETPNO.for")
-PEN_GrFN = GrFN.from_fortran_file(f"../tests/data/program_analysis/PETPEN.for")
-
-# Use basenames for variable comparison because the two GrFNs will have those in common
-PNO_nodes = [
-    d["basename"]
-    for n, d in PNO_GrFN.nodes(data=True)
-    if d["type"] == "variable"
-]
-PEN_nodes = [
-    d["basename"]
-    for n, d in PEN_GrFN.nodes(data=True)
-    if d["type"] == "variable"
-]
-# print(PNO_nodes)
-
-shared_nodes = list(set(PNO_nodes).intersection(set(PEN_nodes)))
-# Make a map so we can access the original variable names from the basenames
-PNO_input_map = {get_basename(node): node for node in PNO_GrFN.inputs}
-PEN_input_map = {get_basename(node): node for node in PEN_GrFN.inputs}
-
-PNO_inputs = list(PNO_input_map.keys())
-PEN_inputs = list(PEN_input_map.keys())
-
-# Find both sets of shared inputs
-PNO_shared_inputs = list(set(PNO_inputs).intersection(set(shared_nodes)))
-PEN_shared_inputs = list(set(PEN_inputs).intersection(set(shared_nodes)))
-
-print(PNO_shared_inputs)
-print(PEN_shared_inputs)
-
-# Reverse the graph so that LCA analysis will work
-mock_PNO_GrFN = nx.DiGraph()
-mock_PNO_GrFN.add_edges_from([(dst, src) for src, dst in PNO_GrFN.edges])
-
-mock_PEN_GrFN = nx.DiGraph()
-mock_PEN_GrFN.add_edges_from([(dst, src) for src, dst in PEN_GrFN.edges])
-
-# Pick some shared inputs for LCA analysis
-PNO_input1, PNO_input2 = (
-    PNO_input_map[PNO_shared_inputs[0]],
-    PNO_input_map[PNO_shared_inputs[1]],
-)
-print(PNO_input1, PNO_input2)
-
-# Because of the layout of a GrFN the returned node will always be the LCA function node
-LCA = lowest_common_ancestor(mock_PNO_GrFN, PNO_input1, PNO_input2)
-# print(LCA)
-
-###############################################################
+def stringified_lambda(source_ref):
+    """Use inspect.getsourcelines() to grab the stringified lambda functions"""
+    (code, _) = inspect.getsourcelines(source_ref)
+    lines = ("".join(code)).split("\n")
+    important_lines = ";".join(lines[1:])
+    return important_lines
 
 
-# Get the actual function code for this node via the attribute "lambda_fn"
+def pairwise_LCAs(G1, G2, imap1, imap2, v1, v2):
+    ivar11, ivar12 = imap1[v1], imap1[v2]
+    ivar21, ivar22 = imap2[v1], imap2[v2]
+    # Get the actual function code for this node via the attribute "lambda_fn"
 
-LCA_test1 = lowest_common_ancestor(mock_PNO_GrFN,'PETPNO::@global::petpno::0::tmax::-1',  'PETPNO::@global::petpno::0::srad::-1')
-print(LCA_test1)
+    LCA_G1 = nx.algorithms.lowest_common_ancestors.lowest_common_ancestor(
+        G1, ivar11, ivar12
+    )
+    LCA_G2 = nx.algorithms.lowest_common_ancestors.lowest_common_ancestor(
+        G2, ivar21, ivar22
+    )
 
-LCA_test2 = lowest_common_ancestor(mock_PEN_GrFN,'PETPEN::@global::petpen::0::tmax::-1', 'PETPEN::@global::petpen::0::srad::-1')
-print(LCA_test2)
+    return LCA_G1, LCA_G2
 
-for x, y in PNO_GrFN.node(data='lambda_fn'):
-    if y is not None and x == LCA_test1:
-        common_function1 = y
 
-for x, y in PEN_GrFN.node(data='lambda_fn'):
-    if y is not None and x == LCA_test2:
-        common_function2 = y
+def lambda_levenshtein_dist(G1, G2, LCA1, LCA2):
+    G1_lambda = G1.nodes[LCA1]["lambda_fn"]
+    G2_lambda = G2.nodes[LCA2]["lambda_fn"]
 
-print(common_function1)
-print(common_function2)
-
-# Use inspect.getsourcelines() to grab the stringified lambda functions
-
-lambda_fn1 = inspect.getsourcelines(common_function1)[0][1].split('return')[-1].split('\n')[0]
-print(lambda_fn1)
-
-lambda_fn2 = inspect.getsourcelines(common_function2)[0][1].split('return')[-1].split('\n')[0]
-print(lambda_fn2)
-
-# Compare the stringified lambda functions with a string based levenshtein distance
-
-print(Levenshtein.distance(lambda_fn1, lambda_fn2))  # Result is 0
-print(Levenshtein.distance(lambda_fn1.upper(), lambda_fn2)) # Result is 14
+    lam_str1 = stringified_lambda(G1_lambda)
+    lam_str2 = stringified_lambda(G2_lambda)
+    lev_dist = Levenshtein.distance(lam_str1, lam_str2)
+    return (lam_str1, lam_str2), lev_dist
 
 
 # Recover the differences between the strings with dynamic programming
+def editdistDP(fn1, fn2):
+    M, N = (
+        len(fn1),
+        len(fn2),
+    )
 
-def editdistDP(fn1, fn2, m, n):
-    
-    DP = np.zeros((m+1, n+1), dtype=int)
+    DP = np.zeros((M + 1, N + 1), dtype=int)
 
-    for i in range(m+1):
-        for  j  in range(n+1):
-            
+    for i in range(M + 1):
+        for j in range(N + 1):
             if i == 0:
                 DP[i][j] = j
-
             elif j == 0:
                 DP[i][j] = i
-
-            elif fn1[i-1] == fn2[j-1]:
-                DP[i][j] = DP[i-1][j-1]
-
+            elif fn1[i - 1] == fn2[j - 1]:
+                DP[i][j] = DP[i - 1][j - 1]
             else:
-                DP[i][j] = 1 + min(DP[i][j-1], DP[i-1][j], DP[i-1][j-1])
+                DP[i][j] = 1 + min(
+                    DP[i][j - 1], DP[i - 1][j], DP[i - 1][j - 1]
+                )
+
+    return DP[M][N]
 
 
-    return DP[m][n]
-
-
-print(editdistDP(lambda_fn1.upper(), lambda_fn2, len(lambda_fn1), len(lambda_fn2)))
+if __name__ == "__main__":
+    main()
