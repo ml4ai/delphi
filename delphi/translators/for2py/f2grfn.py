@@ -71,7 +71,7 @@ MODULE_FILE_NAME = "modFileLog.json"
 
 
 def generate_ofp_xml(
-    preprocessed_fortran_file, save_intermediate_files=False
+    preprocessed_fortran_file, temp_dir, save_intermediate_files=False
 ) -> str:
     """ This function runs Open Fortran Parser to generate initial AST XML from
     the preprocessed Fortran file.
@@ -100,7 +100,7 @@ def generate_ofp_xml(
     if save_intermediate_files:
         tree = ET.ElementTree(ET.fromstring(ofp_xml_string))
         tree.write(
-            f"{Path(preprocessed_fortran_file).stem}.xml"
+            f"{temp_dir}{Path(preprocessed_fortran_file).stem}.xml"
         )
 
     return ofp_xml_string
@@ -455,6 +455,7 @@ def fortran_to_grfn(
     # Generate OFP XML from preprocessed fortran
     ofp_xml_string = generate_ofp_xml(
         preprocessed_fortran_file,
+        temp_dir,
         save_intermediate_files=save_intermediate_files,
     )
 
