@@ -236,6 +236,9 @@
       REAL               adj(10)
       INTEGER            i,l,tvilent,nev,fnumerr
 
+! Syntax gymnastics to work around OFP bug
+      CHARACTER(1000) facadj_tmp
+
       SAVE
 
       DO I = 1,NEV
@@ -244,22 +247,26 @@
        IF(l.LT.2)THEN
          fac(i)='0'
          adj(i)=-99
-       ELSEIF(l.EQ.2)THEN
-         fac(i)=facadj(i)(1:1)
+      ELSEIF(l.EQ.2)THEN
+         facadj_tmp = facadj(i)
+         fac(i)=facadj_tmp(1:1)
          READ(facadj(i),'(1x,F1.0)')adj(i)
        ELSEIF(l.EQ.3)THEN
-         IF(facadj(i)(1:1).EQ.'-')THEN
+         facadj_tmp = facadj(i)
+         IF(facadj_tmp(1:1).EQ.'-')THEN
            fac(i)='0'
            adj(i)=-99
          ELSE
-           fac(i)=facadj(i)(1:1)
+           facadj_tmp = facadj(i)
+           fac(i)=facadj_tmp(1:1)
            READ(facadj(i),'(1x,F2.0)')adj(i)
          ENDIF
        ELSEIF(l.EQ.4)THEN
          fac(i)=facadj(i)(1:1)
          READ(facadj(i),'(1x,F3.0)')adj(i)
        ELSEIF(l.EQ.5)THEN
-         fac(i)=facadj(i)(1:1)
+         facadj_tmp = facadj(i)
+         fac(i)=facadj_tmp(1:1)
          READ(facadj(i),'(1x,F4.0)')adj(i)
        ELSEIF(l.GT.5)THEN
          CALL Getlun('ERROR.OUT',fnumerr)
@@ -289,6 +296,8 @@
       CHARACTER (LEN=*)  em(10), ec(10), fac(10)
       REAL               adj(10)
       INTEGER            i,l,nev
+! Syntax gymnastics to work around OFP bug
+      CHARACTER(1000) tmp
 
       INTRINSIC          LEN,TRIM
 
@@ -297,11 +306,13 @@
       DO I = 1,NEV
         fac(i)='0'
         adj(i)=-99
-        IF (ec(I)(1:3).NE.'-99') THEN
-          IF (ec(I)(1:1).NE.'0') THEN
+        tmp = ec(I)
+        IF (tmp(1:3).NE.'-99') THEN
+          IF (tmp(1:1).NE.'0') THEN
             EC(I) = TRIM(EC(I))
             L = LEN(EC(I))
-            fac(I) = EC(I)(L:L)
+            tmp = ec(I)
+            fac(I) = tmp(L:L)
             READ(EM(I),'(F6.0)') adj(I)
           ENDIF
         ENDIF
