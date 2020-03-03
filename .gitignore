@@ -129,6 +129,7 @@ scripts/*.json
 variables.csv
 notebooks/season.dat
 bmi_config.txt
+scripts/tmp/
 
 # Data to ignore
 *_pickle

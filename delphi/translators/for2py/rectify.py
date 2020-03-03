@@ -188,7 +188,7 @@ class RectifiedXMLGenerator:
         # Temporarily holds the type of declaring variable type
         self.variable_type = None
         # Holds the caller arguments that are array
-        self.caller_arr_arguments = {}
+        # self.caller_arr_arguments = {}
         # Set to true if handling <call>
         self.call_function = False
         self.original_fortran_file_abs_path = None
@@ -1166,7 +1166,10 @@ class RectifiedXMLGenerator:
                         self.current_scope]
                 ):
                     self.argument_types[self.current_scope][child.attrib[
-                        'name']] = self.variable_type
+                        'name']] = {
+                        "type": self.variable_type,
+                        "is_array": self.is_array
+                    }
                 # Up to this point, all the child (nested or sub) elements were
                 # <variable>
                 cur_elem = ET.SubElement(
@@ -1224,6 +1227,10 @@ class RectifiedXMLGenerator:
                         child, cur_elem, current, parent, traverse
                     )
                     if child.tag == "dimensions":
+                        if self.current_scope in self.argument_types:
+                            self.argument_types[self.current_scope][
+                                root.attrib['name']]['is_array'] = "true"
+
                         current.attrib['is_array'] = "true"
                         self.declared_array_vars.update(
                             {current.attrib['name']: self.current_scope}
@@ -1581,6 +1588,8 @@ class RectifiedXMLGenerator:
                         child.attrib['id']] = cur_elem
                 if grandparent.tag == "function":
                     self.args_for_function.append(cur_elem.attrib['id'])
+                    self.argument_types[grandparent.attrib['name']][
+                        cur_elem.attrib['id']] = None
                 # If the element holds sub-elements, call the XML tree parser
                 # with created new <name> element
                 if len(child) > 0 or child.text:
@@ -1763,8 +1772,8 @@ class RectifiedXMLGenerator:
 
             # If current assignment is done with a function call,
             # then update function definition's arguments with array status
-            if function_call:
-                self.update_function_arguments(current)
+            # if function_call:
+            #     self.update_function_arguments(current)
 
             if (
                     child.tag == "name"
@@ -2031,7 +2040,7 @@ class RectifiedXMLGenerator:
                        f'handled'
 
     def handle_tag_subscript(
-            self, root, current, parent, _, traverse
+            self, root, current, parent, grandparent, traverse
     ):
         """This function handles cleaning up the XML elements
         between the subscript elements.
@@ -2059,21 +2068,21 @@ class RectifiedXMLGenerator:
                 # If current subscript is for a function caller and
                 # current element (argument) is an array, then store
                 # it into the caller_arr_arguments map for later use
-                if (
-                    self.call_function
-                    and (cur_elem.tag == "name"
-                         and cur_elem.attrib['is_array'] == "true")
-                ):
-                    assert (
-                        "fname" in parent.attrib
-                    ), "If this subscript is for the caller argument,\
-                            fname must exist in the parent"
-                    fname = parent.attrib['fname']
-                    arg = cur_elem.attrib['id']
-                    if fname in self.caller_arr_arguments:
-                        self.caller_arr_arguments[fname].append(arg)
-                    else:
-                        self.caller_arr_arguments[fname] = [arg]
+                # if (
+                #     self.call_function
+                #     and (cur_elem.tag == "name"
+                #          and cur_elem.attrib['is_array'] == "true")
+                # ):
+                #     assert (
+                #         "fname" in parent.attrib
+                #     ), "If this subscript is for the caller argument, " \
+                #        "fname must exist in the parent"
+                #     fname = parent.attrib['fname']
+                #     arg = cur_elem.attrib['id']
+                #     if fname in self.caller_arr_arguments:
+                #         self.caller_arr_arguments[fname].append(arg)
+                #     else:
+                #         self.caller_arr_arguments[fname] = [arg]
 
     def handle_tag_operation(
             self, root, current, parent, _, traverse
@@ -2553,13 +2562,14 @@ class RectifiedXMLGenerator:
                     ), f'In handle_tag_call: Empty elements "{child.tag}"'
 
         # Update call function definition's arguments with array status
-        self.update_function_arguments(current)
+        # self.update_function_arguments(current)
         # Update call function arguments with their types
         update = False
         arguments_info = []
-        self.update_call_argument_type(current, update, self.current_scope, arguments_info)
-        # If modules been used in the current program, check for interface functions
-        # and replace function names, if necessary.
+        self.update_call_argument_type(current, update, self.current_scope,
+                                       arguments_info)
+        # If modules been used in the current program, check for interface
+        # functions and replace function names, if necessary.
         if self.used_modules:
             self.replace_interface_function_to_target(current, arguments_info)
 
@@ -2599,14 +2609,20 @@ class RectifiedXMLGenerator:
                     ), f'In handle_tag_subroutine: Empty elements "{child.tag}"'
         # Updating the argument attribute to hold the type.
         for arg in self.arguments_list[current.attrib['name']]:
-            if arg.attrib['name'] in self.argument_types[current.attrib['name']]:
-                arg.attrib['type'] = str(self.argument_types[current.attrib['name']][arg.attrib['name']])
+            if arg.attrib['name'] in self.argument_types[current.attrib[
+             'name']]:
+                arg.attrib['type'] = str(self.argument_types[current.attrib[
+                    'name']][arg.attrib['name']]["type"])
+                arg.attrib['is_array'] = str(self.argument_types[current.attrib[
+                    'name']][arg.attrib['name']]["is_array"])
 
-        # Add extra XMLs under the interface function names to hold the argument types.
+        # Add extra XMLs under the interface function names to hold the
+        # argument types.
         for interface in self.interface_function_xml:
             if current.attrib['name'] in self.interface_function_xml[interface]:
                 argument_types = ET.SubElement(
-                    self.interface_function_xml[interface][current.attrib['name']],
+                    self.interface_function_xml[interface][current.attrib[
+                        'name']],
                     "argument-types"
                 )
                 num_args = 0
@@ -2617,7 +2633,8 @@ class RectifiedXMLGenerator:
                         "argument-type",
                         {"type": arg.attrib['type']}
                     )
-                self.interface_function_xml[interface][current.attrib['name']].attrib['num_args'] = str(num_args)
+                self.interface_function_xml[interface][current.attrib[
+                    'name']].attrib['num_args'] = str(num_args)
 
     def handle_tag_arguments(
             self, root, current, _, grandparent, traverse
@@ -2633,21 +2650,26 @@ class RectifiedXMLGenerator:
             if grandparent.tag == "subroutine":
                 for interface in self.interface_functions:
                     if (
-                            grandparent.attrib['name'] in self.interface_functions[interface]
+                            grandparent.attrib['name'] in
+                            self.interface_functions[interface]
                             and interface in self.interface_xml
                     ):
                         if (
-                                "max_arg" not in self.interface_xml[interface].attrib
-                                or ("max_arg" in self.interface_xml[interface].attrib
+                                "max_arg" not in self.interface_xml[
+                            interface].attrib
+                                or ("max_arg" in self.interface_xml[
+                            interface].attrib
                                     and int(self.interface_xml[interface].attrib['max_arg']) < num_of_args)
                         ):
-                            self.interface_xml[interface].attrib['max_arg'] = str(num_of_args)
+                            self.interface_xml[interface].attrib['max_arg'] =\
+                                str(num_of_args)
                         else:
                             pass
                     else:
                         pass
             else:
-                assert False, f"Currently, {grandparent.tag} not handled for interface."
+                assert False, f"Currently, {grandparent.tag} not handled for " \
+                              f"interface."
                             
         for child in root:
             self.clean_attrib(child)
@@ -2655,12 +2677,11 @@ class RectifiedXMLGenerator:
                 # Collect the argument names with None as a initial type.
                 # Types will be updated in handle_tag_variable.
                 if grandparent.tag == "subroutine":
-                    self.argument_types[grandparent.attrib['name']][child.attrib['name']] = None
+                    self.argument_types[grandparent.attrib['name']][
+                        child.attrib['name']] = None
                 cur_elem = ET.SubElement(
                     current, child.tag, child.attrib
                 )
-                # Set a default array status to False
-                cur_elem.attrib['is_array'] = "false"
             else:
                 assert (
                     False
@@ -2675,7 +2696,6 @@ class RectifiedXMLGenerator:
         <argument>
         </argument>
         """
-        current.attrib['is_array'] = "false"
         for child in root:
             self.clean_attrib(child)
             cur_elem = ET.SubElement(
@@ -2847,6 +2867,7 @@ class RectifiedXMLGenerator:
         <function>
         </function>
         """
+        self.argument_types[root.attrib['name']] = {}
         self.current_scope = root.attrib['name']
         for child in root:
             self.clean_attrib(child)
@@ -2879,6 +2900,15 @@ class RectifiedXMLGenerator:
                     assert (
                         False
                     ), f'In handle_tag_function: Empty elements "{child.tag}"'
+
+        # Updating the argument attribute to hold the type.
+        for arg in self.arguments_list[current.attrib['name']]:
+            if arg.attrib['name'] in self.argument_types[current.attrib[
+             'name']]:
+                arg.attrib['type'] = str(self.argument_types[current.attrib[
+                    'name']][arg.attrib['name']]["type"])
+                arg.attrib['is_array'] = str(self.argument_types[current.attrib[
+                    'name']][arg.attrib['name']]["is_array"])
 
     def handle_tag_use(
             self, root, current, parent, _, traverse
@@ -4908,35 +4938,34 @@ class RectifiedXMLGenerator:
                 self.statements_to_reconstruct_after['stmts-follow-label']
         )
 
-    def update_function_arguments(self, current):
-        """This function handles function definition's
-        arguments with array status based on the information
-        that was observed during the function call
-
-        Args:
-            current (:obj: 'ET'): Current node (either call or value)
-
-        Returns:
-            None.
-        """
-
-        fname = current.attrib['fname']
-        if fname in self.arguments_list:
-            callee_arguments = self.arguments_list[fname]
-            for arg in callee_arguments:
-                # self.caller_arr_arguments holds any element
-                # only when arrays are being passed to functions
-                # as arguments. Thus, we first need to check if
-                # callee function name exists in the list
-                if (
-                    fname in self.caller_arr_arguments
-                    and arg.attrib['name'] in self.caller_arr_arguments[fname]
-                ):
-                    arg.attrib['is_array'] = "true"
-                else:
-                    arg.attrib['is_array'] = "false"
-        # re-initialize back to initial values
-        self.call_function = False
+    # def update_function_arguments(self, current):
+    #     """This function handles function definition's
+    #     arguments with array status based on the information
+    #     that was observed during the function call
+    #
+    #     Args:
+    #         current (:obj: 'ET'): Current node (either call or value)
+    #
+    #     Returns:
+    #         None.
+    #     """
+    #     fname = current.attrib['fname']
+    #     if fname in self.arguments_list:
+    #         callee_arguments = self.arguments_list[fname]
+    #         for arg in callee_arguments:
+    #             # self.caller_arr_arguments holds any element
+    #             # only when arrays are being passed to functions
+    #             # as arguments. Thus, we first need to check if
+    #             # callee function name exists in the list
+    #             if (
+    #                 fname in self.caller_arr_arguments
+    #                 and arg.attrib['name'] in self.caller_arr_arguments[fname]
+    #             ):
+    #                 arg.attrib['is_array'] = "true"
+    #             else:
+    #                 arg.attrib['is_array'] = "false"
+    #     # re-initialize back to initial values
+    #     self.call_function = False
 
     def update_call_argument_type(self, current, update, scope, arguments_info):
         """This function updates call statement function argument xml
