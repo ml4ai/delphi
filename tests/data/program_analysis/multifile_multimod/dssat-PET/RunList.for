@@ -19,7 +19,7 @@
       CHARACTER*1  RNMODE
       CHARACTER*12 FILEX, FILEX_LAST
 
-      INTEGER DYNAMIC, EXPNO, LUN, NYRS, RLUN, RUN, TRTNUM
+      INTEGER DYNAMIC, EXPNO, LUN, NYRS, RLUN, RUN, TRTNUM, init_first
 
       TYPE (ControlType) CONTROL
       TYPE (SwitchType)  ISWITCH	
@@ -35,7 +35,12 @@
       TRTNUM  = CONTROL % TRTNUM
 
 C     DATA FIRST /.TRUE./
-      FIRST = .TRUE.
+C Some gymnastics involving the DATA statement to work around OFP bug      
+      DATA init_first /0/
+      if (init_first .eq. 0) then
+         init_first = 1
+         FIRST = .TRUE.
+      endif
 !-----------------------------------------------------------------------
       IF (FIRST) THEN
         CALL GETLUN('RUNLST',RLUN)
