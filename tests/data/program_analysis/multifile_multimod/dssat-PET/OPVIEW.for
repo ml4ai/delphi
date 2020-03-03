@@ -53,6 +53,7 @@ C=======================================================================
       INTEGER ICOUNT                           !Number of values
       CHARACTER*8 Simulated(40), Measured(40) !Values
       CHARACTER*50 DESCRIP(EvaluateNum)       !Descriptions
+      CHARACTER*50 tmp
 
 !     Added with P module
       REAL AVPSTR1, P_phot, STRESP1
@@ -337,6 +338,7 @@ C-----------------------------------------------------------------------
       
             WRITE(*,100)
             DO I = 1, ICOUNT
+              tmp = DESCRIP(I)
       
                   !Don't allow blank Simulated value,
               IF (((Simulated(I) .NE. ' ') .AND.          !<----------!
@@ -354,14 +356,14 @@ c      needed. - chp 4/11/03                                        !E!
 c      Values of -99 for Measured data are still printed.           !S!
                                                                     !E!
                 !or blank description.                              ! !
-     &          (DESCRIP(I)(1:1) .NE. ' '))    !<---------------------!
+     &          (tmp(1:1) .NE. ' '))    !<---------------------!
 
      &        .OR.                             !<---------------------!
 C-CHP  OK - compromise - keep Simulated=-99 for physiological maturity!
 !                                               and anthesis date     !
      &          ((INDEX(Simulated(I),'-99') .EQ. 0) .AND.    ! OR THIS!
-     &           ((INDEX(DESCRIP(I),'Phys') .NE. 0) .OR.   !AND EITHER!
-     &            (INDEX(DESCRIP(I),'Anthesis') .NE. 0))))   !OF THESE!
+     &           ((INDEX(tmp,'Phys') .NE. 0) .OR.   !AND EITHER!
+     &            (INDEX(tmp,'Anthesis') .NE. 0))))   !OF THESE!
      &          THEN                           !<---------------------!
                                                
                 WRITE(*,200) DESCRIP(I), Simulated(I), Measured(I)
@@ -384,7 +386,7 @@ C-CHP  OK - compromise - keep Simulated=-99 for physiological maturity!
           IF (IDETO .EQ. 'Y' .AND. CONTROL % ErrCode == 0) THEN
             WRITE(NOUTDO,100)
             DO I = 1, ICOUNT
-
+              tmp = DESCRIP(I)
                 !Don't allow blank Simulated value,
               IF (((Simulated(I) .NE. ' ') .AND.          !<----------!
                 !or -99 predicted value,                            !T!
@@ -394,15 +396,15 @@ C Need to keep -99 values                                           !E!
      &          (INDEX(Simulated(I),'-99') .EQ. 0) .AND.            !E!
                                                                     ! !
                 !or blank description.                              !3!
-     &          (DESCRIP(I)(1:1) .NE. ' '))    !<---------------------!
+     &          (tmp(1:1) .NE. ' '))    !<---------------------!
                   
      &          .OR.                                               !OR!
 C-CHP                                          !<---------------------!
 c OK - compromise - keep Simulated=-99 for physiological maturity     !
 !                                               and anthesis date     !
      &          ((INDEX(Simulated(I),'-99') .NE. 0) .AND.     !OR THIS!
-     &          ((INDEX(DESCRIP(I),'Phys')  .NE. 0) .OR.   !AND EITHER!
-     &           (INDEX(DESCRIP(I),'Anthesis').NE. 0))))   !  OF THESE!
+     &          ((INDEX(tmp,'Phys')  .NE. 0) .OR.   !AND EITHER!
+     &           (INDEX(tmp,'Anthesis').NE. 0))))   !  OF THESE!
      &        THEN                             !<---------------------!
                                                
                 WRITE(NOUTDO,200) DESCRIP(I), Simulated(I), Measured(I)
