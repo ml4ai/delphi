@@ -42,7 +42,7 @@ C=======================================================================
       REAL         AMT(NAPPL),DSOILX,THETCX,IEPTX,EFFIRX,TOTAPW,AIRAMX
 
       CHARACTER*1  ISWWAT,IIRRI
-      CHARACTER*5  IRRCOD(NAPPL),IOFFX,IAMEX
+      CHARACTER*5  IRRCOD(NAPPL),IOFFX,IAMEX, irrcod_tmp
       CHARACTER*6  FINDCH,ERRKEY
       CHARACTER*12 FILEX
       CHARACTER*80 CHARTEST
@@ -156,11 +156,12 @@ C
 
                 !Work back from current record 
                 DO I = NIRR-1, 1, -1
+                  irrcod_tmp = IRRCOD(I)
                   IF (IDLAPL(I) .EQ. PERMDOY .AND.
-     &                IRRCOD(I)(3:5) .NE. '007' .AND.
-     &                IRRCOD(I)(3:5) .NE. '008' .AND.
-     &                IRRCOD(I)(3:5) .NE. '009' .AND.
-     &                IRRCOD(I)(3:5) .NE. '010') THEN 
+     &                irrcod_tmp(3:5) .NE. '007' .AND.
+     &                irrcod_tmp(3:5) .NE. '008' .AND.
+     &                irrcod_tmp(3:5) .NE. '009' .AND.
+     &                irrcod_tmp(3:5) .NE. '010') THEN 
 
                     !Found irrigation event corresponding to today's
                     !  bund record.  Change the irrigation code.
@@ -176,10 +177,11 @@ C
             ENDIF         !End of IRRCOD = 9 (old-style bund record) 
             !CHP end *************************************************
 
-            IF ((IRRCOD(NIRR)(3:5)) .NE. '007' .AND.
-     &          (IRRCOD(NIRR)(3:5)) .NE. '008' .AND.
-     &          (IRRCOD(NIRR)(3:5)) .NE. '009' .AND.
-     &          (IRRCOD(NIRR)(3:5)) .NE. '010') THEN  !CHP added '010'
+            irrcod_tmp = IRRCOD(NIRR)
+            IF ((irrcod_tmp(3:5)) .NE. '007' .AND.
+     &          (irrcod_tmp(3:5)) .NE. '008' .AND.
+     &          (irrcod_tmp(3:5)) .NE. '009' .AND.
+     &          (irrcod_tmp(3:5)) .NE. '010') THEN  !CHP added '010'
                 NAPW = NAPW + 1
                 IF (AMT(NAPW) .GT. 0.0) THEN
                   TOTAPW = TOTAPW + AMT(NAPW)

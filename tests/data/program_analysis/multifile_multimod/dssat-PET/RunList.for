@@ -34,7 +34,8 @@
       RUN     = CONTROL % RUN
       TRTNUM  = CONTROL % TRTNUM
 
-      DATA FIRST /.TRUE./
+C     DATA FIRST /.TRUE./
+      FIRST = .TRUE.
 !-----------------------------------------------------------------------
       IF (FIRST) THEN
         CALL GETLUN('RUNLST',RLUN)
