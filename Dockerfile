@@ -1,4 +1,4 @@
-FROM        ubuntu:20.04
+FROM        ubuntu:19.10
 MAINTAINER  Paul D. Hein <pauldhein@email.arizona.edu>
 CMD         bash
 
