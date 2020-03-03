@@ -56,8 +56,8 @@ class GrFNState:
         lambda_strings: Optional[List[str]] = None,
         last_definitions: Optional[Dict] = None,
         next_definitions: Optional[Dict] = None,
-        last_definition_default = None,
-        function_name = None,
+        last_definition_default=None,
+        function_name=None,
         variable_types: Optional[Dict] = None,
         start: Optional[Dict] = None,
         scope_path: Optional[List] = None,
@@ -167,6 +167,7 @@ class GrFNGenerator(object):
             "bool": "boolean",
             "Array": "Array",
             "character": "string",
+            "String": "string",
         }
 
         # The binops dictionary holds operators for all the arithmetic and
@@ -196,6 +197,7 @@ class GrFNGenerator(object):
             "bool": "bool",
             "file_handle": "fh",
             "Array": "Array",
+            "String": "string",
         }
 
         # Arithmetic operator dictionary
@@ -2120,15 +2122,19 @@ class GrFNGenerator(object):
                     # gets assigned to an array. For example, arr(i) =
                     # __expression__ or arr(i) = arr2(i).
                     elif "call" in arg[0]:
-                        function = self._generate_array_setter(
-                            node,
-                            function,
-                            arg,
-                            function_name,
-                            container_id_name,
-                            arr_index,
-                            state,
-                        )
+                        # Check if a function argument is a string value
+                        # E.g: GET("test", "this", x)
+                        if arg[0]["call"].get("function"):
+                            if arg[0]["call"]["function"] == "String":
+                                value = arg[0]["call"]["inputs"][1][0]["value"]
+                                function["input"].append(
+                                    f"@literal::" f"string::" f"'{value}'"
+                                )
+                        else:
+                            function = self._generate_array_setter(
+                                node, function, arg,
+                                function_name, container_id_name,
+                                arr_index, state)
                     # This is a case where a literal gets assigned to an array.
                     # For example, arr(i) = 100.
                     elif "type" in arg[0] and array_set:
@@ -2593,7 +2599,14 @@ class GrFNGenerator(object):
                 array_assignment = True
                 array_dimensions = []
                 inputs = sources[0]["call"]["inputs"]
-                array_type = inputs[0][0]["var"]["variable"]
+
+                # If the array type is string, the structure of inputs will
+                # be a bit different than when it is int of float
+                if "call" in inputs[0][0]:
+                    if inputs[0][0]["call"]["function"] == "String":
+                        array_type = "string"
+                else:
+                    array_type = inputs[0][0]["var"]["variable"]
                 self._get_array_dimension(sources, array_dimensions, inputs)
             elif type_name in self.derived_types:
                 is_d_type_obj_declaration = True
@@ -2695,6 +2708,13 @@ class GrFNGenerator(object):
                 }
                 self.arrays[var_name] = array_info
                 state.array_types[var_name] = array_type
+                if array_type == "string":
+                    length = inputs[0][0]["call"]["inputs"][0][0]["value"]
+                    self.strings[var_name] = {
+                        "length": length,
+                        "annotation": False,
+                        "annotated_assign": True,
+                    }
 
             if (
                 maybe_d_type_object_assign
@@ -3634,7 +3654,15 @@ class GrFNGenerator(object):
             else:
                 code = f"{inputs[1]} if {inputs[2]} else {inputs[0]}"
         elif not string_assign:
-            lambda_code_generator = genCode(self.use_numpy)
+            array_name = None
+            if state.array_assign_name:
+                array_name = state.array_assign_name.split("[")[0]
+            if array_name in self.strings:
+                lambda_code_generator = genCode(
+                    self.use_numpy, self.strings[array_name]["length"]
+                )
+            else:
+                lambda_code_generator = genCode(self.use_numpy)
             code = lambda_code_generator.generate_code(
                 node, PrintState("\n    ")
             )
