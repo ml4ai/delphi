@@ -457,7 +457,6 @@ class GroundedFunctionNetwork(ComputationalGraph):
         module_log_file_path: str,
         mod_mapper_dict: list,
         processing_modules: bool,
-        save_file: bool = False,
     ):
         lambdas_path = python_file.replace(".py", "_lambdas.py")
         # Builds GrFN object from Python source code.
@@ -483,9 +482,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
         return G
 
     @classmethod
-    def from_fortran_file(
-        cls, fortran_file: str, tmpdir: str = ".", save_file: bool = False
-    ):
+    def from_fortran_file(cls, fortran_file: str, tmpdir: str = "."):
         """Builds GrFN object from a Fortran program."""
 
         root_dir = os.path.abspath(tmpdir)
@@ -514,7 +511,6 @@ class GroundedFunctionNetwork(ComputationalGraph):
             module_log_file_path,
             mod_mapper_dict,
             processing_modules,
-            save_file=save_file,
         )
 
         return G
