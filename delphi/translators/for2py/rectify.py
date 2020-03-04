@@ -1168,7 +1168,7 @@ class RectifiedXMLGenerator:
                     self.argument_types[self.current_scope][child.attrib[
                         'name']] = {
                         "type": self.variable_type,
-                        "is_array": self.is_array
+                        "is_array": str(self.is_array).lower()
                     }
                 # Up to this point, all the child (nested or sub) elements were
                 # <variable>
