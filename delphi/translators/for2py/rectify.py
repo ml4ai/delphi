@@ -1027,7 +1027,8 @@ class RectifiedXMLGenerator:
                 elif elem.tag == "variables":
                     for subElem in elem:
                         if subElem.tag == "variable":
-                            self.variables_by_scope[self.current_scope][subElem.attrib['id']] = var_type
+                            self.variables_by_scope[self.current_scope][
+                                subElem.attrib['id']] = var_type
 
     def handle_tag_type(
             self, root, current, parent, _, traverse
@@ -2218,7 +2219,8 @@ class RectifiedXMLGenerator:
                 current.attrib.update(child.attrib)
             if child.text:
                 cur_elem = ET.SubElement(current, child.tag, child.attrib)
-                if child.tag == "io-control" or child.tag == "literal":
+                if child.tag == "io-control" or child.tag == "literal" or \
+                        child.tag == "name":
                     self.parseXMLTree(child, cur_elem, current, parent,
                                       traverse)
                 else:
@@ -2405,6 +2407,7 @@ class RectifiedXMLGenerator:
                 if (
                         child.tag == "keyword-argument"
                         or child.tag == "literal"
+                        or child.tag == "name"
                 ):
                     cur_elem = ET.SubElement(
                         current, child.tag, child.attrib
@@ -2656,10 +2659,12 @@ class RectifiedXMLGenerator:
                     ):
                         if (
                                 "max_arg" not in self.interface_xml[
-                            interface].attrib
+                                 interface].attrib
                                 or ("max_arg" in self.interface_xml[
-                            interface].attrib
-                                    and int(self.interface_xml[interface].attrib['max_arg']) < num_of_args)
+                                  interface].attrib
+                                    and int(self.interface_xml[
+                                                interface].attrib['max_arg'])
+                                    < num_of_args)
                         ):
                             self.interface_xml[interface].attrib['max_arg'] =\
                                 str(num_of_args)
@@ -3542,8 +3547,9 @@ class RectifiedXMLGenerator:
                     newType = ET.SubElement(derived_type, "type", attributes)
                     if newType.attrib['name'].lower() == "character":
                         assert (
-                            literal_value != None
-                        ), "Literal value (String length) for character cannot be None."
+                            literal_value is not None
+                        ), "Literal value (String length) for character " \
+                           "cannot be None."
                         newType.set("string_length", literal_value)
                         literal_value = None  # Reset literal_value to None
                 elif elem.tag == "derived-type-spec":
@@ -3612,7 +3618,8 @@ class RectifiedXMLGenerator:
                                 init_value_attrib, tag_name, value.attrib
                             )  # <initial-value _attribs_>
                     else:
-                        total_number_of_arrays = len(self.derived_type_array_dimensions)
+                        total_number_of_arrays = len(
+                            self.derived_type_array_dimensions)
                         new_dimensions = ET.SubElement(
                             derived_type, "dimensions", {"count": "1"}
                         )  # <dimensions count="1">
@@ -3623,9 +3630,11 @@ class RectifiedXMLGenerator:
                             )  # <dimension type="simple">
                             has_lower_bound = False
                             new_range = ET.SubElement(new_dimension, "range")
-                            num_of_dimensions = len(self.derived_type_array_dimensions[dim])
+                            num_of_dimensions = len(
+                                self.derived_type_array_dimensions[dim])
                             for s in range(0, num_of_dimensions):
-                                value = self.derived_type_array_dimensions[dim][s]
+                                value = self.derived_type_array_dimensions[
+                                    dim][s]
                                 if value.tag == "literal":
                                     tag_name = "literal"
                                 elif value.tag == "name":
@@ -3669,7 +3678,7 @@ class RectifiedXMLGenerator:
 
                                 if need_upper_bound:
                                     bound = ET.SubElement(new_range, "upper-bound")
-                                    new_range_value = ET.SubElement(bound, upper_bound_tag_name, upper_bound_value.attrib)
+                                    new_range_value =ET.SubElement(bound, upper_bound_tag_name, upper_bound_value.attrib)
                                     has_lower_bound = False
 
                                 if need_new_dimension:
@@ -4012,7 +4021,7 @@ class RectifiedXMLGenerator:
         # In case of multiple goto statements appears,
         # slice them into N number of list objects
         # The location of goto statement (inner to outer)
-        # is represented by the increament of index
+        # is represented by the increment of index
         # i.e. [0]: innermost, [N]: Outermost
         multiple_goto_stmts = []
         self.multiple_goto_identifier(
