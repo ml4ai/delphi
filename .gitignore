@@ -130,6 +130,10 @@ variables.csv
 notebooks/season.dat
 bmi_config.txt
 scripts/tmp/
+tmp/
+errorFileList.txt
+fileList.txt
+modFileLog.json
 
 # Data to ignore
 *_pickle
