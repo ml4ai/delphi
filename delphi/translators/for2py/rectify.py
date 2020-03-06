@@ -1224,6 +1224,11 @@ class RectifiedXMLGenerator:
                         child, cur_elem, current, parent, traverse
                     )
                     if child.tag == "dimensions":
+                        current.attrib['is_array'] = "true"
+                        self.declared_array_vars.update(
+                            {current.attrib['name']: self.current_scope}
+                        )
+                        del self.declared_non_array_vars[current.attrib['name']]
                         current.remove(self.dimensions_holder)
                 else:
                     assert (
@@ -3051,7 +3056,7 @@ class RectifiedXMLGenerator:
         </length>
         """
         for child in root:
-            if child.tag == "literal" or child.tag == "char-length":
+            if child.tag in ["literal", "char-length", "type-param-value"]:
                 cur_elem = ET.SubElement(
                     current, child.tag, child.attrib
                 )
