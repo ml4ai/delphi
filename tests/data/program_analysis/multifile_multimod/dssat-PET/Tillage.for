@@ -141,13 +141,15 @@ C-----------------------------------------------------------------------
 C       Open the TILOP???.SDA file 
 C-----------------------------------------------------------------------
         TILFILE = FILETL
-        INQUIRE (FILE = TILFILE, EXIST = FEXIST)
+!!!        INQUIRE (FILE = TILFILE, EXIST = FEXIST)
+        FEXIST = .TRUE.
         IF (.NOT. FEXIST) THEN
           CALL PATH('STD',CONTROL%DSSATP,PATHSD,PFLAG,NAMEF)
           TILFILE = TRIM(PATHSD) // FILETL
         ENDIF
 
-        INQUIRE(FILE=TILFILE, EXIST=FEXIST)
+!!!        INQUIRE(FILE=TILFILE, EXIST=FEXIST)
+        FEXIST = .TRUE.
         IF (.NOT. FEXIST) THEN
           !Tillage file doesn't exist in soils directory
           MSG(1) = "Tillage operations file not found:"

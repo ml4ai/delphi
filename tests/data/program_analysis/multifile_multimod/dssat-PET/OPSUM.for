@@ -465,7 +465,8 @@ C
 C-------------------------------------------------------------------
       IF (INDEX('ADY',IDETS) .GT. 0) THEN
         IF (FMOPT == 'A' .OR. FMOPT == ' ') THEN   ! VSH
-        INQUIRE (FILE = OUTS, EXIST = FEXIST)
+!!!        INQUIRE (FILE = OUTS, EXIST = FEXIST)
+        FEXIST = .TRUE.
         IF (FEXIST) THEN
           OPEN (UNIT = NOUTDS, FILE = OUTS, STATUS = 'OLD',
      &      IOSTAT = ERRNUM, POSITION = 'APPEND')
@@ -791,7 +792,8 @@ C-------------------------------------------------------------------
 
           IF (FMOPT == 'A' .OR. FMOPT == ' ') THEN   ! VSH
 !         Open or create Evaluate.out file
-          INQUIRE (FILE = SEVAL, EXIST = FEXIST)
+!!!          INQUIRE (FILE = SEVAL, EXIST = FEXIST)
+          FEXIST = .TRUE.
           IF (FEXIST) THEN
             OPEN (UNIT = SLUN, FILE = SEVAL, STATUS = 'OLD',
      &        IOSTAT = ERRNUM, POSITION = 'APPEND')

@@ -667,7 +667,8 @@ C========================================================================
 
 !       On first call to subroutine, open new file to record
 !       input and output file information.
-        INQUIRE (FILE = 'LUN.LST', EXIST = FEXIST)
+!!!        INQUIRE (FILE = 'LUN.LST', EXIST = FEXIST)
+        FEXIST = .TRUE.
         IF (FEXIST) THEN
           OPEN (UNIT = OUTLUN, FILE = 'LUN.LST', STATUS = 'REPLACE',
      &      POSITION = 'APPEND')
@@ -769,7 +770,8 @@ C========================================================================
 !       OUTPUT.LST - ICASA format headers, etc.
 !     Save FileVarName in case it is used again.
       IF (.NOT. FPRINT(LUN)) THEN
-        INQUIRE (UNIT = OUTLUN, OPENED = FEXIST)
+!!!        INQUIRE (UNIT = OUTLUN, OPENED = FEXIST)
+      FEXIST = .TRUE.
         IF (.NOT. FEXIST) THEN
           OPEN (UNIT = OUTLUN, FILE = 'LUN.LST', STATUS = 'OLD',
      &      POSITION = 'APPEND')
@@ -1108,7 +1110,8 @@ C        USE IFPORT
 !       Keep filenames, just write to OUTPUT.LST file
         DO i = 1, FileData % NumFiles
           !Check if FileName(i) exists, if not, go on to the next file
-          INQUIRE (FILE = Trim(FileName(i)), EXIST = FEXIST)
+!!!          INQUIRE (FILE = Trim(FileName(i)), EXIST = FEXIST)
+          FEXIST = .TRUE.
           IF (.NOT. FEXIST) CYCLE   
           WRITE(LUNLST,'(A16,3X,A50)') FileName(i), Comment(i)
         Enddo
@@ -1122,7 +1125,8 @@ C        USE IFPORT
 
         DO i = 1, FileData % NumFiles
           !Check if FileName(i) exists, if not, go on to the next file
-          INQUIRE (FILE = Trim(FileName(i)), EXIST = FEXIST)
+!!!          INQUIRE (FILE = Trim(FileName(i)), EXIST = FEXIST)
+          FEXIST = .TRUE.
           IF (.NOT. FEXIST) CYCLE   
 
           !Determine new file name and store as TempName
@@ -1131,7 +1135,8 @@ C        USE IFPORT
             WRITE(LUNLST,'(A12,5X,A50)') TempName, Comment(i)
 
             !Check if TempName exists, if so, delete it.
-            INQUIRE (FILE = TempName, EXIST = FEXIST)
+!!!            INQUIRE (FILE = TempName, EXIST = FEXIST)
+            FEXIST = .TRUE.
             IF (FEXIST) THEN   
               BatchCommand = 'ERASE ' // TempName
               WRITE(LUNTMP, '(A50)') BatchCommand
@@ -1150,16 +1155,18 @@ C        USE IFPORT
             COUNT = COUNT + 2
 
             !If file was left open, close it now.
-            INQUIRE(FILE=FILENAME(I), OPENED=FOPEN)
-            IF (FOPEN) THEN
-              INQUIRE(FILE=FILENAME(I), NUMBER=FNUM)
-              CLOSE(FNUM)
-            ENDIF
+!!!            INQUIRE(FILE=FILENAME(I), OPENED=FOPEN)
+!!!            FOPEN = .TRUE.
+!!!            IF (FOPEN) THEN
+!!!              INQUIRE(FILE=FILENAME(I), NUMBER=FNUM)
+!!!              CLOSE(FNUM)
+!!!            ENDIF
 
           ELSE
 !           Don't rename
             !Check if FileName(i) exists, if not, go on to the next file
-            INQUIRE (FILE = Trim(FileName(i)), EXIST = FEXIST)
+!!!            INQUIRE (FILE = Trim(FileName(i)), EXIST = FEXIST)
+            FEXIST = .TRUE.
             IF (FEXIST) THEN
               WRITE(LUNLST,'(A16,3X,A50)') FileName(i), Comment(i)
             ENDIF
@@ -1288,7 +1295,8 @@ C=======================================================================
 
 !     Does file exist in data directory?
       DATAX = FILECDE
-      INQUIRE (FILE = DATAX, EXIST = FEXIST)
+!!!      INQUIRE (FILE = DATAX, EXIST = FEXIST)
+      FEXIST = .TRUE.
 
       IF (.NOT. FEXIST) THEN
 !       File does not exist in data directory, check directory
@@ -1299,13 +1307,15 @@ C=======================================================================
         datax = trim(datax)//filecde
 !        IPX = LEN_TRIM(PATHX)
 !        DATAX = PATHX(1:(IPX-12)) // FILECDE
-        INQUIRE (FILE = DATAX, EXIST = FEXIST)
+!!!        INQUIRE (FILE = DATAX, EXIST = FEXIST)
+      FEXIST = .TRUE.
       ENDIF        
 
       IF (.NOT. FEXIST) THEN
 !       Last, check for file in C:\DSSAT45 directory
         DATAX = trim(STDPATH) // FILECDE
-        INQUIRE (FILE = DATAX, EXIST = FEXIST)
+!!!        INQUIRE (FILE = DATAX, EXIST = FEXIST)
+      FEXIST = .TRUE.
       ENDIF
 
       IF (FEXIST) THEN

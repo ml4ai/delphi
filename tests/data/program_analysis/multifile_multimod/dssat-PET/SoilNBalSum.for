@@ -40,7 +40,8 @@
 
 !       Initialize output file
         CALL GETLUN(SNSUM, LUNSNS)
-        INQUIRE (FILE = SNSUM, EXIST = FEXIST)
+!!!        INQUIRE (FILE = SNSUM, EXIST = FEXIST)
+        FEXIST = .TRUE.
         IF (FEXIST) THEN
           OPEN (UNIT = LUNSNS, FILE = SNSUM, STATUS = 'OLD',
      &      IOSTAT = ERRNUM, POSITION = 'APPEND')

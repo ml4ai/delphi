@@ -382,27 +382,28 @@ C-----------------------------------------------------------------------
       TEXT = ''
       LNUM = 0
       DATAX = FILECDE
-      INQUIRE (FILE = DATAX, EXIST = FEXIST)
+!!!      INQUIRE (FILE = DATAX, EXIST = FEXIST)
 
-      IF (.NOT. FEXIST) THEN
+!!!      IF (.NOT. FEXIST) THEN
 !       File does not exist in data directory, check directory
 !         with executable.
-        CALL GETARG(0,PATHX)
+!!!        CALL GETARG(0,PATHX)
 !        call path_adj(pathx)
-        call get_dir(pathx,datax)
-        datax = trim(datax)//filecde
+!!!        call get_dir(pathx,datax)
+!!!        datax = trim(datax)//filecde
 !        IPX = LEN_TRIM(PATHX)
 !        DATAX = PATHX(1:(IPX-12)) // FILECDE
 D       DATAX = STDPATH // FILECDE
-        INQUIRE (FILE = DATAX, EXIST = FEXIST)
-      ENDIF        
+!!!        INQUIRE (FILE = DATAX, EXIST = FEXIST)
+!!!      ENDIF        
+!!!
+!!!      IF (.NOT. FEXIST) THEN
+!!!!       Last, check for file in C:\DSSAT45 directory
+!!!        DATAX = trim(STDPATH) // FILECDE
+!!!        INQUIRE (FILE = DATAX, EXIST = FEXIST)
+!!!      ENDIF
 
-      IF (.NOT. FEXIST) THEN
-!       Last, check for file in C:\DSSAT45 directory
-        DATAX = trim(STDPATH) // FILECDE
-        INQUIRE (FILE = DATAX, EXIST = FEXIST)
-      ENDIF
-
+      FEXIST = .TRUE.
       IF (FEXIST) THEN
         CALL GETLUN('DTACDE',LUN)
         OPEN (LUN, FILE=DATAX, STATUS = 'OLD',IOSTAT=ERR)
@@ -475,8 +476,8 @@ C
       CALL GETLUN('FILEA', LUNA)
       LINEXP = 0
 
-      INQUIRE (FILE = FILEA_P, EXIST = FEXIST)
-
+!!!      INQUIRE (FILE = FILEA_P, EXIST = FEXIST)
+      FEXIST = .TRUE.
       IF (FEXIST) THEN
         OPEN (LUNA,FILE = FILEA_P,STATUS = 'OLD',IOSTAT=ERRNUM)
         IF (ERRNUM .NE. 0) GOTO 5000
@@ -669,8 +670,8 @@ C-----------------------------------------------------------------------
 C-----------------------------------------------------------------------
 
       DATAX = FILECDE
-      INQUIRE (FILE = DATAX, EXIST = FEXIST)
-
+!!!      INQUIRE (FILE = DATAX, EXIST = FEXIST)
+      FEXIST = .TRUE.
       IF (.NOT. FEXIST) THEN
 !       File does not exist in data directory, check directory
 !         with executable.
@@ -680,13 +681,15 @@ C-----------------------------------------------------------------------
         datax = trim(datax)//filecde
 !        IPX = LEN_TRIM(PATHX)
 !        DATAX = PATHX(1:(IPX-12)) // FILECDE
-        INQUIRE (FILE = DATAX, EXIST = FEXIST)
+!!!   INQUIRE (FILE = DATAX, EXIST = FEXIST)
+      FEXIST = .TRUE.
       ENDIF        
 
       IF (.NOT. FEXIST) THEN
 !       Last, check for file in C:\DSSAT45 directory
         DATAX = trim(STDPATH) // FILECDE
-        INQUIRE (FILE = DATAX, EXIST = FEXIST)
+!!!        INQUIRE (FILE = DATAX, EXIST = FEXIST)
+        FEXIST = .TRUE.
       ENDIF
 
       IF (FEXIST) THEN
@@ -945,8 +948,8 @@ C-----------------------------------------------------------------------
 
 C-----------------------------------------------------------------------
       DATAX = FILECDE
-      INQUIRE (FILE = DATAX, EXIST = FEXIST)
-
+!!!      INQUIRE (FILE = DATAX, EXIST = FEXIST)
+      FEXIST = .TRUE.
       IF (.NOT. FEXIST) THEN
 !       File does not exist in data directory, check directory
 !         with executable.
@@ -957,13 +960,15 @@ C-----------------------------------------------------------------------
 !        IPX = LEN_TRIM(PATHX)
 !        DATAX = PATHX(1:(IPX-12)) // FILECDE
 D       DATAX = STDPATH // FILECDE
-        INQUIRE (FILE = DATAX, EXIST = FEXIST)
+!!!        INQUIRE (FILE = DATAX, EXIST = FEXIST)
+      FEXIST = .TRUE.
       ENDIF        
 
       IF (.NOT. FEXIST) THEN
 !       Last, check for file in C:\DSSAT45 directory
         DATAX = trim(STDPATH) // FILECDE
-        INQUIRE (FILE = DATAX, EXIST = FEXIST)
+!!!        INQUIRE (FILE = DATAX, EXIST = FEXIST)
+      FEXIST = .TRUE.
       ENDIF
 
       IF (FEXIST) THEN

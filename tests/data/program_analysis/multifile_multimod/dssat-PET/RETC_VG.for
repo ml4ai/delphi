@@ -1135,7 +1135,8 @@ C=======================================================================
 
 !       Open output file
         CALL GETLUN('PotentialOut', LUNPotential)
-        INQUIRE (FILE = PotentialOut, EXIST = FEXIST)
+!!!        INQUIRE (FILE = PotentialOut, EXIST = FEXIST)
+        FEXIST = .TRUE.
         IF (FEXIST) THEN
           OPEN (UNIT = LUNPotential,FILE =PotentialOut,STATUS = 'OLD',
      &          POSITION = 'APPEND')
