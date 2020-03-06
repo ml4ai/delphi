@@ -974,19 +974,19 @@ D     IPX = 23
           SIMCTR = FILECTL
         ENDIF
 
-        INQUIRE (FILE = SIMCTR, EXIST = FEXIST)
-        IF (.NOT. FEXIST) THEN
-          SIMCTR = TRIM(STDPATH) // TRIM(FILECTL)
-        ENDIF
+!!!        INQUIRE (FILE = SIMCTR, EXIST = FEXIST)
+!!!        IF (.NOT. FEXIST) THEN
+!!!          SIMCTR = TRIM(STDPATH) // TRIM(FILECTL)
+!!!        ENDIF
 
-        INQUIRE (FILE = SIMCTR, EXIST = FEXIST)
-        IF (.NOT. FEXIST) THEN
-          MSG(1) = "Simulation controls file does not exist."
-          MSG(2) = SIMCTR
-          MSG(3) = "Use controls from experiment file."
-          CALL WARNING(3,ERRKEY,MSG)
-          RETURN
-        ENDIF
+!!!        INQUIRE (FILE = SIMCTR, EXIST = FEXIST)
+!!!        IF (.NOT. FEXIST) THEN
+!!!          MSG(1) = "Simulation controls file does not exist."
+!!!          MSG(2) = SIMCTR
+!!!          MSG(3) = "Use controls from experiment file."
+!!!          CALL WARNING(3,ERRKEY,MSG)
+!!!          RETURN
+!!!        ENDIF
 
         CALL GETLUN('SIMCNTL', SCLun)
         OPEN (UNIT = SCLun, FILE = SIMCTR, IOSTAT =ERRNUM)

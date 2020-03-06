@@ -72,7 +72,8 @@ C-------------------------------------------------------------------
 !-----------------------------------------------------------------------
 !       Get unit number for PEST.OUT
         CALL GETLUN('OUTD', NOUTDD)
-        INQUIRE (FILE = OUTD, EXIST = FEXIST)
+!!!        INQUIRE (FILE = OUTD, EXIST = FEXIST)
+        FEXIST = .TRUE.
         IF (FEXIST) THEN
           OPEN (UNIT = NOUTDD, FILE = OUTD, STATUS = 'OLD',
      &      IOSTAT = ERRNUM, POSITION = 'APPEND')

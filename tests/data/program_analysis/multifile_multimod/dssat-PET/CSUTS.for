@@ -344,8 +344,8 @@
 
       fdirname='-99'
 
-      INQUIRE(FILE=cfgdfile,EXIST=fflag)
-      IF(.NOT.fflag) RETURN
+!!!      INQUIRE(FILE=cfgdfile,EXIST=fflag)
+!!!      IF(.NOT.fflag) RETURN
 
       OPEN(fnumcfg,FILE=cfgdfile)
 
@@ -372,8 +372,8 @@
         ENDIF
         fdirname=tl2//tl37(1:l)//fname
         CALL Ucase(fdirname)
-        INQUIRE(FILE=fdirname,EXIST=fflag)
-        IF(fflag)EXIT
+!!!        INQUIRE(FILE=fdirname,EXIST=fflag)
+!!!        IF(fflag)EXIT
        ENDIF
       ENDDO
       CLOSE (fnumcfg)
@@ -418,20 +418,20 @@
 
       CALL Getlun ('FVCHECK',fnumtmp)
 
-      INQUIRE (FILE = dirfile,EXIST = fflag)
-      IF (.NOT.fflag) THEN
-        CALL Getlun('ERROR.OUT',fnumerr)
-        OPEN(UNIT=fnumerr,FILE='ERROR.OUT')
-        WRITE (fnumerr,*) ' Could not find input file! '
-        WRITE (fnumerr,*) ' File was: ',dirfile(1:60)
-        WRITE (fnumerr,*) ' Version code sought was: ',vcode
-        WRITE (*,*) ' Could not find input file! '
-        WRITE (*,*) ' File was: ',dirfile(1:60)
-        WRITE (*,*) ' Version code sought was: ',vcode
-        WRITE (*,*) ' Program will have to stop'
-        CLOSE (fnumerr)
-        STOP ' '
-      ELSE
+!!!      INQUIRE (FILE = dirfile,EXIST = fflag)
+!!!      IF (.NOT.fflag) THEN
+!!!        CALL Getlun('ERROR.OUT',fnumerr)
+!!!        OPEN(UNIT=fnumerr,FILE='ERROR.OUT')
+!!!        WRITE (fnumerr,*) ' Could not find input file! '
+!!!        WRITE (fnumerr,*) ' File was: ',dirfile(1:60)
+!!!        WRITE (fnumerr,*) ' Version code sought was: ',vcode
+!!!        WRITE (*,*) ' Could not find input file! '
+!!!        WRITE (*,*) ' File was: ',dirfile(1:60)
+!!!        WRITE (*,*) ' Version code sought was: ',vcode
+!!!        WRITE (*,*) ' Program will have to stop'
+!!!        CLOSE (fnumerr)
+!!!        STOP ' '
+!!!      ELSE
         COLON = 'N'
         OPEN (UNIT = FNUMTMP,FILE = DIRFILE)
         READ(FNUMTMP,'(A80)',IOSTAT=ERRNUM) TLINE    !portability      
@@ -445,7 +445,7 @@
           WRITE (*,*) ' Program will have to stop'
           CLOSE (fnumerr)
           STOP ' '
-        ENDIF
+!!!        ENDIF
         IF (TVILENT(TLINE).LT.10) THEN
           CALL Getlun('ERROR.OUT',fnumerr)
           OPEN(UNIT=fnumerr,FILE='ERROR.OUT')
@@ -1069,22 +1069,22 @@
       ENDIF
 
       j=Tvilent(tlineini)
-      IF(j.LT.3)THEN
-        INQUIRE (FILE = 'WORK.OUT',OPENED = FOPEN)
-        IF (.NOT.FOPEN)THEN
-          CALL Getlun ('WORK.OUT',fnumwrk)
-          OPEN (UNIT = FNUMWRK,FILE = 'WORK.OUT')
-        ENDIF
-        WRITE (fnumwrk,*)' Data line sent for standardising too short!'
-        WRITE (fnumwrk,*)' Abvr.line: ',atlinein(1:60)
-        WRITE (fnumwrk,*)' Data line: ',tlineini(1:60)
-        WRITE (fnumwrk,*)' Check WORK.OUT for details. Routine STANDC.'
-        WRITE (*,*) ' Data line sent for standardising too short!'
-        WRITE (*,*) ' Abvr.line: ',atlinein(1:60)
-        WRITE (*,*) ' Data line: ',tlineini(1:60)
-        WRITE (*,*) ' Check WORK.OUT for details. Routine STANDC.'
-        RETURN
-      ENDIF
+!!!      IF(j.LT.3)THEN
+!!!        INQUIRE (FILE = 'WORK.OUT',OPENED = FOPEN)
+!!!        IF (.NOT.FOPEN)THEN
+!!!          CALL Getlun ('WORK.OUT',fnumwrk)
+!!!          OPEN (UNIT = FNUMWRK,FILE = 'WORK.OUT')
+!!!        ENDIF
+!!!        WRITE (fnumwrk,*)' Data line sent for standardising too short!'
+!!!        WRITE (fnumwrk,*)' Abvr.line: ',atlinein(1:60)
+!!!        WRITE (fnumwrk,*)' Data line: ',tlineini(1:60)
+!!!        WRITE (fnumwrk,*)' Check WORK.OUT for details. Routine STANDC.'
+!!!        WRITE (*,*) ' Data line sent for standardising too short!'
+!!!        WRITE (*,*) ' Abvr.line: ',atlinein(1:60)
+!!!        WRITE (*,*) ' Data line: ',tlineini(1:60)
+!!!        WRITE (*,*) ' Check WORK.OUT for details. Routine STANDC.'
+!!!        RETURN
+!!!      ENDIF
 
       tlinein=' '
       DO l=1,j
@@ -1632,8 +1632,8 @@
       SAVE
       
       CALL Getlun ('WORK.OUT',fnumwrk)
-      INQUIRE (FILE = 'WORK.OUT',OPENED = fopen)
-      IF (.NOT.fopen) OPEN (UNIT = fnumwrk,FILE = 'WORK.OUT')
+!!!      INQUIRE (FILE = 'WORK.OUT',OPENED = fopen)
+!!!      IF (.NOT.fopen) OPEN (UNIT = fnumwrk,FILE = 'WORK.OUT')
       
       TOPT = TCARD(2)+((TCARD(3)-TCARD(2))/2.0)
       
@@ -2076,8 +2076,8 @@
       CALL WARNING(3,'CSUTS',MESSAGE)
 
       CALL Getlun ('WORK.OUT',fnumwrk)
-      INQUIRE (FILE = 'WORK.OUT',OPENED = fopen)
-      IF (.NOT.fopen) OPEN (UNIT = fnumwrk,FILE = 'WORK.OUT')
+!!!      INQUIRE (FILE = 'WORK.OUT',OPENED = fopen)
+!!!      IF (.NOT.fopen) OPEN (UNIT = fnumwrk,FILE = 'WORK.OUT')
       lenchar=Tvilent(newchar)
       WRITE (fnumwrk,*) ' '
       WRITE (fnumwrk,*) ' WARNING Problem in Tvifromc utility.'
@@ -2187,12 +2187,12 @@
       CALL WARNING(3,'CSUTS',MESSAGE)
             
       CALL Getlun ('WORK.OUT',fnumwrk)
-      INQUIRE (FILE = 'WORK.OUT',OPENED = FOPEN)
-      IF (.NOT.FOPEN)THEN
-        OPEN (UNIT = FNUMWRK,FILE = 'WORK.OUT')
-      ENDIF  
-      WRITE (fnumwrk,*) ' Problem in Tvrfromc (real<-character)!'
-      WRITE (fnumwrk,*) ' Trying to convert: ',newchar
+!!!      INQUIRE (FILE = 'WORK.OUT',OPENED = FOPEN)
+!!!      IF (.NOT.FOPEN)THEN
+!!!        OPEN (UNIT = FNUMWRK,FILE = 'WORK.OUT')
+!!!      ENDIF  
+!!!      WRITE (fnumwrk,*) ' Problem in Tvrfromc (real<-character)!'
+!!!      WRITE (fnumwrk,*) ' Trying to convert: ',newchar
 
 
       RETURN
@@ -2297,12 +2297,12 @@
       CALL WARNING(3,'CSUTS',MESSAGE)
 
       CALL Getlun ('WORK.OUT',fnumwrk)
-      INQUIRE (FILE = 'WORK.OUT',OPENED = FOPEN)
-      IF (.NOT.FOPEN)THEN
-        OPEN (UNIT = FNUMWRK,FILE = 'WORK.OUT')
-      ENDIF  
-      WRITE (fnumwrk,*) ' Problem in Tvrfromccde (real<-character)!'
-      WRITE (fnumwrk,*) ' Trying to convert: ',newchar
+!!!      INQUIRE (FILE = 'WORK.OUT',OPENED = FOPEN)
+!!!      IF (.NOT.FOPEN)THEN
+!!!        OPEN (UNIT = FNUMWRK,FILE = 'WORK.OUT')
+!!!      ENDIF  
+!!!      WRITE (fnumwrk,*) ' Problem in Tvrfromccde (real<-character)!'
+!!!      WRITE (fnumwrk,*) ' Trying to convert: ',newchar
 
       RETURN
 
@@ -2749,9 +2749,9 @@
         ELSE
           WTHDIRFL=wthtfle
         ENDIF
-        INQUIRE(FILE=wthdirfl,EXIST=fflag)
-        wthss = wthtfle(1:TVI2)
-        IF (fflag) RETURN
+!!!        INQUIRE(FILE=wthdirfl,EXIST=fflag)
+!!!        wthss = wthtfle(1:TVI2)
+!!!        IF (fflag) RETURN
       ENDIF
 
       IF (L.GT.3) THEN
@@ -2759,42 +2759,42 @@
       ELSE
         WTHDIRFL=wthfle
       ENDIF
-      INQUIRE(FILE=wthdirfl,EXIST=fflag)
-      wthss = wthfle(1:TVI1)
-
-      IF(.NOT.fflag)THEN
-       wthss = wthtfle(1:TVI2)
-       IF (LEN(TRIM(FILEIO)).GT.3) THEN
-         WTHDIRFL=FILEIO(1:L-1)//SLASH//wthtfle
-       ELSE
-         WTHDIRFL=wthtfle
-       ENDIF
-       INQUIRE(FILE=wthdirfl,EXIST=fflag)
-      ENDIF
-
-      IF (.NOT.fflag) THEN
-       CALL Finddir(filenum,cfgdfile,cfgcode,wthfle,wthdirfl)
-       INQUIRE(FILE=wthdirfl,EXIST=fflag)
-       IF (.NOT.fflag) THEN
-         CALL Finddir(filenum,cfgdfile,cfgcode,wthtfle,wthdirfl)
-         INQUIRE(FILE=wthdirfl,EXIST=fflag)
-         IF (.NOT.fflag) THEN
-           CALL Getlun('ERROR.OUT',fnumerr)
-           OPEN(UNIT=fnumerr,FILE='ERROR.OUT')
-           WRITE (fnumerr,*) ' Weather file not found!'
-           WRITE (fnumerr,*) ' Station file     : ',wthfle
-           WRITE (fnumerr,*) ' Station+year file: ',wthtfle
-           WRITE (fnumerr,*) ' Check WORK.OUT for details'
-           WRITE (*,*) ' Weather file not found!'
-           WRITE (*,*) ' Station file     : ',wthfle
-           WRITE (*,*) ' Station+year file: ',wthtfle
-           WRITE (*,*) ' Program will have to stop'
-           WRITE (*,*) ' Check WORK.OUT for details'
-           CLOSE (fnumerr)
-           STOP ' '
-         ENDIF
-       ENDIF
-      ENDIF
+!!!      INQUIRE(FILE=wthdirfl,EXIST=fflag)
+!!!      wthss = wthfle(1:TVI1)
+!!!
+!!!      IF(.NOT.fflag)THEN
+!!!       wthss = wthtfle(1:TVI2)
+!!!       IF (LEN(TRIM(FILEIO)).GT.3) THEN
+!!!         WTHDIRFL=FILEIO(1:L-1)//SLASH//wthtfle
+!!!       ELSE
+!!!         WTHDIRFL=wthtfle
+!!!       ENDIF
+!!!       INQUIRE(FILE=wthdirfl,EXIST=fflag)
+!!!      ENDIF
+!!!
+!!!      IF (.NOT.fflag) THEN
+!!!       CALL Finddir(filenum,cfgdfile,cfgcode,wthfle,wthdirfl)
+!!!       INQUIRE(FILE=wthdirfl,EXIST=fflag)
+!!!       IF (.NOT.fflag) THEN
+!!!         CALL Finddir(filenum,cfgdfile,cfgcode,wthtfle,wthdirfl)
+!!!         INQUIRE(FILE=wthdirfl,EXIST=fflag)
+!!!         IF (.NOT.fflag) THEN
+!!!           CALL Getlun('ERROR.OUT',fnumerr)
+!!!           OPEN(UNIT=fnumerr,FILE='ERROR.OUT')
+!!!           WRITE (fnumerr,*) ' Weather file not found!'
+!!!           WRITE (fnumerr,*) ' Station file     : ',wthfle
+!!!           WRITE (fnumerr,*) ' Station+year file: ',wthtfle
+!!!           WRITE (fnumerr,*) ' Check WORK.OUT for details'
+!!!           WRITE (*,*) ' Weather file not found!'
+!!!           WRITE (*,*) ' Station file     : ',wthfle
+!!!           WRITE (*,*) ' Station+year file: ',wthtfle
+!!!           WRITE (*,*) ' Program will have to stop'
+!!!           WRITE (*,*) ' Check WORK.OUT for details'
+!!!           CLOSE (fnumerr)
+!!!           STOP ' '
+!!!         ENDIF
+!!!       ENDIF
+!!!      ENDIF
 
       RETURN
 

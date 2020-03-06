@@ -467,7 +467,8 @@ C-----------------------------------------------------------------------
      &  !    (INDEX('IXM',MODEL(3:5)) .GT.0) .OR.  !IXIM MAIZE
      &  !    (INDEX('CSM',MODEL(3:5)) .GT.0)) THEN
            FILEC(1:12) = CROP//MODEL(3:8)//'.SPE'
-           INQUIRE (FILE = FILEC,EXIST = FEXIST)
+!!!           INQUIRE (FILE = FILEC,EXIST = FEXIST)
+           FEXIST = .True.
            IF (.NOT. FEXIST) THEN
               CALL PATH('CRD',DSSATP,PATHCR,1,NAMEF)
             ELSE
@@ -490,10 +491,11 @@ C-----------------------------------------------------------------------
          IF (INDEX('GT',RNMODE) .GT. 0) THEN
             WRITE(FILEG(1:8),'(A8)') 'GENCALC2'
          ENDIF
-         INQUIRE (FILE = FILEG,EXIST = FEXIST)
+!!!         INQUIRE (FILE = FILEG,EXIST = FEXIST)
+         FEXIST = .True.
          IF (.NOT. FEXIST) THEN
             FILETMP = TRIM(PATHEX)//FILEG
-            INQUIRE (FILE = FILETMP,EXIST = FEXIST)
+!!!            INQUIRE (FILE = FILETMP,EXIST = FEXIST)
             IF (.NOT. FEXIST) THEN
                CALL PATH('CRD',DSSATP,PATHGE,1,NAMEF)
             ELSE 
@@ -513,10 +515,11 @@ C-----------------------------------------------------------------------
          IF (INDEX('GT',RNMODE) .GT. 0) THEN
             WRITE(FILEE(1:8),'(A8)') 'GENCALC2'
          ENDIF
-         INQUIRE (FILE = FILEE,EXIST = FEXIST)
+!!!         INQUIRE (FILE = FILEE,EXIST = FEXIST)
+         FEXIST = .True.
          IF (.NOT. FEXIST) THEN
             FILETMP = TRIM(PATHEX)//FILEE
-            INQUIRE (FILE = FILETMP,EXIST = FEXIST)
+!!!            INQUIRE (FILE = FILETMP,EXIST = FEXIST)
             IF (.NOT. FEXIST) THEN
                CALL PATH ('CRD',DSSATP,PATHEC,1,NAMEF)
             ELSE
@@ -531,7 +534,8 @@ C        Select pest parameter input file
 C-----------------------------------------------------------------------
 
          FILEP(1:12) = CROP//MODEL(3:8)//'.PST'
-         INQUIRE (FILE = FILEP,EXIST = FEXIST)
+!!!         INQUIRE (FILE = FILEP,EXIST = FEXIST)
+         FEXIST = .TRUE.
          IF (.NOT. FEXIST) THEN
             CALL PATH('PSD',DSSATP,PATHPE,1,NAMEF)
           ELSE
@@ -573,14 +577,16 @@ C-----------------------------------------------------------------------
         FILES_a = 'SOIL.SOL'
         FILES_b = SLNO(1:2)//'.SOL  '
 
-        INQUIRE (FILE = FILES_a,EXIST = FEXIST)
+!!!        INQUIRE (FILE = FILES_a,EXIST = FEXIST)
+        FEXIST = .TRUE.
         IF (FEXIST) THEN
 !          SOIL.SOL in current directory
            FILES = FILES_a
            PATHSL = BLANK
 
         ELSE
-           INQUIRE (FILE = FILES_b,EXIST = FEXIST)
+!!!           INQUIRE (FILE = FILES_b,EXIST = FEXIST)
+           FEXIST = .True.
            IF (FEXIST) THEN
 !             Alt soil name in current directory
               FILES = FILES_b
@@ -588,7 +594,8 @@ C-----------------------------------------------------------------------
 
            ELSE
               FILETMP = TRIM(PATHEX)//FILES_a
-              INQUIRE (FILE = FILETMP,EXIST = FEXIST)
+!!!              INQUIRE (FILE = FILETMP,EXIST = FEXIST)
+              FEXIST = .TRUE.
               IF (FEXIST) THEN
 !                SOIL.SOL in experiment directory
                  FILES = FILES_a
@@ -596,7 +603,8 @@ C-----------------------------------------------------------------------
 
               ELSE
                  FILETMP = TRIM(PATHEX)//FILES_b
-                 INQUIRE (FILE = FILETMP,EXIST = FEXIST)
+!!!                 INQUIRE (FILE = FILETMP,EXIST = FEXIST)
+                 FEXIST = .TRUE.
                  IF (FEXIST) THEN
 !                   Alt soil name in experiment directory
                     FILES = FILES_b
@@ -607,14 +615,16 @@ C-----------------------------------------------------------------------
                     CALL PATH (PROCOD,DSSATP,PATHSL,1,NAMEF)
                     PATHL  = INDEX(PATHSL,BLANK)
                     FILETMP = PATHSL(1:(PATHL-1)) // FILES_a
-                    INQUIRE (FILE = FILETMP,EXIST = FEXIST)
+!!!                    INQUIRE (FILE = FILETMP,EXIST = FEXIST)
+                    FEXIST = .True.
                     IF (FEXIST) THEN
 !                      SOIL.SOL in DSSAT soil directory
                        FILES = FILES_a
 
                     ELSE
                        FILETMP = PATHSL(1:(PATHL-1)) // FILES_b
-                       INQUIRE (FILE = FILETMP,EXIST = FEXIST)
+!!!                       INQUIRE (FILE = FILETMP,EXIST = FEXIST)
+                       FEXIST = .TRUE.
                        IF (FEXIST) THEN
 !                         Alt soil name in DSSAT soil directory
                           FILES = FILES_b
@@ -694,34 +704,39 @@ C-----------------------------------------------------------------------
       ENDIF
 
 !     Check weather filename in current directory
-      INQUIRE (FILE = FILEW,EXIST = FEXIST)
+!!!      INQUIRE (FILE = FILEW,EXIST = FEXIST)
+      FEXIST = .True.
       IF (FEXIST) THEN
         PATHWT = BLANK
 !     Check weather filename in data directory
       ELSE
         FILETMP = TRIM(PATHEX)//FILEW
-        INQUIRE (FILE = FILETMP,EXIST = FEXIST)
+!!!        INQUIRE (FILE = FILETMP,EXIST = FEXIST)
+        FEXIST = .TRUE.
         IF (FEXIST) THEN
           PATHWT = TRIM(PATHEX)
 !       Check weather filename in default DSSAT directory
         ELSE
           CALL PATH(PROCOD,DSSATP,PATHWT,1,NAMEF)
           FILETMP = TRIM(PATHWT) // FILEW
-          INQUIRE (FILE=FILETMP, EXIST = FEXIST)
+!!!          INQUIRE (FILE=FILETMP, EXIST = FEXIST)
+          FEXIST = .TRUE.
           IF (FEXIST) THEN
             PATHWT = PATHWT
 !         Check 4-character file name in data directory
           ELSE
             FILEW4 = FILEW(1:4) // ".WTH"
             FILETMP = TRIM(PATHEX) // FILEW4
-            INQUIRE (FILE=FILETMP, EXIST = FEXIST)
+!!!            INQUIRE (FILE=FILETMP, EXIST = FEXIST)
+            FEXIST = .TRUE.
             IF (FEXIST) THEN
               PATHWT = TRIM(PATHEX)
               FILEW = FILEW4
 !           Check 4-character filename in default DSSAT directory
             ELSE
               FILETMP = TRIM(PATHWT) // FILEW
-              INQUIRE (FILE=FILETMP, EXIST = FEXIST)
+!!!              INQUIRE (FILE=FILETMP, EXIST = FEXIST)
+              FEXIST = .TRUE.
               IF (FEXIST) THEN
                 PATHWT = PATHWT
                 FILEW = FILEW4

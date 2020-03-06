@@ -322,7 +322,8 @@ C-----------------------------------------------------------------------
 
 
         CALL GETLUN(OUTSN2O, NOUTDN)
-        INQUIRE (FILE = OUTSN2O, EXIST = FEXIST)
+!!!        INQUIRE (FILE = OUTSN2O, EXIST = FEXIST)
+        FEXIST = .True.
         IF (FEXIST) THEN
           OPEN (UNIT = NOUTDN, FILE = OUTSN2O, STATUS = 'OLD',
      &      IOSTAT = ERRNUM, POSITION = 'APPEND')
