@@ -233,7 +233,8 @@ class RectifiedXMLGenerator:
         "module",
         "declaration",
         "function",
-        "prefix"
+        "prefix",
+        "length",
     ]
 
     program_child_tags = [
@@ -451,7 +452,6 @@ class RectifiedXMLGenerator:
         "access-id",
         "parameter-stmt",
         "type-param-value",
-        "char-selector",
         "interface-block",
         "interface-stmt",
         "interface-body",
@@ -522,13 +522,15 @@ class RectifiedXMLGenerator:
             cur_elem = ET.SubElement(
                 current, child.tag, child.attrib
             )
-
             try:
                 _ = self.file_child_tags.index(child.tag)
-            except KeyError:
-                assert (
-                    False
-                ), f'In handle_tag_file: "{child.tag}" not handled'
+            except ValueError:
+                try:
+                    _ = self.unnecessary_tags.index(child.tag)
+                except ValueError:
+                    assert (
+                        False
+                    ), f'In handle_tag_file: "{child.tag}" not handled'
 
             if len(child) > 0 or child.text:
                 self.parseXMLTree(child, cur_elem, current, parent, traverse)
