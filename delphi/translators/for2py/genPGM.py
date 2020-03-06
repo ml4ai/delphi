@@ -232,10 +232,10 @@ class GrFNGenerator(object):
         # bypassed in the GrFN and lambda files. Currently contains I/O
         # statements.
         self.bypass_io = (
-            r"^format_\d+$|^format_\d+_obj$|^file_\d+$"
+            r"^format_\d+$|^format_\d+_obj$|^file_\d+$|^file_\w+$"
             r"|^write_list_\d+$|^write_line$|^format_\d+_obj"
             r".*|^Format$|^list_output_formats$|"
-            r"^write_list_stream$|^file_\d+\.write$|"
+            r"^write_list_stream$|^file_\d+\.write$|^file_\w+\.write$"
             r"^output_fmt$"
         )
 
@@ -272,6 +272,7 @@ class GrFNGenerator(object):
             "ast.While": self.process_while,
             "ast.Break": self.process_break,
             "ast.ClassDef": self.process_class_def,
+            "ast.Try": self.process_try,
         }
 
     def gen_grfn(self, node, state, call_source):
@@ -321,6 +322,13 @@ class GrFNGenerator(object):
          they appear as a list. Process each node in the list and chain them
          together into a single list of GrFN dictionaries.
         """
+
+        # result = []
+        # for cur in node:
+        #     tmp = self.gen_grfn(cur, state, call_source)
+        #     result.append(tmp)
+        # return list(chain.from_iterable(result))
+
         return list(
             chain.from_iterable(
                 [self.gen_grfn(cur, state, call_source) for cur in node]
@@ -1555,6 +1563,13 @@ class GrFNGenerator(object):
         # Get the GrFN schema of the test condition of the `IF` command
         condition_sources = self.gen_grfn(node.test, state, "if")
         condition_variables = self.get_variables(condition_sources, state)
+
+        # When opening files, if a check for a pre-existing file has to be
+        # done, this if block is bypassed
+        if condition_sources[0].get('call'):
+            if condition_sources[0]["call"].get("function") and \
+                    condition_sources[0]["call"]["function"] == "path.exists":
+                return []
 
         # The index of the IF_x_x variable will start from 0
         if state.last_definition_default in (-1, 0, -2):
@@ -3444,6 +3459,10 @@ class GrFNGenerator(object):
                     ]
 
     @staticmethod
+    def process_try(node, state, call_source):
+        return []
+
+    @staticmethod
     def _merge_dictionary(dicts: Iterable[Dict]) -> Dict:
         """
             This function merges the entire dictionary created by `gen_grfn`
@@ -3877,6 +3896,7 @@ class GrFNGenerator(object):
                             type_found = True
                             type_name = variable_type
                             state.variable_types[variable] = type_name
+
 
                 assert type_found, f"Type {variable_type} is not a valid type."
 

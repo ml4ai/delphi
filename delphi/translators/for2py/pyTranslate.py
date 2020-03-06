@@ -18,7 +18,6 @@ from delphi.translators.for2py import For2PyError, syntax
 
 # TYPE_MAP gives the mapping from Fortran types to Python types
 TYPE_MAP = {
-#    "character": "str",
     "double": "float",
     "float": "float",
     "int": "int",
@@ -188,9 +187,8 @@ class PythonCodeGenerator(object):
         # List to hold the translated python string that
         # will be printed to the python IR output
         self.pyStrings = []
-        # Dictionary holding mapping of read/write
-        # based on the file open state
-        self.stateMap = {"UNKNOWN": "r", "REPLACE": "w"}
+        # Dictionary holding mapping of read/write based on the file open state
+        self.stateMap = {"unknown": "r", "replace": "w", "new": "w", "old": "r"}
         # Dictionary to hold the mapping of {label:format-code}
         self.format_dict = {}
         # Lists to hold derived type class
@@ -949,42 +947,116 @@ class PythonCodeGenerator(object):
         self.pyStrings.append("")
 
     def printOpen(self, node, printState: PrintState):
-        if node["args"][0].get("arg_name") == "unit":
-            file_handle = "file_" + str(node["args"][1]["value"])
-        elif node["args"][0].get("tag") == "ref":
-            file_handle = "file_" + str(
-                self.nameMapper[node["args"][0]["name"]]
-            )
-        else:
-            file_handle = "file_" + str(node["args"][0]["value"])
-
+        file_handle = self.get_file_handle(node)
         # We are making all file handles static i.e. SAVEing them which means
         # the file handles have to be prefixed with their subroutine/function
         # names
         if file_handle in self.saved_variables[self.current_module]:
             file_handle = f"{self.current_module}.{file_handle}"
 
-        self.pyStrings.append(f"{file_handle} = ")
+        # At the very beginning, check if the status = OLD i.e. a condition
+        # where the file has to previously exist.
+        check_exist = False
+        check_error = False
         for index, item in enumerate(node["args"]):
             if item.get("arg_name"):
                 if item["arg_name"].lower() == "file":
-                    file_name = node["args"][index + 1]["value"]
+                    if node["args"][index + 1]["tag"] == "literal":
+                        file_name = node["args"][index + 1]["value"]
+                    elif node["args"][index + 1]["tag"] == "ref":
+                        file_name = node["args"][index + 1]["name"]
+                    else:
+                        assert False, "Can't get filename"
                     open_state = "r"
                 elif item["arg_name"].lower() == "status":
-                    open_state = node["args"][index + 1]["value"]
+                    open_state = node["args"][index + 1]["value"].replace(
+                        "'", "").lower()
+                    if open_state == "old":
+                        check_exist = True
                     open_state = self.stateMap[open_state]
+                elif item["arg_name"].lower() == "iostat":
+                    check_error = True
+                    error_variable = node["args"][index + 1]
+
+        if file_name in self.variableMap:
+            file_is_var = True
+            if self.variableMap[file_name]["type"].lower() == "character":
+                file_name = f"{file_name}._val"
+        else:
+            file_is_var = False
 
         # If the file_name has quotes at the beginning and end, remove them
         if (file_name[0] == "'" and file_name[-1] == "'") or \
                 (file_name[0] == '"' and file_name[-1] == '"'):
             file_name = file_name[1:-1]
 
-        self.pyStrings.append(f'open("{file_name}", "{open_state}")')
+        if check_error:
+            assignment_tag = {
+                "tag": "assignment",
+                "target": [error_variable],
+                "value": [{
+                    "tag": "literal",
+                    "type": "int",
+                    "value": "0"
+                }],
+            }
+            self.printAssignment(assignment_tag, printState)
+            self.pyStrings.append(printState.sep)
+        if check_exist:
+            if file_is_var:
+                self.pyStrings.append(f"if not os.path.exists({file_name}):")
+            else:
+                self.pyStrings.append(f"if not os.path.exists('{file_name}'):")
+            self.pyStrings.append(printState.sep+printState.add)
+            if check_error:
+                assignment_tag = {
+                    "tag": "assignment",
+                    "target": [error_variable],
+                    "value": [{
+                        "tag": "literal",
+                        "type": "int",
+                        "value": "1"
+                    }],
+                }
+                self.printAssignment(assignment_tag, printState)
+            else:
+                self.pyStrings.append(
+                    f'assert False, "File: {file_name} does not '
+                    f'exist."')
+            self.pyStrings.append(printState.sep)
+
+        if check_error:
+            self.pyStrings.append("try:")
+            self.pyStrings.append(printState.sep + printState.add)
+
+        self.pyStrings.append(f"{file_handle} = ")
+        if file_is_var:
+            self.pyStrings.append(f'open({file_name}, "{open_state}")')
+        else:
+            self.pyStrings.append(f'open("{file_name}", "{open_state}")')
+
+        if check_error:
+            self.pyStrings.append(printState.sep + "except:")
+            self.pyStrings.append(printState.sep + printState.add)
+            assignment_tag = {
+                "tag": "assignment",
+                "target": [error_variable],
+                "value": [{
+                    "tag": "literal",
+                    "type": "int",
+                    "value": "1"
+                }],
+            }
+            self.printAssignment(assignment_tag, printState)
+
+
 
     def printRead(self, node, printState: PrintState):
-        file_number = str(node["args"][0]["value"])
-        if node["args"][0]["type"] == "int":
-            file_handle = "file_" + file_number
+        if node["args"][0].get("tag") == "ref":
+            file_handle = f'file_{self.nameMapper[node["args"][0]["name"]]}'
+        else:
+            file_handle = f'file_{node["args"][0]["value"]}'
+
         if node["args"][1]["type"] == "int":
             format_label = node["args"][1]["value"]
 
@@ -1003,7 +1075,7 @@ class PythonCodeGenerator(object):
 
         ind = 0
         self.pyStrings.append("(")
-        for item in node["args"]:
+        for item in node["args"][1:]:
             if item["tag"] == "ref":
                 var = self.nameMapper[item["name"]]
                 if "subscripts" in item:
@@ -1012,7 +1084,7 @@ class PythonCodeGenerator(object):
                     tempInd = tempInd + 1
                 else:
                     self.pyStrings.append(f"{var}[0]")
-                if ind < len(node["args"]) - 1:
+                if ind < len(node["args"][1:]) - 1:
                     self.pyStrings.append(", ")
             ind = ind + 1
         self.pyStrings.append(
@@ -1339,9 +1411,9 @@ class PythonCodeGenerator(object):
             var_type = self.get_type(derived_type_variables[var])
             self.var_type.setdefault(derived_type_class_info["type"],
                                      []).append({
-                        "name": derived_type_variables[var]["name"],
-                        "type": var_type
-                    })
+                "name": derived_type_variables[var]["name"],
+                "type": var_type
+            })
             is_derived_type_declaration = False
             # If the type is not one of the default types, but it's
             # a declared derived type, set the is_derived_type_declaration
@@ -1424,60 +1496,13 @@ class PythonCodeGenerator(object):
                             save_argument = f"{{'name': '{var['name']}', " \
                                 f"'call': {var['type']}(), 'type': " \
                                 f"'{variable_type}'}}"
-                else:
-                    self.pyStrings.append(
-                        f"        self.{name} = {var_type}()"
-                    )
-
-            else:
-                array_range = self.get_array_dimension(
-                    derived_type_variables[var]
-                )
-                self.pyStrings.append(
-                    f"        self.{name} = Array({var_type}, [{array_range}])"
-                )
-            self.pyStrings.append(printState.sep)
-
-    def printSave(self, node, printState: PrintState):
-        """
-        This function adds the Python string to handle Fortran SAVE
-        statements. It adds a decorator above a function definition and makes
-        a call to static_save function with the list of saved variables as
-        its argument.
-        """
-        self.is_save = True
-        parent = node["name"]
-        self.saved_variables[parent] = []
-        for item in node["body"]:
-            if item.get("tag") == "save":
-                to_delete = item
-                self.pyStrings.append("\n@static_vars([")
-                variables = ''
-                for var in item["var_list"]:
-                    if var["tag"] == "open":
-                        variable_type = "file_handle"
-                    else:
-                        variable_type = TYPE_MAP[var["type"].lower()]
-                    if var.get("name"):
-                        self.saved_variables[parent].append(var["name"])
-                    if var["tag"] == "array":
-                        # Call printArray to get the initialization code for
-                        # Array declaration. This will be on the argument to
-                        # the decorator.
-                        save_argument = self.printArray(var, printState)
-                        variables += f"{save_argument}, "
-                    elif var["tag"] == "variable":
-                        if var["is_derived_type"] == "true":
-                            save_argument = f"{{'name': '{var['name']}', " \
-                                f"'call': {var['type']}(), 'type': " \
-                                f"'{variable_type}'}}"
                         else:
                             save_argument = {"name": var["name"],
                                              "call": [None],
                                              "type": variable_type}
                         variables += f"{save_argument}, "
                     elif var["tag"] == "open":
-                        name = f"file_{var['args'][0]['value']}"
+                        name = self.get_file_handle(var)
                         self.saved_variables[parent].append(name)
                         save_argument = f"{{'name': '{name}', 'call': None, " \
                             f"'type': 'file_handle'}}"
@@ -1605,7 +1630,8 @@ class PythonCodeGenerator(object):
         just in case of any possible usage in the future. For now, it does
         nothing and pass. Since translate.py also passes interface, this
         should not be encountered in any case."""
-        assert False, "In printInterface function, which should not be in any case."
+        assert False, "In printInterface function, which should not be in " \
+                      "any case."
 
     ###########################################################################
     #                                                                         #
@@ -1617,7 +1643,7 @@ class PythonCodeGenerator(object):
         label = node["args"][1]["value"]
         data_type = list_data_type(self.format_dict[label])
         index = 0
-        for item in node["args"]:
+        for item in node["args"][1:]:
             if item["tag"] == "ref":
                 self.printVariable(
                     {
@@ -1776,6 +1802,16 @@ class PythonCodeGenerator(object):
 
         return array_range
 
+    def get_file_handle(self, node):
+        if node["args"][0].get("arg_name") == "unit":
+            file_handle = f'file_{node["args"][1]["value"]}'
+        elif node["args"][0].get("tag") == "ref":
+            file_handle = f'file_{self.nameMapper[node["args"][0]["name"]]}'
+        else:
+            file_handle = f'file_{node["args"][0]["value"]}'
+
+        return file_handle
+
 
 def index_modules(root) -> Dict:
     """
@@ -1798,6 +1834,7 @@ def get_python_sources_and_variable_map(outputDict: Dict):
     main_ast = []
     import_lines = [
         "import sys",
+        "import os",
         "from typing import List",
         "import math",
         "from delphi.translators.for2py.format import *",
@@ -1815,8 +1852,8 @@ def get_python_sources_and_variable_map(outputDict: Dict):
         code_generator.pyStrings.append("\n".join(import_lines))
         if "module" in module_index_dict[module]:
             ast = [outputDict["ast"][module_index_dict[module][1]]]
-            # Copy the derived type ast from the main_ast into the separate list,
-            # so it can be printed outside (above) the main method
+            # Copy the derived type ast from the main_ast into the separate
+            # list, so it can be printed outside (above) the main method
             derived_type_ast = []
             for index in list(ast[0]["body"]):
                 if "is_derived_type" in index and index["is_derived_type"] == "true":

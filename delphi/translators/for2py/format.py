@@ -75,7 +75,9 @@ class Format:
         """init_read_line() initializes fields relevant to input matching"""
         format_list = self._format_list
         self._re_cvt = self.match_input_fmt(format_list)
-        regexp0_str = 'r"' + "".join([subs[0] for subs in self._re_cvt]) + '"'
+
+        regexp0_str = "%r" % "".join([subs[0] for subs in self._re_cvt])
+        regexp0_str = regexp0_str[1:-1]
         self._regexp_str = regexp0_str
         self._re = re.compile(regexp0_str)
         self._match_exps = [
@@ -233,7 +235,7 @@ class Format:
         else:
             if fmt[0] in "iI":  # integer
                 sz = fmt[1:]
-                xtract_rexp = 'r"(.{' + sz + '})"'  # r.e. for extraction
+                xtract_rexp = '(.{' + sz + '})'  # r.e. for extraction
                 rexp1 = r" *-?\d+"  # r.e. for matching
                 divisor = 1
                 rexp = [(xtract_rexp, rexp1, divisor, "int")]
@@ -246,7 +248,7 @@ class Format:
                 idx0 = fmt.find(".")
                 sz = fmt[1:idx0]
                 divisor = 10 ** (int(fmt[idx0 + 1:]))
-                xtract_rexp = 'r"(.{,' + sz + '})"'  # r.e. for extraction
+                xtract_rexp = '(.{,' + sz + '})'  # r.e. for extraction
                 rexp1 = r" *-?\d+(\.\d+)?"  # r.e. for matching
                 rexp = [(xtract_rexp, rexp1, divisor, "float")]
             else:
