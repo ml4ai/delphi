@@ -1860,7 +1860,7 @@ class RectifiedXMLGenerator:
             self.dimensions_holder = current
 
     def handle_tag_dimension(
-            self, root, current, parent, _, traverse
+            self, root, current, parent, grandparent, traverse
     ):
         """This function handles cleaning up the XML elements
         between the dimension elements.
@@ -1868,7 +1868,12 @@ class RectifiedXMLGenerator:
         <dimension>
         </dimension>
         """
+        # DEBUG
+        print ("    @ rectify.py - _dimension - grandparent: ", grandparent.tag, grandparent.attrib)
+        print ("        @ rectify.py - _dimension - root: ", root.tag, root.attrib)
         for child in root:
+            # DEBUG
+            print ("            @ rectify.py - _dimension - child: ", child.tag, child.attrib)
             self.clean_attrib(child)
             if len(child) > 0 or child.text:
                 cur_elem = ET.SubElement(
@@ -1889,7 +1894,10 @@ class RectifiedXMLGenerator:
                         assert (
                             False
                         ), f'In handle_tag_dimension: "{child.tag}" not handled'
-            elif child.tag == "literal":
+            elif (
+                    child.tag == "literal"
+                    or child.tag == "name"
+            ):
                 cur_elem = ET.SubElement(
                     current, child.tag, child.attrib
                 )
