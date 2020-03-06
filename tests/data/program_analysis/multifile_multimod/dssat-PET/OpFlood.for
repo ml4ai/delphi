@@ -93,7 +93,7 @@ C=======================================================================
 !***********************************************************************
       ELSEIF (DYNAMIC .EQ. OUTPUT .OR. DYNAMIC .EQ. SEASEND) THEN
 C-----------------------------------------------------------------------
-      IF (IDETW .NE .'N' .AND. ISWWAT .EQ. 'Y') THEN
+      IF (IDETW .NE. 'N' .AND. ISWWAT .EQ. 'Y') THEN
         IF ((DYNAMIC .EQ. OUTPUT .AND. MOD(DAS,FROP) .EQ. 0) .OR.
      &      (DYNAMIC .EQ. SEASEND  .AND. MOD(DAS,FROP) .NE. 0)) THEN 
           CALL YR_DOY(YRDOY, YEAR, DOY) 

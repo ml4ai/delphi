@@ -170,11 +170,11 @@ C-----------------------------------------------------------------------
 
          IF (ISECT .EQ. 1) THEN
             READ (CHARTEST,410,IOSTAT=ERRNUM) EXPER,CG,ENAME
-            IF (ERRNUM .NE. 0) CALL ERROR (ERRKEY,ERRNUM,FILELS,LINEXP)
-            IF (MOD(I,16) .EQ. 0) THEN
-               WRITE (*,600)
-               READ (5,'(A1)') ANS
-            ENDIF
+!!!            IF (ERRNUM .NE. 0) CALL ERROR (ERRKEY,ERRNUM,FILELS,LINEXP)
+!!!            IF (MOD(I,16) .EQ. 0) THEN
+!!!               WRITE (*,600)
+!!!               READ (5,'(A1)') ANS
+!!!            ENDIF
             READ(EXPER(5:6),'(I2)') YR
             IF (YR .GE. 10) THEN
               WRITE (*,500) I,CG,ENAME(1:45),EXPER(1:2),EXPER(3:4),
@@ -200,7 +200,7 @@ C-----------------------------------------------------------------------
          LINE(1) = ' '
          NLOOP = NLOOP + 1
          IF (NLOOP .GT. 25) CALL ERROR (ERRKEY,2,FILELS,0)
-         WRITE (*,1000) EXPN
+!!!         WRITE (*,1000) EXPN
          READ  (5,1100) LINE
          CALL VERIFY (LINE,EXP,FLAG)
 
@@ -295,10 +295,10 @@ C-----------------------------------------------------------------------
      &              LNCHE,LNTIL,LNENV,LNHAR,LNSIM
             ENDIF
             IF (ERRNUM .NE. 0) CALL ERROR (ERRKEY,ERRNUM,FILEX,LINEXP)
-            IF (MOD(I,16) .EQ. 0 .AND. RNMODE .EQ. 'I') THEN
-               WRITE (*,600)
-               READ (5,'(A1)') ANS
-            ENDIF
+!!!            IF (MOD(I,16) .EQ. 0 .AND. RNMODE .EQ. 'I') THEN
+!!!               WRITE (*,600)
+!!!               READ (5,'(A1)') ANS
+!!!            ENDIF
             READ(EXPER(5:6),'(I2)') YR
             IF (YR .GE. 10) THEN
             IF (RNMODE .EQ. 'I') WRITE (*,2600) I,TITLET,
@@ -325,7 +325,7 @@ C-----------------------------------------------------------------------
          LINE(1) = ' '
          IF (NLOOP .GT. 25) CALL ERROR(ERRKEY,3,FILEX,LINEXP)
          IF (RNMODE .EQ. 'I') THEN
-           WRITE (*,2900) TRTN
+!!!           WRITE (*,2900) TRTN
 C
 C        Read the correct treatment number
 C
@@ -401,9 +401,9 @@ C     IF (I .LT. TRTN) GO TO 50
      &    GO TO 50
 
 !     Generate header information for Warnings or Errors in input module
-      CALL OPHEAD (RUNINIT,99,0.0,0.0,"                ",0.0,0.0, 
-     &     "      ",RUN,"        ",TITLET,WTHSTR, RNMODE,
-     &     CONTROL, ISWITCH, UseSimCtr, PATHEX)
+!!!      CALL OPHEAD (RUNINIT,99,0.0,0.0,"                ",0.0,0.0, 
+!!!     &     "      ",RUN,"        ",TITLET,WTHSTR, RNMODE,
+!!!     &     CONTROL, ISWITCH, UseSimCtr, PATHEX)
 C-----------------------------------------------------------------------
 C
 C-----------------------------------------------------------------------
@@ -838,9 +838,9 @@ C-----------------------------------------------------------------------
   410 FORMAT (3X,A8,1X,A2,2X,A60)
   500 FORMAT (1X,I3,'.',2X,A2,2X,A45,1X,A2,5X,A2,3X,'19',A2,2X,A2)
   501 FORMAT (1X,I3,'.',2X,A2,2X,A45,1X,A2,5X,A2,3X,'20',A2,2X,A2)
-  600 FORMAT (/,'  More.... press < ENTER > key',$)
- 1000 FORMAT (/,6X,'EXPERIMENT SELECTED ===>',1X,I3,
-     &        /,6X,'NEW SELECTION ?     --->',2X,' ',$)
+!!!  600 FORMAT (/,'  More.... press < ENTER > key',$)
+!!! 1000 FORMAT (/,6X,'EXPERIMENT SELECTED ===>',1X,I3,
+!!!     &        /,6X,'NEW SELECTION ?     --->',2X,' ',$)
  1100 FORMAT (80A1)
  1101 FORMAT (10X,'ERROR! Experiment Selection must be between 1',
      &            ' and ',I3,/)
@@ -857,8 +857,8 @@ C-----------------------------------------------------------------------
  2751 FORMAT (10X,'ERROR! Treatment Selection must be between 1',
      &            ' and ',I3,/)
  2752 FORMAT (10X,'ERROR! Treatment Selection must be an INTEGER',/)
- 2900 FORMAT (/,6X,'TREATMENT SELECTED ===>',1X,I3,
-     &        /,6X,'NEW SELECTION ?    --->',2X,' ',$)
+!!! 2900 FORMAT (/,6X,'TREATMENT SELECTED ===>',1X,I3,
+!!!     &        /,6X,'NEW SELECTION ?    --->',2X,' ',$)
  3450 FORMAT (//////,15X,' Reading Data.  Please be patient.',/,
      &               15X,' Do not touch the keyboard !',/,16X,33('='))
  5000 FORMAT("Soil files not found: ",A,", ",A)
