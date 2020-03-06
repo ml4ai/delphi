@@ -64,7 +64,8 @@ C      USE Linklist
       IF (PRINTDAY) THEN
         IF (FMOPT == 'A' .OR. FMOPT == ' ') THEN   ! VSH
         call getlun("Mulch.OUT", DLUN)
-        INQUIRE (FILE = "Mulch.OUT", EXIST = FEXIST)
+!!!        INQUIRE (FILE = "Mulch.OUT", EXIST = FEXIST)
+        FEXIST = .TRUE.
         IF (FEXIST) THEN
           OPEN (UNIT = DLUN, FILE = "Mulch.OUT", POSITION = 'APPEND')
         ELSE
