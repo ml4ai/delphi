@@ -205,12 +205,108 @@ def refactor_select_case(lines):
     return lines
 
 
+
+# The regular expressions defined below are used for processing implicit array
+# declarations, which the preprocessor converts into explicit array declarations.
+
+BASE_TYPES = r"^(\s*)(integer|real|double\s+precision|complex|character|logical)\s+(.*)"
+RE_BASE_TYPES = re.compile(BASE_TYPES, re.I)
+
+DIM = r"\s*DIMENSION\s*.*"
+RE_DIM = re.compile(DIM, re.I)
+
+IMPLICIT_ARRAY = r"(\w+)\((\w+)\)"
+RE_IMPLICIT_ARRAY = re.compile(IMPLICIT_ARRAY, re.I)
+
+VAR_OR_ARRAY = r"(\w+)(\((\w+)\))?"
+RE_VAR_OR_ARRAY = re.compile(VAR_OR_ARRAY, re.I)
+
+DECL_CONTINUATION = r"\s*,\s*"
+RE_DECL_CONTINUATION = re.compile(DECL_CONTINUATION, re.I)
+
+def fix_implicit_array_decls(lines):
+    out_lines = []
+    for line in lines:
+        match = RE_BASE_TYPES.match(line)
+        if match is None:
+            out_lines.append(line)
+            continue
+        else:
+            indentation = match.group(1)
+            type = match.group(2)
+            rest = match.group(3)
+
+            # If there is already a DIMENSION keyword, this is not an implicit
+            # declaration.  Return the input line as is.
+            match1 = RE_DIM.match(rest)
+            if match1 is not None:
+                out_lines.append(line)
+                continue
+    
+            # If the line does not match the pattern for an implicit array,
+            # return as-is.
+            match2 = RE_IMPLICIT_ARRAY.search(line)
+            if match2 is None:
+                out_lines.append(line)
+                continue
+    
+            # If execution reaches this point, the input line contains an 
+            # implicit declaration of an array.  Transform it into an explicit
+            # declaration.
+            decls = {}
+            arr_name = arr_size = None
+            match2 = RE_VAR_OR_ARRAY.match(rest)
+            
+            while match2 is not None:
+                arr_name, arr_size = match2.group(1), match2.group(2)
+                if arr_size is not None:
+                    arr_size = arr_size[1:-1]
+                else:
+                    arr_size = 0
+    
+                if arr_size in decls:
+                    decls[arr_size] += ", " + arr_name
+                else:
+                    decls[arr_size] = arr_name
+    
+                # get the rest of the string if appropriate
+                n = match2.end()
+                if n < len(rest):
+                    rest = rest[n:]
+                else:
+                    rest = ""
+    
+                # process any comma separator if present
+                match3 = RE_DECL_CONTINUATION.match(rest)
+                if match3 is not None:
+                    n = match3.end()
+                    rest = rest[n:]
+    
+                match2 = RE_VAR_OR_ARRAY.match(rest)
+    
+            # finally, construct the output lines with implicit declarations
+            # replaced by explicit ones
+            new_lines = []
+            for sz in decls:
+                if sz != 0:
+                    new_lines.append("{}{}, DIMENSION({}) :: {}\n".\
+                                format(indentation, type, sz, decls[sz]))
+                else:
+                    new_lines.append("{}{} :: {}\n".\
+                                format(indentation, type, decls[sz]))
+    
+            out_lines.extend(new_lines)
+
+    return out_lines
+
+
 def preprocess_lines(lines, infile, forModLogGen=False):
     _, f_ext = os.path.splitext(infile)
     lines = [line for line in lines if line.rstrip() != ""]
     lines = separate_trailing_comments(lines)
     lines = discard_comments(lines)
     lines = merge_continued_lines(lines, f_ext)
+    lines = fix_implicit_array_decls(lines)
     # For module log file generation, we do not need to
     # preprocess any included external files, so skip in
     # such case.
@@ -224,3 +320,5 @@ def get_preprocessed_lines_from_file(infile, forModLogGen=False):
     with open(infile, mode="r", encoding="latin-1") as f:
         lines = f.readlines()
     return preprocess_lines(lines, infile, forModLogGen)
+
+
