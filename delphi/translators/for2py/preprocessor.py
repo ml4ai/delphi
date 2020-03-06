@@ -212,51 +212,67 @@ def refactor_select_case(lines):
 BASE_TYPES = r"^(\s*)(integer|real|double\s+precision|complex|character|logical)\s+(.*)"
 RE_BASE_TYPES = re.compile(BASE_TYPES, re.I)
 
-DIM = r"\s*DIMENSION\s*.*"
-RE_DIM = re.compile(DIM, re.I)
+KWDS = r"\s*(DIMENSION|FUNCTION)\s*.*"
+RE_KWDS = re.compile(KWDS, re.I)
 
 IMPLICIT_ARRAY = r"(\w+)\((\w+)\)"
 RE_IMPLICIT_ARRAY = re.compile(IMPLICIT_ARRAY, re.I)
 
-VAR_OR_ARRAY = r"(\w+)(\((\w+)\))?"
+VAR_OR_ARRAY = r"\s*(\w+)(\((\w+)\))?"
 RE_VAR_OR_ARRAY = re.compile(VAR_OR_ARRAY, re.I)
 
 DECL_CONTINUATION = r"\s*,\s*"
 RE_DECL_CONTINUATION = re.compile(DECL_CONTINUATION, re.I)
 
+
+def implicit_array_decl_parameters(line):
+    """ If line contains an implicit array declaration, extract and return
+        the following parameters: the initial indentation, the type of the
+	array, and the rest of the line after the type; otherwise return None.
+    """
+    match = RE_BASE_TYPES.match(line)
+    if match is None:
+        return None
+
+    indentation = match.group(1)
+    type = match.group(2)
+    rest = match.group(3)
+
+    if type.lower() == "character":
+        match = re.match(r"\s*(\(\s*len\s*=\s*\d+\s*\)|\*\s*\d+)", rest)
+        if match is not None:
+            char_parms = match.group(1)
+            type += char_parms
+            rest = rest[match.end():]
+
+    # If the the rest of the string begins with specific keywords
+    # like DIMENSION or FUNCTION, this is not an implicit declaration.
+    match = RE_KWDS.match(rest)
+    if match is not None:
+        return None
+
+    # If the line does not match the pattern for an implicit array,
+    # it does not have an implicit array declaration
+    match = RE_IMPLICIT_ARRAY.search(rest)
+    if match is None:
+        return None
+
+    return (indentation, type, rest)
+
+
+
 def fix_implicit_array_decls(lines):
     out_lines = []
     for line in lines:
-        match = RE_BASE_TYPES.match(line)
-        if match is None:
+        implicit_decl_parms = implicit_array_decl_parameters(line)
+        if implicit_decl_parms is None:
             out_lines.append(line)
             continue
         else:
-            indentation = match.group(1)
-            type = match.group(2)
-            rest = match.group(3)
-
-            # If there is already a DIMENSION keyword, this is not an implicit
-            # declaration.  Return the input line as is.
-            match1 = RE_DIM.match(rest)
-            if match1 is not None:
-                out_lines.append(line)
-                continue
-    
-            # If the line does not match the pattern for an implicit array,
-            # return as-is.
-            match2 = RE_IMPLICIT_ARRAY.search(line)
-            if match2 is None:
-                out_lines.append(line)
-                continue
-    
-            # If execution reaches this point, the input line contains an 
-            # implicit declaration of an array.  Transform it into an explicit
-            # declaration.
+            (indentation, type, rest) = implicit_decl_parms
             decls = {}
             arr_name = arr_size = None
             match2 = RE_VAR_OR_ARRAY.match(rest)
-            
             while match2 is not None:
                 arr_name, arr_size = match2.group(1), match2.group(2)
                 if arr_size is not None:
