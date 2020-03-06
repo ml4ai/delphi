@@ -153,14 +153,14 @@ C-----------------------------------------------------------------------
 C-----------------------------------------------------------------------
 C    Initialize and delete previous copy of FILEIO
 C-----------------------------------------------------------------------
-      INQUIRE (FILE = FILEIO,EXIST = FEXIST)
-      IF (FEXIST) THEN
+!!!      INQUIRE (FILE = FILEIO,EXIST = FEXIST)
+!!!      IF (FEXIST) THEN
           OPEN (LUNIO, FILE = FILEIO,STATUS = 'UNKNOWN',IOSTAT=ERRNUM)
           READ (LUNIO,40) EXPP,TRTN,TRTALL
           READ (LUNIO,70,IOSTAT=ERRNUM) IOX,IDETO,IDETS,FROP,IDETG,
      &            IDETC,IDETW,IDETN,IDETP,IDETD,IDETL,IDETH,IDETR
           CLOSE (LUNIO,STATUS = 'DELETE')
-      ENDIF
+!!!      ENDIF
 
 C-----------------------------------------------------------------------
 C     BEGINNING of READING INPUT files

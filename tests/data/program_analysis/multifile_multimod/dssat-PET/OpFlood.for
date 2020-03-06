@@ -56,7 +56,8 @@ C=======================================================================
       IF (DYNAMIC .EQ. SEASINIT) THEN
 !-----------------------------------------------------------------------
       IF (ISWWAT .EQ. 'Y' .AND. IDETW .NE. 'N') THEN
-        INQUIRE (FILE = OUTFLD, EXIST = FEXIST)
+!!!        INQUIRE (FILE = OUTFLD, EXIST = FEXIST)
+        FEXIST = .TRUE.
         IF (FEXIST) THEN
           OPEN (UNIT = LUN, FILE = OUTFLD, STATUS = 'OLD',
      &      IOSTAT = ERRNUM, POSITION = 'APPEND')

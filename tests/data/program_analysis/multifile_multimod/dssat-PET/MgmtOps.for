@@ -440,7 +440,8 @@ C-----------------------------------------------------------------------
 !     If daily printout is needed, open file.
       IF (DPRINT) THEN
         CALL GETLUN('OUTM', DLUN)
-        INQUIRE (FILE = OUTM, EXIST = FEXIST)
+!!!        INQUIRE (FILE = OUTM, EXIST = FEXIST)
+        FEXIST = .TRUE.
         IF (FEXIST) THEN      
 !         MgmtOps.out file has already been created for this run.
           OPEN (UNIT=DLUN, FILE=OUTM, STATUS='OLD',
@@ -500,7 +501,8 @@ C-----------------------------------------------------------------------
       IF (IDETR == 'Y') THEN
 !       Management event output file
         CALL GETLUN('OUTM2', DLUN2)
-        INQUIRE (FILE = OUTM2, EXIST = FEXIST)
+!!!        INQUIRE (FILE = OUTM2, EXIST = FEXIST)
+        FEXIST = .True.
         IF (FEXIST) THEN      
           !MgmtOps.out file has already been created for this run.
           OPEN (UNIT=DLUN2, FILE=OUTM2, STATUS='OLD',

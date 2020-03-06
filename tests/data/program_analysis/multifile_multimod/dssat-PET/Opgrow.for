@@ -130,7 +130,8 @@ C      USE Linklist
 !-----------------------------------------------------------------------
         IF (FMOPT == 'A' .OR. FMOPT == ' ') THEN    ! VSH
 !       Initialize daily growth output file      
-        INQUIRE (FILE = OUTG, EXIST = FEXIST)
+!!!        INQUIRE (FILE = OUTG, EXIST = FEXIST)
+        FEXIST = .TRUE.
         IF (FEXIST) THEN
           OPEN (UNIT = NOUTDG, FILE = OUTG, STATUS = 'OLD',
      &      IOSTAT = ERRNUM, POSITION = 'APPEND')
@@ -190,7 +191,8 @@ C      USE Linklist
 
 !-----------------------------------------------------------------------
 !       Initialize daily plant nitrogen output file
-        INQUIRE (FILE = OUTPN, EXIST = FEXIST)
+!!!        INQUIRE (FILE = OUTPN, EXIST = FEXIST)
+        FEXIST = .TRUE.
         IF (FEXIST) THEN
           OPEN (UNIT = NOUTPN, FILE = OUTPN, STATUS = 'OLD',
      &      IOSTAT = ERRNUM, POSITION = 'APPEND')
@@ -214,7 +216,8 @@ C      USE Linklist
 
 !-----------------------------------------------------------------------
 !       Initialize daily plant carbon output file
-        INQUIRE (FILE = OUTPC, EXIST = FEXIST)
+!!!        INQUIRE (FILE = OUTPC, EXIST = FEXIST)
+        FEXIST = .TRUE.
         IF (FEXIST) THEN
           OPEN (UNIT = NOUTPC, FILE = OUTPC, STATUS = 'OLD',
      &      IOSTAT = ERRNUM, POSITION = 'APPEND')
