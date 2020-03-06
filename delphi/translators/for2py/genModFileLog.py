@@ -74,9 +74,9 @@ def get_file_list_in_directory(root_dir_path):
     files = []
     for (dir_path, dir_names, file_names) in os.walk(root_dir_path):
         for f in file_names:
-            if "_preprocessed" not in f and (
-                f.endswith(".f") or f.endswith(".for")
-            ):
+            if "_preprocessed" not in f and \
+                    (f.endswith(".f") or f.endswith(\
+                    ".for")):
                 path = os.path.join(dir_path, f)
                 files.append(os.path.abspath(path))
     return files
@@ -185,7 +185,7 @@ def populate_mappers(
     populate_procedure_functions(procedure_functions, module_summary)
 
     # Populate actual module information (summary)
-    # that will be written to thee JSONN file.
+    # that will be written to thee JSON file.
     for mod in module_names_lowered:
         mod_to_file_mapper[mod] = [file_path]
         mod_info_dict[mod] = {
