@@ -97,7 +97,8 @@ C      USE Linklist
 !     Initialize daily growth output file
       OUTP  = 'PlantP.OUT'
       CALL GETLUN(OUTP, NOUTDP)
-      INQUIRE (FILE = OUTP, EXIST = FEXIST)
+!!!      INQUIRE (FILE = OUTP, EXIST = FEXIST)
+      FEXIST = .TRUE.
       IF (FEXIST) THEN
         OPEN (UNIT = NOUTDP, FILE = OUTP, STATUS = 'OLD',
      &    IOSTAT = ERRNUM, POSITION = 'APPEND')
@@ -146,7 +147,8 @@ C      USE Linklist
 !     Seasonal Plant P balance.
       PPBAL = 'PlantPBal.OUT'
       CALL GETLUN(PPBAL, LUNPPC)
-      INQUIRE (FILE = PPBAL, EXIST = FEXIST)
+!!!      INQUIRE (FILE = PPBAL, EXIST = FEXIST)
+      FEXIST = .TRUE.
       IF (FEXIST) THEN
         OPEN (UNIT = LUNPPC, FILE = PPBAL, STATUS = 'OLD',
      &    IOSTAT = ERRNUM, POSITION = 'APPEND')

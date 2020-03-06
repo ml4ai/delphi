@@ -77,7 +77,8 @@ C-----------------------------------------------------------------------
 !-----------------------------------------------------------------------
         IF (FMOPT == 'A' .OR. FMOPT == ' ') THEN   ! VSH
         CALL GETLUN('OUTWTH', LUN)
-        INQUIRE (FILE = OUTWTH, EXIST = FEXIST)
+!!!        INQUIRE (FILE = OUTWTH, EXIST = FEXIST)
+        FEXIST = .TRUE.
         IF (FEXIST) THEN
           OPEN (UNIT = LUN, FILE = OUTWTH, STATUS = 'OLD',
      &      IOSTAT = ERRNUM, POSITION = 'APPEND')

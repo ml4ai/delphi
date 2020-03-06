@@ -62,7 +62,8 @@ C      USE Linklist
         CALL GETLUN('OUTT',NOUTDT)
 !       Open the output files
         OUTT = 'SoilTemp.OUT'
-        INQUIRE (FILE = OUTT, EXIST = FEXIST)
+!!!        INQUIRE (FILE = OUTT, EXIST = FEXIST)
+        FEXIST = .TRUE.
         IF (FEXIST) THEN
           OPEN (UNIT=NOUTDT, FILE=OUTT, STATUS='OLD',
      &      IOSTAT = ERRNUM, POSITION='APPEND')

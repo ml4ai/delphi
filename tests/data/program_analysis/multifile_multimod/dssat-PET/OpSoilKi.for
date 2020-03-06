@@ -84,7 +84,8 @@ C-----------------------------------------------------------------------
       IF (.NOT. DOPRINT) RETURN
       CALL GETLUN(OUTSK, LUN)
 
-      INQUIRE (FILE = OUTSK, EXIST = FEXIST)
+!!!      INQUIRE (FILE = OUTSK, EXIST = FEXIST)
+      FEXIST = .TRUE.
       IF (FEXIST) THEN
         OPEN (UNIT = LUN, FILE = OUTSK, STATUS = 'OLD',
      &    IOSTAT = ERRNUM, POSITION = 'APPEND')
@@ -128,7 +129,8 @@ C-----------------------------------------------------------------------
 !     --------------------------------------------------------
 !     Seasonal balance
       CALL GETLUN ('SKBAL', LUNK)
-      INQUIRE (FILE = 'SoilKBal.OUT', EXIST = FEXIST)
+!!!      INQUIRE (FILE = 'SoilKBal.OUT', EXIST = FEXIST)
+      FEXIST = .TRUE.
       IF (FEXIST) THEN
         OPEN (UNIT = LUNK, FILE = 'SoilKBal.OUT', STATUS = 'OLD',
      &      IOSTAT = ERRNUM, POSITION = 'APPEND')

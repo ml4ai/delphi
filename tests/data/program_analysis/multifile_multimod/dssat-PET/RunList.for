@@ -58,7 +58,8 @@ C Some gymnastics involving the DATA statement to work around OFP bug
           FILEX_LAST = FILEX
         ENDIF
 
-        INQUIRE (FILE='RunList.OUT', OPENED = FOPEN)
+!!!        INQUIRE (FILE='RunList.OUT', OPENED = FOPEN)
+        FOPEN = .TRUE.
         IF (.NOT. FOPEN) THEN
           OPEN(UNIT=RLUN,FILE='RunList.OUT',ACCESS='APPEND')
         ENDIF

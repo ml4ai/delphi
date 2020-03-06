@@ -96,7 +96,8 @@ C      USE Linklist
 !      IF (IDETC == 'Y') THEN
       IF ((IDETC == 'Y').AND.(FMOPT == 'A'.OR.FMOPT == ' ')) THEN   ! VSH
         CALL GETLUN(OUTSC, NOUTDC)
-        INQUIRE (FILE = OUTSC, EXIST = FEXIST)
+!!!        INQUIRE (FILE = OUTSC, EXIST = FEXIST)
+        FEXIST = .TRUE.
         IF (FEXIST) THEN
           OPEN (UNIT = NOUTDC, FILE = OUTSC, STATUS = 'OLD',
      &      IOSTAT = ERRNUM, POSITION = 'APPEND')
