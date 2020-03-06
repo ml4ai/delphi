@@ -71,7 +71,8 @@ C-----------------------------------------------------------------------
 !     ------------------------------------------------------------------
       PNBAL = 'PlantNBal.OUT'
       CALL GETLUN('PNBAL', LUNPNC)
-      INQUIRE (FILE = PNBAL, EXIST = FEXIST)
+!!!      INQUIRE (FILE = PNBAL, EXIST = FEXIST)
+      FEXIST = .TRUE.
       IF (FEXIST) THEN
         OPEN (UNIT = LUNPNC, FILE = PNBAL, STATUS = 'OLD',
      &    IOSTAT = ERRNUM, POSITION = 'APPEND')

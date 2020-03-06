@@ -100,7 +100,8 @@ C   Generate headings for output file
 C-----------------------------------------------------------------------
       IF (FMOPT == 'A' .OR. FMOPT == ' ') THEN   ! VSH
       CALL GETLUN('OUTWAT', NOUTDW)
-      INQUIRE (FILE = OUTWAT, EXIST = FEXIST)
+!!!      INQUIRE (FILE = OUTWAT, EXIST = FEXIST)
+      FEXIST = .TRUE.
       IF (FEXIST) THEN
         OPEN (UNIT = NOUTDW, FILE = OUTWAT, STATUS = 'OLD',
      &    IOSTAT = ERRNUM, POSITION = 'APPEND')

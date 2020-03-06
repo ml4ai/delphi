@@ -47,7 +47,8 @@ C=======================================================================
 
       PATHC = BLANK
       CALL GETLUN('DSPRO',LUNPR)
-      INQUIRE (FILE = DSSATP,EXIST = FEXIST)
+!!!      INQUIRE (FILE = DSSATP,EXIST = FEXIST)
+      FEXIST = .TRUE.
       IF (FEXIST) THEN
          OPEN (LUNPR,FILE=DSSATP,STATUS = 'OLD',IOSTAT=ERRNUM)
       ENDIF
@@ -140,7 +141,8 @@ C=======================================================================
 
 !     DSSATP(1:12) = DSSATF
       DSSATP(1:12) = DSSATPRO
-      INQUIRE (FILE = DSSATP,EXIST = FEXIST)
+!!!      INQUIRE (FILE = DSSATP,EXIST = FEXIST)
+      FEXIST = .TRUE.
       IF (.NOT. FEXIST .AND. IP .GT. 12) THEN
          DO I = IP, 0, -1
            IF (INPUTX(I:I) .EQ. SLASH .OR. INPUTX(I:I) .EQ. "/")GO TO 10
@@ -150,7 +152,8 @@ C=======================================================================
          DSSATP(1:I+12) = INPUTX(1:I) // DSSATPRO
       ENDIF
 
-      INQUIRE (FILE = DSSATP,EXIST = FEXIST)
+!!!      INQUIRE (FILE = DSSATP,EXIST = FEXIST)
+      FEXIST = .TRUE.
       IF (.NOT. FEXIST) THEN
         CALL get_environment_variable("DSSAT_HOME", DSSAT_HOME)
         IF(TRIM(DSSAT_HOME) .NE. '') THEN
@@ -159,7 +162,7 @@ C=======================================================================
         DSSATP = trim(STDPATH) // TRIM(DSSATPRO)
       ENDIF
 
-      INQUIRE (FILE = DSSATP,EXIST = FEXIST)
+!!!      INQUIRE (FILE = DSSATP,EXIST = FEXIST)
 C      IF (.NOT. FEXIST) THEN
 C        CALL ERROR ('PATH  ',2,DSSATP,0)
 C      ENDIF
@@ -240,7 +243,8 @@ C=======================================================================
       ENDIF
 !     If no model in FILEX, or invalid, use DSSATPRO default model
 
-      INQUIRE (FILE = DSSATP,EXIST = FEXIST)
+!!!      INQUIRE (FILE = DSSATP,EXIST = FEXIST)
+      FEXIST = .TRUE.
       IF (FEXIST) THEN
          OPEN (LUNPR,FILE=TRIM(DSSATP),STATUS = 'OLD',IOSTAT=ERRNUM)
 C         IF (ERRNUM .NE. 0) CALL ERROR (ERRKEY,1,DSSATP,0)

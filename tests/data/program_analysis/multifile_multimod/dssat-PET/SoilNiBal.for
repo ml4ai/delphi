@@ -76,15 +76,18 @@ C  03/04/2005 CHP wrote based on SoilNBal
 !     ------------------------------------------------------------------
 !     Initialize output file
       CALL GETLUN(SNiBAL, LUNSNC)
-      INQUIRE (FILE = SNiBAL, EXIST = FEXIST)
-      IF (FEXIST) THEN
-        OPEN (UNIT = LUNSNC, FILE = SNiBAL, STATUS = 'OLD',
-     &    POSITION = 'APPEND')
-        WRITE(LUNSNC,'(/,"!",79("="))') 
-      ELSE
-        OPEN (UNIT = LUNSNC, FILE = SNiBAL, STATUS = 'NEW')
-        WRITE(LUNSNC,'("*SOIL INORGANIC N BALANCE")')
-      ENDIF
+!!!      INQUIRE (FILE = SNiBAL, EXIST = FEXIST)
+CCC      IF (FEXIST) THEN
+CCC        OPEN (UNIT = LUNSNC, FILE = SNiBAL, STATUS = 'OLD',
+CCC     &    POSITION = 'APPEND')
+CCC        WRITE(LUNSNC,'(/,"!",79("="))') 
+CCC      ELSE
+CCC        OPEN (UNIT = LUNSNC, FILE = SNiBAL, STATUS = 'NEW')
+CCC        WRITE(LUNSNC,'("*SOIL INORGANIC N BALANCE")')
+CCC      ENDIF
+
+       OPEN (UNIT = LUNSNC, FILE = SNiBAL, STATUS = 'REPLACE')
+       WRITE(LUNSNC,'(/,"!",79("="))') 
 
       CALL HEADER(SEASINIT, LUNSNC, RUN)
 

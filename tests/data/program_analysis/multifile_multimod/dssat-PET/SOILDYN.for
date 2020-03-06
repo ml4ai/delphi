@@ -1804,7 +1804,8 @@ c** wdb orig          SUMKEL = SUMKE * EXP(-0.15*MCUMDEP)
         PrintDyn = .TRUE. 
         CALL GETLUN('OUTSOL',DLUN)
 !       Temporary output file for debugging:
-        INQUIRE (FILE = OUTSOL, EXIST = FEXIST)
+!!!        INQUIRE (FILE = OUTSOL, EXIST = FEXIST)
+        FEXIST = .TRUE.
         IF (FEXIST) THEN      
           !SoilDyn.out file has already been created for this run.
           OPEN (UNIT=DLUN, FILE=OUTSOL, STATUS='OLD', POSITION='APPEND')

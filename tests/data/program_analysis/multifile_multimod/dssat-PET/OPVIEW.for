@@ -159,7 +159,8 @@ C-----------------------------------------------------------------------
 !-----------------------------------------------------------------------
       IF (CROP /= 'FA') THEN
         IF (IDETO .EQ. 'Y') THEN
-          INQUIRE (FILE = OUTO, EXIST = FEXIST)
+!!!          INQUIRE (FILE = OUTO, EXIST = FEXIST)
+          FEXIST = .TRUE.
           IF (FEXIST) THEN
             OPEN (UNIT = NOUTDO, FILE = OUTO, STATUS = 'OLD',
      &        IOSTAT = ERRNUM, POSITION = 'APPEND')

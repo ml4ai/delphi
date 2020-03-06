@@ -100,14 +100,14 @@ C      USE Linklist
           OUTET = 'ET.OUT'
           CALL GETLUN('OUTET', LUN)
 
-          INQUIRE (FILE = OUTET, EXIST = FEXIST)
-          IF (FEXIST) THEN
-            OPEN (UNIT = LUN, FILE = OUTET, STATUS = 'OLD',
-     &        POSITION = 'APPEND')
-          ELSE
-            OPEN (UNIT = LUN, FILE = OUTET, STATUS = 'NEW')
-            WRITE(LUN,'("*SOIL-PLANT-ATMOSPHERE MODULE OUTPUT FILE")')
-          ENDIF
+!!!          INQUIRE (FILE = OUTET, EXIST = FEXIST)
+!!!          IF (FEXIST) THEN
+!!!            OPEN (UNIT = LUN, FILE = OUTET, STATUS = 'OLD',
+!!!     &        POSITION = 'APPEND')
+!!!          ELSE
+!!!            OPEN (UNIT = LUN, FILE = OUTET, STATUS = 'NEW')
+!!!            WRITE(LUN,'("*SOIL-PLANT-ATMOSPHERE MODULE OUTPUT FILE")')
+!!!          ENDIF
         END IF   ! VSH
 
 !       Number of soil layers to print between 4 and 10.

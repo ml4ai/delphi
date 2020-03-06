@@ -93,15 +93,15 @@ C=====================================================================
       RUN     = CONTROL % RUN
 
 !     Open output file
-      CALL GETLUN('SWBAL', LUNWBL)
-      INQUIRE (FILE = SWBAL, EXIST = FEXIST)
-      IF (FEXIST) THEN
-        OPEN (UNIT = LUNWBL, FILE = SWBAL, STATUS = 'OLD',
-     &    POSITION = 'APPEND')
-      ELSE
-        OPEN (UNIT = LUNWBL, FILE = SWBAL, STATUS = 'NEW')
-        WRITE(LUNWBL,'("*WATER BALANCE OUTPUT FILE")')
-      ENDIF
+!!!      CALL GETLUN('SWBAL', LUNWBL)
+!!!      INQUIRE (FILE = SWBAL, EXIST = FEXIST)
+!!!      IF (FEXIST) THEN
+!!!        OPEN (UNIT = LUNWBL, FILE = SWBAL, STATUS = 'OLD',
+!!!     &    POSITION = 'APPEND')
+!!!      ELSE
+!!!        OPEN (UNIT = LUNWBL, FILE = SWBAL, STATUS = 'NEW')
+!!!        WRITE(LUNWBL,'("*WATER BALANCE OUTPUT FILE")')
+!!!      ENDIF
 
       CALL HEADER(SEASINIT, LUNWBL, RUN)
 
