@@ -17,9 +17,8 @@ invoke for that argument type tuple.
 Author: Pratik Bhandari
 """
 
-import sys
 import xml.etree.ElementTree as ET
-from typing import List, Dict
+from typing import List
 import re
 import json
 
@@ -97,10 +96,12 @@ class ModuleGenerator(object):
                         else:
                             assert (
                                 key.lower() in module_logs["mod_info"]
-                            ), f"module name (key) {key} does not exist in the log file."
+                            ), f"module name (key) {key} does not exist in " \
+                               f"the log file."
                             symbols = module_logs["mod_info"][key]["exports"]
                             if module in module_logs["mod_info"]:
-                                module_logs["mod_info"][module]["imports"] = symbols
+                                module_logs["mod_info"][module]["imports"] = \
+                                    symbols
                         if key in symbols:
                             self.imports.setdefault(module, []).append(
                                 {key: symbols[key]}
@@ -160,7 +161,8 @@ class ModuleGenerator(object):
                         self.current_context = self.main
                     self.public.setdefault(self.current_context, []).append(
                         item.attrib["name"].lower())
-                    self.variable_types[item.attrib["name"].lower()] = variable_type
+                    self.variable_types[item.attrib["name"].lower()] = \
+                        variable_type
 
             elif item.tag.lower() in ["subroutine", "function"]:
                 if not self.current_context:
