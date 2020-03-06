@@ -1889,6 +1889,7 @@ class RectifiedXMLGenerator:
                 if (
                         child.tag == "literal"
                         or child.tag == "range"
+                        or child.tag == "name"
                 ):
                     self.parseXMLTree(
                         child, cur_elem, current, parent, traverse
