@@ -188,7 +188,12 @@ class PythonCodeGenerator(object):
         # will be printed to the python IR output
         self.pyStrings = []
         # Dictionary holding mapping of read/write based on the file open state
-        self.stateMap = {"unknown": "r", "replace": "w", "new": "w", "old": "r"}
+        self.stateMap = {
+            "unknown": "r",
+            "replace": "w",
+            "new": "w",
+            "old": "r",
+        }
         # Dictionary to hold the mapping of {label:format-code}
         self.format_dict = {}
         # Lists to hold derived type class
@@ -977,6 +982,11 @@ class PythonCodeGenerator(object):
                 elif item["arg_name"].lower() == "iostat":
                     check_error = True
                     error_variable = node["args"][index + 1]
+                elif item["arg_name"].lower() == "position":
+                    position_state = node["args"][index + 1]["value"].replace(
+                        "'", "").lower()
+                    if position_state == "append":
+                        open_state = "a"
 
         if file_name in self.variableMap:
             file_is_var = True
