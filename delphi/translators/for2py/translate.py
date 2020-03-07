@@ -165,6 +165,7 @@ class XML_to_JSON_translator(object):
             "value-range": self.process_value_range,
             "interface": self.process_interface,
             "argument-types": self.process_argument_types,
+            # "read": self.process_read,
         }
 
         self.unhandled_tags = set()  # unhandled xml tags in the current input
@@ -1046,6 +1047,7 @@ class XML_to_JSON_translator(object):
             self.saved_filehandle += [val]
         return [val]
 
+    # def process_read(self, root, state): -> List[Dict]:
     def process_terminal(self, root, _) -> List[Dict]:
         """Handles tags that terminate the computation of a
         program unit, namely, "return", "stop", and "exit" """

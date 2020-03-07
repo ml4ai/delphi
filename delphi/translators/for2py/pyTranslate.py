@@ -321,7 +321,7 @@ class PythonCodeGenerator(object):
                            definedVars=args,
                            indexRef=False,
                        ),
-        )
+                       )
         # self.functions.append(self.nameMapper[node['name']])
         self.pyStrings.append(f"\ndef {self.nameMapper[node['name']]}(")
         self.funcArgs[self.nameMapper[node["name"]]] = [
@@ -410,9 +410,11 @@ class PythonCodeGenerator(object):
         else:
             assert False, f"Unknown py_fn_type: {py_fn_type}"
 
-    def get_arg_list(self, node):
+    @staticmethod
+    def get_arg_list(node):
         """Get_arg_list() returns the list of arguments or subscripts at a node.
-           If there are no arguments or subscripts, it returns the empty list."""
+           If there are no arguments or subscripts, it returns the empty list.
+        """
 
         if "args" in node:
             return node["args"]
@@ -460,7 +462,8 @@ class PythonCodeGenerator(object):
 
         return exp_str
 
-    def proc_print(self, arg_strs):
+    @staticmethod
+    def proc_print(arg_strs):
         arguments = ""
         for idx in range(0, len(arg_strs)):
             arguments += f"{arg_strs[idx]}"
@@ -468,7 +471,8 @@ class PythonCodeGenerator(object):
                 arguments += ", "
         return arguments
 
-    def proc_literal(self, node):
+    @staticmethod
+    def proc_literal(node):
         """Processes a literal value and returns a string that is the
            corresponding Python code."""
 
@@ -489,7 +493,6 @@ class PythonCodeGenerator(object):
            corresponding Python code.  The argument "wrapper" indicates whether
            or not the Python expression should refer to the list wrapper for
            (scalar) variables."""
-        ref_str = ""
         is_derived_type_ref = False
         if (
                 "is_derived_type_ref" in node
@@ -542,7 +545,7 @@ class PythonCodeGenerator(object):
                         and node["is_arg"] == "true"
                     )
                     or is_derived_type_ref
-                ):
+            ):
                 expr_str = ref_str
                 is_derived_type_ref = False
             elif ref_str in self.declaredDerivedTVars:
@@ -1060,8 +1063,6 @@ class PythonCodeGenerator(object):
             }
             self.printAssignment(assignment_tag, printState)
 
-
-
     def printRead(self, node, printState: PrintState):
         if node["args"][0].get("tag") == "ref":
             file_handle = f'file_{self.nameMapper[node["args"][0]["name"]]}'
@@ -1106,7 +1107,7 @@ class PythonCodeGenerator(object):
 
         if isArray:
             tempInd = 0  # Re-initialize to zero for array index
-            for item in node["args"]:
+            for item in node["args"][1:]:
                 if item["tag"] == "ref":
                     var = self.nameMapper[item["name"]]
                     if "subscripts" in item:

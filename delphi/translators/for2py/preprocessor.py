@@ -169,7 +169,7 @@ def process_includes(lines, infile):
             assert include_f is not None
             include_path = path_to_target(infile, include_f)
             incl_lines = get_preprocessed_lines_from_file(include_path)
-            lines = lines[:idx] + incl_lines + lines[idx + 1 :]
+            lines = lines[:idx] + incl_lines + lines[idx + 1:]
 
     return lines
 
@@ -205,20 +205,20 @@ def refactor_select_case(lines):
     return lines
 
 
-
 # The regular expressions defined below are used for processing implicit array
-# declarations, which the preprocessor converts into explicit array declarations.
+# declarations, which the preprocessor converts into explicit array declarations
 
-BASE_TYPES = r"^(\s*)(integer|real|double\s+precision|complex|character|logical)\s+(.*)"
+BASE_TYPES = r"^(\s*)(integer|real|double\s+precision|complex|character" \
+             r"|logical)\s+(.*)"
 RE_BASE_TYPES = re.compile(BASE_TYPES, re.I)
 
 KWDS = r"\s*(DIMENSION|FUNCTION)\s*.*"
 RE_KWDS = re.compile(KWDS, re.I)
 
-IMPLICIT_ARRAY = r"(\w+)\((\w+)\)"
+IMPLICIT_ARRAY = r"(\w+)\((\w+|\w+,\w+|\w+:\w+)\)"
 RE_IMPLICIT_ARRAY = re.compile(IMPLICIT_ARRAY, re.I)
 
-VAR_OR_ARRAY = r"\s*(\w+)(\((\w+)\))?"
+VAR_OR_ARRAY = r"\s*(\w+)(\((\w+|\w+,\w+|\w+:\w+)\))?"
 RE_VAR_OR_ARRAY = re.compile(VAR_OR_ARRAY, re.I)
 
 DECL_CONTINUATION = r"\s*,\s*"
@@ -228,7 +228,7 @@ RE_DECL_CONTINUATION = re.compile(DECL_CONTINUATION, re.I)
 def implicit_array_decl_parameters(line):
     """ If line contains an implicit array declaration, extract and return
         the following parameters: the initial indentation, the type of the
-	array, and the rest of the line after the type; otherwise return None.
+        array, and the rest of the line after the type; otherwise return None
     """
     match = RE_BASE_TYPES.match(line)
     if match is None:
@@ -257,8 +257,7 @@ def implicit_array_decl_parameters(line):
     if match is None:
         return None
 
-    return (indentation, type, rest)
-
+    return indentation, type, rest
 
 
 def fix_implicit_array_decls(lines):
@@ -305,11 +304,11 @@ def fix_implicit_array_decls(lines):
             new_lines = []
             for sz in decls:
                 if sz != 0:
-                    new_lines.append("{}{}, DIMENSION({}) :: {}\n".\
-                                format(indentation, type, sz, decls[sz]))
+                    new_lines.append("{}{}, DIMENSION({}) :: {}\n".format(
+                        indentation, type, sz, decls[sz]))
                 else:
-                    new_lines.append("{}{} :: {}\n".\
-                                format(indentation, type, decls[sz]))
+                    new_lines.append("{}{} :: {}\n".format(indentation, type,
+                                                           decls[sz]))
     
             out_lines.extend(new_lines)
 
