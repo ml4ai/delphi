@@ -457,6 +457,8 @@ def list_data_type(type_list):
                         data_type.append("REAL")
                     elif ft[0] in "Ii":
                         data_type.append("INTEGER")
+                    elif ft[0] in "Aa":
+                        data_type.append("CHARACTER")
     return data_type
 
 
