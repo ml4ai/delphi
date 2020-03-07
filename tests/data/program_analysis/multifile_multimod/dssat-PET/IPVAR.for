@@ -112,7 +112,7 @@ C
          NLOOP = NLOOP + 1
          IF (NLOOP .GT. 25) CALL ERROR (ERRKEY,1,FILEG,LINVAR)
          LINE(1) = ' '
-         IF (INDEX('IE',RNMODE) .GT. 0) WRITE (*,350) NLVAR
+!!!         IF (INDEX('IE',RNMODE) .GT. 0) WRITE (*,350) NLVAR
          READ (5, 400) LINE
          CALL VERIFY (LINE,VAR,FLAG)
          IF (VAR .LE. 0) THEN
@@ -389,8 +389,8 @@ C-----------------------------------------------------------------------
   110 FORMAT (A6,1X,A16,7X,A6)
   120 FORMAT (I4,') ',A6,2X,A16,13X,A6,6X,A2)
   300 FORMAT (/,'  More.... press < ENTER > key')
-  350 FORMAT (/,6X,'VARIETY SELECTED ===>',1X,I4,
-     &        /,6X,'NEW SELECTION ?  --->',3X,' ',$)
+!!!  350 FORMAT (/,6X,'VARIETY SELECTED ===>',1X,I4,
+!!!     &        /,6X,'NEW SELECTION ?  --->',3X,' ',$)
   400 FORMAT (80A1)
   500 FORMAT (6X,'ERROR! Variety Selection must be between 1 & ',I3,/)
   510 FORMAT (6X,'ERROR! Variety Selection must be an INTEGER value',/)

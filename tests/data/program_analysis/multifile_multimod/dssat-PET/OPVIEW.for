@@ -322,20 +322,20 @@ C-----------------------------------------------------------------------
         CALL GET_CROPD(CROP, CROPD)
         CROPD = ADJUSTR(CROPD)
 
-!       Check for simulation errors -- all values to '-99'
-        IF (CONTROL % ERRCODE > 0) THEN
-          SIMULATED = '     -99'
-          WRITE(NOUTDO,90) CONTROL % ERRCODE
-   90     FORMAT(//,"*** SIMULATION ABORTED, ERROR CODE ",I3," ***",
-     &           /,"See Warning.OUT file for additional information.",/)
-        ENDIF
+!!! !       Check for simulation errors -- all values to '-99'
+!!!         IF (CONTROL % ERRCODE > 0) THEN
+!!!           SIMULATED = '     -99'
+!!!           WRITE(NOUTDO,90) CONTROL % ERRCODE
+!!!    90     FORMAT(//,"*** SIMULATION ABORTED, ERROR CODE ",I3," ***",
+!!!      &           /,"See Warning.OUT file for additional information.",/)
+!!!         ENDIF
       
 !       Plant overview data:
           IF (INDEX('IE',RNMODE) .GT. 0 .AND. NYRS .LE. 1) THEN  
-            WRITE(*,
-     &          '(/,1X,"Please press < ENTER > key to continue ",2X,$)')
-            READ  (*, *)
-            CALL CLEAR
+!!!            WRITE(*,
+!!!     &          '(/,1X,"Please press < ENTER > key to continue ",2X,$)')
+!!!            READ  (*, *)
+!!!            CALL CLEAR
       
             WRITE(*,100)
             DO I = 1, ICOUNT
@@ -370,9 +370,9 @@ C-CHP  OK - compromise - keep Simulated=-99 for physiological maturity!
                 WRITE(*,200) DESCRIP(I), Simulated(I), Measured(I)
               ENDIF
             ENDDO
-            WRITE(*,250) RUN,TITLET
-            READ  (5,'(A1)') ANS
-            CALL CLEAR
+!!!            WRITE(*,250) RUN,TITLET
+!!!            READ  (5,'(A1)') ANS
+!!!            CALL CLEAR
             WRITE(*,300) CROPD, YIELD
           ENDIF
 
@@ -381,8 +381,8 @@ C-CHP  OK - compromise - keep Simulated=-99 for physiological maturity!
      &       "@",5X,"VARIABLE",T56,"SIMULATED     MEASURED",/,  
      &           6X,"--------",T56,"---------     --------")  
   200     FORMAT(6X,A50,A8,5X,A8)
-  250     FORMAT ('*RUN ',I6,4X,': ',A22,
-     &          '... Press < ENTER > key to continue',$)
+!!!  250     FORMAT ('*RUN ',I6,4X,': ',A22,
+!!!     &          '... Press < ENTER > key to continue',$)
 
           IF (IDETO .EQ. 'Y' .AND. CONTROL % ErrCode == 0) THEN
             WRITE(NOUTDO,100)

@@ -505,9 +505,9 @@ C-----------------------------------------------------------------------
           RUN = 0
         ENDIF
       ELSE IF (INDEX('IE',RNMODE) .GT. 0) THEN
-        WRITE(*,1700)
- 1700   FORMAT(/,1X,'Do you want to run more simulations ? ',
-     &         /,1X,'Y or N ? [Default = "N"] ===> ',$)
+!!!        WRITE(*,1700)
+!!! 1700   FORMAT(/,1X,'Do you want to run more simulations ? ',
+!!!     &         /,1X,'Y or N ? [Default = "N"] ===> ',$)
         READ (5,1800) ANS
  1800   FORMAT(A1)
         ANS = UPCASE(ANS)

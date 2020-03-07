@@ -92,7 +92,7 @@ C-----------------------------------------------------------------------
      &     ECONO,SLNF,CROP, RNMODE, RUN, CONTROL % MODEL, ISWITCH
      &      , ATLINE)
       IF (RNMODE .EQ. 'I' .AND.  NYRS .LE. 1) THEN
-        WRITE (*,2900)
+!!!        WRITE (*,2900)
         READ (5,'(1A1)') ANS
       ENDIF
 
@@ -105,7 +105,7 @@ C     FORMAT Strings
 C-----------------------------------------------------------------------
 
   50  FORMAT ('*SIMULATION OVERVIEW')
- 2900 FORMAT (1X,'Please press < ENTER > key to continue ',$)
+!!! 2900 FORMAT (1X,'Please press < ENTER > key to continue ',$)
 
       END SUBROUTINE OPGEN
 
