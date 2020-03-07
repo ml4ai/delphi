@@ -1128,11 +1128,11 @@ class PythonCodeGenerator(object):
     def printWrite(self, node, printState: PrintState):
         write_string = ""
         # Check whether write to file or output stream
-        if node["args"][0]["value"] == "*":
+        if node["args"][0].get("value") and node["args"][0]["value"] == "*":
             write_target = "outStream"
         else:
             write_target = "file"
-            if node["args"][0]["value"]:
+            if node["args"][0].get("value"):
                 file_id = str(node["args"][0]["value"])
             elif str(node["args"][0].get("tag")) == "ref":
                 file_id = str(self.nameMapper[node["args"][0].get("name")])
