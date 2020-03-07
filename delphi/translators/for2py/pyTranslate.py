@@ -94,7 +94,9 @@ INTRINSICS_MAP = {
     "log10": ("log10", "FUNC", "math"),
     "log_gamma": ("lgamma", "FUNC", "math"),
     "max": ("max", "FUNC", None),
+    "amax1": ("max", "FUNC", None),
     "min": ("min", "FUNC", None),
+    "amin1": ("min", "FUNC", None),
     "mod": ("%", "INFIXOP", None),
     "modulo": ("%", "INFIXOP", None),
     "sin": ("sin", "FUNC", "math"),
@@ -391,8 +393,7 @@ class PythonCodeGenerator(object):
         arg_strs = [
             self.proc_expr(arg_list[i], False) for i in range(len(arg_list))
         ]
-
-        if py_mod != None:
+        if py_mod is not None:
             handler = f"{py_mod}.{py_fn}"
         else:
             handler = py_fn
@@ -608,7 +609,7 @@ class PythonCodeGenerator(object):
             assert not wrapper
             expr_str = self.proc_op(node)
 
-        assert expr_str != None, f">>> [proc_expr] NULL value: {node}"
+        assert expr_str is not None, f">>> [proc_expr] NULL value: {node}"
         return expr_str
 
     def printCall(self, node: Dict[str, str], printState: PrintState):

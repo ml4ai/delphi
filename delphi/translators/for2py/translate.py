@@ -75,6 +75,8 @@ class XML_to_JSON_translator(object):
             "len",
             "adjustl",
             "adjustr",
+            "amax1",
+            "amin1",
         ]
         self.handled_tags = [
             "access-spec",

@@ -1565,8 +1565,9 @@ class GrFNGenerator(object):
         condition_variables = self.get_variables(condition_sources, state)
 
         # When opening files, if a check for a pre-existing file has to be
-        # done, this if block is bypassed
-        if condition_sources[0].get('call'):
+        # done, this if-block is bypassed
+        if isinstance(condition_sources[0], dict) and \
+                condition_sources[0].get('call'):
             if condition_sources[0]["call"].get("function") and \
                     condition_sources[0]["call"]["function"] == "path.exists":
                 return []

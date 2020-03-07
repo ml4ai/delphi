@@ -558,7 +558,8 @@ F_INTRINSICS = frozenset(['abs', 'abort', 'access', 'achar', 'acos', 'acosd',
     'sleep', 'spacing', 'spread', 'sqrt', 'srand', 'stat', 'storage_size', 'sum', 
     'symlnk', 'system', 'system_clock', 'tan', 'tand', 'tanh', 'this_image', 
     'time', 'time8', 'tiny', 'trailz', 'transfer', 'transpose', 'trim', 'ttynam', 
-    'ubound', 'ucobound', 'umask', 'unlink', 'unpack', 'verify', 'xor'])
+    'ubound', 'ucobound', 'umask', 'unlink', 'unpack', 'verify', 'xor',
+                          'amax1', 'amin1'])
 
 
 ################################################################################
