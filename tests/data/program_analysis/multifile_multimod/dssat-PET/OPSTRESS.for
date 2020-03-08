@@ -262,8 +262,8 @@
 !!!     &/,25X,'Span   Max   Min  Mean   Rad  [day]    CO2   Rain  Trans ',
 !!!     &'    ET   <    <    >    >    >    >   Photo         Photo      ',
 !!!     &'   Photo',
-!!!     &/,25X,'days    øC    øC    øC MJ/m2     hr    ppm     mm     mm ',
-!!!     &'    mm  0øC  2øC 30øC 32øC 34øC  0mm  synth Growth  synth ',
+!!!     &/,25X,'days    Ã¸C    Ã¸C    Ã¸C MJ/m2     hr    ppm     mm     mm ',
+!!!     &'    mm  0Ã¸C  2Ã¸C 30Ã¸C 32Ã¸C 34Ã¸C  0mm  synth Growth  synth ',
 !!!     &'Growth  synth Growth',/,160('-'))
 !!!      ENDIF
 
