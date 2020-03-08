@@ -13,6 +13,8 @@
 
       USE ModuleDefs 
       USE ModuleData
+      USE DATA_STMT_HACK
+
       IMPLICIT NONE
       SAVE
 
@@ -24,7 +26,7 @@
       TYPE (ControlType) CONTROL
       TYPE (SwitchType)  ISWITCH	
 
-      LOGICAL FIRST, FOPEN
+      LOGICAL FOPEN
 
 !     Transfer values from constructed data types into local variables.
       DYNAMIC = CONTROL % DYNAMIC
@@ -34,17 +36,9 @@
       RUN     = CONTROL % RUN
       TRTNUM  = CONTROL % TRTNUM
 
-C     DATA FIRST /.TRUE./
-C Some gymnastics involving the DATA statement to work around OFP bug      
-      DATA init_first /0/
-      if (init_first .eq. 0) then
-         init_first = 1
-         FIRST = .TRUE.
-      endif
-!-----------------------------------------------------------------------
-      IF (FIRST) THEN
+      IF (RunList_FIRST) THEN
         CALL GETLUN('RUNLST',RLUN)
-        FIRST = .FALSE.
+        RunList_FIRST = .FALSE.
         OPEN(UNIT=RLUN,FILE='RunList.OUT',STATUS='REPLACE')
         WRITE(RLUN,100)
   100   FORMAT(' NREP  EXP  TRT  NYR FILEX        DESCRIPTION')

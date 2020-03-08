@@ -25,12 +25,12 @@ SRC_FOR = CSMVersion.for OSDefinitions.for ModuleDefs.for CSM.for LAND.for \
 	OPWEATH.for SOLAR.for CO2VAL.for IPIBS.for RunList.for input_sub.for OPGEN.for \
 	OPTEMPXY2K.for WEATHR_Inp.for WTHSET.for CSUTS.for optempy2k.for INSOIL.for \
 	INTRO.for ipexp.for IPSOIL_Inp.for IPVAR.for IPSLIN.for IPMAN.for IPSIM.for \
-	IPENV.for IPCHEM.for IPTILL.for 
+	IPENV.for IPCHEM.for IPTILL.for DATA_STMT_HACK.for
 
 SRC_F90 = nox_pulse.f90
 
 MODS_FOR = CSMVersion.for OSDefinitions.for ModuleDefs.for N2O_mod.for IPSOIL.for \
-	SoilNBalSum.for OPHEAD.for 
+	SoilNBalSum.for OPHEAD.for DATA_STMT_HACK.for
 
 MODS = $(MODS_FOR:.for=.mod)
 
