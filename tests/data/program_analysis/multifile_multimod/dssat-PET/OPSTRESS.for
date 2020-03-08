@@ -267,9 +267,9 @@
 !!!     &'Growth  synth Growth',/,160('-'))
 !!!      ENDIF
 
-      IF (RNMODE .EQ. 'I' .AND. NYRS .LE. 1) THEN
-        WRITE (*,500)
-      ENDIF
+!!!       IF (RNMODE .EQ. 'I' .AND. NYRS .LE. 1) THEN
+!!!         WRITE (*,500)
+!!!       ENDIF
 
       DO I = 0, STTOT
         IF (NNR(I) > 0) THEN

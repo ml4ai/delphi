@@ -38,13 +38,15 @@
         CHARACTER*8 WSTAT
         CHARACTER*11 TEXT
         CHARACTER*80 HEADER2
+        CHARACTER*80 HDR_tmp
         INTEGER I, IDYS, IPLT, IPYRS, ISIM, RUN, YRPLT
         INTEGER LenString
         TYPE (ControlType) CONTROL
         CALL GET(CONTROL)
 
         DO I = 2, Headers%ShortCount
-          IF (HEADERS % Header(I)(1:4) .EQ. '*RUN') THEN
+          Hdr_tmp = HEADERS % Header(I)
+          IF (Hdr_tmp(1:4) .EQ. '*RUN') THEN
 !           Update run number
             HEADER2 = HEADERS % Header(I)
             WRITE(HEADERS % Header(I),'(A5,I3,A72)')
@@ -55,11 +57,12 @@
         ENDDO
 
         DO I = 2, Headers%ICOUNT
-          IF (HEADERS % Header(I)(1:6) .EQ. ' START') THEN
+           HDR_tmp = HEADERS % Header(I)
+          IF (Hdr_tmp(1:6) .EQ. ' START') THEN
 !           Update simulation start date
             CALL YR_DOY (CONTROL%YRSIM,IPYRS,ISIM)
             CALL NAILUJ (ISIM,IPYRS,RMS,IDYS)
-            WRITE(HEADERS%Header(I),400) RMS,IDYS,IPYRS
+            WRITE(HDR_tmp,400) RMS,IDYS,IPYRS
   400       FORMAT (1X,'STARTING DATE  :',1X,A3,1X,I2,1X,I4)
             EXIT
           ENDIF
@@ -67,24 +70,28 @@
 
         IF (YRPLT > 0) THEN
           DO I = 2, Headers%ICOUNT
-            IF (HEADERS % Header(I)(1:6) .EQ. ' PLANT') THEN
+           HDR_tmp = HEADERS % Header(I)
+            IF (HDR_tmp(1:6) .EQ. ' PLANT') THEN
 !             Update planting date
               CALL YR_DOY (YRPLT,IPYRS,IPLT)
               CALL NAILUJ (IPLT,IPYRS,RMS,IDYS)
               WRITE(TEXT,'(A3,1X,I2,1X,I4)') RMS,IDYS,IPYRS
-              HEADERS%Header(I)(19:29) = TEXT
-              HEADERS%Header(I)(30:36) = '       '
+              HDR_tmp = HEADERS%Header(I)
+              Hdr_tmp(19:29) = TEXT
+              Hdr_tmp(30:36) = '       '
               EXIT
             ENDIF
           ENDDO
         ENDIF
 
         DO I = 2, Headers%ICOUNT
-          IF (HEADERS % Header(I)(1:6) .EQ. ' WEATH') THEN
+           HDR_tmp = HEADERS % Header(I)
+          IF (Hdr_tmp(1:6) .EQ. ' WEATH') THEN
 !           Update WEATHER file
             CALL GET("WEATHER", "WSTA", WSTAT)
             IF (LenString(WSTAT) > 0) THEN
-             WRITE(HEADERS%HEADER(I),"(1X,'WEATHER',8X,':',1X,A8)")WSTAT
+             HDR_tmp = HEADERS % Header(I)
+             WRITE(Hdr_tmp,"(1X,'WEATHER',8X,':',1X,A8)")WSTAT
             ENDIF
             EXIT
           ENDIF
