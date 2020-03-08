@@ -2215,9 +2215,14 @@ class GrFNGenerator(object):
                             function_name = function_call["function"]
                             need_lambdas = True
                             if ".get_" in function_name:
-                                function_name = function_name.replace(
-                                    ".get_", ""
-                                )
+                                if ".get_substr" in function_name:
+                                    function_name = function_name.replace(
+                                        ".get_substr", ""
+                                    )
+                                else:
+                                    function_name = function_name.replace(
+                                        ".get_", ""
+                                    )
                                 # In some cases, the target array itself will
                                 # be an input as well. Don't add such arrays
                                 # again.
