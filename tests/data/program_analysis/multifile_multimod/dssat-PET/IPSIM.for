@@ -45,6 +45,8 @@ C=======================================================================
 
       USE ModuleDefs
       USE ModuleData
+      USE DATA_STMT_HACK
+
 C      USE CsvOutput
       IMPLICIT NONE
       SAVE
@@ -84,7 +86,7 @@ C      USE CsvOutput
       REAL V_IREFF(20)
       INTEGER GSIRRIG, I, STAT, CHARLEN
 
-      LOGICAL UseSimCtr, MulchWarn
+      LOGICAL UseSimCtr
 
       TYPE (SwitchType)  ISWITCH
       TYPE (ControlType) CONTROL
@@ -92,7 +94,7 @@ C      USE CsvOutput
       PARAMETER (ERRKEY='IPSIM ')
                  FINDCH='*SIMUL'
                  
-      DATA MulchWarn /.FALSE./
+C      DATA MulchWarn /.FALSE./
 
       IF (LNSIM .EQ. 0) THEN
          LNSIM   = 0
