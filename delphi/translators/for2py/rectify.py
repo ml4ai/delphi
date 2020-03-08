@@ -1638,6 +1638,17 @@ class RectifiedXMLGenerator:
         else:
             current.attrib['is_array'] = "false"
 
+        if (
+            "id" in current.attrib
+            and current.attrib['id'] in self.variables_by_scope[
+                  self.current_scope] and
+            self.variables_by_scope[self.current_scope][current.attrib['id']]
+                == "CHARACTER"
+        ):
+            current.attrib['is_string'] = "true"
+        else:
+            current.attrib['is_string'] = "false"
+
         # If 'id' attribute holds '%' symbol, it's an indication of derived type
         # referencing. Thus, clean up the 'id' and reconstruct the <name> AST.
         if "id" in current.attrib and "%" in current.attrib['id']:
