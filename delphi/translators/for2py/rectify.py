@@ -1230,7 +1230,11 @@ class RectifiedXMLGenerator:
                         child, cur_elem, current, parent, traverse
                     )
                     if child.tag == "dimensions":
-                        if self.current_scope in self.argument_types:
+                        if (
+                                self.current_scope in self.argument_types
+                                and root.attrib['name'] in self.argument_types[
+                                self.current_scope]
+                        ):
                             self.argument_types[self.current_scope][
                                 root.attrib['name']]['is_array'] = "true"
 
@@ -1880,12 +1884,7 @@ class RectifiedXMLGenerator:
         <dimension>
         </dimension>
         """
-        # DEBUG
-        print ("    @ rectify.py - _dimension - grandparent: ", grandparent.tag, grandparent.attrib)
-        print ("        @ rectify.py - _dimension - root: ", root.tag, root.attrib)
         for child in root:
-            # DEBUG
-            print ("            @ rectify.py - _dimension - child: ", child.tag, child.attrib)
             self.clean_attrib(child)
             if len(child) > 0 or child.text:
                 cur_elem = ET.SubElement(
@@ -3887,8 +3886,11 @@ class RectifiedXMLGenerator:
             # update the cur_elem at each iteration.
             cur_elem = name_element
             if name_elements[idx].attrib['hasSubscripts'] == "true":
-                name_element.append(subscripts_holder[subscript_num])
-                subscript_num += 1
+                if subscript_num < len(subscripts_holder):
+                    name_element.append(subscripts_holder[subscript_num])
+                    subscript_num += 1
+                else:
+                    name_elements[idx].attrib['hasSubscripts'] = "false"
 
         # Clean out the lists for recyling.
         # This is not really needed as they are local lists,
