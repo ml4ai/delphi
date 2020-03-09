@@ -597,9 +597,9 @@ class RectifiedXMLGenerator:
                     # function tracker dictionary if current header is
                     # for declaring interface.
                     if self.is_interface and cur_elem.tag == "name":
-                        self.interface_functions[cur_elem.attrib['id']] = []
-                        self.interface_function_xml[cur_elem.attrib['id']] = {}
-                        self.cur_interface_name = cur_elem.attrib['id']
+                        self.interface_functions[cur_elem.attrib['id'].lower()] = []
+                        self.interface_function_xml[cur_elem.attrib['id'].lower()] = {}
+                        self.cur_interface_name = cur_elem.attrib['id'].lower()
 
                     if len(child) > 0 or child.text:
                         self.parseXMLTree(
@@ -1110,7 +1110,6 @@ class RectifiedXMLGenerator:
             elif child.tag == "derived-type-spec":
                 if self.variable_type == None:
                     self.variable_type = child.attrib['typeName']
-                    print ("@ self.variable_type: ", self.variable_type)
                 if not self.is_derived_type:
                     self.is_derived_type = True
                     current.set("name", child.attrib['typeName'])
@@ -1174,7 +1173,7 @@ class RectifiedXMLGenerator:
                         self.current_scope]
                 ):
                     self.argument_types[self.current_scope][child.attrib[
-                        'name']] = {
+                        'name'].lower()] = {
                         "type": self.variable_type,
                         "is_array": str(self.is_array).lower()
                     }
@@ -1595,9 +1594,9 @@ class RectifiedXMLGenerator:
                 )
                 if "id" in child.attrib and self.is_interface:
                     self.interface_functions[self.cur_interface_name].append(
-                        child.attrib['id'])
+                        child.attrib['id'].lower())
                     self.interface_function_xml[self.cur_interface_name][
-                        child.attrib['id']] = cur_elem
+                        child.attrib['id'].lower()] = cur_elem
                 if grandparent.tag == "function":
                     self.args_for_function.append(cur_elem.attrib['id'])
                     self.argument_types[grandparent.attrib['name']][
@@ -2640,20 +2639,20 @@ class RectifiedXMLGenerator:
 
         # Updating the argument attribute to hold the type.
         for arg in self.arguments_list[current.attrib['name']]:
-            if arg.attrib['name'] in self.argument_types[current.attrib[
+            if arg.attrib['name'].lower() in self.argument_types[current.attrib[
              'name']]:
                 arg.attrib['type'] = str(self.argument_types[current.attrib[
-                    'name']][arg.attrib['name']]["type"])
+                    'name']][arg.attrib['name'].lower()]["type"])
                 arg.attrib['is_array'] = str(self.argument_types[current.attrib[
-                    'name']][arg.attrib['name']]["is_array"])
+                    'name']][arg.attrib['name'].lower()]["is_array"])
 
         # Add extra XMLs under the interface function names to hold the
         # argument types.
         for interface in self.interface_function_xml:
-            if current.attrib['name'] in self.interface_function_xml[interface]:
+            if current.attrib['name'].lower() in self.interface_function_xml[interface]:
                 argument_types = ET.SubElement(
                     self.interface_function_xml[interface][current.attrib[
-                        'name']],
+                        'name'].lower()],
                     "argument-types"
                 )
                 num_args = 0
@@ -2665,7 +2664,7 @@ class RectifiedXMLGenerator:
                         {"type": arg.attrib['type']}
                     )
                 self.interface_function_xml[interface][current.attrib[
-                    'name']].attrib['num_args'] = str(num_args)
+                    'name'].lower()].attrib['num_args'] = str(num_args)
 
     def handle_tag_arguments(
             self, root, current, _, grandparent, traverse
