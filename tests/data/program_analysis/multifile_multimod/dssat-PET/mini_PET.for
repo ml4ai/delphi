@@ -109,7 +109,7 @@ C=======================================================================
      &      CANHT,   !Needed by dynamic Penman-Monteith
      &      EO)      !Output
 
-      USE ModuleDefs
+      USE mini_ModuleDefs
       IMPLICIT NONE
       SAVE
 
@@ -219,7 +219,7 @@ C=======================================================================
      &        XLAT, XELEV,                                !Input
      &        EO)                                         !Output
 !-----------------------------------------------------------------------
-      USE ModuleDefs
+      USE mini_ModuleDefs
       USE ModuleData
       IMPLICIT NONE
       SAVE
@@ -1178,7 +1178,7 @@ C=============================================================================
      &    MeanDewPt, Xhlai, MSALB,                        !Input
      &    EO)                                             !Output
 
-      Use ModuleDefs
+      Use mini_ModuleDefs
       Implicit none
       SAVE
 
@@ -1346,7 +1346,7 @@ c
       SUBROUTINE PSE(EO, KSEVAP, XLAI, EOS)
 
 !-----------------------------------------------------------------------
-      USE ModuleDefs
+      USE mini_ModuleDefs
       USE ModuleData
       IMPLICIT NONE
       SAVE
