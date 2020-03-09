@@ -1138,8 +1138,12 @@ class RectifiedXMLGenerator:
             elif child.tag in self.dtype_var_declaration_tags:
                 self.derived_type_var_holder_list.append(child)
             elif child.tag == "length":
-                cur_elem = ET.SubElement(current, child.tag, child.attrib)
-                self.parseXMLTree(child, cur_elem, current, parent, traverse)
+                if self.is_derived_type:
+                    for e in child:
+                        self.derived_type_var_holder_list.append(e)
+                else:
+                    cur_elem = ET.SubElement(current, child.tag, child.attrib)
+                    self.parseXMLTree(child, cur_elem, current, parent, traverse)
             else:
                 try:
                     _ = self.unnecessary_tags.index(child.tag)
