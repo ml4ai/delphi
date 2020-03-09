@@ -2142,10 +2142,30 @@ class GrFNGenerator(object):
                         # E.g: GET("test", "this", x)
                         if arg[0]["call"].get("function"):
                             if arg[0]["call"]["function"] == "String":
-                                value = arg[0]["call"]["inputs"][1][0]["value"]
-                                function["input"].append(
-                                    f"@literal::" f"string::" f"'{value}'"
-                                )
+                                # The value can either be a string literal or
+                                # a substring of another string. Check for this
+                                if "value" in arg[0]["call"]["inputs"][1][0]:
+                                    value = arg[0]["call"]["inputs"][1][0]["value"]
+                                    function["input"].append(
+                                        f"@literal::" f"string::" f"'{value}'"
+                                    )
+                                elif "call" in arg[0]["call"]["inputs"][1][0]:
+                                    string_variable = arg[0]["call"][
+                                        "inputs"][1][0]["call"]["function"]
+                                    if ".get_substr" in string_variable:
+                                        string_variable = \
+                                            string_variable.split('.')[0]
+                                        string_index = \
+                                            state.last_definitions[string_variable]
+                                        function["input"].append(
+                                            f"@variable::{string_variable}::"
+                                            f"{string_index}"
+                                        )
+                                    else:
+                                        assert False, "Unidentified " \
+                                                      "expression in String."
+                                else:
+                                    assert False, "Unidentified expression in String."
                         else:
                             function = self._generate_array_setter(
                                 node, function, arg,
