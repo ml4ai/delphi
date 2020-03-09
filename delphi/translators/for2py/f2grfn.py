@@ -277,6 +277,8 @@ def generate_grfn(
     # Build GrFN and lambdas
     asts = [ast.parse(python_source_string)]
 
+    # print(genPGM.dump_ast(asts[-1]))
+
     grfn_dict = genPGM.create_grfn_dict(
         lambdas_file_path,
         asts,

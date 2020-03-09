@@ -1621,7 +1621,7 @@ class RectifiedXMLGenerator:
             else:
                 assert False, f'In handle_tag_names: "{child.tag}" not handled'
 
-    def handle_tag_name(self, root, current, parent, _, traverse):
+    def handle_tag_name(self, root, current, parent, grandparent, traverse):
         """This function handles cleaning up the XML elements between
         the name elements.
 
@@ -1641,6 +1641,18 @@ class RectifiedXMLGenerator:
             current.attrib['is_array'] = "true"
         else:
             current.attrib['is_array'] = "false"
+
+        if (
+            grandparent.tag != "use" and
+            "id" in current.attrib
+            and current.attrib['id'] in self.variables_by_scope[
+                  self.current_scope] and
+            self.variables_by_scope[self.current_scope][current.attrib['id']]
+                == "CHARACTER"
+        ):
+            current.attrib['is_string'] = "true"
+        else:
+            current.attrib['is_string'] = "false"
 
         # If 'id' attribute holds '%' symbol, it's an indication of derived type
         # referencing. Thus, clean up the 'id' and reconstruct the <name> AST.
@@ -4993,13 +5005,13 @@ class RectifiedXMLGenerator:
         """This function updates call statement function argument xml
         with variable type."""
         if (
-                (current.tag == "name"
-                and update)
+                (current.tag == "name" and update)
                 and (scope in self.variables_by_scope
-                and current.attrib['id'] in self.variables_by_scope[scope])
+                     and current.attrib['id'] in self.variables_by_scope[scope])
         ):
 
-            current.attrib['type'] = self.variables_by_scope[scope][current.attrib['id']]
+            current.attrib['type'] = self.variables_by_scope[scope][
+                current.attrib['id']]
             arguments_info.append(current.attrib['type'])
         elif current.tag == "literal":
             if current.attrib['type'] in TYPE_MAP:
@@ -5021,7 +5033,8 @@ class RectifiedXMLGenerator:
         target_function = None
         for module in self.used_modules:
             if module in self.module_summary:
-                interface_funcs = self.module_summary[module]['interface_functions']
+                interface_funcs = self.module_summary[module][
+                    'interface_functions']
                 if cur_function in interface_funcs:
                     interface_func_list = interface_funcs[cur_function]
                     for func in interface_func_list:
@@ -5037,24 +5050,25 @@ class RectifiedXMLGenerator:
                                     found_target_function = False
                                     break
                                 i += 1
-                        # If target function was found in the interface function list,
-                        # modify the current <call> element name and its child <name>
-                        # element id with the target function name from the interface name.
+                        # If target function was found in the interface
+                        # function list, modify the current <call> element
+                        # name and its child <name> element id with the
+                        # target function name from the interface name.
                         if found_target_function:
                             # The order of modifying is important.
-                            # MUST modify child element <name> first before modifying
-                            # current <call>.
+                            # MUST modify child element <name> first before
+                            # modifying current <call>.
                             for elem in current:
                                 if (
                                         elem.tag == "name"
-                                        and elem.attrib['id'] == current.attrib['fname']
+                                        and elem.attrib['id'] ==
+                                        current.attrib['fname']
                                 ):
                                     elem.attrib['id'] = func
                                 for subElem in elem:
                                     if subElem.tag == "subscripts":
                                         subElem.attrib['fname'] = func
                             current.attrib['fname'] = func
-
 
     #################################################################
     #                                                               #
