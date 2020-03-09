@@ -1110,6 +1110,7 @@ class RectifiedXMLGenerator:
             elif child.tag == "derived-type-spec":
                 if self.variable_type == None:
                     self.variable_type = child.attrib['typeName']
+                    print ("@ self.variable_type: ", self.variable_type)
                 if not self.is_derived_type:
                     self.is_derived_type = True
                     current.set("name", child.attrib['typeName'])
@@ -1138,8 +1139,12 @@ class RectifiedXMLGenerator:
             elif child.tag in self.dtype_var_declaration_tags:
                 self.derived_type_var_holder_list.append(child)
             elif child.tag == "length":
-                cur_elem = ET.SubElement(current, child.tag, child.attrib)
-                self.parseXMLTree(child, cur_elem, current, parent, traverse)
+                if self.is_derived_type:
+                    for e in child:
+                        self.derived_type_var_holder_list.append(e)
+                else:
+                    cur_elem = ET.SubElement(current, child.tag, child.attrib)
+                    self.parseXMLTree(child, cur_elem, current, parent, traverse)
             else:
                 try:
                     _ = self.unnecessary_tags.index(child.tag)
@@ -1165,7 +1170,7 @@ class RectifiedXMLGenerator:
                 if (
                         child.tag == "variable"
                         and self.current_scope in self.argument_types
-                        and child.attrib['name'] in self.argument_types[
+                        and child.attrib['name'].lower() in self.argument_types[
                         self.current_scope]
                 ):
                     self.argument_types[self.current_scope][child.attrib[
@@ -1230,7 +1235,11 @@ class RectifiedXMLGenerator:
                         child, cur_elem, current, parent, traverse
                     )
                     if child.tag == "dimensions":
-                        if self.current_scope in self.argument_types:
+                        if (
+                                self.current_scope in self.argument_types
+                                and root.attrib['name'] in self.argument_types[
+                                self.current_scope]
+                        ):
                             self.argument_types[self.current_scope][
                                 root.attrib['name']]['is_array'] = "true"
 
@@ -1892,12 +1901,7 @@ class RectifiedXMLGenerator:
         <dimension>
         </dimension>
         """
-        # DEBUG
-        print ("    @ rectify.py - _dimension - grandparent: ", grandparent.tag, grandparent.attrib)
-        print ("        @ rectify.py - _dimension - root: ", root.tag, root.attrib)
         for child in root:
-            # DEBUG
-            print ("            @ rectify.py - _dimension - child: ", child.tag, child.attrib)
             self.clean_attrib(child)
             if len(child) > 0 or child.text:
                 cur_elem = ET.SubElement(
@@ -2633,6 +2637,7 @@ class RectifiedXMLGenerator:
                     assert (
                         False
                     ), f'In handle_tag_subroutine: Empty elements "{child.tag}"'
+
         # Updating the argument attribute to hold the type.
         for arg in self.arguments_list[current.attrib['name']]:
             if arg.attrib['name'] in self.argument_types[current.attrib[
@@ -2706,7 +2711,7 @@ class RectifiedXMLGenerator:
                 # Types will be updated in handle_tag_variable.
                 if grandparent.tag == "subroutine":
                     self.argument_types[grandparent.attrib['name']][
-                        child.attrib['name']] = None
+                        child.attrib['name'].lower()] = None
                 cur_elem = ET.SubElement(
                     current, child.tag, child.attrib
                 )
@@ -3899,8 +3904,11 @@ class RectifiedXMLGenerator:
             # update the cur_elem at each iteration.
             cur_elem = name_element
             if name_elements[idx].attrib['hasSubscripts'] == "true":
-                name_element.append(subscripts_holder[subscript_num])
-                subscript_num += 1
+                if subscript_num < len(subscripts_holder):
+                    name_element.append(subscripts_holder[subscript_num])
+                    subscript_num += 1
+                else:
+                    name_elements[idx].attrib['hasSubscripts'] = "false"
 
         # Clean out the lists for recyling.
         # This is not really needed as they are local lists,
