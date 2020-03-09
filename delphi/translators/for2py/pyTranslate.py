@@ -359,6 +359,13 @@ class PythonCodeGenerator(object):
         self.current_module = node["name"]
         self.saved_variables[self.current_module] = []
         args = []
+
+        # Will need to remove any "save" tag since there will be no save
+        # decorator for a module
+        for item in node["body"]:
+            if item.get("tag") == "save":
+                node["body"].remove(item)
+
         self.printAst(
             node["body"],
             printState.copy(
