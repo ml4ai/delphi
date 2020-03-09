@@ -583,6 +583,15 @@ class GrFNGenerator(object):
             node.annotation
         )
 
+        # Check if an argument is a string
+        annotation_name = node.annotation.__repr__().split()[0][2:]
+        if annotation_name == "ast.Name" and node.annotation.id == "String":
+            self.strings[node.arg] = {
+                "length": "Undefined",
+                "annotation": False,
+                "annotation_assign": True,
+            }
+
         if state.last_definitions.get(node.arg) is None:
             if call_source == "functiondef":
                 if node.arg not in self.updated_arrays:
@@ -2754,7 +2763,7 @@ class GrFNGenerator(object):
                     self.strings[var_name] = {
                         "length": length,
                         "annotation": False,
-                        "annotated_assign": True,
+                        "annotation_assign": True,
                     }
 
             if (
