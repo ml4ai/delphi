@@ -1119,7 +1119,8 @@ class RectifiedXMLGenerator:
                 if self.is_character:
                     self.derived_type_var_holder_list.append(child)
                     current.set("string_length", str(child.attrib["value"]))
-                elif is_derived_type_dimension_setting:
+
+                if is_derived_type_dimension_setting:
                     child.attrib["dim-number"] = str(dim_number)
                     self.derived_type_array_dimensions[self.dim].append(child)
                 else:
