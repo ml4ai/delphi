@@ -668,14 +668,16 @@ class PythonCodeGenerator(object):
             "type": var_type
         })
         if "is_array" in node and node["is_array"] == "true":
+            self.array_map[self.nameMapper[arg_name]] = "FromArg"
             self.pyStrings.append(f"{arg_name}: Array")
         elif var_type == "String":
             self.pyStrings.append(f"{arg_name}: String")
+            printState.definedVars += [arg_name]
         else:
             if node["type"].lower() == "real":
                 var_type = "Real"
             self.pyStrings.append(f"{arg_name}: List[{var_type}]")
-        printState.definedVars += [arg_name]
+            printState.definedVars += [arg_name]
 
     ###########################################################################
     #                                                                         #
@@ -867,9 +869,24 @@ class PythonCodeGenerator(object):
                     length = self.array_map[lhs['name']][7:-1]
                     assg_str += f"String({length}, {rhs_str}))"
                 else:
+                    if self.array_map[lhs["name"]] == "float":
+                        rhs_str = f"Float32({rhs_str})"
+                    elif self.array_map[lhs["name"]] == "int":
+                        rhs_str = f"int({rhs_str})"
+                    else:
+                        assert False, "Unknown array type"
                     assg_str += f"{rhs_str})"
             else:
-                assg_str += f"{rhs_str})"
+                # When the target is a string, the value can be a string
+                # object as well. Check that and get the ._val to extract
+                # actual string expression
+                if node["value"][0]["tag"] == "ref":
+                    if node["value"][0]["is_string"] == "true":
+                        assg_str += f"{rhs_str}._val)"
+                    else:
+                        assg_str += f"str({rhs_str}))"
+                else:
+                    assg_str += f"{rhs_str})"
         else:
             assg_str += f" = {rhs_str}"
 
@@ -1374,6 +1391,10 @@ class PythonCodeGenerator(object):
                 self.nameMapper[node["name"]] not in printState.definedVars
                 and self.nameMapper[node["name"]] not in printState.globalVars
         ):
+            array_arg = False
+            if node["name"] in self.array_map and self.array_map[node[
+             "name"]] == "FromArg":
+                array_arg = True
             printState.definedVars += [self.nameMapper[node["name"]]]
             var_type = self.get_type(node)
             # If the array has string elements, then we need the length
@@ -1396,7 +1417,7 @@ class PythonCodeGenerator(object):
                 # If the array variable is not SAVEd, print the
                 # initialization of the array
                 if node["name"] not in self.saved_variables[
-                            self.current_module]:
+                            self.current_module] and not array_arg:
                     self.pyStrings.append(
                         f"{node['name']} = Array({var_type}, [{array_range}])"
                     )
