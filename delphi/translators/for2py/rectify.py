@@ -1110,6 +1110,7 @@ class RectifiedXMLGenerator:
             elif child.tag == "derived-type-spec":
                 if self.variable_type == None:
                     self.variable_type = child.attrib['typeName']
+                    print ("@ self.variable_type: ", self.variable_type)
                 if not self.is_derived_type:
                     self.is_derived_type = True
                     current.set("name", child.attrib['typeName'])
@@ -1169,7 +1170,7 @@ class RectifiedXMLGenerator:
                 if (
                         child.tag == "variable"
                         and self.current_scope in self.argument_types
-                        and child.attrib['name'] in self.argument_types[
+                        and child.attrib['name'].lower() in self.argument_types[
                         self.current_scope]
                 ):
                     self.argument_types[self.current_scope][child.attrib[
@@ -2636,6 +2637,7 @@ class RectifiedXMLGenerator:
                     assert (
                         False
                     ), f'In handle_tag_subroutine: Empty elements "{child.tag}"'
+
         # Updating the argument attribute to hold the type.
         for arg in self.arguments_list[current.attrib['name']]:
             if arg.attrib['name'] in self.argument_types[current.attrib[
@@ -2709,7 +2711,7 @@ class RectifiedXMLGenerator:
                 # Types will be updated in handle_tag_variable.
                 if grandparent.tag == "subroutine":
                     self.argument_types[grandparent.attrib['name']][
-                        child.attrib['name']] = None
+                        child.attrib['name'].lower()] = None
                 cur_elem = ET.SubElement(
                     current, child.tag, child.attrib
                 )
