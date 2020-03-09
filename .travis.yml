@@ -21,7 +21,7 @@ script:
   - docker exec build-con git fetch 
   - docker exec build-con git checkout $TRAVIS_BRANCH
   - if [[ $TRAVIS_BRANCH == "master" ]]; then docker exec build-con git pull; fi
-  - if [[ $TRAVIS_PULL_REQUEST_BRANCH != ""]]; then docker exec build-con git pull origin $TRAVIS_PULL_REQUEST_BRANCH; fi
+  - if [[ ! $TRAVIS_PULL_REQUEST_BRANCH == ""]]; then docker exec build-con git pull origin $TRAVIS_PULL_REQUEST_BRANCH; fi
   - docker exec build-con make extensions
   - docker exec build-con pip install -e .[test,docs,aske]
   - docker exec build-con make test
