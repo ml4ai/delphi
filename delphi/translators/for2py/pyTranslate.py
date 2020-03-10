@@ -223,6 +223,8 @@ class PythonCodeGenerator(object):
         self.case_started = False
         # This dictionary holds the defined arrays along with their data types
         self.array_map = {}
+        # This keeps track of all declared String type variables with given length.
+        self.stringVars = {}
 
         self.printFn = {
             "subroutine": self.printSubroutine,
@@ -1156,6 +1158,8 @@ class PythonCodeGenerator(object):
         # Check whether write to file or output stream
         if node["args"][0].get("value") and node["args"][0]["value"] == "*":
             write_target = "outStream"
+        elif node["args"][0].get("tag") and node["args"][0].get("tag") == "ref":
+            write_target = "variable"
         else:
             write_target = "file"
             if node["args"][0].get("value"):
@@ -1182,6 +1186,9 @@ class PythonCodeGenerator(object):
             self.pyStrings.append(f"write_list_{file_id} = ")
         elif write_target == "outStream":
             self.pyStrings.append(f"write_list_stream = ")
+        elif write_target == "variable":
+            varTarget = node["args"][0]["name"]
+            self.pyStrings.append(f"{varTarget}")
 
         # Collect the expressions to be written out. The first two arguments to
         # a WRITE statement are the output stream and the format, so these are
@@ -1269,6 +1276,40 @@ class PythonCodeGenerator(object):
                 )
                 self.pyStrings.append(printState.sep)
                 self.pyStrings.append(f"sys.stdout.write(write_line)")
+        elif write_target == "variable":
+            # TODO: This has a lot of assumptions that may require generalising.
+            # Currently, this  code is written specifically targeting
+            # 1020         WRITE(MSG(1),'("Error transferring variable: ",A, "in ",A)')
+            # 1021      &      Trim(VarName), Trim(ModuleName)
+            # like syntax, which can be found in ModuleDefs.for
+            if (
+                    node["args"][0].get("subscripts")
+                    and len(node["args"][0]["subscripts"]) > 0
+            ):
+                outputString = varTarget + ".set_("
+                index = "("
+                for idx in node["args"][0]["subscripts"]:
+                    if idx["tag"]  == "literal":
+                        index += f"{idx['value']},"
+                index = index.strip(',') + ")"
+                outputString += f"{index}, String("
+                if (
+                        self.current_module in self.stringVars
+                        and varTarget in self.stringVars[self.current_module]
+                ):
+                    strLength = self.stringVars[self.current_module][varTarget]
+                outputString += f"{strLength},"
+                tmpStr = "\'"
+                for i in range(1, len(node["args"])):
+                    if node["args"][i]["tag"] == "literal":
+                        tmpStr += f'{node["args"][i]["value"]}\''
+                    elif node["args"][i]["tag"] == "ref":
+                        if node["args"][i]["name"].lower() in syntax.F_INTRINSICS:
+                            intrString = self.proc_intrinsic(node["args"][i])
+                            tmpStr += f"+{intrString}"
+                            print ("intrString: ", intrString)
+                outputString += f"{tmpStr}))"
+                self.pyStrings.append(outputString)
 
     def printFormat(self, node, printState: PrintState):
         type_list = []
@@ -1409,6 +1450,7 @@ class PythonCodeGenerator(object):
             # information as well
             if var_type == "character":
                 var_type = f"String({node['length']})"
+                self.stringVars[self.current_module] = {node["name"]:node["length"]}
 
             self.array_map[self.nameMapper[node["name"]]] = var_type
             array_range = self.get_array_dimension(node)
