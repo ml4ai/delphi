@@ -268,6 +268,8 @@ class RectifiedXMLGenerator:
         "prefix",
         "exit",
         "cycle",
+        "if",
+        "loop",
     ]
 
     loop_child_tags = [
@@ -1328,18 +1330,13 @@ class RectifiedXMLGenerator:
 
         for child in root:
             self.clean_attrib(child)
+            cur_elem = ET.SubElement(
+                current, child.tag, child.attrib
+            )
             if child.text or len(child) > 0:
-                cur_elem = ET.SubElement(
-                    current, child.tag, child.attrib
-                )
                 self.parseXMLTree(
                     child, cur_elem, current, parent, traverse
                 )
-            else:
-                assert (
-                    False
-                ), f'In handle_tag_constant: Empty elements "{child.tag}" ' \
-                   f'not handled'
 
     def handle_tag_statement(
             self, root, current, parent, _, traverse
