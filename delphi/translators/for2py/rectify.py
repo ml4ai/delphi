@@ -270,6 +270,8 @@ class RectifiedXMLGenerator:
         "cycle",
         "if",
         "loop",
+        "operation",
+        "arithmetic-if-stmt",
     ]
 
     loop_child_tags = [
@@ -492,6 +494,7 @@ class RectifiedXMLGenerator:
 
     expression_child_tags =  [
         "name",
+        "operation"
     ]
 
     output_child_tags = [
@@ -1231,6 +1234,14 @@ class RectifiedXMLGenerator:
                     grandparent = ET.SubElement(
                         current, child.tag, child.attrib
                     )
+                elif child.tag == "name":
+                    cur_elem = ET.SubElement(
+                        current, child.tag, child.attrib
+                    )
+                    cur_elem.set("is_array", str(self.is_array).lower())
+                    self.parseXMLTree(
+                        child, cur_elem, current, parent, traverse
+                    )
                 else:
                     try:
                         _ = self.unnecessary_tags.index(child.tag)
@@ -1447,8 +1458,8 @@ class RectifiedXMLGenerator:
                 # remove the outside name elements (but store it to the
                 # temporary holder) and reconstruct it before the end of
                 # statement
-                assert is_empty(self.derived_type_var_holder_list)
-                self.derived_type_var_holder_list.append(child.attrib['id'])
+                if is_empty(self.derived_type_var_holder_list):
+                    self.derived_type_var_holder_list.append(child.attrib['id'])
                 self.parseXMLTree(
                     child, current, current, parent, traverse
                 )
@@ -1945,6 +1956,7 @@ class RectifiedXMLGenerator:
                         child.tag == "literal"
                         or child.tag == "range"
                         or child.tag == "name"
+                        or child.tag == "operation"
                 ):
                     self.parseXMLTree(
                         child, cur_elem, current, parent, traverse
@@ -2671,16 +2683,17 @@ class RectifiedXMLGenerator:
                     ), f'In handle_tag_subroutine: Empty elements "{child.tag}"'
 
         # Updating the argument attribute to hold the type.
-        for arg in self.arguments_list[current.attrib['name']]:
-            if (
-                    arg.attrib['name'].lower() in self.argument_types[current.attrib[
-                    'name']] and self.argument_types[current.attrib['name']][
-                    arg.attrib['name'].lower()]
-            ):
-                arg.attrib['type'] = str(self.argument_types[current.attrib[
-                    'name']][arg.attrib['name'].lower()]["type"])
-                arg.attrib['is_array'] = str(self.argument_types[current.attrib[
-                    'name']][arg.attrib['name'].lower()]["is_array"])
+        if current.attrib['name'] in self.arguments_list:
+            for arg in self.arguments_list[current.attrib['name']]:
+                if (
+                        arg.attrib['name'].lower() in self.argument_types[current.attrib[
+                        'name']] and self.argument_types[current.attrib['name']][
+                        arg.attrib['name'].lower()]
+                ):
+                    arg.attrib['type'] = str(self.argument_types[current.attrib[
+                        'name']][arg.attrib['name'].lower()]["type"])
+                    arg.attrib['is_array'] = str(self.argument_types[current.attrib[
+                        'name']][arg.attrib['name'].lower()]["is_array"])
 
         # Add extra XMLs under the interface function names to hold the
         # argument types.
@@ -3083,6 +3096,10 @@ class RectifiedXMLGenerator:
             else:
                 if child.tag == "initialization":
                     current.attrib.update(child.attrib)
+                elif child.tag == "literal":
+                    cur_elem = ET.SubElement(
+                        current, child.tag, child.attrib
+                    )
                 else:
                     assert (
                         False
@@ -4993,7 +5010,11 @@ class RectifiedXMLGenerator:
         Returns:
             None
         """
-        return re.findall(r"\"([^\']+)\"", unrefined_id)[0]
+        cleaned_id = re.findall(r"\"([^\']+)\"", unrefined_id)
+        if len(cleaned_id) > 0:
+            return cleaned_id[0]
+        else:
+            return unrefined_id
 
     def clean_attrib(self, current):
         """The original XML elements holds 'eos' and
