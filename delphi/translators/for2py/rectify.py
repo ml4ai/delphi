@@ -268,6 +268,8 @@ class RectifiedXMLGenerator:
         "prefix",
         "exit",
         "cycle",
+        "if",
+        "loop",
     ]
 
     loop_child_tags = [
@@ -1328,18 +1330,13 @@ class RectifiedXMLGenerator:
 
         for child in root:
             self.clean_attrib(child)
+            cur_elem = ET.SubElement(
+                current, child.tag, child.attrib
+            )
             if child.text or len(child) > 0:
-                cur_elem = ET.SubElement(
-                    current, child.tag, child.attrib
-                )
                 self.parseXMLTree(
                     child, cur_elem, current, parent, traverse
                 )
-            else:
-                assert (
-                    False
-                ), f'In handle_tag_constant: Empty elements "{child.tag}" ' \
-                   f'not handled'
 
     def handle_tag_statement(
             self, root, current, parent, _, traverse
@@ -1643,7 +1640,7 @@ class RectifiedXMLGenerator:
                         attributes['is_arg'] = "false"
                     cur_elem.attrib.update(attributes)
             else:
-                assert False, f'In handle_tag_names: "{child.tag}" not handled'
+                assert False, f'In handle_tag_names: "{child.tag}"-"{child.attrib}" not handled'
 
     def handle_tag_name(self, root, current, parent, grandparent, traverse):
         """This function handles cleaning up the XML elements between
@@ -1758,7 +1755,10 @@ class RectifiedXMLGenerator:
                         False
                     ), f'In self.handle_tag_name: "{child.tag}" not handled'
             else:
-                if child.tag == "generic_spec":
+                if (
+                        child.tag == "generic_spec"
+                        or child.tag == "name"
+                ):
                     _ = ET.SubElement(
                         current, child.tag, child.attrib
                     )
@@ -1771,7 +1771,7 @@ class RectifiedXMLGenerator:
                         assert (
                             False
                         ), f'In self.handle_tag_name: Empty elements ' \
-                           f'"{child.tag}" not handled'
+                           f'"{child.tag}"-"{child.attrib}" not handled'
 
         # If the name element is for handling
         # derived type references, reconstruct it
@@ -2273,14 +2273,17 @@ class RectifiedXMLGenerator:
                     assert False, f'In handle_tag_io_control: "{child.tag}" ' \
                                   f'not handled'
             else:
-                if child.tag == "literal":
+                if (
+                        child.tag == "literal"
+                        or child.tag == "name"
+                ):
                     _ = ET.SubElement(current, child.tag, child.attrib)
                 else:
                     try:
                         _ = self.unnecessary_tags.index(child.tag)
                     except ValueError:
                         assert False, f'In handle_tag_io_control: Empty "' \
-                                      f'{child.tag}" not handled'
+                                      f'{child.tag}"-"{child.attrib}" not handled'
 
     def handle_tag_outputs(
             self, root, current, parent, _, traverse
@@ -2449,31 +2452,22 @@ class RectifiedXMLGenerator:
         """
         for child in root:
             self.clean_attrib(child)
-            if child.text:
-                if (
-                        child.tag == "keyword-argument"
-                        or child.tag == "literal"
-                        or child.tag == "name"
-                ):
-                    cur_elem = ET.SubElement(
-                        current, child.tag, child.attrib
-                    )
+            if (
+                    child.tag == "keyword-argument"
+                    or child.tag == "literal"
+                    or child.tag == "name"
+            ):
+                cur_elem = ET.SubElement(
+                    current, child.tag, child.attrib
+                )
+                if child.text or len(child) > 0:
                     self.parseXMLTree(
                         child, cur_elem, current, parent, traverse
                     )
-                else:
-                    assert (
-                        False
-                    ), f'In handle_tag_keyword_arguments: "{child.tag}" not ' \
-                       f'handled'
             else:
-                try:
-                    _ = self.unnecessary_tags.index(child.tag)
-                except ValueError:
-                    assert (
-                        False
-                    ), f'In handle_tag_keyword_arguments: Empty elements ' \
-                       f'"{child.tag}" not handled'
+                assert (
+                    False
+                ), f'In handle_tag_keyword_arguments: "{child.tag}" not handled.'
 
     def handle_tag_read(
             self, root, current, parent, _, traverse
@@ -2539,6 +2533,10 @@ class RectifiedXMLGenerator:
                         False
                     ), f'In handle_tag_input - {root.tag}: "{child.tag}" not ' \
                        f'handled'
+            elif child.tag == "name":
+                cur_elem = ET.SubElement(
+                        current, child.tag, child.attrib
+                )
             else:
                 assert (
                     False
