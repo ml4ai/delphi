@@ -3576,6 +3576,7 @@ class RectifiedXMLGenerator:
             derived_type = ET.SubElement(self.parent_type, "derived-types")
             literal_value = None
             str_value = None
+            dimHasType = False
 
             for elem in self.derived_type_var_holder_list:
                 if elem.tag == "intrinsic-type-spec":
@@ -3599,6 +3600,7 @@ class RectifiedXMLGenerator:
                            "cannot be None."
                         newType.set("string_length", literal_value)
                         literal_value = None  # Reset literal_value to None
+                    dimHasType = True
                 elif elem.tag == "derived-type-spec":
                     attributes = {
                         "hasKind": "false",
@@ -3625,12 +3627,15 @@ class RectifiedXMLGenerator:
                     is_dimension = True
                     dim += 1
                 elif elem.tag == "component-decl-list__begin":
-                    if not is_dimension and len(counts) > count:
-                        attr = {"count": counts[count]}
-                        new_variables = ET.SubElement(
-                            derived_type, "variables", attr
-                        )  # <variables _attribs_>
-                        count += 1
+                    if len(counts) > count:
+                        counter = int(counts[count])
+                        if not is_dimension:
+                            attr = {"count": counts[count]}
+                            new_variables = ET.SubElement(
+                                derived_type, "variables", attr
+                            )  # <variables _attribs_>
+                            count += 1
+                        else:
                 elif (
                     elem.tag == "component-decl-list"
                     and is_dimension
@@ -3673,6 +3678,13 @@ class RectifiedXMLGenerator:
                                 "id" in elem.attrib
                                 and elem.attrib['id'] in self.dtype_dimensions
                         ):
+                            if not dimHasType:
+                                dimension_type  = ET.SubElement(
+                                        derived_type, newType.tag, newType.attrib
+                                )
+                            else:
+                                dimHasType = False
+
                             arrayVar = elem.attrib['id']
                             dimensions = self.dtype_dimensions[arrayVar]
                             num_of_dimensions = len(dimensions)
@@ -3754,14 +3766,18 @@ class RectifiedXMLGenerator:
                                     )  # <dimension type="simple">
                                     new_range = ET.SubElement(new_dimension, "range")
                                     need_new_dimension = False
-
                             if len(counts) > count:
                                 attr = {"count": "1"}
                                 new_variables_d = ET.SubElement(
                                     derived_type, "variables", attr
                                 )
-                                if int(counts[count]) == 1:
+                                if (
+                                        int(counts[count]) == 1
+                                        or counter ==  0
+                                ):
                                     count += 1
+                                else:
+                                    counter -= 1
                             var_attribs = {
                                 "has_initial_value": elem.attrib[
                                     "hasComponentInitialization"
