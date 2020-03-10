@@ -109,6 +109,7 @@ INTRINSICS_MAP = {
     "len": ("len", "FUNC", None),
     "adjustl": ("adjustl", "FUNC", None),
     "adjustr": ("adjustr", "FUNC", None),
+    "trim": ("strip", "FUNC", None),
 }
 
 
@@ -407,7 +408,7 @@ class PythonCodeGenerator(object):
 
         if py_fn_type == "FUNC":
             arguments = ", ".join(arg_strs)
-            if py_fn in ["adjustl", "adjustr"]:
+            if py_fn in ["adjustl", "adjustr", "strip"]:
                 return f"{arguments}.{handler}()"
             else:
                 return f"{handler}({arguments})"
@@ -1716,7 +1717,6 @@ class PythonCodeGenerator(object):
     def get_range(self, node):
         """This function will construct the range string in 'loBound,
            Upbound' format and return to the called function"""
-
         # [0]: lower bound
         # [1]: upper bound
         bounds = [0, 0]
