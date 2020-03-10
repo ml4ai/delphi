@@ -3701,6 +3701,7 @@ class RectifiedXMLGenerator:
                             has_lower_bound = False
                             new_range = ET.SubElement(new_dimension, "range")
                             num_of_dimensions = len(dimensions)
+                            need_lower_bound = False
                             for s in range(0, num_of_dimensions):
                                 # DEBUG
                                 # print ("@ dimensions: ",  dimensions[s])
@@ -3722,26 +3723,51 @@ class RectifiedXMLGenerator:
                                             and ((s+1) < num_of_dimensions
                                             and dimensions[s].attrib['dim-number'] != dimensions[s+1].attrib['dim-number']))
                                 ):
-                                    # Case of multi-dimensional array. We need a new dimension XMLs.
-                                    if (
-                                            (s+1) < num_of_dimensions
-                                            and dimensions[s].attrib["dim-number"] != dimensions[s+1].attrib["dim-number"]
-                                    ):
-                                        need_new_dimension = True
                                     upper_bound_value = copy.copy(dimensions[s])
                                     upper_bound_tag_name = tag_name
-                                    dimensions[s].tag = tag_name
                                     need_upper_bound = True
 
+                                # Case of multi-dimensional array. We need a new dimension XMLs.
+                                if (
+                                        (s+1) < num_of_dimensions
+                                        and dimensions[s].attrib["dim-number"] != dimensions[s+1].attrib["dim-number"]
+                                ):
+                                    # DEBUG
+                                    print ("s: ", s+2)
+                                    print ("num_of_dimensions: ", num_of_dimensions)
+                                    need_new_dimension = True
+                                    #  Case where next dimension has on bound indication.
+                                    if (s+2) == num_of_dimensions:
+                                        # DEBUG
+                                        print ("TRUE")
+                                        need_lower_bound = True
+
+                                bound_attrib = dimensions[s].attrib
                                 # Generate lower- and upper-bound XML elements.
                                 if not has_lower_bound:
                                     bound = ET.SubElement(new_range, "lower-bound")
+                                    # DEBUG
+                                    print ("@ dimension: ", dimensions[s].tag, dimensions[s].attrib)
+                                    if need_lower_bound:
+                                        tag_name = "literal"
+                                        bound_attrib =  {
+                                                "dim-number":dimensions[s].attrib["dim-number"],
+                                                "type": "int",
+                                                "value": "0",
+                                        }
+                                        # DEBUG
+                                        print ("@ bound_attrib: ", bound_attrib)
+                                        tag_name = "literal"
+                                        need_upper_bound = True
+                                        upper_bound_value = copy.copy(dimensions[s])
+                                        upper_bound_tag_name = tag_name
+                                        need_lower_bound = False
                                     has_lower_bound = True
                                 else:
                                     bound = ET.SubElement(new_range, "upper-bound")
                                     has_lower_bound = False
 
-                                new_range_value = ET.SubElement(bound, tag_name, dimensions[s].attrib)
+                                new_range_value = ET.SubElement(bound, tag_name, bound_attrib)
                                 # DEBUG
                                 print ("@ new_range_value: ", new_range_value.tag, new_range_value.attrib)
 
@@ -3751,6 +3777,8 @@ class RectifiedXMLGenerator:
                                     has_lower_bound = False
 
                                 if need_new_dimension:
+                                    # DEBUG
+                                    print ("@ need_new_dimension: ")
                                     new_dimension = ET.SubElement(
                                         new_dimensions, "dimension", {"type": "simple"}
                                     )  # <dimension type="simple">
