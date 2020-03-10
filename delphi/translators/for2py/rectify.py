@@ -362,6 +362,7 @@ class RectifiedXMLGenerator:
         "do-term-action-stmt",
         "select",
         "case",
+        "expression",
     ]
 
     operand_child_tags = [
@@ -478,12 +479,18 @@ class RectifiedXMLGenerator:
         "signed-int-literal-constant",
         "data-stmt-constant",
         "data-i-do-object-list__begin",
+        "data-ref",
+    ]
+
+    expression_child_tags =  [
+        "name",
     ]
 
     output_child_tags = [
         "name",
         "literal",
         "operation",
+        "loop",
     ]
 
     dtype_var_declaration_tags = [
@@ -3343,6 +3350,35 @@ class RectifiedXMLGenerator:
         for child in delete_child:
             current.remove(child)
 
+    def handle_tag_expression(
+            self, root, current, parent, grandparent, traverse
+    ):
+        """This function handles expression XML tag.
+
+        <expressionn>
+        </expression>
+        """
+        for child in root:
+            self.clean_attrib(child)
+            if child.tag in self.expression_child_tags:
+                cur_elem = ET.SubElement(
+                    current, child.tag, child.attrib
+                )
+                if len(child) > 0 or child.text:
+                    self.parseXMLTree(
+                        child, cur_elem, current, parent, traverse
+                    )
+            else:
+                try:
+                    _ = self.unnecessary_tags.index(child.tag)
+                except ValueError:
+                    assert (
+                        False
+                    ), f'In handle_tag_expression: '\
+                            'element "{child.tag}"-"{child.attrib}" is not handled.'
+
+
+
     #################################################################
     #                                                               #
     #                       XML TAG PARSER                          #
@@ -3530,6 +3566,8 @@ class RectifiedXMLGenerator:
                                         traverse)
         elif root.tag == "values":
             self.handle_tag_values(root, current, parent, grandparent, traverse)
+        elif root.tag == "expression":
+            self.handle_tag_expression(root, current, parent, grandparent, traverse)
         else:
             assert (
                 False
