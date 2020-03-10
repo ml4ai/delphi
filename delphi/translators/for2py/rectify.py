@@ -300,6 +300,7 @@ class RectifiedXMLGenerator:
         "interface",
         "subroutine",
         "intent",
+        "intent-stmt",
         "names",
         "procedure-stmt",
         "literal",
@@ -1627,7 +1628,7 @@ class RectifiedXMLGenerator:
                 if grandparent.tag == "function":
                     self.args_for_function.append(cur_elem.attrib['id'])
                     self.argument_types[grandparent.attrib['name']][
-                        cur_elem.attrib['id']] = None
+                        cur_elem.attrib['id'].lower()] = None
                 # If the element holds sub-elements, call the XML tree parser
                 # with created new <name> element
                 if len(child) > 0 or child.text:
