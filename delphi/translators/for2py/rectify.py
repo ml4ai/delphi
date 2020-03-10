@@ -3635,7 +3635,6 @@ class RectifiedXMLGenerator:
                                 derived_type, "variables", attr
                             )  # <variables _attribs_>
                             count += 1
-                        else:
                 elif (
                     elem.tag == "component-decl-list"
                     and is_dimension
