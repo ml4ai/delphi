@@ -370,15 +370,22 @@ class XML_to_JSON_translator(object):
         if self.argument_list.get(self.current_module):
             exclusion_list += self.argument_list[self.current_module]
         exclusion_list = list(set([x.lower() for x in exclusion_list]))
-
+        # DEBUG
+        # print ("$ declared_variable: ", declared_variable)
         # Map each variable declaration to this parent
         # function/subroutine to keep a track of local variables
         if declared_variable and len(declared_variable) > 0:
             for var in declared_variable:
-                if (var.get("tag") in ["variable", "array"] and
-                        var.get("name") not in exclusion_list) or \
-                    (var.get("is_derived_type") is True and var.get("type")
-                     not in exclusion_list):
+                if (
+                        (var.get("tag") in ["variable", "array"] and
+                        var.get("name") not in exclusion_list)
+                        or (var.get("is_derived_type") is True 
+                            and var.get("type")
+                            not in exclusion_list)
+                ):
+
+                    # DEBUG
+                    # print ("# self.current_module: ", self.current_module)
                     self.variable_list.setdefault(self.current_module,
                                                   []).append(var)
         else:
