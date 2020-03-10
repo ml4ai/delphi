@@ -904,6 +904,7 @@ class RectifiedXMLGenerator:
         """
         is_derived_type_dimension_setting = False
         is_end_of_one_dimension = False
+        is_arrayVar = False
         dim_number = 0
         dim_bounds = []
         for child in root:
@@ -920,6 +921,7 @@ class RectifiedXMLGenerator:
                 dim_number += 1
             elif child.tag == "explicit-shape-spec-list":
                 is_derived_type_dimension_setting = False
+                is_arrayVar = True
 
             if len(child) > 0 or child.text:
                 if child.tag in self.declaration_child_tags:
@@ -982,6 +984,11 @@ class RectifiedXMLGenerator:
                 ):
                     current.attrib['type'] = "derived-type"
                     self.derived_type_var_holder_list.append(child)
+                    if (
+                            child.tag == "component-decl"
+                            and is_arrayVar
+                    ):
+                        self.dtype_dimensions[child.attrib['id']] = dim_bounds
                 elif child.tag == "component-array-spec":
                     self.derived_type_var_holder_list.append(child)
                 else:
@@ -3560,11 +3567,9 @@ class RectifiedXMLGenerator:
             for elem in self.derived_type_var_holder_list:
                 if elem.tag == "component-decl-list":
                     counts.append(elem.attrib['count'])
-
             # Initialize count to 0 for <variables> count attribute.
             count = 0
             dim = 0
-
             # 'component-decl-list__begin' tag is an indication
             # of all the derived type member variable
             # declarations will follow.
@@ -3619,12 +3624,8 @@ class RectifiedXMLGenerator:
                 ):
                     is_dimension = True
                     dim += 1
-                elif (
-                    elem.tag == "component-decl-list__begin"
-                    and not is_dimension
-
-                ):
-                    if len(counts) > count:
+                elif elem.tag == "component-decl-list__begin":
+                    if not is_dimension and len(counts) > count:
                         attr = {"count": counts[count]}
                         new_variables = ET.SubElement(
                             derived_type, "variables", attr
@@ -3668,7 +3669,6 @@ class RectifiedXMLGenerator:
                                 init_value_attrib, tag_name, value.attrib
                             )  # <initial-value _attribs_>
                     else:
-                        total_number_of_arrays = len(self.dtype_dimensions)
                         if (
                                 "id" in elem.attrib
                                 and elem.attrib['id'] in self.dtype_dimensions
@@ -3755,26 +3755,27 @@ class RectifiedXMLGenerator:
                                     new_range = ET.SubElement(new_dimension, "range")
                                     need_new_dimension = False
 
-                        if len(counts) > count:
-                            attr = {"count": counts[count]}
-                            new_variables = ET.SubElement(
-                                derived_type, "variables", attr
+                            if len(counts) > count:
+                                attr = {"count": "1"}
+                                new_variables_d = ET.SubElement(
+                                    derived_type, "variables", attr
+                                )
+                                if int(counts[count]) == 1:
+                                    count += 1
+                            var_attribs = {
+                                "has_initial_value": elem.attrib[
+                                    "hasComponentInitialization"
+                                ],
+                                "name": elem.attrib['id'],
+                                "is_array": "true",
+                            }
+                            # Store variable name in the array tracker
+                            self.declared_array_vars.update(
+                                {elem.attrib['id']: self.current_scope}
                             )
-                            count += 1
-                        var_attribs = {
-                            "has_initial_value": elem.attrib[
-                                "hasComponentInitialization"
-                            ],
-                            "name": elem.attrib['id'],
-                            "is_array": "true",
-                        }
-                        # Store variable name in the array tracker
-                        self.declared_array_vars.update(
-                            {elem.attrib['id']: self.current_scope}
-                        )
-                        new_variable = ET.SubElement(
-                            new_variables, "variable", var_attribs
-                        )
+                            new_variable = ET.SubElement(
+                                new_variables_d, "variable", var_attribs
+                            )
             # Once one derived type was successfully constructed,
             # clear all the elements of a derived type list
             self.derived_type_var_holder_list.clear()
