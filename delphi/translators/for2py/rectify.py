@@ -1121,8 +1121,6 @@ class RectifiedXMLGenerator:
                     self.derived_type_var_holder_list.append(child)
                     current.set("string_length", str(child.attrib["value"]))
                 if is_derived_type_dimension_setting:
-                    # DEBUG
-                    # print ("@ child-literal: ", child.attrib, is_derived_type_dimension_setting)
                     child.attrib["dim-number"] = str(dim_number)
                     dim_bounds.append(child)
                 else:
@@ -1132,9 +1130,6 @@ class RectifiedXMLGenerator:
                         or child.tag == "component-decl-list"
                         or child.tag == "component-decl-list__begin"
                 ):
-                    # DEBUG
-                    # print ("@ child-com: ", child.tag, child.attrib)
-                    # print ("@ is_array_var: ", is_array_var)
                     current.attrib['type'] = "derived-type"
                     self.derived_type_var_holder_list.append(child)
                     if (
@@ -1146,8 +1141,6 @@ class RectifiedXMLGenerator:
                     is_derived_type_dimension_setting
                     and child.tag == "name"
             ):
-                    # DEBUG
-                    # print ("@ child-name: ", child.attrib, is_derived_type_dimension_setting)
                     child.attrib["dim-number"] = str(dim_number)
                     dim_bounds.append(child)
             elif (
@@ -3649,8 +3642,6 @@ class RectifiedXMLGenerator:
                             str_value += op.attrib['str']
                     str_value = str_value.replace('"','')
                 elif elem.tag == "component-decl":
-                    # DEBUG
-                    # print ("@ elem: ", elem.tag, elem.attrib, is_dimension)
                     if not is_dimension:
                         var_attribs = {
                             "has_initial_value": elem.attrib[
@@ -3678,10 +3669,6 @@ class RectifiedXMLGenerator:
                             )  # <initial-value _attribs_>
                     else:
                         total_number_of_arrays = len(self.dtype_dimensions)
-                        # DEBUG
-                        # print ("@ self.dtype_dimensions: ", self.dtype_dimensions)
-                        print ("@ elem: ", elem.tag, elem.attrib)
-
                         if (
                                 "id" in elem.attrib
                                 and elem.attrib['id'] in self.dtype_dimensions
@@ -3703,8 +3690,6 @@ class RectifiedXMLGenerator:
                             num_of_dimensions = len(dimensions)
                             need_lower_bound = False
                             for s in range(0, num_of_dimensions):
-                                # DEBUG
-                                # print ("@ dimensions: ",  dimensions[s])
                                 if dimensions[s].tag == "literal":
                                     tag_name = "literal"
                                 elif dimensions[s].tag == "name":
@@ -3723,31 +3708,22 @@ class RectifiedXMLGenerator:
                                             and ((s+1) < num_of_dimensions
                                             and dimensions[s].attrib['dim-number'] != dimensions[s+1].attrib['dim-number']))
                                 ):
-                                    upper_bound_value = copy.copy(dimensions[s])
-                                    upper_bound_tag_name = tag_name
-                                    need_upper_bound = True
+                                    need_lower_bound = True
 
                                 # Case of multi-dimensional array. We need a new dimension XMLs.
                                 if (
                                         (s+1) < num_of_dimensions
                                         and dimensions[s].attrib["dim-number"] != dimensions[s+1].attrib["dim-number"]
                                 ):
-                                    # DEBUG
-                                    print ("s: ", s+2)
-                                    print ("num_of_dimensions: ", num_of_dimensions)
                                     need_new_dimension = True
                                     #  Case where next dimension has on bound indication.
                                     if (s+2) == num_of_dimensions:
-                                        # DEBUG
-                                        print ("TRUE")
                                         need_lower_bound = True
 
                                 bound_attrib = dimensions[s].attrib
                                 # Generate lower- and upper-bound XML elements.
                                 if not has_lower_bound:
                                     bound = ET.SubElement(new_range, "lower-bound")
-                                    # DEBUG
-                                    print ("@ dimension: ", dimensions[s].tag, dimensions[s].attrib)
                                     if need_lower_bound:
                                         tag_name = "literal"
                                         bound_attrib =  {
@@ -3755,8 +3731,6 @@ class RectifiedXMLGenerator:
                                                 "type": "int",
                                                 "value": "0",
                                         }
-                                        # DEBUG
-                                        print ("@ bound_attrib: ", bound_attrib)
                                         tag_name = "literal"
                                         need_upper_bound = True
                                         upper_bound_value = copy.copy(dimensions[s])
@@ -3768,8 +3742,6 @@ class RectifiedXMLGenerator:
                                     has_lower_bound = False
 
                                 new_range_value = ET.SubElement(bound, tag_name, bound_attrib)
-                                # DEBUG
-                                print ("@ new_range_value: ", new_range_value.tag, new_range_value.attrib)
 
                                 if need_upper_bound:
                                     bound = ET.SubElement(new_range, "upper-bound")
@@ -3777,8 +3749,6 @@ class RectifiedXMLGenerator:
                                     has_lower_bound = False
 
                                 if need_new_dimension:
-                                    # DEBUG
-                                    print ("@ need_new_dimension: ")
                                     new_dimension = ET.SubElement(
                                         new_dimensions, "dimension", {"type": "simple"}
                                     )  # <dimension type="simple">
