@@ -195,7 +195,8 @@ class RectifiedXMLGenerator:
         self.module_log_file_path = None
         self.module_files_to_process = []
         self.modules_in_file = []
-        self.derived_type_array_dimensions = {}
+        self.derived_type_array_dimensions = {} # REMOVE_LINE
+        self.dtype_dimensions = {}
         self.dim = 0
         # Keeps a track of maximum number of function
         # arguments that are member of interface
@@ -904,6 +905,7 @@ class RectifiedXMLGenerator:
         is_derived_type_dimension_setting = False
         is_end_of_one_dimension = False
         dim_number = 0
+        dim_bounds = []
         for child in root:
             self.clean_attrib(child)
             # Temporarily hold the declaring variable's type.
@@ -914,7 +916,7 @@ class RectifiedXMLGenerator:
                 is_derived_type_dimension_setting = True
                 self.dim += 1
                 dim_number += 1
-                self.derived_type_array_dimensions[self.dim] = []
+                self.derived_type_array_dimensions[self.dim] = [] # REMOVE_LINE
             elif child.tag == "explicit-shape-spec":
                 is_end_of_one_dimension = True
                 dim_number += 1
@@ -932,7 +934,8 @@ class RectifiedXMLGenerator:
                     ):
                         if is_derived_type_dimension_setting:
                             child.attrib["dim-number"] = str(dim_number)
-                            self.derived_type_array_dimensions[self.dim].append(child)
+                            self.derived_type_array_dimensions[self.dim].append(child) # REMOVE_LINE
+                            dim_bounds.append(child)
                         else:
                             self.derived_type_var_holder_list.append(child)
                     else:
@@ -1047,7 +1050,9 @@ class RectifiedXMLGenerator:
                 current.set("string_length", str(1))
 
         dim_number = 0
+        dim_bounds = []
         is_derived_type_dimension_setting = False
+        is_array_var = False
         for child in root:
             self.clean_attrib(child)
             if "keyword2" in child.attrib:
@@ -1098,12 +1103,13 @@ class RectifiedXMLGenerator:
                 is_derived_type_dimension_setting = True
                 self.dim += 1
                 dim_number += 1
-                self.derived_type_array_dimensions[self.dim] = []
+                self.derived_type_array_dimensions[self.dim] = [] # REMOVE_LINE
             elif child.tag == "explicit-shape-spec":
                 is_end_of_one_dimension = True
                 dim_number += 1
             elif child.tag == "explicit-shape-spec-list":
                 is_derived_type_dimension_setting = False
+                is_array_var = True
             elif child.tag == "intrinsic-type-spec":
                 if self.is_derived_type:
                     self.derived_type_var_holder_list.append(child)
@@ -1119,18 +1125,38 @@ class RectifiedXMLGenerator:
                 if self.is_character:
                     self.derived_type_var_holder_list.append(child)
                     current.set("string_length", str(child.attrib["value"]))
-
                 if is_derived_type_dimension_setting:
-                    child.attrib["dim-number"] = str(dim_number)
-                    self.derived_type_array_dimensions[self.dim].append(child)
+                    # DEBUG
+                    # print ("@ child-literal: ", child.attrib, is_derived_type_dimension_setting)
+                    child.attrib["dim-number"] = str(self.dim)
+                    self.derived_type_array_dimensions[self.dim].append(child) # REMOVE_LINE
+                    dim_bounds.append(child)
                 else:
                     self.derived_type_var_holder_list.append(child)
+            elif (
+                        child.tag == "component-decl"
+                        or child.tag == "component-decl-list"
+                        or child.tag == "component-decl-list__begin"
+                ):
+                    # DEBUG
+                    # print ("@ child-com: ", child.tag, child.attrib)
+                    # print ("@ is_array_var: ", is_array_var)
+                    current.attrib['type'] = "derived-type"
+                    self.derived_type_var_holder_list.append(child)
+                    if (
+                            child.tag == "component-decl"
+                            and is_array_var
+                    ):
+                        self.dtype_dimensions[child.attrib['id']] = dim_bounds
             elif (
                     is_derived_type_dimension_setting
                     and child.tag == "name"
             ):
+                    # DEBUG
+                    # print ("@ child-name: ", child.attrib, is_derived_type_dimension_setting)
                     child.attrib["dim-number"] = str(dim_number)
-                    self.derived_type_array_dimensions[self.dim].append(child)
+                    self.derived_type_array_dimensions[self.dim].append(child) # REMOVE_LINE
+                    dim_bounds.append(child)
             elif (
                     child.tag == "component-array-spec"
                     or child.tag == "operation"
@@ -3552,12 +3578,14 @@ class RectifiedXMLGenerator:
             # Initialize count to 0 for <variables> count attribute.
             count = 0
             dim = 0
+
             # 'component-decl-list__begin' tag is an indication
             # of all the derived type member variable
             # declarations will follow.
             derived_type = ET.SubElement(self.parent_type, "derived-types")
             literal_value = None
             str_value = None
+
             for elem in self.derived_type_var_holder_list:
                 if elem.tag == "intrinsic-type-spec":
                     keyword2 = ""
@@ -3599,7 +3627,10 @@ class RectifiedXMLGenerator:
                         literal_value = elem.attrib['value']
                     else:
                         tag_name = "name"
-                elif elem.tag == "component-array-spec":
+                elif (
+                        elem.tag == "component-array-spec"
+                        or elem.tag  == "explicit-shape-spec-list__begin"
+                ):
                     is_dimension = True
                     dim += 1
                 elif (
@@ -3613,6 +3644,11 @@ class RectifiedXMLGenerator:
                             derived_type, "variables", attr
                         )  # <variables _attribs_>
                         count += 1
+                elif (
+                    elem.tag == "component-decl-list"
+                    and is_dimension
+                ):
+                    is_dimension = False
                 elif elem.tag == "operation":
                     str_value = ""
                     for op in elem.iter():
@@ -3620,6 +3656,8 @@ class RectifiedXMLGenerator:
                             str_value += op.attrib['str']
                     str_value = str_value.replace('"','')
                 elif elem.tag == "component-decl":
+                    # DEBUG
+                    # print ("@ elem: ", elem.tag, elem.attrib, is_dimension)
                     if not is_dimension:
                         var_attribs = {
                             "has_initial_value": elem.attrib[
@@ -3652,6 +3690,89 @@ class RectifiedXMLGenerator:
                             derived_type, "dimensions", {"count": "1"}
                         )  # <dimensions count="1">
 
+                        # DEBUG
+                        # print ("@ self.dtype_dimensions: ", self.dtype_dimensions)
+                        print ("@ elem: ", elem.tag, elem.attrib)
+
+                        if (
+                                "id" in elem.attrib
+                                and elem.attrib['id'] in self.dtype_dimensions
+                        ):
+                            arrayVar = elem.attrib['id']
+                            dimensions = self.dtype_dimensions[arrayVar]
+                            # <dimension type="simple">
+                            new_dimension = ET.SubElement(
+                                new_dimensions, "dimension", {"type": "simple"}
+                            )
+                            # Default: No explicit lower bound set.
+                            has_lower_bound = False
+                            new_range = ET.SubElement(new_dimension, "range")
+                            num_of_dimensions = len(self.dtype_dimensions[arrayVar])
+                            for s in range(0, num_of_dimensions):
+                                # DEBUG
+                                # print ("@ dimensions: ",  dimensions[s])
+                                if dimensions[s].tag == "literal":
+                                    tag_name = "literal"
+                                elif dimensions[s].tag == "name":
+                                    tag_name = "name"
+                                    dimensions[s].attrib["is_derived_type_ref"] = "true"
+                                else:
+                                    pass
+
+                                need_new_dimension = False 
+                                need_upper_bound = False
+
+                                if (
+                                        num_of_dimensions == 1
+                                        or (not has_lower_bound 
+                                            and ((s+1) < num_of_dimensions
+                                            and dimensions[s].attrib['dim-number'] != dimensions[s+1].attrib['dim-number']))
+                                ):
+                                    if (
+                                            (s+1) < num_of_dimensions
+                                            and dimensions[s].attrib["dim-number"] != dimensions[s+1].attrib["dim-number"]
+                                    ):
+                                        need_new_dimension = True
+                                    upper_bound_value = copy.copy(dimensions[s])
+                                    upper_bound_tag_name = tag_name
+                                    tag_name = "literal"
+                                    dimensions[s].tag = "literal"
+                                    dimensions[s].attrib = {
+                                            "dim-number": dimensions[s].attrib["dim-number"],
+                                            "type": "int",
+                                            "value": "0"
+                                    }
+                                    need_upper_bound = True
+
+                                # Generate lower- and upper-bound XML elements.
+                                if not has_lower_bound:
+                                    bound = ET.SubElement(new_range, "lower-bound")
+                                    has_lower_bound = True
+                                else:
+                                    bound = ET.SubElement(new_range, "upper-bound")
+                                    has_lower_bound = False
+
+                        if len(counts) > count:
+                            attr = {"count": counts[count]}
+                            new_variables = ET.SubElement(
+                                derived_type, "variables", attr
+                            )
+                            count += 1
+                        var_attribs = {
+                            "has_initial_value": elem.attrib[
+                                "hasComponentInitialization"
+                            ],
+                            "name": elem.attrib['id'],
+                            "is_array": "true",
+                        }
+                        # Store variable name in the array tracker
+                        self.declared_array_vars.update(
+                            {elem.attrib['id']: self.current_scope}
+                        )
+                        new_variable = ET.SubElement(
+                            new_variables, "variable", var_attribs
+                        )
+            """
                         if self.derived_type_array_dimensions[dim]:
                             new_dimension = ET.SubElement(
                                 new_dimensions, "dimension", {"type": "simple"}
@@ -3660,9 +3781,15 @@ class RectifiedXMLGenerator:
                             new_range = ET.SubElement(new_dimension, "range")
                             num_of_dimensions = len(
                                 self.derived_type_array_dimensions[dim])
+                            # DEBUG
+                            # print ("@ self.derived_type_array_dimensions: ", self.derived_type_array_dimensions[32])
+                            # print ("dim: ", dim)
+                            # print ("self.dim: ", self.dim)
                             for s in range(0, num_of_dimensions):
                                 value = self.derived_type_array_dimensions[
-                                    dim][s]
+                                    self.dim][s]
+                                #  DEBUG
+                                # print ("@ value: ", value.tag,  value.attrib)
                                 if value.tag == "literal":
                                     tag_name = "literal"
                                 elif value.tag == "name":
@@ -3737,7 +3864,7 @@ class RectifiedXMLGenerator:
                             new_variables, "variable", var_attribs
                         )
                         is_dimension = False
-
+            """
             # Once one derived type was successfully constructed,
             # clear all the elements of a derived type list
             self.derived_type_var_holder_list.clear()
