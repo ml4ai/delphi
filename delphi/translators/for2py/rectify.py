@@ -3721,13 +3721,16 @@ class RectifiedXMLGenerator:
 
                                 # Case of multi-dimensional array. We need a new dimension XMLs.
                                 if (
-                                        (s+1) < num_of_dimensions
-                                        and dimensions[s].attrib["dim-number"] != dimensions[s+1].attrib["dim-number"]
+                                        ((s+1) < num_of_dimensions
+                                        and dimensions[s].attrib["dim-number"] != dimensions[s+1].attrib["dim-number"])
                                 ):
                                     need_new_dimension = True
-                                    #  Case where next dimension has on bound indication.
+                                    #  Case where next dimension has no lower bound indication.
                                     if (s+2) == num_of_dimensions:
                                         need_lower_bound = True
+                                elif ((s+1) == num_of_dimensions):
+                                    need_lower_bound = True
+
 
                                 bound_attrib = dimensions[s].attrib
                                 # Generate lower- and upper-bound XML elements.
@@ -3754,7 +3757,7 @@ class RectifiedXMLGenerator:
 
                                 if need_upper_bound:
                                     bound = ET.SubElement(new_range, "upper-bound")
-                                    new_range_value =ET.SubElement(bound, upper_bound_tag_name, upper_bound_value.attrib)
+                                    new_range_value = ET.SubElement(bound, upper_bound_tag_name, upper_bound_value.attrib)
                                     has_lower_bound = False
 
                                 if need_new_dimension:
@@ -3762,7 +3765,7 @@ class RectifiedXMLGenerator:
                                         new_dimensions, "dimension", {"type": "simple"}
                                     )  # <dimension type="simple">
                                     new_range = ET.SubElement(new_dimension, "range")
-                                    need_new_dimension = False
+                                    # need_new_dimension = False
                             if len(counts) > count:
                                 attr = {"count": "1"}
                                 new_variables_d = ET.SubElement(
