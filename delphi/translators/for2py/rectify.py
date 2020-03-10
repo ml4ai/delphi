@@ -350,6 +350,8 @@ class RectifiedXMLGenerator:
         "equiv-operand__equiv-op",
         "subroutine-stmt",
         "value-ranges",
+        "io-implied-do-control",
+        "format",
     ]
 
     body_child_tags = [
@@ -369,6 +371,12 @@ class RectifiedXMLGenerator:
         "name",
         "literal",
         "operation",
+    ]
+
+    if_child_tags = [
+        "header",
+        "body",
+        "format",
     ]
 
     subscripts_child_tags = [
@@ -2664,8 +2672,11 @@ class RectifiedXMLGenerator:
 
         # Updating the argument attribute to hold the type.
         for arg in self.arguments_list[current.attrib['name']]:
-            if arg.attrib['name'].lower() in self.argument_types[current.attrib[
-             'name']]:
+            if (
+                    arg.attrib['name'].lower() in self.argument_types[current.attrib[
+                    'name']] and self.argument_types[current.attrib['name']][
+                    arg.attrib['name'].lower()]
+            ):
                 arg.attrib['type'] = str(self.argument_types[current.attrib[
                     'name']][arg.attrib['name'].lower()]["type"])
                 arg.attrib['is_array'] = str(self.argument_types[current.attrib[
@@ -2779,7 +2790,7 @@ class RectifiedXMLGenerator:
         for child in root:
             self.clean_attrib(child)
             if child.text or len(child) > 0:
-                if child.tag == "header" or child.tag == "body":
+                if child.tag in self.if_child_tags:
                     cur_elem = ET.SubElement(
                         current, child.tag, child.attrib
                     )
