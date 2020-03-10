@@ -3734,7 +3734,7 @@ class RectifiedXMLGenerator:
                                         tag_name = "literal"
                                         need_upper_bound = True
                                         upper_bound_value = copy.copy(dimensions[s])
-                                        upper_bound_tag_name = tag_name
+                                        upper_bound_tag_name = dimensions[s].tag
                                         need_lower_bound = False
                                     has_lower_bound = True
                                 else:
