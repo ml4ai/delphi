@@ -155,7 +155,6 @@ class XML_to_JSON_translator(object):
             "variable": self.process_variable,
             "constants": self.process_constants,
             "constant": self.process_constant,
-            # "write": self.process_direct_map,
             "derived-types": self.process_derived_types,
             "length": self.process_length,
             "save-stmt": self.process_save,
@@ -205,6 +204,7 @@ class XML_to_JSON_translator(object):
         subroutine = {"tag": root.tag, "name": root.attrib["name"].lower()}
         self.current_module = root.attrib["name"].lower()
         self.summaries[root.attrib["name"]] = None
+        self.is_save = False
         if root.tag not in self.subroutineList:
             self.entryPoint.append(root.attrib["name"])
         for node in root:
