@@ -607,11 +607,9 @@ class XML_to_JSON_translator(object):
                 declared_type[-1].update(dimensions)
             elif node.tag == "variables":
                 variables = self.parseTree(node, state)
-                # DEBUG
-                # print ("$ variables: ", variables)
                 # Declare variables based on the counts to handle the case
                 # where a multiple vars declared under a single type
-                for index in range(int(node.attrib["count"])):
+                for index in range(len(variables)):
                     combined = declared_type[-1]
                     combined.update(variables[index])
                     derived_types["derived-types"].append(combined.copy())
