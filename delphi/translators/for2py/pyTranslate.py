@@ -1307,7 +1307,6 @@ class PythonCodeGenerator(object):
                         if node["args"][i]["name"].lower() in syntax.F_INTRINSICS:
                             intrString = self.proc_intrinsic(node["args"][i])
                             tmpStr += f"+{intrString}"
-                            print ("intrString: ", intrString)
                 outputString += f"{tmpStr}))"
                 self.pyStrings.append(outputString)
 
