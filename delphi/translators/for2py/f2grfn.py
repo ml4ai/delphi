@@ -297,12 +297,14 @@ def generate_grfn(
 
     # Cleanup GrFN.
     del grfn_dict["date_created"]
-    for item in grfn_dict["variables"]:
-        if "gensym" in item:
-            del item["gensym"]
-    for item in grfn_dict["containers"]:
-        if "gensym" in item:
-            del item["gensym"]
+    if grfn_dict.get("variables"):
+        for item in grfn_dict["variables"]:
+            if "gensym" in item:
+                del item["gensym"]
+    if grfn_dict.get("containers"):
+        for item in grfn_dict["containers"]:
+            if "gensym" in item:
+                del item["gensym"]
 
     # Load logs from the module log file.
     with open(mod_log_file_path) as json_f:
