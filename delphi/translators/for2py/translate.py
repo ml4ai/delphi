@@ -255,6 +255,11 @@ class XML_to_JSON_translator(object):
                 and root.attrib["type"] in self.derived_type_list
         ):
             is_derived_type = "true"
+        elif (
+                "is_derived_type" in root.attrib
+                and root.attrib["is_derived_type"] == "True"
+        ):
+            is_derived_type = "true"
         else:
             is_derived_type = "false"
 
@@ -370,8 +375,6 @@ class XML_to_JSON_translator(object):
         if self.argument_list.get(self.current_module):
             exclusion_list += self.argument_list[self.current_module]
         exclusion_list = list(set([x.lower() for x in exclusion_list]))
-        # DEBUG
-        # print ("$ declared_variable: ", declared_variable)
         # Map each variable declaration to this parent
         # function/subroutine to keep a track of local variables
         if declared_variable and len(declared_variable) > 0:
@@ -384,8 +387,6 @@ class XML_to_JSON_translator(object):
                             not in exclusion_list)
                 ):
 
-                    # DEBUG
-                    # print ("# self.current_module: ", self.current_module)
                     self.variable_list.setdefault(self.current_module,
                                                   []).append(var)
         else:
