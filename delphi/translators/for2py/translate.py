@@ -255,6 +255,11 @@ class XML_to_JSON_translator(object):
                 and root.attrib["type"] in self.derived_type_list
         ):
             is_derived_type = "true"
+        elif (
+                "is_derived_type" in root.attrib
+                and root.attrib["is_derived_type"] == "True"
+        ):
+            is_derived_type = "true"
         else:
             is_derived_type = "false"
 
