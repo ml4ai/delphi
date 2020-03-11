@@ -286,7 +286,9 @@ class GrFNGenerator(object):
         ):
             # If the node is of instance ast.Call, it is the starting point
             # of the system.
-            if isinstance(node, ast.Call):
+            if isinstance(node, ast.Call) and \
+                    isinstance(node.func, ast.Name) and \
+                    node.func.id != "String":
                 start_function_name = self.generate_container_id_name(
                     self.fortran_file, ["@global"], node.func.id
                 )
@@ -2606,7 +2608,6 @@ class GrFNGenerator(object):
         # Get the GrFN element of the RHS side of the assignment which are
         # the variables involved in the assignment operations.
         sources = self.gen_grfn(node.value, state, "assign")
-
         node_name = node.targets[0].__repr__().split()[0][2:]
         if node_name == "ast.Attribute":
             node_value = node.targets[0].value
