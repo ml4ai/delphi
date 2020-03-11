@@ -110,6 +110,7 @@ INTRINSICS_MAP = {
     "adjustl": ("adjustl", "FUNC", None),
     "adjustr": ("adjustr", "FUNC", None),
     "trim": ("strip", "FUNC", None),
+    "real": ("float", "FUNC", None),    # This maay require change to Float32?
 }
 
 
@@ -440,7 +441,6 @@ class PythonCodeGenerator(object):
            that proc_expr() has used type info to correctly identify array
            references, and that proc_call() is therefore correctly called only
            on function calls."""
-
         if node["name"].lower() == "index":
             var = self.nameMapper[node["args"][0]["name"]]
             if self.variableMap[var]['type'].lower() == "character":
