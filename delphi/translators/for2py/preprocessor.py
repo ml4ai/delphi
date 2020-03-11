@@ -328,7 +328,7 @@ def preprocess_lines(lines, infile, forModLogGen=False):
     if not forModLogGen:
         lines = process_includes(lines, infile)
     lines = refactor_select_case(lines)
-    return lines
+    return [x.lower() for x in lines]
 
 
 def get_preprocessed_lines_from_file(infile, forModLogGen=False):
