@@ -966,6 +966,9 @@ class RectifiedXMLGenerator:
                         self.parseXMLTree(
                             child, cur_elem, current, parent, traverse
                         )
+                        if cur_elem.tag == "type" and "name" in cur_elem.attrib:
+                            current.attrib["name"] = cur_elem.attrib["name"]
+                            current.attrib["is_derived_type"] = cur_elem.attrib["is_derived_type"]
                 elif (
                         child.tag == "component-array-spec"
                         or child.tag == "operation"
@@ -1215,7 +1218,8 @@ class RectifiedXMLGenerator:
                     self.argument_types[self.current_scope][child.attrib[
                         'name'].lower()] = {
                         "type": self.variable_type,
-                        "is_array": str(self.is_array).lower()
+                        "is_array": str(self.is_array).lower(),
+                        "is_derived_type": parent.attrib["is_derived_type"]
                     }
                 # Up to this point, all the child (nested or sub) elements were
                 # <variable>
@@ -2694,6 +2698,8 @@ class RectifiedXMLGenerator:
                         'name']][arg.attrib['name'].lower()]["type"])
                     arg.attrib['is_array'] = str(self.argument_types[current.attrib[
                         'name']][arg.attrib['name'].lower()]["is_array"])
+                    arg.attrib['is_derived_type'] = str(self.argument_types[current.attrib[
+                        'name']][arg.attrib['name'].lower()]["is_derived_type"])
 
         # Add extra XMLs under the interface function names to hold the
         # argument types.
