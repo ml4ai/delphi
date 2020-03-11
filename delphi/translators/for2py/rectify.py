@@ -367,6 +367,9 @@ class RectifiedXMLGenerator:
         "select",
         "case",
         "expression",
+        "case-selector",
+        "case-stmt",
+        "body",
     ]
 
     operand_child_tags = [
@@ -875,7 +878,7 @@ class RectifiedXMLGenerator:
                     assert (
                         False
                     ), f'In handle_tag_body: Empty elements "{child.tag}"' \
-                       f' not handled'
+                        ' not handled'
 
         if self.is_format:
             self.reconstruct_format(parent, traverse)
