@@ -1692,10 +1692,10 @@ class RectifiedXMLGenerator:
             current.attrib['is_array'] = "true"
         else:
             current.attrib['is_array'] = "false"
-
         if (
-            grandparent.tag != "use" and
-            "id" in current.attrib
+            grandparent.tag != "use"
+            and "id" in current.attrib
+            and self.current_scope in self.variables_by_scope
             and current.attrib['id'] in self.variables_by_scope[
                   self.current_scope] and
             self.variables_by_scope[self.current_scope][current.attrib['id']]
@@ -3059,6 +3059,7 @@ class RectifiedXMLGenerator:
         <module>
         </module>
         """
+        self.current_scope = root.attrib['name']
         for child in root:
             self.clean_attrib(child)
 
