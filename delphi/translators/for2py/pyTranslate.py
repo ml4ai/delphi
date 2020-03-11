@@ -884,7 +884,8 @@ class PythonCodeGenerator(object):
                     elif self.array_map[lhs["name"]] == "int":
                         rhs_str = f"int({rhs_str})"
                     else:
-                        assert False, "Unknown array type"
+                        assert lhs["tag"] == "ref" , f"Unknown array type: {lhs}"
+
                     assg_str += f"{rhs_str})"
             else:
                 # When the target is a string, the value can be a string
