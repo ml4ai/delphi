@@ -494,7 +494,8 @@ class RectifiedXMLGenerator:
 
     expression_child_tags =  [
         "name",
-        "operation"
+        "operation",
+        "literal",
     ]
 
     output_child_tags = [
@@ -3410,7 +3411,7 @@ class RectifiedXMLGenerator:
                     assert (
                         False
                     ), f'In handle_tag_expression: '\
-                            'element "{child.tag}"-"{child.attrib}" is not handled.'
+                       f'element "{child.tag}"-"{child.attrib}" is not handled.'
 
 
 
