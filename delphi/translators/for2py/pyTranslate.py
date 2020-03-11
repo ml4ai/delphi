@@ -1937,7 +1937,8 @@ def get_python_sources_and_variable_map(outputDict: Dict):
             # list, so it can be printed outside (above) the main method
             derived_type_ast = []
             for index in list(ast[0]["body"]):
-                if "is_derived_type" in index and index["is_derived_type"] == "true":
+                if "is_derived_type" in index and index["is_derived_type"] == \
+                        "true":
                     if "tag" not in index:
                         derived_type_ast.append(index)
                         ast[0]["body"].remove(index)
