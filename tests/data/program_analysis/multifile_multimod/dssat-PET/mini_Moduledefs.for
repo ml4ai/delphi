@@ -318,7 +318,7 @@ C             CHP Added TRTNUM to CONTROL variable.
         CHARACTER*50, DIMENSION(MaxFiles) :: Description
         CHARACTER*10, DIMENSION(MaxFiles) :: ALIAS
         INTEGER, DIMENSION(MaxFiles) :: LUN
-      End Type
+      End Type OutputType
 
 !======================================================================
       END MODULE ModuleDefs
@@ -423,7 +423,7 @@ C             CHP Added TRTNUM to CONTROL variable.
       TYPE PDLABETATYPE
         REAL PDLA
         REAL BETALS
-      END TYPE
+      END TYPE PDLABETATYPE
 
 !     Data which can be transferred between modules
       Type TransferType
