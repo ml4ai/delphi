@@ -1,10 +1,7 @@
 # =============================================================================
 # *Please read all comments before running Makefile*
-# WARNING: Running "make build/quantified_CAG.pkl" from scratch (a fresh
-# clone of the delphi backcasting branch) took approximately 2-3 hours on my
-# machine.
 #
-# You will also need to set the DELPHI_DATA enviroment variable to point to the
+# You will need to set the DELPHI_DATA enviroment variable to point to the
 # scripts/data directory.
 # =============================================================================
 
