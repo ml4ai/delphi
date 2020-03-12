@@ -307,7 +307,10 @@ class RectifiedXMLGenerator:
         "names",
         "procedure-stmt",
         "literal",
-        "values"
+        "values",
+        "common-block-name",
+        "objects",
+        "common-stmt",
     ]
 
     value_child_tags = [
@@ -367,6 +370,9 @@ class RectifiedXMLGenerator:
         "select",
         "case",
         "expression",
+        "case-selector",
+        "case-stmt",
+        "body",
     ]
 
     operand_child_tags = [
@@ -494,7 +500,8 @@ class RectifiedXMLGenerator:
 
     expression_child_tags =  [
         "name",
-        "operation"
+        "operation",
+        "literal",
     ]
 
     output_child_tags = [
@@ -514,6 +521,10 @@ class RectifiedXMLGenerator:
         "initial-value",
         "length",
         "dimensions",
+    ]
+
+    objects_child_tags = [
+        "common-block-object",
     ]
 
     #################################################################
@@ -874,7 +885,7 @@ class RectifiedXMLGenerator:
                     assert (
                         False
                     ), f'In handle_tag_body: Empty elements "{child.tag}"' \
-                       f' not handled'
+                        ' not handled'
 
         if self.is_format:
             self.reconstruct_format(parent, traverse)
@@ -2082,7 +2093,7 @@ class RectifiedXMLGenerator:
                             child.tag in self.unnecessary_tags
                     ), f'In handle_tag_upper_bound: "{child.tag}" not handled'
             else:
-                if traverse > 1:
+                if traverse > 1 or child.tag in self.bound_child_tags:
                     _ = ET.SubElement(
                         current, child.tag, child.attrib
                     )
@@ -2090,7 +2101,7 @@ class RectifiedXMLGenerator:
                     assert (
                             child.tag in self.unnecessary_tags
                     ), f'In handle_tag_upper_bound: Empty "{child.tag}" not ' \
-                       f'handled'
+                        'handled'
 
     def handle_tag_subscripts(
             self, root, current, parent, _, traverse
@@ -3410,9 +3421,32 @@ class RectifiedXMLGenerator:
                     assert (
                         False
                     ), f'In handle_tag_expression: '\
-                            'element "{child.tag}"-"{child.attrib}" is not handled.'
+                       f'element "{child.tag}"-"{child.attrib}" is not handled.'
 
+    def handle_tag_objects(self, root, current, parent, grandparent, traverse):
+        """This function handles objects XML tag.
 
+        <objects>
+        </objects>
+        """
+        for child in root:
+            self.clean_attrib(child)
+            if child.tag in self.objects_child_tags:
+                cur_elem = ET.SubElement(
+                    current, child.tag, child.attrib
+                )
+                if len(child) > 0 or child.text:
+                    self.parseXMLTree(
+                        child, cur_elem, current, parent, traverse
+                    )
+            else:
+                try:
+                    _ = self.unnecessary_tags.index(child.tag)
+                except ValueError:
+                    assert (
+                        False
+                    ), f'In handle_tag_expression: '\
+                       f'element "{child.tag}"-"{child.attrib}" is not handled.'
 
     #################################################################
     #                                                               #
@@ -3603,6 +3637,8 @@ class RectifiedXMLGenerator:
             self.handle_tag_values(root, current, parent, grandparent, traverse)
         elif root.tag == "expression":
             self.handle_tag_expression(root, current, parent, grandparent, traverse)
+        elif root.tag == "objects":
+            self.handle_tag_objects(root, current, parent, grandparent, traverse)
         else:
             assert (
                 False
