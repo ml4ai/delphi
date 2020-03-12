@@ -18,7 +18,6 @@ Author: Terrence J. Lim
 """
 
 import os
-import re
 import sys
 import json
 import argparse
@@ -170,8 +169,8 @@ def populate_mappers(
         )
 
         # If current file has subroutines, then extract subroutine information
-        # that are declared within the scope of any module and store in the module
-        # summary dictionary.
+        # that are declared within the scope of any module and store in the
+        # module summary dictionary.
         if syntax.has_subroutine(file_content.lower()):
             populate_module_summary(
                 preprocessed_lines,
@@ -180,8 +179,8 @@ def populate_mappers(
                 derived_types,
             )
 
-    # Using collected function information, populate interface function information
-    # by each module.
+    # Using collected function information, populate interface function
+    # information by each module.
     populate_procedure_functions(procedure_functions, module_summary)
 
     # Populate actual module information (summary)
@@ -277,7 +276,8 @@ def populate_module_summary(
             pass
 
         # If currently processing line of code is within the scope of module,
-        # we need to extract subroutine, interface, and derived type information.
+        # we need to extract subroutine, interface, and derived type
+        # information.
         if current_modu:
             current_subr = extract_subroutine_info(
                 pgm,
@@ -408,7 +408,8 @@ def extract_interface_info(
             #   module procedure __function_name__ , __function_name__ , ...
             # by keyword procedure. Then, only extract function names, which
             # always will be located at [-1] after partitioning. Finally, split
-            # the string of function names by comma and store in the functions list.
+            # the string of function names by comma and store in the
+            # functions list.
             functions = line.partition("procedure")[-1].split(",")
             for func in functions:
                 func = func.strip()
