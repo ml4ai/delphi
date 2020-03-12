@@ -687,6 +687,9 @@ class PythonCodeGenerator(object):
         elif var_type == "String":
             self.pyStrings.append(f"{arg_name}: String")
             printState.definedVars += [arg_name]
+        elif var_type in self.declaredDerivedTypes:
+            self.pyStrings.append(f"{arg_name}: {var_type}")
+            printState.definedVars += [arg_name]
         else:
             if node["type"].lower() == "real":
                 var_type = "Real"
