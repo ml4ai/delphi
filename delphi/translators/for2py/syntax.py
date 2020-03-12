@@ -9,6 +9,7 @@ from typing import Tuple, Optional
 #                                                                              #
 ################################################################################
 
+
 def line_is_comment(line: str) -> bool:
     """From FORTRAN Language Reference
     (https://docs.oracle.com/cd/E19957-01/805-4939/z40007332024/index.html)
@@ -31,7 +32,7 @@ def line_is_comment(line: str) -> bool:
 
     """
 
-    return (line[0] in "cCdD*!")
+    return line[0] in "cCdD*!"
 
 
 ################################################################################
@@ -42,13 +43,15 @@ def line_is_comment(line: str) -> bool:
 
 FIXED_FORM_EXT = ('.f', '.for', '.blk', '.inc', '.gin')
 
+
 def line_is_continuation(line: str, f_ext: str) -> bool:
     """ From FORTRAN 77  Language Reference
         (https://docs.oracle.com/cd/E19957-01/805-4939/6j4m0vn6l/index.html)
 
-    A statement takes one or more lines; the first line is called the initial line; 
-    the subsequent lines are called the continuation lines.  You can format a 
-    source line in either of two ways: Standard fixed format, or Tab format.
+    A statement takes one or more lines; the first line is called the initial
+    line; the subsequent lines are called the continuation lines.  You can
+    format a source line in either of two ways: Standard fixed format,
+    or Tab format.
 
     In Standard Fixed Format, continuation lines are identified by a nonblank, 
     nonzero in column 6.
@@ -72,9 +75,9 @@ def line_is_continuation(line: str, f_ext: str) -> bool:
 
     if f_ext in FIXED_FORM_EXT:
         if line[0] == '\t':
-            return (line[1] in "123456789")
+            return line[1] in "123456789"
         else:
-            return (len(line) > 5 and not (line[5] == ' ' or line[5] == '0'))
+            return len(line) > 5 and not (line[5] == ' ' or line[5] == '0')
  
     if line[0] == '&':
         return True
@@ -239,6 +242,7 @@ EXECUTABLE_CODE_START = [
     RE_STOP_STMT
 ]
 
+
 def line_starts_subpgm(line: str) -> Tuple[bool, Optional[str]]:
     """
     Indicates whether a line in the program is the first line of a subprogram
@@ -252,16 +256,16 @@ def line_starts_subpgm(line: str) -> Tuple[bool, Optional[str]]:
     """
 
     match = RE_SUB_START.match(line)
-    if match != None:
+    if match is not None:
         f_name = match.group(1)
-        return (True, f_name)
+        return True, f_name
 
     match = RE_FN_START.match(line)
     if match is not None:
         f_name = match.group(2)
-        return (True, f_name)
+        return True, f_name
 
-    return (False, None)
+    return False, None
 
 
 def line_is_pgm_unit_start(line):
@@ -279,13 +283,15 @@ def line_is_pgm_unit_separator(line):
     return match is not None
 
 
-def program_unit_name(line:str) -> str:
-   """Given a line that starts a program unit, i.e., a program, module,
+def program_unit_name(line: str) -> str:
+    """
+     Given a line that starts a program unit, i.e., a program, module,
       subprogram, or function, this function returns the name associated
-      with that program unit."""
-   match = RE_PGM_UNIT_START.match(line)
-   assert match is not None
-   return match.group(2)
+      with that program unit.
+    """
+    match = RE_PGM_UNIT_START.match(line)
+    assert match is not None
+    return match.group(2)
 
 
 def line_ends_subpgm(line: str) -> bool:
@@ -331,6 +337,7 @@ def line_is_include(line: str) -> str:
 
     return None
 
+
 def line_has_implicit_array(line: str) -> Tuple[bool, Optional[str]]:
     """
     This function checks for the implicit array declaration (i.e.
@@ -346,8 +353,9 @@ def line_has_implicit_array(line: str) -> Tuple[bool, Optional[str]]:
     match = RE_IMP_ARRAY.match(line)
     if match:
         var = match['var']
-        return (True, var)
-    return (False, None)
+        return True, var
+    return False, None
+
 
 def has_subroutine(lines: str) -> bool:
     """
@@ -362,6 +370,7 @@ def has_subroutine(lines: str) -> bool:
         (False) if subroutine end syntax does not present in lines.
     """
     return re.search(END_SUB, lines)
+
 
 def has_module(lines: str) -> bool:
     """This function searches end of module syntax
@@ -390,6 +399,7 @@ def line_is_func_start(line: str) -> bool:
     match = RE_FN_START.match(line)
     return match is not None
 
+
 def variable_declaration(line: str) -> Tuple[bool, Optional[list]]:
     """
     Indicates whether a line in the program is a variable declaration or not.
@@ -398,7 +408,7 @@ def variable_declaration(line: str) -> Tuple[bool, Optional[list]]:
         line
     Returns:
        (True, v_type, list) if line has one of variable declaration syntax;
-       (False, None, None) if line does not have any variable declaration syntax .
+       (False, None, None) if line does not have any variable declaration syntax
     """
 
     match_var = RE_VARIABLE_DEC.match(line)
@@ -420,6 +430,7 @@ def variable_declaration(line: str) -> Tuple[bool, Optional[list]]:
 
     return (False, None, None)
 
+
 def subroutine_definition(line: str) -> Tuple[bool, Optional[list]]:
     """
     Indicates whether a line in the program is the first line of a subroutine
@@ -434,10 +445,11 @@ def subroutine_definition(line: str) -> Tuple[bool, Optional[list]]:
     match = RE_SUB_DEF.match(line)
     if match:
         f_name = match['name'].strip()
-        f_args = match['args'].replace(' ','').split(',')
-        return (True, [f_name, f_args])
+        f_args = match['args'].replace(' ', '').split(',')
+        return True, [f_name, f_args]
 
-    return (False, None)
+    return False, None
+
 
 def pgm_end(line: str) -> Tuple[bool, str, str]:
     """
@@ -455,7 +467,7 @@ def pgm_end(line: str) -> Tuple[bool, str, str]:
     if match:
         pgm = match['pgm']
         pgm_name = match['name']
-        return (True, pgm, pgm_name)
+        return True, pgm, pgm_name
     return (False, None, None)
 
 
@@ -466,16 +478,18 @@ def line_starts_pgm(line: str) -> Tuple[bool, Optional[str], Optional[str]]:
     Args:
         line
     Returns:
-       (True, pgm, namee) if line begins a definition either for interface or module;
-       (False, None, None) if line is not a beginning of either interface or module.
+       (True, pgm, name) if line begins a definition either for interface or
+       module;
+       (False, None, None) if line is not a beginning of either interface or
+       module.
     """
 
     match = RE_PGM_START.match(line)
     if match:
         pgm = match['pgm'].strip()
         name = match['name'].strip()
-        return (True, pgm, name)
-    return (False, None, None)
+        return True, pgm, name
+    return False, None, None
 
 
 ################################################################################
@@ -498,68 +512,97 @@ def line_starts_pgm(line: str) -> Tuple[bool, Optional[str], Optional[str]]:
 # NOTE2: This list of keywords is incomplete.
 
 F_KEYWDS = frozenset(['abstract', 'allocatable', 'allocate', 'assign',
-    'assignment', 'associate', 'asynchronous', 'backspace', 'bind', 'block',
-    'block data', 'call', 'case', 'character', 'class', 'close', 'codimension',
-    'common', 'complex', 'contains', 'contiguous', 'continue', 'critical',
-    'cycle', 'data', 'deallocate', 'default', 'deferred', 'dimension', 'do',
-    'double precision', 'else', 'elseif', 'elsewhere', 'end', 'endif', 'endfile', 
-    'endif', 'entry', 'enum', 'enumerator', 'equivalence', 'error', 'exit', 
-    'extends', 'external', 'final', 'flush', 'forall', 'format', 'function', 
-    'generic', 'goto', 'if', 'implicit', 'import', 'in', 'include', 'inout', 
-    'inquire', 'integer', 'intent', 'interface', 'intrinsic', 'kind', 'len', 
-    'lock', 'logical', 'module', 'namelist', 'non_overridable', 'nopass', 'nullify',
-    'only', 'open', 'operator', 'optional', 'out', 'parameter', 'pass', 'pause',
-    'pointer', 'print', 'private', 'procedure', 'program', 'protected', 'public',
-    'pure', 'read', 'real', 'recursive', 'result', 'return', 'rewind', 'rewrite',
-    'save', 'select', 'sequence', 'stop', 'submodule', 'subroutine', 'sync',
-    'target', 'then', 'type', 'unlock', 'use', 'value', 'volatile', 'wait',
-    'where', 'while', 'write'])
+                      'assignment', 'associate', 'asynchronous', 'backspace',
+                      'bind', 'block', 'block data', 'call', 'case',
+                      'character', 'class', 'close', 'codimension', 'common',
+                      'complex', 'contains', 'contiguous', 'continue',
+                      'critical', 'cycle', 'data', 'deallocate', 'default',
+                      'deferred', 'dimension', 'do', 'double precision',
+                      'else', 'elseif', 'elsewhere', 'end', 'endif',
+                      'endfile', 'endif', 'entry', 'enum', 'enumerator',
+                      'equivalence', 'error', 'exit', 'extends', 'external',
+                      'final', 'flush', 'forall', 'format', 'function',
+                      'generic', 'goto', 'if', 'implicit', 'import', 'in',
+                      'include', 'inout', 'inquire', 'integer', 'intent',
+                      'interface', 'intrinsic', 'kind', 'len', 'lock',
+                      'logical', 'module', 'namelist', 'non_overridable',
+                      'nopass', 'nullify', 'only', 'open', 'operator',
+                      'optional', 'out', 'parameter', 'pass', 'pause',
+                      'pointer', 'print', 'private', 'procedure', 'program',
+                      'protected', 'public', 'pure', 'read', 'real',
+                      'recursive', 'result', 'return', 'rewind', 'rewrite',
+                      'save', 'select', 'sequence', 'stop', 'submodule',
+                      'subroutine', 'sync', 'target', 'then', 'type',
+                      'unlock', 'use', 'value', 'volatile', 'wait', 'where',
+                      'while', 'write'])
 
 # F_INTRINSICS : intrinsic functions
 #     SOURCE: GNU gfortran manual: 
 #     https://gcc.gnu.org/onlinedocs/gfortran/Intrinsic-Procedures.html
 
-F_INTRINSICS = frozenset(['abs', 'abort', 'access', 'achar', 'acos', 'acosd', 
-    'acosh', 'adjustl', 'adjustr', 'aimag', 'aint', 'alarm', 'all', 'allocated', 
-    'and', 'anint', 'any', 'asin', 'asind', 'asinh', 'associated', 'atan', 
-    'atand', 'atan2', 'atan2d', 'atanh', 'atomic_add', 'atomic_and', 'atomic_cas', 
-    'atomic_define', 'atomic_fetch_add', 'atomic_fetch_and', 'atomic_fetch_or', 
-    'atomic_fetch_xor', 'atomic_or', 'atomic_ref', 'atomic_xor', 'backtrace', 
-    'bessel_j0', 'bessel_j1', 'bessel_jn', 'bessel_y0', 'bessel_y1', 'bessel_yn', 
-    'bge', 'bgt', 'bit_size', 'ble', 'blt', 'btest', 'c_associated', 
-    'c_f_pointer', 'c_f_procpointer', 'c_funloc', 'c_loc', 'c_sizeof', 'ceiling', 
-    'char', 'chdir', 'chmod', 'cmplx', 'co_broadcast', 'co_max', 'co_min', 
-    'co_reduce', 'co_sum', 'command_argument_count', 'compiler_options', 
-    'compiler_version', 'complex', 'conjg', 'cos', 'cosd', 'cosh', 'cotan', 
-    'cotand', 'count', 'cpu_time', 'cshift', 'ctime', 'date_and_time', 'dble', 
-    'dcmplx', 'digits', 'dim', 'dot_product', 'dprod', 'dreal', 'dshiftl', 
-    'dshiftr', 'dtime', 'eoshift', 'epsilon', 'erf', 'erfc', 'erfc_scaled', 
-    'etime', 'event_query', 'execute_command_line', 'exit', 'exp', 'exponent', 
-    'extends_type_of', 'fdate', 'fget', 'fgetc', 'floor', 'flush', 'fnum', 'fput', 
-    'fputc', 'fraction', 'free', 'fseek', 'fstat', 'ftell', 'gamma', 'gerror', 
-    'getarg', 'get_command', 'get_command_argument', 'getcwd', 'getenv', 
-    'get_environment_variable', 'getgid', 'getlog', 'getpid', 'getuid', 'gmtime', 
-    'hostnm', 'huge', 'hypot', 'iachar', 'iall', 'iand', 'iany', 'iargc', 'ibclr', 
-    'ibits', 'ibset', 'ichar', 'idate', 'ieor', 'ierrno', 'image_index', 'index', 
-    'int', 'int2', 'int8', 'ior', 'iparity', 'irand', 'is_iostat_end', 
-    'is_iostat_eor', 'isatty', 'ishft', 'ishftc', 'isnan', 'itime', 'kill', 
-    'kind', 'lbound', 'lcobound', 'leadz', 'len', 'len_trim', 'lge', 'lgt', 'link', 
-    'lle', 'llt', 'lnblnk', 'loc', 'log', 'log10', 'log_gamma', 'logical', 'long', 
-    'lshift', 'lstat', 'ltime', 'malloc', 'maskl', 'maskr', 'matmul', 'max', 
-    'maxexponent', 'maxloc', 'maxval', 'mclock', 'mclock8', 'merge', 'merge_bits', 
-    'min', 'minexponent', 'minloc', 'minval', 'mod', 'modulo', 'move_alloc', 
-    'mvbits', 'nearest', 'new_line', 'nint', 'norm2', 'not', 'null', 'num_images', 
-    'or', 'pack', 'parity', 'perror', 'popcnt', 'poppar', 'precision', 'present', 
-    'product', 'radix', 'ran', 'rand', 'random_number', 'random_seed', 'range', 
-    'rank ', 'real', 'rename', 'repeat', 'reshape', 'rrspacing', 'rshift', 
-    'same_type_as', 'scale', 'scan', 'secnds', 'second', 'selected_char_kind', 
-    'selected_int_kind', 'selected_real_kind', 'set_exponent', 'shape', 'shifta', 
-    'shiftl', 'shiftr', 'sign', 'signal', 'sin', 'sind', 'sinh', 'size', 'sizeof', 
-    'sleep', 'spacing', 'spread', 'sqrt', 'srand', 'stat', 'storage_size', 'sum', 
-    'symlnk', 'system', 'system_clock', 'tan', 'tand', 'tanh', 'this_image', 
-    'time', 'time8', 'tiny', 'trailz', 'transfer', 'transpose', 'trim', 'ttynam', 
-    'ubound', 'ucobound', 'umask', 'unlink', 'unpack', 'verify', 'xor',
-                          'amax1', 'amin1'])
+F_INTRINSICS = frozenset(['abs', 'abort', 'access', 'achar', 'acos', 'acosd',
+                          'acosh', 'adjustl', 'adjustr', 'aimag', 'aint',
+                          'alarm', 'all', 'allocated', 'and', 'anint', 'any',
+                          'asin', 'asind', 'asinh', 'associated', 'atan',
+                          'atand', 'atan2', 'atan2d', 'atanh', 'atomic_add',
+                          'atomic_and', 'atomic_cas', 'atomic_define',
+                          'atomic_fetch_add', 'atomic_fetch_and',
+                          'atomic_fetch_or', 'atomic_fetch_xor', 'atomic_or',
+                          'atomic_ref', 'atomic_xor', 'backtrace',
+                          'bessel_j0', 'bessel_j1', 'bessel_jn', 'bessel_y0',
+                          'bessel_y1', 'bessel_yn', 'bge', 'bgt', 'bit_size',
+                          'ble', 'blt', 'btest', 'c_associated',
+                          'c_f_pointer', 'c_f_procpointer', 'c_funloc',
+                          'c_loc', 'c_sizeof', 'ceiling', 'char', 'chdir',
+                          'chmod', 'cmplx', 'co_broadcast', 'co_max',
+                          'co_min', 'co_reduce', 'co_sum',
+                          'command_argument_count', 'compiler_options',
+                          'compiler_version', 'complex', 'conjg', 'cos',
+                          'cosd', 'cosh', 'cotan', 'cotand', 'count',
+                          'cpu_time', 'cshift', 'ctime', 'date_and_time',
+                          'dble', 'dcmplx', 'digits', 'dim', 'dot_product',
+                          'dprod', 'dreal', 'dshiftl', 'dshiftr', 'dtime',
+                          'eoshift', 'epsilon', 'erf', 'erfc', 'erfc_scaled',
+                          'etime', 'event_query', 'execute_command_line',
+                          'exit', 'exp', 'exponent', 'extends_type_of',
+                          'fdate', 'fget', 'fgetc', 'floor', 'flush', 'fnum',
+                          'fput', 'fputc', 'fraction', 'free', 'fseek',
+                          'fstat', 'ftell', 'gamma', 'gerror', 'getarg',
+                          'get_command', 'get_command_argument', 'getcwd',
+                          'getenv', 'get_environment_variable', 'getgid',
+                          'getlog', 'getpid', 'getuid', 'gmtime', 'hostnm',
+                          'huge', 'hypot', 'iachar', 'iall', 'iand', 'iany',
+                          'iargc', 'ibclr', 'ibits', 'ibset', 'ichar',
+                          'idate', 'ieor', 'ierrno', 'image_index', 'index',
+                          'int', 'int2', 'int8', 'ior', 'iparity', 'irand',
+                          'is_iostat_end', 'is_iostat_eor', 'isatty',
+                          'ishft', 'ishftc', 'isnan', 'itime', 'kill',
+                          'kind', 'lbound', 'lcobound', 'leadz', 'len',
+                          'len_trim', 'lge', 'lgt', 'link', 'lle', 'llt',
+                          'lnblnk', 'loc', 'log', 'log10', 'log_gamma',
+                          'logical', 'long', 'lshift', 'lstat', 'ltime',
+                          'malloc', 'maskl', 'maskr', 'matmul', 'max',
+                          'maxexponent', 'maxloc', 'maxval', 'mclock',
+                          'mclock8', 'merge', 'merge_bits', 'min',
+                          'minexponent', 'minloc', 'minval', 'mod', 'modulo',
+                          'move_alloc', 'mvbits', 'nearest', 'new_line',
+                          'nint', 'norm2', 'not', 'null', 'num_images', 'or',
+                          'pack', 'parity', 'perror', 'popcnt', 'poppar',
+                          'precision', 'present', 'product', 'radix', 'ran',
+                          'rand', 'random_number', 'random_seed', 'range',
+                          'rank ', 'real', 'rename', 'repeat', 'reshape',
+                          'rrspacing', 'rshift', 'same_type_as', 'scale',
+                          'scan', 'secnds', 'second', 'selected_char_kind',
+                          'selected_int_kind', 'selected_real_kind',
+                          'set_exponent', 'shape', 'shifta', 'shiftl',
+                          'shiftr', 'sign', 'signal', 'sin', 'sind', 'sinh',
+                          'size', 'sizeof', 'sleep', 'spacing', 'spread',
+                          'sqrt', 'srand', 'stat', 'storage_size', 'sum',
+                          'symlnk', 'system', 'system_clock', 'tan', 'tand',
+                          'tanh', 'this_image', 'time', 'time8', 'tiny',
+                          'trailz', 'transfer', 'transpose', 'trim',
+                          'ttynam', 'ubound', 'ucobound', 'umask', 'unlink',
+                          'unpack', 'verify', 'xor', 'amax1', 'amin1'])
 
 
 ################################################################################
@@ -569,16 +612,16 @@ F_INTRINSICS = frozenset(['abs', 'abort', 'access', 'achar', 'acos', 'acosd',
 ################################################################################
 
 NEGATED_OP = {
-                ".le." : ".gt.",
-                ".ge." : ".lt.",
-                ".lt." : ".ge.",
-                ".gt." : ".le.",
-                ".eq." : ".ne.",
-                ".ne." : ".eq.",
-                "<=" : ">",
-                ">=" : "<",
-                "==" : "!=",
-                "<" : ">=",
-                ">" : "<=",
-                "!=" : "==",
+                ".le.": ".gt.",
+                ".ge.": ".lt.",
+                ".lt.": ".ge.",
+                ".gt.": ".le.",
+                ".eq.": ".ne.",
+                ".ne.": ".eq.",
+                "<=": ">",
+                ">=": "<",
+                "==": "!=",
+                "<": ">=",
+                ">": "<=",
+                "!=": "==",
               }
