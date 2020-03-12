@@ -1,7 +1,3 @@
-# This Makefile has not been fully tested. Please report any errors to
-# champlin@email.arizona.edu
-# Last edited: 6/20/2019
-#
 # =============================================================================
 # *Please read all comments before running Makefile*
 # WARNING: Running "make build/quantified_CAG.pkl" from scratch (a fresh
@@ -203,69 +199,16 @@ data/primary_to_indicators.tsv: data/indicator_flat_list.txt\
 	cp $(EIDOS_SRC)/resources/org/clulab/wm/eidos/english/ontologies/$(@F) $@
 
 
-# =============================================================================
-# Creation of reference evaluation CAGs
-# =============================================================================
-
 # Via scripting ---------------------------------------------------------------
 
 build:
 	mkdir -p $@
 
 
-#Set SCENARIO to evaluations for precipitation build and hackathon for human migration build.
-SCENARIO := hackathon
-
-build/all_sts.pkl: $(SCENARIO)/create_all_sts.py $(PREASSEMBLED_CORPUS) 
-	python $^ $@
-
-build/reference_cag.pkl: $(SCENARIO)/create_reference_cag.py build/all_sts.pkl
-	python $^ $@
-
-build/scenario_centered_CAG.pkl: $(SCENARIO)/create_scenario_centered_CAG.py\
-													  build/reference_cag.pkl\
-													  data/delphi.db
-	python $^ $@
-
-build/CAG_with_indicators.pkl: $(SCENARIO)/create_CAG_with_indicators.py\
-										 build/scenario_centered_CAG.pkl\
-										 data/delphi.db
-	python $< build/scenario_centered_CAG.pkl $@
-
-build/parameterized_CAG.pkl: $(SCENARIO)/create_parameterized_CAG.py\
-							 build/CAG_with_indicators.pkl\
-							 data/delphi.db
-	python $^ $@
-
-build/quantified_CAG.pkl: $(SCENARIO)/create_quantified_CAG.py build/parameterized_CAG.pkl
-	python $^ $@
-
-report.pdf: report.tex apnotes.cls build/quantified_CAG.pkl
-	latexmk -lualatex $<
-	latexmk -c $(*F)
-
-insert_model: $(SCENARIO)/insert_model_into_db.py build/quantified_CAG.pkl data/delphi.db
-	python $^
-
-build/delphi_cag.json: $(SCENARIO)/export_to_sri_and_cra.py build/quantified_CAG.pkl
-	python $^ $@
-
 # Via manual construction in the CauseMos HMI ---------------------------------
 
 data/CauseMosCAG.json: | data
 	curl http://vision.cs.arizona.edu/adarsh/$(@F).gz | gunzip > $@
 
-build/causemos_cag.pkl: evaluations/create_cag_from_causemos_output.py\
-						data/CauseMosCAG.json | data/delphi.db
-	mkdir -p build
-	python $^ $@
-
-# For Uncharted folks - invoke this as 
-#
-# make -o data/delphi.db insert_causemos_model
-#
-# after you have put the newest CauseMos CAG in data/CauseMosCAG.json
-insert_causemos_model: evaluations/insert_model_into_db.py build/causemos_cag.pkl | data/delphi.db
-	python $^
 
 .INTERMEDIATE: $(RAW_ZIP) $(RAW)/FAOSTAT $(RAW)/WDI $(RAW)/FEWSNET
