@@ -304,6 +304,13 @@ class GrFNGenerator(object):
                         node, state, call_source
                     )
                 else:
+                    # Check if this is a module that is imported
+                    if node_name == "ast.ImportFrom" and "m_" in \
+                            node.module.split(".")[-1]:
+                        imported_module = node.module.split(".")[-1][2:]
+                        self.derived_types.extend(self.module_summary[
+                                                      imported_module][
+                                                      "derived_type_list"])
                     return []
         elif isinstance(node, list):
             return self.process_list(node, state, call_source)
