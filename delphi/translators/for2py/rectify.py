@@ -1728,6 +1728,15 @@ class RectifiedXMLGenerator:
         current.attrib['numPartRef'] = "1"
         current.attrib['type'] = "ambiguous"
 
+        #######################################################################
+        # TODO Don't know how this will affect other code. Consult with
+        #  Terrence
+        if "id" in current.attrib and \
+            self.current_scope in self.argument_types and \
+                current.attrib["id"] in self.argument_types[self.current_scope]:
+            current.attrib['is_arg'] = "true"
+        #######################################################################
+
         for child in root:
             self.clean_attrib(child)
             if child.text:
