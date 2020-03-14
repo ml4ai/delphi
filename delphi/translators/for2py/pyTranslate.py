@@ -687,9 +687,6 @@ class PythonCodeGenerator(object):
         elif var_type == "String":
             self.pyStrings.append(f"{arg_name}: String")
             printState.definedVars += [arg_name]
-        elif var_type in self.declaredDerivedTypes:
-            self.pyStrings.append(f"{arg_name}: {var_type}")
-            printState.definedVars += [arg_name]
         else:
             if node["type"].lower() == "real":
                 var_type = "Real"
@@ -841,6 +838,8 @@ class PythonCodeGenerator(object):
                 assert False
         elif self.variableMap[lhs['name']]['type'].lower() == "character":
             assg_str = f'{lhs["name"]}.set_('
+        elif lhs["name"] in self.declaredDerivedTVars:
+            assg_str = lhs["name"]
         else:
             # target is a scalar variable
             assg_str = f"{lhs['name']}[0]"
@@ -1622,7 +1621,12 @@ class PythonCodeGenerator(object):
             if arg['tag'] == "ref":
                 self.current_select = self.proc_ref(arg, False)
         self.case_started = False
-        self.printAst(node["body"], printState)
+        self.printAst(node["body"], printState.copy(
+                sep=printState.sep,
+                printFirst=True,
+                indexRef=True,
+            ),
+                      )
 
     def printCase(self, node, printState: PrintState):
         """
@@ -1631,7 +1635,6 @@ class PythonCodeGenerator(object):
         """
         if node.get('args'):
             if not self.case_started:
-                # self.pyStrings.append("if ")
                 self.case_started = True
             else:
                 self.pyStrings.append("else:"+printState.sep+printState.add)
