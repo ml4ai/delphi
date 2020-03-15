@@ -526,6 +526,7 @@ class RectifiedXMLGenerator:
         "initial-value",
         "length",
         "dimensions",
+        "literal",
     ]
 
     objects_child_tags = [
@@ -541,6 +542,7 @@ class RectifiedXMLGenerator:
         "substr-range-or-arg-list-suffix",
         "name",
         "generic_spec",
+        "operation",
     ]
 
     #################################################################
@@ -1207,7 +1209,10 @@ class RectifiedXMLGenerator:
                 self.derived_type_var_holder_list.append(child)
             elif child.tag in self.dtype_var_declaration_tags:
                 self.derived_type_var_holder_list.append(child)
-            elif child.tag == "length":
+            elif (
+                    child.tag == "length"
+                    or child.tag == "name"
+            ):
                 if self.is_derived_type:
                     for e in child:
                         self.derived_type_var_holder_list.append(e)
@@ -1955,7 +1960,11 @@ class RectifiedXMLGenerator:
         """
         for child in root:
             self.clean_attrib(child)
-            if len(child) > 0 or child.text:
+            if (
+                len(child) > 0
+                or child.text
+                or child.tag == "dimension"
+            ):
                 cur_elem = ET.SubElement(
                     current, child.tag, child.attrib
                 )
