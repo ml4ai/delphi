@@ -118,7 +118,7 @@ class GrFNGenerator(object):
         self.outer_count = 0
         self.types = (list, ast.Module, ast.FunctionDef)
         self.elif_condition_number = None
-        self.current_scope = None
+        self.current_scope = "global"
         self.loop_index = -1
         self.parent_loop_state = None
         self.handling_f_args = True
@@ -154,6 +154,8 @@ class GrFNGenerator(object):
         self.current_d_object_attributes = []
         self.is_d_object_array_assign = False
         self.module_summary = None
+        self.global_scope_variables = {}
+        self.global_state = None
 
         self.gensym_tag_map = {
             "container": "c",
@@ -288,7 +290,8 @@ class GrFNGenerator(object):
             # of the system.
             if isinstance(node, ast.Call) and \
                     isinstance(node.func, ast.Name) and \
-                    node.func.id != "String":
+                    node.func.id != "String" and \
+                    node.func.id not in self.derived_types:
                 start_function_name = self.generate_container_id_name(
                     self.fortran_file, ["@global"], node.func.id
                 )
@@ -304,6 +307,13 @@ class GrFNGenerator(object):
                         node, state, call_source
                     )
                 else:
+                    # Check if this is a module that is imported
+                    if node_name == "ast.ImportFrom" and "m_" in \
+                            node.module.split(".")[-1]:
+                        imported_module = node.module.split(".")[-1][2:]
+                        self.derived_types.extend(self.module_summary[
+                                                      imported_module][
+                                                      "derived_type_list"])
                     return []
         elif isinstance(node, list):
             return self.process_list(node, state, call_source)
@@ -415,6 +425,18 @@ class GrFNGenerator(object):
                 variable_types=local_variable_types,
                 last_definition_default=-1,
             )
+
+        # Copy the states of all the global variables into the global state
+        # holder
+        if not self.global_scope_variables and self.current_scope == "global":
+            self.global_scope_variables = state.copy(
+                last_definitions=local_last_definitions,
+                next_definitions=local_next_definitions,
+                function_name=node.name,
+                variable_types=local_variable_types,
+                last_definition_default=0,
+            )
+
         # Get the list of arguments from the function definition
         argument_list = self.gen_grfn(node.args, function_state, "functiondef")
         # Keep a map of the arguments for each function. This will be used in
@@ -2844,13 +2866,21 @@ class GrFNGenerator(object):
             # x.k), then
             if is_d_type_object_assignment:
                 # (1) we need to add derived type object as function input.
+                if state.last_definitions.get(d_type_object_name) is not None:
+                    index = state.last_definitions[d_type_object_name]
+                elif self.global_scope_variables and \
+                        self.global_scope_variables.last_definitions.get(
+                            d_type_object_name) is not None:
+                    index = 0
+                else:
+                    assert False, f"{d_type_object_name} not defined in the " \
+                                  f"the current scope: {self.current_scope} " \
+                                  f"or globally."
                 src = [
                     {
                         "var": {
                             "variable": d_type_object_name,
-                            "index": state.last_definitions[
-                                d_type_object_name
-                            ],
+                            "index": index,
                         }
                     }
                 ]
@@ -2859,7 +2889,7 @@ class GrFNGenerator(object):
                 # (2) Generate the object name + attributes variable name
                 new_var_name = d_type_object_name
                 for target_name in target_names:
-                    new_var_name += f"_{target_name}"
+                    new_var_name += f"__{target_name}"
                     self.current_d_object_attributes.append(target_name)
 
                 # (3) we need to modify thee target to be "objectName_attribute"
@@ -2953,7 +2983,7 @@ class GrFNGenerator(object):
 
         inputs = []
         for arg in node.args:
-            argument = self.gen_grfn(arg, state, "call")
+            argument = self.gen_grfn(arg, state, _)
             inputs.append(argument)
 
         call = {"call": {"function": function_name, "inputs": inputs}}
@@ -3490,9 +3520,25 @@ class GrFNGenerator(object):
                 for arg in decorator.args[0].elts:
                     variable = arg.values[0].s
                     variable_type = arg.values[2].s
-                    state.variable_types[variable] = self.annotate_map[
-                        variable_type
-                    ]
+                    if "String" in variable_type:
+                        length_regex = re.compile(r"String\((\d+)\)", re.I)
+                        match = length_regex.match(variable_type)
+                        if match:
+                            length = match.group(1)
+                        else:
+                            assert False, "Could not identify valid String type"
+                        self.strings[variable] = {
+                            "length": length,
+                            "annotation": False,
+                            "annotation_assign": False
+                        }
+                        state.variable_types[variable] = self.annotate_map[
+                            "String"
+                        ]
+                    else:
+                        state.variable_types[variable] = self.annotate_map[
+                            variable_type
+                        ]
 
     @staticmethod
     def process_try(node, state, call_source):
@@ -3582,11 +3628,11 @@ class GrFNGenerator(object):
             data_type = annotation_node.id
         if self.annotate_map.get(data_type):
             return self.annotate_map[data_type]
+        elif data_type in self.derived_types:
+            return data_type
         else:
-            sys.stderr.write(
-                "Unsupported type (only float, int, list, real, bool and str "
-                "supported as of now).\n"
-            )
+            assert False, "Unsupported type (only float, int, list, real, " \
+                          "bool and str supported as of now).\n"
 
     @staticmethod
     def _get_variables_and_functions(grfn):
@@ -3858,11 +3904,10 @@ class GrFNGenerator(object):
         variable_gensym = self.generate_gensym("variable")
 
         if reference is not None:
-            # var_type = state.variable_types[variable]
             if d_type_object_assign:
                 variable = reference
                 for var in variables:
-                    variable += f"_{var}"
+                    variable += f"__{var}"
             else:
                 variable = f"{variable}_{reference}"
             state.last_definitions[variable] = index[0]
@@ -3873,7 +3918,7 @@ class GrFNGenerator(object):
         )
         # TODO Change the domain constraint. How do you figure out the domain
         #  constraint?
-        domain_constraint = "(and (> v -infty) (< v infty)))"
+        domain_constraint = "(and (> v -infty) (< v infty))"
 
         variable_definition = {
             "name": variable_name,
@@ -3896,6 +3941,16 @@ class GrFNGenerator(object):
                 variable_type = state.variable_types[variable]
             elif variable in self.module_variable_types:
                 variable_type = self.module_variable_types[variable][1]
+            # Is this a derived type variable
+            elif "__" in variable:
+                variable_tail = variable.split("__")[-1]
+                if variable_tail in state.variable_types and \
+                        state.variable_types[variable_tail]:
+                    variable_type = state.variable_types[variable_tail]
+                else:
+                    assert False, f"unrecognized variable: {variable}"
+            else:
+                assert False, f"unrecognized variable: {variable}"
 
             # Mark if a variable is mutable or not.
             if (
@@ -3932,8 +3987,6 @@ class GrFNGenerator(object):
                             type_found = True
                             type_name = variable_type
                             state.variable_types[variable] = type_name
-
-
                 assert type_found, f"Type {variable_type} is not a valid type."
 
             domain_dictionary = {
@@ -4674,6 +4727,7 @@ def create_grfn_dict(
     with open(mod_log_file_path, "w+") as json_f:
         json_f.write(json.dumps(module_logs, indent=2))
 
+    del state
     return grfn
 
 

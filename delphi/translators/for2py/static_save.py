@@ -18,9 +18,6 @@ Usage:
             "target_function"
 """
 
-from delphi.translators.for2py.arrays import *
-from dataclasses import dataclass
-
 
 def static_vars(var_list):
     # This code is part of the runtime system

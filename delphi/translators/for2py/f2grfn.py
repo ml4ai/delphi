@@ -179,6 +179,7 @@ def generate_python_sources(
     python_files,
     main_python_file,
     temp_dir,
+    module_log_file_path,
 ) -> List[Tuple]:
     """This function generates Python source file from generated Python source
     list. This function will return this list back to the caller for GrFN
@@ -188,10 +189,10 @@ def generate_python_sources(
         output_dictionary (dict): A dictionary of XML generated
         by translate.py.
         python_files: A list of python file names.
-        python_file_name (str): A file name where translated python strings
+        main_python_file (str): A file name where translated python strings
         will be written to.
         temp_dir (str): Temporary directory to store the translated files.
-
+        module_log_file_path (str): Path to the Module Log file.
     Returns:
         str: A string of generated Python code.
     """
@@ -199,7 +200,9 @@ def generate_python_sources(
     (
         python_sources,
         variable_map,
-    ) = pyTranslate.get_python_sources_and_variable_map(output_dictionary)
+    ) = pyTranslate.get_python_sources_and_variable_map(output_dictionary,
+                                                        module_log_file_path,
+                                                        temp_dir)
 
     with open(main_python_file.replace(".py", "_variable_map.pkl"), "wb") as f:
         pickle.dump(variable_map, f)
@@ -416,7 +419,8 @@ def fortran_to_grfn(
             'python_src': A string of Python code,
             'python_file': A file name of generated python script,
             'lambdas_file': A file name where lambdas will be,
-            'mode_mapper_dict': mapper of file info (i.e. filename, module, and exports, etc).
+            'mode_mapper_dict': mapper of file info (i.e. filename, module,
+            and exports, etc).
         }
     """
     current_dir = "."
@@ -515,6 +519,7 @@ def fortran_to_grfn(
         translated_python_files,
         python_file,
         temp_dir,
+        module_log_file_path
     )
 
     if not save_intermediate_files:

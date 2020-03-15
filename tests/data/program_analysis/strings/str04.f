@@ -4,7 +4,7 @@ C     This program tests concatenation of strings.
       program main
       character(len = 10) str1, str2*5, str3*15
 
-      str1 = "ab" // "cd"
+      str1 = "ab" // "cd" // "ef" // "gh"
       str2 = "ef" // str1
       str3 = str1 // str2
 

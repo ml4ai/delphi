@@ -34,7 +34,7 @@ C             CHP Added TRTNUM to CONTROL variable.
 !  08/08/2017 WP  Definitions related with OS platform moved to OSDefinitions.for
 !=======================================================================
 
-      MODULE ModuleDefs
+      MODULE mini_ModuleDefs
 !     Contains defintion of derived data types and constants which are
 !     used throughout the model.
 
@@ -318,10 +318,10 @@ C             CHP Added TRTNUM to CONTROL variable.
         CHARACTER*50, DIMENSION(MaxFiles) :: Description
         CHARACTER*10, DIMENSION(MaxFiles) :: ALIAS
         INTEGER, DIMENSION(MaxFiles) :: LUN
-      End Type
+      End Type OutputType
 
 !======================================================================
-      END MODULE ModuleDefs
+      END MODULE mini_ModuleDefs
 !======================================================================
 
 !=======================================================================
@@ -359,7 +359,7 @@ C             CHP Added TRTNUM to CONTROL variable.
 !     5.  A call to the PUT routine must be used to store data prior to
 !         a call to the GET routine to retrive the data.
 
-      USE ModuleDefs
+      USE mini_ModuleDefs
       SAVE
 
 !======================================================================
@@ -423,7 +423,7 @@ C             CHP Added TRTNUM to CONTROL variable.
       TYPE PDLABETATYPE
         REAL PDLA
         REAL BETALS
-      END TYPE
+      END TYPE PDLABETATYPE
 
 !     Data which can be transferred between modules
       Type TransferType
@@ -570,7 +570,7 @@ C             CHP Added TRTNUM to CONTROL variable.
 !         included as a component of SAVE_data.
       IMPLICIT NONE
       Character*(*) ModuleName, VarName
-      Character*78 MSG(2)
+!      Character*78 MSG(2)
       Real Value
       Logical ERR
 
@@ -699,12 +699,12 @@ C             CHP Added TRTNUM to CONTROL variable.
       Case DEFAULT; ERR = .TRUE.
       END SELECT
 
-      IF (ERR) THEN
-        WRITE(MSG(1),'("Error transferring variable: ",A, " in ",A)')
-     &      Trim(VarName), Trim(ModuleName)
-        MSG(2) = 'Value set to zero.'
+!      IF (ERR) THEN
+!        WRITE(MSG(1),'("Error transferring variable: ",A, " in ",A)')
+!     &      Trim(VarName), Trim(ModuleName)
+!        MSG(2) = 'Value set to zero.'
 !        CALL WARNING(2,'GET_REAL',MSG)
-      ENDIF
+!      ENDIF
 
       RETURN
       END SUBROUTINE GET_Real
@@ -714,7 +714,7 @@ C             CHP Added TRTNUM to CONTROL variable.
 !     Stores real variable SAVE_data.
       IMPLICIT NONE
       Character*(*) ModuleName, VarName
-      Character*78 MSG(2)
+!      Character*78 MSG(2)
       Real Value
       Logical ERR
 
@@ -830,12 +830,12 @@ C             CHP Added TRTNUM to CONTROL variable.
       Case DEFAULT; ERR = .TRUE.
       END SELECT
 
-      IF (ERR) THEN
-        WRITE(MSG(1),'("Error transferring variable: ",A, "in ",A)')
-     &      Trim(VarName), Trim(ModuleName)
-        MSG(2) = 'Value not saved! Errors may result.'
+!      IF (ERR) THEN
+!        WRITE(MSG(1),'("Error transferring variable: ",A, "in ",A)')
+!     &      Trim(VarName), Trim(ModuleName)
+!        MSG(2) = 'Value not saved! Errors may result.'
 !        CALL WARNING(2,'PUT_REAL',MSG)
-      ENDIF
+!      ENDIF
 
       RETURN
       END SUBROUTINE PUT_Real
@@ -845,7 +845,7 @@ C             CHP Added TRTNUM to CONTROL variable.
 !     Retrieves array of dimension(NL)
       IMPLICIT NONE
       Character*(*) ModuleName, VarName
-      Character*78 MSG(2)
+!      Character*78 MSG(2)
       REAL, DIMENSION(NL) :: Value
       Logical ERR
       Type (SPAMType) SPAM_tmp
@@ -866,12 +866,12 @@ C             CHP Added TRTNUM to CONTROL variable.
         CASE DEFAULT; ERR = .TRUE.
       END SELECT
 
-      IF (ERR) THEN
-        WRITE(MSG(1),'("Error transferring variable: ",A, "in ",A)')
-     &      Trim(VarName), Trim(ModuleName)
-        MSG(2) = 'Value set to zero.'
+!      IF (ERR) THEN
+!        WRITE(MSG(1),'("Error transferring variable: ",A, "in ",A)')
+!     &      Trim(VarName), Trim(ModuleName)
+!        MSG(2) = 'Value set to zero.'
 !        CALL WARNING(2,'GET_Real_Array_NL',MSG)
-      ENDIF
+!      ENDIF
 
       RETURN
       END SUBROUTINE GET_Real_Array_NL
@@ -881,7 +881,7 @@ C             CHP Added TRTNUM to CONTROL variable.
 !     Stores array of dimension NL
       IMPLICIT NONE
       Character*(*) ModuleName, VarName
-      Character*78 MSG(2)
+!      Character*78 MSG(2)
       REAL, DIMENSION(NL) :: Value
       Logical ERR
 
@@ -897,12 +897,12 @@ C             CHP Added TRTNUM to CONTROL variable.
       Case DEFAULT; ERR = .TRUE.
       END SELECT
 
-      IF (ERR) THEN
-        WRITE(MSG(1),'("Error transferring variable: ",A, "in ",A)')
-     &      Trim(VarName), Trim(ModuleName)
-        MSG(2) = 'Value not saved! Errors may result.'
+!      IF (ERR) THEN
+!        WRITE(MSG(1),'("Error transferring variable: ",A, "in ",A)')
+!     &      Trim(VarName), Trim(ModuleName)
+!        MSG(2) = 'Value not saved! Errors may result.'
 !        CALL WARNING(2,'PUT_Real_Array_NL',MSG)
-      ENDIF
+!      ENDIF
 
       RETURN
       END SUBROUTINE PUT_Real_Array_NL
@@ -912,7 +912,7 @@ C             CHP Added TRTNUM to CONTROL variable.
 !     Retrieves Integer variable as needed
       IMPLICIT NONE
       Character*(*) ModuleName, VarName
-      Character*78  MSG(2)
+!      Character*78  MSG(2)
       Integer Value
       Logical ERR
       Type (PlantType) Plant_tmp
@@ -933,12 +933,12 @@ C             CHP Added TRTNUM to CONTROL variable.
       Case Default; ERR = .TRUE.
       END SELECT
 
-      IF (ERR) THEN
-        WRITE(MSG(1),'("Error transferring variable: ",A, "in ",A)')
-     &      Trim(VarName), Trim(ModuleName)
-        MSG(2) = 'Value set to zero.'
+!      IF (ERR) THEN
+!        WRITE(MSG(1),'("Error transferring variable: ",A, "in ",A)')
+!     &      Trim(VarName), Trim(ModuleName)
+!        MSG(2) = 'Value set to zero.'
 !        CALL WARNING(2,'GET_INTEGER',MSG)
-      ENDIF
+!      ENDIF
 
       RETURN
       END SUBROUTINE GET_Integer
@@ -948,7 +948,7 @@ C             CHP Added TRTNUM to CONTROL variable.
 !     Stores Integer variable
       IMPLICIT NONE
       Character*(*) ModuleName, VarName
-      Character*78 MSG(2)
+!      Character*78 MSG(2)
       Integer Value
       Logical ERR
       Type (PlantType) Plant_tmp
@@ -968,12 +968,12 @@ C             CHP Added TRTNUM to CONTROL variable.
       Case DEFAULT; ERR = .TRUE.
       END SELECT
 
-      IF (ERR) THEN
-        WRITE(MSG(1),'("Error transferring variable: ",A, "in ",A)')
-     &      Trim(VarName), Trim(ModuleName)
-        MSG(2) = 'Value not saved! Errors may result.'
+!      IF (ERR) THEN
+!        WRITE(MSG(1),'("Error transferring variable: ",A, "in ",A)')
+!     &      Trim(VarName), Trim(ModuleName)
+!        MSG(2) = 'Value not saved! Errors may result.'
 !        CALL WARNING(2,'PUT_Integer',MSG)
-      ENDIF
+!      ENDIF
 
       RETURN
       END SUBROUTINE PUT_Integer
@@ -983,7 +983,7 @@ C             CHP Added TRTNUM to CONTROL variable.
 !     Retrieves Integer variable as needed
       IMPLICIT NONE
       Character*(*) ModuleName, VarName, Value
-      Character*78  MSG(2)
+!      Character*78  MSG(2)
       Logical ERR
       Type (PlantType) Plant_tmp
       Type (WeathType) Weath_tmp
@@ -1011,12 +1011,12 @@ C             CHP Added TRTNUM to CONTROL variable.
       Case Default; ERR = .TRUE.
       END SELECT
 
-      IF (ERR) THEN
-        WRITE(MSG(1),'("Error transferring variable: ",A, "in ",A)')
-     &      Trim(VarName), Trim(ModuleName)
-        MSG(2) = 'Value set to zero.'
+!      IF (ERR) THEN
+!        WRITE(MSG(1),'("Error transferring variable: ",A, "in ",A)')
+!     &      Trim(VarName), Trim(ModuleName)
+!        MSG(2) = 'Value set to zero.'
 !        CALL WARNING(2,'GET_INTEGER',MSG)
-      ENDIF
+!      ENDIF
 
       RETURN
       END SUBROUTINE GET_Char
@@ -1026,7 +1026,7 @@ C             CHP Added TRTNUM to CONTROL variable.
 !     Stores Character variable
       IMPLICIT NONE
       Character*(*) ModuleName, VarName, Value
-      Character*78 MSG(2)
+!      Character*78 MSG(2)
       Logical ERR
       Type (PlantType) Plant_tmp
       Type (WeathType) Weath_tmp
@@ -1053,12 +1053,12 @@ C             CHP Added TRTNUM to CONTROL variable.
       Case DEFAULT; ERR = .TRUE.
       END SELECT
 
-      IF (ERR) THEN
-        WRITE(MSG(1),'("Error transferring variable: ",A, "in ",A)')
-     &      Trim(VarName), Trim(ModuleName)
-        MSG(2) = 'Value not saved! Errors may result.'
+!      IF (ERR) THEN
+!        WRITE(MSG(1),'("Error transferring variable: ",A, "in ",A)')
+!     &      Trim(VarName), Trim(ModuleName)
+!        MSG(2) = 'Value not saved! Errors may result.'
 !        CALL WARNING(2,'PUT_Integer',MSG)
-      ENDIF
+!      ENDIF
 
       RETURN
       END SUBROUTINE PUT_Char

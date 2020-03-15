@@ -6,6 +6,7 @@ import sys
 import pickle
 import argparse
 import re
+import json
 from typing import Dict
 from delphi.translators.for2py.format import list_data_type
 from delphi.translators.for2py import For2PyError, syntax
@@ -224,8 +225,11 @@ class PythonCodeGenerator(object):
         self.case_started = False
         # This dictionary holds the defined arrays along with their data types
         self.array_map = {}
-        # This keeps track of all declared String type variables with given length.
+        # This keeps track of all declared String type variables with given
+        # length.
         self.stringVars = {}
+        self.module_log_map = None
+        self.temp_dir = ""
 
         self.printFn = {
             "subroutine": self.printSubroutine,
@@ -286,6 +290,11 @@ class PythonCodeGenerator(object):
                        ),
                        )
         self.pyStrings.append(f"\ndef {self.nameMapper[node['name']]}(")
+
+        self.funcArgs[self.nameMapper[node["name"]]] = [
+            self.nameMapper[x["name"]] for x in node["args"]
+        ]
+
         self.printAst(
             node["args"],
             printState.copy(
@@ -834,6 +843,8 @@ class PythonCodeGenerator(object):
                 assert False
         elif self.variableMap[lhs['name']]['type'].lower() == "character":
             assg_str = f'{lhs["name"]}.set_('
+        elif lhs["name"] in self.declaredDerivedTVars:
+            assg_str = lhs["name"]
         else:
             # target is a scalar variable
             assg_str = f"{lhs['name']}[0]"
@@ -907,15 +918,15 @@ class PythonCodeGenerator(object):
         self.pyStrings.append(assg_str)
         return
 
-    def printUse(self, node, printState: PrintState):
+    def printUse(self, node, _):
         if node.get("include"):
             self.imports.append(
-                f"from delphi.translators.for2py.tmp.m_{node['arg'].lower()} "
+                f"from {self.temp_dir}.m_{node['arg'].lower()} "
                 f"import {', '.join(node['include'])}\n"
             )
         else:
             self.imports.append(
-                f"from delphi.translators.for2py.tmp.m_"
+                f"from {self.temp_dir}.m_"
                 f"{node['arg'].lower()} import *\n"
             )
 
@@ -1493,10 +1504,11 @@ class PythonCodeGenerator(object):
             # Retrieve the type of member variables and check its type
             var_type = self.get_type(derived_type_variables[var])
             self.var_type.setdefault(derived_type_class_info["type"],
-                                     []).append({
-                "name": derived_type_variables[var]["name"],
-                "type": var_type
-            })
+                                     []).append(
+                {
+                    "name": derived_type_variables[var]["name"],
+                    "type": var_type
+                })
             is_derived_type_declaration = False
             # If the type is not one of the default types, but it's
             # a declared derived type, set the is_derived_type_declaration
@@ -1523,7 +1535,7 @@ class PythonCodeGenerator(object):
                             self.pyStrings.append(f", \"{value}\"")
                         self.pyStrings.append(")")
                     else:
-                        self.pyStrings.append(f"        self.{name} : {var_type}")
+                        self.pyStrings.append(f"        self.{name}: {var_type}")
                         if "value" in derived_type_variables[var]:
                             value = self.proc_literal(
                                 derived_type_variables[var]["value"][0]
@@ -1564,6 +1576,8 @@ class PythonCodeGenerator(object):
                 for var in item["var_list"]:
                     if var["tag"] == "open":
                         variable_type = "file_handle"
+                    elif var["type"] == "character":
+                        variable_type = f"String({var['length']})"
                     else:
                         variable_type = TYPE_MAP[var["type"].lower()]
                     if var.get("name"):
@@ -1614,7 +1628,12 @@ class PythonCodeGenerator(object):
             if arg['tag'] == "ref":
                 self.current_select = self.proc_ref(arg, False)
         self.case_started = False
-        self.printAst(node["body"], printState)
+        self.printAst(node["body"], printState.copy(
+                sep=printState.sep,
+                printFirst=True,
+                indexRef=True,
+            ),
+                      )
 
     def printCase(self, node, printState: PrintState):
         """
@@ -1623,7 +1642,6 @@ class PythonCodeGenerator(object):
         """
         if node.get('args'):
             if not self.case_started:
-                # self.pyStrings.append("if ")
                 self.case_started = True
             else:
                 self.pyStrings.append("else:"+printState.sep+printState.add)
@@ -1798,6 +1816,9 @@ class PythonCodeGenerator(object):
                 ref += f"{node['name']}.get_({index})"
             else:
                 ref += f"{node['name']}.set_({index}, "
+        elif self.current_module in self.funcArgs and \
+                node["name"] in self.funcArgs[self.current_module]:
+            ref += f'{node["name"]}[0]'
         else:
             ref += node["name"]
         numPartRef -= 1
@@ -1910,7 +1931,9 @@ def index_modules(root) -> Dict:
     return module_index_dict
 
 
-def get_python_sources_and_variable_map(outputDict: Dict):
+def get_python_sources_and_variable_map(outputDict: Dict,
+                                        module_log_file_path: str,
+                                        temp_dir: str):
     module_index_dict = index_modules(outputDict["ast"])
     py_sourcelist = []
     main_ast = []
@@ -1929,8 +1952,14 @@ def get_python_sources_and_variable_map(outputDict: Dict):
         "from numbers import Real",
         "from random import random\n",
     ]
+
+    with open(module_log_file_path) as json_f:
+        module_logs = json.load(json_f)
+
     for module in module_index_dict:
         code_generator = PythonCodeGenerator()
+        code_generator.module_log_map = module_logs
+        code_generator.temp_dir = temp_dir.replace("/", ".")
         code_generator.pyStrings.append("\n".join(import_lines))
         if "module" in module_index_dict[module]:
             ast = [outputDict["ast"][module_index_dict[module][1]]]
@@ -1943,6 +1972,16 @@ def get_python_sources_and_variable_map(outputDict: Dict):
                     if "tag" not in index:
                         derived_type_ast.append(index)
                         ast[0]["body"].remove(index)
+                if "tag" in index and index["tag"] == "use":
+                    # Look at the all the files/modules that are imported by
+                    # the current file/module and populate the list of
+                    # declared derived  types. This will have to be done
+                    # eventually for other data types as well.
+                    imported_system = index["arg"]
+                    code_generator.declaredDerivedTypes.extend(
+                        code_generator.module_log_map["mod_info"][
+                            imported_system]["derived_type_list"])
+
             # Print derived type declaration(s)
             if derived_type_ast:
                 for i in range(len(derived_type_ast)):
@@ -1971,6 +2010,8 @@ def get_python_sources_and_variable_map(outputDict: Dict):
 
     # Writing the main program section
     code_generator = PythonCodeGenerator()
+    code_generator.module_log_map = module_logs
+    code_generator.temp_dir = temp_dir.replace("/", ".")
     code_generator.functions = outputDict["functionList"]
     code_generator.pyStrings.append("\n".join(import_lines))
 
@@ -1985,6 +2026,15 @@ def get_python_sources_and_variable_map(outputDict: Dict):
                 if "tag" not in index:
                     derived_type_ast.append(index)
                     main_ast[0]["body"].remove(index)
+                if "tag" in index and index["tag"] == "use":
+                    # Look at the all the files/modules that are imported by
+                    # the current file/module and populate the list of
+                    # declared derived  types. This will have to be done
+                    # eventually for other data types as well.
+                    imported_system = index["arg"]
+                    code_generator.declaredDerivedTypes.extend(
+                        code_generator.module_log_map["mod_info"][
+                            imported_system]["derived_type_list"])
 
         # Print derived type declaration(s)
         if derived_type_ast:

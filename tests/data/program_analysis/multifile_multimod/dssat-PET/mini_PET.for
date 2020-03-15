@@ -674,7 +674,10 @@ C  Calculates Penman-Monteith evapotranspiration
       REAL SHAIR, PATM, SBZCON
       REAL k,DFAO, CANHT, ZOMF, ZOHF, ra, rl, rs, RAERO !add for PenDyn
       REAL ZCROP,DCROP,ZOMC,ZOVC,WIND2C,RASOIL,HTS,DLH,ZOLH
-      REAL MAXHT, rb, AC, AS, zos, RTOT                  !add for PenDyn
+!      REAL MAXHT, rb, AC, AS, zos, RTOT                  !add for PenDyn
+!     The variable 'AS' above has been changed to 'ASVar' because 'AS' is a
+!     Python keyword
+      REAL MAXHT, rb, AC, ASVar, zos, RTOT                  !add for PenDyn
 C     PARAMETER (SHAIR = 1005.0)
       PARAMETER (SHAIR = 0.001005)  !changed for PenDyn to MJ/kg/K
       PARAMETER (PATM = 101300.0)
@@ -797,9 +800,9 @@ C
 
 C       Using K = 0.5 everywhere possible
         AC = 1-exp(-0.50*XHLAI)
-        AS = 1 - AC
+        ASVar = 1 - AC
 
-      RAERO = AC*RA + AS*RASOIL
+      RAERO = AC*RA + ASVar*RASOIL
 C     Calculate surface resistance (rs).
 C     rs = rl/LAIactive       rs (s m^-1),
 C     rl = bulk stomatal resistance of the well-illuminated leaf (s m^-1)
@@ -814,7 +817,7 @@ C          rs = rl/(0.5*XHLAI)
 
       rs = rs/86400           !converts (s m^-1 to d/m)
 
-      RTOT = AC*rs + AS*rb
+      RTOT = AC*rs + ASVar*rb
 
 C     Calculate net radiation (MJ/m2/d).  By FAO method 1990. EAIR is divided
 C       by 1000 to convert Pa to KPa.
@@ -1182,10 +1185,10 @@ C=============================================================================
       Implicit none
       SAVE
 
-      INTENT(IN) :: CONTROL,
-     &    MeanTemp, DailyWindRun, SolarIrradiance,
-     &    MeanDewPt, Xhlai, MSALB
-      INTENT(OUT) :: EO
+!      INTENT(IN) :: CONTROL,
+!     &    MeanTemp, DailyWindRun, SolarIrradiance,
+!     &    MeanDewPt, Xhlai, MSALB
+!      INTENT(OUT) :: EO
 
        Integer Jday,Year,Yrdoy,yRSIM
        Real Albedo, Coeff_WindA, Coeff_WindB
@@ -1194,16 +1197,22 @@ C=============================================================================
        Real Delta, dodpg, Fac1, Gflux, LatHeatVap
        Real MaxIrradiance,MSALB
        Real MeanDewPt, MeanTemp
-       Real NetEmissivity,NetRad  !,PI
+       Real NetEmissivity,NetRad,PI
 !       Real Prev3dayMean,Radj, RadLon, SolarIrradiance, StefBoltz
        Real Radj, RadLon, SolarIrradiance, StefBoltz
-       Real VPdew, VPD, VPsat, WindFunc
+!       Real VPdew, VPD, VPsat, WindFunc
+!      VPsat has been renamed to VPsatVar in order to prevent it from colliding
+!      with the function VPSAT
+       Real VPdew, VPD, VPsatVar, WindFunc
        Real TAVt,Tavy2,Tavy1,T3day,Tav
+       CHARACTER (len=2) Crop
 !       Character*2 Crop
 C
         TYPE (ControlType) CONTROL
         YRDOY = CONTROL % YRDOY
         YRSIM = CONTROL % YRSIM
+
+        Crop = CONTROL % CROP
 
 !       write(*,10)MeanTemp,Prev3dayMean,DailyWindRun,
 !     &            SolarIrradiance, MeanDewPt,Albedo,Jday
@@ -1240,7 +1249,7 @@ c
 c
 c   calculate albedo
 c
-       IF (cONTROL%Crop.eq.'RI') THEN
+       IF (Crop.eq.'RI') THEN
           Albedo=0.23-(0.23-0.05)*exp(-0.75*xhlai)
        Else
           Albedo =0.23 -(0.23 -MSALB)*exp(-0.75*Xhlai)
@@ -1254,7 +1263,7 @@ c
         Coeff_WindB = 0.0440
         !Albedo      = 0.23 This is being passed in
         StefBoltz   = 4.896e-09
-!        PI          = 22.0 / 7.0
+        PI          = 22.0 / 7.0
 
 !  CALCULATE LATENT HEAT OF VAPORIZATION, HTVAP (MJ/m2/mm)
 
@@ -1281,10 +1290,10 @@ c
 !        if (SolarIrradiance .gt. MaxIrradiance)
 !     &      SolarIrradiance = MaxIrradiance
 
-        VPsat = 0.611*exp((17.27*MeanTemp)/(MeanTemp + 237.3))
+        VPsatVar = 0.611*exp((17.27*MeanTemp)/(MeanTemp + 237.3))
         VPdew = 0.611*exp((17.27*MeanDewPt)/(MeanDewPt + 237.3))
-        VPdew = AMIN1(VPdew,VPsat)
-        VPD = VPsat-VPdew
+        VPdew = AMIN1(VPdew,VPsatVar)
+        VPD = VPsatVar-VPdew
 
 
 !  CALCULATE OUTGOING LONGWAVE RADIATION, RADLON [Ro] (MJ/m**2/day)
