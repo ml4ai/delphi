@@ -531,6 +531,13 @@ class RectifiedXMLGenerator:
         "common-block-object",
     ]
 
+    name_child_tags = [
+        "subscripts",
+        "assignment",
+        "io-control",
+        "range",
+    ]
+
     #################################################################
     #                                                               #
     #                       HANDLER FUNCTIONS                       #
@@ -1744,10 +1751,7 @@ class RectifiedXMLGenerator:
         for child in root:
             self.clean_attrib(child)
             if child.text:
-                if (
-                        child.tag == "subscripts"
-                        or child.tag == "assignment"
-                ):
+                if child.tag in self.name_child_tags:
                     cur_elem = ET.SubElement(
                         current, child.tag, child.attrib
                     )
@@ -2291,7 +2295,10 @@ class RectifiedXMLGenerator:
                 current, child.tag, child.attrib
             )
             if child.text or len(child) > 0:
-                if child.tag == "io-control":
+                if (
+                        child.tag == "io-control"
+                        or child.tag == "name"
+                ):
                     self.parseXMLTree(
                         child, cur_elem, current, parent, traverse
                     )
