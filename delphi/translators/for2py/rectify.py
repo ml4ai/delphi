@@ -272,6 +272,10 @@ class RectifiedXMLGenerator:
         "loop",
         "operation",
         "arithmetic-if-stmt",
+        "position-spec-list__begin",
+        "position-spec",
+        "position-spec-list",
+        "rewind-stmt",
     ]
 
     loop_child_tags = [
@@ -2572,6 +2576,7 @@ class RectifiedXMLGenerator:
                 if (
                         child.tag == "input"
                         or child.tag == "name"
+                        or child.tag == "loop"
                 ):
                     cur_elem = ET.SubElement(
                         current, child.tag, child.attrib
