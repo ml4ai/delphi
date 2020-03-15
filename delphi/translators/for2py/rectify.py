@@ -2565,7 +2565,7 @@ class RectifiedXMLGenerator:
         """
         for child in root:
             self.clean_attrib(child)
-            if child.text:
+            if child.text or len(child) > 0:
                 if (
                         child.tag == "io-controls"
                         or child.tag == "inputs"
