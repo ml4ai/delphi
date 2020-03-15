@@ -409,6 +409,7 @@ class RectifiedXMLGenerator:
         "literal",
         "name",
         "operation",
+        "arguments",
     ]
 
     module_child_tags = [
@@ -536,6 +537,10 @@ class RectifiedXMLGenerator:
         "assignment",
         "io-control",
         "range",
+        "substring-range-or-arg-list",
+        "substr-range-or-arg-list-suffix",
+        "name",
+        "generic_spec",
     ]
 
     #################################################################
@@ -1236,6 +1241,7 @@ class RectifiedXMLGenerator:
                         and self.current_scope in self.argument_types
                         and child.attrib['name'].lower() in self.argument_types[
                         self.current_scope]
+                        and "is_derived_type" in parent.attrib
                 ):
                     self.argument_types[self.current_scope][child.attrib[
                         'name'].lower()] = {
@@ -1260,14 +1266,18 @@ class RectifiedXMLGenerator:
                     grandparent = ET.SubElement(
                         current, child.tag, child.attrib
                     )
-                elif child.tag == "name":
+                elif (
+                    child.tag == "name"
+                    or child.tag == "dimension-stmt"
+                ):
                     cur_elem = ET.SubElement(
                         current, child.tag, child.attrib
                     )
-                    cur_elem.set("is_array", str(self.is_array).lower())
-                    self.parseXMLTree(
-                        child, cur_elem, current, parent, traverse
-                    )
+                    if child.tag == "name":
+                        cur_elem.set("is_array", str(self.is_array).lower())
+                        self.parseXMLTree(
+                            child, cur_elem, current, parent, traverse
+                        )
                 else:
                     try:
                         _ = self.unnecessary_tags.index(child.tag)
@@ -1312,6 +1322,10 @@ class RectifiedXMLGenerator:
                                 self.current_scope in self.argument_types
                                 and root.attrib['name'] in self.argument_types[
                                 self.current_scope]
+                                and self.argument_types[self.current_scope][
+                                        root.attrib['name']
+                                    ]
+                                    
                         ):
                             self.argument_types[self.current_scope][
                                 root.attrib['name']]['is_array'] = "true"
@@ -1327,7 +1341,10 @@ class RectifiedXMLGenerator:
                         False
                     ), f'In handle_tag_variable: "{child.tag}" not handled'
             else:
-                if child.tag == "entity-decl":
+                if (
+                        child.tag == "entity-decl"
+                        or child.tag == "dimension-decl"
+                ):
                     current.attrib.update(child.attrib)
                 else:
                     assert (
@@ -1813,10 +1830,7 @@ class RectifiedXMLGenerator:
                         False
                     ), f'In self.handle_tag_name: "{child.tag}" not handled'
             else:
-                if (
-                        child.tag == "generic_spec"
-                        or child.tag == "name"
-                ):
+                if child.tag in self.name_child_tags:
                     _ = ET.SubElement(
                         current, child.tag, child.attrib
                     )
