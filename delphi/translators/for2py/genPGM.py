@@ -2983,7 +2983,7 @@ class GrFNGenerator(object):
 
         inputs = []
         for arg in node.args:
-            argument = self.gen_grfn(arg, state, "call")
+            argument = self.gen_grfn(arg, state, _)
             inputs.append(argument)
 
         call = {"call": {"function": function_name, "inputs": inputs}}
@@ -3520,9 +3520,25 @@ class GrFNGenerator(object):
                 for arg in decorator.args[0].elts:
                     variable = arg.values[0].s
                     variable_type = arg.values[2].s
-                    state.variable_types[variable] = self.annotate_map[
-                        variable_type
-                    ]
+                    if "String" in variable_type:
+                        length_regex = re.compile(r"String\((\d+)\)", re.I)
+                        match = length_regex.match(variable_type)
+                        if match:
+                            length = match.group(1)
+                        else:
+                            assert False, "Could not identify valid String type"
+                        self.strings[variable] = {
+                            "length": length,
+                            "annotation": False,
+                            "annotation_assign": False
+                        }
+                        state.variable_types[variable] = self.annotate_map[
+                            "String"
+                        ]
+                    else:
+                        state.variable_types[variable] = self.annotate_map[
+                            variable_type
+                        ]
 
     @staticmethod
     def process_try(node, state, call_source):
