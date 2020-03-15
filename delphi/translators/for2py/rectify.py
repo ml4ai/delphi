@@ -276,6 +276,9 @@ class RectifiedXMLGenerator:
         "position-spec",
         "position-spec-list",
         "rewind-stmt",
+        "label-list__begin",
+        "label-list",
+        "computed-goto-stmt",
     ]
 
     loop_child_tags = [
@@ -377,6 +380,7 @@ class RectifiedXMLGenerator:
         "case-selector",
         "case-stmt",
         "body",
+        "assignment",
     ]
 
     operand_child_tags = [
