@@ -290,6 +290,11 @@ class PythonCodeGenerator(object):
                        ),
                        )
         self.pyStrings.append(f"\ndef {self.nameMapper[node['name']]}(")
+
+        self.funcArgs[self.nameMapper[node["name"]]] = [
+            self.nameMapper[x["name"]] for x in node["args"]
+        ]
+
         self.printAst(
             node["args"],
             printState.copy(
@@ -1571,6 +1576,8 @@ class PythonCodeGenerator(object):
                 for var in item["var_list"]:
                     if var["tag"] == "open":
                         variable_type = "file_handle"
+                    elif var["type"] == "character":
+                        variable_type = f"String({var['length']})"
                     else:
                         variable_type = TYPE_MAP[var["type"].lower()]
                     if var.get("name"):
@@ -1809,6 +1816,9 @@ class PythonCodeGenerator(object):
                 ref += f"{node['name']}.get_({index})"
             else:
                 ref += f"{node['name']}.set_({index}, "
+        elif self.current_module in self.funcArgs and \
+                node["name"] in self.funcArgs[self.current_module]:
+            ref += f'{node["name"]}[0]'
         else:
             ref += node["name"]
         numPartRef -= 1
