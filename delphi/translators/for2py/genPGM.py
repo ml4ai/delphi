@@ -118,7 +118,7 @@ class GrFNGenerator(object):
         self.outer_count = 0
         self.types = (list, ast.Module, ast.FunctionDef)
         self.elif_condition_number = None
-        self.current_scope = "@global"
+        self.current_scope = "global"
         self.loop_index = -1
         self.parent_loop_state = None
         self.handling_f_args = True
@@ -428,7 +428,7 @@ class GrFNGenerator(object):
 
         # Copy the states of all the global variables into the global state
         # holder
-        if not self.global_scope_variables and self.current_scope == "@global":
+        if not self.global_scope_variables and self.current_scope == "global":
             self.global_scope_variables = state.copy(
                 last_definitions=local_last_definitions,
                 next_definitions=local_next_definitions,
