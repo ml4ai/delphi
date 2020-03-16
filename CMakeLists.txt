@@ -83,3 +83,8 @@ target_link_libraries(Delphi INTERFACE range-v3)
 
 pybind11_add_module(DelphiPython MODULE lib/DelphiPython.cpp)
 target_link_libraries(DelphiPython PRIVATE Delphi Eigen3::Eigen)
+
+# Executables
+add_executable(create_model apps/create_model.cpp)
+target_link_libraries(create_model PRIVATE Delphi Eigen3::Eigen)
+
