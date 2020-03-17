@@ -13,18 +13,20 @@
 
       USE ModuleDefs 
       USE ModuleData
+      USE DATA_STMT_HACK
+
       IMPLICIT NONE
       SAVE
 
       CHARACTER*1  RNMODE
       CHARACTER*12 FILEX, FILEX_LAST
 
-      INTEGER DYNAMIC, EXPNO, LUN, NYRS, RLUN, RUN, TRTNUM
+      INTEGER DYNAMIC, EXPNO, LUN, NYRS, RLUN, RUN, TRTNUM, init_first
 
       TYPE (ControlType) CONTROL
       TYPE (SwitchType)  ISWITCH	
 
-      LOGICAL FIRST, FOPEN
+      LOGICAL FOPEN
 
 !     Transfer values from constructed data types into local variables.
       DYNAMIC = CONTROL % DYNAMIC
@@ -34,11 +36,9 @@
       RUN     = CONTROL % RUN
       TRTNUM  = CONTROL % TRTNUM
 
-      DATA FIRST /.TRUE./
-!-----------------------------------------------------------------------
-      IF (FIRST) THEN
+      IF (RunList_FIRST) THEN
         CALL GETLUN('RUNLST',RLUN)
-        FIRST = .FALSE.
+        RunList_FIRST = .FALSE.
         OPEN(UNIT=RLUN,FILE='RunList.OUT',STATUS='REPLACE')
         WRITE(RLUN,100)
   100   FORMAT(' NREP  EXP  TRT  NYR FILEX        DESCRIPTION')

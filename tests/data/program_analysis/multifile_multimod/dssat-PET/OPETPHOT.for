@@ -95,7 +95,8 @@ C       preveious line added by BAK on 10DEC2015
         OUTETP = 'ETPhot.OUT'
         CALL GETLUN(OUTETP, NOUTDC)
 
-        INQUIRE (FILE = OUTETP, EXIST = FEXIST)
+!!!        INQUIRE (FILE = OUTETP, EXIST = FEXIST)
+        FEXIST = .True.
         IF (FEXIST) THEN
           OPEN (UNIT = NOUTDC, FILE = OUTETP, STATUS = 'OLD',
      &      IOSTAT = ERRNUM, POSITION = 'APPEND')

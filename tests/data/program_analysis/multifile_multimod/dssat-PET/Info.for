@@ -31,6 +31,10 @@ C=======================================================================
       DATA FIRST /.TRUE./
       DATA OLDRUN /0/
 
+!!!   SKIP for AutoMATES testing on PET
+      return
+
+
 !-----------------------------------------------------------------------
 !     Suppress INFO.OUT if IDETL = '0' (zero) or 'N' 
       CALL GET(ISWITCH)
@@ -51,17 +55,17 @@ C=======================================================================
           IF (ISWITCH % IDETL == '0') RETURN
 
           CALL GETLUN('OUTINFO', LUN)
-          INQUIRE (FILE = InfoOut, EXIST = FEXIST)
-          IF (FEXIST) THEN
-            INQUIRE (FILE = InfoOut, OPENED = FOPEN)
-            IF (.NOT. FOPEN) THEN
+!!!          INQUIRE (FILE = InfoOut, EXIST = FEXIST)
+!!!          IF (FEXIST) THEN
+!!!            INQUIRE (FILE = InfoOut, OPENED = FOPEN)
+!!!            IF (.NOT. FOPEN) THEN
               OPEN (UNIT=LUN, FILE=InfoOut, STATUS='OLD',
      &            POSITION='APPEND')
-            ENDIF
-          ELSE
-            OPEN (UNIT=LUN, FILE=InfoOut, STATUS='NEW')
-            WRITE(LUN,'("*INFO DETAIL FILE")')
-          ENDIF
+!!!            ENDIF
+!!!          ELSE
+!!!            OPEN (UNIT=LUN, FILE=InfoOut, STATUS='NEW')
+!!!            WRITE(LUN,'("*INFO DETAIL FILE")')
+!!!          ENDIF
 
           WRITE(LUN,'(/,78("*"))')
 !          IF (CONTROL % MULTI > 1) CALL MULTIRUN(RUN, 0)
@@ -73,7 +77,7 @@ C=======================================================================
 		ELSE
 !         VSH
           CALL GETLUN('OUTINFO', LUN)
-          INQUIRE (FILE = InfoOut, OPENED = FOPEN)
+!!!          INQUIRE (FILE = InfoOut, OPENED = FOPEN)
           IF (.NOT. FOPEN) THEN
              OPEN (UNIT=LUN, FILE=InfoOut, STATUS='OLD',
      &             POSITION='APPEND')

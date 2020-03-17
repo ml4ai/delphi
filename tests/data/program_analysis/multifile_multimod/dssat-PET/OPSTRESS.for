@@ -247,29 +247,29 @@
 !     Only process end of season data if sent from OPVIEW routine.
       IF (.NOT. PRESENT(YIELD)) RETURN
 
-      IF (IDETO_SAVE .EQ. 'Y' .AND. STTOT > 0 .AND.
-     &      CONTROL % ErrCode == 0) THEN
-        WRITE(NOUTDO,500)
- 500    FORMAT(//,'*ENVIRONMENTAL AND STRESS FACTORS',//,1X, 
-     &'|-----Development Phase------|'38('-'),'Environment',38('-'),
-     &'|',17('-'),'Stress',17('-'),'|',
-     &/,30X,'|',15('-'),'Average',14('-'),'|-----Cumulative-----',
-     &'|--------Count of days--------|',10X,'(0=Min, 1=Max Stress)',9X,
-     &'|',
-     &/,25X,'Time  Temp  Temp  Temp Solar Photop',16X,'Evapo    Pot',
-     &' TMIN TMIN TMAX TMAX TMAX RAIN|----Water----|---Nitrogen--|',
-     &'-Phosphorus-|',
-     &/,25X,'Span   Max   Min  Mean   Rad  [day]    CO2   Rain  Trans ',
-     &'    ET   <    <    >    >    >    >   Photo         Photo      ',
-     &'   Photo',
-     &/,25X,'days    øC    øC    øC MJ/m2     hr    ppm     mm     mm ',
-     &'    mm  0øC  2øC 30øC 32øC 34øC  0mm  synth Growth  synth ',
-     &'Growth  synth Growth',/,160('-'))
-      ENDIF
+!!!      IF (IDETO_SAVE .EQ. 'Y' .AND. STTOT > 0 .AND.
+!!!     &      CONTROL % ErrCode == 0) THEN
+!!!        WRITE(NOUTDO,500)
+!!! 500    FORMAT(//,'*ENVIRONMENTAL AND STRESS FACTORS',//,1X, 
+!!!     &'|-----Development Phase------|'38('-'),'Environment',38('-'),
+!!!     &'|',17('-'),'Stress',17('-'),'|',
+!!!     &/,30X,'|',15('-'),'Average',14('-'),'|-----Cumulative-----',
+!!!     &'|--------Count of days--------|',10X,'(0=Min, 1=Max Stress)',9X,
+!!!     &'|',
+!!!     &/,25X,'Time  Temp  Temp  Temp Solar Photop',16X,'Evapo    Pot',
+!!!     &' TMIN TMIN TMAX TMAX TMAX RAIN|----Water----|---Nitrogen--|',
+!!!     &'-Phosphorus-|',
+!!!     &/,25X,'Span   Max   Min  Mean   Rad  [day]    CO2   Rain  Trans ',
+!!!     &'    ET   <    <    >    >    >    >   Photo         Photo      ',
+!!!     &'   Photo',
+!!!     &/,25X,'days    Ã¸C    Ã¸C    Ã¸C MJ/m2     hr    ppm     mm     mm ',
+!!!     &'    mm  0Ã¸C  2Ã¸C 30Ã¸C 32Ã¸C 34Ã¸C  0mm  synth Growth  synth ',
+!!!     &'Growth  synth Growth',/,160('-'))
+!!!      ENDIF
 
-      IF (RNMODE .EQ. 'I' .AND. NYRS .LE. 1) THEN
-        WRITE (*,500)
-      ENDIF
+!!!       IF (RNMODE .EQ. 'I' .AND. NYRS .LE. 1) THEN
+!!!         WRITE (*,500)
+!!!       ENDIF
 
       DO I = 0, STTOT
         IF (NNR(I) > 0) THEN

@@ -100,7 +100,8 @@ C-----------------------------------------------------------------------
       IF (IDETN .EQ. 'Y') THEN
         IF (FMOPT == 'A' .OR. FMOPT == ' ') THEN   ! VSH
         CALL GETLUN(OUTSN, NOUTDN)
-        INQUIRE (FILE = OUTSN, EXIST = FEXIST)
+!!!        INQUIRE (FILE = OUTSN, EXIST = FEXIST)
+        FEXIST = .TRUE.
         IF (FEXIST) THEN
           OPEN (UNIT = NOUTDN, FILE = OUTSN, STATUS = 'OLD',
      &      IOSTAT = ERRNUM, POSITION = 'APPEND')

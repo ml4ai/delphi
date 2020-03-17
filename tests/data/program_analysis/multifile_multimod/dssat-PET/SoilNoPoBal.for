@@ -92,36 +92,36 @@
       IF (DYNAMIC == SEASINIT) THEN
 !     ------------------------------------------------------------------
 !     Initialize N output file
-      IF (PRINTN) THEN
-        CALL GETLUN(SNBAL, LUNSNC)
-        INQUIRE (FILE = SNBAL, EXIST = FEXIST)
-        IF (FEXIST) THEN
-          OPEN (UNIT = LUNSNC, FILE = SNBAL, STATUS = 'OLD',
-     &      POSITION = 'APPEND')
-          WRITE(LUNSNC,'(/,"!",79("="))') 
-        ELSE
-          OPEN (UNIT = LUNSNC, FILE = SNBAL, STATUS = 'NEW')
-          WRITE(LUNSNC,'("*SOIL ORGANIC N BALANCE")')
-        ENDIF
-
-        CALL HEADER (SEASINIT, LUNSNC, RUN)
-      ENDIF
+!!!       IF (PRINTN) THEN
+!!!         CALL GETLUN(SNBAL, LUNSNC)
+!!!         INQUIRE (FILE = SNBAL, EXIST = FEXIST)
+!!!         IF (FEXIST) THEN
+!!!           OPEN (UNIT = LUNSNC, FILE = SNBAL, STATUS = 'OLD',
+!!!      &      POSITION = 'APPEND')
+!!!           WRITE(LUNSNC,'(/,"!",79("="))') 
+!!!         ELSE
+!!!           OPEN (UNIT = LUNSNC, FILE = SNBAL, STATUS = 'NEW')
+!!!           WRITE(LUNSNC,'("*SOIL ORGANIC N BALANCE")')
+!!!         ENDIF
+!!! 
+!!!         CALL HEADER (SEASINIT, LUNSNC, RUN)
+!!!       ENDIF
 
 !     Initialize P output file
-      IF (PRINTP) THEN
-        CALL GETLUN(SPBAL, LUNSPC)
-        INQUIRE (FILE = SPBAL, EXIST = FEXIST)
-        IF (FEXIST) THEN
-          OPEN (UNIT = LUNSPC, FILE = SPBAL, STATUS = 'OLD',
-     &      POSITION = 'APPEND')
-          WRITE(LUNSPC,'(/,"!",79("="))') 
-        ELSE
-          OPEN (UNIT = LUNSPC, FILE = SPBAL, STATUS = 'NEW')
-          WRITE(LUNSPC,'("*SOIL ORGANIC P BALANCE")')
-        ENDIF
-
-        CALL HEADER (SEASINIT, LUNSPC, RUN)
-      ENDIF
+!!!       IF (PRINTP) THEN
+!!!         CALL GETLUN(SPBAL, LUNSPC)
+!!!         INQUIRE (FILE = SPBAL, EXIST = FEXIST)
+!!!         IF (FEXIST) THEN
+!!!           OPEN (UNIT = LUNSPC, FILE = SPBAL, STATUS = 'OLD',
+!!!      &      POSITION = 'APPEND')
+!!!           WRITE(LUNSPC,'(/,"!",79("="))') 
+!!!         ELSE
+!!!           OPEN (UNIT = LUNSPC, FILE = SPBAL, STATUS = 'NEW')
+!!!           WRITE(LUNSPC,'("*SOIL ORGANIC P BALANCE")')
+!!!         ENDIF
+!!! 
+!!!         CALL HEADER (SEASINIT, LUNSPC, RUN)
+!!!       ENDIF
 
       CALL YR_DOY(INCDAT(YRDOY,-1), YR2, DOY2)
       DO IEL = 1, N_ELEMS

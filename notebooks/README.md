@@ -21,3 +21,7 @@ Usage:
 
 Some of the notebooks are actually in the form of Markdown files,
 to be used in conjunction with [Notedown](https://github.com/ml4ai/notedown)
+
+**Note**: The notebooks are kept around mostly for archival and posterity
+purposes, and may not reflect the current delphi API - i.e. they are not tested
+as part of the continuous integration test suite.

@@ -168,8 +168,8 @@ C     &        SRFTEMP, ST)                                    !Output
           CASE DEFAULT  !DSSAT soilt temperature
            CALL STEMP(CONTROL, ISWITCH,
      &    SOILPROP, SRAD, SW, TAVG, TMAX, XLAT, TAV, TAMP,!Input
-     &    SRFTEMP, ST)   !Output
-     	   END SELECT
+     &    SRFTEMP, ST)
+          END SELECT
       ENDIF
 !     ---------------------------------------------------------
       IF (MEEVP .NE. 'Z') THEN

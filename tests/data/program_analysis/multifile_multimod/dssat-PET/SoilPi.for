@@ -887,7 +887,7 @@ C***********************************************************************
       END SELECT
 
 !     For flooded soil, P availabilty is higher
-        IF (NBUND. GT. 0. or. FLOOD .GT. 0.0) THEN
+        IF (NBUND .GT. 0 .or. FLOOD .GT. 0.0) THEN
           P_FERTINDEX = AMAX1(P_FERTINDEX,1.0)
         ENDIF
 

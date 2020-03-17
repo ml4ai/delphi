@@ -163,7 +163,8 @@ C     The components are copied into local variables for use here.
         ELSE
           FILEWW = PATHWT(1:(PATHL-1)) // FILEW
         ENDIF
-        INQUIRE (FILE = FILEWW,EXIST = FEXIST)
+!!!        INQUIRE (FILE = FILEWW,EXIST = FEXIST)
+        FEXIST = .TRUE.
         IF (.NOT. FEXIST) THEN  
           ErrCode = 29
           CALL WeatherError(CONTROL, ErrCode, FILEWW, 0, YRDOYWY, YREND)
@@ -192,7 +193,8 @@ C     The components are copied into local variables for use here.
         LINWTH = 0
         LongFile = .FALSE.
 
-        INQUIRE(FILE=FILEWW,EXIST=FEXIST)
+!!!        INQUIRE(FILE=FILEWW,EXIST=FEXIST)
+        FEXIST = .TRUE.
         IF (.NOT. FEXIST) THEN
           ErrCode = 30
           CALL WeatherError(CONTROL, ErrCode, FILEWW, 0, YRDOYWY, YREND)
@@ -475,7 +477,8 @@ C       Substitute default values if REFHT or WINDHT are missing.
              FILEWW = PATHWT(1:(PATHL-1)) // FILEW
           ENDIF
 
-          INQUIRE(FILE=FILEWW,EXIST=FEXIST)
+!!!          INQUIRE(FILE=FILEWW,EXIST=FEXIST)
+          FEXIST = .True.
           IF (.NOT. FEXIST) THEN
             ErrCode = 30
             CALL WeatherError(CONTROL, ErrCode, FILEWW, 0,YRDOYWY,YREND)
@@ -658,8 +661,8 @@ C         Read in weather file header.
 !     Long format weather files (i.e., more than one year in a file).
 
     !  CLOSE (LUNWTH)
-      INQUIRE(UNIT=LUNWTH,OPENED=FEXIST)
-
+!!!      INQUIRE(UNIT=LUNWTH,OPENED=FEXIST)
+      FEXIST = .TRUE.
 !***********************************************************************
 !***********************************************************************
 !     END OF DYNAMIC IF CONSTRUCT

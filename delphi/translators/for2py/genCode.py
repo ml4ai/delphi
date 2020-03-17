@@ -425,10 +425,7 @@ class genCode:
                         # This is a setter function for the string
                         arg_string = self.generate_code(node.args[0],
                                                         state)
-                        if arg_string[0] != '"' and arg_string[-1] != '"':
-                            # This is a variable assignment and not a direct
-                            # string assignment
-                            arg_string = f"{arg_string}[0:{self.string_length}]"
+                        arg_string = f"{arg_string}[0:{self.string_length}]"
                         code_string = f'{arg_string}.' \
                                       f'ljust({self.string_length}, " ")'
                         return code_string
@@ -437,6 +434,7 @@ class genCode:
                         # String(10, "abcdef")
                         arg_string = self.generate_code(node.args[1],
                                                         state)
+                        arg_string = f"{arg_string}[0:{self.string_length}]"
                         code_string = f'{arg_string}.' \
                                       f'ljust({self.string_length}, " ")'
                         return code_string

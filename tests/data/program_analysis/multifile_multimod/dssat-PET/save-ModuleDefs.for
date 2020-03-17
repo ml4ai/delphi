@@ -617,118 +617,137 @@ C             CHP Added TRTNUM to CONTROL variable.
       Real Value
       Logical ERR
 
+!     The following *_tmp variables are introduced to get around a bug in OFP 
+!     that causes it to choke on RHS expressions of the form X % Y % Z
+      
+      Type (SPAMType) SPAM_tmp
+      Type (PlantType) Plant_tmp
+      Type (MgmtType) Mgmt_tmp
+      Type (WatType) Wat_tmp
+      Type (NiType) Ni_tmp
+      Type (OrgCType) OrgC_tmp
+      Type (PDLABETATYPE) PDLABETA_tmp
+
       Value = 0.0
       ERR = .FALSE.
 
       SELECT CASE (ModuleName)
       Case ('SPAM')
+        SPAM_tmp = SAVE_data % SPAM
         SELECT CASE (VarName)
-        Case ('AGEFAC'); Value = SAVE_data % SPAM % AGEFAC
-        Case ('PG');     Value = SAVE_data % SPAM % PG
-        Case ('CEF');    Value = SAVE_data % SPAM % CEF
-        Case ('CEM');    Value = SAVE_data % SPAM % CEM
-        Case ('CEO');    Value = SAVE_data % SPAM % CEO
-        Case ('CEP');    Value = SAVE_data % SPAM % CEP
-        Case ('CES');    Value = SAVE_data % SPAM % CES
-        Case ('CET');    Value = SAVE_data % SPAM % CET
-        Case ('EF');     Value = SAVE_data % SPAM % EF
-        Case ('EM');     Value = SAVE_data % SPAM % EM
-        Case ('EO');     Value = SAVE_data % SPAM % EO
-        Case ('EP');     Value = SAVE_data % SPAM % EP
-        Case ('ES');     Value = SAVE_data % SPAM % ES
-        Case ('ET');     Value = SAVE_data % SPAM % ET
-        Case ('EOP');    Value = SAVE_data % SPAM % EOP
-        Case ('EVAP');   Value = SAVE_data % SPAM % EVAP
-        Case ('REFET');  Value = SAVE_data % SPAM % REFET
-        Case ('SKC');    Value = SAVE_data % SPAM % SKC
-        Case ('KCBMIN'); Value = SAVE_data % SPAM % KCBMIN
-        Case ('KCBMAX'); Value = SAVE_data % SPAM % KCBMAX
-        Case ('KCB');    Value = SAVE_data % SPAM % KCB
-        Case ('KE');     Value = SAVE_data % SPAM % KE
-        Case ('KC');     Value = SAVE_data % SPAM % KC
+        Case ('AGEFAC'); Value = SPAM_tmp % AGEFAC
+        Case ('PG');     Value = SPAM_tmp % PG
+        Case ('CEF');    Value = SPAM_tmp % CEF
+        Case ('CEM');    Value = SPAM_tmp % CEM
+        Case ('CEO');    Value = SPAM_tmp % CEO
+        Case ('CEP');    Value = SPAM_tmp % CEP
+        Case ('CES');    Value = SPAM_tmp % CES
+        Case ('CET');    Value = SPAM_tmp % CET
+        Case ('EF');     Value = SPAM_tmp % EF
+        Case ('EM');     Value = SPAM_tmp % EM
+        Case ('EO');     Value = SPAM_tmp % EO
+        Case ('EP');     Value = SPAM_tmp % EP
+        Case ('ES');     Value = SPAM_tmp % ES
+        Case ('ET');     Value = SPAM_tmp % ET
+        Case ('EOP');    Value = SPAM_tmp % EOP
+        Case ('EVAP');   Value = SPAM_tmp % EVAP
+        Case ('REFET');  Value = SPAM_tmp % REFET
+        Case ('SKC');    Value = SPAM_tmp % SKC
+        Case ('KCBMIN'); Value = SPAM_tmp % KCBMIN
+        Case ('KCBMAX'); Value = SPAM_tmp % KCBMAX
+        Case ('KCB');    Value = SPAM_tmp % KCB
+        Case ('KE');     Value = SPAM_tmp % KE
+        Case ('KC');     Value = SPAM_tmp % KC
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
       Case ('PLANT')
+         Plant_tmp = SAVE_data % PLANT
         SELECT CASE (VarName)
-        Case ('BIOMAS'); Value = SAVE_data % PLANT % BIOMAS
-        Case ('CANHT') ; Value = SAVE_data % PLANT % CANHT
-        Case ('CANWH') ; Value = SAVE_data % PLANT % CANWH
-        Case ('DXR57') ; Value = SAVE_data % PLANT % DXR57
-        Case ('EXCESS'); Value = SAVE_data % PLANT % EXCESS
-        Case ('PLTPOP'); Value = SAVE_data % PLANT % PLTPOP
-        Case ('RNITP') ; Value = SAVE_data % PLANT % RNITP
-        Case ('SLAAD') ; Value = SAVE_data % PLANT % SLAAD
-        Case ('XPOD')  ; Value = SAVE_data % PLANT % XPOD
+        Case ('BIOMAS'); Value = Plant_tmp % BIOMAS
+        Case ('CANHT') ; Value = Plant_tmp % CANHT
+        Case ('CANWH') ; Value = Plant_tmp % CANWH
+        Case ('DXR57') ; Value = Plant_tmp % DXR57
+        Case ('EXCESS'); Value = Plant_tmp % EXCESS
+        Case ('PLTPOP'); Value = Plant_tmp % PLTPOP
+        Case ('RNITP') ; Value = Plant_tmp % RNITP
+        Case ('SLAAD') ; Value = Plant_tmp % SLAAD
+        Case ('XPOD')  ; Value = Plant_tmp % XPOD
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
       Case ('MGMT')
+         Mgmt_tmp = SAVE_data % MGMT
         SELECT CASE (VarName)
-        Case ('EFFIRR'); Value = SAVE_data % MGMT % EFFIRR
-        Case ('TOTIR');  Value = SAVE_data % MGMT % TOTIR
-        Case ('TOTEFFIRR');Value=SAVE_data % MGMT % TOTEFFIRR
-        Case ('DEPIR');  Value = SAVE_data % MGMT % DEPIR
-        Case ('IRRAMT'); Value = SAVE_data % MGMT % IRRAMT
-        Case ('FERNIT'); Value = SAVE_data % MGMT % FERNIT
+        Case ('EFFIRR'); Value = Mgmt_tmp % EFFIRR
+        Case ('TOTIR');  Value = Mgmt_tmp % TOTIR
+        Case ('TOTEFFIRR');Value=Mgmt_tmp % TOTEFFIRR
+        Case ('DEPIR');  Value = Mgmt_tmp % DEPIR
+        Case ('IRRAMT'); Value = Mgmt_tmp % IRRAMT
+        Case ('FERNIT'); Value = Mgmt_tmp % FERNIT
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
       Case ('WATER')
+         Wat_tmp = SAVE_data % WATER
         SELECT CASE (VarName)
-        Case ('DRAIN'); Value = SAVE_data % WATER % DRAIN
-        Case ('RUNOFF');Value = SAVE_data % WATER % RUNOFF
-        Case ('SNOW');  Value = SAVE_data % WATER % SNOW
+        Case ('DRAIN'); Value = Wat_tmp % DRAIN
+        Case ('RUNOFF');Value = Wat_tmp % RUNOFF
+        Case ('SNOW');  Value = Wat_tmp % SNOW
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
       Case ('NITR')
+         Ni_tmp = SAVE_data % NITR
         SELECT CASE (VarName)
-        Case ('TNOXD'); Value = SAVE_data % NITR % TNOXD
-       Case ('TLCHD'); Value = SAVE_data % NITR % TLeachD
-!       Case ('TN2OD'); Value = SAVE_data % NITR % TN2OD
+        Case ('TNOXD'); Value = Ni_tmp % TNOXD
+       Case ('TLCHD'); Value = Ni_tmp % TLeachD
+!       Case ('TN2OD'); Value = Ni_tmp % TN2OD
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
       Case ('ORGC')
+         OrgC_tmp = SAVE_data % ORGC
         SELECT CASE (VarName)
-        Case ('MULCHMASS');Value = SAVE_data % ORGC % MULCHMASS
-        Case ('TOMINFOM'); Value = SAVE_data % ORGC % TOMINFOM
-        Case ('TOMINSOM'); Value = SAVE_data % ORGC % TOMINSOM
-        Case ('TOMINSOM1');Value = SAVE_data % ORGC % TOMINSOM1
-        Case ('TOMINSOM2');Value = SAVE_data % ORGC % TOMINSOM2
-        Case ('TOMINSOM3');Value = SAVE_data % ORGC % TOMINSOM3
-        Case ('TNIMBSOM'); Value = SAVE_data % ORGC % TNIMBSOM
+        Case ('MULCHMASS');Value = OrgC_tmp % MULCHMASS
+        Case ('TOMINFOM'); Value = OrgC_tmp % TOMINFOM
+        Case ('TOMINSOM'); Value = OrgC_tmp % TOMINSOM
+        Case ('TOMINSOM1');Value = OrgC_tmp % TOMINSOM1
+        Case ('TOMINSOM2');Value = OrgC_tmp % TOMINSOM2
+        Case ('TOMINSOM3');Value = OrgC_tmp % TOMINSOM3
+        Case ('TNIMBSOM'); Value = OrgC_tmp % TNIMBSOM
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
       Case ('SOIL')
+         OrgC_tmp = SAVE_data % ORGC
         SELECT CASE (VarName)
-        Case ('TOMINFOM'); Value = SAVE_data % ORGC % TOMINFOM
-        Case ('TOMINSOM'); Value = SAVE_data % ORGC % TOMINSOM
-        Case ('TOMINSOM1');Value = SAVE_data % ORGC % TOMINSOM1
-        Case ('TOMINSOM2');Value = SAVE_data % ORGC % TOMINSOM2
-        Case ('TOMINSOM3');Value = SAVE_data % ORGC % TOMINSOM3
-        Case ('TNIMBSOM'); Value = SAVE_data % ORGC % TNIMBSOM
+        Case ('TOMINFOM'); Value = OrgC_tmp % TOMINFOM
+        Case ('TOMINSOM'); Value = OrgC_tmp % TOMINSOM
+        Case ('TOMINSOM1'); Value = OrgC_tmp % TOMINSOM1
+        Case ('TOMINSOM2'); Value = OrgC_tmp % TOMINSOM2
+        Case ('TOMINSOM3'); Value = OrgC_tmp % TOMINSOM3
+        Case ('TNIMBSOM'); Value = OrgC_tmp % TNIMBSOM
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
       CASE ('PDLABETA')
+         PDLABETA_tmp = SAVE_data % PDLABETA
         SELECT CASE(VarName)
-        CASE('PDLA'); Value = SAVE_data % PDLABETA % PDLA
-        CASE('BETA'); Value = SAVE_data % PDLABETA % BETALS
+        CASE('PDLA'); Value = PDLABETA_tmp % PDLA
+        CASE('BETA'); Value = PDLABETA_tmp % BETALS
         CASE DEFAULT; ERR = .TRUE.
         END SELECT
             
       Case DEFAULT; ERR = .TRUE.
       END SELECT
 
-C      IF (ERR) THEN
-C        WRITE(MSG(1),'("Error transferring variable: ",A, " in ",A)') 
-C     &      Trim(VarName), Trim(ModuleName)
-C        MSG(2) = 'Value set to zero.'
-C        CALL WARNING(2,'GET_REAL',MSG)
-C      ENDIF
+      IF (ERR) THEN
+        WRITE(MSG(1),'("Error transferring variable: ",A, " in ",A)') 
+     &      Trim(VarName), Trim(ModuleName)
+        MSG(2) = 'Value set to zero.'
+!        CALL WARNING(2,'GET_REAL',MSG)
+      ENDIF
 
       RETURN
       END SUBROUTINE GET_Real
@@ -742,106 +761,124 @@ C      ENDIF
       Real Value
       Logical ERR
 
+!     The following *_tmp variables are introduced to get around a bug in OFP 
+!     that causes it to choke on RHS expressions of the form X % Y % Z
+      
+      Type (SPAMType) SPAM_tmp
+      Type (PlantType) Plant_tmp
+      Type (MgmtType) Mgmt_tmp
+      Type (WatType) Wat_tmp
+      Type (NiType) Ni_tmp
+      Type (OrgCType) OrgC_tmp
+      Type (PDLABETATYPE) PDLABETA_tmp
+
       ERR = .FALSE.
 
       SELECT CASE (ModuleName)
       Case ('SPAM')
+        SPAM_tmp = SAVE_data % SPAM
         SELECT CASE (VarName)
-        Case ('AGEFAC'); SAVE_data % SPAM % AGEFAC = Value
-        Case ('PG');     SAVE_data % SPAM % PG     = Value
-        Case ('CEF');    SAVE_data % SPAM % CEF    = Value
-        Case ('CEM');    SAVE_data % SPAM % CEM    = Value
-        Case ('CEO');    SAVE_data % SPAM % CEO    = Value
-        Case ('CEP');    SAVE_data % SPAM % CEP    = Value
-        Case ('CES');    SAVE_data % SPAM % CES    = Value
-        Case ('CET');    SAVE_data % SPAM % CET    = Value
-        Case ('EF');     SAVE_data % SPAM % EF     = Value
-        Case ('EM');     SAVE_data % SPAM % EM     = Value
-        Case ('EO');     SAVE_data % SPAM % EO     = Value
-        Case ('EP');     SAVE_data % SPAM % EP     = Value
-        Case ('ES');     SAVE_data % SPAM % ES     = Value
-        Case ('ET');     SAVE_data % SPAM % ET     = Value
-        Case ('EOP');    SAVE_data % SPAM % EOP    = Value
-        Case ('EVAP');   SAVE_data % SPAM % EVAP   = Value
-        Case ('REFET');  SAVE_data % SPAM % REFET  = Value
-        Case ('SKC');    SAVE_data % SPAM % SKC    = Value
-        Case ('KCBMIN'); SAVE_data % SPAM % KCBMIN = Value
-        Case ('KCBMAX'); SAVE_data % SPAM % KCBMAX = Value
-        Case ('KCB');    SAVE_data % SPAM % KCB    = Value
-        Case ('KE');     SAVE_data % SPAM % KE     = Value
-        Case ('KC');     SAVE_data % SPAM % KC     = Value
+        Case ('AGEFAC'); SPAM_tmp % AGEFAC = Value
+        Case ('PG');     SPAM_tmp % PG     = Value
+        Case ('CEF');    SPAM_tmp % CEF    = Value
+        Case ('CEM');    SPAM_tmp % CEM    = Value
+        Case ('CEO');    SPAM_tmp % CEO    = Value
+        Case ('CEP');    SPAM_tmp % CEP    = Value
+        Case ('CES');    SPAM_tmp % CES    = Value
+        Case ('CET');    SPAM_tmp % CET    = Value
+        Case ('EF');     SPAM_tmp % EF     = Value
+        Case ('EM');     SPAM_tmp % EM     = Value
+        Case ('EO');     SPAM_tmp % EO     = Value
+        Case ('EP');     SPAM_tmp % EP     = Value
+        Case ('ES');     SPAM_tmp % ES     = Value
+        Case ('ET');     SPAM_tmp % ET     = Value
+        Case ('EOP');    SPAM_tmp % EOP    = Value
+        Case ('EVAP');   SPAM_tmp % EVAP   = Value
+        Case ('REFET');  SPAM_tmp % REFET  = Value
+        Case ('SKC');    SPAM_tmp % SKC    = Value
+        Case ('KCBMIN'); SPAM_tmp % KCBMIN = Value
+        Case ('KCBMAX'); SPAM_tmp % KCBMAX = Value
+        Case ('KCB');    SPAM_tmp % KCB    = Value
+        Case ('KE');     SPAM_tmp % KE     = Value
+        Case ('KC');     SPAM_tmp % KC     = Value
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
       Case ('PLANT')
+        Plant_tmp = SAVE_data % PLANT
         SELECT CASE (VarName)
-        Case ('BIOMAS'); SAVE_data % PLANT % BIOMAS = Value
-        Case ('CANHT');  SAVE_data % PLANT % CANHT  = Value
-        Case ('CANWH');  SAVE_data % PLANT % CANWH  = Value
-        Case ('DXR57');  SAVE_data % PLANT % DXR57  = Value
-        Case ('EXCESS'); SAVE_data % PLANT % EXCESS = Value
-        Case ('PLTPOP'); SAVE_data % PLANT % PLTPOP = Value
-        Case ('RNITP');  SAVE_data % PLANT % RNITP  = Value
-        Case ('SLAAD');  SAVE_data % PLANT % SLAAD  = Value
-        Case ('XPOD');   SAVE_data % PLANT % XPOD   = Value
+        Case ('BIOMAS'); PLANT_tmp % BIOMAS = Value
+        Case ('CANHT');  PLANT_tmp % CANHT  = Value
+        Case ('CANWH');  PLANT_tmp % CANWH  = Value
+        Case ('DXR57');  PLANT_tmp % DXR57  = Value
+        Case ('EXCESS'); PLANT_tmp % EXCESS = Value
+        Case ('PLTPOP'); PLANT_tmp % PLTPOP = Value
+        Case ('RNITP');  PLANT_tmp % RNITP  = Value
+        Case ('SLAAD');  PLANT_tmp % SLAAD  = Value
+        Case ('XPOD');   PLANT_tmp % XPOD   = Value
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
       Case ('MGMT')
+        Mgmt_tmp = SAVE_data % MGMT
         SELECT CASE (VarName)
-        Case ('EFFIRR'); SAVE_data % MGMT % EFFIRR = Value
-        Case ('TOTIR');  SAVE_data % MGMT % TOTIR  = Value
-        Case ('TOTEFFIRR');SAVE_data%MGMT % TOTEFFIRR=Value
-        Case ('DEPIR');  SAVE_data % MGMT % DEPIR  = Value
-        Case ('IRRAMT'); SAVE_data % MGMT % IRRAMT = Value
-        Case ('FERNIT'); SAVE_data % MGMT % FERNIT = Value
+        Case ('EFFIRR'); MGMT_tmp % EFFIRR = Value
+        Case ('TOTIR');  MGMT_tmp % TOTIR  = Value
+        Case ('TOTEFFIRR'); MGMT_tmp % TOTEFFIRR=Value
+        Case ('DEPIR');  MGMT_tmp % DEPIR  = Value
+        Case ('IRRAMT'); MGMT_tmp % IRRAMT = Value
+        Case ('FERNIT'); MGMT_tmp % FERNIT = Value
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
       Case ('WATER')
+        Wat_tmp = SAVE_data % WATER
         SELECT CASE (VarName)
-        Case ('DRAIN'); SAVE_data % WATER % DRAIN  = Value
-        Case ('RUNOFF');SAVE_data % WATER % RUNOFF = Value
-        Case ('SNOW');  SAVE_data % WATER % SNOW   = Value
+        Case ('DRAIN'); Wat_tmp % DRAIN  = Value
+        Case ('RUNOFF');Wat_tmp % RUNOFF = Value
+        Case ('SNOW');  Wat_tmp % SNOW   = Value
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
       Case ('NITR')
+        Ni_tmp = SAVE_data % NITR
         SELECT CASE (VarName)
-        Case ('TNOXD'); SAVE_data % NITR % TNOXD = Value
-        Case ('TLCHD'); SAVE_data % NITR % TLeachD = Value
+        Case ('TNOXD'); Ni_tmp % TNOXD = Value
+        Case ('TLCHD'); Ni_tmp % TLeachD = Value
 !       Case ('TN2OD'); SAVE_data % NITR % TN2OD = Value
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
       Case ('ORGC')
+        OrgC_tmp = SAVE_data % ORGC
         SELECT CASE (VarName)
-        Case ('MULCHMASS');SAVE_data % ORGC % MULCHMASS = Value
-        Case ('TOMINFOM'); SAVE_data % ORGC % TOMINFOM  = Value
-        Case ('TOMINSOM'); SAVE_data % ORGC % TOMINSOM  = Value
-        Case ('TOMINSOM1');SAVE_data % ORGC % TOMINSOM1 = Value
-        Case ('TOMINSOM2');SAVE_data % ORGC % TOMINSOM2 = Value
-        Case ('TOMINSOM3');SAVE_data % ORGC % TOMINSOM3 = Value
-        Case ('TNIMBSOM'); SAVE_data % ORGC % TNIMBSOM  = Value
+        Case ('MULCHMASS');OrgC_tmp % MULCHMASS = Value
+        Case ('TOMINFOM'); OrgC_tmp % TOMINFOM  = Value
+        Case ('TOMINSOM'); OrgC_tmp % TOMINSOM  = Value
+        Case ('TOMINSOM1');OrgC_tmp % TOMINSOM1 = Value
+        Case ('TOMINSOM2');OrgC_tmp % TOMINSOM2 = Value
+        Case ('TOMINSOM3');OrgC_tmp % TOMINSOM3 = Value
+        Case ('TNIMBSOM'); OrgC_tmp % TNIMBSOM  = Value
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
       CASE ('PDLABETA')
+        PDLABETA_tmp = SAVE_data % PDLABETA
         SELECT CASE(VarName)
-        CASE('PDLA'); SAVE_data % PDLABETA % PDLA = Value
-        CASE('BETA'); SAVE_data % PDLABETA % BETALS = Value
+        CASE('PDLA'); PDLABETA_tmp % PDLA = Value
+        CASE('BETA'); PDLABETA_tmp % BETALS = Value
         CASE DEFAULT; ERR = .TRUE.
         END SELECT
             
       Case DEFAULT; ERR = .TRUE.
       END SELECT
 
-C      IF (ERR) THEN
-C        WRITE(MSG(1),'("Error transferring variable: ",A, "in ",A)') 
-C     &      Trim(VarName), Trim(ModuleName)
-C        MSG(2) = 'Value not saved! Errors may result.'
-C        CALL WARNING(2,'PUT_REAL',MSG)
-C      ENDIF
+      IF (ERR) THEN
+        WRITE(MSG(1),'("Error transferring variable: ",A, "in ",A)') 
+     &      Trim(VarName), Trim(ModuleName)
+        MSG(2) = 'Value not saved! Errors may result.'
+!        CALL WARNING(2,'PUT_REAL',MSG)
+      ENDIF
 
       RETURN
       END SUBROUTINE PUT_Real
@@ -854,6 +891,7 @@ C      ENDIF
       Character*78 MSG(2)
       REAL, DIMENSION(NL) :: Value
       Logical ERR
+      Type (SPAMType) SPAM_tmp
 
       Value = 0.0
       ERR = .FALSE.
@@ -862,19 +900,21 @@ C      ENDIF
 
       CASE ('SPAM')
         SELECT CASE (VarName)
-          CASE ('UH2O'); ; Value = SAVE_data % SPAM % UH2O
-          CASE DEFAULT; ERR = .TRUE.
+        CASE ('UH2O');
+           SPAM_tmp = SAVE_data % SPAM
+           Value = SPAM_tmp % UH2O
+        CASE DEFAULT; ERR = .TRUE.
         END SELECT
 
         CASE DEFAULT; ERR = .TRUE.
       END SELECT
 
-C      IF (ERR) THEN
-C        WRITE(MSG(1),'("Error transferring variable: ",A, "in ",A)') 
-C     &      Trim(VarName), Trim(ModuleName)
-C        MSG(2) = 'Value set to zero.'
-C        CALL WARNING(2,'GET_Real_Array_NL',MSG)
-C      ENDIF
+      IF (ERR) THEN
+        WRITE(MSG(1),'("Error transferring variable: ",A, "in ",A)') 
+     &      Trim(VarName), Trim(ModuleName)
+        MSG(2) = 'Value set to zero.'
+!        CALL WARNING(2,'GET_Real_Array_NL',MSG)
+      ENDIF
 
       RETURN
       END SUBROUTINE GET_Real_Array_NL
@@ -900,12 +940,12 @@ C      ENDIF
       Case DEFAULT; ERR = .TRUE.
       END SELECT
 
-C      IF (ERR) THEN
-C        WRITE(MSG(1),'("Error transferring variable: ",A, "in ",A)') 
-C     &      Trim(VarName), Trim(ModuleName)
-C        MSG(2) = 'Value not saved! Errors may result.'
-C        CALL WARNING(2,'PUT_Real_Array_NL',MSG)
-C      ENDIF
+      IF (ERR) THEN
+        WRITE(MSG(1),'("Error transferring variable: ",A, "in ",A)') 
+     &      Trim(VarName), Trim(ModuleName)
+        MSG(2) = 'Value not saved! Errors may result.'
+!        CALL WARNING(2,'PUT_Real_Array_NL',MSG)
+      ENDIF
 
       RETURN
       END SUBROUTINE PUT_Real_Array_NL
@@ -918,28 +958,30 @@ C      ENDIF
       Character*78  MSG(2)
       Integer Value
       Logical ERR
+      Type (PlantType) Plant_tmp
 
       Value = 0
       ERR = .FALSE.
 
       SELECT CASE (ModuleName)
       Case ('PLANT')
+         Plant_tmp = SAVE_data % PLANT
         SELECT CASE (VarName)
-        Case ('NR5');  Value = SAVE_data % PLANT % NR5
-        Case ('iSTAGE');  Value = SAVE_data % PLANT % iSTAGE
-        Case ('iSTGDOY'); Value = SAVE_data % PLANT % iSTGDOY
+        Case ('NR5');  Value = Plant_tmp % NR5
+        Case ('iSTAGE');  Value = Plant_tmp % iSTAGE
+        Case ('iSTGDOY'); Value = Plant_tmp % iSTGDOY
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
       Case Default; ERR = .TRUE.
       END SELECT
 
-C      IF (ERR) THEN
-C        WRITE(MSG(1),'("Error transferring variable: ",A, "in ",A)') 
-C     &      Trim(VarName), Trim(ModuleName)
-C        MSG(2) = 'Value set to zero.'
-C        CALL WARNING(2,'GET_INTEGER',MSG)
-C      ENDIF
+      IF (ERR) THEN
+        WRITE(MSG(1),'("Error transferring variable: ",A, "in ",A)') 
+     &      Trim(VarName), Trim(ModuleName)
+        MSG(2) = 'Value set to zero.'
+!        CALL WARNING(2,'GET_INTEGER',MSG)
+      ENDIF
 
       RETURN
       END SUBROUTINE GET_Integer
@@ -952,27 +994,29 @@ C      ENDIF
       Character*78 MSG(2)
       Integer Value
       Logical ERR
+      Type (PlantType) Plant_tmp
 
       ERR = .FALSE.
 
       SELECT CASE (ModuleName)
       Case ('PLANT')
+        Plant_tmp = SAVE_data % PLANT
         SELECT CASE (VarName)
-        Case ('NR5');  SAVE_data % PLANT % NR5  = Value
-        Case ('iSTAGE');  SAVE_data % PLANT % iSTAGE  = Value
-        Case ('iSTGDOY'); SAVE_data % PLANT % iSTGDOY = Value
+        Case ('NR5');  PLANT_tmp % NR5  = Value
+        Case ('iSTAGE');  PLANT_tmp % iSTAGE  = Value
+        Case ('iSTGDOY'); PLANT_tmp % iSTGDOY = Value
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
       Case DEFAULT; ERR = .TRUE.
       END SELECT
 
-C      IF (ERR) THEN
-C        WRITE(MSG(1),'("Error transferring variable: ",A, "in ",A)') 
-C     &      Trim(VarName), Trim(ModuleName)
-C        MSG(2) = 'Value not saved! Errors may result.'
-C        CALL WARNING(2,'PUT_Integer',MSG)
-C      ENDIF
+      IF (ERR) THEN
+        WRITE(MSG(1),'("Error transferring variable: ",A, "in ",A)') 
+     &      Trim(VarName), Trim(ModuleName)
+        MSG(2) = 'Value not saved! Errors may result.'
+!        CALL WARNING(2,'PUT_Integer',MSG)
+      ENDIF
 
       RETURN
       END SUBROUTINE PUT_Integer
@@ -984,6 +1028,8 @@ C      ENDIF
       Character*(*) ModuleName, VarName, Value
       Character*78  MSG(2)
       Logical ERR
+      Type (PlantType) Plant_tmp
+      Type (WeathType) Weath_tmp
 
       Value = ' '
       ERR = .FALSE.
@@ -991,25 +1037,29 @@ C      ENDIF
       SELECT CASE (ModuleName)
       Case ('WEATHER')
         SELECT CASE (VarName)
-        Case ('WSTA');  Value = SAVE_data % WEATHER % WSTAT
+        Case ('WSTA');
+           Weath_tmp = SAVE_data % WEATHER
+           Value = Weath_tmp % WSTAT
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
       Case ('PLANT')
         SELECT CASE (VarName)
-        Case ('iSTNAME');  Value = SAVE_data % PLANT % iSTNAME
+        Case ('iSTNAME');
+           Plant_tmp = SAVE_data % PLANT
+           Value = Plant_tmp % iSTNAME
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
       Case Default; ERR = .TRUE.
       END SELECT
 
-C      IF (ERR) THEN
-C        WRITE(MSG(1),'("Error transferring variable: ",A, "in ",A)') 
-C     &      Trim(VarName), Trim(ModuleName)
-C        MSG(2) = 'Value set to zero.'
-C        CALL WARNING(2,'GET_INTEGER',MSG)
-C      ENDIF
+      IF (ERR) THEN
+        WRITE(MSG(1),'("Error transferring variable: ",A, "in ",A)') 
+     &      Trim(VarName), Trim(ModuleName)
+        MSG(2) = 'Value set to zero.'
+!        CALL WARNING(2,'GET_INTEGER',MSG)
+      ENDIF
 
       RETURN
       END SUBROUTINE GET_Char
@@ -1021,31 +1071,37 @@ C      ENDIF
       Character*(*) ModuleName, VarName, Value
       Character*78 MSG(2)
       Logical ERR
+      Type (PlantType) Plant_tmp
+      Type (WeathType) Weath_tmp
 
       ERR = .FALSE.
 
       SELECT CASE (ModuleName)
       Case ('WEATHER')
         SELECT CASE (VarName)
-        Case ('WSTA');  SAVE_data % WEATHER % WSTAT  = Value
+        Case ('WSTA');  
+          Weath_tmp = SAVE_data % WEATHER
+          Weath_tmp % WSTAT  = Value
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
       Case ('PLANT')
         SELECT CASE (VarName)
-        Case ('iSTNAME');  SAVE_data % PLANT % iSTNAME = Value
+        Case ('iSTNAME');
+          Plant_tmp = SAVE_data % PLANT
+          PLANT_tmp % iSTNAME = Value
         Case DEFAULT; ERR = .TRUE.
         END SELECT
 
       Case DEFAULT; ERR = .TRUE.
       END SELECT
 
-C      IF (ERR) THEN
-C        WRITE(MSG(1),'("Error transferring variable: ",A, "in ",A)') 
-C     &      Trim(VarName), Trim(ModuleName)
-C        MSG(2) = 'Value not saved! Errors may result.'
-C        CALL WARNING(2,'PUT_Integer',MSG)
-C      ENDIF
+      IF (ERR) THEN
+        WRITE(MSG(1),'("Error transferring variable: ",A, "in ",A)') 
+     &      Trim(VarName), Trim(ModuleName)
+        MSG(2) = 'Value not saved! Errors may result.'
+!        CALL WARNING(2,'PUT_Integer',MSG)
+      ENDIF
 
       RETURN
       END SUBROUTINE PUT_Char

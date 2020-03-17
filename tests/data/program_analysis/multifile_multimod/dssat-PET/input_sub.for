@@ -153,14 +153,14 @@ C-----------------------------------------------------------------------
 C-----------------------------------------------------------------------
 C    Initialize and delete previous copy of FILEIO
 C-----------------------------------------------------------------------
-      INQUIRE (FILE = FILEIO,EXIST = FEXIST)
-      IF (FEXIST) THEN
+!!!      INQUIRE (FILE = FILEIO,EXIST = FEXIST)
+!!!      IF (FEXIST) THEN
           OPEN (LUNIO, FILE = FILEIO,STATUS = 'UNKNOWN',IOSTAT=ERRNUM)
           READ (LUNIO,40) EXPP,TRTN,TRTALL
           READ (LUNIO,70,IOSTAT=ERRNUM) IOX,IDETO,IDETS,FROP,IDETG,
      &            IDETC,IDETW,IDETN,IDETP,IDETD,IDETL,IDETH,IDETR
           CLOSE (LUNIO,STATUS = 'DELETE')
-      ENDIF
+!!!      ENDIF
 
 C-----------------------------------------------------------------------
 C     BEGINNING of READING INPUT files
@@ -243,7 +243,7 @@ C-----------------------------------------------------------------------
            NLOOP = NLOOP + 1
            IF (NLOOP .GT. 25) CALL ERROR (ERRKEY,1,' ',0)
            CALL CLEAR
-           WRITE (*,400)
+!!!           WRITE (*,400)
            READ (5,'(I2)',ERR = 300) NSENS
          ELSE
            NSENS = 1
@@ -270,7 +270,7 @@ C     &        ISWITCH,CONTROL)
                ENDIF
             ENDIF
          ENDIF
-         WRITE (*,1000) RUN
+!!!         WRITE (*,1000) RUN
          READ (5,'(A25)') TITLER
          IF (TITLER .EQ. '                         ') THEN
             TITLER = TITLET
@@ -280,9 +280,9 @@ C     &        ISWITCH,CONTROL)
       ENDIF
       
 C     Regenarate short headers now that Run Title is known.
-      CALL OPHEAD (RUNINIT,99,0.0,0.0,"                ",0.0,0.0, 
-     &     "      ",RUN,MODEL,TITLER,WTHSTR, RNMODE,
-     &     CONTROL, ISWITCH, UseSimCtr, PATHEX)
+!!!      CALL OPHEAD (RUNINIT,99,0.0,0.0,"                ",0.0,0.0, 
+!!!     &     "      ",RUN,MODEL,TITLER,WTHSTR, RNMODE,
+!!!     &     CONTROL, ISWITCH, UseSimCtr, PATHEX)
 
 C-----------------------------------------------------------------------
 C     Call INSOIL to calculate initial conditions for each soil layer
@@ -340,10 +340,10 @@ C-----------------------------------------------------------------------
 
   40  FORMAT (36X,3(1X,I5))
   70  FORMAT (17(/),14X,3(5X,A1),4X,I2,9(5X,A1))
- 400  FORMAT (/////,5X,'What Would You Like To Do ?',
-     &            //,1X,' 0. Run Simulation.',
-     &             /,1X,' 1. Select Sensitivity Analysis Options.',
-     &            //,1X,'    CHOICE ?   [ Default = 0 ] ===> ',$)
- 1000 FORMAT (/,5X,'Please enter Run',I3,' name : ===> ',$)
+!!! 400  FORMAT (/////,5X,'What Would You Like To Do ?',
+!!!     &            //,1X,' 0. Run Simulation.',
+!!!     &             /,1X,' 1. Select Sensitivity Analysis Options.',
+!!!     &            //,1X,'    CHOICE ?   [ Default = 0 ] ===> ',$)
+!!! 1000 FORMAT (/,5X,'Please enter Run',I3,' name : ===> ',$)
 
       END SUBROUTINE INPUT_SUB

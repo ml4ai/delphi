@@ -112,6 +112,10 @@ C=======================================================================
       TYPE (FloodWatType) FLOODWAT
       Type (MgmtType)     MGMT
 
+!     The following *_tmp variables are introduced to get around a bug in OFP
+!     that causes it to choke on RHS expressions of the form X % Y % Z
+      Type (MgmtType) Mgmt_tmp
+
 !     Transfer values from constructed data types into local variables.
       DYNAMIC = CONTROL % DYNAMIC
       YRDOY   = CONTROL % YRDOY
@@ -246,16 +250,17 @@ C            IF (ERRNUM .NE. 0) CALL ERROR(ERRKEY,ERRNUM,FILEIO,LNUM)
 !        ENDIF
 
 !     Import array values for growth stage based irrigation directly from input module
-      IMDEP = SAVE_data % MGMT % V_IMDEP       ! Depth
-      ITHRL = SAVE_data % MGMT % V_ITHRL       ! Lower threshold triggering irrigation
-      ITHRU = SAVE_data % MGMT % V_ITHRU       ! Upper threshold triggering irrigation
-      IRONC = SAVE_data % MGMT % V_IRONC       ! IRON in text (for compatibility)
-      IRON  = SAVE_data % MGMT % V_IRON        ! Growth Stage for parameters
-      IRAMT = SAVE_data % MGMT % V_IRAMT       ! Automatic irrigation with fixed amount
-      IREFF = SAVE_data % MGMT % V_IREFF       ! Irrigation Efficiency fraction
-      AVWATI =SAVE_data % MGMT % V_AVWAT       ! Water available for irrigation
-      IFREQ = SAVE_data % MGMT % V_IFREQ       ! Frequency limitation for irrigation
-      NGSIrrigs  =SAVE_data % MGMT % GSIRRIG
+      Mgmt_tmp = SAVE_data % MGMT
+      IMDEP =  Mgmt_tmp % V_IMDEP       ! Depth
+      ITHRL =  Mgmt_tmp % V_ITHRL       ! Lower threshold triggering irrigation
+      ITHRU =  Mgmt_tmp % V_ITHRU       ! Upper threshold triggering irrigation
+      IRONC =  Mgmt_tmp % V_IRONC       ! IRON in text (for compatibility)
+      IRON  =  Mgmt_tmp % V_IRON        ! Growth Stage for parameters
+      IRAMT =  Mgmt_tmp % V_IRAMT       ! Automatic irrigation with fixed amount
+      IREFF =  Mgmt_tmp % V_IREFF       ! Irrigation Efficiency fraction
+      AVWATI = Mgmt_tmp % V_AVWAT       ! Water available for irrigation
+      IFREQ =  Mgmt_tmp % V_IFREQ       ! Frequency limitation for irrigation
+      NGSIrrigs  = Mgmt_tmp % GSIRRIG
 
 !-----------------------------------------------------------------------
       IRINC = 1

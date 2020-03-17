@@ -170,11 +170,11 @@ C-----------------------------------------------------------------------
 
          IF (ISECT .EQ. 1) THEN
             READ (CHARTEST,410,IOSTAT=ERRNUM) EXPER,CG,ENAME
-            IF (ERRNUM .NE. 0) CALL ERROR (ERRKEY,ERRNUM,FILELS,LINEXP)
-            IF (MOD(I,16) .EQ. 0) THEN
-               WRITE (*,600)
-               READ (5,'(A1)') ANS
-            ENDIF
+!!!            IF (ERRNUM .NE. 0) CALL ERROR (ERRKEY,ERRNUM,FILELS,LINEXP)
+!!!            IF (MOD(I,16) .EQ. 0) THEN
+!!!               WRITE (*,600)
+!!!               READ (5,'(A1)') ANS
+!!!            ENDIF
             READ(EXPER(5:6),'(I2)') YR
             IF (YR .GE. 10) THEN
               WRITE (*,500) I,CG,ENAME(1:45),EXPER(1:2),EXPER(3:4),
@@ -200,7 +200,7 @@ C-----------------------------------------------------------------------
          LINE(1) = ' '
          NLOOP = NLOOP + 1
          IF (NLOOP .GT. 25) CALL ERROR (ERRKEY,2,FILELS,0)
-         WRITE (*,1000) EXPN
+!!!         WRITE (*,1000) EXPN
          READ  (5,1100) LINE
          CALL VERIFY (LINE,EXP,FLAG)
 
@@ -295,10 +295,10 @@ C-----------------------------------------------------------------------
      &              LNCHE,LNTIL,LNENV,LNHAR,LNSIM
             ENDIF
             IF (ERRNUM .NE. 0) CALL ERROR (ERRKEY,ERRNUM,FILEX,LINEXP)
-            IF (MOD(I,16) .EQ. 0 .AND. RNMODE .EQ. 'I') THEN
-               WRITE (*,600)
-               READ (5,'(A1)') ANS
-            ENDIF
+!!!            IF (MOD(I,16) .EQ. 0 .AND. RNMODE .EQ. 'I') THEN
+!!!               WRITE (*,600)
+!!!               READ (5,'(A1)') ANS
+!!!            ENDIF
             READ(EXPER(5:6),'(I2)') YR
             IF (YR .GE. 10) THEN
             IF (RNMODE .EQ. 'I') WRITE (*,2600) I,TITLET,
@@ -325,7 +325,7 @@ C-----------------------------------------------------------------------
          LINE(1) = ' '
          IF (NLOOP .GT. 25) CALL ERROR(ERRKEY,3,FILEX,LINEXP)
          IF (RNMODE .EQ. 'I') THEN
-           WRITE (*,2900) TRTN
+!!!           WRITE (*,2900) TRTN
 C
 C        Read the correct treatment number
 C
@@ -401,9 +401,9 @@ C     IF (I .LT. TRTN) GO TO 50
      &    GO TO 50
 
 !     Generate header information for Warnings or Errors in input module
-      CALL OPHEAD (RUNINIT,99,0.0,0.0,"                ",0.0,0.0, 
-     &     "      ",RUN,"        ",TITLET,WTHSTR, RNMODE,
-     &     CONTROL, ISWITCH, UseSimCtr, PATHEX)
+!!!      CALL OPHEAD (RUNINIT,99,0.0,0.0,"                ",0.0,0.0, 
+!!!     &     "      ",RUN,"        ",TITLET,WTHSTR, RNMODE,
+!!!     &     CONTROL, ISWITCH, UseSimCtr, PATHEX)
 C-----------------------------------------------------------------------
 C
 C-----------------------------------------------------------------------
@@ -467,7 +467,8 @@ C-----------------------------------------------------------------------
      &  !    (INDEX('IXM',MODEL(3:5)) .GT.0) .OR.  !IXIM MAIZE
      &  !    (INDEX('CSM',MODEL(3:5)) .GT.0)) THEN
            FILEC(1:12) = CROP//MODEL(3:8)//'.SPE'
-           INQUIRE (FILE = FILEC,EXIST = FEXIST)
+!!!           INQUIRE (FILE = FILEC,EXIST = FEXIST)
+           FEXIST = .True.
            IF (.NOT. FEXIST) THEN
               CALL PATH('CRD',DSSATP,PATHCR,1,NAMEF)
             ELSE
@@ -490,10 +491,11 @@ C-----------------------------------------------------------------------
          IF (INDEX('GT',RNMODE) .GT. 0) THEN
             WRITE(FILEG(1:8),'(A8)') 'GENCALC2'
          ENDIF
-         INQUIRE (FILE = FILEG,EXIST = FEXIST)
+!!!         INQUIRE (FILE = FILEG,EXIST = FEXIST)
+         FEXIST = .True.
          IF (.NOT. FEXIST) THEN
             FILETMP = TRIM(PATHEX)//FILEG
-            INQUIRE (FILE = FILETMP,EXIST = FEXIST)
+!!!            INQUIRE (FILE = FILETMP,EXIST = FEXIST)
             IF (.NOT. FEXIST) THEN
                CALL PATH('CRD',DSSATP,PATHGE,1,NAMEF)
             ELSE 
@@ -513,10 +515,11 @@ C-----------------------------------------------------------------------
          IF (INDEX('GT',RNMODE) .GT. 0) THEN
             WRITE(FILEE(1:8),'(A8)') 'GENCALC2'
          ENDIF
-         INQUIRE (FILE = FILEE,EXIST = FEXIST)
+!!!         INQUIRE (FILE = FILEE,EXIST = FEXIST)
+         FEXIST = .True.
          IF (.NOT. FEXIST) THEN
             FILETMP = TRIM(PATHEX)//FILEE
-            INQUIRE (FILE = FILETMP,EXIST = FEXIST)
+!!!            INQUIRE (FILE = FILETMP,EXIST = FEXIST)
             IF (.NOT. FEXIST) THEN
                CALL PATH ('CRD',DSSATP,PATHEC,1,NAMEF)
             ELSE
@@ -531,7 +534,8 @@ C        Select pest parameter input file
 C-----------------------------------------------------------------------
 
          FILEP(1:12) = CROP//MODEL(3:8)//'.PST'
-         INQUIRE (FILE = FILEP,EXIST = FEXIST)
+!!!         INQUIRE (FILE = FILEP,EXIST = FEXIST)
+         FEXIST = .TRUE.
          IF (.NOT. FEXIST) THEN
             CALL PATH('PSD',DSSATP,PATHPE,1,NAMEF)
           ELSE
@@ -573,14 +577,16 @@ C-----------------------------------------------------------------------
         FILES_a = 'SOIL.SOL'
         FILES_b = SLNO(1:2)//'.SOL  '
 
-        INQUIRE (FILE = FILES_a,EXIST = FEXIST)
+!!!        INQUIRE (FILE = FILES_a,EXIST = FEXIST)
+        FEXIST = .TRUE.
         IF (FEXIST) THEN
 !          SOIL.SOL in current directory
            FILES = FILES_a
            PATHSL = BLANK
 
         ELSE
-           INQUIRE (FILE = FILES_b,EXIST = FEXIST)
+!!!           INQUIRE (FILE = FILES_b,EXIST = FEXIST)
+           FEXIST = .True.
            IF (FEXIST) THEN
 !             Alt soil name in current directory
               FILES = FILES_b
@@ -588,7 +594,8 @@ C-----------------------------------------------------------------------
 
            ELSE
               FILETMP = TRIM(PATHEX)//FILES_a
-              INQUIRE (FILE = FILETMP,EXIST = FEXIST)
+!!!              INQUIRE (FILE = FILETMP,EXIST = FEXIST)
+              FEXIST = .TRUE.
               IF (FEXIST) THEN
 !                SOIL.SOL in experiment directory
                  FILES = FILES_a
@@ -596,7 +603,8 @@ C-----------------------------------------------------------------------
 
               ELSE
                  FILETMP = TRIM(PATHEX)//FILES_b
-                 INQUIRE (FILE = FILETMP,EXIST = FEXIST)
+!!!                 INQUIRE (FILE = FILETMP,EXIST = FEXIST)
+                 FEXIST = .TRUE.
                  IF (FEXIST) THEN
 !                   Alt soil name in experiment directory
                     FILES = FILES_b
@@ -607,14 +615,16 @@ C-----------------------------------------------------------------------
                     CALL PATH (PROCOD,DSSATP,PATHSL,1,NAMEF)
                     PATHL  = INDEX(PATHSL,BLANK)
                     FILETMP = PATHSL(1:(PATHL-1)) // FILES_a
-                    INQUIRE (FILE = FILETMP,EXIST = FEXIST)
+!!!                    INQUIRE (FILE = FILETMP,EXIST = FEXIST)
+                    FEXIST = .True.
                     IF (FEXIST) THEN
 !                      SOIL.SOL in DSSAT soil directory
                        FILES = FILES_a
 
                     ELSE
                        FILETMP = PATHSL(1:(PATHL-1)) // FILES_b
-                       INQUIRE (FILE = FILETMP,EXIST = FEXIST)
+!!!                       INQUIRE (FILE = FILETMP,EXIST = FEXIST)
+                       FEXIST = .TRUE.
                        IF (FEXIST) THEN
 !                         Alt soil name in DSSAT soil directory
                           FILES = FILES_b
@@ -694,34 +704,39 @@ C-----------------------------------------------------------------------
       ENDIF
 
 !     Check weather filename in current directory
-      INQUIRE (FILE = FILEW,EXIST = FEXIST)
+!!!      INQUIRE (FILE = FILEW,EXIST = FEXIST)
+      FEXIST = .True.
       IF (FEXIST) THEN
         PATHWT = BLANK
 !     Check weather filename in data directory
       ELSE
         FILETMP = TRIM(PATHEX)//FILEW
-        INQUIRE (FILE = FILETMP,EXIST = FEXIST)
+!!!        INQUIRE (FILE = FILETMP,EXIST = FEXIST)
+        FEXIST = .TRUE.
         IF (FEXIST) THEN
           PATHWT = TRIM(PATHEX)
 !       Check weather filename in default DSSAT directory
         ELSE
           CALL PATH(PROCOD,DSSATP,PATHWT,1,NAMEF)
           FILETMP = TRIM(PATHWT) // FILEW
-          INQUIRE (FILE=FILETMP, EXIST = FEXIST)
+!!!          INQUIRE (FILE=FILETMP, EXIST = FEXIST)
+          FEXIST = .TRUE.
           IF (FEXIST) THEN
             PATHWT = PATHWT
 !         Check 4-character file name in data directory
           ELSE
             FILEW4 = FILEW(1:4) // ".WTH"
             FILETMP = TRIM(PATHEX) // FILEW4
-            INQUIRE (FILE=FILETMP, EXIST = FEXIST)
+!!!            INQUIRE (FILE=FILETMP, EXIST = FEXIST)
+            FEXIST = .TRUE.
             IF (FEXIST) THEN
               PATHWT = TRIM(PATHEX)
               FILEW = FILEW4
 !           Check 4-character filename in default DSSAT directory
             ELSE
               FILETMP = TRIM(PATHWT) // FILEW
-              INQUIRE (FILE=FILETMP, EXIST = FEXIST)
+!!!              INQUIRE (FILE=FILETMP, EXIST = FEXIST)
+              FEXIST = .TRUE.
               IF (FEXIST) THEN
                 PATHWT = PATHWT
                 FILEW = FILEW4
@@ -823,9 +838,9 @@ C-----------------------------------------------------------------------
   410 FORMAT (3X,A8,1X,A2,2X,A60)
   500 FORMAT (1X,I3,'.',2X,A2,2X,A45,1X,A2,5X,A2,3X,'19',A2,2X,A2)
   501 FORMAT (1X,I3,'.',2X,A2,2X,A45,1X,A2,5X,A2,3X,'20',A2,2X,A2)
-  600 FORMAT (/,'  More.... press < ENTER > key',$)
- 1000 FORMAT (/,6X,'EXPERIMENT SELECTED ===>',1X,I3,
-     &        /,6X,'NEW SELECTION ?     --->',2X,' ',$)
+!!!  600 FORMAT (/,'  More.... press < ENTER > key',$)
+!!! 1000 FORMAT (/,6X,'EXPERIMENT SELECTED ===>',1X,I3,
+!!!     &        /,6X,'NEW SELECTION ?     --->',2X,' ',$)
  1100 FORMAT (80A1)
  1101 FORMAT (10X,'ERROR! Experiment Selection must be between 1',
      &            ' and ',I3,/)
@@ -842,8 +857,8 @@ C-----------------------------------------------------------------------
  2751 FORMAT (10X,'ERROR! Treatment Selection must be between 1',
      &            ' and ',I3,/)
  2752 FORMAT (10X,'ERROR! Treatment Selection must be an INTEGER',/)
- 2900 FORMAT (/,6X,'TREATMENT SELECTED ===>',1X,I3,
-     &        /,6X,'NEW SELECTION ?    --->',2X,' ',$)
+!!! 2900 FORMAT (/,6X,'TREATMENT SELECTED ===>',1X,I3,
+!!!     &        /,6X,'NEW SELECTION ?    --->',2X,' ',$)
  3450 FORMAT (//////,15X,' Reading Data.  Please be patient.',/,
      &               15X,' Do not touch the keyboard !',/,16X,33('='))
  5000 FORMAT("Soil files not found: ",A,", ",A)

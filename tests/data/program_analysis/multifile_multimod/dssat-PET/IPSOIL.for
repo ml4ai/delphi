@@ -120,13 +120,14 @@ C-----------------------------------------------------------------------
      &     Version%Major, Version%Minor
 
         SOILNF = FILESS
-        INQUIRE (FILE = SOILNF, EXIST = FEXIST)
-        IF (.NOT. FEXIST) THEN
-          CALL PATH('STD',CONTROL%DSSATP,PATHSD,PFLAG,NAMEF)
-          SOILNF = TRIM(PATHSD) // FILESS
-        ENDIF
+!!!        INQUIRE (FILE = SOILNF, EXIST = FEXIST)
+!!!        IF (.NOT. FEXIST) THEN
+!!!          CALL PATH('STD',CONTROL%DSSATP,PATHSD,PFLAG,NAMEF)
+!!!          SOILNF = TRIM(PATHSD) // FILESS
+!!!        ENDIF
 
-        INQUIRE (FILE=SOILNF, EXIST=FEXIST)
+!!!        INQUIRE (FILE=SOILNF, EXIST=FEXIST)
+        FEXIST = .TRUE.
         IF (FEXIST) THEN
 C-----------------------------------------------------------------------
 C       Open the RESCH???.SDA file 

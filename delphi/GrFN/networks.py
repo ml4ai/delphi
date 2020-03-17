@@ -1,4 +1,4 @@
-from abc import ABCMeta
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Dict, Iterable, Set, Union
 from typing import List
@@ -26,19 +26,8 @@ forestgreen = "#228b22"
 
 
 class ComputationalGraph(nx.DiGraph):
-    __metaclass__ = ABCMeta
-
-    def __init__(self, network, output_vars, *args, **kwargs):
-        super().__init__(network, *args, **kwargs)
-        self.outputs = output_vars
-        self.inputs = [
-            n
-            for n, d in self.in_degree()
-            if d == 0 and self.nodes[n]["type"] == "variable"
-        ]
-        self.input_name_map = {
-            self.var_shortname(name): name for name in self.inputs
-        }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.FCG = self.to_FCG()
         self.function_sets = self.build_function_sets()
 
@@ -178,7 +167,17 @@ class GroundedFunctionNetwork(ComputationalGraph):
     """
 
     def __init__(self, G, scope_tree, outputs):
-        super().__init__(G, outputs)
+        super().__init__(G)
+        self.outputs = outputs
+        self.inputs = [
+            n
+            for n, d in self.in_degree()
+            if d == 0 and self.nodes[n]["type"] == "variable"
+        ]
+        self.input_name_map = {
+            self.var_shortname(name): name for name in self.inputs
+        }
+        # self.outputs = outputs
         self.scope_tree = scope_tree
 
     def __repr__(self):
@@ -434,8 +433,20 @@ class GroundedFunctionNetwork(ComputationalGraph):
         cur_scope = ScopeNode(functions[root], occurrences[root])
         scope_tree.add_node(cur_scope.name, color="forestgreen")
         returns, updates = process_container(cur_scope, [], root)
-        G = cls(G, scope_tree, returns + updates)
-        return G
+        return cls(G, scope_tree, returns + updates)
+
+    @staticmethod
+    def create_container_dict(G: nx.DiGraph):
+        containers = {node_name: dict() for node_name in scope_tree.nodes}
+
+    @classmethod
+    def from_python_file(
+        cls, python_file, lambdas_path, json_filename: str, stem: str
+    ):
+        """Builds GrFN object from Python file."""
+        with open(python_file, "r") as f:
+            pySrc = f.read()
+        return cls.from_python_src(pySrc, lambdas_path, json_filename, stem)
 
     @classmethod
     def from_python_src(
@@ -446,7 +457,6 @@ class GroundedFunctionNetwork(ComputationalGraph):
         module_log_file_path: str,
         mod_mapper_dict: list,
         processing_modules: bool,
-        save_intermediate_files: bool = False,
     ):
         lambdas_path = python_file.replace(".py", "_lambdas.py")
         # Builds GrFN object from Python source code.
@@ -462,21 +472,17 @@ class GroundedFunctionNetwork(ComputationalGraph):
 
         G = cls.from_dict(pgm_dict, lambdas_path)
 
-        if not save_intermediate_files:
-            # Cleanup intermediate files.
-            variable_map_filename = python_file.replace(".py", "_variable_map.pkl")
-            rectified_xml_filename = "rectified_" + str(Path(python_file)).replace(
-                ".py", ".xml"
-            )
-            os.remove(variable_map_filename)
-            os.remove(rectified_xml_filename)
-
+        # Cleanup intermediate files.
+        variable_map_filename = python_file.replace(".py", "_variable_map.pkl")
+        os.remove(variable_map_filename)
+        rectified_xml_filename = "rectified_" + str(Path(python_file)).replace(
+            ".py", ".xml"
+        )
+        os.remove(rectified_xml_filename)
         return G
 
     @classmethod
-    def from_fortran_file(
-        cls, fortran_file: str, tmpdir: str = ".", save_intermediate_files: bool = False
-    ):
+    def from_fortran_file(cls, fortran_file: str, tmpdir: str = "."):
         """Builds GrFN object from a Fortran program."""
 
         root_dir = os.path.abspath(tmpdir)
@@ -493,7 +499,6 @@ class GroundedFunctionNetwork(ComputationalGraph):
             temp_dir=str(tmpdir),
             root_dir_path=root_dir,
             processing_modules=False,
-            save_intermediate_files = save_intermediate_files
         )
 
         # For now, just taking the first translated file.
@@ -506,7 +511,6 @@ class GroundedFunctionNetwork(ComputationalGraph):
             module_log_file_path,
             mod_mapper_dict,
             processing_modules,
-            save_intermediate_files = save_intermediate_files
         )
 
         return G
@@ -532,6 +536,55 @@ class GroundedFunctionNetwork(ComputationalGraph):
         G = cls.from_fortran_file(fp.name, dir)
         os.remove(fp.name)
         return G
+
+    def to_json(self):
+        """Experimental outputting a GrFN to a JSON file."""
+        containers = {
+            name: {"name": name, "parent": None, "exit": True, "nodes": list()}
+            for name in self.scope_tree.nodes
+        }
+
+        nodes_json = list()
+        for name, data in self.nodes(data=True):
+            containers[data["parent"]]["nodes"].append(name)
+            if data["type"] == "variable":
+                nodes_json.append(
+                    {
+                        "name": name,
+                        "type": "variable",
+                        "reference": None,
+                        "data-type": {
+                            "name": "float32",
+                            "domain": [("-inf", "inf")],
+                        },
+                    }
+                )
+            elif data["type"] == "function":
+                (source_list, _) = inspect.getsourcelines(data["lambda_fn"])
+                source_code = "".join(source_list)
+                nodes_json.append(
+                    {
+                        "name": name,
+                        "type": "function",
+                        "reference": None,
+                        "inputs": data["func_inputs"],
+                        "lambda": source_code,
+                    }
+                )
+            else:
+                raise ValueError(f"Unrecognized node type: {data['type']}")
+
+        return json.dumps(
+            {
+                "nodes": nodes_json,
+                "edges": list(self.edges),
+                "containers": list(containers.values()),
+            }
+        )
+
+    def to_json_file(self, filename):
+        GrFN_json = self.to_json()
+        json.dump(GrFN_json, open(filename, "w"))
 
     def to_AGraph(self):
         """ Export to a PyGraphviz AGraph object. """

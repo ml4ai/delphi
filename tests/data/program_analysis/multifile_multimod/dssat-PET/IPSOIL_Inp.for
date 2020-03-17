@@ -143,7 +143,7 @@ C
             IF ((INDEX('IE',RNMODE) .GT. 0) .AND. NLSOIL .EQ. 0) THEN
                WRITE (*,950) SLNO, FILESS
             ENDIF
-            IF (INDEX('IE',RNMODE) .GT. 0) WRITE(*, 5160) NLSOIL
+!!!            IF (INDEX('IE',RNMODE) .GT. 0) WRITE(*, 5160) NLSOIL
             READ (5,'(80A1)') LINE
             CALL VERIFY (LINE,SL,FLAG)
 
@@ -632,7 +632,7 @@ C-----------------------------------------------------------------------
      &        22('='),/,T3, 'NO.', T7, 'TAXONOMY NAME', T67,
      &        'PEDON NUMBER', /T2, 4('-'), 1X, 50('-'), T67, 12('-'))
  5140 FORMAT (I4,') ',A50, T67, A10)
- 5160 FORMAT (/,6X,'SELECTED SOIL TYPE ===>',1X,I3,
-     &        /,6X,'NEW SELECTION ?    --->',2X,' ',$)
+!!! 5160 FORMAT (/,6X,'SELECTED SOIL TYPE ===>',1X,I3,
+!!!     &        /,6X,'NEW SELECTION ?    --->',2X,' ',$)
 
       END SUBROUTINE IPSOIL_Inp

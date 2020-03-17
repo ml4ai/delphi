@@ -45,6 +45,8 @@ C=======================================================================
 
       USE ModuleDefs
       USE ModuleData
+      USE DATA_STMT_HACK
+
 C      USE CsvOutput
       IMPLICIT NONE
       SAVE
@@ -84,7 +86,7 @@ C      USE CsvOutput
       REAL V_IREFF(20)
       INTEGER GSIRRIG, I, STAT, CHARLEN
 
-      LOGICAL UseSimCtr, MulchWarn
+      LOGICAL UseSimCtr
 
       TYPE (SwitchType)  ISWITCH
       TYPE (ControlType) CONTROL
@@ -92,7 +94,7 @@ C      USE CsvOutput
       PARAMETER (ERRKEY='IPSIM ')
                  FINDCH='*SIMUL'
                  
-      DATA MulchWarn /.FALSE./
+C      DATA MulchWarn /.FALSE./
 
       IF (LNSIM .EQ. 0) THEN
          LNSIM   = 0
@@ -974,19 +976,19 @@ D     IPX = 23
           SIMCTR = FILECTL
         ENDIF
 
-        INQUIRE (FILE = SIMCTR, EXIST = FEXIST)
-        IF (.NOT. FEXIST) THEN
-          SIMCTR = TRIM(STDPATH) // TRIM(FILECTL)
-        ENDIF
+!!!        INQUIRE (FILE = SIMCTR, EXIST = FEXIST)
+!!!        IF (.NOT. FEXIST) THEN
+!!!          SIMCTR = TRIM(STDPATH) // TRIM(FILECTL)
+!!!        ENDIF
 
-        INQUIRE (FILE = SIMCTR, EXIST = FEXIST)
-        IF (.NOT. FEXIST) THEN
-          MSG(1) = "Simulation controls file does not exist."
-          MSG(2) = SIMCTR
-          MSG(3) = "Use controls from experiment file."
-          CALL WARNING(3,ERRKEY,MSG)
-          RETURN
-        ENDIF
+!!!        INQUIRE (FILE = SIMCTR, EXIST = FEXIST)
+!!!        IF (.NOT. FEXIST) THEN
+!!!          MSG(1) = "Simulation controls file does not exist."
+!!!          MSG(2) = SIMCTR
+!!!          MSG(3) = "Use controls from experiment file."
+!!!          CALL WARNING(3,ERRKEY,MSG)
+!!!          RETURN
+!!!        ENDIF
 
         CALL GETLUN('SIMCNTL', SCLun)
         OPEN (UNIT = SCLun, FILE = SIMCTR, IOSTAT =ERRNUM)

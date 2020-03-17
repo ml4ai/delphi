@@ -185,19 +185,19 @@ C-----------------------------------------------------------------------
 C    Delete previouse copies of temporary input file
 C-----------------------------------------------------------------------
       IF (RNMODE .NE. 'D') THEN
-        INQUIRE (FILE = FILEIO,EXIST = FEXIST)
-        IF (FEXIST) THEN
-          OPEN (LUNIO, FILE = FILEIO,STATUS = 'UNKNOWN',IOSTAT=ERRNUM)
-          CLOSE (LUNIO,STATUS = 'DELETE')
-        ENDIF
-        LN = LEN(TRIM(FILEIO))
-        FILEIOH = FILEIO
-        WRITE(FILEIOH(LN:LN),'(A1)') 'H'
-        INQUIRE (FILE = FILEIOH,EXIST = FEXIST)
-        IF (FEXIST) THEN
-          OPEN (LUNIO, FILE = FILEIOH,STATUS = 'UNKNOWN',IOSTAT=ERRNUM)
-          CLOSE (LUNIO,STATUS = 'DELETE')
-        ENDIF
+!!!        INQUIRE (FILE = FILEIO,EXIST = FEXIST)
+!!!        IF (FEXIST) THEN
+!!!          OPEN (LUNIO, FILE = FILEIO,STATUS = 'UNKNOWN',IOSTAT=ERRNUM)
+!!!          CLOSE (LUNIO,STATUS = 'DELETE')
+!!!        ENDIF
+!!!        LN = LEN(TRIM(FILEIO))
+!!!        FILEIOH = FILEIO
+!!!        WRITE(FILEIOH(LN:LN),'(A1)') 'H'
+!!!        INQUIRE (FILE = FILEIOH,EXIST = FEXIST)
+!!!        IF (FEXIST) THEN
+!!!          OPEN (LUNIO, FILE = FILEIOH,STATUS = 'UNKNOWN',IOSTAT=ERRNUM)
+!!!          CLOSE (LUNIO,STATUS = 'DELETE')
+!!!        ENDIF
 
 C-----------------------------------------------------------------------
 C    Open BATCH file
@@ -293,24 +293,24 @@ C-----------------------------------------------------------------------
 C      INQUIRE (FILE = FILEIO,EXIST = FEXIST)
 C      IF (.NOT. FEXIST) THEN
 C        CALL ERROR(ERRKEY,2,FILEIO,LUNIO)
-C      ENDIF
+C     ENDIF
 
       OPEN (LUNIO, FILE = FILEIO,STATUS = 'OLD',IOSTAT=ERRNUM)
-C      IF (ERRNUM .NE. 0) CALL ERROR (ERRKEY,ERRNUM,FILEIO,0)
+      IF (ERRNUM .NE. 0) CALL ERROR (ERRKEY,ERRNUM,FILEIO,0)
       READ (LUNIO,300,IOSTAT=ERRNUM) EXPNO,TRTNUM,TRTALL
  300  FORMAT(36X,3(1X,I5))
-C      IF (ERRNUM .NE. 0) CALL ERROR (ERRKEY,ERRNUM,FILEIO,1)
+      IF (ERRNUM .NE. 0) CALL ERROR (ERRKEY,ERRNUM,FILEIO,1)
       READ (LUNIO,'(//,15X,A12)',IOSTAT=ERRNUM) FILEX
-C      IF (ERRNUM .NE. 0) CALL ERROR (ERRKEY,ERRNUM,FILEIO,1)
+      IF (ERRNUM .NE. 0) CALL ERROR (ERRKEY,ERRNUM,FILEIO,1)
       IF (RUN .EQ. 1) THEN
         READ(LUNIO,'(8(/),15X,A8)',IOSTAT=ERRNUM) FNAME    
-C        IF (ERRNUM .NE. 0) CALL ERROR (ERRKEY,ERRNUM,FILEIO,13)
+        IF (ERRNUM .NE. 0) CALL ERROR (ERRKEY,ERRNUM,FILEIO,13)
         READ(LUNIO,400,IOSTAT=ERRNUM) NYRS, NREPS, YRSIM
-C        IF (ERRNUM .NE. 0) CALL ERROR (ERRKEY,ERRNUM,FILEIO,15)
+        IF (ERRNUM .NE. 0) CALL ERROR (ERRKEY,ERRNUM,FILEIO,15)
  400    FORMAT(/,15X,I5,1X,I5,7X,I7)
       ELSE IF (RNMODE .NE. 'Q') THEN
         READ(LUNIO,500,IOSTAT=ERRNUM) NYRS, NREPS, YRSIM
-C        IF (ERRNUM .NE. 0) CALL ERROR (ERRKEY,ERRNUM,FILEIO,15)
+        IF (ERRNUM .NE. 0) CALL ERROR (ERRKEY,ERRNUM,FILEIO,15)
  500    FORMAT(10(/),15X,I5,1X,I5,7X,I7)
       ENDIF
       CLOSE(LUNIO)
@@ -505,9 +505,9 @@ C-----------------------------------------------------------------------
           RUN = 0
         ENDIF
       ELSE IF (INDEX('IE',RNMODE) .GT. 0) THEN
-        WRITE(*,1700)
- 1700   FORMAT(/,1X,'Do you want to run more simulations ? ',
-     &         /,1X,'Y or N ? [Default = "N"] ===> ',$)
+!!!        WRITE(*,1700)
+!!! 1700   FORMAT(/,1X,'Do you want to run more simulations ? ',
+!!!     &         /,1X,'Y or N ? [Default = "N"] ===> ',$)
         READ (5,1800) ANS
  1800   FORMAT(A1)
         ANS = UPCASE(ANS)

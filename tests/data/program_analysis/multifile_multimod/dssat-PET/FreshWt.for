@@ -73,15 +73,15 @@
 !::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
       CALL GETLUN(FWFile, NOUTPF)
-      INQUIRE (FILE= FWFile, EXIST = FEXIST)
-      IF (FEXIST) THEN
-        OPEN(UNIT = NOUTPF, FILE = FWFile, STATUS = 'OLD',
-     &    IOSTAT = ERRNUM, POSITION = 'APPEND')
-      ELSE
+!!!      INQUIRE (FILE= FWFile, EXIST = FEXIST)
+!!!      IF (FEXIST) THEN
+!!!        OPEN(UNIT = NOUTPF, FILE = FWFile, STATUS = 'OLD',
+!!!     &    IOSTAT = ERRNUM, POSITION = 'APPEND')
+!!!      ELSE
         OPEN (UNIT = NOUTPF, FILE = FWFile, STATUS = 'NEW',
      &    IOSTAT = ERRNUM)
         WRITE(NOUTPF,'("*Fresh Weight Output File")')
-      ENDIF
+!!!      ENDIF
 
       !Write headers
       CALL HEADER(SEASINIT, NOUTPF, CONTROL%RUN)
