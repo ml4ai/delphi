@@ -34,10 +34,14 @@ int main(int argc, char* argv[]) {
         {{"small", 1, "n5"}, {"large", -1, "n3"}},  // Creates a loop
 };
 
+
+
 auto G = AnalysisGraph::from_causal_fragments(causal_fragments);
   
     G.find_all_paths();
     auto hops = 2;
     auto node = "n4";
+    std::cout << "In create_model.cpp: before get_subgraph_for_concept" << std::endl;
     auto G_sub = G.get_subgraph_for_concept(node, false, hops);
+    std::cout << "In create_model.cpp: after get_subgraph_for_concept" << std::endl;
   }

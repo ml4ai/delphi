@@ -90,7 +90,7 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
   int num_verts = this->num_vertices();
 
   unordered_set<int> vertices_to_keep = unordered_set<int>();
-
+  
   this->get_subgraph(
       this->get_vertex_id(concept), vertices_to_keep, depth, inward);
 
@@ -107,9 +107,11 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
   // TODO: We have to make sure that we are making a deep copy.
   //       Test so far does not show suspicious behavior
   AnalysisGraph G_sub = *this;
+  std::cout << "In get_subgraph_for_concept.cpp: after remove_node"  << std::endl;
   for_each(nodes_to_remove, [&](string n) { G_sub.remove_node(n); });
+  std::cout << "In get_subgraph_for_concept.cpp: after remove_node" << std::endl;
   G_sub.clear_state();
-
+  std::cout << "In get_subgraph_for_concept.cpp: after clear_state" << std::endl;
   return G_sub;
 }
 

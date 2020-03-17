@@ -40,7 +40,7 @@ void AnalysisGraph::remove_node(int node_id) {
 
   // Remove the vertex
   remove_vertex(node_id, this->graph);
-
+  std::cout << "In graph_utils.cpp: after remove_vertex"  << std::endl;
   // Update the internal meta-data
   for (int vert_id : this->node_indices()) {
     this->name_to_vertex.at((*this)[vert_id].name) = vert_id;
