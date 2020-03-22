@@ -94,6 +94,8 @@ INTRINSICS_MAP = {
     "log": ("log", "FUNC", "math"),
     "log10": ("log10", "FUNC", "math"),
     "log_gamma": ("lgamma", "FUNC", "math"),
+    "alog": ("log", "FUNC", "math"),
+    "alog10": ("log10", "FUNC", "math"),
     "max": ("max", "FUNC", None),
     "amax1": ("max", "FUNC", None),
     "min": ("min", "FUNC", None),
@@ -113,6 +115,11 @@ INTRINSICS_MAP = {
     "trim": ("strip", "FUNC", None),
     "real": ("float", "FUNC", None),    # This maay require change to Float32?
 }
+
+FLOAT32_FUNCS = [
+        "alog", "alog10",
+        "amin1", "amax1",
+]
 
 
 ###############################################################################
@@ -415,6 +422,8 @@ class PythonCodeGenerator(object):
         ]
         if py_mod is not None:
             handler = f"{py_mod}.{py_fn}"
+            if intrinsic in FLOAT32_FUNCS:
+                handler = f"Float32({handler}"
         else:
             handler = py_fn
 
@@ -422,6 +431,8 @@ class PythonCodeGenerator(object):
             arguments = ", ".join(arg_strs)
             if py_fn in ["adjustl", "adjustr", "strip"]:
                 return f"{arguments}.{handler}()"
+            elif intrinsic in FLOAT32_FUNCS:
+                return f"{handler}({arguments}))"
             else:
                 return f"{handler}({arguments})"
         elif py_fn_type == "INFIXOP":
