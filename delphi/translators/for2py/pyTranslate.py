@@ -97,8 +97,10 @@ INTRINSICS_MAP = {
     "alog": ("log", "FUNC", "math"),
     "alog10": ("log10", "FUNC", "math"),
     "max": ("max", "FUNC", None),
+    "amax0": ("max", "FUNC", None),
     "amax1": ("max", "FUNC", None),
     "min": ("min", "FUNC", None),
+    "amin0": ("min", "FUNC", None),
     "amin1": ("min", "FUNC", None),
     "mod": ("%", "INFIXOP", None),
     "modulo": ("%", "INFIXOP", None),
@@ -120,6 +122,8 @@ FLOAT32_FUNCS = [
         "alog", "alog10",
         "amin1", "amax1",
 ]
+
+INT_FUNC = ["amax0", "amin0"]
 
 
 ###############################################################################
@@ -422,16 +426,23 @@ class PythonCodeGenerator(object):
         ]
         if py_mod is not None:
             handler = f"{py_mod}.{py_fn}"
-            if intrinsic in FLOAT32_FUNCS:
-                handler = f"Float32({handler}"
         else:
             handler = py_fn
+
+        if intrinsic in FLOAT32_FUNCS:
+            handler = f"Float32({handler}"
+        elif intrinsic in INT_FUNC:
+            handler = f"int({handler}"
 
         if py_fn_type == "FUNC":
             arguments = ", ".join(arg_strs)
             if py_fn in ["adjustl", "adjustr", "strip"]:
                 return f"{arguments}.{handler}()"
-            elif intrinsic in FLOAT32_FUNCS:
+            elif (
+                    intrinsic in FLOAT32_FUNCS
+                    or intrinsic in INT_FUNC
+            ):
+                # Need to append additional closing parenthesis.
                 return f"{handler}({arguments}))"
             else:
                 return f"{handler}({arguments})"
