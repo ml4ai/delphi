@@ -848,9 +848,11 @@ class PythonCodeGenerator(object):
         else:
             # target is a scalar variable
             assg_str = f"{lhs['name']}[0]"
-
         # Check if this is a parameter assignment
-        if lhs["is_parameter"] == "true":
+        if (
+                lhs["is_parameter"] == "true"
+                and assg_str[:-3] in self.variableMap
+        ):
             parameter_comment = f"  # PARAMETER: {assg_str[:-3].upper()}"
             self.variableMap[assg_str[:-3]]["parameter"] = True
             is_parameter = True
@@ -1742,14 +1744,25 @@ class PythonCodeGenerator(object):
 
     def initializeFileVars(self, node, printState: PrintState):
         label = node["args"][1]["value"]
-        data_type = list_data_type(self.format_dict[label])
+        if label in self.format_dict:
+            data_type = list_data_type(self.format_dict[label])
+        else:
+            data_type = None
         index = 0
         for item in node["args"][1:]:
             if item["tag"] == "ref":
+                if (
+                        not data_type
+                        and 'name' in item
+                        and item['name'] in self.variableMap
+                ):
+                    dataType = self.variableMap[item['name']]['type']
+                else:
+                    dataType = data_type[index]
                 self.printVariable(
                     {
                         "name": self.nameMapper[item["name"]],
-                        "type": data_type[index],
+                        "type": dataType,
                     },
                     printState,
                 )
