@@ -466,6 +466,14 @@ class PythonCodeGenerator(object):
 
         return []
 
+    def get_node_value(self, node):
+        if node["args"][1]["tag"] == "literal":
+            return node["args"][1]["value"]
+        elif node["args"][1]["tag"] == "ref":
+            return node["args"][1]["name"]
+        else:
+            assert False,f'{node["args"][0]["tag"]} not handled.'
+
     def proc_call(self, node):
         """Processes function calls, including calls to intrinsics, and returns
            a string that is the corresponding Python code.  This code assumes
@@ -473,13 +481,18 @@ class PythonCodeGenerator(object):
            references, and that proc_call() is therefore correctly called only
            on function calls."""
         if node["name"].lower() == "index":
-            var = self.nameMapper[node["args"][0]["name"]]
-            if self.variableMap[var]['type'].lower() == "character":
-                if node["args"][1]["tag"] == "literal":
-                    to_find = node["args"][1]["value"]
-                elif node["args"][1]["tag"] == "ref":
-                    to_find = node["args"][1]["name"]
+            if node["args"][0]["tag"] == "ref":
+                var = self.nameMapper[node["args"][0]["name"]]
+            elif node["args"][0]["tag"] == "literal":
+                var = f'"{node["args"][0]["value"]}"'
+            else:
+                assert False,f'{node["args"][0]["tag"]} not handled.'
 
+            if (
+                    var in self.variableMap
+                    and self.variableMap[var]['type'].lower() == "character"
+            ):
+                to_find = self.get_node_value(node)
                 if len(node["args"]) == 3:
                     opt_arg = node["args"][2]["name"]
                     return f'{var}.f_index("{to_find}", ["{opt_arg}"])'
@@ -488,8 +501,8 @@ class PythonCodeGenerator(object):
                 else:
                     return f'{var}.f_index("{to_find}")'
             else:
-                to_find = node["args"][1]["value"]
-                return f"{var}[0].find({to_find})"
+                to_find = self.get_node_value(node)
+                return f"{var}.find({to_find})"
 
         if node["name"].lower() in syntax.F_INTRINSICS:
             return self.proc_intrinsic(node)
