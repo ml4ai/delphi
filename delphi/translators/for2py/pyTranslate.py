@@ -442,7 +442,7 @@ class PythonCodeGenerator(object):
                     intrinsic in FLOAT32_FUNCS
                     or intrinsic in INT_FUNC
             ):
-                # Need to append additional closing parenthesis.
+                # Need to append additional closing parenthesis
                 return f"{handler}({arguments}))"
             else:
                 return f"{handler}({arguments})"
@@ -475,10 +475,16 @@ class PythonCodeGenerator(object):
         if node["name"].lower() == "index":
             var = self.nameMapper[node["args"][0]["name"]]
             if self.variableMap[var]['type'].lower() == "character":
-                to_find = node["args"][1]["value"]
+                if node["args"][1]["tag"] == "literal":
+                    to_find = node["args"][1]["value"]
+                elif node["args"][1]["tag"] == "ref":
+                    to_find = node["args"][1]["name"]
+
                 if len(node["args"]) == 3:
                     opt_arg = node["args"][2]["name"]
                     return f'{var}.f_index("{to_find}", ["{opt_arg}"])'
+                elif node["args"][1]["tag"] == "ref":
+                    return f'{var}.f_index({to_find})'
                 else:
                     return f'{var}.f_index("{to_find}")'
             else:
