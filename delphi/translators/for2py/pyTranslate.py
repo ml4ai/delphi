@@ -116,6 +116,7 @@ INTRINSICS_MAP = {
     "adjustr": ("adjustr", "FUNC", None),
     "trim": ("strip", "FUNC", None),
     "real": ("float", "FUNC", None),    # This maay require change to Float32?
+    "sum": None,
 }
 
 FLOAT32_FUNCS = [
@@ -414,6 +415,11 @@ class PythonCodeGenerator(object):
            the corresponding Python code."""
         intrinsic = node["name"].lower()
         assert intrinsic in syntax.F_INTRINSICS
+
+        # Handle Fortran SUM function for summing all values in an array.
+        if intrinsic == "sum":
+            arr_name = node["subscripts"][0]["name"]
+            return f"{arr_name}.get_sum()"
 
         try:
             py_fn, py_fn_type, py_mod = INTRINSICS_MAP[intrinsic]
