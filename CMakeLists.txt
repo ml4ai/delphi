@@ -14,6 +14,7 @@ find_package(Graphviz)
 include_directories(${GRAPHVIZ_INCLUDE_DIRS})
 # Add and link pybind11 modules
 find_package(Boost COMPONENTS graph REQUIRED)
+find_package(PostgreSQL REQUIRED)
 include_directories(lib)
 include_directories(external)
 include_directories(${Boost_INCLUDE_DIR})

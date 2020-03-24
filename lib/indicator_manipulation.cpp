@@ -1,6 +1,6 @@
 #include "AnalysisGraph.hpp"
 #include "data.hpp"
-#include <sqlite3.h>
+#include "libpq-fe.h"
 
 using namespace std;
 using namespace delphi::utils;
@@ -14,6 +14,11 @@ using namespace fmt::literals;
  Public: Indicator Manipulation
  ============================================================================
 */
+
+static void exit_nicely(PGconn *conn){
+  PQfinish(conn);
+  exit(1);
+}
 
 void AnalysisGraph::set_indicator(string concept,
                                   string indicator,
@@ -40,6 +45,19 @@ void AnalysisGraph::delete_all_indicators(string concept) {
 
 void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
                                                string country) {
+  const char   *conninfo;
+  PGconn       *conn;
+  PGresult     *res;
+  conninfo = "dbname = delphi";
+  /* Make a connection to the database */
+  conn = PQconnectdb(conninfo);
+  /* Check to see that the backend connection was successfully made */
+  if (PQstatus(conn) != CONNECTION_OK){
+    fprintf(stderr, "Connection to database failed: %s", PQerrorMessage(conn));
+    exit_nicely(conn);
+  }
+  fprintf("Connection successful!!!!!!!!!!!1");
+
   sqlite3* db = nullptr;
   int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
   if (rc != SQLITE_OK) {
