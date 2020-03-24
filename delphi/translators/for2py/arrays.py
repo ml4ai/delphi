@@ -136,14 +136,24 @@ class Array:
         """Calculates the sum of all values in the array.
         """
         arr_bounds = self._bounds
-        dimensions = len(arr_bounds)
         summed_val = 0
         
-        for dim in range(dimensions):
-            low = arr_bounds[dim][0]+1
-            up = arr_bounds[dim][1]+1
-            for idx in range(low, up):
-                summed_val += self.get_(idx)
+        low = arr_bounds[0][0]+1
+        up = arr_bounds[0][1]+1
+        for idx in range(low, up):
+            arr_element = self.get_(idx)
+            # Multi-dimensional array.
+            if type(arr_element) == list:
+                for elem in arr_element:
+                    if elem is not None:
+                        summed_val += elem
+            # Single-dimensional array.
+            else:
+                assert (
+                        type(arr_element) == int
+                        or type(arr_element) == float
+                ), f"Only numbers can be summed. Array element type: {type(arr_element)}"
+                summed_val += arr_element
 
         return summed_val
 
