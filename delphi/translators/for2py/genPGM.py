@@ -3711,6 +3711,7 @@ class GrFNGenerator(object):
                 assert False, f"Should always return"
             lambda_strings.append("\n\n")
             return "".join(lambda_strings)
+
         # Sort the arguments in the function call as it is used in the operation
         input_list = sorted(set(inputs), key=inputs.index)
         # Add type annotations to the function arguments
@@ -3747,6 +3748,26 @@ class GrFNGenerator(object):
         lambda_strings.append(
             f"def {function_name}({', '.join(argument_strings)}):\n    "
         )
+        # A case where calculating the sum of array.
+        # In this case, we do not have to invoke genCode function(s).
+        if (
+                isinstance(node, ast.Assign)
+                and isinstance(node.value, ast.Call)
+                and "attr" in node.value.func._fields
+                and node.value.func.attr == "get_sum"
+        ):
+            arr_name = node.value.func.value.id
+            assert (
+                    arr_name in self.arrays
+            ), f"Array {arr_name} does not exist in the self.arrays dictionary"
+            dimensions = self.arrays[arr_name]["dimensions"]
+            lambda_strings.append(f"{arr_name}Sum = 0\n")
+            lambda_strings.append(f"    for i in range(0, {len(dimensions)}):\n")
+            lambda_strings.append(f"        {arr_name}Sum += sum({arr_name}[i])\n")
+            lambda_strings.append(f"    return {arr_name}Sum")
+            return "".join(lambda_strings)
+
+
         # If a `decision` tag comes up, override the call to genCode to manually
         # enter the python script for the lambda file.
         if "__decision__" in function_name:
@@ -3767,6 +3788,7 @@ class GrFNGenerator(object):
             code = lambda_code_generator.generate_code(
                 node, PrintState("\n    ")
             )
+
         if return_value:
             if array_assign:
                 if "_" in state.array_assign_name:
