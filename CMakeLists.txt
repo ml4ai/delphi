@@ -18,6 +18,7 @@ find_package(PostgreSQL REQUIRED)
 include_directories(lib)
 include_directories(external)
 include_directories(${Boost_INCLUDE_DIR})
+include_directories(${PostgreSQL_INCLUDE_DIRS})
 
 find_package(range-v3 REQUIRED)
 find_package(Eigen3 REQUIRED NO_MODULE)
@@ -76,7 +77,7 @@ add_library(Delphi
 target_link_libraries(Delphi
                       PRIVATE ${Boost_LIBRARIES}
                               fmt::fmt
-                              SQLite::SQLite3
+                              PostgreSQL::PostgreSQL
                               nlohmann_json::nlohmann_json
                               Eigen3::Eigen
                               ${GRAPHVIZ_LIBS})
