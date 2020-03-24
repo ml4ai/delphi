@@ -1,6 +1,8 @@
 #include "AnalysisGraph.hpp"
 #include "data.hpp"
 #include "libpq-fe.h"
+#include <sqlite3.h>
+
 
 using namespace std;
 using namespace delphi::utils;
@@ -53,10 +55,10 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
   conn = PQconnectdb(conninfo);
   /* Check to see that the backend connection was successfully made */
   if (PQstatus(conn) != CONNECTION_OK){
-    fprintf(stderr, "Connection to database failed: %s", PQerrorMessage(conn));
+    cout << "Connection to database failed: " << PQerrorMessage(conn) << endl;
     exit_nicely(conn);
   }
-  fprintf("Connection successful!!!!!!!!!!!1");
+  cout << "Connection successful!!!!!!!!!!!1" << endl;
 
   sqlite3* db = nullptr;
   int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
