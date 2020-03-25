@@ -155,6 +155,7 @@ class GrFNGenerator(object):
         self.is_d_object_array_assign = False
         self.module_summary = None
         self.global_scope_variables = {}
+        self.exit_candidates = []
         self.global_state = None
 
         self.gensym_tag_map = {
@@ -865,21 +866,6 @@ class GrFNGenerator(object):
             "updated": [],
         }
 
-        loop_break_variable = self.generate_variable_definition(
-            ["EXIT"], None, False, loop_state
-        )
-        loop_state.next_definitions["EXIT"] = 1
-
-        loop_break_function_name = self.generate_function_name(
-            "__decision__", loop_break_variable["name"], None
-        )
-        loop_break_function = {
-            "function": loop_break_function_name,
-            "input": [f"@variable::IF_0::0"],
-            "output": [f"@variable::EXIT::0"],
-            "updated": [],
-        }
-
         # Create the lambda function for the index variable initiations and
         # other loop checks. This has to be done through a custom lambda
         # function operation since the structure of genCode does not conform
@@ -934,20 +920,6 @@ class GrFNGenerator(object):
             True,
         )
         loop_state.lambda_strings.append(loop_continuation_test_lambda)
-
-        # Third, lambda function for EXIT code
-        loop_exit_test_lambda = self.generate_lambda_function(
-            "IF_0_0",
-            loop_break_function_name["name"],
-            True,
-            False,
-            False,
-            False,
-            ["IF_0_0"],
-            state,
-            True,
-        )
-        loop_state.lambda_strings.append(loop_exit_test_lambda)
 
         # Parse through the body of the loop container
         loop = self.gen_grfn(node.body, loop_state, "for")
@@ -1108,6 +1080,39 @@ class GrFNGenerator(object):
                 body_variables_grfn.append(updated_variable)
                 # Changing it back to its current form
                 self.current_scope = tmp_scope
+
+        loop_break_variable = self.generate_variable_definition(
+            ["EXIT"], None, False, loop_state
+        )
+        loop_state.next_definitions["EXIT"] = 1
+
+        loop_break_function_name = self.generate_function_name(
+            "__decision__", loop_break_variable["name"], None
+        )
+        exit_inputs = ["@variable::IF_0::0"]
+        exit_inputs.extend([f"@variable::{list(x.keys())[0]}::0" for x in
+                            self.exit_candidates])
+        lambda_inputs = [f"{x.split('::')[1]}_{x.split('::')[2]}" for x in
+                         exit_inputs]
+
+        loop_break_function = {
+            "function": loop_break_function_name,
+            "input": exit_inputs,
+            "output": [f"@variable::EXIT::0"],
+            "updated": [],
+        }
+        loop_exit_test_lambda = self.generate_lambda_function(
+            ["EXIT"],
+            loop_break_function_name["name"],
+            True,
+            False,
+            False,
+            False,
+            lambda_inputs,
+            state,
+            True,
+        )
+        loop_state.lambda_strings.append(loop_exit_test_lambda)
 
         # TODO: For the `loop_body_outputs`, all variables that were
         #  defined/updated inside the loop body are included. Sometimes,
@@ -1328,22 +1333,6 @@ class GrFNGenerator(object):
             "updated": [],
         }
 
-        loop_break_variable = self.generate_variable_definition(
-            ["EXIT"], None, False, loop_state
-        )
-        # Increment the next definition of EXIT
-        loop_state.next_definitions["EXIT"] = 1
-
-        loop_break_function_name = self.generate_function_name(
-            "__decision__", loop_break_variable["name"], None
-        )
-        loop_break_function = {
-            "function": loop_break_function_name,
-            "input": [f"@variable::IF_0::0"],
-            "output": [f"@variable::EXIT::0"],
-            "updated": [],
-        }
-
         # Create the lambda function for the index variable initiations and
         # other loop checks. This has to be done through a custom lambda
         # function operation since the structure of genCode does not conform
@@ -1365,19 +1354,6 @@ class GrFNGenerator(object):
         )
         loop_state.lambda_strings.append(loop_continuation_test_lambda)
 
-        # Third, lambda function for EXIT code
-        loop_exit_test_lambda = self.generate_lambda_function(
-            "IF_0_0",
-            loop_break_function_name["name"],
-            True,
-            False,
-            False,
-            False,
-            ["IF_0_0"],
-            state,
-            True,
-        )
-        loop_state.lambda_strings.append(loop_exit_test_lambda)
         # Parse through the body of the loop container
         loop = self.gen_grfn(node.body, loop_state, "for")
         # Separate the body grfn into `variables` and `functions` sub parts
@@ -1535,6 +1511,39 @@ class GrFNGenerator(object):
                 body_variables_grfn.append(updated_variable)
                 # Changing it back to its current form
                 self.current_scope = tmp_scope
+
+        loop_break_variable = self.generate_variable_definition(
+            ["EXIT"], None, False, loop_state
+        )
+        loop_state.next_definitions["EXIT"] = 1
+
+        loop_break_function_name = self.generate_function_name(
+            "__decision__", loop_break_variable["name"], None
+        )
+        exit_inputs = ["@variable::IF_0::0"]
+        exit_inputs.extend([f"@variable::{list(x.keys())[0]}::0" for x in
+                            self.exit_candidates])
+        lambda_inputs = [f"{x.split('::')[1]}_{x.split('::')[2]}" for x in
+                         exit_inputs]
+
+        loop_break_function = {
+            "function": loop_break_function_name,
+            "input": exit_inputs,
+            "output": [f"@variable::EXIT::0"],
+            "updated": [],
+        }
+        loop_exit_test_lambda = self.generate_lambda_function(
+            ["EXIT"],
+            loop_break_function_name["name"],
+            True,
+            False,
+            False,
+            False,
+            lambda_inputs,
+            state,
+            True,
+        )
+        loop_state.lambda_strings.append(loop_exit_test_lambda)
 
         # TODO: For the `loop_body_outputs`, all variables that were
         #  defined/updated inside the loop body are included. Sometimes,
@@ -1723,35 +1732,6 @@ class GrFNGenerator(object):
         ):
             else_grfn = []
             self.elif_condition_number = condition_number
-
-        if (
-            len(else_grfn) > 0
-            and isinstance(else_grfn[0]["functions"][0], str)
-            and else_grfn[0]["functions"][0] == "insert_break"
-        ):
-            # Get next def of EXIT
-            _ = self._get_next_definition(
-                "EXIT", else_state.last_definitions, state.next_definitions, 0
-            )
-            loop_break_variable = self.generate_variable_definition(
-                ["EXIT"], None, False, else_state
-            )
-            else_grfn[0]["variables"].append(loop_break_variable)
-
-        if (
-            len(if_grfn) > 0
-            and len(if_grfn[0]["functions"]) > 0
-            and isinstance(if_grfn[0]["functions"][0], str)
-            and if_grfn[0]["functions"][0] == "insert_break"
-        ):
-            # Get next def of EXIT
-            _ = self._get_next_definition(
-                "EXIT", if_state.last_definitions, state.next_definitions, 0
-            )
-            loop_break_variable = self.generate_variable_definition(
-                ["EXIT"], None, False, if_state
-            )
-            if_grfn[0]["variables"].append(loop_break_variable)
 
         for spec in if_grfn:
             grfn["functions"] += spec["functions"]
@@ -2999,7 +2979,7 @@ class GrFNGenerator(object):
         for cur in node.body:
             grfn = self.gen_grfn(cur, state, "module")
             if grfn and "name" in grfn[0] and "@type" in grfn[0]["name"]:
-                self.derived_types_grfn.append(grfn)
+                self.derived_types_grfn.append(grfn[0])
             else:
                 grfn_list += grfn
         merged_grfn = [self._merge_dictionary(grfn_list)]
@@ -3240,11 +3220,18 @@ class GrFNGenerator(object):
 
         return [grfn]
 
-    @staticmethod
-    def process_break(*_):
+    def process_break(self, node, state, *_):
         """
             Process the breaks in the file, adding an EXIT node
         """
+        # Get all the IF_X identifiers and pick the one with the largest
+        # index because that is the current one
+        if_ids = [int(x[-1]) for x in state.last_definitions.keys() if "IF_"
+                  in x]
+        current_if = f"IF_{max(if_ids)}"
+        self.exit_candidates.append({
+            current_if: "break"
+        })
         grfn = {
             "functions": ["insert_break"],
             "variables": [],
@@ -3701,6 +3688,11 @@ class GrFNGenerator(object):
                     lambda_strings.append(f"return {node}")
                 elif isinstance(node, int):
                     lambda_strings.append(f"return {node}")
+                elif isinstance(node, list) and node[0] == "EXIT":
+                    exit_string = f"(not {inputs[0]})"
+                    for ip in inputs[1:]:
+                        exit_string += f" or (not {ip})"
+                    lambda_strings.append(f"return {exit_string}")
                 else:
                     lambda_code_generator = genCode(self.use_numpy)
                     code = lambda_code_generator.generate_code(
@@ -3711,6 +3703,7 @@ class GrFNGenerator(object):
                 assert False, f"Should always return"
             lambda_strings.append("\n\n")
             return "".join(lambda_strings)
+
         # Sort the arguments in the function call as it is used in the operation
         input_list = sorted(set(inputs), key=inputs.index)
         # Add type annotations to the function arguments
@@ -3747,6 +3740,26 @@ class GrFNGenerator(object):
         lambda_strings.append(
             f"def {function_name}({', '.join(argument_strings)}):\n    "
         )
+        # A case where calculating the sum of array.
+        # In this case, we do not have to invoke genCode function(s).
+        if (
+                isinstance(node, ast.Assign)
+                and isinstance(node.value, ast.Call)
+                and "attr" in node.value.func._fields
+                and node.value.func.attr == "get_sum"
+        ):
+            arr_name = node.value.func.value.id
+            assert (
+                    arr_name in self.arrays
+            ), f"Array {arr_name} does not exist in the self.arrays dictionary"
+            dimensions = self.arrays[arr_name]["dimensions"]
+            lambda_strings.append(f"{arr_name}Sum = 0\n")
+            lambda_strings.append(f"    for i in range(0, {len(dimensions)}):\n")
+            lambda_strings.append(f"        {arr_name}Sum += sum({arr_name}[i])\n")
+            lambda_strings.append(f"    return {arr_name}Sum")
+            return "".join(lambda_strings)
+
+
         # If a `decision` tag comes up, override the call to genCode to manually
         # enter the python script for the lambda file.
         if "__decision__" in function_name:
@@ -3767,6 +3780,7 @@ class GrFNGenerator(object):
             code = lambda_code_generator.generate_code(
                 node, PrintState("\n    ")
             )
+
         if return_value:
             if array_assign:
                 if "_" in state.array_assign_name:
@@ -4590,8 +4604,9 @@ def create_grfn_dict(
     lambda_string_list = [
         "from numbers import Real\n",
         "from random import random\n",
-        "from delphi.translators.for2py.strings import *\n"
-        "import numpy as np\n"
+        "from delphi.translators.for2py.strings import *\n",
+        "import numpy as np\n",
+        "from delphi.translators.for2py import intrinsics\n",
         "import delphi.translators.for2py.math_ext as math\n\n",
     ]
 
