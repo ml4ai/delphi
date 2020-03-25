@@ -41,7 +41,23 @@ def _(element: list):
 
 @nint.register
 def _(element: Array):
-    return element.round_elems()
+    arr_bounds = element.bounds()
+    low = arr_bounds[0][0]+1
+    up = arr_bounds[0][1]+1
+
+    new_array = Array(element.get_type(), arr_bounds)
+    for idx in range(low, up):
+        arr_element = element.get_(idx)
+        # Multi-dimensional array.
+        # TODO: Currently handle only 2D arrays.
+        if type(arr_element) == list:
+            for idx2 in range (1, len(arr_element)):
+                rounded_elm = nint(arr_element[idx2])
+                new_array.set_((idx, idx2), rounded_elm)
+        else:
+            new_array.set_((idx), nint(arr_element))
+
+    return new_array
 
 
 def round_value(element: float):

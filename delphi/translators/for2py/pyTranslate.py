@@ -510,6 +510,9 @@ class PythonCodeGenerator(object):
                 to_find = self.get_node_value(node)
                 return f"{var}.find({to_find})"
 
+        if node["name"].lower() == "nint":
+            return f"intrinsics.nint({node['subscripts'][0]['name']})"
+
         if node["name"].lower() in syntax.F_INTRINSICS:
             return self.proc_intrinsic(node)
 
