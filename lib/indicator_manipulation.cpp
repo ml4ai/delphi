@@ -60,14 +60,6 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
   }
   cout << "Connection successful!!!!!!!!!!!1" << endl;
 
-  //sqlite3* db = nullptr;
-  //int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
-  //if (rc != SQLITE_OK) {
-  //  throw runtime_error(
-  //      "Could not open db. Do you have the DELPHI_DB "
-  //      "environment correctly set to point to the Delphi database?");
-  //}
-
 
   string query_base = "select \"Indicator\" from concept_to_indicator_mapping ";
   string query;
@@ -88,78 +80,28 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
         "select `Source` from indicator where `Variable` like '{0}' and `Country` like '{1}' limit 1"_format(
             indicator, country);
     res = PQexec(conn, query.c_str());
-    //rc = sqlite3_step(stmt);
     string source =
-        string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
+        string(reinterpret_cast<const char*>(PQgetvalue(res, 0, 0)));
     PQclear(res);
     return source;
   };
-
-
-  //                   //res = PQexec(conn, "select \"Indicator\" from concept_to_indicator_mapping ");
-  //                   if (PQresultStatus(res) != PGRES_COMMAND_OK)
-  //                   {
-  //                       fprintf(stderr, "DECLARE CURSOR failed: %s", PQerrorMessage(conn));
-  //                       PQclear(res);
-  //                       exit_nicely(conn);
-  //                   }
-  //                   PQclear(res);
-//                   
-  //                   /* Set always-secure search path, so malicious users can't take control. */
-  //                     res = PQexec(conn,
-  //                                  "SELECT pg_catalog.set_config('search_path', '', false)");
-  //                     if (PQresultStatus(res) != PGRES_TUPLES_OK)
-  //                     {
-  //                         fprintf(stderr, "SET failed: %s", PQerrorMessage(conn));
-  //                         PQclear(res);
-  //                         exit_nicely(conn);
-  //                     }
-
-
-
-  //sqlite3_stmt* stmt = nullptr;
-  //string query_base = "select Indicator from concept_to_indicator_mapping ";
-  //string query;
-
-  // Check if there are any data values for an indicator for this country.
-  //auto has_data = [&](string indicator) {
-  //  query =
-  //      "select `Value` from indicator where `Variable` like '{0}' and `Country` like '{1}'"_format(
-  //          indicator, country);
-  //  rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
-  //  rc = sqlite3_step(stmt) == SQLITE_ROW;
-  //  sqlite3_finalize(stmt);
-  //  stmt = nullptr;
-  //  return rc;
-  //};
-
-  //auto get_indicator_source = [&](string indicator) {
-  //  query =
-  //      "select `Source` from indicator where `Variable` like '{0}' and `Country` like '{1}' limit 1"_format(
-  //          indicator, country);
-  //  rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
-  //  rc = sqlite3_step(stmt);
-  //  string source =
-  //      string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
-  //  sqlite3_finalize(stmt);
-  //  stmt = nullptr;
-  //  return source;
-  //};
 
   for (Node& node : this->nodes()) {
     node.clear_indicators(); // Clear pre-existing attached indicators
 
     query = "{0} where `Concept` like '{1}' order by `Score` desc"_format(
         query_base, node.name);
-    rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
+    res = PQexec(conn, query.c_str());
 
     vector<string> matches = {};
-    while (sqlite3_step(stmt) == SQLITE_ROW) {
-      matches.push_back(
-          string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0))));
+    if (PQresultStatus(res) == PGRES_COMMAND_OK) {
+      for (i = 0; i < PQntuples(res); i++)
+      {
+          for (j = 0; j < nFields; j++)
+              matches.push_back(string(reinterpret_cast<const char*>(PQgetvalue(res, i, j)))); // todo
+      }
     }
-    sqlite3_finalize(stmt);
-    stmt = nullptr;
+    PQclear(res);
 
     string ind_name, ind_source;
 
@@ -182,10 +124,7 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
       }
     }
   }
-  rc = sqlite3_finalize(stmt);
-  rc = sqlite3_close(db);
-  stmt = nullptr;
-  db = nullptr;
+  PQfinish(conn);
 }
 
 void AnalysisGraph::parameterize(string country,
