@@ -1,0 +1,2637 @@
+{
+  "variables": [
+    {
+      "name": "@variable::mini_ModuleDefs::global::nl::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::mini_ModuleDefs::global::ts::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::mini_ModuleDefs::global::nappl::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::mini_ModuleDefs::global::ncohorts::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::mini_ModuleDefs::global::nelem::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::mini_ModuleDefs::global::numofdays::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::mini_ModuleDefs::global::numofstalks::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::mini_ModuleDefs::global::evaluatenum::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::mini_ModuleDefs::global::maxfiles::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::mini_ModuleDefs::global::maxpest::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::mini_ModuleDefs::global::pi::0",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::mini_ModuleDefs::global::rad::0",
+      "source_refs": [],
+      "domain": {
+        "name": "float",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::mini_ModuleDefs::global::runinit::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::mini_ModuleDefs::global::init::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::mini_ModuleDefs::global::seasinit::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::mini_ModuleDefs::global::rate::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::mini_ModuleDefs::global::emerg::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::mini_ModuleDefs::global::integr::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::mini_ModuleDefs::global::output::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::mini_ModuleDefs::global::seasend::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::mini_ModuleDefs::global::endrun::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::mini_ModuleDefs::global::n::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::mini_ModuleDefs::global::p::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::mini_ModuleDefs::global::kel::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::mini_ModuleDefs::global::monthtxt::0",
+      "source_refs": [],
+      "domain": {
+        "name": "string",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    }
+  ],
+  "containers": [],
+  "call": [
+    {
+      "function": "monthtxt.set_",
+      "inputs": [
+        [
+          {
+            "type": "literal",
+            "dtype": "integer",
+            "value": 1
+          }
+        ],
+        [
+          {
+            "call": {
+              "function": "String",
+              "inputs": [
+                [
+                  {
+                    "type": "literal",
+                    "dtype": "integer",
+                    "value": 3
+                  }
+                ],
+                [
+                  {
+                    "type": "literal",
+                    "dtype": "string",
+                    "value": "jan"
+                  }
+                ]
+              ]
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "function": "monthtxt.set_",
+      "inputs": [
+        [
+          {
+            "type": "literal",
+            "dtype": "integer",
+            "value": 2
+          }
+        ],
+        [
+          {
+            "call": {
+              "function": "String",
+              "inputs": [
+                [
+                  {
+                    "type": "literal",
+                    "dtype": "integer",
+                    "value": 3
+                  }
+                ],
+                [
+                  {
+                    "type": "literal",
+                    "dtype": "string",
+                    "value": "feb"
+                  }
+                ]
+              ]
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "function": "monthtxt.set_",
+      "inputs": [
+        [
+          {
+            "type": "literal",
+            "dtype": "integer",
+            "value": 3
+          }
+        ],
+        [
+          {
+            "call": {
+              "function": "String",
+              "inputs": [
+                [
+                  {
+                    "type": "literal",
+                    "dtype": "integer",
+                    "value": 3
+                  }
+                ],
+                [
+                  {
+                    "type": "literal",
+                    "dtype": "string",
+                    "value": "mar"
+                  }
+                ]
+              ]
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "function": "monthtxt.set_",
+      "inputs": [
+        [
+          {
+            "type": "literal",
+            "dtype": "integer",
+            "value": 4
+          }
+        ],
+        [
+          {
+            "call": {
+              "function": "String",
+              "inputs": [
+                [
+                  {
+                    "type": "literal",
+                    "dtype": "integer",
+                    "value": 3
+                  }
+                ],
+                [
+                  {
+                    "type": "literal",
+                    "dtype": "string",
+                    "value": "apr"
+                  }
+                ]
+              ]
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "function": "monthtxt.set_",
+      "inputs": [
+        [
+          {
+            "type": "literal",
+            "dtype": "integer",
+            "value": 5
+          }
+        ],
+        [
+          {
+            "call": {
+              "function": "String",
+              "inputs": [
+                [
+                  {
+                    "type": "literal",
+                    "dtype": "integer",
+                    "value": 3
+                  }
+                ],
+                [
+                  {
+                    "type": "literal",
+                    "dtype": "string",
+                    "value": "may"
+                  }
+                ]
+              ]
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "function": "monthtxt.set_",
+      "inputs": [
+        [
+          {
+            "type": "literal",
+            "dtype": "integer",
+            "value": 6
+          }
+        ],
+        [
+          {
+            "call": {
+              "function": "String",
+              "inputs": [
+                [
+                  {
+                    "type": "literal",
+                    "dtype": "integer",
+                    "value": 3
+                  }
+                ],
+                [
+                  {
+                    "type": "literal",
+                    "dtype": "string",
+                    "value": "jun"
+                  }
+                ]
+              ]
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "function": "monthtxt.set_",
+      "inputs": [
+        [
+          {
+            "type": "literal",
+            "dtype": "integer",
+            "value": 7
+          }
+        ],
+        [
+          {
+            "call": {
+              "function": "String",
+              "inputs": [
+                [
+                  {
+                    "type": "literal",
+                    "dtype": "integer",
+                    "value": 3
+                  }
+                ],
+                [
+                  {
+                    "type": "literal",
+                    "dtype": "string",
+                    "value": "jul"
+                  }
+                ]
+              ]
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "function": "monthtxt.set_",
+      "inputs": [
+        [
+          {
+            "type": "literal",
+            "dtype": "integer",
+            "value": 8
+          }
+        ],
+        [
+          {
+            "call": {
+              "function": "String",
+              "inputs": [
+                [
+                  {
+                    "type": "literal",
+                    "dtype": "integer",
+                    "value": 3
+                  }
+                ],
+                [
+                  {
+                    "type": "literal",
+                    "dtype": "string",
+                    "value": "aug"
+                  }
+                ]
+              ]
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "function": "monthtxt.set_",
+      "inputs": [
+        [
+          {
+            "type": "literal",
+            "dtype": "integer",
+            "value": 9
+          }
+        ],
+        [
+          {
+            "call": {
+              "function": "String",
+              "inputs": [
+                [
+                  {
+                    "type": "literal",
+                    "dtype": "integer",
+                    "value": 3
+                  }
+                ],
+                [
+                  {
+                    "type": "literal",
+                    "dtype": "string",
+                    "value": "sep"
+                  }
+                ]
+              ]
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "function": "monthtxt.set_",
+      "inputs": [
+        [
+          {
+            "type": "literal",
+            "dtype": "integer",
+            "value": 10
+          }
+        ],
+        [
+          {
+            "call": {
+              "function": "String",
+              "inputs": [
+                [
+                  {
+                    "type": "literal",
+                    "dtype": "integer",
+                    "value": 3
+                  }
+                ],
+                [
+                  {
+                    "type": "literal",
+                    "dtype": "string",
+                    "value": "oct"
+                  }
+                ]
+              ]
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "function": "monthtxt.set_",
+      "inputs": [
+        [
+          {
+            "type": "literal",
+            "dtype": "integer",
+            "value": 11
+          }
+        ],
+        [
+          {
+            "call": {
+              "function": "String",
+              "inputs": [
+                [
+                  {
+                    "type": "literal",
+                    "dtype": "integer",
+                    "value": 3
+                  }
+                ],
+                [
+                  {
+                    "type": "literal",
+                    "dtype": "string",
+                    "value": "nov"
+                  }
+                ]
+              ]
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "function": "monthtxt.set_",
+      "inputs": [
+        [
+          {
+            "type": "literal",
+            "dtype": "integer",
+            "value": 12
+          }
+        ],
+        [
+          {
+            "call": {
+              "function": "String",
+              "inputs": [
+                [
+                  {
+                    "type": "literal",
+                    "dtype": "integer",
+                    "value": 3
+                  }
+                ],
+                [
+                  {
+                    "type": "literal",
+                    "dtype": "string",
+                    "value": "dec"
+                  }
+                ]
+              ]
+            }
+          }
+        ]
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "function": {
+        "name": "mini_ModuleDefs__global__assign__nl__0",
+        "type": "lambda"
+      },
+      "input": [],
+      "output": [
+        "@variable::nl::0"
+      ],
+      "updated": []
+    },
+    {
+      "function": {
+        "name": "mini_ModuleDefs__global__assign__ts__0",
+        "type": "lambda"
+      },
+      "input": [],
+      "output": [
+        "@variable::ts::0"
+      ],
+      "updated": []
+    },
+    {
+      "function": {
+        "name": "mini_ModuleDefs__global__assign__nappl__0",
+        "type": "lambda"
+      },
+      "input": [],
+      "output": [
+        "@variable::nappl::0"
+      ],
+      "updated": []
+    },
+    {
+      "function": {
+        "name": "mini_ModuleDefs__global__assign__ncohorts__0",
+        "type": "lambda"
+      },
+      "input": [],
+      "output": [
+        "@variable::ncohorts::0"
+      ],
+      "updated": []
+    },
+    {
+      "function": {
+        "name": "mini_ModuleDefs__global__assign__nelem__0",
+        "type": "lambda"
+      },
+      "input": [],
+      "output": [
+        "@variable::nelem::0"
+      ],
+      "updated": []
+    },
+    {
+      "function": {
+        "name": "mini_ModuleDefs__global__assign__numofdays__0",
+        "type": "lambda"
+      },
+      "input": [],
+      "output": [
+        "@variable::numofdays::0"
+      ],
+      "updated": []
+    },
+    {
+      "function": {
+        "name": "mini_ModuleDefs__global__assign__numofstalks__0",
+        "type": "lambda"
+      },
+      "input": [],
+      "output": [
+        "@variable::numofstalks::0"
+      ],
+      "updated": []
+    },
+    {
+      "function": {
+        "name": "mini_ModuleDefs__global__assign__evaluatenum__0",
+        "type": "lambda"
+      },
+      "input": [],
+      "output": [
+        "@variable::evaluatenum::0"
+      ],
+      "updated": []
+    },
+    {
+      "function": {
+        "name": "mini_ModuleDefs__global__assign__maxfiles__0",
+        "type": "lambda"
+      },
+      "input": [],
+      "output": [
+        "@variable::maxfiles::0"
+      ],
+      "updated": []
+    },
+    {
+      "function": {
+        "name": "mini_ModuleDefs__global__assign__maxpest__0",
+        "type": "lambda"
+      },
+      "input": [],
+      "output": [
+        "@variable::maxpest::0"
+      ],
+      "updated": []
+    },
+    {
+      "function": {
+        "name": "mini_ModuleDefs__global__assign__pi__0",
+        "type": "lambda"
+      },
+      "input": [],
+      "output": [
+        "@variable::pi::0"
+      ],
+      "updated": []
+    },
+    {
+      "function": {
+        "name": "mini_ModuleDefs__global__assign__rad__0",
+        "type": "lambda"
+      },
+      "input": [
+        "@variable::pi::0"
+      ],
+      "output": [
+        "@variable::rad::0"
+      ],
+      "updated": []
+    },
+    {
+      "function": {
+        "name": "mini_ModuleDefs__global__assign__runinit__0",
+        "type": "lambda"
+      },
+      "input": [],
+      "output": [
+        "@variable::runinit::0"
+      ],
+      "updated": []
+    },
+    {
+      "function": {
+        "name": "mini_ModuleDefs__global__assign__init__0",
+        "type": "lambda"
+      },
+      "input": [],
+      "output": [
+        "@variable::init::0"
+      ],
+      "updated": []
+    },
+    {
+      "function": {
+        "name": "mini_ModuleDefs__global__assign__seasinit__0",
+        "type": "lambda"
+      },
+      "input": [],
+      "output": [
+        "@variable::seasinit::0"
+      ],
+      "updated": []
+    },
+    {
+      "function": {
+        "name": "mini_ModuleDefs__global__assign__rate__0",
+        "type": "lambda"
+      },
+      "input": [],
+      "output": [
+        "@variable::rate::0"
+      ],
+      "updated": []
+    },
+    {
+      "function": {
+        "name": "mini_ModuleDefs__global__assign__emerg__0",
+        "type": "lambda"
+      },
+      "input": [],
+      "output": [
+        "@variable::emerg::0"
+      ],
+      "updated": []
+    },
+    {
+      "function": {
+        "name": "mini_ModuleDefs__global__assign__integr__0",
+        "type": "lambda"
+      },
+      "input": [],
+      "output": [
+        "@variable::integr::0"
+      ],
+      "updated": []
+    },
+    {
+      "function": {
+        "name": "mini_ModuleDefs__global__assign__output__0",
+        "type": "lambda"
+      },
+      "input": [],
+      "output": [
+        "@variable::output::0"
+      ],
+      "updated": []
+    },
+    {
+      "function": {
+        "name": "mini_ModuleDefs__global__assign__seasend__0",
+        "type": "lambda"
+      },
+      "input": [],
+      "output": [
+        "@variable::seasend::0"
+      ],
+      "updated": []
+    },
+    {
+      "function": {
+        "name": "mini_ModuleDefs__global__assign__endrun__0",
+        "type": "lambda"
+      },
+      "input": [],
+      "output": [
+        "@variable::endrun::0"
+      ],
+      "updated": []
+    },
+    {
+      "function": {
+        "name": "mini_ModuleDefs__global__assign__n__0",
+        "type": "lambda"
+      },
+      "input": [],
+      "output": [
+        "@variable::n::0"
+      ],
+      "updated": []
+    },
+    {
+      "function": {
+        "name": "mini_ModuleDefs__global__assign__p__0",
+        "type": "lambda"
+      },
+      "input": [],
+      "output": [
+        "@variable::p::0"
+      ],
+      "updated": []
+    },
+    {
+      "function": {
+        "name": "mini_ModuleDefs__global__assign__kel__0",
+        "type": "lambda"
+      },
+      "input": [],
+      "output": [
+        "@variable::kel::0"
+      ],
+      "updated": []
+    },
+    {
+      "function": {
+        "name": "mini_ModuleDefs__global__assign__monthtxt__0",
+        "type": "lambda"
+      },
+      "input": [],
+      "output": [
+        "@variable::monthtxt::0"
+      ],
+      "updated": []
+    }
+  ],
+  "start": null,
+  "grounding": [],
+  "types": [
+    [
+      {
+        "name": "@type::mini_ModuleDefs::@global::weathertype",
+        "type": "type",
+        "attributes": [
+          {
+            "name": "refht",
+            "type": "real"
+          },
+          {
+            "name": "windht",
+            "type": "real"
+          },
+          {
+            "name": "xlat",
+            "type": "real"
+          },
+          {
+            "name": "xlong",
+            "type": "real"
+          },
+          {
+            "name": "xelev",
+            "type": "real"
+          },
+          {
+            "name": "clouds",
+            "type": "real"
+          },
+          {
+            "name": "co2",
+            "type": "real"
+          },
+          {
+            "name": "dayl",
+            "type": "real"
+          },
+          {
+            "name": "dco2",
+            "type": "real"
+          },
+          {
+            "name": "par",
+            "type": "real"
+          },
+          {
+            "name": "rain",
+            "type": "real"
+          },
+          {
+            "name": "rhum",
+            "type": "real"
+          },
+          {
+            "name": "sndn",
+            "type": "real"
+          },
+          {
+            "name": "snup",
+            "type": "real"
+          },
+          {
+            "name": "srad",
+            "type": "real"
+          },
+          {
+            "name": "tamp",
+            "type": "real"
+          },
+          {
+            "name": "ta",
+            "type": "real"
+          },
+          {
+            "name": "tav",
+            "type": "real"
+          },
+          {
+            "name": "tavg",
+            "type": "real"
+          },
+          {
+            "name": "tday",
+            "type": "real"
+          },
+          {
+            "name": "tdew",
+            "type": "real"
+          },
+          {
+            "name": "tgroav",
+            "type": "real"
+          },
+          {
+            "name": "tgrody",
+            "type": "real"
+          },
+          {
+            "name": "tmax",
+            "type": "real"
+          },
+          {
+            "name": "tmin",
+            "type": "real"
+          },
+          {
+            "name": "twilen",
+            "type": "real"
+          },
+          {
+            "name": "vapr",
+            "type": "real"
+          },
+          {
+            "name": "windrun",
+            "type": "real"
+          },
+          {
+            "name": "windsp",
+            "type": "real"
+          },
+          {
+            "name": "vpdf",
+            "type": "real"
+          },
+          {
+            "name": "vpd_transp",
+            "type": "real"
+          },
+          {
+            "name": "amtrh",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "ts"
+            ]
+          },
+          {
+            "name": "azzon",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "ts"
+            ]
+          },
+          {
+            "name": "beta",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "ts"
+            ]
+          },
+          {
+            "name": "frdifp",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "ts"
+            ]
+          },
+          {
+            "name": "frdifr",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "ts"
+            ]
+          },
+          {
+            "name": "parhr",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "ts"
+            ]
+          },
+          {
+            "name": "radhr",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "ts"
+            ]
+          },
+          {
+            "name": "rhumhr",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "ts"
+            ]
+          },
+          {
+            "name": "tairhr",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "ts"
+            ]
+          },
+          {
+            "name": "tgro",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "ts"
+            ]
+          },
+          {
+            "name": "windhr",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "ts"
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "name": "@type::mini_ModuleDefs::@global::controltype",
+        "type": "type",
+        "attributes": [
+          {
+            "name": "mesic",
+            "type": "String"
+          },
+          {
+            "name": "rnmode",
+            "type": "String"
+          },
+          {
+            "name": "crop",
+            "type": "String"
+          },
+          {
+            "name": "model",
+            "type": "String"
+          },
+          {
+            "name": "ename",
+            "type": "String"
+          },
+          {
+            "name": "filex",
+            "type": "String"
+          },
+          {
+            "name": "fileio",
+            "type": "String"
+          },
+          {
+            "name": "dssatp",
+            "type": "String"
+          },
+          {
+            "name": "simcontrol",
+            "type": "String"
+          },
+          {
+            "name": "das",
+            "type": "integer"
+          },
+          {
+            "name": "dynamic",
+            "type": "integer"
+          },
+          {
+            "name": "frop",
+            "type": "integer"
+          },
+          {
+            "name": "errcode",
+            "type": "integer"
+          },
+          {
+            "name": "lunio",
+            "type": "integer"
+          },
+          {
+            "name": "multi",
+            "type": "integer"
+          },
+          {
+            "name": "n_elems",
+            "type": "integer"
+          },
+          {
+            "name": "nyrs",
+            "type": "integer"
+          },
+          {
+            "name": "repno",
+            "type": "integer"
+          },
+          {
+            "name": "rotnum",
+            "type": "integer"
+          },
+          {
+            "name": "run",
+            "type": "integer"
+          },
+          {
+            "name": "trtnum",
+            "type": "integer"
+          },
+          {
+            "name": "yrdif",
+            "type": "integer"
+          },
+          {
+            "name": "yrdoy",
+            "type": "integer"
+          },
+          {
+            "name": "yrsim",
+            "type": "integer"
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "name": "@type::mini_ModuleDefs::@global::switchtype",
+        "type": "type",
+        "attributes": [
+          {
+            "name": "fname",
+            "type": "String"
+          },
+          {
+            "name": "idetc",
+            "type": "String"
+          },
+          {
+            "name": "idetd",
+            "type": "String"
+          },
+          {
+            "name": "idetg",
+            "type": "String"
+          },
+          {
+            "name": "ideth",
+            "type": "String"
+          },
+          {
+            "name": "idetl",
+            "type": "String"
+          },
+          {
+            "name": "idetn",
+            "type": "String"
+          },
+          {
+            "name": "ideto",
+            "type": "String"
+          },
+          {
+            "name": "idetp",
+            "type": "String"
+          },
+          {
+            "name": "idetr",
+            "type": "String"
+          },
+          {
+            "name": "idets",
+            "type": "String"
+          },
+          {
+            "name": "idetw",
+            "type": "String"
+          },
+          {
+            "name": "ihari",
+            "type": "String"
+          },
+          {
+            "name": "iplti",
+            "type": "String"
+          },
+          {
+            "name": "iirri",
+            "type": "String"
+          },
+          {
+            "name": "isimi",
+            "type": "String"
+          },
+          {
+            "name": "iswche",
+            "type": "String"
+          },
+          {
+            "name": "iswdis",
+            "type": "String"
+          },
+          {
+            "name": "iswnit",
+            "type": "String"
+          },
+          {
+            "name": "iswpho",
+            "type": "String"
+          },
+          {
+            "name": "iswpot",
+            "type": "String"
+          },
+          {
+            "name": "iswsym",
+            "type": "String"
+          },
+          {
+            "name": "iswtil",
+            "type": "String"
+          },
+          {
+            "name": "iswwat",
+            "type": "String"
+          },
+          {
+            "name": "meevp",
+            "type": "String"
+          },
+          {
+            "name": "meghg",
+            "type": "String"
+          },
+          {
+            "name": "mehyd",
+            "type": "String"
+          },
+          {
+            "name": "meinf",
+            "type": "String"
+          },
+          {
+            "name": "meli",
+            "type": "String"
+          },
+          {
+            "name": "mepho",
+            "type": "String"
+          },
+          {
+            "name": "mesom",
+            "type": "String"
+          },
+          {
+            "name": "mesol",
+            "type": "String"
+          },
+          {
+            "name": "mesev",
+            "type": "String"
+          },
+          {
+            "name": "mewth",
+            "type": "String"
+          },
+          {
+            "name": "metmp",
+            "type": "String"
+          },
+          {
+            "name": "iferi",
+            "type": "String"
+          },
+          {
+            "name": "iresi",
+            "type": "String"
+          },
+          {
+            "name": "ico2",
+            "type": "String"
+          },
+          {
+            "name": "fmopt",
+            "type": "String"
+          },
+          {
+            "name": "nswi",
+            "type": "integer"
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "name": "@type::mini_ModuleDefs::@global::soiltype",
+        "type": "type",
+        "attributes": [
+          {
+            "name": "nlayr",
+            "type": "integer"
+          },
+          {
+            "name": "smpx",
+            "type": "String"
+          },
+          {
+            "name": "slno",
+            "type": "String"
+          },
+          {
+            "name": "texture",
+            "type": "Array",
+            "elem_type": "String",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "soillayertype",
+            "type": "Array",
+            "elem_type": "String",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "sldesc",
+            "type": "String"
+          },
+          {
+            "name": "taxon",
+            "type": "String"
+          },
+          {
+            "name": "coarse",
+            "type": "Array",
+            "elem_type": "bool",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "ales",
+            "type": "real"
+          },
+          {
+            "name": "dmod",
+            "type": "real"
+          },
+          {
+            "name": "slpf",
+            "type": "real"
+          },
+          {
+            "name": "cmsalb",
+            "type": "real"
+          },
+          {
+            "name": "msalb",
+            "type": "real"
+          },
+          {
+            "name": "swalb",
+            "type": "real"
+          },
+          {
+            "name": "salb",
+            "type": "real"
+          },
+          {
+            "name": "bd",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "cec",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "clay",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "dlayr",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "ds",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "dul",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "kg2ppm",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "ll",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "oc",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "ph",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "phkcl",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "poros",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "sand",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "sat",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "silt",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "stones",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "swcn",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "wcr",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "alphavg",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "mvg",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "nvg",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "caco3",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "extp",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "orgp",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "pterma",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "ptermb",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "totp",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "totbas",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "exca",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "exk",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "exna",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "sasc",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "etdr",
+            "type": "real"
+          },
+          {
+            "name": "pondmax",
+            "type": "real"
+          },
+          {
+            "name": "sldn",
+            "type": "real"
+          },
+          {
+            "name": "slope",
+            "type": "real"
+          },
+          {
+            "name": "cn",
+            "type": "real"
+          },
+          {
+            "name": "swcon",
+            "type": "real"
+          },
+          {
+            "name": "u",
+            "type": "real"
+          },
+          {
+            "name": "adcoef",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "totn",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "totorgn",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "wr",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "layertext",
+            "type": "Array",
+            "elem_type": "String",
+            "dimensions": [
+              12
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "name": "@type::mini_ModuleDefs::@global::mulchtype",
+        "type": "type",
+        "attributes": [
+          {
+            "name": "mulchmass",
+            "type": "real"
+          },
+          {
+            "name": "mulchalb",
+            "type": "real"
+          },
+          {
+            "name": "mulchcover",
+            "type": "real"
+          },
+          {
+            "name": "mulchthick",
+            "type": "real"
+          },
+          {
+            "name": "mulchwat",
+            "type": "real"
+          },
+          {
+            "name": "mulchevap",
+            "type": "real"
+          },
+          {
+            "name": "mulchsat",
+            "type": "real"
+          },
+          {
+            "name": "mulchn",
+            "type": "real"
+          },
+          {
+            "name": "mulchp",
+            "type": "real"
+          },
+          {
+            "name": "newmulch",
+            "type": "real"
+          },
+          {
+            "name": "newmulchwat",
+            "type": "real"
+          },
+          {
+            "name": "mulch_am",
+            "type": "real"
+          },
+          {
+            "name": "mul_extfac",
+            "type": "real"
+          },
+          {
+            "name": "mul_watfac",
+            "type": "real"
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "name": "@type::mini_ModuleDefs::@global::tilltype",
+        "type": "type",
+        "attributes": [
+          {
+            "name": "ntil",
+            "type": "integer"
+          },
+          {
+            "name": "tildate",
+            "type": "integer"
+          },
+          {
+            "name": "tildep",
+            "type": "real"
+          },
+          {
+            "name": "tilmix",
+            "type": "real"
+          },
+          {
+            "name": "tilresinc",
+            "type": "real"
+          },
+          {
+            "name": "til_irr",
+            "type": "real"
+          },
+          {
+            "name": "ntil_today",
+            "type": "integer"
+          },
+          {
+            "name": "nlyrs",
+            "type": "Array",
+            "elem_type": "int",
+            "dimensions": [
+              "nappl"
+            ]
+          },
+          {
+            "name": "cnp",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nappl"
+            ]
+          },
+          {
+            "name": "tdep",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nappl"
+            ]
+          },
+          {
+            "name": "bdp",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nappl",
+              "nl"
+            ]
+          },
+          {
+            "name": "dep",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nappl",
+              "nl"
+            ]
+          },
+          {
+            "name": "swcnp",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nappl",
+              "nl"
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "name": "@type::mini_ModuleDefs::@global::oxlayertype",
+        "type": "type",
+        "attributes": [
+          {
+            "name": "ibp",
+            "type": "integer"
+          },
+          {
+            "name": "oxu",
+            "type": "real"
+          },
+          {
+            "name": "oxh4",
+            "type": "real"
+          },
+          {
+            "name": "oxn3",
+            "type": "real"
+          },
+          {
+            "name": "oxlt",
+            "type": "real"
+          },
+          {
+            "name": "oxmin4",
+            "type": "real"
+          },
+          {
+            "name": "oxmin3",
+            "type": "real"
+          },
+          {
+            "name": "dltoxu",
+            "type": "real"
+          },
+          {
+            "name": "dltoxh4",
+            "type": "real"
+          },
+          {
+            "name": "dltoxn3",
+            "type": "real"
+          },
+          {
+            "name": "algact",
+            "type": "real"
+          },
+          {
+            "name": "dailycalc",
+            "type": "bool"
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "name": "@type::mini_ModuleDefs::@global::ferttype",
+        "type": "type",
+        "attributes": [
+          {
+            "name": "apptype",
+            "type": "String"
+          },
+          {
+            "name": "fertday",
+            "type": "integer"
+          },
+          {
+            "name": "fertype",
+            "type": "integer"
+          },
+          {
+            "name": "napfer",
+            "type": "Array",
+            "elem_type": "int",
+            "dimensions": [
+              "nelem"
+            ]
+          },
+          {
+            "name": "ferdepth",
+            "type": "real"
+          },
+          {
+            "name": "fermixperc",
+            "type": "real"
+          },
+          {
+            "name": "addfnh4",
+            "type": "real"
+          },
+          {
+            "name": "addfno3",
+            "type": "real"
+          },
+          {
+            "name": "addfurea",
+            "type": "real"
+          },
+          {
+            "name": "addoxu",
+            "type": "real"
+          },
+          {
+            "name": "addoxh4",
+            "type": "real"
+          },
+          {
+            "name": "addoxn3",
+            "type": "real"
+          },
+          {
+            "name": "amtfer",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nelem"
+            ]
+          },
+          {
+            "name": "addsnh4",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "addsno3",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "addurea",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "addspi",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "addski",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "uninco",
+            "type": "bool"
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "name": "@type::mini_ModuleDefs::@global::residuetype",
+        "type": "type",
+        "attributes": [
+          {
+            "name": "reswt",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "reslig",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "rese",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "cumreswt",
+            "type": "real"
+          },
+          {
+            "name": "cumrese",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nelem"
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "name": "@type::mini_ModuleDefs::@global::orgmatapptype",
+        "type": "type",
+        "attributes": [
+          {
+            "name": "napres",
+            "type": "integer"
+          },
+          {
+            "name": "resdat",
+            "type": "integer"
+          },
+          {
+            "name": "resdepth",
+            "type": "integer"
+          },
+          {
+            "name": "restype",
+            "type": "String"
+          },
+          {
+            "name": "resmixperc",
+            "type": "real"
+          },
+          {
+            "name": "reswt",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "reslig",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "rese",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nl"
+            ]
+          },
+          {
+            "name": "cumreswt",
+            "type": "real"
+          },
+          {
+            "name": "cumrese",
+            "type": "Array",
+            "elem_type": "float",
+            "dimensions": [
+              "nelem"
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "name": "@type::mini_ModuleDefs::@global::plstrestype",
+        "type": "type",
+        "attributes": [
+          {
+            "name": "nstages",
+            "type": "integer"
+          },
+          {
+            "name": "stagename",
+            "type": "Array",
+            "elem_type": "String",
+            "dimensions": [
+              6
+            ]
+          },
+          {
+            "name": "w_grow",
+            "type": "real"
+          },
+          {
+            "name": "w_phot",
+            "type": "real"
+          },
+          {
+            "name": "n_grow",
+            "type": "real"
+          },
+          {
+            "name": "n_phot",
+            "type": "real"
+          },
+          {
+            "name": "p_grow",
+            "type": "real"
+          },
+          {
+            "name": "p_phot",
+            "type": "real"
+          },
+          {
+            "name": "active",
+            "type": "Array",
+            "elem_type": "bool",
+            "dimensions": [
+              6
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "name": "@type::mini_ModuleDefs::@global::outputtype",
+        "type": "type",
+        "attributes": [
+          {
+            "name": "numfiles",
+            "type": "integer"
+          },
+          {
+            "name": "filename",
+            "type": "Array",
+            "elem_type": "String",
+            "dimensions": [
+              "maxfiles"
+            ]
+          },
+          {
+            "name": "opcode",
+            "type": "Array",
+            "elem_type": "String",
+            "dimensions": [
+              "maxfiles"
+            ]
+          },
+          {
+            "name": "description",
+            "type": "Array",
+            "elem_type": "String",
+            "dimensions": [
+              "maxfiles"
+            ]
+          },
+          {
+            "name": "alias",
+            "type": "Array",
+            "elem_type": "String",
+            "dimensions": [
+              "maxfiles"
+            ]
+          },
+          {
+            "name": "lun",
+            "type": "Array",
+            "elem_type": "int",
+            "dimensions": [
+              "maxfiles"
+            ]
+          }
+        ]
+      }
+    ]
+  ],
+  "source": [
+    "mini_ModuleDefs.for"
+  ],
+  "source_comments": {
+    "$file_head": [
+      "!     Retrieves CONTROL variable\n"
+    ],
+    "$file_foot": [
+      "!======================================================================\n"
+    ],
+    "Get_CONTROL": {
+      "head": [
+        "!----------------------------------------------------------------------\n"
+      ],
+      "neck": [
+        "!     Retrieves CONTROL variable\n"
+      ],
+      "foot": [
+        "!----------------------------------------------------------------------\n"
+      ],
+      "internal": {}
+    },
+    "Put_CONTROL": {
+      "head": [
+        "!----------------------------------------------------------------------\n"
+      ],
+      "neck": [
+        "!     Stores CONTROL variable\n"
+      ],
+      "foot": [
+        "!----------------------------------------------------------------------\n"
+      ],
+      "internal": {}
+    },
+    "Get_ISWITCH": {
+      "head": [
+        "!----------------------------------------------------------------------\n"
+      ],
+      "neck": [
+        "!     Retrieves ISWITCH variable\n"
+      ],
+      "foot": [
+        "!----------------------------------------------------------------------\n"
+      ],
+      "internal": {}
+    },
+    "Put_ISWITCH": {
+      "head": [
+        "!----------------------------------------------------------------------\n"
+      ],
+      "neck": [
+        "!     Stores ISWITCH variable\n"
+      ],
+      "foot": [
+        "!----------------------------------------------------------------------\n"
+      ],
+      "internal": {}
+    },
+    "GET_OUTPUT": {
+      "head": [
+        "!----------------------------------------------------------------------\n"
+      ],
+      "neck": [
+        "!     Retrieves OUTPUT variable as needed\n"
+      ],
+      "foot": [
+        "!----------------------------------------------------------------------\n"
+      ],
+      "internal": {}
+    },
+    "PUT_OUTPUT": {
+      "head": [
+        "!----------------------------------------------------------------------\n"
+      ],
+      "neck": [
+        "!     Stores OUTPUT variable\n"
+      ],
+      "foot": [
+        "!----------------------------------------------------------------------\n"
+      ],
+      "internal": {}
+    },
+    "GET_SOILPROP": {
+      "head": [
+        "!----------------------------------------------------------------------\n"
+      ],
+      "neck": [
+        "!     Retrieves SOILPROP variable as needed\n"
+      ],
+      "foot": [
+        "!!----------------------------------------------------------------------\n",
+        "!      SUBROUTINE GET_WEATHER(WEATHER_ARG)\n",
+        "!!     Retrieves WEATHER variable as needed\n",
+        "!      IMPLICIT NONE\n",
+        "!      TYPE (WeathType) WEATHER_ARG\n",
+        "!      WEATHER_ARG = SAVE_data % WEATHER\n",
+        "!      RETURN\n",
+        "!      END SUBROUTINE GET_WEATHER\n",
+        "!\n",
+        "!!----------------------------------------------------------------------\n",
+        "!      SUBROUTINE PUT_WEATHER(WEATHER_ARG)\n",
+        "!!     Stores WEATHER variable\n",
+        "!      IMPLICIT NONE\n",
+        "!      TYPE (WeathType) WEATHER_ARG\n",
+        "!      SAVE_data % WEATHER = WEATHER_ARG\n",
+        "!      RETURN\n",
+        "!      END SUBROUTINE PUT_WEATHER\n",
+        "!----------------------------------------------------------------------\n"
+      ],
+      "internal": {}
+    },
+    "PUT_SOILPROP": {
+      "head": [
+        "!----------------------------------------------------------------------\n"
+      ],
+      "neck": [
+        "!     Stores SOILPROP variable\n"
+      ],
+      "foot": [
+        "!----------------------------------------------------------------------\n"
+      ],
+      "internal": {}
+    },
+    "GET_Real": {
+      "head": [
+        "!!----------------------------------------------------------------------\n",
+        "!      SUBROUTINE GET_WEATHER(WEATHER_ARG)\n",
+        "!!     Retrieves WEATHER variable as needed\n",
+        "!      IMPLICIT NONE\n",
+        "!      TYPE (WeathType) WEATHER_ARG\n",
+        "!      WEATHER_ARG = SAVE_data % WEATHER\n",
+        "!      RETURN\n",
+        "!      END SUBROUTINE GET_WEATHER\n",
+        "!\n",
+        "!!----------------------------------------------------------------------\n",
+        "!      SUBROUTINE PUT_WEATHER(WEATHER_ARG)\n",
+        "!!     Stores WEATHER variable\n",
+        "!      IMPLICIT NONE\n",
+        "!      TYPE (WeathType) WEATHER_ARG\n",
+        "!      SAVE_data % WEATHER = WEATHER_ARG\n",
+        "!      RETURN\n",
+        "!      END SUBROUTINE PUT_WEATHER\n",
+        "!----------------------------------------------------------------------\n"
+      ],
+      "neck": [
+        "!     Retrieves real variable from SAVE_data.  Variable must be\n",
+        "!         included as a component of SAVE_data.\n"
+      ],
+      "foot": [
+        "!----------------------------------------------------------------------\n"
+      ],
+      "internal": {}
+    },
+    "PUT_Real": {
+      "head": [
+        "!----------------------------------------------------------------------\n"
+      ],
+      "neck": [
+        "!     Stores real variable SAVE_data.\n"
+      ],
+      "foot": [
+        "!----------------------------------------------------------------------\n"
+      ],
+      "internal": {}
+    },
+    "GET_Real_Array_NL": {
+      "head": [
+        "!----------------------------------------------------------------------\n"
+      ],
+      "neck": [
+        "!     Retrieves array of dimension(NL)\n"
+      ],
+      "foot": [
+        "!----------------------------------------------------------------------\n"
+      ],
+      "internal": {}
+    },
+    "PUT_Real_Array_NL": {
+      "head": [
+        "!----------------------------------------------------------------------\n"
+      ],
+      "neck": [
+        "!     Stores array of dimension NL\n"
+      ],
+      "foot": [
+        "!----------------------------------------------------------------------\n"
+      ],
+      "internal": {}
+    },
+    "GET_Integer": {
+      "head": [
+        "!----------------------------------------------------------------------\n"
+      ],
+      "neck": [
+        "!     Retrieves Integer variable as needed\n"
+      ],
+      "foot": [
+        "!----------------------------------------------------------------------\n"
+      ],
+      "internal": {}
+    },
+    "PUT_Integer": {
+      "head": [
+        "!----------------------------------------------------------------------\n"
+      ],
+      "neck": [
+        "!     Stores Integer variable\n"
+      ],
+      "foot": [
+        "!----------------------------------------------------------------------\n"
+      ],
+      "internal": {}
+    },
+    "GET_Char": {
+      "head": [
+        "!----------------------------------------------------------------------\n"
+      ],
+      "neck": [
+        "!     Retrieves Integer variable as needed\n"
+      ],
+      "foot": [],
+      "internal": {}
+    },
+    "PUT_Char": {
+      "head": [
+        "!----------------------------------------------------------------------\n"
+      ],
+      "neck": [
+        "!     Stores Character variable\n"
+      ],
+      "foot": [
+        "!======================================================================\n"
+      ],
+      "internal": {}
+    }
+  },
+  "system": {
+    "name": "mini_ModuleDefs",
+    "components": [
+      {
+        "grfn_source": "scripts/tmp/m_mini_moduledefs_GrFN.json",
+        "code_source": [
+          "/Users/pratikbhandari/Documents/UofA/delphi/sem-iv/dssat_pet/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET/mini_ModuleDefs.for"
+        ],
+        "imports": [
+          "scripts/tmp/m_mini_moduledefs_GrFN.json"
+        ]
+      }
+    ]
+  }
+}
