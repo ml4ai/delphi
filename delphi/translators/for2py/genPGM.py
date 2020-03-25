@@ -157,6 +157,19 @@ class GrFNGenerator(object):
         self.global_scope_variables = {}
         self.exit_candidates = []
         self.global_state = None
+        self.global_grfn = {
+            "containers": [{
+                "name": None,
+                "source_refs": [],
+                "gensym": None,
+                "repeat": False,
+                "arguments": [],
+                "updated": [],
+                "return_value": [],
+                "body": [],
+            }],
+            "variables": [],
+        }
 
         self.gensym_tag_map = {
             "container": "c",
@@ -2977,11 +2990,25 @@ class GrFNGenerator(object):
         """
         grfn_list = []
         for cur in node.body:
+            node_name = cur.__repr__().split()[0][2:]
             grfn = self.gen_grfn(cur, state, "module")
+            # print(grfn)
             if grfn and "name" in grfn[0] and "@type" in grfn[0]["name"]:
                 self.derived_types_grfn.append(grfn[0])
+            # elif node_name in ["ast.AnnAssign", "ast.Assign", "ast.Expr"]:
+            #     if not self.global_grfn["containers"][0]["name"]:
+            #         namespace = self._get_namespace(self.fortran_file)
+            #         self.global_grfn["containers"][0]["name"] = \
+            #             f"@container::{namespace}::@global"
+            #         self.global_grfn["containers"][0]["gensym"] = \
+            #             self.generate_gensym("container")
+            #     if len(grfn) > 0:
+            #         self.global_grfn["containers"][0]["body"] += grfn[0][
+            #             "functions"]
+            #         self.global_grfn["variables"] += grfn[0]["variables"]
             else:
                 grfn_list += grfn
+        # grfn_list += [self.global_grfn]
         merged_grfn = [self._merge_dictionary(grfn_list)]
         return merged_grfn
         # TODO Implement this. This needs to be done for generality
@@ -3922,8 +3949,11 @@ class GrFNGenerator(object):
                 variable = reference
                 for var in variables:
                     variable += f"__{var}"
-            else:
-                variable = f"{variable}_{reference}"
+            # else:
+            #     variable = f"{variable}_{reference}"
+            # TODO: The code above has been commented for now but not removed.
+            #  Remove this when everything works and the line below doesn't
+            #  give any issues
             state.last_definitions[variable] = index[0]
 
         variable_name = (
