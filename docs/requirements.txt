@@ -1,1 +1,0 @@
--e git://github.com/sorgerlab/indra.git#egg=indra
