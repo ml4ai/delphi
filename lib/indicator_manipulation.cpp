@@ -1,7 +1,6 @@
 #include "AnalysisGraph.hpp"
 #include "data.hpp"
 #include "libpq-fe.h"
-#include <sqlite3.h>
 
 
 using namespace std;
@@ -51,6 +50,8 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
   PGconn       *conn;
   PGresult     *res;
   conninfo = "dbname = delphi";
+  int          nFields;
+
   /* Make a connection to the database */
   conn = PQconnectdb(conninfo);
   /* Check to see that the backend connection was successfully made */
@@ -58,7 +59,7 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
     cout << "Connection to database failed: " << PQerrorMessage(conn) << endl;
     exit_nicely(conn);
   }
-  cout << "Connection successful!!!!!!!!!!!1" << endl;
+  cout << "Connection successful!!!!!!!!!!!" << endl; // todo
 
 
   string query_base = "select \"Indicator\" from concept_to_indicator_mapping ";
@@ -93,6 +94,8 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
         query_base, node.name);
     res = PQexec(conn, query.c_str());
 
+    
+    nFields = PQnfields(res);
     vector<string> matches = {};
     if (PQresultStatus(res) == PGRES_COMMAND_OK) {
       for (i = 0; i < PQntuples(res); i++)

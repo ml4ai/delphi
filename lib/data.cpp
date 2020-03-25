@@ -1,7 +1,7 @@
 #include "data.hpp"
 #include "utils.hpp"
 #include <fmt/format.h>
-#include <sqlite3.h>
+#include "libpq-fe.h"
 #include <chrono>
 #include <range/v3/all.hpp>
 #include <thread>
@@ -19,18 +19,20 @@ vector<double> get_data_value(string indicator,
   using fmt::print;
   using namespace fmt::literals;
 
-  sqlite3* db = nullptr;
+  const char   *conninfo;
+  PGconn       *conn;
+  PGresult     *res;
+  conninfo = "dbname = delphi";
+  int          nFields;
 
   vector<double> vals = {};
 
-  int rc;
-  rc = sqlite3_open(getenv("DELPHI_DB"), &db);
-  if (rc != SQLITE_OK) {
+  conn = PQconnectdb(conninfo);
+  if (PQstatus(conn) != CONNECTION_OK) {
     throw runtime_error("Could not open db. Do you have the DELPHI_DB "
         "environment correctly set to point to the Delphi database?");
   }
-
-  sqlite3_stmt* stmt = nullptr;
+  cout << "Connection successful!!!!!!!!!!!" << endl; // todo
 
   string query =
       "select Unit, Value from indicator where `Variable` like '{}'"_format(
@@ -41,27 +43,22 @@ vector<double> get_data_value(string indicator,
   if (!country.empty()) {
     check_q = "{0} and `Country` is '{1}'"_format(query, country);
 
-    rc = sqlite3_prepare_v2(db, check_q.c_str(), -1, &stmt, NULL);
-    if (rc == SQLITE_OK) {
-      rc = sqlite3_step(stmt);
-      if (rc == SQLITE_ROW) {
-        query = check_q;
-      }
-      else {
-        print("Could not find data for country {}. Averaging data over all "
-              "countries for given axes (Default Setting)\n",
-              country);
-      }
-      sqlite3_finalize(stmt);
-      stmt = nullptr;
+    res = PQexec(conn, check_q.c_str());
+    if (PQresultStatus(res) == PGRES_COMMAND_OK) {
+      query = check_q;
     }
+    else {
+      print("Could not find data for country {}. Averaging data over all "
+            "countries for given axes (Default Setting)\n",
+            country);
+    }
+    PQclear(res);
   }
 
   if (!state.empty()) {
     check_q = "{0} and `State` is '{1}'"_format(query, state);
-    rc = sqlite3_prepare_v2(db, check_q.c_str(), -1, &stmt, NULL);
-    rc = sqlite3_step(stmt);
-    if (rc == SQLITE_ROW) {
+    res = PQexec(conn, check_q.c_str());
+    if (PQresultStatus(res) == PGRES_COMMAND_OK) {
       query = check_q;
     }
     else {
@@ -69,15 +66,13 @@ vector<double> get_data_value(string indicator,
             "of the country level (Default Setting)\n",
             state);
     }
-    sqlite3_finalize(stmt);
-    stmt = nullptr;
+    PQclear(res);
   }
 
   if (!county.empty()) {
     check_q = "{0} and `County` is '{1}'"_format(query, county);
-    rc = sqlite3_prepare_v2(db, check_q.c_str(), -1, &stmt, NULL);
-    rc = sqlite3_step(stmt);
-    if (rc == SQLITE_ROW) {
+    res = PQexec(conn, check_q.c_str());
+    if (PQresultStatus(res) == PGRES_COMMAND_OK) {
       query = check_q;
     }
     else {
@@ -85,34 +80,36 @@ vector<double> get_data_value(string indicator,
             "of the state level (Default Setting)\n",
             county);
     }
-    sqlite3_finalize(stmt);
-    stmt = nullptr;
+    PQclear(res);
   }
 
   if (!unit.empty()) {
     check_q = "{0} and `Unit` is '{1}'"_format(query, unit);
-    rc = sqlite3_prepare_v2(db, check_q.c_str(), -1, &stmt, NULL);
-    rc = sqlite3_step(stmt);
-    if (rc == SQLITE_ROW) {
+    res = PQexec(conn, check_q.c_str());
+    if (PQresultStatus(res) == PGRES_COMMAND_OK) {
       query = check_q;
     }
     else {
-      sqlite3_finalize(stmt);
-      stmt = nullptr;
+      PQclear(res);
       print("Could not find data for unit {}. Using first unit in "
             "alphabetical order (Default Setting)\n",
             unit);
 
       vector<string> units;
-
-      rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
-      while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-        string ind_unit =
-            string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
-        units.push_back(ind_unit);
+      nFields = PQnfields(res);
+      res = PQexec(conn, query.c_str());
+      if (PQresultStatus(res) == PGRES_COMMAND_OK) {
+        for (i = 0; i < PQntuples(res); i++)
+        {
+          for (j = 0; j < nFields; j++)
+          {
+            string ind_unit =
+                string(reinterpret_cast<const char*>(PQgetvalue(res, i, j)));
+            units.push_back(ind_unit);
+          }
+        }
       }
-      sqlite3_finalize(stmt);
-      stmt = nullptr;
+      PQclear(res);
       if (!units.empty()) {
         ranges::sort(units);
         query = "{0} and `Unit` is '{1}'"_format(query, units.front());
@@ -122,8 +119,7 @@ vector<double> get_data_value(string indicator,
       }
     }
   }
-  sqlite3_finalize(stmt);
-  stmt = nullptr;
+  PQclear(res);
 
   if (!(year == -1)) {
     check_q = "{0} and `Year` is '{1}'"_format(query, year);
