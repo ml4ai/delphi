@@ -137,7 +137,7 @@ class Array:
         """
         arr_bounds = self._bounds
         summed_val = 0
-        
+
         low = arr_bounds[0][0]+1
         up = arr_bounds[0][1]+1
         for idx in range(low, up):
@@ -156,6 +156,9 @@ class Array:
                 summed_val += arr_element
 
         return summed_val
+
+    def get_type(self):
+        return self._types
 
 
 ################################################################################
