@@ -4604,8 +4604,9 @@ def create_grfn_dict(
     lambda_string_list = [
         "from numbers import Real\n",
         "from random import random\n",
-        "from delphi.translators.for2py.strings import *\n"
-        "import numpy as np\n"
+        "from delphi.translators.for2py.strings import *\n",
+        "import numpy as np\n",
+        "from delphi.translators.for2py import intrinsics\n",
         "import delphi.translators.for2py.math_ext as math\n\n",
     ]
 
