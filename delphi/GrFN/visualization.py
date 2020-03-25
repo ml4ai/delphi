@@ -71,7 +71,7 @@ class SensitivityVisualizer(object):
             plt.ylim(-0.2, 1.0)
 
         plt.savefig(filename)
-
+        return plt
 
     def create_S2_plot(self, filename = "s2_plot.pdf"):
         """ Creates gridplot with second order Sobol index matrices for largest sample
@@ -86,7 +86,7 @@ class SensitivityVisualizer(object):
         S2_mat = self.S2_dataframe[elem].to_dict()
         df = pd.DataFrame(S2_mat)
         max_val = max(df.max(axis=0).values)
-        var_names = sorted(df.columns)
+        var_names = df.columns
 
         if len(df.columns) < 10:
             plt.figure(figsize=(12, 12))
@@ -110,6 +110,7 @@ class SensitivityVisualizer(object):
         plt.yticks(fontsize=15, rotation=0)
 
         plt.savefig(filename)
+        return plt
 
     def create_clocktime_plot(self, filename = "clocktime_plot.pdf"):
         """ Creates plot of runtime (Sample Time, Execution Time, and Analysis Time)
@@ -133,3 +134,5 @@ class SensitivityVisualizer(object):
         plt.xticks(fontsize=20)
         plt.yticks(fontsize=20)
         plt.savefig(filename)
+
+        return plt
