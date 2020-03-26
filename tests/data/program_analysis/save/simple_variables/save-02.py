@@ -6,6 +6,7 @@ from delphi.translators.for2py.format import *
 from delphi.translators.for2py.arrays import *
 from delphi.translators.for2py.static_save import *
 from delphi.translators.for2py.strings import *
+from delphi.translators.for2py import intrinsics
 from dataclasses import dataclass
 from delphi.translators.for2py.types_ext import Float32
 import delphi.translators.for2py.math_ext as math
@@ -31,7 +32,7 @@ def g(n: List[int], x: List[int]):
 
 def main():
     format_10: List[str] = [None]
-    format_10 = ['"a = "', 'I5', '";   b = "', 'I5']
+    format_10 = ['"a = "', 'i5', '";   b = "', 'i5']
     format_10_obj = Format(format_10)
     
     a: List[int] = [None]

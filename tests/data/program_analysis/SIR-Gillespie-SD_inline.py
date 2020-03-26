@@ -6,6 +6,7 @@ from delphi.translators.for2py.format import *
 from delphi.translators.for2py.arrays import *
 from delphi.translators.for2py.static_save import *
 from delphi.translators.for2py.strings import *
+from delphi.translators.for2py import intrinsics
 from dataclasses import dataclass
 from delphi.translators.for2py.types_ext import Float32
 import delphi.translators.for2py.math_ext as math
@@ -39,13 +40,13 @@ def gillespie(s: List[int], i: List[int], r: List[int], gamma: List[float], rho:
     rateinfect: List[float] = [None]
     raterecover: List[float] = [None]
     for j[0] in range(0, tmax[0]+1):
-        means.set_((j[0]), 0)
-        meani.set_((j[0]), 0.0)
-        meanr.set_((j[0]), 0.0)
-        vars.set_((j[0]), 0.0)
-        vari.set_((j[0]), 0.0)
-        varr.set_((j[0]), 0.0)
-        samples.set_((j[0]), j[0])
+        means.set_((j[0]), Float32(0))
+        meani.set_((j[0]), Float32(0.0))
+        meanr.set_((j[0]), Float32(0.0))
+        vars.set_((j[0]), Float32(0.0))
+        vari.set_((j[0]), Float32(0.0))
+        varr.set_((j[0]), Float32(0.0))
+        samples.set_((j[0]), int(j[0]))
     for runs[0] in range(0, (total_runs[0] - 1)+1):
         t[0] = 0.0
         sample_idx[0] = 0
@@ -67,22 +68,22 @@ def gillespie(s: List[int], i: List[int], r: List[int], gamma: List[float], rho:
             while ((sample_idx[0] < tmax[0]) and (t[0] > samples.get_((sample_idx[0])))):
                 samp[0] = samples.get_((sample_idx[0]))
                 runs1[0] = (runs[0] + 1)
-                means.set_((samp[0]), (means.get_((samp[0])) + ((n_s[0] - means.get_((samp[0]))) / runs1[0])))
-                vars.set_((samp[0]), (vars.get_((samp[0])) + (((runs[0] / runs1[0]) * (n_s[0] - means.get_((samp[0])))) * (n_s[0] - means.get_((samp[0]))))))
-                meani.set_((samp[0]), (meani.get_((samp[0])) + ((n_i[0] - meani.get_((samp[0]))) / runs1[0])))
-                vari.set_((samp[0]), (vari.get_((samp[0])) + (((runs[0] / runs1[0]) * (n_i[0] - meani.get_((samp[0])))) * (n_i[0] - meani.get_((samp[0]))))))
-                meanr.set_((samp[0]), (meanr.get_((samp[0])) + ((n_r[0] - meanr.get_((samp[0]))) / runs1[0])))
-                varr.set_((samp[0]), (varr.get_((samp[0])) + (((runs[0] / runs1[0]) * (n_r[0] - meanr.get_((samp[0])))) * (n_r[0] - meanr.get_((samp[0]))))))
+                means.set_((samp[0]), Float32((means.get_((samp[0])) + ((n_s[0] - means.get_((samp[0]))) / runs1[0]))))
+                vars.set_((samp[0]), Float32((vars.get_((samp[0])) + (((runs[0] / runs1[0]) * (n_s[0] - means.get_((samp[0])))) * (n_s[0] - means.get_((samp[0])))))))
+                meani.set_((samp[0]), Float32((meani.get_((samp[0])) + ((n_i[0] - meani.get_((samp[0]))) / runs1[0]))))
+                vari.set_((samp[0]), Float32((vari.get_((samp[0])) + (((runs[0] / runs1[0]) * (n_i[0] - meani.get_((samp[0])))) * (n_i[0] - meani.get_((samp[0])))))))
+                meanr.set_((samp[0]), Float32((meanr.get_((samp[0])) + ((n_r[0] - meanr.get_((samp[0]))) / runs1[0]))))
+                varr.set_((samp[0]), Float32((varr.get_((samp[0])) + (((runs[0] / runs1[0]) * (n_r[0] - meanr.get_((samp[0])))) * (n_r[0] - meanr.get_((samp[0])))))))
                 sample_idx[0] = (sample_idx[0] + 1)
         while (sample_idx[0] < tmax[0]):
             samp[0] = samples.get_((sample_idx[0]))
             runs1[0] = (runs[0] + 1)
-            means.set_((samp[0]), (means.get_((samp[0])) + ((n_s[0] - means.get_((samp[0]))) / runs1[0])))
-            vars.set_((samp[0]), (vars.get_((samp[0])) + (((runs[0] / runs1[0]) * (n_s[0] - means.get_((samp[0])))) * (n_s[0] - means.get_((samp[0]))))))
-            meani.set_((samp[0]), (meani.get_((samp[0])) + ((n_i[0] - meani.get_((samp[0]))) / runs1[0])))
-            vari.set_((samp[0]), (vari.get_((samp[0])) + (((runs[0] / runs1[0]) * (n_i[0] - meani.get_((samp[0])))) * (n_i[0] - meani.get_((samp[0]))))))
-            meanr.set_((samp[0]), (meanr.get_((samp[0])) + ((n_r[0] - meanr.get_((samp[0]))) / runs1[0])))
-            varr.set_((samp[0]), (varr.get_((samp[0])) + (((runs[0] / runs1[0]) * (n_r[0] - meanr.get_((samp[0])))) * (n_r[0] - meanr.get_((samp[0]))))))
+            means.set_((samp[0]), Float32((means.get_((samp[0])) + ((n_s[0] - means.get_((samp[0]))) / runs1[0]))))
+            vars.set_((samp[0]), Float32((vars.get_((samp[0])) + (((runs[0] / runs1[0]) * (n_s[0] - means.get_((samp[0])))) * (n_s[0] - means.get_((samp[0])))))))
+            meani.set_((samp[0]), Float32((meani.get_((samp[0])) + ((n_i[0] - meani.get_((samp[0]))) / runs1[0]))))
+            vari.set_((samp[0]), Float32((vari.get_((samp[0])) + (((runs[0] / runs1[0]) * (n_i[0] - meani.get_((samp[0])))) * (n_i[0] - meani.get_((samp[0])))))))
+            meanr.set_((samp[0]), Float32((meanr.get_((samp[0])) + ((n_r[0] - meanr.get_((samp[0]))) / runs1[0]))))
+            varr.set_((samp[0]), Float32((varr.get_((samp[0])) + (((runs[0] / runs1[0]) * (n_r[0] - meanr.get_((samp[0])))) * (n_r[0] - meanr.get_((samp[0])))))))
             sample_idx[0] = (sample_idx[0] + 1)
 
 def main():

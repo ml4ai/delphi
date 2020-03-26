@@ -27,6 +27,7 @@ TYPE_MAP = {
     "real": "float",
     "str": "str",
     "string": "str",
+    "character": "str",
 }
 
 # OPERATOR_MAP gives the mapping from Fortran operators to Python operators
@@ -242,6 +243,7 @@ class PythonCodeGenerator(object):
         self.stringVars = {}
         self.module_log_map = None
         self.temp_dir = ""
+        self.imported = []
 
         self.printFn = {
             "subroutine": self.printSubroutine,
@@ -891,10 +893,15 @@ class PythonCodeGenerator(object):
                 assg_str = f"{lhs['name']}.set_substr({subscripts}, "
             else:
                 assert False
-        elif self.variableMap[lhs['name']]['type'].lower() == "character":
+        elif (
+                lhs['name'] in self.variableMap
+                and self.variableMap[lhs['name']]['type'].lower() == "character"
+        ):
             assg_str = f'{lhs["name"]}.set_('
         elif lhs["name"] in self.declaredDerivedTVars:
             assg_str = lhs["name"]
+        elif lhs['name'] in self.array_map:
+            assg_str = f"{lhs['name']}"
         else:
             # target is a scalar variable
             assg_str = f"{lhs['name']}[0]"
@@ -971,16 +978,21 @@ class PythonCodeGenerator(object):
         return
 
     def printUse(self, node, _):
-        if node.get("include"):
+        if (
+                node.get("include")
+                and node['arg'].lower() not in self.imported
+        ):
             self.imports.append(
                 f"from {self.temp_dir}.m_{node['arg'].lower()} "
                 f"import {', '.join(node['include'])}\n"
             )
-        else:
+            self.imported.append(node['arg'].lower())
+        elif node['arg'].lower() not in self.imported:
             self.imports.append(
                 f"from {self.temp_dir}.m_"
                 f"{node['arg'].lower()} import *\n"
             )
+            self.imported.append(node['arg'].lower())
 
     def printFuncReturn(self, node, printState: PrintState):
         if printState.indexRef:
@@ -1219,6 +1231,7 @@ class PythonCodeGenerator(object):
 
     def printWrite(self, node, printState: PrintState):
         write_string = ""
+        default_arg = False
         # Check whether write to file or output stream
         if node["args"][0].get("value") and node["args"][0]["value"] == "*":
             write_target = "outStream"
@@ -1243,8 +1256,11 @@ class PythonCodeGenerator(object):
             format_type = "runtime"
         else:
             format_type = "specifier"
-            if node["args"][1]["type"] == "int":
-                format_label = node["args"][1]["value"]
+            if (
+                    node["args"][1]["type"] == "int"
+                    or node["args"][1]["type"] == "char"
+            ):
+                format_label = node["args"][1]["value"].replace('\'','')
 
         if write_target == "file":
             self.pyStrings.append(f"write_list_{file_id} = ")
@@ -1253,12 +1269,15 @@ class PythonCodeGenerator(object):
         elif write_target == "variable":
             varTarget = node["args"][0]["name"]
             self.pyStrings.append(f"{varTarget}")
+            default_arg = True
 
         # Collect the expressions to be written out. The first two arguments to
         # a WRITE statement are the output stream and the format, so these are
         # skipped.
         args = node["args"][2:]
         args_str = []
+        if default_arg and len(args) == 0:
+            args_str.append('0')
         for i in range(len(args)):
             if (
                     "is_derived_type_ref" in args[i]
@@ -1271,7 +1290,6 @@ class PythonCodeGenerator(object):
                 )
             else:
                 args_str.append(self.proc_expr(args[i], False))
-
         write_string = ", ".join(args_str)
         self.pyStrings.append(f"[{write_string}]")
         self.pyStrings.append(printState.sep)
@@ -1317,7 +1335,10 @@ class PythonCodeGenerator(object):
                     varMatch = re.match(
                         r"^(.*?)\[\d+\]|^(.*?)[^\[]", var.strip()
                     )
-                    if varMatch:
+                    if (
+                            varMatch
+                            and varMatch.group(1)
+                    ):
                         var = varMatch.group(1)
                         self.pyStrings.append(
                             f'"{self.variableMap[var.strip()]}",'
@@ -1362,7 +1383,7 @@ class PythonCodeGenerator(object):
                         and varTarget in self.stringVars[self.current_module]
                 ):
                     strLength = self.stringVars[self.current_module][varTarget]
-                outputString += f"{strLength},"
+                    outputString += f"{strLength},"
                 tmpStr = "\'"
                 for i in range(1, len(node["args"])):
                     if node["args"][i]["tag"] == "literal":
@@ -1868,7 +1889,10 @@ class PythonCodeGenerator(object):
         """This function forms a derived type reference
         and return to the caller"""
         ref = ""
-        if node["hasSubscripts"] == "true":
+        if (
+                node["hasSubscripts"] == "true"
+                and "subscripts" in node
+        ):
             subscript = node["subscripts"][0]
             if subscript["tag"] == "ref":
                 index = f"{subscript['name']}[0]"
@@ -1958,9 +1982,12 @@ class PythonCodeGenerator(object):
             ): # A case where variable name given as a size with no explicit lower bound.
                 array_range += f"(0, {dimension['name']})"
             else:
-                assert (
-                    False
-                ), f"Array range case not handled. Reference node content: {node}"
+                # TODO: Currently, we do not handle array with (*).
+                # So, we simply set a default range (0, 100).
+                array_range += f"(0, 100)"
+                # assert (
+                #     False
+                # ), f"Array range case not handled. Reference node content: {node}"
 
             if count < int(node["count"]):
                 array_range += ", "

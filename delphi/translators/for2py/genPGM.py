@@ -157,6 +157,7 @@ class GrFNGenerator(object):
         self.global_scope_variables = {}
         self.exit_candidates = []
         self.global_state = None
+        self.imported_module = []
         self.global_grfn = {
             "containers": [{
                 "name": None,
@@ -332,6 +333,7 @@ class GrFNGenerator(object):
                     if node_name == "ast.ImportFrom" and "m_" in \
                             node.module.split(".")[-1]:
                         imported_module = node.module.split(".")[-1][2:]
+                        self.imported_module.append(imported_module)
                         self.derived_types.extend(self.module_summary[
                                                       imported_module][
                                                       "derived_type_list"])
@@ -3751,9 +3753,10 @@ class GrFNGenerator(object):
                 # for indexing such as 'abc_1', etc. Check if the such variables
                 # exist and assign appropriate annotations
                 key_match = lambda var, dicn: ([i for i in dicn if i in var])
-                annotation = state.variable_types[
-                    key_match(ip, state.variable_types)[0]
-                ]
+                if len(key_match(ip, state.variable_types)) > 0:
+                    annotation = state.variable_types[
+                        key_match(ip, state.variable_types)[0]
+                    ]
             # function argument requires annotation only when
             # it's dealing with simple variable (at least for now).
             # TODO String assignments of all kinds are class/method related
@@ -3761,12 +3764,15 @@ class GrFNGenerator(object):
             if lambda_for_var and annotation != "string":
                 if annotation in self.annotate_map:
                     annotation = self.annotate_map[annotation]
+                # else:
+                #    assert annotation in self.derived_types, (
+                #        f"Annotation must be a regular type or user defined "
+                #        f"type. Annotation: {annotation}"
+                #    )
+                if annotation:
+                    argument_strings.append(f"{ip}: {annotation}")
                 else:
-                    assert annotation in self.derived_types, (
-                        f"Annotation must be a regular type or user defined "
-                        f"type. Annotation: {annotation}"
-                    )
-                argument_strings.append(f"{ip}: {annotation}")
+                    argument_strings.append(f"{ip}")
             # Currently, this is for array specific else case.
             else:
                 argument_strings.append(ip)
@@ -4002,7 +4008,8 @@ class GrFNGenerator(object):
                 else:
                     assert False, f"unrecognized variable: {variable}"
             else:
-                assert False, f"unrecognized variable: {variable}"
+                variable_type = None
+            #     assert False, f"unrecognized variable: {variable}"
 
             # Mark if a variable is mutable or not.
             if (
@@ -4039,6 +4046,8 @@ class GrFNGenerator(object):
                             type_found = True
                             type_name = variable_type
                             state.variable_types[variable] = type_name
+                # DEBUG
+                print (self.imported_module)
                 assert type_found, f"Type {variable_type} is not a valid type."
 
             domain_dictionary = {

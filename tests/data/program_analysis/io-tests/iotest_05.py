@@ -6,6 +6,7 @@ from delphi.translators.for2py.format import *
 from delphi.translators.for2py.arrays import *
 from delphi.translators.for2py.static_save import *
 from delphi.translators.for2py.strings import *
+from delphi.translators.for2py import intrinsics
 from dataclasses import dataclass
 from delphi.translators.for2py.types_ext import Float32
 import delphi.translators.for2py.math_ext as math
@@ -16,11 +17,11 @@ from random import random
 @static_vars([{'name': 'file_10', 'call': None, 'type': 'file_handle'}, {'name': 'file_20', 'call': None, 'type': 'file_handle'}])
 def main():
     format_30: List[str] = [None]
-    format_30 = ['/', "'F = '", 'F5.1', "'; I = '", 'I4']
+    format_30 = ['/', "'f = '", 'f5.1', "'; i = '", 'i4']
     format_30_obj = Format(format_30)
     
     format_10: List[str] = [None]
-    format_10 = ['2(I3,X,F5.2,X)']
+    format_10 = ['2(i3,x,f5.2,x)']
     format_10_obj = Format(format_10)
     i: List[int] = [None]
     x: List[float] = [None]

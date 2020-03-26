@@ -6,6 +6,7 @@ from delphi.translators.for2py.format import *
 from delphi.translators.for2py.arrays import *
 from delphi.translators.for2py.static_save import *
 from delphi.translators.for2py.strings import *
+from delphi.translators.for2py import intrinsics
 from dataclasses import dataclass
 from delphi.translators.for2py.types_ext import Float32
 import delphi.translators.for2py.math_ext as math
@@ -15,7 +16,7 @@ from random import random
 
 def factorial():
     format_10: List[str] = [None]
-    format_10 = ["'i = '", 'I3', "'; fact = '", 'I8']
+    format_10 = ["'i = '", 'i3', "'; fact = '", 'i8']
     format_10_obj = Format(format_10)
     
     i: List[int] = [None]
