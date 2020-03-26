@@ -21,7 +21,17 @@ def nint(element):
 
 @nint.register
 def _(element: float):
-    return round_value(element)
+    """
+    Handles Fortran NINT style rounding of a floating point value. Whether the
+    number is positive or negative, the integer portion of the number is
+    increased (without regard to sign) if the decimal portion of the number
+    is >= 0.5
+    """
+    return (
+        math.floor(element)
+        if (element >= 0) ^ (math.modf(abs(element))[0] >= 0.5)
+        else math.ceil(element)
+    )
 
 
 @nint.register
@@ -68,17 +78,3 @@ def _(element: Array):
             new_array.set_((idx), nint(arr_element))
 
     return new_array
-
-
-def round_value(element: float):
-    """
-    Handles Fortran NINT style rounding of a floating point value. Whether the
-    number is positive or negative, the integer portion of the number is
-    increased (without regard to sign) if the decimal portion of the number
-    is >= 0.5
-    """
-    return (
-        math.floor(element)
-        if (element >= 0) ^ (math.modf(abs(element))[0] >= 0.5)
-        else math.ceil(element)
-    )
