@@ -2979,8 +2979,14 @@ class GrFNGenerator(object):
                 function_name += module + "." + func_name
             elif isinstance(function_node.value, ast.Call):
                 return self.gen_grfn(function_node.value, state, "call")
+            elif (
+                    isinstance(function_node.value, ast.Str)
+                    and hasattr(function_node, "attr")
+            ):
+                module = function_node.value.s
+                function_name = module + function_node.attr
             else:
-                assert False, f"Invalid expression call {function_node}"
+                assert False, f"Invalid expression call {dump_ast(function_node)}"
         else:
             function_name = node.func.id
 
