@@ -3545,11 +3545,18 @@ class GrFNGenerator(object):
                 for arg in decorator.args[0].elts:
                     variable = arg.values[0].s
                     variable_type = arg.values[2].s
+
                     if "String" in variable_type:
                         length_regex = re.compile(r"String\((\d+)\)", re.I)
                         match = length_regex.match(variable_type)
                         if match:
                             length = match.group(1)
+                        elif (
+                                hasattr(arg.values[1], "func")
+                                and hasattr(arg.values[1], "args")
+                                and hasattr(arg.values[1].args[0], "args")
+                        ):
+                            length = arg.values[1].args[0].args[0].n
                         else:
                             assert False, "Could not identify valid String type"
                         self.strings[variable] = {
@@ -4309,7 +4316,10 @@ class GrFNGenerator(object):
         args_name = args.__repr__().split()[0][2:]
         # Case 1: Single dimensional array
         if args_name == "ast.Subscript":
-            return [args.value.id]
+            if hasattr(args.value, "value"):
+                return [args.value.value.id]
+            else:
+                return [args.value.id]
         elif args_name == "ast.Num":
             return [int(args.n) - 1]
         # Case 1.1: Single dimensional array with arithmetic
@@ -4332,7 +4342,11 @@ class GrFNGenerator(object):
             return [left, op, right]
         # Case 2: Multi-dimensional array
         elif args_name == "ast.Tuple":
-            md_array_name = node.value.func.value.id
+            if hasattr(node.value.func.value, "id"):
+                md_array_name = node.value.func.value.id
+            elif hasattr(node.value.func.value, "value"):
+                md_array_name = node.value.func.value.value.id
+
             if md_array_name not in self.md_array:
                 self.md_array.append(md_array_name)
             dimensions = args.elts
@@ -4340,7 +4354,10 @@ class GrFNGenerator(object):
             for dimension in dimensions:
                 ast_name = dimension.__repr__().split()[0][2:]
                 if ast_name == "ast.Subscript":
-                    dimension_list.append(dimension.value.id)
+                    if hasattr(dimension.value, "id"):
+                        dimension_list.append(dimension.value.id)
+                    elif hasattr(dimension.value, "value"):
+                        dimension_list.append(dimension.value.value.id)
                 else:
                     assert ast_name == "ast.Num", (
                         f"Unable to handle {ast_name} for multi-dimensional "
