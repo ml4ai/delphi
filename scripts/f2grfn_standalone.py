@@ -89,6 +89,6 @@ if __name__ == "__main__":
             module_log_file_path,
             processing_modules,
         )
-        with open(python_file.replace(".py", "_GrFN.json"), "w") as f:
+        with open(python_file.replace(".py", "_AIR.json"), "w") as f:
             json.dump(grfn_dict, f, indent=2)
         python_file_num += 1

@@ -293,7 +293,7 @@ def generate_grfn(
         module_import_paths,
     )
 
-    grfn_file = python_file_path.replace(".py", "_GrFN.json")
+    grfn_file = python_file_path.replace(".py", "_AIR.json")
     if module_file_exists:
         python_file_path = path + file_name + ".py"
     grfn_filepath_list.append(grfn_file)

@@ -282,7 +282,7 @@ def test_crop_yield_pythonIR_generation(crop_yield_python_IR_test):
     assert crop_yield_python_IR_test[0] == python_src
 
 
-@pytest.mark.skip("This is already being tested by test_GrFN.py")
+@pytest.mark.skip("This is already being tested by test_AIR.py")
 def test_PETPT_pythonIR_generation(PETPT_python_IR_test):
     with open(f"{DATA_DIR}/PETPT.py", "r") as f:
         python_src = f.read()
@@ -428,7 +428,7 @@ def test_derived_type_with_default_pythonIR_generation(
 
 
 def test_multidimensional_array_grfn_generation(multidimensional_array_test):
-    with open(f"{DATA_DIR}/arrays/arrays-basic-06_GrFN.json", "r") as f:
+    with open(f"{DATA_DIR}/arrays/arrays-basic-06_AIR.json", "r") as f:
         grfn_dict = json.load(f)
     assert multidimensional_array_test[0] == grfn_dict
 
@@ -441,7 +441,7 @@ def test_multidimensional_array_grfn_generation(multidimensional_array_test):
 
 @pytest.mark.skip("FIXME")
 def test_sir_gillespie_sd_multi_grfn_generation(sir_gillespie_sd_multi_test):
-    with open(f"{DATA_DIR}/SIR-Gillespie-SD_multi_module_GrFN.json", "r") as f:
+    with open(f"{DATA_DIR}/SIR-Gillespie-SD_multi_module_AIR.json", "r") as f:
         grfn_dict = json.load(f)
     assert sir_gillespie_sd_multi_test[0] == grfn_dict
 
@@ -456,7 +456,7 @@ def test_sir_gillespie_sd_multi_grfn_generation(sir_gillespie_sd_multi_test):
 
 def test_derived_type_grfn_generation(derived_type_grfn_test):
     with open(
-        f"{DATA_DIR}/derived-types/derived-types-04_GrFN.json", "r"
+        f"{DATA_DIR}/derived-types/derived-types-04_AIR.json", "r"
     ) as f:
         grfn_dict = json.load(f)
     assert derived_type_grfn_test[0] == grfn_dict
@@ -472,7 +472,7 @@ def test_derived_type_grfn_generation(derived_type_grfn_test):
 
 def test_derived_type_array_grfn_generation(derived_type_array_grfn_test):
     with open(
-        f"{DATA_DIR}/derived-types/derived-types-02_GrFN.json", "r"
+        f"{DATA_DIR}/derived-types/derived-types-02_AIR.json", "r"
     ) as f:
         grfn_dict = json.load(f)
     assert derived_type_array_grfn_test[0] == grfn_dict
@@ -487,7 +487,7 @@ def test_derived_type_array_grfn_generation(derived_type_array_grfn_test):
 
 
 def test_select_case_grfn_generation(select_case_grfn_test):
-    with open(f"{DATA_DIR}/select_case/select02_GrFN.json", "r") as f:
+    with open(f"{DATA_DIR}/select_case/select02_AIR.json", "r") as f:
         grfn_dict = json.load(f)
     assert select_case_grfn_test[0] == grfn_dict
 

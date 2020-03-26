@@ -587,7 +587,7 @@ class GrFNGenerator(object):
             "name": container_id_name,
             "source_refs": [],
             "gensym": container_gensym,
-            "repeat": False,
+            "type": "function",
             "arguments": argument_list,
             "updated": updated_identifiers,
             "return_value": return_list,
@@ -741,7 +741,6 @@ class GrFNGenerator(object):
 
         # Initialize intermediate variables
         container_argument = []
-        container_repeat = True
         container_return_value = []
         container_updated = []
         function_output = []
@@ -1191,7 +1190,7 @@ class GrFNGenerator(object):
             "name": container_id_name,
             "source_refs": [],
             "gensym": container_gensym,
-            "repeat": container_repeat,
+            "type": "loop",
             "arguments": container_argument,
             "updated": container_updated,
             "return_value": container_return_value,
@@ -1230,7 +1229,6 @@ class GrFNGenerator(object):
 
         # Initialize intermediate variables
         container_argument = []
-        container_repeat = True
         container_return_value = []
         container_updated = []
         function_output = []
@@ -1587,7 +1585,7 @@ class GrFNGenerator(object):
             "name": container_id_name,
             "source_refs": [],
             "gensym": container_gensym,
-            "repeat": container_repeat,
+            "type": "loop",
             "arguments": container_argument,
             "updated": container_updated,
             "return_value": container_return_value,
@@ -4733,7 +4731,7 @@ def create_grfn_dict(
                 for import_mods in module:
                     for mod_name, target in import_mods.items():
                         module_path = (
-                            path + module_file_prefix + mod_name + "_GrFN.json"
+                            path + module_file_prefix + mod_name + "_AIR.json"
                         )
                         module_paths.append(module_path)
                 module_import_paths[user] = module_paths
@@ -4847,7 +4845,7 @@ def generate_system_def(
     (system_name, path) = get_system_name(python_list)
     system_filepath = f"{path}/system.json"
     module_name_regex = re.compile(
-        r"(?P<path>.*/)m_(" r"?P<module_name>.*)_GrFN.json"
+        r"(?P<path>.*/)m_(" r"?P<module_name>.*)_AIR.json"
     )
 
     grfn_components = []
