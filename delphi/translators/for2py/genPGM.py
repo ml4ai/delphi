@@ -2198,7 +2198,8 @@ class GrFNGenerator(object):
                                         assert False, "Unidentified " \
                                                       "expression in String."
                                 else:
-                                    assert False, "Unidentified expression in String."
+                                    assert False, \
+                                        "Unidentified expression in String."
                         else:
                             function = self._generate_array_setter(
                                 node, function, arg,
@@ -2253,6 +2254,8 @@ class GrFNGenerator(object):
             if array_set:
                 argument_list = []
                 need_lambdas = False
+                if "set_" in call["function"]:
+                    argument_list.append(call["function"].replace(".set_", ""))
                 for arg in call["inputs"]:
                     for ip in arg:
                         if "var" in ip:
@@ -3001,7 +3004,8 @@ class GrFNGenerator(object):
             grfn = self.gen_grfn(cur, state, "module")
             if grfn and "name" in grfn[0] and "@type" in grfn[0]["name"]:
                 self.derived_types_grfn.append(grfn[0])
-            elif node_name in ["ast.AnnAssign", "ast.Assign", "ast.Expr"]:
+            elif self.current_scope == "global" and  \
+                    node_name in ["ast.AnnAssign", "ast.Assign", "ast.Expr"]:
                 if not self.global_grfn["containers"][0]["name"]:
                     namespace = self._get_namespace(self.fortran_file)
                     self.global_grfn["containers"][0]["name"] = \
@@ -3792,7 +3796,6 @@ class GrFNGenerator(object):
             lambda_strings.append(f"    return {arr_name}Sum")
             return "".join(lambda_strings)
 
-
         # If a `decision` tag comes up, override the call to genCode to manually
         # enter the python script for the lambda file.
         if "__decision__" in function_name:
@@ -3823,7 +3826,8 @@ class GrFNGenerator(object):
                             "_", "."
                         )
                 lambda_strings.append(f"{state.array_assign_name} = {code}\n")
-                lambda_strings.append(f"    return {state.array_assign_name}")
+                # lambda_strings.append(f"    return {state.array_assign_name}")
+                lambda_strings.append(f"    return {array_name}")
                 state.array_assign_name = None
             elif string_assign:
                 lambda_code_generator = genCode(
