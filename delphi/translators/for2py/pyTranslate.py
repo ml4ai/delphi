@@ -27,7 +27,6 @@ TYPE_MAP = {
     "real": "float",
     "str": "str",
     "string": "str",
-    "character": "str",
 }
 
 # OPERATOR_MAP gives the mapping from Fortran operators to Python operators
