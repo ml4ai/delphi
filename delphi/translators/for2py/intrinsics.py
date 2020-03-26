@@ -44,13 +44,16 @@ def _(element: list):
 
 @nint.register
 def _(element: ndarray):
-    return np.select(
-        [
-            element >= 0,
-            (element < 0) & (element - np.ceil(element) <= -0.5),
-            (element < 0) & (element - np.ceil(element) > -0.5),
-        ],
-        [np.round(element), np.floor(element), np.ceil(element)],
+    """
+    Handles Fortran NINT style rounding of floats in an NDarray. Whether the
+    number is positive or negative, the integer portion of the number is
+    increased (without regard to sign) if the decimal portion of the number
+    is >= 0.5
+    """
+    return np.where(
+        (element >= 0) ^ (np.modf(np.absolute(element))[0] >= 0.5),
+        np.floor(element),
+        np.ceil(element),
     )
 
 
@@ -76,21 +79,14 @@ def _(element: Array):
 
 
 def round_value(element: float):
-    rounded_elem = None
-
-    if element > 0:
-        rounded_elem = round(element)
-    elif element < 0:
-        i_number = math.trunc(element)
-        d_number = element - i_number
-        if d_number > -0.5:
-            # Case 1: > -0.5
-            rounded_elem = math.ceil(element)
-        else:
-            # Case 2: <= -0.5
-            rounded_elem = math.floor(element)
-    else:
-        rounded_elem = element
-
-    assert rounded_elem is not None, f"Rounded element cannot be None."
-    return rounded_elem
+    """
+    Handles Fortran NINT style rounding of a floating point value. Whether the
+    number is positive or negative, the integer portion of the number is
+    increased (without regard to sign) if the decimal portion of the number
+    is >= 0.5
+    """
+    return (
+        math.floor(element)
+        if (element >= 0) ^ (math.modf(abs(element))[0] >= 0.5)
+        else math.ceil(element)
+    )
