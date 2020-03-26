@@ -4033,6 +4033,8 @@ class GrFNGenerator(object):
                 # we need to needs to them manually here into variable_types
                 # dictionary to be referenced later in the stream.
                 state.variable_types[variable] = type_name
+            elif variable_type == "Real":
+                type_name = "float"
             else:
                 type_found = False
                 if len(self.module_names) > 1:
