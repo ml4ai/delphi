@@ -31,15 +31,7 @@ def _(element: int):
 
 @nint.register
 def _(element: list):
-    new_list = []
-    for elem in element:
-        if isinstance(elem, float):
-            new_list.append(round_value(elem))
-        elif isinstance(elem, list):
-            new_list.append(nint(elem))
-        else:
-            new_list.append(elem)
-    return new_list
+    return [nint(x) for x in element]
 
 
 @nint.register
