@@ -9,7 +9,7 @@
 import copy
 import itertools
 import sys
-from . import For2PyError, intrinsics
+from . import For2PyError
 
 _GET_ = 0
 _SET_ = 1
@@ -157,24 +157,8 @@ class Array:
 
         return summed_val
 
-    def round_elems(self):
-        arr_bounds = self._bounds
-        low = arr_bounds[0][0]+1
-        up = arr_bounds[0][1]+1
-
-        new_array = Array(self._types, self._bounds)
-        for idx in range(low, up):
-            arr_element = self.get_(idx)
-            # Multi-dimensional array.
-            # TODO: Currently handle only 2D arrays.
-            if type(arr_element) == list:
-                for idx2 in range (1, len(arr_element)):
-                    rounded_elm = intrinsics.nint(arr_element[idx2])
-                    new_array.set_((idx, idx2), rounded_elm)
-            else:
-                new_array.set_((idx), intrinsics.nint(arr_element))
-
-        return new_array
+    def get_type(self):
+        return self._types
 
 
 ################################################################################
