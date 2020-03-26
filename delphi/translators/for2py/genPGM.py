@@ -3018,7 +3018,8 @@ class GrFNGenerator(object):
                     self.global_grfn["variables"] += grfn[0]["variables"]
             else:
                 grfn_list += grfn
-        grfn_list += [self.global_grfn]
+        if self.global_grfn["containers"][0]["name"]:
+            grfn_list += [self.global_grfn]
         merged_grfn = [self._merge_dictionary(grfn_list)]
         return merged_grfn
         # TODO Implement this. This needs to be done for generality
