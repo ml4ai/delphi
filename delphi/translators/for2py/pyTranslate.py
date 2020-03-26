@@ -1335,7 +1335,10 @@ class PythonCodeGenerator(object):
                     varMatch = re.match(
                         r"^(.*?)\[\d+\]|^(.*?)[^\[]", var.strip()
                     )
-                    if varMatch:
+                    if (
+                            varMatch
+                            and varMatch.group(1)
+                    ):
                         var = varMatch.group(1)
                         self.pyStrings.append(
                             f'"{self.variableMap[var.strip()]}",'
