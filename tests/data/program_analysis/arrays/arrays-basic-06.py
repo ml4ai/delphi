@@ -6,6 +6,7 @@ from delphi.translators.for2py.format import *
 from delphi.translators.for2py.arrays import *
 from delphi.translators.for2py.static_save import *
 from delphi.translators.for2py.strings import *
+from delphi.translators.for2py import intrinsics
 from dataclasses import dataclass
 from delphi.translators.for2py.types_ext import Float32
 import delphi.translators.for2py.math_ext as math
@@ -15,7 +16,7 @@ from random import random
 
 def main():
     format_10: List[str] = [None]
-    format_10 = ['5(I5,X)']
+    format_10 = ['5(i5,x)']
     format_10_obj = Format(format_10)
     
     a = Array(int, [(-(3), 1), (0, 5), (10, 14)])
@@ -25,7 +26,7 @@ def main():
     for i[0] in range(-(3), 1+1):
         for j[0] in range(1, 5+1):
             for k[0] in range(10, 14+1):
-                a.set_((i[0], j[0], k[0]), ((i[0] + j[0]) + k[0]))
+                a.set_((i[0], j[0], k[0]), int(((i[0] + j[0]) + k[0])))
     for i[0] in range(-(3), 1+1):
         for j[0] in range(1, 5+1):
             write_list_stream = [a.get_((i[0], j[0], 10)), a.get_((i[0], j[0], 11)), a.get_((i[0], j[0], 12)), a.get_((i[0], j[0], 13)), a.get_((i[0], j[0], 14))]

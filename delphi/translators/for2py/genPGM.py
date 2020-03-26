@@ -157,6 +157,7 @@ class GrFNGenerator(object):
         self.global_scope_variables = {}
         self.exit_candidates = []
         self.global_state = None
+        self.imported_module = []
         self.global_grfn = {
             "containers": [{
                 "name": None,
@@ -332,6 +333,7 @@ class GrFNGenerator(object):
                     if node_name == "ast.ImportFrom" and "m_" in \
                             node.module.split(".")[-1]:
                         imported_module = node.module.split(".")[-1][2:]
+                        self.imported_module.append(imported_module)
                         self.derived_types.extend(self.module_summary[
                                                       imported_module][
                                                       "derived_type_list"])
@@ -587,7 +589,7 @@ class GrFNGenerator(object):
             "name": container_id_name,
             "source_refs": [],
             "gensym": container_gensym,
-            "repeat": False,
+            "type": "function",
             "arguments": argument_list,
             "updated": updated_identifiers,
             "return_value": return_list,
@@ -741,7 +743,6 @@ class GrFNGenerator(object):
 
         # Initialize intermediate variables
         container_argument = []
-        container_repeat = True
         container_return_value = []
         container_updated = []
         function_output = []
@@ -1191,7 +1192,7 @@ class GrFNGenerator(object):
             "name": container_id_name,
             "source_refs": [],
             "gensym": container_gensym,
-            "repeat": container_repeat,
+            "type": "loop",
             "arguments": container_argument,
             "updated": container_updated,
             "return_value": container_return_value,
@@ -1230,7 +1231,6 @@ class GrFNGenerator(object):
 
         # Initialize intermediate variables
         container_argument = []
-        container_repeat = True
         container_return_value = []
         container_updated = []
         function_output = []
@@ -1587,7 +1587,7 @@ class GrFNGenerator(object):
             "name": container_id_name,
             "source_refs": [],
             "gensym": container_gensym,
-            "repeat": container_repeat,
+            "type": "loop",
             "arguments": container_argument,
             "updated": container_updated,
             "return_value": container_return_value,
@@ -3753,9 +3753,10 @@ class GrFNGenerator(object):
                 # for indexing such as 'abc_1', etc. Check if the such variables
                 # exist and assign appropriate annotations
                 key_match = lambda var, dicn: ([i for i in dicn if i in var])
-                annotation = state.variable_types[
-                    key_match(ip, state.variable_types)[0]
-                ]
+                if len(key_match(ip, state.variable_types)) > 0:
+                    annotation = state.variable_types[
+                        key_match(ip, state.variable_types)[0]
+                    ]
             # function argument requires annotation only when
             # it's dealing with simple variable (at least for now).
             # TODO String assignments of all kinds are class/method related
@@ -3763,12 +3764,15 @@ class GrFNGenerator(object):
             if lambda_for_var and annotation != "string":
                 if annotation in self.annotate_map:
                     annotation = self.annotate_map[annotation]
+                # else:
+                #    assert annotation in self.derived_types, (
+                #        f"Annotation must be a regular type or user defined "
+                #        f"type. Annotation: {annotation}"
+                #    )
+                if annotation:
+                    argument_strings.append(f"{ip}: {annotation}")
                 else:
-                    assert annotation in self.derived_types, (
-                        f"Annotation must be a regular type or user defined "
-                        f"type. Annotation: {annotation}"
-                    )
-                argument_strings.append(f"{ip}: {annotation}")
+                    argument_strings.append(f"{ip}")
             # Currently, this is for array specific else case.
             else:
                 argument_strings.append(ip)
@@ -4004,7 +4008,8 @@ class GrFNGenerator(object):
                 else:
                     assert False, f"unrecognized variable: {variable}"
             else:
-                assert False, f"unrecognized variable: {variable}"
+                variable_type = None
+            #     assert False, f"unrecognized variable: {variable}"
 
             # Mark if a variable is mutable or not.
             if (
@@ -4041,6 +4046,8 @@ class GrFNGenerator(object):
                             type_found = True
                             type_name = variable_type
                             state.variable_types[variable] = type_name
+                # DEBUG
+                print (self.imported_module)
                 assert type_found, f"Type {variable_type} is not a valid type."
 
             domain_dictionary = {
@@ -4733,7 +4740,7 @@ def create_grfn_dict(
                 for import_mods in module:
                     for mod_name, target in import_mods.items():
                         module_path = (
-                            path + module_file_prefix + mod_name + "_GrFN.json"
+                            path + module_file_prefix + mod_name + "_AIR.json"
                         )
                         module_paths.append(module_path)
                 module_import_paths[user] = module_paths
@@ -4847,7 +4854,7 @@ def generate_system_def(
     (system_name, path) = get_system_name(python_list)
     system_filepath = f"{path}/system.json"
     module_name_regex = re.compile(
-        r"(?P<path>.*/)m_(" r"?P<module_name>.*)_GrFN.json"
+        r"(?P<path>.*/)m_(" r"?P<module_name>.*)_AIR.json"
     )
 
     grfn_components = []
