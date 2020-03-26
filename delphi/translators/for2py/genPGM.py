@@ -302,6 +302,7 @@ class GrFNGenerator(object):
         ):
             # If the node is of instance ast.Call, it is the starting point
             # of the system.
+            node_name = node.__repr__().split()[0][2:]
             if isinstance(node, ast.Call) and \
                     isinstance(node.func, ast.Name) and \
                     node.func.id != "String" and \
@@ -311,11 +312,17 @@ class GrFNGenerator(object):
                 )
                 return [{"start": start_function_name}]
             elif isinstance(node, ast.Expr):
-                return self.gen_grfn(node.value, state, "start")
+                if isinstance(node.value, ast.Call) and \
+                    isinstance(node.value.func, ast.Attribute) and \
+                        node.value.func.attr == "set_":
+                    return self.process_grfn[node_name](
+                        node, state, call_source
+                    )
+                else:
+                    return self.gen_grfn(node.value, state, "start")
             elif isinstance(node, ast.If):
                 return self.gen_grfn(node.body, state, "start")
             else:
-                node_name = node.__repr__().split()[0][2:]
                 if node_name != "ast.Import" and node_name != "ast.ImportFrom":
                     return self.process_grfn[node_name](
                         node, state, call_source
@@ -2992,23 +2999,22 @@ class GrFNGenerator(object):
         for cur in node.body:
             node_name = cur.__repr__().split()[0][2:]
             grfn = self.gen_grfn(cur, state, "module")
-            # print(grfn)
             if grfn and "name" in grfn[0] and "@type" in grfn[0]["name"]:
                 self.derived_types_grfn.append(grfn[0])
-            # elif node_name in ["ast.AnnAssign", "ast.Assign", "ast.Expr"]:
-            #     if not self.global_grfn["containers"][0]["name"]:
-            #         namespace = self._get_namespace(self.fortran_file)
-            #         self.global_grfn["containers"][0]["name"] = \
-            #             f"@container::{namespace}::@global"
-            #         self.global_grfn["containers"][0]["gensym"] = \
-            #             self.generate_gensym("container")
-            #     if len(grfn) > 0:
-            #         self.global_grfn["containers"][0]["body"] += grfn[0][
-            #             "functions"]
-            #         self.global_grfn["variables"] += grfn[0]["variables"]
+            elif node_name in ["ast.AnnAssign", "ast.Assign", "ast.Expr"]:
+                if not self.global_grfn["containers"][0]["name"]:
+                    namespace = self._get_namespace(self.fortran_file)
+                    self.global_grfn["containers"][0]["name"] = \
+                        f"@container::{namespace}::@global"
+                    self.global_grfn["containers"][0]["gensym"] = \
+                        self.generate_gensym("container")
+                if len(grfn) > 0:
+                    self.global_grfn["containers"][0]["body"] += grfn[0][
+                        "functions"]
+                    self.global_grfn["variables"] += grfn[0]["variables"]
             else:
                 grfn_list += grfn
-        # grfn_list += [self.global_grfn]
+        grfn_list += [self.global_grfn]
         merged_grfn = [self._merge_dictionary(grfn_list)]
         return merged_grfn
         # TODO Implement this. This needs to be done for generality
