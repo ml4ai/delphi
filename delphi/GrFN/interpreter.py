@@ -1,6 +1,8 @@
 import os
 import re
+import importlib
 import enum as enum
+from pathlib import Path
 from abc import ABC, abstractmethod
 
 from delphi.translators.for2py import f2grfn
@@ -196,6 +198,7 @@ class ImperativeInterpreter(SourceInterpreter):
         self.container_stats[con_name]["num_assgs"] += 1
         lambda_name = stmt["function"]["name"]
         lambda_path = self.get_container_lambdas(con_name)
+        lambdas = importlib.__import__(str(Path(lambda_path).stem))
         return NotImplemented
 
     def gather_container_stats(self):
