@@ -1542,9 +1542,13 @@ class PythonCodeGenerator(object):
             # is_save will be True and the argument to the decorator is
             # returned.
             if self.is_save:
+                arg_type = node["type"].lower()
+                if arg_type == "character":
+                    arg_type = "String"
+
                 save_argument = f'{{"name": "{node["name"]}", "call": Array' \
                     f'({var_type}, [{array_range}]), "type": ' \
-                    f'"{TYPE_MAP[node["type"].lower()]}"}}'
+                    f'"{arg_type}"}}'
                 return save_argument
             else:
                 # If the array variable is not SAVEd, print the
