@@ -1729,8 +1729,11 @@ class PythonCodeGenerator(object):
                 if arg.get("tag") == "case_range":
                     arguments = arg['args']
                     select_string = re.sub(r'\[.*\]', '', self.current_select)
-                    if self.variableMap[select_string]['type'].lower() \
-                            == "character":
+                    if (    
+                            select_string in self.variableMap
+                            and self.variableMap[select_string]['type'].lower() \
+                            == "character"
+                    ):
                         check_variable = f"{self.current_select}.__str__()"
                     else:
                         check_variable = self.current_select
