@@ -6,6 +6,7 @@ from delphi.translators.for2py.format import *
 from delphi.translators.for2py.arrays import *
 from delphi.translators.for2py.static_save import *
 from delphi.translators.for2py.strings import *
+from delphi.translators.for2py import intrinsics
 from dataclasses import dataclass
 from delphi.translators.for2py.types_ext import Float32
 import delphi.translators.for2py.math_ext as math
@@ -24,24 +25,24 @@ def triple_nested():
             day[0] = 1
             while (day[0] <= date[0]):
                 if (day[0] == 1):
-                    print("MONTH: ", month, " DAY: ", day, ", SUNDAY")
+                    print("month: ", month, " day: ", day, ", sunday")
                 else:
                     if (day[0] == 2):
-                        print("MONTH: ", month, " DAY: ", day, ", MONDAY")
+                        print("month: ", month, " day: ", day, ", monday")
                     else:
                         if (day[0] == 3):
-                            print("MONTH: ", month, " DAY: ", day, ", TUESDAY")
+                            print("month: ", month, " day: ", day, ", tuesday")
                         else:
                             if (day[0] == 4):
-                                print("MONTH: ", month, " DAY: ", day, ", WEDNESDAY")
+                                print("month: ", month, " day: ", day, ", wednesday")
                             else:
                                 if (day[0] == 5):
-                                    print("MONTH: ", month, " DAY: ", day, ", THURSDAY")
+                                    print("month: ", month, " day: ", day, ", thursday")
                                 else:
                                     if (day[0] == 6):
-                                        print("MONTH: ", month, " DAY: ", day, ", FRIDAY")
+                                        print("month: ", month, " day: ", day, ", friday")
                                     else:
-                                        print("MONTH: ", month, " DAY: ", day, ", SATURDAY")
+                                        print("month: ", month, " day: ", day, ", saturday")
                 day[0] = (day[0] + 1)
             date[0] = (date[0] + 1)
         month[0] = (month[0] + 1)

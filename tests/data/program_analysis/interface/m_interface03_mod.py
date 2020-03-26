@@ -6,6 +6,7 @@ from delphi.translators.for2py.format import *
 from delphi.translators.for2py.arrays import *
 from delphi.translators.for2py.static_save import *
 from delphi.translators.for2py.strings import *
+from delphi.translators.for2py import intrinsics
 from dataclasses import dataclass
 from delphi.translators.for2py.types_ext import Float32
 import delphi.translators.for2py.math_ext as math
@@ -13,7 +14,7 @@ from numbers import Real
 from random import random
 
 @dataclass
-class ControlType:
+class controltype:
     def __init__(self):
         self.mesic = String(1)
         self.rnmode = String(1)
@@ -23,24 +24,24 @@ class ControlType:
         self.filex = String(12)
         self.fileio = String(30)
         self.dssatp = String(102)
-        self.das : int
-        self.dynamic : int
-        self.frop : int
-        self.errcode : int
-        self.lunio : int
-        self.multi : int
-        self.n_elems : int
-        self.nyrs : int
-        self.repno : int
-        self.rotnum : int
-        self.run : int
-        self.trtnum : int
-        self.yrdif : int
-        self.yrdoy : int
-        self.yrsim : int
+        self.das: int
+        self.dynamic: int
+        self.frop: int
+        self.errcode: int
+        self.lunio: int
+        self.multi: int
+        self.n_elems: int
+        self.nyrs: int
+        self.repno: int
+        self.rotnum: int
+        self.run: int
+        self.trtnum: int
+        self.yrdif: int
+        self.yrdoy: int
+        self.yrsim: int
 
 @dataclass
-class SwitchType:
+class switchtype:
     def __init__(self):
         self.fname = String(1)
         self.idetc = String(1)
@@ -81,23 +82,23 @@ class SwitchType:
         self.iresi = String(1)
         self.ico2 = String(1)
         self.fmopt = String(1)
-        self.nswi : int
+        self.nswi: int
 
 @dataclass
-class TransferType:
+class transfertype:
     def __init__(self):
-        self.control : controltype
-        self.iswitch : switchtype
-        self.output : outputtype
-        self.plant : planttype
-        self.mgmt : mgmttype
-        self.nitr : nitype
-        self.orgc : orgctype
-        self.soilprop : soiltype
-        self.spam : spamtype
-        self.water : wattype
-        self.weather : weathtype
-        self.pdlabeta : pdlabetatype
+        self.control = controltype()
+        self.iswitch = switchtype()
+        self.output: outputtype
+        self.plant: planttype
+        self.mgmt: mgmttype
+        self.nitr: nitype
+        self.orgc: orgctype
+        self.soilprop: soiltype
+        self.spam: spamtype
+        self.water: wattype
+        self.weather: weathtype
+        self.pdlabeta: pdlabetatype
 
 
 maxfiles: List[int] = [500]

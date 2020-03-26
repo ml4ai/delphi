@@ -308,7 +308,7 @@ def test_do_while_pythonIR_generation(do_while_python_IR_test):
 
 
 def test_derived_type_pythonIR_generation(derived_type_python_IR_test):
-    with open(f"{DATA_DIR}/derived-types-04.py", "r") as f:
+    with open(f"{DATA_DIR}/derived-types/derived-types-04.py", "r") as f:
         python_src = f.read()
     assert derived_type_python_IR_test[0] == python_src
 
@@ -344,10 +344,6 @@ def test_module_pythonIR_generation(module_python_IR_test):
     with open(f"{DATA_DIR}/modules/test_module_08.py", "r") as f:
         python_src = f.read()
     assert src[1][0] == python_src
-
-    with open(f"{DATA_DIR}/modules/m_mymod8.py", "r") as f:
-        python_src = f.read()
-    assert src[0][0] == python_src
 
 
 def test_cycle_exit_pythonIR_generation(cycle_exit_python_IR_test):

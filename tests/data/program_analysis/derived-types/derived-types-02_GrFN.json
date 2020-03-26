@@ -1,7 +1,15 @@
 {
+  "start": [
+    "@container::derived-types-02::@global::main"
+  ],
   "containers": [
     {
+      "name": "@container::derived-types-02::@global::main",
+      "source_refs": [],
+      "repeat": false,
       "arguments": [],
+      "updated": [],
+      "return_value": [],
       "body": [
         {
           "function": {
@@ -16,14 +24,14 @@
         },
         {
           "function": {
-            "name": "derived_types_02__main__assign__var_i___2",
+            "name": "derived_types_02__main__assign__var__i___2",
             "type": "lambda"
           },
           "input": [
             "@variable::var::0"
           ],
           "output": [
-            "@variable::var_i::-2"
+            "@variable::var__i::-2"
           ],
           "updated": []
         },
@@ -49,17 +57,17 @@
           "output": [],
           "updated": []
         }
-      ],
-      "name": "@container::derived-types-02::@global::main",
-      "repeat": false,
-      "return_value": [],
-      "source_refs": [],
-      "updated": []
+      ]
     },
     {
+      "name": "@container::derived-types-02::main::loop$0",
+      "source_refs": [],
+      "repeat": true,
       "arguments": [
         "@variable::i::-1"
       ],
+      "updated": [],
+      "return_value": [],
       "body": [
         {
           "function": {
@@ -140,18 +148,20 @@
           ],
           "updated": []
         }
-      ],
-      "name": "@container::derived-types-02::main::loop$0",
-      "repeat": true,
-      "return_value": [],
-      "source_refs": [],
-      "updated": []
+      ]
     },
     {
+      "name": "@container::derived-types-02::main.loop$0::loop$1",
+      "source_refs": [],
+      "repeat": true,
       "arguments": [
         "@variable::i::-1",
         "@variable::a::-1"
       ],
+      "updated": [
+        "@variable::a::0"
+      ],
+      "return_value": [],
       "body": [
         {
           "function": {
@@ -219,19 +229,17 @@
           ],
           "updated": []
         }
-      ],
-      "name": "@container::derived-types-02::main.loop$0::loop$1",
-      "repeat": true,
-      "return_value": [],
-      "source_refs": [],
-      "updated": [
-        "@variable::a::0"
       ]
     },
     {
+      "name": "@container::derived-types-02::main::loop$2",
+      "source_refs": [],
+      "repeat": true,
       "arguments": [
         "@variable::i::-1"
       ],
+      "updated": [],
+      "return_value": [],
       "body": [
         {
           "function": {
@@ -284,294 +292,293 @@
           ],
           "updated": []
         }
-      ],
-      "name": "@container::derived-types-02::main::loop$2",
-      "repeat": true,
-      "return_value": [],
+      ]
+    },
+    {
+      "name": null,
       "source_refs": [],
-      "updated": []
+      "repeat": false,
+      "arguments": [],
+      "updated": [],
+      "return_value": [],
+      "body": []
     }
-  ],
-  "grounding": [],
-  "source": [
-    "derived-types-02.f"
-  ],
-  "source_comments": {
-    "$file_foot": [],
-    "$file_head": []
-  },
-  "start": [
-    "@container::derived-types-02::@global::main"
-  ],
-  "system": {
-    "components": [
-      {
-        "code_source": [
-          "tests/data/program_analysis/derived-types/derived-types-02.f"
-        ],
-        "grfn_source": "./derived-types-02_GrFN.json",
-        "imports": []
-      }
-    ],
-    "name": "derived-types-02"
-  },
-  "types": [
-    [
-      {
-        "attributes": [
-          {
-            "name": "i",
-            "type": "integer"
-          },
-          {
-            "dimensions": [
-              4
-            ],
-            "elem_type": "float",
-            "name": "a",
-            "type": "Array"
-          }
-        ],
-        "name": "@type::derived-types-02::@global::mytype",
-        "type": "type"
-      }
-    ]
   ],
   "variables": [
     {
-      "domain": {
-        "mutable": false,
-        "name": "mytype",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
       "name": "@variable::derived-types-02::main::var::0",
-      "source_refs": []
+      "source_refs": [],
+      "domain": {
+        "name": "mytype",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
     },
     {
+      "name": "@variable::derived-types-02::main::x::0",
+      "source_refs": [],
       "domain": {
+        "index": 0,
         "dimensions": [
           4
         ],
         "elem_type": "mytype",
-        "index": 0,
         "mutable": false
       },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::derived-types-02::main::x::0",
-      "source_refs": []
+      "domain_constraint": "(and (> v -infty) (< v infty))"
     },
     {
+      "name": "@variable::derived-types-02::main::var__i::-2",
+      "source_refs": [],
       "domain": {
-        "mutable": false,
         "name": "integer",
-        "type": "type"
+        "type": "type",
+        "mutable": false
       },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::derived-types-02::main::var_i::-2",
-      "source_refs": []
+      "domain_constraint": "(and (> v -infty) (< v infty))"
     },
     {
+      "name": "@variable::derived-types-02::main.loop$0::var_a::0",
+      "source_refs": [],
       "domain": {
+        "index": 0,
         "dimensions": [
           4
         ],
         "elem_type": "float",
-        "index": 0,
         "mutable": true
       },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::derived-types-02::main.loop$0::var_a_i::0",
-      "source_refs": []
+      "domain_constraint": "(and (> v -infty) (< v infty))"
     },
     {
+      "name": "@variable::derived-types-02::main.loop$0.loop$1::a::0",
+      "source_refs": [],
       "domain": {
+        "index": 0,
         "dimensions": [
           4
         ],
         "elem_type": "float",
-        "index": 0,
         "mutable": true
       },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::derived-types-02::main.loop$0.loop$1::a_j::0",
-      "source_refs": []
+      "domain_constraint": "(and (> v -infty) (< v infty))"
     },
     {
-      "domain": {
-        "mutable": false,
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
       "name": "@variable::derived-types-02::main.loop$0.loop$1::i::-1",
-      "source_refs": []
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
     },
     {
-      "domain": {
-        "dimensions": [
-          4
-        ],
-        "elem_type": "float",
-        "index": 0,
-        "mutable": true
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
       "name": "@variable::derived-types-02::main.loop$0.loop$1::a::-1",
-      "source_refs": []
-    },
-    {
+      "source_refs": [],
       "domain": {
+        "index": 0,
         "dimensions": [
           4
         ],
         "elem_type": "float",
-        "index": 0,
         "mutable": true
       },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
       "name": "@variable::derived-types-02::main.loop$0::a::1",
-      "source_refs": []
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          4
+        ],
+        "elem_type": "float",
+        "mutable": true
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
     },
     {
-      "domain": {
-        "mutable": false,
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
       "name": "@variable::derived-types-02::main.loop$0.loop$1::j::0",
-      "source_refs": []
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
     },
     {
-      "domain": {
-        "mutable": false,
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
       "name": "@variable::derived-types-02::main.loop$0.loop$1::IF_0::0",
-      "source_refs": []
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
     },
     {
-      "domain": {
-        "mutable": false,
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
       "name": "@variable::derived-types-02::main.loop$0.loop$1::EXIT::0",
-      "source_refs": []
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
     },
     {
-      "domain": {
-        "mutable": false,
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
       "name": "@variable::derived-types-02::main.loop$0.loop$1::j::1",
-      "source_refs": []
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
     },
     {
-      "domain": {
-        "mutable": false,
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
       "name": "@variable::derived-types-02::main.loop$0::i::-1",
-      "source_refs": []
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
     },
     {
-      "domain": {
-        "mutable": false,
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
       "name": "@variable::derived-types-02::main.loop$0::i::0",
-      "source_refs": []
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
     },
     {
-      "domain": {
-        "mutable": false,
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
       "name": "@variable::derived-types-02::main.loop$0::IF_0::0",
-      "source_refs": []
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
     },
     {
-      "domain": {
-        "mutable": false,
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
       "name": "@variable::derived-types-02::main.loop$0::EXIT::0",
-      "source_refs": []
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
     },
     {
-      "domain": {
-        "mutable": false,
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
       "name": "@variable::derived-types-02::main.loop$0::i::1",
-      "source_refs": []
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
     },
     {
-      "domain": {
-        "mutable": false,
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
       "name": "@variable::derived-types-02::main.loop$2::i::-1",
-      "source_refs": []
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
     },
     {
-      "domain": {
-        "mutable": false,
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
       "name": "@variable::derived-types-02::main.loop$2::i::0",
-      "source_refs": []
-    },
-    {
+      "source_refs": [],
       "domain": {
-        "mutable": false,
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::derived-types-02::main.loop$2::IF_0::0",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "mutable": false,
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::derived-types-02::main.loop$2::EXIT::0",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "mutable": false,
         "name": "integer",
-        "type": "type"
+        "type": "type",
+        "mutable": false
       },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::derived-types-02::main.loop$2::IF_0::0",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::derived-types-02::main.loop$2::EXIT::0",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
       "name": "@variable::derived-types-02::main.loop$2::i::1",
-      "source_refs": []
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
     }
-  ]
+  ],
+  "grounding": [],
+  "types": [
+    {
+      "name": "@type::derived-types-02::@global::mytype",
+      "type": "type",
+      "attributes": [
+        {
+          "name": "i",
+          "type": "integer"
+        },
+        {
+          "name": "a",
+          "type": "Array",
+          "elem_type": "float",
+          "dimensions": [
+            4
+          ]
+        }
+      ]
+    }
+  ],
+  "source": [
+    "derived-types-02.f"
+  ],
+  "source_comments": {
+    "$file_head": [],
+    "$file_foot": []
+  },
+  "system": {
+    "name": "derived-types-02",
+    "components": [
+      {
+        "grfn_source": "./derived-types-02_GrFN.json",
+        "code_source": [
+          "tests/data/program_analysis/derived-types/derived-types-02.f"
+        ],
+        "imports": []
+      }
+    ]
+  }
 }
