@@ -1706,6 +1706,7 @@ class PythonCodeGenerator(object):
             if arg['tag'] == "ref":
                 self.current_select = self.proc_ref(arg, False)
         self.case_started = False
+        self.pyStrings.append("# select-case")
         self.printAst(node["body"], printState.copy(
                 sep=printState.sep,
                 printFirst=True,

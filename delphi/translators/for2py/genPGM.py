@@ -101,6 +101,7 @@ class GrFNGenerator(object):
         self.fortran_file = None
         self.exclude_list = []
         self.loop_input = []
+        self.comments = {}
         self.update_functions = {}
         self.mode_mapper = {}
         self.name_mapper = {}
@@ -1061,8 +1062,13 @@ class GrFNGenerator(object):
                 loop_body_outputs[output_var] = output_index
             elif function["function"]["type"] == "container":
                 for ip in function["updated"]:
-                    (_, output_var, output_index) = ip.split("::")
-                    loop_body_outputs[output_var] = output_index
+                    if isinstance(ip, dict):
+                        for x in ip["updates"]:
+                            (_, output_var, output_index) = x.split("::")
+                            loop_body_outputs[output_var] = output_index
+                    else:
+                        (_, output_var, output_index) = ip.split("::")
+                        loop_body_outputs[output_var] = output_index
 
         for item in loop_body_outputs:
             # TODO the indexing variables in of function block and container
@@ -1491,8 +1497,13 @@ class GrFNGenerator(object):
                 loop_body_outputs[output_var] = output_index
             elif function["function"]["type"] == "container":
                 for ip in function["updated"]:
-                    (_, output_var, output_index) = ip.split("::")
-                    loop_body_outputs[output_var] = output_index
+                    if isinstance(ip, dict):
+                        for x in ip["updates"]:
+                            (_, output_var, output_index) = x.split("::")
+                            loop_body_outputs[output_var] = output_index
+                    else:
+                        (_, output_var, output_index) = ip.split("::")
+                        loop_body_outputs[output_var] = output_index
 
         for item in loop_body_outputs:
             # TODO the indexing variables in of function block and container
@@ -1705,8 +1716,9 @@ class GrFNGenerator(object):
                 [condition_name], None, False, if_state
             )
         else:
-            condition_number = state.next_definitions.get(
-                "#cond", default_if_index
+            condition_number = self._get_next_definition(
+                "#cond", state.last_definitions, state.next_definitions,
+                default_if_index-1
             )
             condition_name = f"COND_{condition_number}"
             condition_index = self.get_last_definition(
@@ -1879,9 +1891,16 @@ class GrFNGenerator(object):
                                 if int(input_index) == -1:
                                     if_body_inputs.append(input_var)
                             for ip in function["updated"]:
-                                (_, output_var, output_index) = ip.split("::")
-                                if_body_outputs[current_condition][
-                                    output_var] = output_index
+                                if isinstance(ip, dict):
+                                    for x in ip["updates"]:
+                                        (_, output_var, output_index) = x.split(
+                                            "::")
+                                        if_body_outputs[output_var] = \
+                                            output_index
+                                else:
+                                    (_, output_var, output_index) = ip.split(
+                                        "::")
+                                    if_body_outputs[output_var] = output_index
                 else:
                     current_condition = None
                     if_body_outputs[current_condition] = dict()
@@ -1934,9 +1953,8 @@ class GrFNGenerator(object):
             for var in if_body_outputs[item]:
                 if (
                     "COND" not in var
-                    and state.last_definitions.get(var) is not None
                 ):
-                    if state.last_definitions[var] == -2:
+                    if state.last_definitions.get(var, -2) == -2:
                         updated_index = 0
                     else:
                         if var in updated_vars:
@@ -1978,11 +1996,19 @@ class GrFNGenerator(object):
                 function_updated.pop()
 
         container_gensym = self.generate_gensym("container")
+
+        if_type = "if-block"
+        node_lineno = node.lineno
+        for comment in self.comments:
+            if comment == "# select-case" and \
+                    node_lineno == int(self.comments[comment]) + 1:
+                if_type = "select-block"
+
         if_container = {
             "name": container_id_name,
             "source_refs": [],
             "gensym": container_gensym,
-            "type": "if-block",
+            "type": if_type,
             "arguments": container_argument,
             "updated": container_updated,
             "return_value": [],
@@ -2287,7 +2313,8 @@ class GrFNGenerator(object):
                                 # The value can either be a string literal or
                                 # a substring of another string. Check for this
                                 if "value" in arg[0]["call"]["inputs"][1][0]:
-                                    value = arg[0]["call"]["inputs"][1][0]["value"]
+                                    value = arg[0]["call"]["inputs"][1][0][
+                                        "value"]
                                     function["input"].append(
                                         f"@literal::" f"string::" f"'{value}'"
                                     )
@@ -2298,7 +2325,8 @@ class GrFNGenerator(object):
                                         string_variable = \
                                             string_variable.split('.')[0]
                                         string_index = \
-                                            state.last_definitions[string_variable]
+                                            state.last_definitions[
+                                                string_variable]
                                         function["input"].append(
                                             f"@variable::{string_variable}::"
                                             f"{string_index}"
@@ -2518,9 +2546,10 @@ class GrFNGenerator(object):
                                     state.last_definitions[variable_name] + 1
                                 )
 
-                                variable_spec = self.generate_variable_definition(
-                                    [variable_name], None, False, state
-                                )
+                                variable_spec = \
+                                    self.generate_variable_definition(
+                                     [variable_name], None, False, state
+                                    )
                                 grfn["variables"].append(variable_spec)
             # Keep a track of all functions whose `update` might need to be
             # later updated, along with their scope.
@@ -3095,7 +3124,8 @@ class GrFNGenerator(object):
                 module = function_node.value.s
                 function_name = module + function_node.attr
             else:
-                assert False, f"Invalid expression call {dump_ast(function_node)}"
+                assert False, f"Invalid expression call" \
+                              f" {dump_ast(function_node)}"
         else:
             function_name = node.func.id
 
@@ -4783,6 +4813,7 @@ def create_grfn_dict(
     mode_mapper_dict: list,
     original_file: str,
     mod_log_file_path: str,
+    comments: dict,
     module_file_exist=False,
     module_import_paths={},
 ) -> Dict:
@@ -4807,6 +4838,7 @@ def create_grfn_dict(
             generator.module_names.append(mod)
     generator.fortran_file = original_file
 
+    generator.comments = comments
     # Currently, we are specifying the module file with
     # a prefix "m_", this may be changed in the future.
     # If it requires a change, simply modify this below prefix.
