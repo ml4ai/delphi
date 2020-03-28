@@ -38,6 +38,13 @@ C=======================================================================
 !         equation are recalibrated.  Keep TD calc as it was
 !         developed.
       TD = 0.60*TMAX+0.40*TMIN
+      IF (XHLAI .LE. 0.0) THEN
+        ALBEDO = MSALB
+      ELSE IF (XHLAI .GT. 5.0) THEN
+        ALBEDO = 0.23-(0.23-MSALB)*EXP(-0.75*XHLAI)
+      ELSE
+        ALBEDO = XHLAI
+      ENDIF
 
       IF (XHLAI .LE. 0.0) THEN
         ALBEDO = MSALB
@@ -53,8 +60,6 @@ C=======================================================================
         EO = EEQ*((TMAX-35.0)*0.05+1.1)
       ELSE IF (TMAX .LT. 5.0) THEN
         EO = EEQ*0.01*EXP(0.18*(TMAX+20.0))
-      ELSE
-        EO = EEQ*EXP(0.22*(TMAX-35.00))
       ENDIF
 
 !###  EO = MAX(EO,0.0)   !gives error in DECRAT_C
