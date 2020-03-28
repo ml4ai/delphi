@@ -290,7 +290,6 @@ def generate_grfn(
         if line.type == tokenize.COMMENT:
             comments[line.string] = line.start[0]
 
-    print(comments)
     # print(genPGM.dump_ast(asts[-1]))
 
     grfn_dict = genPGM.create_grfn_dict(
