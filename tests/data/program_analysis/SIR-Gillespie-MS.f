@@ -104,6 +104,7 @@ C     VarR     Measures of Variance for R
 
            ! main Gillespie loop
            sample_idx = 0
+           totalRates = 0.0
            do while (t .le. Tmax .and. I .gt. 0)
               n_S = S
               n_I = I
