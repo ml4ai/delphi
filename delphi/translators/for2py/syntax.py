@@ -78,7 +78,6 @@ def line_is_continuation(line: str, f_ext: str) -> bool:
             return line[1] in "123456789"
         else:
             return len(line) > 5 and not (line[5] == ' ' or line[5] == '0')
- 
     if line[0] == '&':
         return True
 

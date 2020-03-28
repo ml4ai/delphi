@@ -3947,14 +3947,10 @@ class GrFNGenerator(object):
                 and node.value.func.attr == "get_sum"
         ):
             arr_name = node.value.func.value.id
-            assert (
-                    arr_name in self.arrays
-            ), f"Array {arr_name} does not exist in the self.arrays dictionary"
-            dimensions = self.arrays[arr_name]["dimensions"]
-            lambda_strings.append(f"{arr_name}Sum = 0\n")
-            lambda_strings.append(f"    for i in range(0, {len(dimensions)}):\n")
-            lambda_strings.append(f"        {arr_name}Sum += sum({arr_name}[i])\n")
-            lambda_strings.append(f"    return {arr_name}Sum")
+            # TODO: Currently, only handles 1D-list to satisfy cases
+            # that onnly appears in the Min-SPAM files.
+            lambda_strings.append(f"return sum({arr_name})\n")
+
             return "".join(lambda_strings)
 
         # If a `decision` tag comes up, override the call to genCode to manually

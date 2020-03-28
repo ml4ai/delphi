@@ -512,7 +512,44 @@ class PythonCodeGenerator(object):
                 return f"{var}.find({to_find})"
 
         if node["name"].lower() == "nint":
-            return f"intrinsics.nint({node['subscripts'][0]['name']})"
+            if node['subscripts'][0]["tag"] == "ref":
+                return f"intrinsics.nint({node['subscripts'][0]['name']})"
+            elif node['subscripts'][0]["tag"] == "op": 
+                left = node['subscripts'][0]["left"][0]
+                right = node['subscripts'][0]["right"][0]
+                
+                nintStr = "intrinsics.nint("
+                if left["tag"] == "ref":
+                    nintStr += left["name"]
+                    if left["is_array"] == "true":
+                        subs = left["subscripts"][0]
+                        nintStr += ".get_(("
+                        if subs["tag"] == "literal":
+                            nintStr += f"{subs['value']}))"
+                        elif subs["tag"] == "ref":
+                            nintStr += f"{subs['name'][0]}))"
+                    else:
+                        nintStr += "[0]"
+                elif left["tag"] == "literal":
+                    nintStr += left["value"]
+
+                nintStr += node['subscripts'][0]["operator"]
+
+                if right["tag"] == "ref":
+                    nintStr += right["name"]
+                    if right["is_array"] == "true":
+                        subs = right["subscripts"][0]
+                        nintStr += ".get_(("
+                        if subs["tag"] == "literal":
+                            nintStr += f"{subs['value']}))"
+                        elif subs["tag"] == "ref":
+                            nintStr += f"{subs['name'][0]}))"
+                    else:
+                        nintStr += "[0]"
+                elif right["tag"] == "literal":
+                    nintStr += right["value"]
+
+                return nintStr +")"
 
         if node["name"].lower() in syntax.F_INTRINSICS:
             return self.proc_intrinsic(node)
@@ -757,8 +794,6 @@ class PythonCodeGenerator(object):
 
     def printDo(self, node, printState: PrintState):
         self.pyStrings.append("for ")
-        # DEBUG
-        # print ("pyTranslate.py: ", node["header"])
         self.printAst(
             node["header"],
             printState.copy(sep="", add="", printFirst=True, indexRef=True),
