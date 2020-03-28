@@ -891,11 +891,14 @@ class GrFNGenerator(object):
         # function operation since the structure of genCode does not conform
         # with the way this lambda function will be created.
         # TODO Add code to support a step other than +1 as well
-        assert len(range_call["inputs"]) == 2, (
-            f"Only two elements in range " f"function supported as of now."
+        assert len(range_call["inputs"]) <= 3, (
+            f"Only two or three elements in range function supported as of now - {range_call}"
         )
         loop_start = range_call["inputs"][0]
         loop_end = range_call["inputs"][1]
+        # TODO: need to decide what we'll do with step.
+        if len(range_call["inputs"]) == 3:
+            loop_step = range_call["inputs"][2]
 
         # TODO Add a separate function to get the variables/literals of a
         #  more complex form. The one below is for the basic case.
@@ -963,7 +966,8 @@ class GrFNGenerator(object):
                 for ip in function["input"]:
                     (_, input_var, input_index) = ip.split("::")
                     if (
-                        int(input_index) == -1
+                        _ == "@variable"
+                        and int(input_index) == -1
                         and input_var not in loop_body_inputs
                     ):
                         loop_body_inputs.append(input_var)
@@ -972,7 +976,7 @@ class GrFNGenerator(object):
                 # some extra checks are added in the future
                 for ip in function["input"]:
                     (_, input_var, input_index) = ip.split("::")
-                    if int(input_index) == -1:
+                    if _ == "@variable" and int(input_index) == -1:
                         loop_body_inputs.append(input_var)
 
         # Remove any duplicates since variables can be used multiple times in
@@ -4373,7 +4377,7 @@ class GrFNGenerator(object):
                 else:
                     assert ast_name == "ast.Num", (
                         f"Unable to handle {ast_name} for multi-dimensional "
-                        f"array"
+                        f"array - {dump_ast(dimension)}"
                     )
             return dimension_list
         else:
