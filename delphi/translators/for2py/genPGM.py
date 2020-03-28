@@ -155,6 +155,7 @@ class GrFNGenerator(object):
         # Currently handling derived type object's accessing attributes
         self.current_d_object_attributes = []
         self.is_d_object_array_assign = False
+        self.elseif_flag = False
         self.module_summary = None
         self.global_scope_variables = {}
         self.exit_candidates = []
@@ -1639,8 +1640,10 @@ class GrFNGenerator(object):
 
         # First, check whether this is the start of an `if-block` or an
         # `elif` block
-        if call_source == "if":
+        # if call_source == "if":
+        if self.elseif_flag:
             is_else_if = True
+            self.elseif_flag = False
         else:
             is_else_if = False
             # Increment the loop index universally across the program
@@ -1791,11 +1794,17 @@ class GrFNGenerator(object):
         else:
             state.lambda_strings.append(lambda_string)
 
+        else_node_name = node.orelse.__repr__().split()[0][3:]
+
         if is_else_if:
             if_grfn = self.gen_grfn(node.body, state, "if")
+            if else_node_name == "ast.If":
+                self.elseif_flag = True
             else_grfn = self.gen_grfn(node.orelse, state, "if")
         else:
             if_grfn = self.gen_grfn(node.body, if_state, "if")
+            if else_node_name == "ast.If":
+                self.elseif_flag = True
             else_grfn = self.gen_grfn(node.orelse, if_state, "if")
 
         # Sometimes, some if-else body blocks only contain I/O operations,
@@ -1879,7 +1888,8 @@ class GrFNGenerator(object):
                             for ip in function["input"]:
                                 (_, input_var, input_index) = ip.split("::")
                                 if (
-                                        int(input_index) == -1
+                                        "@literal" not in ip
+                                        and int(input_index) == -1
                                         and input_var not in if_body_inputs
                                 ):
                                     if_body_inputs.append(input_var)
@@ -1899,12 +1909,13 @@ class GrFNGenerator(object):
                                     for x in ip["updates"]:
                                         (_, output_var, output_index) = x.split(
                                             "::")
-                                        if_body_outputs[output_var] = \
-                                            output_index
+                                        if_body_outputs[current_condition][
+                                            output_var] = output_index
                                 else:
                                     (_, output_var, output_index) = ip.split(
                                         "::")
-                                    if_body_outputs[output_var] = output_index
+                                    if_body_outputs[current_condition][
+                                        output_var] = output_index
                 else:
                     current_condition = None
                     if_body_outputs[current_condition] = dict()
@@ -4678,22 +4689,42 @@ class GrFNGenerator(object):
         variable_list = list()
         for item in condition_sources:
             if isinstance(item, dict) and "var" in item:
-                variable_list.append(item)
+                    variable_list.append(item)
+            elif isinstance(item, dict) and "list" in item:
+                    variable_list += self.get_variables(item["list"], state)
             elif isinstance(item, list):
                 variable_list += self.get_variables(item, state)
             elif "call" in item:
                 function_dict = item["call"]
-                if "__str__" in function_dict["function"]:
+                if function_dict["function"] == "abs":
+                    for x in function_dict["inputs"]:
+                        variable_list += self.get_variables(x, state)
+                elif "__str__" in function_dict["function"]:
                     var_name = function_dict["function"].split(".")[0]
                     var_node = [
                         {
                             "var": {
                                 "variable": var_name,
-                                "index": state.last_definitions[var_name],
+                                "index": state.last_definitions.get(var_name,
+                                                                    -1),
                             }
                         }
                     ]
                     variable_list += var_node
+                elif "get_" in function_dict["function"]:
+                    var_name = function_dict["function"].split(".")[0]
+                    var_node = [
+                        {
+                            "var": {
+                                "variable": var_name,
+                                "index": state.last_definitions.get(var_name,
+                                                                    -1),
+                            }
+                        }
+                    ]
+                    variable_list += var_node
+                    for x in function_dict["inputs"]:
+                        variable_list += self.get_variables(x, state)
                 # TODO: Will have to add other if cases for other string
                 #  types here
 
@@ -4704,7 +4735,7 @@ class GrFNGenerator(object):
         variable_list = [
             i
             for n, i in enumerate(variable_list)
-            if i not in variable_list[n + 1 :]
+            if i not in variable_list[n+1:]
         ]
 
         return variable_list
