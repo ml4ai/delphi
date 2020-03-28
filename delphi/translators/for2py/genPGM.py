@@ -887,7 +887,6 @@ class GrFNGenerator(object):
             "output": [f"@variable::IF_0::0"],
             "updated": [],
         }
-
         # Create the lambda function for the index variable initiations and
         # other loop checks. This has to be done through a custom lambda
         # function operation since the structure of genCode does not conform
@@ -2094,7 +2093,8 @@ class GrFNGenerator(object):
 
         for expr in expressions:
             if "call" not in expr:
-                assert False, f"Unsupported expr: {expr}."
+                # assert False, f"Unsupported expr: {expr}."
+                return []
         for expr in expressions:
             array_set = False
             string_set = False
@@ -2555,7 +2555,8 @@ class GrFNGenerator(object):
         # TODO: Remove this and handle further for implementations of arrays,
         #  reference of dictionary item, etc
         if not isinstance(node.slice.value, ast.Num):
-            raise For2PyError("can't handle arrays right now.")
+            # raise For2PyError("can't handle arrays right now.")
+            pass
 
         val = self.gen_grfn(node.value, state, "subscript")
         if val:
@@ -2580,7 +2581,6 @@ class GrFNGenerator(object):
                 self.annotated_assigned.append(val[0]["var"]["variable"])
         else:
             assert False, "No variable name found for subscript node."
-
         return val
 
     def process_name(self, node, state, call_source):
@@ -4115,6 +4115,7 @@ class GrFNGenerator(object):
         if variable in self.arrays:
             domain_dictionary = self.arrays[variable]
         else:
+            type_name = None
             if (
                 variable in state.variable_types
                 and state.variable_types[variable]
@@ -4158,6 +4159,14 @@ class GrFNGenerator(object):
                 state.variable_types[variable] = type_name
             elif variable_type == "Real":
                 type_name = "float"
+            elif len(self.imported_module) > 0:
+                for mod in self.imported_module:
+                    if (
+                            mod in self.module_summary
+                            and variable in self.module_summary[mod]["symbol_types"]
+                    ):
+                        type_name = self.module_summary[mod]["symbol_types"]
+
             else:
                 type_found = False
                 if len(self.module_names) > 1:
@@ -4171,9 +4180,6 @@ class GrFNGenerator(object):
                             type_found = True
                             type_name = variable_type
                             state.variable_types[variable] = type_name
-                # DEBUG
-                print(self.imported_module)
-                assert type_found, f"Type {variable_type} is not a valid type."
 
             domain_dictionary = {
                 "name": type_name,
