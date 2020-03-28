@@ -365,7 +365,10 @@ class genCode:
                 return f"{string}.strip()"
 
             if not isinstance(function_node.value, ast.Attribute):
-                module = function_node.value.id
+                if isinstance(function_node.value, ast.Str):
+                    module = function_node.value.s
+                else:
+                    module = function_node.value.id
             elif isinstance(function_node.value.value, ast.Name):
                 module = function_node.value.value.id
             elif isinstance(function_node.value.value, ast.Call):

@@ -757,6 +757,8 @@ class PythonCodeGenerator(object):
 
     def printDo(self, node, printState: PrintState):
         self.pyStrings.append("for ")
+        # DEBUG
+        # print ("pyTranslate.py: ", node["header"])
         self.printAst(
             node["header"],
             printState.copy(sep="", add="", printFirst=True, indexRef=True),
@@ -1704,6 +1706,7 @@ class PythonCodeGenerator(object):
             if arg['tag'] == "ref":
                 self.current_select = self.proc_ref(arg, False)
         self.case_started = False
+        self.pyStrings.append("# select-case")
         self.printAst(node["body"], printState.copy(
                 sep=printState.sep,
                 printFirst=True,

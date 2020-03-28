@@ -21,6 +21,8 @@ import os
 import re
 import sys
 import ast
+import io
+import tokenize
 import json
 import argparse
 import pickle
@@ -280,6 +282,14 @@ def generate_grfn(
     # Build GrFN and lambdas
     asts = [ast.parse(python_source_string)]
 
+    # Get all the comments
+    comments = {}
+    buf = io.StringIO(python_source_string)
+
+    for line in tokenize.generate_tokens(buf.readline):
+        if line.type == tokenize.COMMENT:
+            comments[line.string] = line.start[0]
+
     # print(genPGM.dump_ast(asts[-1]))
 
     grfn_dict = genPGM.create_grfn_dict(
@@ -289,6 +299,7 @@ def generate_grfn(
         module_mapper,
         original_fortran_file,
         mod_log_file_path,
+        comments,
         module_file_exists,
         module_import_paths,
     )
