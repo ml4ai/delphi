@@ -134,7 +134,7 @@ tmp/
 errorFileList.txt
 fileList.txt
 modFileLog.json
-
+Mini-SPAM/
 # Data to ignore
 *_pickle
 *.pkl
