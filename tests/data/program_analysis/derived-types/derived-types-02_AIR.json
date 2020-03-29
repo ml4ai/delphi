@@ -1,12 +1,9 @@
 {
-  "start": [
-    "@container::derived-types-02::@global::main"
-  ],
   "containers": [
     {
       "name": "@container::derived-types-02::@global::main",
       "source_refs": [],
-      "repeat": false,
+      "type": "function",
       "arguments": [],
       "updated": [],
       "return_value": [],
@@ -62,7 +59,7 @@
     {
       "name": "@container::derived-types-02::main::loop$0",
       "source_refs": [],
-      "repeat": true,
+      "type": "loop",
       "arguments": [
         "@variable::i::-1"
       ],
@@ -153,7 +150,7 @@
     {
       "name": "@container::derived-types-02::main.loop$0::loop$1",
       "source_refs": [],
-      "repeat": true,
+      "type": "loop",
       "arguments": [
         "@variable::i::-1",
         "@variable::a::-1"
@@ -234,7 +231,7 @@
     {
       "name": "@container::derived-types-02::main::loop$2",
       "source_refs": [],
-      "repeat": true,
+      "type": "loop",
       "arguments": [
         "@variable::i::-1"
       ],
@@ -293,15 +290,6 @@
           "updated": []
         }
       ]
-    },
-    {
-      "name": null,
-      "source_refs": [],
-      "repeat": false,
-      "arguments": [],
-      "updated": [],
-      "return_value": [],
-      "body": []
     }
   ],
   "variables": [
@@ -541,6 +529,9 @@
       "domain_constraint": "(and (> v -infty) (< v infty))"
     }
   ],
+  "start": [
+    "@container::derived-types-02::@global::main"
+  ],
   "grounding": [],
   "types": [
     {
@@ -573,7 +564,7 @@
     "name": "derived-types-02",
     "components": [
       {
-        "grfn_source": "./derived-types-02_GrFN.json",
+        "grfn_source": "./derived-types-02_AIR.json",
         "code_source": [
           "tests/data/program_analysis/derived-types/derived-types-02.f"
         ],

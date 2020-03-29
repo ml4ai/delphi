@@ -1,4 +1,421 @@
 {
+  "containers": [
+    {
+      "name": "@container::arrays-basic-06::@global::main",
+      "source_refs": [],
+      "type": "function",
+      "arguments": [],
+      "updated": [],
+      "return_value": [],
+      "body": [
+        {
+          "function": {
+            "name": "arrays_basic_06__main__assign__a__0",
+            "type": "lambda"
+          },
+          "input": [],
+          "output": [
+            "@variable::a::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "@container::arrays-basic-06::main::loop$0",
+            "type": "container"
+          },
+          "input": [
+            "@variable::a::0"
+          ],
+          "output": [],
+          "updated": [
+            "@variable::a::1"
+          ]
+        },
+        {
+          "function": {
+            "name": "@container::arrays-basic-06::main::loop$3",
+            "type": "container"
+          },
+          "input": [],
+          "output": [],
+          "updated": []
+        }
+      ]
+    },
+    {
+      "name": "@container::arrays-basic-06::main::loop$0",
+      "source_refs": [],
+      "type": "loop",
+      "arguments": [
+        "@variable::a::-1"
+      ],
+      "updated": [
+        "@variable::a::0"
+      ],
+      "return_value": [],
+      "body": [
+        {
+          "function": {
+            "name": "arrays_basic_06__main__loop_0__assign__i__0",
+            "type": "lambda"
+          },
+          "input": [],
+          "output": [
+            "@variable::i::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "arrays_basic_06__main__loop_0__condition__IF_0__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::i::0"
+          ],
+          "output": [
+            "@variable::IF_0::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "arrays_basic_06__main__loop_0__decision__EXIT__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::IF_0::0"
+          ],
+          "output": [
+            "@variable::EXIT::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "@container::arrays-basic-06::main.loop$0::loop$1",
+            "type": "container"
+          },
+          "input": [
+            "@variable::a::-1",
+            "@variable::i::0"
+          ],
+          "output": [],
+          "updated": [
+            "@variable::a::0"
+          ]
+        },
+        {
+          "function": {
+            "name": "arrays_basic_06__main__loop_0__assign_i__1",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::i::0"
+          ],
+          "output": [
+            "@variable::i::1"
+          ],
+          "updated": []
+        }
+      ]
+    },
+    {
+      "name": "@container::arrays-basic-06::main.loop$0::loop$1",
+      "source_refs": [],
+      "type": "loop",
+      "arguments": [
+        "@variable::a::-1",
+        "@variable::i::-1"
+      ],
+      "updated": [
+        "@variable::a::0"
+      ],
+      "return_value": [],
+      "body": [
+        {
+          "function": {
+            "name": "arrays_basic_06__main__loop_0__loop_1__assign__j__0",
+            "type": "lambda"
+          },
+          "input": [],
+          "output": [
+            "@variable::j::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "arrays_basic_06__main__loop_0__loop_1__condition__IF_0__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::j::0"
+          ],
+          "output": [
+            "@variable::IF_0::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "arrays_basic_06__main__loop_0__loop_1__decision__EXIT__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::IF_0::0"
+          ],
+          "output": [
+            "@variable::EXIT::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "@container::arrays-basic-06::main.loop$0.loop$1::loop$2",
+            "type": "container"
+          },
+          "input": [
+            "@variable::a::-1",
+            "@variable::i::-1",
+            "@variable::j::0"
+          ],
+          "output": [],
+          "updated": [
+            "@variable::a::0"
+          ]
+        },
+        {
+          "function": {
+            "name": "arrays_basic_06__main__loop_0__loop_1__assign_j__1",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::j::0"
+          ],
+          "output": [
+            "@variable::j::1"
+          ],
+          "updated": []
+        }
+      ]
+    },
+    {
+      "name": "@container::arrays-basic-06::main.loop$0.loop$1::loop$2",
+      "source_refs": [],
+      "type": "loop",
+      "arguments": [
+        "@variable::a::-1",
+        "@variable::i::-1",
+        "@variable::j::-1"
+      ],
+      "updated": [
+        "@variable::a::0"
+      ],
+      "return_value": [],
+      "body": [
+        {
+          "function": {
+            "name": "arrays_basic_06__main__loop_0__loop_1__loop_2__assign__k__0",
+            "type": "lambda"
+          },
+          "input": [],
+          "output": [
+            "@variable::k::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "arrays_basic_06__main__loop_0__loop_1__loop_2__condition__IF_0__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::k::0"
+          ],
+          "output": [
+            "@variable::IF_0::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "arrays_basic_06__main__loop_0__loop_1__loop_2__decision__EXIT__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::IF_0::0"
+          ],
+          "output": [
+            "@variable::EXIT::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "arrays_basic_06__main__loop_0__loop_1__loop_2__assign__a_ijk__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::a::-1",
+            "@variable::i::-1",
+            "@variable::j::-1",
+            "@variable::k::0"
+          ],
+          "output": [
+            "@variable::a::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "arrays_basic_06__main__loop_0__loop_1__loop_2__assign_k__1",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::k::0"
+          ],
+          "output": [
+            "@variable::k::1"
+          ],
+          "updated": []
+        }
+      ]
+    },
+    {
+      "name": "@container::arrays-basic-06::main::loop$3",
+      "source_refs": [],
+      "type": "loop",
+      "arguments": [],
+      "updated": [],
+      "return_value": [],
+      "body": [
+        {
+          "function": {
+            "name": "arrays_basic_06__main__loop_3__assign__i__0",
+            "type": "lambda"
+          },
+          "input": [],
+          "output": [
+            "@variable::i::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "arrays_basic_06__main__loop_3__condition__IF_0__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::i::0"
+          ],
+          "output": [
+            "@variable::IF_0::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "arrays_basic_06__main__loop_3__decision__EXIT__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::IF_0::0"
+          ],
+          "output": [
+            "@variable::EXIT::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "@container::arrays-basic-06::main.loop$3::loop$4",
+            "type": "container"
+          },
+          "input": [],
+          "output": [],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "arrays_basic_06__main__loop_3__assign_i__1",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::i::0"
+          ],
+          "output": [
+            "@variable::i::1"
+          ],
+          "updated": []
+        }
+      ]
+    },
+    {
+      "name": "@container::arrays-basic-06::main.loop$3::loop$4",
+      "source_refs": [],
+      "type": "loop",
+      "arguments": [],
+      "updated": [],
+      "return_value": [],
+      "body": [
+        {
+          "function": {
+            "name": "arrays_basic_06__main__loop_3__loop_4__assign__j__0",
+            "type": "lambda"
+          },
+          "input": [],
+          "output": [
+            "@variable::j::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "arrays_basic_06__main__loop_3__loop_4__condition__IF_0__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::j::0"
+          ],
+          "output": [
+            "@variable::IF_0::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "arrays_basic_06__main__loop_3__loop_4__decision__EXIT__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::IF_0::0"
+          ],
+          "output": [
+            "@variable::EXIT::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "arrays_basic_06__main__loop_3__loop_4__assign_j__1",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::j::0"
+          ],
+          "output": [
+            "@variable::j::1"
+          ],
+          "updated": []
+        }
+      ]
+    }
+  ],
+  "start": [
+    "@container::arrays-basic-06::@global::main"
+  ],
   "variables": [
     {
       "name": "@variable::arrays-basic-06::main::a::0",
@@ -351,432 +768,6 @@
       "domain_constraint": "(and (> v -infty) (< v infty))"
     }
   ],
-  "containers": [
-    {
-      "name": "@container::arrays-basic-06::@global::main",
-      "source_refs": [],
-      "repeat": false,
-      "arguments": [],
-      "updated": [],
-      "return_value": [],
-      "body": [
-        {
-          "function": {
-            "name": "arrays_basic_06__main__assign__a__0",
-            "type": "lambda"
-          },
-          "input": [],
-          "output": [
-            "@variable::a::0"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "@container::arrays-basic-06::main::loop$0",
-            "type": "container"
-          },
-          "input": [
-            "@variable::a::0"
-          ],
-          "output": [],
-          "updated": [
-            "@variable::a::1"
-          ]
-        },
-        {
-          "function": {
-            "name": "@container::arrays-basic-06::main::loop$3",
-            "type": "container"
-          },
-          "input": [],
-          "output": [],
-          "updated": []
-        }
-      ]
-    },
-    {
-      "name": "@container::arrays-basic-06::main::loop$0",
-      "source_refs": [],
-      "repeat": true,
-      "arguments": [
-        "@variable::a::-1"
-      ],
-      "updated": [
-        "@variable::a::0"
-      ],
-      "return_value": [],
-      "body": [
-        {
-          "function": {
-            "name": "arrays_basic_06__main__loop_0__assign__i__0",
-            "type": "lambda"
-          },
-          "input": [],
-          "output": [
-            "@variable::i::0"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "arrays_basic_06__main__loop_0__condition__IF_0__0",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::i::0"
-          ],
-          "output": [
-            "@variable::IF_0::0"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "arrays_basic_06__main__loop_0__decision__EXIT__0",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::IF_0::0"
-          ],
-          "output": [
-            "@variable::EXIT::0"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "@container::arrays-basic-06::main.loop$0::loop$1",
-            "type": "container"
-          },
-          "input": [
-            "@variable::a::-1",
-            "@variable::i::0"
-          ],
-          "output": [],
-          "updated": [
-            "@variable::a::0"
-          ]
-        },
-        {
-          "function": {
-            "name": "arrays_basic_06__main__loop_0__assign_i__1",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::i::0"
-          ],
-          "output": [
-            "@variable::i::1"
-          ],
-          "updated": []
-        }
-      ]
-    },
-    {
-      "name": "@container::arrays-basic-06::main.loop$0::loop$1",
-      "source_refs": [],
-      "repeat": true,
-      "arguments": [
-        "@variable::a::-1",
-        "@variable::i::-1"
-      ],
-      "updated": [
-        "@variable::a::0"
-      ],
-      "return_value": [],
-      "body": [
-        {
-          "function": {
-            "name": "arrays_basic_06__main__loop_0__loop_1__assign__j__0",
-            "type": "lambda"
-          },
-          "input": [],
-          "output": [
-            "@variable::j::0"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "arrays_basic_06__main__loop_0__loop_1__condition__IF_0__0",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::j::0"
-          ],
-          "output": [
-            "@variable::IF_0::0"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "arrays_basic_06__main__loop_0__loop_1__decision__EXIT__0",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::IF_0::0"
-          ],
-          "output": [
-            "@variable::EXIT::0"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "@container::arrays-basic-06::main.loop$0.loop$1::loop$2",
-            "type": "container"
-          },
-          "input": [
-            "@variable::a::-1",
-            "@variable::i::-1",
-            "@variable::j::0"
-          ],
-          "output": [],
-          "updated": [
-            "@variable::a::0"
-          ]
-        },
-        {
-          "function": {
-            "name": "arrays_basic_06__main__loop_0__loop_1__assign_j__1",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::j::0"
-          ],
-          "output": [
-            "@variable::j::1"
-          ],
-          "updated": []
-        }
-      ]
-    },
-    {
-      "name": "@container::arrays-basic-06::main.loop$0.loop$1::loop$2",
-      "source_refs": [],
-      "repeat": true,
-      "arguments": [
-        "@variable::a::-1",
-        "@variable::i::-1",
-        "@variable::j::-1"
-      ],
-      "updated": [
-        "@variable::a::0"
-      ],
-      "return_value": [],
-      "body": [
-        {
-          "function": {
-            "name": "arrays_basic_06__main__loop_0__loop_1__loop_2__assign__k__0",
-            "type": "lambda"
-          },
-          "input": [],
-          "output": [
-            "@variable::k::0"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "arrays_basic_06__main__loop_0__loop_1__loop_2__condition__IF_0__0",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::k::0"
-          ],
-          "output": [
-            "@variable::IF_0::0"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "arrays_basic_06__main__loop_0__loop_1__loop_2__decision__EXIT__0",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::IF_0::0"
-          ],
-          "output": [
-            "@variable::EXIT::0"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "arrays_basic_06__main__loop_0__loop_1__loop_2__assign__a_ijk__0",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::a::-1",
-            "@variable::i::-1",
-            "@variable::j::-1",
-            "@variable::k::0"
-          ],
-          "output": [
-            "@variable::a::0"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "arrays_basic_06__main__loop_0__loop_1__loop_2__assign_k__1",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::k::0"
-          ],
-          "output": [
-            "@variable::k::1"
-          ],
-          "updated": []
-        }
-      ]
-    },
-    {
-      "name": "@container::arrays-basic-06::main::loop$3",
-      "source_refs": [],
-      "repeat": true,
-      "arguments": [],
-      "updated": [],
-      "return_value": [],
-      "body": [
-        {
-          "function": {
-            "name": "arrays_basic_06__main__loop_3__assign__i__0",
-            "type": "lambda"
-          },
-          "input": [],
-          "output": [
-            "@variable::i::0"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "arrays_basic_06__main__loop_3__condition__IF_0__0",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::i::0"
-          ],
-          "output": [
-            "@variable::IF_0::0"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "arrays_basic_06__main__loop_3__decision__EXIT__0",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::IF_0::0"
-          ],
-          "output": [
-            "@variable::EXIT::0"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "@container::arrays-basic-06::main.loop$3::loop$4",
-            "type": "container"
-          },
-          "input": [],
-          "output": [],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "arrays_basic_06__main__loop_3__assign_i__1",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::i::0"
-          ],
-          "output": [
-            "@variable::i::1"
-          ],
-          "updated": []
-        }
-      ]
-    },
-    {
-      "name": "@container::arrays-basic-06::main.loop$3::loop$4",
-      "source_refs": [],
-      "repeat": true,
-      "arguments": [],
-      "updated": [],
-      "return_value": [],
-      "body": [
-        {
-          "function": {
-            "name": "arrays_basic_06__main__loop_3__loop_4__assign__j__0",
-            "type": "lambda"
-          },
-          "input": [],
-          "output": [
-            "@variable::j::0"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "arrays_basic_06__main__loop_3__loop_4__condition__IF_0__0",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::j::0"
-          ],
-          "output": [
-            "@variable::IF_0::0"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "arrays_basic_06__main__loop_3__loop_4__decision__EXIT__0",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::IF_0::0"
-          ],
-          "output": [
-            "@variable::EXIT::0"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "arrays_basic_06__main__loop_3__loop_4__assign_j__1",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::j::0"
-          ],
-          "output": [
-            "@variable::j::1"
-          ],
-          "updated": []
-        }
-      ]
-    },
-    {
-      "name": null,
-      "source_refs": [],
-      "repeat": false,
-      "arguments": [],
-      "updated": [],
-      "return_value": [],
-      "body": []
-    }
-  ],
-  "start": [
-    "@container::arrays-basic-06::@global::main"
-  ],
   "grounding": [],
   "types": [],
   "source": [
@@ -790,7 +781,7 @@
     "name": "arrays-basic-06",
     "components": [
       {
-        "grfn_source": "./arrays-basic-06_GrFN.json",
+        "grfn_source": "./arrays-basic-06_AIR.json",
         "code_source": [
           "tests/data/program_analysis/arrays/arrays-basic-06.f"
         ],

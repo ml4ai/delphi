@@ -1,7 +1,4 @@
 {
-  "start": [
-    "@container::derived-types-04::@global::main"
-  ],
   "variables": [
     {
       "name": "@variable::derived-types-04::main::var::0",
@@ -58,7 +55,7 @@
     {
       "name": "@container::derived-types-04::@global::main",
       "source_refs": [],
-      "repeat": false,
+      "type": "function",
       "arguments": [],
       "updated": [],
       "return_value": [],
@@ -116,16 +113,10 @@
           "updated": []
         }
       ]
-    },
-    {
-      "name": null,
-      "source_refs": [],
-      "repeat": false,
-      "arguments": [],
-      "updated": [],
-      "return_value": [],
-      "body": []
     }
+  ],
+  "start": [
+    "@container::derived-types-04::@global::main"
   ],
   "grounding": [],
   "types": [
@@ -191,7 +182,7 @@
     "name": "derived-types-04",
     "components": [
       {
-        "grfn_source": "./derived-types-04_GrFN.json",
+        "grfn_source": "./derived-types-04_AIR.json",
         "code_source": [
           "tests/data/program_analysis/derived-types/derived-types-04.f"
         ],

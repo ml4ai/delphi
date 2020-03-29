@@ -26,7 +26,7 @@ def main():
     inc: List[int] = [None]
     y: List[int] = [None]
     for inc[0] in range(1, 10+1):
-        
+        # select-case
         if (inc[0] >= "-inf" and inc[0] <= 3):
             y[0] = int((inc[0] * 2))
             write_list_stream = ["the variables i and y have values: ", inc[0], y[0]]

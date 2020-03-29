@@ -1,13 +1,379 @@
 {
+  "containers": [
+    {
+      "name": "@container::select02::@global::main",
+      "source_refs": [],
+      "type": "function",
+      "arguments": [],
+      "updated": [],
+      "return_value": [],
+      "body": [
+        {
+          "function": {
+            "name": "@container::select02::main::loop$0",
+            "type": "container"
+          },
+          "input": [],
+          "output": [],
+          "updated": [
+            "@variable::y::0"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "@container::select02::main::loop$0",
+      "source_refs": [],
+      "type": "loop",
+      "arguments": [],
+      "updated": [
+        "@variable::y::0"
+      ],
+      "return_value": [],
+      "body": [
+        {
+          "function": {
+            "name": "select02__main__loop_0__assign__inc__0",
+            "type": "lambda"
+          },
+          "input": [],
+          "output": [
+            "@variable::inc::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "select02__main__loop_0__condition__IF_0__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::inc::0"
+          ],
+          "output": [
+            "@variable::IF_0::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "select02__main__loop_0__decision__EXIT__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::IF_0::0"
+          ],
+          "output": [
+            "@variable::EXIT::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "@container::select02::main.loop$0::IF_0",
+            "type": "container"
+          },
+          "input": [
+            "@variable::inc::0"
+          ],
+          "output": [],
+          "updated": [
+            {
+              "condition": "COND_0",
+              "updates": [
+                "@variable::y::0"
+              ]
+            },
+            {
+              "condition": "COND_1",
+              "updates": [
+                "@variable::y::0"
+              ]
+            },
+            {
+              "condition": "COND_2",
+              "updates": [
+                "@variable::y::0"
+              ]
+            },
+            {
+              "condition": "COND_3",
+              "updates": [
+                "@variable::y::0"
+              ]
+            }
+          ]
+        },
+        {
+          "function": {
+            "name": "select02__main__loop_0__assign_inc__1",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::inc::0"
+          ],
+          "output": [
+            "@variable::inc::1"
+          ],
+          "updated": []
+        }
+      ]
+    },
+    {
+      "name": "@container::select02::main.loop$0::IF_0",
+      "source_refs": [],
+      "type": "select-block",
+      "arguments": [
+        "@variable::inc::-1"
+      ],
+      "updated": [
+        {
+          "condition": "COND_0",
+          "updates": [
+            "@variable::y::0"
+          ]
+        },
+        {
+          "condition": "COND_1",
+          "updates": [
+            "@variable::y::1"
+          ]
+        },
+        {
+          "condition": "COND_2",
+          "updates": [
+            "@variable::y::2"
+          ]
+        },
+        {
+          "condition": "COND_3",
+          "updates": [
+            "@variable::y::3"
+          ]
+        }
+      ],
+      "return_value": [],
+      "body": [
+        {
+          "condition": [
+            {
+              "function": {
+                "name": "select02__main__loop_0__IF_0__condition__COND_0__0",
+                "type": "lambda"
+              },
+              "input": [
+                "@variable::inc::-1"
+              ],
+              "output": [
+                "@variable::COND_0::0"
+              ],
+              "updated": []
+            }
+          ],
+          "statements": [
+            {
+              "function": {
+                "name": "select02__main__loop_0__IF_0__assign__y__0",
+                "type": "lambda"
+              },
+              "input": [
+                "@variable::inc::-1"
+              ],
+              "output": [
+                "@variable::y::0"
+              ],
+              "updated": []
+            }
+          ]
+        },
+        {
+          "condition": [
+            {
+              "function": {
+                "name": "select02__main__loop_0__IF_0__condition__COND_1__0",
+                "type": "lambda"
+              },
+              "input": [
+                "@variable::inc::-1"
+              ],
+              "output": [
+                "@variable::COND_1::0"
+              ],
+              "updated": []
+            }
+          ],
+          "statements": [
+            {
+              "function": {
+                "name": "select02__main__loop_0__IF_0__assign__y__1",
+                "type": "lambda"
+              },
+              "input": [
+                "@variable::inc::-1"
+              ],
+              "output": [
+                "@variable::y::1"
+              ],
+              "updated": []
+            }
+          ]
+        },
+        {
+          "condition": [
+            {
+              "function": {
+                "name": "select02__main__loop_0__IF_0__condition__COND_2__0",
+                "type": "lambda"
+              },
+              "input": [
+                "@variable::inc::-1"
+              ],
+              "output": [
+                "@variable::COND_2::0"
+              ],
+              "updated": []
+            }
+          ],
+          "statements": [
+            {
+              "function": {
+                "name": "select02__main__loop_0__IF_0__assign__y__2",
+                "type": "lambda"
+              },
+              "input": [
+                "@variable::inc::-1"
+              ],
+              "output": [
+                "@variable::y::2"
+              ],
+              "updated": []
+            }
+          ]
+        },
+        {
+          "condition": [
+            {
+              "function": {
+                "name": "select02__main__loop_0__IF_0__condition__COND_3__0",
+                "type": "lambda"
+              },
+              "input": [
+                "@variable::inc::-1"
+              ],
+              "output": [
+                "@variable::COND_3::0"
+              ],
+              "updated": []
+            }
+          ],
+          "statements": [
+            {
+              "function": {
+                "name": "select02__main__loop_0__IF_0__assign__y__3",
+                "type": "lambda"
+              },
+              "input": [
+                "@variable::inc::-1"
+              ],
+              "output": [
+                "@variable::y::3"
+              ],
+              "updated": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
   "start": [
     "@container::select02::@global::main"
   ],
   "variables": [
     {
-      "name": "@variable::select02::main.loop$0::IF_1::0",
+      "name": "@variable::select02::main.loop$0.IF_0::COND_0::0",
       "source_refs": [],
       "domain": {
         "name": "boolean",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::select02::main.loop$0.IF_0::y::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::select02::main.loop$0.IF_0::COND_1::0",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::select02::main.loop$0.IF_0::y::1",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::select02::main.loop$0.IF_0::COND_2::0",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::select02::main.loop$0.IF_0::y::2",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::select02::main.loop$0.IF_0::COND_3::0",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::select02::main.loop$0.IF_0::y::3",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::select02::main.loop$0.IF_0::inc::-1",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
         "type": "type",
         "mutable": false
       },
@@ -15,116 +381,6 @@
     },
     {
       "name": "@variable::select02::main.loop$0::y::0",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type",
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty))"
-    },
-    {
-      "name": "@variable::select02::main.loop$0::y::1",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type",
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty))"
-    },
-    {
-      "name": "@variable::select02::main.loop$0::IF_1::1",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type",
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty))"
-    },
-    {
-      "name": "@variable::select02::main.loop$0::y::2",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type",
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty))"
-    },
-    {
-      "name": "@variable::select02::main.loop$0::y::3",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type",
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty))"
-    },
-    {
-      "name": "@variable::select02::main.loop$0::IF_1::2",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type",
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty))"
-    },
-    {
-      "name": "@variable::select02::main.loop$0::y::4",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type",
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty))"
-    },
-    {
-      "name": "@variable::select02::main.loop$0::y::5",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type",
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty))"
-    },
-    {
-      "name": "@variable::select02::main.loop$0::IF_1::3",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type",
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty))"
-    },
-    {
-      "name": "@variable::select02::main.loop$0::y::6",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type",
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty))"
-    },
-    {
-      "name": "@variable::select02::main.loop$0::y::7",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type",
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty))"
-    },
-    {
-      "name": "@variable::select02::main.loop$0::y::-1",
       "source_refs": [],
       "domain": {
         "name": "integer",
@@ -184,268 +440,6 @@
       "domain_constraint": "(and (> v -infty) (< v infty))"
     }
   ],
-  "containers": [
-    {
-      "name": "@container::select02::@global::main",
-      "source_refs": [],
-      "repeat": false,
-      "arguments": [],
-      "updated": [],
-      "return_value": [],
-      "body": [
-        {
-          "function": {
-            "name": "@container::select02::main::loop$0",
-            "type": "container"
-          },
-          "input": [
-            "@variable::y::-2"
-          ],
-          "output": [],
-          "updated": [
-            "@variable::y::0"
-          ]
-        }
-      ]
-    },
-    {
-      "name": "@container::select02::main::loop$0",
-      "source_refs": [],
-      "repeat": true,
-      "arguments": [
-        "@variable::y::-1"
-      ],
-      "updated": [
-        "@variable::y::7"
-      ],
-      "return_value": [],
-      "body": [
-        {
-          "function": {
-            "name": "select02__main__loop_0__assign__inc__0",
-            "type": "lambda"
-          },
-          "input": [],
-          "output": [
-            "@variable::inc::0"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "select02__main__loop_0__condition__IF_0__0",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::inc::0"
-          ],
-          "output": [
-            "@variable::IF_0::0"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "select02__main__loop_0__decision__EXIT__0",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::IF_0::0"
-          ],
-          "output": [
-            "@variable::EXIT::0"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "select02__main__loop_0__condition__IF_1__0",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::inc::0"
-          ],
-          "output": [
-            "@variable::IF_1::0"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "select02__main__loop_0__assign__y__0",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::inc::0"
-          ],
-          "output": [
-            "@variable::y::0"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "select02__main__loop_0__decision__y__1",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::y::0",
-            "@variable::y::-1",
-            "@variable::IF_1::0"
-          ],
-          "output": [
-            "@variable::y::1"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "select02__main__loop_0__condition__IF_1__1",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::inc::0"
-          ],
-          "output": [
-            "@variable::IF_1::1"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "select02__main__loop_0__assign__y__2",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::inc::0"
-          ],
-          "output": [
-            "@variable::y::2"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "select02__main__loop_0__decision__y__3",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::y::1",
-            "@variable::y::2",
-            "@variable::IF_1::1"
-          ],
-          "output": [
-            "@variable::y::3"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "select02__main__loop_0__condition__IF_1__2",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::inc::0"
-          ],
-          "output": [
-            "@variable::IF_1::2"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "select02__main__loop_0__assign__y__4",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::inc::0"
-          ],
-          "output": [
-            "@variable::y::4"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "select02__main__loop_0__decision__y__5",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::y::3",
-            "@variable::y::4",
-            "@variable::IF_1::2"
-          ],
-          "output": [
-            "@variable::y::5"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "select02__main__loop_0__condition__IF_1__3",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::inc::0"
-          ],
-          "output": [
-            "@variable::IF_1::3"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "select02__main__loop_0__assign__y__6",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::inc::0"
-          ],
-          "output": [
-            "@variable::y::6"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "select02__main__loop_0__decision__y__7",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::y::5",
-            "@variable::y::6",
-            "@variable::IF_1::3"
-          ],
-          "output": [
-            "@variable::y::7"
-          ],
-          "updated": []
-        },
-        {
-          "function": {
-            "name": "select02__main__loop_0__assign_inc__1",
-            "type": "lambda"
-          },
-          "input": [
-            "@variable::inc::0"
-          ],
-          "output": [
-            "@variable::inc::1"
-          ],
-          "updated": []
-        }
-      ]
-    },
-    {
-      "name": null,
-      "source_refs": [],
-      "repeat": false,
-      "arguments": [],
-      "updated": [],
-      "return_value": [],
-      "body": []
-    }
-  ],
   "grounding": [],
   "types": [],
   "source": [
@@ -459,7 +453,7 @@
     "name": "select02",
     "components": [
       {
-        "grfn_source": "./select02_GrFN.json",
+        "grfn_source": "./select02_AIR.json",
         "code_source": [
           "tests/data/program_analysis/select_case/select02.f"
         ],
