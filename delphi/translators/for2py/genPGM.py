@@ -166,7 +166,6 @@ class GrFNGenerator(object):
                 "name": None,
                 "source_refs": [],
                 "gensym": None,
-                "repeat": False,
                 "arguments": [],
                 "updated": [],
                 "return_value": [],
@@ -583,6 +582,7 @@ class GrFNGenerator(object):
         container_id_name = self.generate_container_id_name(
             self.fortran_file, scope_path, node.name
         )
+
         self.function_argument_map[node.name]["name"] = container_id_name
         # Add the function name to the list that stores all the functions
         # defined in the program
@@ -592,7 +592,6 @@ class GrFNGenerator(object):
             "name": container_id_name,
             "source_refs": [],
             "gensym": container_gensym,
-            "repeat": False,
             "type": "function",
             "arguments": argument_list,
             "updated": updated_identifiers,
@@ -1203,7 +1202,6 @@ class GrFNGenerator(object):
             "name": container_id_name,
             "source_refs": [],
             "gensym": container_gensym,
-            "repeat": False,
             "type": "loop",
             "arguments": container_argument,
             "updated": container_updated,
@@ -1604,7 +1602,6 @@ class GrFNGenerator(object):
             "name": container_id_name,
             "source_refs": [],
             "gensym": container_gensym,
-            "repeat": False,
             "type": "loop",
             "arguments": container_argument,
             "updated": container_updated,
@@ -2028,7 +2025,6 @@ class GrFNGenerator(object):
             "name": container_id_name,
             "source_refs": [],
             "gensym": container_gensym,
-            "repeat": False,
             "type": if_type,
             "arguments": container_argument,
             "updated": container_updated,
@@ -2142,6 +2138,7 @@ class GrFNGenerator(object):
             if "call" not in expr:
                 # assert False, f"Unsupported expr: {expr}."
                 return []
+
         for expr in expressions:
             array_set = False
             string_set = False
@@ -2273,8 +2270,13 @@ class GrFNGenerator(object):
                     ]["name"]
                 elif function_name in self.module_subprograms:
                     container_id_name = function_name
+                else:
+                    container_id_name = self.generate_container_id_name(
+                        self.fortran_file, self.current_scope, function_name
+                    )
                 function_type = "container"
-
+            if not container_id_name:
+                pass
             function = {
                 "function": {"name": container_id_name, "type": function_type},
                 "input": [],
@@ -4054,7 +4056,6 @@ class GrFNGenerator(object):
             f"@container::{namespace}::{scope_path_string}::"
             f"{container_basename}"
         )
-
         return container_id
 
     def generate_variable_definition(
@@ -4156,7 +4157,6 @@ class GrFNGenerator(object):
         variable_definition = {
             "name": variable_name,
             "gensym": variable_gensym,
-            "repeat": False,
             "source_refs": [],
             "domain": domain,
             "domain_constraint": domain_constraint,
