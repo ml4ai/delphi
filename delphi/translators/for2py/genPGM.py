@@ -1864,14 +1864,16 @@ class GrFNGenerator(object):
 
         container_body = [{"condition": [fn], "statements": []}]
         for spec in if_grfn:
-            container_body[0]["statements"] += spec["functions"]
+            if len(spec["functions"]) > 0:
+                container_body[0]["statements"] += spec["functions"]
         container_body.append({"condition": None, "statements": []})
         for spec in else_grfn:
-            if "condition" in spec["functions"][0]:
-                container_body.pop()
-                container_body += spec["functions"]
-            else:
-                container_body[1]["statements"] += spec["functions"]
+            if len(spec["functions"]) > 0:
+                if "condition" in spec["functions"][0]:
+                    container_body.pop()
+                    container_body += spec["functions"]
+                else:
+                    container_body[1]["statements"] += spec["functions"]
 
         # If there is no else statement, remove it from the block
         if container_body[-1]["condition"] is None and \
