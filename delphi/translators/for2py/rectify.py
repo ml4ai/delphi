@@ -23,6 +23,8 @@ import math
 TYPE_MAP = {
     "int": "integer",
     "bool": "logical",
+    "char": "character",
+    "real": "real",
 }
 
 class RectifiedXMLGenerator:
@@ -5265,7 +5267,11 @@ class RectifiedXMLGenerator:
                             i = 0
                             #  a: argument, t: type
                             for a, t in function_args.items():
-                                if t == arguments_info[i].lower():
+                                if (
+                                        t == arguments_info[i].lower()
+                                        or (arguments_info[i].lower() in TYPE_MAP
+                                            and t == TYPE_MAP[arguments_info[i].lower()])
+                                ):
                                     found_target_function = True
                                 else:
                                     found_target_function = False
