@@ -23,7 +23,7 @@ class CodeType(enum.Enum):
 
 
 class SourceInterpreter(ABC):
-    def __init__(self, L, C, V, T, D):
+    def __init__(self, L: dict, C: dict, V: dict, T: dict, D: dict):
         self.lambda_paths = L
         self.containers = C
         self.variables = V
@@ -189,7 +189,7 @@ class ImperativeInterpreter(SourceInterpreter):
         # TODO Adarsh: implement this
         return NotImplemented
 
-    def __is_math_op(lambda_str):
+    def __is_math_assg(lambda_str):
         """
         Returns true if any math operator func is found, false otherwise
 
@@ -225,6 +225,11 @@ class ImperativeInterpreter(SourceInterpreter):
         lambda_name = stmt["function"]["name"]
         lambda_path = self.get_container_lambdas(con_name)
         lambdas = importlib.__import__(str(Path(lambda_path).stem))
+        # NOTE: use inspect.getsource(<lambda-ref>) in order to get the string source
+        # NOTE: We need to search for:
+        #   (1) assignment vs condition
+        #   (2) accessor assignment vs math assignment
+        #   (3) data change assignment vs regular math assignment
         return NotImplemented
 
     def gather_container_stats(self):
