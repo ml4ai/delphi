@@ -5,9 +5,10 @@ import importlib
 import enum as enum
 from pathlib import Path
 from abc import ABC, abstractmethod
-
+from typing import Set, Dict
 from delphi.translators.for2py import f2grfn
 from delphi.GrFN.extraction import extract_GrFN
+from inspect import currentframe, getframeinfo
 
 
 @enum.unique
@@ -24,7 +25,7 @@ class CodeType(enum.Enum):
 
 
 class SourceInterpreter(ABC):
-    def __init__(self, L: dict, C: dict, V: dict, T: dict, D: dict):
+    def __init__(self, L: Dict[str, str], C: Dict, V: Dict, T: Dict, D: Dict):
         self.container_lambdas_map = L
         self.containers = C
         self.variables = V
@@ -107,18 +108,26 @@ class ImperativeInterpreter(SourceInterpreter):
             fortran_filename,
             module_log_file_path,
             processing_modules,
-        ) = f2grfn.fortran_to_grfn(fortran_file, processing_modules=False,)
+        ) = f2grfn.fortran_to_grfn(
+            fortran_file,
+            save_intermediate_files=True,
+        )
         python_file = translated_python_files[0]
         lambdas_path = python_file.replace(".py", "_lambdas.py")
         ir_dict = f2grfn.generate_grfn(
             python_sources[0][0],
             python_file,
             lambdas_path,
-            mod_mapper_dict,
+            mod_mapper_dict[0],
             fortran_file,
             module_log_file_path,
             processing_modules,
         )
+
+        # TODO remove the three commented out lines below
+        # import json
+        # with open('air.json', 'w') as f:
+            # json.dump(ir_dict, f, indent=2)
 
         C = {c["name"]: c for c in ir_dict["containers"]}
         V = {v["name"]: v for v in ir_dict["variables"]}
@@ -155,10 +164,27 @@ class ImperativeInterpreter(SourceInterpreter):
         namespace = container_name.split("::")[1].lower()
         return self.container_lambdas_map[namespace]
 
-    def __find_max_call_depth(self, depth, curr_con, visited):
+    def __find_max_call_depth(self, depth, container, visited: Set[str]):
         # TODO Adarsh: implement this
         # NOTE: use the visited list to avoid an infinite loop
-        return NotImplemented
+        # for each container in the container dict:
+        #     for each function in the container's body:
+        #        if the type of the function is container:
+        #           add the name of the 'function' to the 'visited' set.
+
+        for stmt in container["body"]:
+            function = stmt["function"]
+            if (
+                function["type"] in ("container", "function")
+                and function["name"] not in visited
+            ):
+                visited.add(function["name"])
+                depth += 1
+                depth = self.__find_max_call_depth(
+                    depth, self.containers[function["name"]], visited
+                )
+
+        return depth
 
     def __find_max_cond_depth(self, depth, curr_con):
         # NOTE: @Adarsh you can hold off on implementing this
@@ -177,17 +203,17 @@ class ImperativeInterpreter(SourceInterpreter):
         child_con_name = stmt["function"]["name"]
         child_con = self.containers[child_con_name]
         child_con_type = child_con["type"]
-        if child_con_type == "container" or child_con_type == "function":
+        if child_con_type in ("container", "function"):
             self.container_stats[con_name]["num_calls"] += 1
-            called = [child_con_name]
-            temp = self.__find_max_call_depth(1, child_con, called)
+            visited = {child_con_name}
+            temp = self.__find_max_call_depth(1, child_con, visited)
             if temp >= self.container_stats[con_name]["max_call_depth"]:
                 self.container_stats[con_name]["max_call_depth"] = temp
         elif child_con_type == "if-block":
             self.container_stats[con_name]["num_conditionals"] += 1
             temp = self.__find_max_cond_depth(1, child_con)
-            if temp >= self.container_stats[con_name]["max_conditional_depth"]:
-                self.container_stats[con_name]["max_conditional_depth"] = temp
+            # if temp >= self.container_stats[con_name]["max_conditional_depth"]:
+            # self.container_stats[con_name]["max_conditional_depth"] = temp
         elif child_con_type == "select-block":
             self.container_stats[con_name]["num_switches"] += 1
         elif child_con_type == "loop":
