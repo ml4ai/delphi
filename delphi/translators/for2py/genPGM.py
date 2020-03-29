@@ -4508,7 +4508,7 @@ class GrFNGenerator(object):
                 md_array_name = node.value.func.value.id
             elif hasattr(node.value.func.value, "value"):
                 md_array_name = node.value.func.value.value.id
-
+            
             if md_array_name not in self.md_array:
                 self.md_array.append(md_array_name)
             dimensions = args.elts
@@ -4520,10 +4520,13 @@ class GrFNGenerator(object):
                         dimension_list.append(dimension.value.id)
                     elif hasattr(dimension.value, "value"):
                         dimension_list.append(dimension.value.value.id)
+                elif ast_name == "ast.Call":
+                    dimension_list.append(dimension.func.value.value.id)
                 else:
                     assert ast_name == "ast.Num", (
                         f"Unable to handle {ast_name} for multi-dimensional "
-                        f"array - {dump_ast(dimension)}"
+                        f"array - node: {dump_ast(node)}\n"
+                        f"dimension: {dump_ast(dimension)}"
                     )
             return dimension_list
         else:
