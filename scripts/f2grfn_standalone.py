@@ -43,7 +43,7 @@ if __name__ == "__main__":
         "-d",
         "--directory",
         help="A temporary directory for generated files to be stored.",
-        default=".",
+        default="tmp",
     )
 
     parser.add_argument(
