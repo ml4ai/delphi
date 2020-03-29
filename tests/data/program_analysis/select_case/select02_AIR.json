@@ -1,8 +1,179 @@
 {
+  "variables": [
+    {
+      "name": "@variable::select02::main.loop$0.IF_0::COND_0::0",
+      "repeat": false,
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::select02::main.loop$0.IF_0::y::0",
+      "repeat": false,
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::select02::main.loop$0.IF_0::COND_1::0",
+      "repeat": false,
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::select02::main.loop$0.IF_0::y::1",
+      "repeat": false,
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::select02::main.loop$0.IF_0::COND_2::0",
+      "repeat": false,
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::select02::main.loop$0.IF_0::y::2",
+      "repeat": false,
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::select02::main.loop$0.IF_0::COND_3::0",
+      "repeat": false,
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::select02::main.loop$0.IF_0::y::3",
+      "repeat": false,
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::select02::main.loop$0.IF_0::inc::-1",
+      "repeat": false,
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::select02::main.loop$0::y::0",
+      "repeat": false,
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::select02::main::y::0",
+      "repeat": false,
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::select02::main.loop$0::inc::0",
+      "repeat": false,
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::select02::main.loop$0::IF_0::0",
+      "repeat": false,
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::select02::main.loop$0::EXIT::0",
+      "repeat": false,
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    },
+    {
+      "name": "@variable::select02::main.loop$0::inc::1",
+      "repeat": false,
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty))"
+    }
+  ],
+  "start": [
+    "@container::select02::@global::main"
+  ],
   "containers": [
     {
       "name": "@container::select02::@global::main",
       "source_refs": [],
+      "repeat": false,
       "type": "function",
       "arguments": [],
       "updated": [],
@@ -24,6 +195,7 @@
     {
       "name": "@container::select02::main::loop$0",
       "source_refs": [],
+      "repeat": false,
       "type": "loop",
       "arguments": [],
       "updated": [
@@ -122,6 +294,7 @@
     {
       "name": "@container::select02::main.loop$0::IF_0",
       "source_refs": [],
+      "repeat": false,
       "type": "select-block",
       "arguments": [
         "@variable::inc::-1"
@@ -283,161 +456,6 @@
           ]
         }
       ]
-    }
-  ],
-  "start": [
-    "@container::select02::@global::main"
-  ],
-  "variables": [
-    {
-      "name": "@variable::select02::main.loop$0.IF_0::COND_0::0",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type",
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty))"
-    },
-    {
-      "name": "@variable::select02::main.loop$0.IF_0::y::0",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type",
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty))"
-    },
-    {
-      "name": "@variable::select02::main.loop$0.IF_0::COND_1::0",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type",
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty))"
-    },
-    {
-      "name": "@variable::select02::main.loop$0.IF_0::y::1",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type",
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty))"
-    },
-    {
-      "name": "@variable::select02::main.loop$0.IF_0::COND_2::0",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type",
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty))"
-    },
-    {
-      "name": "@variable::select02::main.loop$0.IF_0::y::2",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type",
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty))"
-    },
-    {
-      "name": "@variable::select02::main.loop$0.IF_0::COND_3::0",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type",
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty))"
-    },
-    {
-      "name": "@variable::select02::main.loop$0.IF_0::y::3",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type",
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty))"
-    },
-    {
-      "name": "@variable::select02::main.loop$0.IF_0::inc::-1",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type",
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty))"
-    },
-    {
-      "name": "@variable::select02::main.loop$0::y::0",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type",
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty))"
-    },
-    {
-      "name": "@variable::select02::main::y::0",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type",
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty))"
-    },
-    {
-      "name": "@variable::select02::main.loop$0::inc::0",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type",
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty))"
-    },
-    {
-      "name": "@variable::select02::main.loop$0::IF_0::0",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type",
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty))"
-    },
-    {
-      "name": "@variable::select02::main.loop$0::EXIT::0",
-      "source_refs": [],
-      "domain": {
-        "name": "boolean",
-        "type": "type",
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty))"
-    },
-    {
-      "name": "@variable::select02::main.loop$0::inc::1",
-      "source_refs": [],
-      "domain": {
-        "name": "integer",
-        "type": "type",
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty))"
     }
   ],
   "grounding": [],

@@ -1,7 +1,11 @@
 {
+  "start": [
+    "@container::derived-types-04::@global::main"
+  ],
   "variables": [
     {
       "name": "@variable::derived-types-04::main::var::0",
+      "repeat": false,
       "source_refs": [],
       "domain": {
         "name": "mytype_123_456",
@@ -12,6 +16,7 @@
     },
     {
       "name": "@variable::derived-types-04::main::var__x__a::0",
+      "repeat": false,
       "source_refs": [],
       "domain": {
         "name": "integer",
@@ -22,6 +27,7 @@
     },
     {
       "name": "@variable::derived-types-04::main::var__y__c::0",
+      "repeat": false,
       "source_refs": [],
       "domain": {
         "name": "integer",
@@ -32,6 +38,7 @@
     },
     {
       "name": "@variable::derived-types-04::main::var__x__b::0",
+      "repeat": false,
       "source_refs": [],
       "domain": {
         "name": "integer",
@@ -42,6 +49,7 @@
     },
     {
       "name": "@variable::derived-types-04::main::var__y__d::0",
+      "repeat": false,
       "source_refs": [],
       "domain": {
         "name": "integer",
@@ -55,6 +63,7 @@
     {
       "name": "@container::derived-types-04::@global::main",
       "source_refs": [],
+      "repeat": false,
       "type": "function",
       "arguments": [],
       "updated": [],
@@ -114,9 +123,6 @@
         }
       ]
     }
-  ],
-  "start": [
-    "@container::derived-types-04::@global::main"
   ],
   "grounding": [],
   "types": [
