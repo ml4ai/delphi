@@ -3029,9 +3029,12 @@ class GrFNGenerator(object):
                             d_type_object_name) is not None:
                     index = 0
                 else:
-                    assert False, f"{d_type_object_name} not defined in the " \
-                                  f"the current scope: {self.current_scope} " \
-                                  f"or globally."
+                    # Set to default 0.
+                    index = 0
+                    # assert False, f"{d_type_object_name} not defined in the " \
+                    #              f"the current scope: {self.current_scope} " \
+                    #              f"or globally."
+
                 src = [
                     {
                         "var": {
