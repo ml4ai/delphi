@@ -46,31 +46,6 @@ C=======================================================================
 
 C=======================================================================
 
-C=======================================================================
-C  VPSLOP, Real Function, N.B. Pickering, 4/1/90
-C  Calculates slope of saturated vapor pressure versus temperature curve
-C  using Classius-Clapeyron equation (see Brutsaert, 1982 p. 41)
-!-----------------------------------------------------------------------
-!  Called by: ETSOLV, PETPEN, TRATIO
-!  Calls:     VPSAT
-!-----------------------------------------------------------------------
-C  Input : T (C)
-C  Output: VPSLOP
-C=======================================================================
-
-      REAL FUNCTION VPSLOP(T)
-
-      IMPLICIT NONE
-
-      REAL T,VPSAT
-
-C     dEsat/dTempKel = MolWeightH2O * LatHeatH2O * Esat / (Rgas * TempKel^2)
-
-      VPSLOP = 18.0 * (2501.0-2.373*T) * VPSAT(T) / (8.314*(T+273.0)**2)
-
-      RETURN
-      END FUNCTION VPSLOP
-C=======================================================================
 
 C=======================================================================
 C  VPSAT, Real Function, N.B. Pickering, 4/1/90
@@ -99,101 +74,33 @@ C=======================================================================
 ! VPSAT Saturated vapor pressure of air (Pa)
 C=======================================================================
 
+
 C=======================================================================
-!     SUBROUTINE PET
-!     Calls appropriate potential evapotranspiration routine
+C  VPSLOP, Real Function, N.B. Pickering, 4/1/90
+C  Calculates slope of saturated vapor pressure versus temperature curve
+C  using Classius-Clapeyron equation (see Brutsaert, 1982 p. 41)
+!-----------------------------------------------------------------------
+!  Called by: ETSOLV, PETPEN, TRATIO
+!  Calls:     VPSAT
+!-----------------------------------------------------------------------
+C  Input : T (C)
+C  Output: VPSLOP
+C=======================================================================
 
-      SUBROUTINE PET(CONTROL,
-     &      ET_ALB, XHLAI, MEEVP, WEATHER,  !Input for all
-     &      EORATIO, !Needed by Penman-Monteith
-     &      CANHT,   !Needed by dynamic Penman-Monteith
-     &      EO)      !Output
+      REAL FUNCTION VPSLOP(T)
 
-      USE mini_ModuleDefs
       IMPLICIT NONE
-      SAVE
 
-      TYPE (WeatherType) WEATHER
-      TYPE (ControlType) CONTROL
-      CHARACTER*1 MEEVP
-      INTEGER YRDOY, YEAR, DOY
-      REAL CANHT, CLOUDS, EO, EORATIO, ET_ALB, SRAD, TAVG, TDEW
-      REAL TMAX, TMIN, VAPR, WINDHT, WINDSP, XHLAI
-      REAL WINDRUN, XLAT, XELEV
+      REAL T,VPSAT
 
-      CLOUDS = WEATHER % CLOUDS
-      SRAD   = WEATHER % SRAD
-      TAVG   = WEATHER % TAVG
-      TDEW   = WEATHER % TDEW
-      TMAX   = WEATHER % TMAX
-      TMIN   = WEATHER % TMIN
-      VAPR   = WEATHER % VAPR
-      WINDHT = WEATHER % WINDHT
-      WINDSP = WEATHER % WINDSP
-      WINDRUN= WEATHER % WINDRUN
-      XLAT   = WEATHER % XLAT
-      XELEV  = WEATHER % XELEV
+C     dEsat/dTempKel = MolWeightH2O * LatHeatH2O * Esat / (Rgas * TempKel^2)
 
-      YRDOY = CONTROL % YRDOY
-      CALL YR_DOY(YRDOY, YEAR, DOY)
-
-          SELECT CASE (MEEVP)
-          !Penman-Monteith reference ET based on the ASCE Standardized
-          !Reference Evapotranspiration Equation
-          CASE ('A','G')
-            CALL PETASCE(
-     &        CANHT, DOY, ET_ALB, MEEVP, SRAD, TDEW,      !Input
-     &        TMAX, TMIN, WINDHT, WINDRUN, XHLAI,         !Input
-     &        XLAT, XELEV,                                !Input
-     &        EO)                                         !Output
-
-!         ------------------------
-          !FAO Penman-Monteith (FAO-56) potential evapotranspiration,
-!             with KC = 1.0
-          CASE ('F')
-            CALL PETPEN(
-     &        CLOUDS, EORATIO, ET_ALB, SRAD, TAVG, TDEW,  !Input
-     &        TMAX, TMIN, VAPR, WINDSP, WINDHT, XHLAI,    !Input
-     &        EO)                                         !Output
-
-!         ------------------------
-          !Dynamic Penman-Monteith, pot. evapotranspiration, with
-!             dynamic input of LAI, crop height effects on Ra and Rs
-          CASE ('D')
-            CALL PETDYN(
-     &        CANHT, CLOUDS, ET_ALB, SRAD, TAVG, TDEW,    !Input
-     &        TMAX, TMIN, WINDSP, XHLAI,                  !Input
-     &        EO)                                         !Output
-!         ------------------------
-          !FAO Penman (FAO-24) potential evapotranspiration
-          CASE ('P')
-            CALL PETPNO(
-     &        CLOUDS, ET_ALB, SRAD, TAVG, TDEW,           !Input
-     &        TMAX, TMIN, WINDSP, XHLAI,                  !Input
-     &        EO)                                         !Output
-!         ------------------------
-          !Penman - Meyer routine for estimation of Et in Southern NSW
-          CASE ('M')
-            CALL PETMEY(CONTROL,
-     &        TAVG, WINDSP, SRAD, TDEW, XHLAI, ET_ALB,    !Input
-     &        EO)                                         !Output
-!         ------------------------
-          !Observed Potential ET from Weather file (Future)
-          !CASE ('O')
-          !    EO = EOMEAS
-!         ------------------------
-          !Priestly-Taylor potential evapotranspiration
-          CASE DEFAULT !Default - MEEVP = 'R'
-            CALL PETPT(
-     &        ET_ALB, SRAD, TMAX, TMIN, XHLAI,          !Input
-     &        EO)                                       !Output
-!         ------------------------
-          END SELECT
+      VPSLOP = 18.0 * (2501.0-2.373*T) * VPSAT(T) / (8.314*(T+273.0)**2)
 
       RETURN
-      END SUBROUTINE PET
-
+      END FUNCTION VPSLOP
 C=======================================================================
+
 
 C=======================================================================
 C  PETASCE, Subroutine, K. R. Thorp
@@ -1325,6 +1232,103 @@ c
       if (eo.lt.0.0) eo = 0.0
       end Subroutine Petmey
 !=======================================================================
+
+
+C=======================================================================
+!     SUBROUTINE PET
+!     Calls appropriate potential evapotranspiration routine
+
+      SUBROUTINE PET(CONTROL,
+     &      ET_ALB, XHLAI, MEEVP, WEATHER,  !Input for all
+     &      EORATIO, !Needed by Penman-Monteith
+     &      CANHT,   !Needed by dynamic Penman-Monteith
+     &      EO)      !Output
+
+      USE mini_ModuleDefs
+      IMPLICIT NONE
+      SAVE
+
+      TYPE (WeatherType) WEATHER
+      TYPE (ControlType) CONTROL
+      CHARACTER*1 MEEVP
+      INTEGER YRDOY, YEAR, DOY
+      REAL CANHT, CLOUDS, EO, EORATIO, ET_ALB, SRAD, TAVG, TDEW
+      REAL TMAX, TMIN, VAPR, WINDHT, WINDSP, XHLAI
+      REAL WINDRUN, XLAT, XELEV
+
+      CLOUDS = WEATHER % CLOUDS
+      SRAD   = WEATHER % SRAD
+      TAVG   = WEATHER % TAVG
+      TDEW   = WEATHER % TDEW
+      TMAX   = WEATHER % TMAX
+      TMIN   = WEATHER % TMIN
+      VAPR   = WEATHER % VAPR
+      WINDHT = WEATHER % WINDHT
+      WINDSP = WEATHER % WINDSP
+      WINDRUN= WEATHER % WINDRUN
+      XLAT   = WEATHER % XLAT
+      XELEV  = WEATHER % XELEV
+
+      YRDOY = CONTROL % YRDOY
+      CALL YR_DOY(YRDOY, YEAR, DOY)
+
+          SELECT CASE (MEEVP)
+          !Penman-Monteith reference ET based on the ASCE Standardized
+          !Reference Evapotranspiration Equation
+          CASE ('A','G')
+            CALL PETASCE(
+     &        CANHT, DOY, ET_ALB, MEEVP, SRAD, TDEW,      !Input
+     &        TMAX, TMIN, WINDHT, WINDRUN, XHLAI,         !Input
+     &        XLAT, XELEV,                                !Input
+     &        EO)                                         !Output
+
+!         ------------------------
+          !FAO Penman-Monteith (FAO-56) potential evapotranspiration,
+!             with KC = 1.0
+          CASE ('F')
+            CALL PETPEN(
+     &        CLOUDS, EORATIO, ET_ALB, SRAD, TAVG, TDEW,  !Input
+     &        TMAX, TMIN, VAPR, WINDSP, WINDHT, XHLAI,    !Input
+     &        EO)                                         !Output
+
+!         ------------------------
+          !Dynamic Penman-Monteith, pot. evapotranspiration, with
+!             dynamic input of LAI, crop height effects on Ra and Rs
+          CASE ('D')
+            CALL PETDYN(
+     &        CANHT, CLOUDS, ET_ALB, SRAD, TAVG, TDEW,    !Input
+     &        TMAX, TMIN, WINDSP, XHLAI,                  !Input
+     &        EO)                                         !Output
+!         ------------------------
+          !FAO Penman (FAO-24) potential evapotranspiration
+          CASE ('P')
+            CALL PETPNO(
+     &        CLOUDS, ET_ALB, SRAD, TAVG, TDEW,           !Input
+     &        TMAX, TMIN, WINDSP, XHLAI,                  !Input
+     &        EO)                                         !Output
+!         ------------------------
+          !Penman - Meyer routine for estimation of Et in Southern NSW
+          CASE ('M')
+            CALL PETMEY(CONTROL,
+     &        TAVG, WINDSP, SRAD, TDEW, XHLAI, ET_ALB,    !Input
+     &        EO)                                         !Output
+!         ------------------------
+          !Observed Potential ET from Weather file (Future)
+          !CASE ('O')
+          !    EO = EOMEAS
+!         ------------------------
+          !Priestly-Taylor potential evapotranspiration
+          CASE DEFAULT !Default - MEEVP = 'R'
+            CALL PETPT(
+     &        ET_ALB, SRAD, TMAX, TMIN, XHLAI,          !Input
+     &        EO)                                       !Output
+!         ------------------------
+          END SELECT
+
+      RETURN
+      END SUBROUTINE PET
+
+C=======================================================================
 
 
 !=======================================================================
