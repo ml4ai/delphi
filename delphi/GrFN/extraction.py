@@ -3,12 +3,13 @@ from pathlib import Path
 
 import networkx as nx
 
-from delphi.GrFN.GroundedFunctionNetwork import GroundedFunctionNetwork
+from typing import Dict
+from delphi.GrFN.networks import GroundedFunctionNetwork
 from delphi.GrFN.utils import ScopeNode
 
 
 def extract_GrFN(
-    con_name: str, containers: dict, variables: dict, lambdas: dict
+    con_name: str, containers: dict, variables: dict, container_lambdas_map: Dict[str, str]
 ):
     """Builds the GrFN for container con_name given all containers, variables,
     and lambdas that were defined in the AutoMATES Intermediate Representation
@@ -21,7 +22,8 @@ def extract_GrFN(
         con_name: name of the container that is the root of the GrFN
         containers: All container objects from the AIR
         variables: All variable definitions from the AIR
-        lambdas: container namespace --> string path to associated lambdas
+        container_lambdas_map: A map from each container namespace with to the string path to
+            the corresponding associated lambdas.py file.
 
     Returns:
         A GroundedFunctionNetwork object.
