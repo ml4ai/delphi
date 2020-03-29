@@ -288,7 +288,7 @@ def generate_grfn(
 
     for line in tokenize.generate_tokens(buf.readline):
         if line.type == tokenize.COMMENT:
-            comments[line.string] = line.start[0]
+            comments[line.start[0]] = line.string
 
     # print(genPGM.dump_ast(asts[-1]))
 

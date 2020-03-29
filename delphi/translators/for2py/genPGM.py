@@ -2020,8 +2020,8 @@ class GrFNGenerator(object):
         if_type = "if-block"
         node_lineno = node.lineno
         for comment in self.comments:
-            if comment == "# select-case" and \
-                    node_lineno == int(self.comments[comment]) + 1:
+            if self.comments[comment] == "# select-case" and \
+                    node_lineno == int(comment) + 1:
                 if_type = "select-block"
 
         if_container = {
@@ -2546,16 +2546,18 @@ class GrFNGenerator(object):
                         self.function_argument_map[functions]["name"]
                         == function["function"]["name"]
                     ):
-
                         for var in function["input"]:
                             input_var = var.rsplit("::")
                             index = input_var[2]
                             if (
                                 input_var[1] in self.f_array_arg
-                                or var
-                                in self.function_argument_map[functions][
-                                    "updated_list"
-                                ]
+                                or input_var[1]
+                                in [x.rsplit("::")[1] for x in
+                                    self.function_argument_map[functions][
+                                        "updated_list"]]
+                                # in self.function_argument_map[functions][
+                                #     "updated_list"
+                                # ]
                             ):
                                 variable_name = input_var[1]
                                 function["updated"].append(
