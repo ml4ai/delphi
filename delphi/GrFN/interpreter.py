@@ -77,77 +77,84 @@ class ImperativeInterpreter(SourceInterpreter):
             "C0",
             type="condition",
             func=lambda d: d["num_switches"] >= 1,
-            shape="rectangle", label="num_switches >= 1"
+            shape="rectangle",
+            label="num_switches >= 1",
         )
         G.add_node(
             "C1",
             type="condition",
             func=lambda d: d["max_call_depth"] <= 2,
-            shape="rectangle", label="max_call_depth <= 2"
+            shape="rectangle",
+            label="max_call_depth <= 2",
         )
         G.add_node(
             "C2",
             type="condition",
             func=lambda d: d["num_assgs"] >= 1,
-            shape="rectangle", label="num_assgs >= 1"
+            shape="rectangle",
+            label="num_assgs >= 1",
         )
         G.add_node(
             "C3",
             type="condition",
             func=lambda d: d["num_math_assgs"] >= 1,
-            shape="rectangle", label="num_math_assgs >= 1"
+            shape="rectangle",
+            label="num_math_assgs >= 1",
         )
         G.add_node(
             "C4",
             type="condition",
             func=lambda d: d["num_data_changes"] >= 1,
-            shape="rectangle", label="num_data_changes >= 1"
+            shape="rectangle",
+            label="num_data_changes >= 1",
         )
         G.add_node(
             "C5",
             type="condition",
             func=lambda d: d["num_math_assgs"] >= 5,
-            shape="rectangle", label="num_math_assgs >= 5"
+            shape="rectangle",
+            label="num_math_assgs >= 5",
         )
         G.add_node(
             "C6",
             type="condition",
             func=lambda d: d["num_var_access"] >= 1,
-            shape="rectangle", label="num_var_access >= 1"
+            shape="rectangle",
+            label="num_var_access >= 1",
         )
-        G.add_node("Accessor", type=CodeType.ACCESSOR, color='blue')
-        G.add_node("Calculation", type=CodeType.CALCULATION, color='blue')
-        G.add_node("Conversion", type=CodeType.CONVERSION, color='blue')
-        G.add_node("File I/O", type=CodeType.FILEIO, color='blue')
+        G.add_node("Accessor", type=CodeType.ACCESSOR, color="blue")
+        G.add_node("Calculation", type=CodeType.CALCULATION, color="blue")
+        G.add_node("Conversion", type=CodeType.CONVERSION, color="blue")
+        G.add_node("File I/O", type=CodeType.FILEIO, color="blue")
         # G.add_node("Helper", type=CodeType.HELPER, color='blue')
         # G.add_node("Logging", type=CodeType.LOGGING, color='blue')
-        G.add_node("Model", type=CodeType.MODEL, color='blue')
-        G.add_node("Pipeline", type=CodeType.PIPELINE, color='blue')
-        G.add_node("Unknown", type=CodeType.UNKNOWN, color='blue')
+        G.add_node("Model", type=CodeType.MODEL, color="blue")
+        G.add_node("Pipeline", type=CodeType.PIPELINE, color="blue")
+        G.add_node("Unknown", type=CodeType.UNKNOWN, color="blue")
 
-        G.add_edge("C0", "Pipeline", type=True, color='darkgreen')
-        G.add_edge("C0", "C1", type=False, color='red')
+        G.add_edge("C0", "Pipeline", type=True, color="darkgreen")
+        G.add_edge("C0", "C1", type=False, color="red")
 
-        G.add_edge("C1", "C2", type=True, color='darkgreen')
-        G.add_edge("C1", "Pipeline", type=False, color='red')
+        G.add_edge("C1", "C2", type=True, color="darkgreen")
+        G.add_edge("C1", "Pipeline", type=False, color="red")
 
-        G.add_edge("C2", "File I/O", type=False, color='red')
-        G.add_edge("C2", "C3", type=True, color='darkgreen')
+        G.add_edge("C2", "File I/O", type=False, color="red")
+        G.add_edge("C2", "C3", type=True, color="darkgreen")
 
-        G.add_edge("C3", "C4", type=True, color='darkgreen')
-        G.add_edge("C3", "C5", type=False, color='red')
+        G.add_edge("C3", "C4", type=True, color="darkgreen")
+        G.add_edge("C3", "C5", type=False, color="red")
 
-        G.add_edge("C4", "C6", type=True, color='darkgreen')
-        G.add_edge("C4", "Conversion", type=False, color='red')
+        G.add_edge("C4", "C6", type=True, color="darkgreen")
+        G.add_edge("C4", "Conversion", type=False, color="red")
 
-        G.add_edge("C5", "Accessor", type=True, color='darkgreen')
-        G.add_edge("C5", "Unknown", type=False, color='red')
+        G.add_edge("C5", "Accessor", type=True, color="darkgreen")
+        G.add_edge("C5", "Unknown", type=False, color="red")
 
-        G.add_edge("C6", "Model", type=True, color='darkgreen')
-        G.add_edge("C6", "Calculation", type=False, color='red')
+        G.add_edge("C6", "Model", type=True, color="darkgreen")
+        G.add_edge("C6", "Calculation", type=False, color="red")
 
-        A = nx.nx_agraph.to_agraph(G)
-        A.draw('decision_tree.pdf', prog='dot')
+        # A = nx.nx_agraph.to_agraph(G)
+        # A.draw('decision_tree.pdf', prog='dot')
         self.decision_tree = G
 
     @classmethod
@@ -373,9 +380,26 @@ class ImperativeInterpreter(SourceInterpreter):
                             f"Unidentified statement type: {stmt_type}"
                         )
 
+    def label_container_code_type(self, current_node, stats):
+        G = self.decision_tree
+        satisfied = G.nodes[current_node]["func"](stats)
+        for successor in G.successors(current_node):
+            if G.get_edge_data(current_node, successor)["type"] == satisfied:
+                label = (
+                    G.nodes[successor]["type"]
+                    if G.nodes[successor]["type"] != "condition"
+                    else self.label_container_code_type(successor, stats)
+                )
+
+        return label
+
     def label_container_code_types(self):
         # TODO Adarsh: Implement the code-type decision tree here
-        return NotImplemented
+        root = "C0"
+        for container, stats in self.container_stats.items():
+            self.container_code_types[
+                container
+            ] = self.label_container_code_type(root, stats)
 
     def build_GrFNs(self):
         """
