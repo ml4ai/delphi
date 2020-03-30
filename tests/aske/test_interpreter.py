@@ -5,7 +5,7 @@ from delphi.GrFN.networks import GroundedFunctionNetwork
 
 
 def test_mini_pet():
-    ITP = ImperativeInterpreter.from_src_dir("tests/data/model_analysis/")
+    ITP = ImperativeInterpreter.from_src_dir("tests/data/model_analysis")
     assert hasattr(ITP, "containers")
     assert hasattr(ITP, "variables")
     assert hasattr(ITP, "types")
