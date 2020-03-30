@@ -218,7 +218,6 @@ def generate_python_sources(
 
         with open(file_path, "w") as f:
             f.write(python_src_tuple[0])
-
         python_files.append(file_path)
 
     return python_sources
@@ -506,8 +505,6 @@ def fortran_to_grfn(
                 processing_modules,
                 save_intermediate_files=save_intermediate_files,
             )
-        processing_modules = False
-
     # Generate separate list of modules file.
     generator = mod_index_generator.ModuleGenerator()
     mode_mapper_dict = generator.analyze(rectified_tree, module_log_file_path)
@@ -537,6 +534,24 @@ def fortran_to_grfn(
         os.remove(preprocessed_fortran_file)
         for translated_python_file in translated_python_files:
             os.remove(translated_python_file)
+
+    if processing_modules:
+        python_file_num = 0
+        for python_file in translated_python_files:
+            lambdas_file_path = python_file.replace(".py", "_lambdas.py")
+            grfn_dict = generate_grfn(
+                python_sources[python_file_num][0],
+                python_file,
+                lambdas_file_path,
+                mode_mapper_dict[0],
+                original_fortran_file,
+                module_log_file_path,
+                processing_modules,
+            )
+            with open(python_file.replace(".py", "_AIR.json"), "w") as f:
+                json.dump(grfn_dict, f, indent=2)
+            python_file_num += 1
+        processing_modules = False
 
     return (
         python_sources,

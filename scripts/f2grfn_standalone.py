@@ -77,6 +77,7 @@ if __name__ == "__main__":
         args.moduleLog,
         save_intermediate_files=True,
     )
+
     python_file_num = 0
     for python_file in translated_python_files:
         lambdas_file_path = python_file.replace(".py", "_lambdas.py")
@@ -89,6 +90,7 @@ if __name__ == "__main__":
             module_log_file_path,
             processing_modules,
         )
+
         with open(python_file.replace(".py", "_AIR.json"), "w") as f:
             json.dump(grfn_dict, f, indent=2)
         python_file_num += 1
