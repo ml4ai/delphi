@@ -355,6 +355,18 @@ def generate_grfn(
                 extend_grfn(grfn_dict, module_grfn["source"], "source")
                 # TODO: Currently, I'm ignoring "source_comments".
 
+            lambdas_path = path[:-8] + "lambdas.py"
+            with open(lambdas_path) as f:
+                line = f.readline()
+                cur_f = open (lambdas_file_path, "a+")
+                lineNo = 1
+                while (line):
+                    if lineNo > 6:
+                        cur_f.write(line)
+                    lineNo += 1
+                    line = f.readline()
+                cur_f.close()
+
     return grfn_dict
 
 
