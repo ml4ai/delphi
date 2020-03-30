@@ -277,31 +277,30 @@ class ImperativeInterpreter(SourceInterpreter):
 
         # TODO Paul The line below is a hack - the child_con_name should be a
         # key in self.containers.
-        if self.containers.get(child_con_name) is not None:
-            child_con = self.containers[child_con_name]
-            child_con_type = child_con["type"]
-            if child_con_type in ("container", "function"):
-                self.container_stats[con_name]["num_calls"] += 1
-                visited = {child_con_name}
-                temp = self.__find_max_call_depth(1, child_con, visited)
-                if temp >= self.container_stats[con_name]["max_call_depth"]:
-                    self.container_stats[con_name]["max_call_depth"] = temp
-            elif child_con_type == "if-block":
-                self.container_stats[con_name]["num_conditionals"] += 1
-                temp = self.__find_max_cond_depth(1, child_con)
-                # if temp >= self.container_stats[con_name]["max_conditional_depth"]:
-                # self.container_stats[con_name]["max_conditional_depth"] = temp
-            elif child_con_type == "select-block":
-                self.container_stats[con_name]["num_switches"] += 1
-            elif child_con_type == "loop":
-                self.container_stats[con_name]["num_loops"] += 1
-                temp = self.__find_max_loop_depth(1, child_con)
-                if temp >= self.container_stats[con_name]["max_loop_depth"]:
-                    self.container_stats[con_name]["max_loop_depth"] = temp
-            else:
-                raise ValueError(
-                    f"Unidentified container type: {child_con_type}"
-                )
+        child_con = self.containers[child_con_name]
+        child_con_type = child_con["type"]
+        if child_con_type in ("container", "function"):
+            self.container_stats[con_name]["num_calls"] += 1
+            visited = {child_con_name}
+            temp = self.__find_max_call_depth(1, child_con, visited)
+            if temp >= self.container_stats[con_name]["max_call_depth"]:
+                self.container_stats[con_name]["max_call_depth"] = temp
+        elif child_con_type == "if-block":
+            self.container_stats[con_name]["num_conditionals"] += 1
+            temp = self.__find_max_cond_depth(1, child_con)
+            # if temp >= self.container_stats[con_name]["max_conditional_depth"]:
+            # self.container_stats[con_name]["max_conditional_depth"] = temp
+        elif child_con_type == "select-block":
+            self.container_stats[con_name]["num_switches"] += 1
+        elif child_con_type == "loop":
+            self.container_stats[con_name]["num_loops"] += 1
+            temp = self.__find_max_loop_depth(1, child_con)
+            if temp >= self.container_stats[con_name]["max_loop_depth"]:
+                self.container_stats[con_name]["max_loop_depth"] = temp
+        else:
+            raise ValueError(
+                f"Unidentified container type: {child_con_type}"
+            )
 
     def __is_data_access(lambda_str):
         """
