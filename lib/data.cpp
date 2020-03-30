@@ -99,9 +99,9 @@ vector<double> get_data_value(string indicator,
       nFields = PQnfields(res);
       res = PQexec(conn, query.c_str());
       if (PQresultStatus(res) == PGRES_COMMAND_OK) {
-        for (i = 0; i < PQntuples(res); i++)
+        for (int i = 0; i < PQntuples(res); i++)
         {
-          for (j = 0; j < nFields; j++)
+          for (int j = 0; j < nFields; j++)
           {
             string ind_unit =
                 string(reinterpret_cast<const char*>(PQgetvalue(res, i, j)));
@@ -123,9 +123,8 @@ vector<double> get_data_value(string indicator,
 
   if (!(year == -1)) {
     check_q = "{0} and `Year` is '{1}'"_format(query, year);
-    rc = sqlite3_prepare_v2(db, check_q.c_str(), -1, &stmt, NULL);
-    rc = sqlite3_step(stmt);
-    if (rc == SQLITE_ROW) {
+    res = PQexec(conn, check_q.c_str());
+    if (PQresultStatus(res) == PGRES_COMMAND_OK) {
       query = check_q;
     }
     else {
@@ -133,15 +132,13 @@ vector<double> get_data_value(string indicator,
             "over all years (Default Setting)\n",
             county);
     }
-    sqlite3_finalize(stmt);
-    stmt = nullptr;
+    PQclear(res);
   }
 
   if (!(month == 0)) {
     check_q = "{0} and `Year` is '{1}'"_format(query, month);
-    rc = sqlite3_prepare_v2(db, check_q.c_str(), -1, &stmt, NULL);
-    rc = sqlite3_step(stmt);
-    if (rc == SQLITE_ROW) {
+    res = PQexec(conn, check_q.c_str());
+    if (PQresultStatus(res) == PGRES_COMMAND_OK) {
       query = check_q;
     }
     else {
@@ -149,37 +146,39 @@ vector<double> get_data_value(string indicator,
             "over all months (Default Setting)\n",
             county);
     }
-    sqlite3_finalize(stmt);
-    stmt = nullptr;
+    PQclear(res);
   }
 
   double value;
 
-  rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
-  while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-    value = sqlite3_column_double(stmt, 1);
-    vals.push_back(value);
+  res = PQexec(conn, query.c_str());
+  if (PQresultStatus(res) == PGRES_COMMAND_OK) {
+      for (int i = 0; i < PQntuples(res); i++)
+      {
+          cout << PQgetvalue(res, i, 1) << endl;
+          vals.push_back(PQgetvalue(res, i, 1)); // todo // 1 column same as in sqlite?
+          //matches.push_back(string(reinterpret_cast<const char*>(PQgetvalue(res, i, j)))); // todo
+      }
   }
-  sqlite3_finalize(stmt);
-  stmt = nullptr;
+  PQclear(res);
+  
 
   if (vals.empty() and use_heuristic) {
     string final_query =
         "{0} and `Year` is '{1}' and `Month` is '0'"_format(query, year);
-    sqlite3_prepare_v2(db, final_query.c_str(), -1, &stmt, NULL);
-
-    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-      value = sqlite3_column_double(stmt, 1);
-      value = value / 12;
-      vals.push_back(value);
+    res = PQexec(conn, final_query.c_str());
+    if (PQresultStatus(res) == PGRES_COMMAND_OK) {
+        for (int i = 0; i < PQntuples(res); i++)
+        {
+            value = PQgetvalue(res, i, 1); // todo // 1 column same as in sqlite?
+            value = value / 12;
+            vals.push_back(value); 
+            //matches.push_back(string(reinterpret_cast<const char*>(PQgetvalue(res, i, j)))); // todo
+        }
     }
-    sqlite3_finalize(stmt);
-    stmt = nullptr;
+    PQclear(res);
   }
 
-  rc = sqlite3_finalize(stmt);
-  rc = sqlite3_close(db);
-  stmt = nullptr;
-  db = nullptr;
+  PQfinish(conn);
   return vals;
 }

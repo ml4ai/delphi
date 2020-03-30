@@ -1,6 +1,6 @@
 #include "AnalysisGraph.hpp"
 #include <range/v3/all.hpp>
-#include <sqlite3.h>
+#include "libpq-fe.h"
 
 using namespace std;
 using namespace delphi::utils;
@@ -10,37 +10,46 @@ AdjectiveResponseMap construct_adjective_response_map(
     uniform_real_distribution<double>& uni_dist,
     normal_distribution<double>& norm_dist,
     size_t n_kernels = DEFAULT_N_SAMPLES) {
-  sqlite3* db = nullptr;
-  int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
 
-  if (rc == 1)
-    throw "Could not open db\n";
+  const char   *conninfo;
+  PGconn       *conn;
+  PGresult     *res;
+  conninfo = "dbname = delphi";
 
-  sqlite3_stmt* stmt = nullptr;
+  conn = PQconnectdb(conninfo);
+
+  if (PQstatus(conn) != CONNECTION_OK) {
+    throw runtime_error("Could not open db. Do you have the DELPHI_DB "
+        "environment correctly set to point to the Delphi database?");
+  }
+  cout << "Connection successful!!!!!!!!!!!" << endl; // todo
+
+
   const char* query = "select * from gradableAdjectiveData";
-  rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+  res = PQexec(conn, query.c_str());
 
   AdjectiveResponseMap adjective_response_map;
 
-  while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-    string adjective =
-        string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2)));
-    double response = sqlite3_column_double(stmt, 6);
-    if (in(adjective_response_map, adjective)) {
-      adjective_response_map[adjective] = {response};
-    }
-    else {
-      adjective_response_map[adjective].push_back(response);
-    }
+  if (PQresultStatus(res) == PGRES_COMMAND_OK) {
+      for (int i = 0; i < PQntuples(res); i++)
+      {
+          string adjective =
+              string(reinterpret_cast<const char*>(PQgetvalue(res, i, 2)));  // todo // 2 column same as in sqlite?
+          double response = PQgetvalue(res, i, 6);  // todo // 6 column same as in sqlite?
+          if (in(adjective_response_map, adjective)) {
+            adjective_response_map[adjective] = {response};
+          }
+          else {
+            adjective_response_map[adjective].push_back(response);
+          }
+      }
   }
+  PQclear(res);
 
   for (auto& [k, v] : adjective_response_map) {
     v = KDE(v).resample(n_kernels, gen, uni_dist, norm_dist);
   }
-  sqlite3_finalize(stmt);
-  sqlite3_close(db);
-  stmt = nullptr;
-  db = nullptr;
+  PQfinish(conn);
   return adjective_response_map;
 }
 

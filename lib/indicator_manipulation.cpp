@@ -98,9 +98,9 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
     nFields = PQnfields(res);
     vector<string> matches = {};
     if (PQresultStatus(res) == PGRES_COMMAND_OK) {
-      for (i = 0; i < PQntuples(res); i++)
+      for (int i = 0; i < PQntuples(res); i++)
       {
-          for (j = 0; j < nFields; j++)
+          for (int j = 0; j < nFields; j++)
               matches.push_back(string(reinterpret_cast<const char*>(PQgetvalue(res, i, j)))); // todo
       }
     }

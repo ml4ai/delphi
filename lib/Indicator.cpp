@@ -1,5 +1,5 @@
 #include <fmt/core.h>
-#include <sqlite3.h>
+#include "libpq-fe.h"
 #include <string>
 #include <vector>
 #include <iostream>
@@ -10,22 +10,35 @@ using namespace std;
 namespace rs = ranges;
 
 void Indicator::set_default_unit() {
-  sqlite3* db;
-  int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
-  if (rc) {
-    fmt::print("Could not open db");
-    return;
+  const char   *conninfo;
+  PGconn       *conn;
+  PGresult     *res;
+  conninfo = "dbname = delphi";
+  int          nFields;
+
+  conn = PQconnectdb(conninfo);
+
+  if (PQstatus(conn) != CONNECTION_OK) {
+    throw runtime_error("Could not open db. Do you have the DELPHI_DB "
+        "environment correctly set to point to the Delphi database?");
   }
+  cout << "Connection successful!!!!!!!!!!!" << endl; // todo
+
   vector<string> units;
-  sqlite3_stmt* stmt;
   string query =
       "select Unit from indicator where `Variable` like '" + name + "'";
-  rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
-  while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-    string ind_unit =
-        string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
-    units.push_back(ind_unit);
+  res = PQexec(conn, query.c_str());
+
+  if (PQresultStatus(res) == PGRES_COMMAND_OK) {
+      for (int i = 0; i < PQntuples(res); i++)
+      {
+          string ind_unit =
+              string(reinterpret_cast<const char*>(PQgetvalue(res, i, 0)));
+          units.push_back(ind_unit);
+      }
   }
+  PQclear(res);
+
   if (!units.empty()) {
     rs::sort(units);
     this->unit = units.front();
@@ -34,6 +47,5 @@ void Indicator::set_default_unit() {
     cerr << "Error: Indicator::set_indicator_default_unit()\n"
          << "\tIndicator: No data exists for " << name << endl;
   }
-  sqlite3_finalize(stmt);
-  sqlite3_close(db);
+  PQfinish(conn);
 }
