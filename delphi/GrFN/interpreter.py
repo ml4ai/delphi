@@ -70,13 +70,92 @@ class SourceInterpreter(ABC):
 class ImperativeInterpreter(SourceInterpreter):
     def __init__(self, L, C, V, T, D):
         super().__init__(L, C, V, T, D)
+        import networkx as nx
+
+        G = nx.DiGraph()
+        G.add_node(
+            "C0",
+            type="condition",
+            func=lambda d: d["num_switches"] >= 1,
+            shape="rectangle", label="num_switches >= 1"
+        )
+        G.add_node(
+            "C1",
+            type="condition",
+            func=lambda d: d["max_call_depth"] <= 2,
+            shape="rectangle", label="max_call_depth <= 2"
+        )
+        G.add_node(
+            "C2",
+            type="condition",
+            func=lambda d: d["num_assgs"] >= 1,
+            shape="rectangle", label="num_assgs >= 1"
+        )
+        G.add_node(
+            "C3",
+            type="condition",
+            func=lambda d: d["num_math_assgs"] >= 1,
+            shape="rectangle", label="num_math_assgs >= 1"
+        )
+        G.add_node(
+            "C4",
+            type="condition",
+            func=lambda d: d["num_data_changes"] >= 1,
+            shape="rectangle", label="num_data_changes >= 1"
+        )
+        G.add_node(
+            "C5",
+            type="condition",
+            func=lambda d: d["num_math_assgs"] >= 5,
+            shape="rectangle", label="num_math_assgs >= 5"
+        )
+        G.add_node(
+            "C6",
+            type="condition",
+            func=lambda d: d["num_var_access"] >= 1,
+            shape="rectangle", label="num_var_access >= 1"
+        )
+        G.add_node("Accessor", type=CodeType.ACCESSOR, color='blue')
+        G.add_node("Calculation", type=CodeType.CALCULATION, color='blue')
+        G.add_node("Conversion", type=CodeType.CONVERSION, color='blue')
+        G.add_node("File I/O", type=CodeType.FILEIO, color='blue')
+        # G.add_node("Helper", type=CodeType.HELPER, color='blue')
+        # G.add_node("Logging", type=CodeType.LOGGING, color='blue')
+        G.add_node("Model", type=CodeType.MODEL, color='blue')
+        G.add_node("Pipeline", type=CodeType.PIPELINE, color='blue')
+        G.add_node("Unknown", type=CodeType.UNKNOWN, color='blue')
+
+        G.add_edge("C0", "Pipeline", type=True, color='darkgreen')
+        G.add_edge("C0", "C1", type=False, color='red')
+
+        G.add_edge("C1", "C2", type=True, color='darkgreen')
+        G.add_edge("C1", "Pipeline", type=False, color='red')
+
+        G.add_edge("C2", "File I/O", type=False, color='red')
+        G.add_edge("C2", "C3", type=True, color='darkgreen')
+
+        G.add_edge("C3", "C4", type=True, color='darkgreen')
+        G.add_edge("C3", "C5", type=False, color='red')
+
+        G.add_edge("C4", "C6", type=True, color='darkgreen')
+        G.add_edge("C4", "Conversion", type=False, color='red')
+
+        G.add_edge("C5", "Accessor", type=True, color='darkgreen')
+        G.add_edge("C5", "Unknown", type=False, color='red')
+
+        G.add_edge("C6", "Model", type=True, color='darkgreen')
+        G.add_edge("C6", "Calculation", type=False, color='red')
+
+        A = nx.nx_agraph.to_agraph(G)
+        A.draw('decision_tree.pdf', prog='dot')
+        self.decision_tree = G
 
     @classmethod
     def from_src_file(cls, file):
         if not (file.endswith(".for") or file.endswith(".f")):
             raise ValueError("Unsupported file type ending for: {file}")
 
-        (C, V, T, D) = cls.extract_IR(file)
+        (L, C, V, T, D) = cls.extract_IR(file)
         return cls(C, V, T, D)
 
     @classmethod
@@ -108,10 +187,7 @@ class ImperativeInterpreter(SourceInterpreter):
             fortran_filename,
             module_log_file_path,
             processing_modules,
-        ) = f2grfn.fortran_to_grfn(
-            fortran_file,
-            save_intermediate_files=True,
-        )
+        ) = f2grfn.fortran_to_grfn(fortran_file, save_intermediate_files=True,)
         python_file = translated_python_files[0]
         lambdas_path = python_file.replace(".py", "_lambdas.py")
         ir_dict = f2grfn.generate_grfn(
@@ -123,11 +199,6 @@ class ImperativeInterpreter(SourceInterpreter):
             module_log_file_path,
             processing_modules,
         )
-
-        # TODO remove the three commented out lines below
-        # import json
-        # with open('air.json', 'w') as f:
-            # json.dump(ir_dict, f, indent=2)
 
         C = {c["name"]: c for c in ir_dict["containers"]}
         V = {v["name"]: v for v in ir_dict["variables"]}
@@ -167,10 +238,6 @@ class ImperativeInterpreter(SourceInterpreter):
     def __find_max_call_depth(self, depth, container, visited: Set[str]):
         # TODO Adarsh: implement this
         # NOTE: use the visited list to avoid an infinite loop
-        # for each container in the container dict:
-        #     for each function in the container's body:
-        #        if the type of the function is container:
-        #           add the name of the 'function' to the 'visited' set.
 
         for stmt in container["body"]:
             function = stmt["function"]
@@ -179,9 +246,8 @@ class ImperativeInterpreter(SourceInterpreter):
                 and function["name"] not in visited
             ):
                 visited.add(function["name"])
-                depth += 1
                 depth = self.__find_max_call_depth(
-                    depth, self.containers[function["name"]], visited
+                    depth + 1, self.containers[function["name"]], visited
                 )
 
         return depth
@@ -201,28 +267,34 @@ class ImperativeInterpreter(SourceInterpreter):
         """
         # TODO Adarsh: this may need some debugging
         child_con_name = stmt["function"]["name"]
-        child_con = self.containers[child_con_name]
-        child_con_type = child_con["type"]
-        if child_con_type in ("container", "function"):
-            self.container_stats[con_name]["num_calls"] += 1
-            visited = {child_con_name}
-            temp = self.__find_max_call_depth(1, child_con, visited)
-            if temp >= self.container_stats[con_name]["max_call_depth"]:
-                self.container_stats[con_name]["max_call_depth"] = temp
-        elif child_con_type == "if-block":
-            self.container_stats[con_name]["num_conditionals"] += 1
-            temp = self.__find_max_cond_depth(1, child_con)
-            # if temp >= self.container_stats[con_name]["max_conditional_depth"]:
-            # self.container_stats[con_name]["max_conditional_depth"] = temp
-        elif child_con_type == "select-block":
-            self.container_stats[con_name]["num_switches"] += 1
-        elif child_con_type == "loop":
-            self.container_stats[con_name]["num_loops"] += 1
-            temp = self.__find_max_loop_depth(1, child_con)
-            if temp >= self.container_stats[con_name]["max_loop_depth"]:
-                self.container_stats[con_name]["max_loop_depth"] = temp
-        else:
-            raise ValueError(f"Unidentified container type: {child_con_type}")
+
+        # TODO Paul The line below is a hack - the child_con_name should be a
+        # key in self.containers.
+        if self.containers.get(child_con_name) is not None:
+            child_con = self.containers[child_con_name]
+            child_con_type = child_con["type"]
+            if child_con_type in ("container", "function"):
+                self.container_stats[con_name]["num_calls"] += 1
+                visited = {child_con_name}
+                temp = self.__find_max_call_depth(1, child_con, visited)
+                if temp >= self.container_stats[con_name]["max_call_depth"]:
+                    self.container_stats[con_name]["max_call_depth"] = temp
+            elif child_con_type == "if-block":
+                self.container_stats[con_name]["num_conditionals"] += 1
+                temp = self.__find_max_cond_depth(1, child_con)
+                # if temp >= self.container_stats[con_name]["max_conditional_depth"]:
+                # self.container_stats[con_name]["max_conditional_depth"] = temp
+            elif child_con_type == "select-block":
+                self.container_stats[con_name]["num_switches"] += 1
+            elif child_con_type == "loop":
+                self.container_stats[con_name]["num_loops"] += 1
+                temp = self.__find_max_loop_depth(1, child_con)
+                if temp >= self.container_stats[con_name]["max_loop_depth"]:
+                    self.container_stats[con_name]["max_loop_depth"] = temp
+            else:
+                raise ValueError(
+                    f"Unidentified container type: {child_con_type}"
+                )
 
     def __is_data_access(lambda_str):
         """
@@ -287,15 +359,19 @@ class ImperativeInterpreter(SourceInterpreter):
         """
         for con_name, con_data in self.containers.items():
             for stmt in con_data["body"]:
-                stmt_type = stmt["function"]["type"]
-                if stmt_type == "container":
-                    self.__process_container_stmt_stats(stmt, con_name)
-                elif stmt_type == "lambda":
-                    self.__process_lambda_stmt_stats(stmt, con_name)
-                else:
-                    raise ValueError(
-                        f"Unidentified statement type: {stmt_type}"
-                    )
+                # TODO Paul/Adarsh - extend the below to deal with statements that don't
+                # have the 'function' key - e.g. ones that have 'condition' as
+                # a key.
+                if stmt.get("function") is not None:
+                    stmt_type = stmt["function"]["type"]
+                    if stmt_type == "container":
+                        self.__process_container_stmt_stats(stmt, con_name)
+                    elif stmt_type == "lambda":
+                        self.__process_lambda_stmt_stats(stmt, con_name)
+                    else:
+                        raise ValueError(
+                            f"Unidentified statement type: {stmt_type}"
+                        )
 
     def label_container_code_types(self):
         # TODO Adarsh: Implement the code-type decision tree here
