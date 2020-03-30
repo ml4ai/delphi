@@ -334,7 +334,39 @@ def generate_grfn(
 
     grfn_dict["system"] = system_def
 
+    container_list = []
+    for container in grfn_dict["containers"]:
+        container_list.append(container["name"])
+
+    if system_def["components"][0]["imports"]:
+        for path in system_def["components"][0]["imports"]:
+            with open(path) as json_f:
+                module_grfn = json.load(json_f)
+                for container in module_grfn["containers"]:
+                    if container not in container_list:
+                        grfn_dict["containers"].append(container)
+                    else:
+                        pass
+                # Extend grfn
+                extend_grfn(grfn_dict, module_grfn["variables"], "variables")
+                extend_grfn(grfn_dict, module_grfn["start"], "start")
+                extend_grfn(grfn_dict, module_grfn["types"], "types")
+                extend_grfn(grfn_dict, module_grfn["grounding"], "grounding")
+                extend_grfn(grfn_dict, module_grfn["source"], "source")
+                # TODO: Currently, I'm ignoring "source_comments".
+
     return grfn_dict
+
+
+def extend_grfn(grfn_dict, module_grfn, attrib):
+    if module_grfn:
+        for elem in module_grfn:
+            if elem not in grfn_dict[attrib]:
+                grfn_dict[attrib].append(elem)
+            else:
+                pass
+    else:
+        pass
 
 
 def is_module_file(filename):

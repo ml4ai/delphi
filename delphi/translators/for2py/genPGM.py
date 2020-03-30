@@ -5097,7 +5097,12 @@ def generate_system_def(
         )
     for grfn in import_grfn_paths:
         for path in import_grfn_paths[grfn]:
-            grfn_components[0]["imports"].append(path)
+            if (
+                    path not in grfn_components[0]["imports"]
+                    and path != module_grfn
+            ):
+                grfn_components[0]["imports"].append(path)
+
     system_def = {"name": system_name, "components": grfn_components}
     if os.path.isfile(system_filepath):
         with open(system_filepath, "r") as f:
