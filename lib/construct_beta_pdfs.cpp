@@ -26,7 +26,7 @@ AdjectiveResponseMap construct_adjective_response_map(
 
 
   const char* query = "select * from gradableAdjectiveData";
-  res = PQexec(conn, query.c_str());
+  res = PQexec(conn, query);
 
   AdjectiveResponseMap adjective_response_map;
 
@@ -35,7 +35,7 @@ AdjectiveResponseMap construct_adjective_response_map(
       {
           string adjective =
               string(reinterpret_cast<const char*>(PQgetvalue(res, i, 2)));  // todo // 2 column same as in sqlite?
-          double response = PQgetvalue(res, i, 6);  // todo // 6 column same as in sqlite?
+          double response = std::stod(PQgetvalue(res, i, 6));  // todo // 6 column same as in sqlite?
           if (in(adjective_response_map, adjective)) {
             adjective_response_map[adjective] = {response};
           }

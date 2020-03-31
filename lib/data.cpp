@@ -5,6 +5,7 @@
 #include <chrono>
 #include <range/v3/all.hpp>
 #include <thread>
+#include <string> 
 
 using namespace std;
 
@@ -155,8 +156,9 @@ vector<double> get_data_value(string indicator,
   if (PQresultStatus(res) == PGRES_COMMAND_OK) {
       for (int i = 0; i < PQntuples(res); i++)
       {
-          cout << PQgetvalue(res, i, 1) << endl;
-          vals.push_back(PQgetvalue(res, i, 1)); // todo // 1 column same as in sqlite?
+          //cout << PQgetvalue(res, i, 1) << endl;
+          //cout << std::stod(PQgetvalue(res, i, 1)) << endl ;
+          vals.push_back(std::stod(PQgetvalue(res, i, 1))); // todo // 1 column same as in sqlite?
           //matches.push_back(string(reinterpret_cast<const char*>(PQgetvalue(res, i, j)))); // todo
       }
   }
@@ -170,7 +172,7 @@ vector<double> get_data_value(string indicator,
     if (PQresultStatus(res) == PGRES_COMMAND_OK) {
         for (int i = 0; i < PQntuples(res); i++)
         {
-            value = PQgetvalue(res, i, 1); // todo // 1 column same as in sqlite?
+            value = std::stod(PQgetvalue(res, i, 1)); // todo // 1 column same as in sqlite?
             value = value / 12;
             vals.push_back(value); 
             //matches.push_back(string(reinterpret_cast<const char*>(PQgetvalue(res, i, j)))); // todo
