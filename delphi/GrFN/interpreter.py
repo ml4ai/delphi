@@ -227,19 +227,6 @@ class ImperativeInterpreter(SourceInterpreter):
         return L, C, V, T, D
 
     def get_container_lambdas(self, container_name: str):
-        # When for2py analyzes modules, the produced lambda files have
-        # lowercase filenames, e.g.
-        #
-        #    {'mini_ModuleDefs.for': './tmp/m_mini_moduledefs_lambdas.py'}
-        #
-        # This makes it difficult to automatically associate namespaces and
-        # m_*_lambdas.py files. To deal with it, we lowercase the namespace in
-        # this function - but I'm not sure whether this is robust or a hack.
-        #
-        # - Adarsh
-        #
-        # TODO Terrence/Pratik: Can you let us know if the lowercasing is necessary?
-
         namespace = container_name.split("::")[1].lower()
         return self.container_lambdas_map[namespace]
 
@@ -276,8 +263,6 @@ class ImperativeInterpreter(SourceInterpreter):
         # TODO Adarsh: this may need some debugging
         child_con_name = stmt["function"]["name"]
 
-        # TODO Paul The line below is a hack - the child_con_name should be a
-        # key in self.containers.
         child_con = self.containers[child_con_name]
         child_con_type = child_con["type"]
         if child_con_type in ("container", "function"):
