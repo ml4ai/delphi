@@ -17,10 +17,11 @@ from matplotlib import pyplot as plt
 
 @pytest.fixture(scope="module")
 def app():
+    
     app = create_app(debug=True)
     app.testing = True
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/test.db"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:delphi@localhost:5432/delphi"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 
     with app.app_context():
@@ -36,9 +37,12 @@ def client(app):
 
 
 def test_createModel(client):
+    
     with open("tests/data/delphi_create_model_payload.json", encoding="utf-8") as f:
         data = json.load(f)
+    
     rv = client.post(f"/delphi/create-model", json=data)
+    
     post_data = {
         "startTime": {"year": 2017, "month": 4},
         "perturbations": [
@@ -46,8 +50,9 @@ def test_createModel(client):
         ],
         "timeStepsInMonths": 6,
     }
-
+    
     rv = client.post(f"/delphi/models/{data['id']}/projection", json=post_data)
+    
     experimentId = rv.json["experimentId"]
     url = f"delphi/models/{data['id']}/experiment/{experimentId}"
     print("Waiting 10 seconds to query for results")
