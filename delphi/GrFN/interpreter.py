@@ -111,17 +111,18 @@ class ImperativeInterpreter(SourceInterpreter):
         G.add_node(
             "C5",
             type="condition",
-            func=lambda d: d["num_math_assgs"] >= 5,
-            shape="rectangle",
-            label="num_math_assgs >= 5",
-        )
-        G.add_node(
-            "C6",
-            type="condition",
             func=lambda d: d["num_var_access"] >= 1,
             shape="rectangle",
             label="num_var_access >= 1",
         )
+        G.add_node(
+            "C6",
+            type="condition",
+            func=lambda d: d["num_math_assgs"] >= 5,
+            shape="rectangle",
+            label="num_math_assgs >= 5",
+        )
+
         G.add_node("Accessor", type=CodeType.ACCESSOR, color="blue")
         G.add_node("Calculation", type=CodeType.CALCULATION, color="blue")
         G.add_node("Conversion", type=CodeType.CONVERSION, color="blue")
@@ -153,8 +154,8 @@ class ImperativeInterpreter(SourceInterpreter):
         G.add_edge("C6", "Model", type=True, color="darkgreen")
         G.add_edge("C6", "Calculation", type=False, color="red")
 
-        # A = nx.nx_agraph.to_agraph(G)
-        # A.draw('decision_tree.pdf', prog='dot')
+        A = nx.nx_agraph.to_agraph(G)
+        A.draw('decision_tree.png', prog='dot')
         self.decision_tree = G
 
     @classmethod
