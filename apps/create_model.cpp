@@ -1,13 +1,11 @@
 // Usage: ./create_model <path_to_JSON_file>
 
 #include "AnalysisGraph.hpp"
-#include "spdlog/spdlog.h"
 #include <boost/program_options.hpp>
 
 int main(int argc, char* argv[]) {
   using namespace std;
   using namespace boost::program_options;
-  using namespace spdlog;
 
 
   vector<CausalFragment> causal_fragments = {  // Center node is n4
