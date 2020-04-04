@@ -138,6 +138,16 @@ AnalysisGraph AnalysisGraph::from_json_string(string json_string) {
   return G;
 }
 
+/**
+ * copy constructor
+ * TODO: Most probably the copy is sharing the same
+ * random number generation class RNG
+ * TODO: If at any point we make a copy of AnalysisGraph
+ * and find that the copy does not behave as intended,
+ * we might have not copied something or we might have
+ * copied something incorrectly. This is one place to
+ * look for bugs.
+ */
 AnalysisGraph::AnalysisGraph(const AnalysisGraph& rhs) {
   for_each(rhs.node_indices(), [&](int v) {
     Node node_rhs = rhs.graph[v];
@@ -164,5 +174,7 @@ AnalysisGraph::AnalysisGraph(const AnalysisGraph& rhs) {
     this->graph[e_lhs].name = rhs.graph[e_rhs].name;
     this->graph[e_lhs].beta = rhs.graph[e_rhs].beta;
     */
+
+    this->observed_state_sequence = rhs.observed_state_sequence;
   });
 }
