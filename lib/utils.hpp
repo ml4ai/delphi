@@ -1,6 +1,6 @@
 #pragma once
 
-#include <fmt/core.h>
+#include <fmt/format.h>
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <unordered_map>

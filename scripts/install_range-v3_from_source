@@ -1,0 +1,12 @@
+#!/bin/bash
+
+version=0.10.0
+wget https://github.com/ericniebler/range-v3/archive/${version}.tar.gz
+tar -xf ${version}.tar.gz
+pushd range-v3-${version} > /dev/null
+  mkdir build
+  cd build
+  cmake ..
+  make -j install
+popd > /dev/null
+rm -rf range-v3-${version}

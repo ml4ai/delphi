@@ -1,5 +1,4 @@
-FROM        ubuntu:19.10
-MAINTAINER  Paul D. Hein <pauldhein@email.arizona.edu>
+FROM        ubuntu:18.04
 CMD         bash
 
 RUN apt-get update \
@@ -16,20 +15,16 @@ RUN apt-get update \
       git \
       tar \
       wget \
-      python3.7 \
-      python3.7-venv \
+      python3 \
       doxygen \
       openjdk-8-jdk \
       libgraphviz-dev \
       graphviz \
-      nlohmann-json3-dev \
       libsqlite3-dev \
       libboost-all-dev \
       libeigen3-dev \
-      libspdlog-dev \
-      pybind11-dev \
       libfmt-dev \
-      librange-v3-dev \
+      sudo \
     && git clone https://github.com/ml4ai/delphi \
     && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o delphi/data/delphi.db \
     && curl http://vanga.sista.arizona.edu/delphi_data/model_files.tar.gz -o delphi/data/model_files.tar.gz \
@@ -39,7 +34,8 @@ RUN apt-get update \
 
 # Set up virtual environment
 ENV VIRTUAL_ENV=/delphi_venv
-RUN python3.7 -m venv $VIRTUAL_ENV
+RUN apt-get install -y python3-venv
+RUN python3.6 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Set the environment variable DELPHI_DB to point to the SQLite3 database.
@@ -72,5 +68,8 @@ RUN pip install wheel && \
       SQLAlchemy \
       flask-sqlalchemy \
       flask-executor \
-      python-dateutil \
-  && make extensions
+      python-dateutil\
+&& ./scripts/install_cmake_from_source\
+&& ./scripts/install_nlohmann_json_from_source\
+&& ./scripts/install_range-v3_from_source\
+&& ./scripts/install_pybind11_from_source

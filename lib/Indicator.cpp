@@ -1,5 +1,5 @@
-#include <fmt/core.h>
 #include "libpq-fe.h"
+#include <fmt/format.h>
 #include <string>
 #include <vector>
 #include <iostream>
