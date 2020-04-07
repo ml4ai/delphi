@@ -121,6 +121,7 @@ setup(
         "flask-sqlalchemy",
         "flask-executor",
         "python-dateutil",
+        "psycopg2",
     ],
     extras_require=EXTRAS_REQUIRE,
     python_requires=">=3.6",
