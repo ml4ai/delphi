@@ -21,13 +21,17 @@ def app():
     app = create_app(debug=True)
     app.testing = True
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:delphi@localhost:5432/delphi"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql+psycopg2://postgres:delphi@localhost:5432/test"
+    #app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:delphi@localhost:5432/test"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 
+    # Do not drop_all() tables because postgresql does not have in-memory database.
     with app.app_context():
+        print('app.app_context() : {}'.format(app.app_context()))
+        print('db : {}'.format(db))
         db.create_all()
+        print('db : {}'.format(db))
         yield app
-        #db.drop_all()
 
 
 @pytest.fixture(scope="module")
