@@ -278,9 +278,6 @@ def generate_grfn(
     module_mapper = mod_index_generator.get_index(xml_file, mod_log_file_path)
     module_import_paths = {}
 
-    # Build GrFN and lambdas
-    asts = [ast.parse(python_source_string)]
-
     # Get all the comments
     comments = {}
     buf = io.StringIO(python_source_string)
@@ -289,11 +286,10 @@ def generate_grfn(
         if line.type == tokenize.COMMENT:
             comments[line.start[0]] = line.string
 
-    # print(genPGM.dump_ast(asts[-1]))
-
+    # Build GrFN and lambdas
     grfn_dict = genPGM.create_grfn_dict(
         lambdas_file_path,
-        asts,
+        python_source_string,
         python_file_path,
         module_mapper,
         original_fortran_file,

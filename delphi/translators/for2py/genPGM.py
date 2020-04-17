@@ -3293,6 +3293,8 @@ class GrFNGenerator(object):
         """This function handles user defined type (class) by populating
         types grfn attribute.
         """
+        # DEBUG
+        print (dump_ast(node))
         grfn = {"name": "", "type": "type", "attributes": []}
         namespace = self._get_namespace(self.fortran_file)
         type_name = f"@type::{namespace}::@global::{node.name}"
@@ -4854,7 +4856,7 @@ def process_comments(source_comment_dict, generator_object):
 # noinspection PyDefaultArgument
 def create_grfn_dict(
     lambda_file: str,
-    asts: List,
+    python_source_string: str,
     file_name: str,
     mode_mapper_dict: list,
     original_file: str,
@@ -4865,6 +4867,8 @@ def create_grfn_dict(
 ) -> Dict:
     """ Create a Python dict representing the GrFN, with additional metadata
     for JSON output. """
+
+    asts = [ast.parse(python_source_string)]
 
     lambda_string_list = [
         "from numbers import Real\n",
