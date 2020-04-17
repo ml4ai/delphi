@@ -342,6 +342,7 @@ class GrFNGenerator(object):
                         self.derived_types.extend(self.module_summary[
                                                       imported_module][
                                                       "derived_type_list"])
+                        state.lambda_strings.append(f"from {node.module} import *\n")
                     return []
         elif isinstance(node, list):
             return self.process_list(node, state, call_source)
@@ -3898,7 +3899,7 @@ class GrFNGenerator(object):
     ):
         self.generated_lambda_functions.append(function_name)
         lambda_for_var = True
-        lambda_strings = []
+        lambda_strings = ["\n"]
         argument_strings = []
 
         # We need to remove the attribute (class member var) from
@@ -4883,6 +4884,7 @@ def create_grfn_dict(
     module_file_exist=False,
     module_import_paths={},
 ) -> Dict:
+
     """ Create a Python dict representing the GrFN, with additional metadata
     for JSON output. """
     generator = GrFNGenerator()
@@ -4894,8 +4896,8 @@ def create_grfn_dict(
     lambda_string_list = [
         "from numbers import Real\n",
         "from random import random\n",
-        "from delphi.translators.for2py.strings import *\n",
         "import numpy as np\n",
+        "from delphi.translators.for2py.strings import *\n",
         "from delphi.translators.for2py import intrinsics\n",
         "import delphi.translators.for2py.math_ext as math\n\n",
     ]
