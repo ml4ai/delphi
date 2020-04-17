@@ -38,7 +38,7 @@ The following are the prerequisites for Delphi:
   - If you are a Delphi _developer_, create a fresh Python virtual environment,
     activate it, and then run the following commands:
     ```
-    git clone --recursive https://github.com/ml4ai/delphi
+    git clone https://github.com/ml4ai/delphi
     cd delphi
     pip install -e .[test,docs]
     ```
