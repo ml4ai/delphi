@@ -278,6 +278,7 @@ def generate_grfn(
     module_mapper = mod_index_generator.get_index(xml_file, mod_log_file_path)
     module_import_paths = {}
 
+
     # Get all the comments
     comments = {}
     buf = io.StringIO(python_source_string)
@@ -350,18 +351,6 @@ def generate_grfn(
                 extend_grfn(grfn_dict, module_grfn["grounding"], "grounding")
                 extend_grfn(grfn_dict, module_grfn["source"], "source")
                 # TODO: Currently, I'm ignoring "source_comments".
-
-            lambdas_path = path[:-8] + "lambdas.py"
-            with open(lambdas_path) as f:
-                line = f.readline()
-                cur_f = open (lambdas_file_path, "a+")
-                lineNo = 1
-                while (line):
-                    if lineNo > 6:
-                        cur_f.write(line)
-                    lineNo += 1
-                    line = f.readline()
-                cur_f.close()
 
     return grfn_dict
 
