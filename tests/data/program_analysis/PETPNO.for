@@ -1,4 +1,64 @@
 C=======================================================================
+C  VPSAT, Real Function, N.B. Pickering, 4/1/90
+C  Calculates saturated vapor pressure of air (Tetens, 1930).
+!-----------------------------------------------------------------------
+!  Called by: CANPET, HMET, VPSLOP, PETPEN
+!  Calls:     None
+!-----------------------------------------------------------------------
+C  Input : T (C)
+C  Output: VPSAT (Pa)
+C=======================================================================
+      REAL FUNCTION VPSAT(T)
+
+      IMPLICIT NONE
+      REAL T
+
+      VPSAT = 610.78 * EXP(17.269*T/(T+237.30))
+
+      RETURN
+      END FUNCTION VPSAT
+C=======================================================================
+! VPSAT Variables
+!-----------------------------------------------------------------------
+! T     Air temperature (oC)
+! VPSAT Saturated vapor pressure of air (Pa)
+C=======================================================================
+
+
+
+C=======================================================================
+C  VPSLOP, Real Function, N.B. Pickering, 4/1/90
+C  Calculates slope of saturated vapor pressure versus temperature curve
+C  using Classius-Clapeyron equation (see Brutsaert, 1982 p. 41)
+!-----------------------------------------------------------------------
+!  Called by: ETSOLV, PETPEN, TRATIO
+!  Calls:     VPSAT
+!-----------------------------------------------------------------------
+C  Input : T (C)
+C  Output: VPSLOP
+C=======================================================================
+      REAL FUNCTION VPSLOP(T)
+
+      IMPLICIT NONE
+
+      REAL T,VPSAT
+
+!     dEsat/dTempKel = MolWeightH2O * LatHeatH2O * Esat / (Rgas * TempKel^2)
+      VPSLOP = 18.0 * (2501.0-2.373*T) * VPSAT(T) / (8.314*(T+273.0)**2)
+
+      RETURN
+      END FUNCTION VPSLOP
+C=======================================================================
+! VPSLOP variables
+!-----------------------------------------------------------------------
+! T      Air temperature (oC)
+! VPSAT  Saturated vapor pressure of air (Pa)
+! VPSLOP Slope of saturated vapor pressure versus temperature curve
+C=======================================================================
+
+
+
+C=======================================================================
 C  PETPNO, Subroutine, N.B. Pickering
 C  Calculates FAO-24 Penman potential evapotranspiration (without
 C  correction)--grass reference.
@@ -44,25 +104,18 @@ C=======================================================================
       PARAMETER (SBZCON=4.903E-9)   !(MJ/K4/m2/d) fixed constant 5/6/02
 !-----------------------------------------------------------------------
 !     FUNCTION SUBROUTINES:
-      REAL VPSLOP_TMAX, VPSLOP_TMIN, VPSAT_TMAX, VPSAT_TMIN, VPSAT_TDEW      !Found in file HMET.for
+      REAL VPSLOP, VPSAT
 
 C-----------------------------------------------------------------------
 C     Compute air properties.
       LHVAP = (2501.0-2.373*TAVG) * 1000.0                 ! J/kg
       PSYCON = SHAIR * PATM / (0.622*LHVAP)                ! Pa/K
 
-      VPSAT_TMAX = 610.78 * EXP(17.269*TMAX/(TMAX+237.30))
-      VPSAT_TMIN = 610.78 * EXP(17.269*TMIN/(TMIN+237.30))
-      VPSAT_TDEW = 610.78 * EXP(17.269*TDEW/(TDEW+237.30))
-
-      ESAT = (VPSAT_TMAX+VPSAT_TMIN) / 2.0               ! Pa
-      EAIR = VPSAT_TDEW                                   ! Pa
+      ESAT = (VPSAT(TMAX)+VPSAT(TMIN)) / 2.0               ! Pa
+      EAIR = VPSAT(TDEW)                                   ! Pa
       VPD = ESAT - EAIR                                    ! Pa
 
-      VPSLOP_TMAX = 18.0 * (2501.0-2.373*TMAX) * VPSAT_TMAX / (8.314*(TMAX+273.0)**2)
-      VPSLOP_TMIN = 18.0 * (2501.0-2.373*TMIN) * VPSAT_TMIN / (8.314*(TMIN+273.0)**2)
-
-      S = (VPSLOP_TMAX+VPSLOP_TMIN) / 2.0                ! Pa/K
+      S = (VPSLOP(TMAX)+VPSLOP(TMIN)) / 2.0                ! Pa/K
       RT = 8.314 * (TAVG + 273.0)                             ! N.m/mol
       DAIR = 0.1 * 18.0 / RT * ((PATM  -EAIR)/0.622 + EAIR)   ! kg/m3
       VHCAIR = DAIR * SHAIR    !not used                      ! J/m3
@@ -102,62 +155,44 @@ C     Pa to kPa. Equation for RNETMG converts from MJ/m2/d to mm/day.
 !-----------------------------------------------------------------------
       RETURN
       END SUBROUTINE PETPNO
-
-
-C=======================================================================
-C  VPSAT, Real Function, N.B. Pickering, 4/1/90
-C  Calculates saturated vapor pressure of air (Tetens, 1930).
 !-----------------------------------------------------------------------
-!  Called by: CANPET, HMET, VPSLOP, PETPEN
-!  Calls:     None
+!     PETPNO VARIABLES:
 !-----------------------------------------------------------------------
-C  Input : T (C)
-C  Output: VPSAT (Pa)
-C=======================================================================
-C      REAL FUNCTION VPSAT(T)
-C
-C      IMPLICIT NONE
-C      REAL T
-C
-C      VPSAT = 610.78 * EXP(17.269*T/(T+237.30))
-C
-C      RETURN
-C      END FUNCTION VPSAT
-C=======================================================================
-! VPSAT Variables
+! ALBEDO  Reflectance of soil-crop surface (fraction)
+! CLOUDS  Relative cloudiness factor (0-1)
+! DAIR
+! EAIR    Vapor pressure at dewpoint (Pa)
+! EO      Potential evapotranspiration rate (mm/d)
+! ESAT    Vapor pressure of air (Pa)
+! G       Soil heat flux density term (MJ/m2/d)
+! LHVAP   Latent head of water vaporization (J/kg)
+! PATM     = 101300.0
+! PSYCON  Psychrometric constant (Pa/K)
+! RADB    Net outgoing thermal radiation (MJ/m2/d)
+! RNET    Net radiation (MJ/m2/d)
+! RNETMG  Radiant energy portion of Penman equation (mm/d)
+! RT
+! S       Rate of change of saturated vapor pressure of air with
+!           temperature (Pa/K)
+! MSALB   Soil albedo with mulch and soil water effects (fraction)
+! SBZCON   Stefan Boltzmann constant = 4.903E-9 (MJ/m2/d)
+! SHAIR    = 1005.0
+! SRAD    Solar radiation (MJ/m2-d)
+! TAVG    Average daily temperature (�C)
+! TDEW    Dewpoint temperature (�C)
+! TK4     Temperature to 4th power ((oK)**4)
+! TMAX    Maximum daily temperature (�C)
+! TMIN    Minimum daily temperature (�C)
+! Tprev   3-day sum of average temperature:
+! VHCAIR
+! VPD     Vapor pressure deficit (Pa)
+! VPSAT   Saturated vapor pressure of air (Pa)
+! VPSLOP  Calculates slope of saturated vapor pressure versus
+!           temperature curve (Pa/K)
+! WFNFAO  FAO 24 hour wind function
+! WIND2   Windspeed at 2m reference height. (km/d)
+! WINDSP  Wind speed at 2m (km/d)
+! XHLAI   Leaf area index (m2[leaf] / m2[ground])
 !-----------------------------------------------------------------------
-! T     Air temperature (oC)
-! VPSAT Saturated vapor pressure of air (Pa)
-C=======================================================================
-
-
-
-C=======================================================================
-C  VPSLOP, Real Function, N.B. Pickering, 4/1/90
-C  Calculates slope of saturated vapor pressure versus temperature curve
-C  using Classius-Clapeyron equation (see Brutsaert, 1982 p. 41)
+!     END SUBROUTINE PETPNO
 !-----------------------------------------------------------------------
-!  Called by: ETSOLV, PETPEN, TRATIO
-!  Calls:     VPSAT
-!-----------------------------------------------------------------------
-C  Input : T (C)
-C  Output: VPSLOP
-C=======================================================================
-C      REAL FUNCTION VPSLOP(T)
-C
-C      IMPLICIT NONE
-C
-C      REAL T,VPSAT
-C
-C      dEsat/dTempKel = MolWeightH2O * LatHeatH2O * Esat / (Rgas * TempKel^2)
-C      VPSLOP = 18.0 * (2501.0-2.373*T) * VPSAT(T) / (8.314*(T+273.0)**2)
-C
-C      RETURN
-C      END FUNCTION VPSLOP
-C=======================================================================
-! VPSLOP variables
-!-----------------------------------------------------------------------
-! T      Air temperature (oC)
-! VPSAT  Saturated vapor pressure of air (Pa)
-! VPSLOP Slope of saturated vapor pressure versus temperature curve
-C=======================================================================

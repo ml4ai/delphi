@@ -12,6 +12,7 @@ import json
 from delphi.translators.for2py.genCode import genCode, PrintState
 from delphi.translators.for2py.mod_index_generator import get_index
 from delphi.translators.for2py.get_comments import get_comments
+from delphi.translators.for2py import syntax
 from delphi.translators.for2py import For2PyError
 from typing import List, Dict, Iterable, Optional
 from collections import OrderedDict
@@ -161,6 +162,8 @@ class GrFNGenerator(object):
         self.exit_candidates = []
         self.global_state = None
         self.imported_module = []
+        self.original_python_src = ""
+
         self.global_grfn = {
             "containers": [{
                 "name": None,
@@ -339,6 +342,7 @@ class GrFNGenerator(object):
                         self.derived_types.extend(self.module_summary[
                                                       imported_module][
                                                       "derived_type_list"])
+                        state.lambda_strings.append(f"from {node.module} import *\n")
                     return []
         elif isinstance(node, list):
             return self.process_list(node, state, call_source)
@@ -3420,9 +3424,26 @@ class GrFNGenerator(object):
         """This function handles user defined type (class) by populating
         types grfn attribute.
         """
+        class_name = node.name
+        src_string_list = self.original_python_src.split('\n')
+        isClass = False
+        for line in src_string_list:
+            class_info = syntax.is_class_def(line)
+            if (
+                    class_info[0]
+                    and class_info[1] == class_name
+            ):
+                isClass = True
+                state.lambda_strings.append("@dataclass\n")
+
+            if isClass:
+                state.lambda_strings.append(line + "\n")
+                if not line.strip():
+                    isClass = False
+                
         grfn = {"name": "", "type": "type", "attributes": []}
         namespace = self._get_namespace(self.fortran_file)
-        type_name = f"@type::{namespace}::@global::{node.name}"
+        type_name = f"@type::{namespace}::@global::{class_name}"
         grfn["name"] = type_name
 
         # Keep a track of declared user-defined types
@@ -4006,7 +4027,7 @@ class GrFNGenerator(object):
     ):
         self.generated_lambda_functions.append(function_name)
         lambda_for_var = True
-        lambda_strings = []
+        lambda_strings = ["\n"]
         argument_strings = []
 
         # We need to remove the attribute (class member var) from
@@ -5060,7 +5081,7 @@ def process_comments(source_comment_dict, generator_object):
 # noinspection PyDefaultArgument
 def create_grfn_dict(
     lambda_file: str,
-    asts: List,
+    python_source_string: str,
     file_name: str,
     mode_mapper_dict: list,
     original_file: str,
@@ -5069,20 +5090,25 @@ def create_grfn_dict(
     module_file_exist=False,
     module_import_paths={},
 ) -> Dict:
+
     """ Create a Python dict representing the GrFN, with additional metadata
     for JSON output. """
+    generator = GrFNGenerator()
+
+    generator.original_python_src = python_source_string
+
+    asts = [ast.parse(python_source_string)]
 
     lambda_string_list = [
         "from numbers import Real\n",
         "from random import random\n",
-        "from delphi.translators.for2py.strings import *\n",
         "import numpy as np\n",
+        "from delphi.translators.for2py.strings import *\n",
         "from delphi.translators.for2py import intrinsics\n",
         "import delphi.translators.for2py.math_ext as math\n\n",
     ]
 
     state = GrFNState(lambda_string_list)
-    generator = GrFNGenerator()
     generator.mode_mapper = mode_mapper_dict[0]
     # Populate list of modules that the program imports
     for mod in generator.mode_mapper["modules"]:

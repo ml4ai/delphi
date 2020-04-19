@@ -9,15 +9,15 @@ C  Input : T (C)
 C  Output: VPSAT (Pa)
 C=======================================================================
 
-C      REAL FUNCTION VPSAT(T)
-C
-C      IMPLICIT NONE
-C      REAL T
-C
-C      VPSAT = 610.78 * EXP(17.269*T/(T+237.30))
-C
-C      RETURN
-C      END FUNCTION VPSAT
+      REAL FUNCTION VPSAT(T)
+
+      IMPLICIT NONE
+      REAL T
+
+      VPSAT = 610.78 * EXP(17.269*T/(T+237.30))
+
+      RETURN
+      END FUNCTION VPSAT
 C=======================================================================
 ! VPSAT Variables
 !-----------------------------------------------------------------------
@@ -39,18 +39,17 @@ C  Input : T (C)
 C  Output: VPSLOP
 C=======================================================================
 
-C      REAL FUNCTION VPSLOP(T)
-C
-C      IMPLICIT NONE
-C
-C      REAL T,VPSAT
-C
-C      dEsat/dTempKel = MolWeightH2O * LatHeatH2O * Esat / (Rgas * TempKel^2)
-C
-C      VPSLOP = 18.0 * (2501.0-2.373*T) * VPSAT(T) / (8.314*(T+273.0)**2)
-C
-C      RETURN
-C      END FUNCTION VPSLOP
+      REAL FUNCTION VPSLOP(T)
+
+      IMPLICIT NONE
+
+      REAL T,VPSAT
+
+!     dEsat/dTempKel = MolWeightH2O * LatHeatH2O * Esat / (Rgas * TempKel^2)
+      VPSLOP = 18.0 * (2501.0-2.373*T) * VPSAT(T) / (8.314*(T+273.0)**2)
+
+      RETURN
+      END FUNCTION VPSLOP
 C=======================================================================
 ! VPSLOP variables
 !-----------------------------------------------------------------------
@@ -58,6 +57,7 @@ C=======================================================================
 ! VPSAT  Saturated vapor pressure of air (Pa)
 ! VPSLOP Slope of saturated vapor pressure versus temperature curve
 C=======================================================================
+
 
 
 C=======================================================================
@@ -128,7 +128,7 @@ C     PSYCON = SHAIR * PATM / (0.622*LHVAP)                ! Pa/K
 
       VPSLOP_TMAX = 18.0 * (2501.0-2.373*TMAX) * VPSAT_TMAX / (8.314*(TMAX+273.0)**2)
       VPSLOP_TMIN = 18.0 * (2501.0-2.373*TMIN) * VPSAT_TMIN / (8.314*(TMIN+273.0)**2)
-      
+
       S = (VPSLOP_TMAX+VPSLOP_TMIN) / 2.0                ! Pa/K
       RT = 8.314 * (TAVG + 273.0)                             ! N.m/mol
       DAIR = 0.028966*(PATM-0.387*EAIR)/RT                    ! kg/m3
@@ -282,5 +282,44 @@ C     !Converts MJ/m2/d to mm/d
 !-----------------------------------------------------------------------
       RETURN
       END SUBROUTINE PETDYN
-
-!     PETPEN VARIABLES:  Nearly same as PETPEN above
+!-----------------------------------------------------------------------
+!     PETDYN VARIABLES:
+!-----------------------------------------------------------------------
+! ALBEDO  Reflectance of soil-crop surface (fraction)
+! CLOUDS  Relative cloudiness factor (0-1)
+! DAIR
+! EAIR    Vapor pressure at dewpoint (Pa)
+! EO      Potential evapotranspiration rate (mm/d)
+! ESAT    Vapor pressure of air (Pa)
+! G       Soil heat flux density term (MJ/m2/d)
+! LHVAP   Latent head of water vaporization (J/kg)
+! PATM     = 101300.0
+! PSYCON  Psychrometric constant (Pa/K)
+! RADB    Net outgoing thermal radiation (MJ/m2/d)
+! RNET    Net radiation (MJ/m2/d)
+! RNETMG  Radiant energy portion of Penman equation (mm/d)
+! RT
+! S       Rate of change of saturated vapor pressure of air with
+!           temperature (Pa/K)
+! MSALB   Soil albedo with mulch and soil water effects (fraction)
+! SBZCON   Stefan Boltzmann constant = 4.903E-9 (MJ/m2/d)
+! SHAIR    = 1005.0
+! SRAD    Solar radiation (MJ/m2-d)
+! TAVG    Average daily temperature (�C)
+! TDEW    Dewpoint temperature (�C)
+! TK4     Temperature to 4th power ((oK)**4)
+! TMAX    Maximum daily temperature (�C)
+! TMIN    Minimum daily temperature (�C)
+! Tprev   3-day sum of average temperature:
+! VHCAIR
+! VPD     Vapor pressure deficit (Pa)
+! VPSAT   Saturated vapor pressure of air (Pa)
+! VPSLOP  Calculates slope of saturated vapor pressure versus
+!           temperature curve (Pa/K)
+! WFNFAO  FAO 24 hour wind function
+! WIND2   Windspeed at 2m reference height. (km/d)
+! WINDSP  Wind speed at 2m (km/d)
+! XHLAI   Leaf area index (m2[leaf] / m2[ground])
+!-----------------------------------------------------------------------
+!     END SUBROUTINE PETDYN
+!-----------------------------------------------------------------------

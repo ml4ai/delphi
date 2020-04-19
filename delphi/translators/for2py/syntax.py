@@ -219,6 +219,9 @@ RE_CHARACTER = re.compile(CHARACTER, re.I)
 IMP_ARRAY = r"(?P<var>\w*)\s*\("
 RE_IMP_ARRAY = re.compile(IMP_ARRAY, re.I)
 
+CLASS_DEF = r"(?P<class>class)\s*(?P<name>(\w*)):"
+RE_CLASS_DEF = re.compile(CLASS_DEF, re.I)
+
 # EXECUTABLE_CODE_START is a list of regular expressions matching
 # lines that can start the executable code in a program or subroutine.
 # It is used to for handling comments internal to subroutine bodies.
@@ -240,7 +243,6 @@ EXECUTABLE_CODE_START = [
     RE_SELECT_STMT,
     RE_STOP_STMT
 ]
-
 
 def line_starts_subpgm(line: str) -> Tuple[bool, Optional[str]]:
     """
@@ -490,6 +492,22 @@ def line_starts_pgm(line: str) -> Tuple[bool, Optional[str], Optional[str]]:
         return True, pgm, name
     return False, None, None
 
+
+def is_class_def(line: str) -> Tuple[bool, Optional[str]]:
+    """
+    Indicates whether a line in the translated Python program is the
+    first line of a class definition.
+    Args:
+        linee
+    Return:
+        True if line is a class definition;
+        False if line is not a class definition.
+    """
+    match = RE_CLASS_DEF.match(line)
+    if match:
+        return True, match['name']
+    else:
+        return False, None
 
 ################################################################################
 #                                                                              #
