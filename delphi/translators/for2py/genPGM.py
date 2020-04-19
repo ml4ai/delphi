@@ -120,7 +120,6 @@ class GrFNGenerator(object):
         self.types = (list, ast.Module, ast.FunctionDef)
         self.current_scope = "global"
         self.loop_index = -1
-        self.if_index = -1
         self.parent_loop_state = None
         self.parent_if_state = None
         self.handling_f_args = True
@@ -156,6 +155,7 @@ class GrFNGenerator(object):
         self.current_d_object_attributes = []
         self.is_d_object_array_assign = False
         self.elseif_flag = False
+        self.if_index = -1
         self.module_summary = None
         self.global_scope_variables = {}
         self.exit_candidates = []
@@ -927,6 +927,7 @@ class GrFNGenerator(object):
             False,
             False,
             [],
+            [],
             state,
             True,
         )
@@ -942,6 +943,7 @@ class GrFNGenerator(object):
             False,
             False,
             loop_condition_inputs_lambda,
+            [],
             state,
             True,
         )
@@ -1140,6 +1142,7 @@ class GrFNGenerator(object):
             False,
             False,
             lambda_inputs,
+            [],
             state,
             True,
         )
@@ -1188,6 +1191,7 @@ class GrFNGenerator(object):
             False,
             False,
             [index_name],
+            [],
             state,
             True,
         )
@@ -1379,6 +1383,7 @@ class GrFNGenerator(object):
             False,
             False,
             loop_condition_inputs_lambda,
+            [],
             state,
             True,
         )
@@ -1575,6 +1580,7 @@ class GrFNGenerator(object):
             False,
             False,
             lambda_inputs,
+            [],
             state,
             True,
         )
@@ -1713,7 +1719,7 @@ class GrFNGenerator(object):
         if not is_else_if:
             condition_number = 0
             if_state.next_definitions["#cond"] = condition_number + 1
-            condition_name = f"COND_{condition_number}"
+            condition_name = f"COND_{self.if_index}_{condition_number}"
             condition_index = self.get_last_definition(
                 condition_name, if_state.last_definitions, 0
             )
@@ -1727,7 +1733,7 @@ class GrFNGenerator(object):
                 "#cond", state.last_definitions, state.next_definitions,
                 default_if_index-1
             )
-            condition_name = f"COND_{condition_number}"
+            condition_name = f"COND_{self.if_index}_{condition_number}"
             condition_index = self.get_last_definition(
                 condition_name, state.last_definitions, 0
             )
@@ -1786,6 +1792,7 @@ class GrFNGenerator(object):
                 for src in condition_variables
                 if "var" in src
             ],
+            [],
             state,
             False,
         )
@@ -1857,6 +1864,7 @@ class GrFNGenerator(object):
         if_body_inputs = []
         if_body_outputs = {}
         container_updated = []
+        container_decisions = []
         function_updated = []
 
         container_body = [{"condition": [fn], "statements": []}]
@@ -1958,6 +1966,119 @@ class GrFNGenerator(object):
                         if_body_outputs]
         updated_vars = list(set([i for x in updated_vars for i in x]))
 
+        # Start of code that produces the  __decisions__ statements
+        # Get the updated variables in a format that is easier for the rest
+        # of this code to work on
+        # Structure:
+        #    {'z': [{'COND_0_1': 0, 'COND_0_2': 1, None: 3}, [1, 2, -1]]}
+        decision_inputs = self._get_decision_inputs(if_body_outputs,
+                                                    updated_vars)
+        # Get the maximum number of condition statements inside this `IF`
+        # container
+        condition_count = if_state.last_definitions.get("#cond", 0)
+        # For every updated variables, we'll make a decision statement and a
+        # lambda function
+        for updated, versions in decision_inputs.items():
+            condition_indexes = versions[-1]
+            condition_map = versions[0]
+            inputs = []
+            # If the variable is updated in the `else` clause (i.e. -1),
+            # all condition booleans will be an input to it
+            if -1 in condition_indexes:
+                for i in range(condition_count+1):
+                    inputs.append({
+                        "variable": f"COND_{self.if_index}_{i}",
+                        "index": 0
+                    })
+            else:
+                # In this case, all condition booleans up to the maximum
+                # condition will be an input
+                for i in range(max(condition_indexes)+1):
+                    inputs.append({
+                        "variable": f"COND_{self.if_index}_{i}",
+                        "index": 0
+                    })
+            # Now add the updated variables with their respective indexes
+            for cond, index in condition_map.items():
+                inputs.append({
+                    "variable": updated,
+                    "index": index
+                })
+            # Also, add the -1 index for the variable which is the default
+            # case when no conditions will be met
+            inputs.append({
+                    "variable": updated,
+                    "index": -1
+                })
+
+            # The output variable is the updated variable with its index as 
+            # index = latest_index+1
+            output = {
+                "variable": updated,
+                "index": self._get_next_definition(
+                    updated,
+                    if_state.last_definitions,
+                    if_state.next_definitions,
+                    if_state.last_definition_default,
+                ),
+            }
+            # Create a variable list and add it to the variable tag
+            variable_spec = self.generate_variable_definition(
+                [updated], None, False, if_state
+            )
+            grfn["variables"].append(variable_spec)
+
+            # Create a __decision__ function and add it to the `decisions` 
+            # tag of the container
+            function_name = self.generate_function_name(
+                "__decision__", variable_spec["name"], None
+            )
+            fn = {
+                "function": function_name,
+                "input": [
+                    f"@variable::{var['variable']}::{var['index']}"
+                    for var in inputs
+                ],
+                "output": [
+                    f"@variable::{output['variable']}:" f":{output['index']}"
+                ],
+                "updated": [],
+            }
+            container_decisions.append(fn)
+
+            # We sort the condition booleans dictionary in such a way that 
+            # the first conditions appear at the beginning
+            # Structure: {'COND_0_1': 0, 'COND_0_2': 1, None: 3} changes to
+            #    ('COND_0_1', 0), ('COND_0_2', 1), (None, 3)
+            versions[0] = [(k, v) for k, v in sorted(versions[0].items(),
+                                                     key=lambda item: item[1])]
+
+            # The inputs to the lambda function will not have the -1 index
+            # for the variable as `var_-1` is an invalid variable name. So,
+            # `-1` is replaces by `xx`. Default variables will be represented
+            # as `var_xx`
+            lambda_inputs = []
+            for src in inputs:
+                if src["index"] == -1:
+                    lambda_inputs.append(f"{src['variable']}_xx")
+                else:
+                    lambda_inputs.append(f"{src['variable']}_{src['index']}")
+
+            # Generate the lambda function string
+            lambda_string = self.generate_lambda_function(
+                node,
+                function_name["name"],
+                False,
+                True,
+                False,
+                False,
+                lambda_inputs,
+                versions,
+                if_state,
+                False,
+            )
+            state.lambda_strings.append(lambda_string)
+
         for index, item in enumerate(if_body_outputs):
             function_updated.append({
                 "condition": item,
@@ -2029,6 +2150,7 @@ class GrFNGenerator(object):
             "arguments": container_argument,
             "updated": container_updated,
             "return_value": [],
+            "decisions": container_decisions,
             "body": container_body,
         }
         if_function = {
@@ -2380,6 +2502,7 @@ class GrFNGenerator(object):
                             False,
                             False,
                             argument_list,
+                            [],
                             state,
                             False,
                         )
@@ -2489,6 +2612,7 @@ class GrFNGenerator(object):
                         False,
                         False,
                         argument_list,
+                        [],
                         state,
                         False,
                     )
@@ -2534,6 +2658,7 @@ class GrFNGenerator(object):
                     True,
                     False,
                     argument_list,
+                    [],
                     state,
                     False,
                 )
@@ -2768,6 +2893,7 @@ class GrFNGenerator(object):
                         for src in sources
                         if "var" in src
                     ],
+                    [],
                     state,
                     False,
                 )
@@ -3083,6 +3209,7 @@ class GrFNGenerator(object):
                     is_string_assign,
                     is_d_type_object_assignment,
                     source_list,
+                    [],
                     state,
                     False,
                 )
@@ -3873,6 +4000,7 @@ class GrFNGenerator(object):
         string_assign: bool,
         d_type_assign: bool,
         inputs,
+        decision_versions,
         state,
         is_custom: bool,
     ):
@@ -3980,10 +4108,16 @@ class GrFNGenerator(object):
         # If a `decision` tag comes up, override the call to genCode to manually
         # enter the python script for the lambda file.
         if "__decision__" in function_name:
-            if self.use_numpy:
-                code = f"np.where({inputs[2]}, {inputs[1]}, {inputs[0]})"
-            else:
-                code = f"{inputs[1]} if {inputs[2]} else {inputs[0]}"
+            # Get the condition var to know the instance of IF function we're
+            # on i.e. COND_1 or COND_0 and so on
+            condition_var = inputs[0].rsplit("_", 2)[0]
+            # Get the maximum number of `if COND` booleans we have for this
+            # if container
+            max_conditions = state.last_definitions.get("#cond", 0)
+            code = self._generate_decision_lambda(decision_versions,
+                                                  condition_var,
+                                                  max_conditions,
+                                                  inputs[-1].split("_")[0])
         elif not string_assign:
             array_name = None
             if state.array_assign_name:
@@ -4754,6 +4888,78 @@ class GrFNGenerator(object):
         ]
 
         return variable_list
+
+    @staticmethod
+    def _get_decision_inputs(if_body_outputs, updated_vars):
+        """
+        This is a helper function that converts the updated dictionary of
+        variables in the if-containers into a form that is easier to process
+        for finding the decision tags
+        """
+        decision_inputs = {}
+        condition_var_regex = re.compile(r"COND_\d+_\d+")
+        for var in updated_vars:
+            if not condition_var_regex.match(var):
+                decision_inputs[var] = []
+
+        for var in decision_inputs:
+            condition_index_list = []
+            condition_index_map = {}
+            for item, value in if_body_outputs.items():
+                if var in value:
+                    condition_index_map[item] = int(value[var])
+                    if item:
+                        condition_index_list.append(int(item[-1]))
+                    else:
+                        condition_index_list.append(-1)
+            decision_inputs[var].append(condition_index_map)
+            decision_inputs[var].append(condition_index_list)
+
+        return decision_inputs
+
+    @staticmethod
+    def _generate_decision_lambda(decision_versions, condition_var,
+                                  max_conditions, var):
+        """
+        This helper function generates the lambda function code for decision
+        statements of if clauses.
+        """
+        code = ""
+        condition_map = decision_versions[0]
+        index_list = decision_versions[1]
+        for i, cond in enumerate(condition_map):
+            condition = cond[0]
+            index = cond[1]
+            if not condition:
+                if len(index_list) == 1 and index_list[0] == -1:
+                    code += f"{var}_{index} if "
+                    code += " and ".join([f"not {condition_var}_{x}_0" for x in
+                                          range(max_conditions+1)])
+                    code += " else "
+                else:
+                    assert i == (len(index_list)-1), f"None is not at the end " \
+                                                   f"of the list."
+                    code += f"{var}_{index} if "
+                    rep_list = [x for x in list(range(max_conditions+1)) if x
+                                not in index_list[:i]]
+                    code += " and ".join([f"not {condition_var}_{x}_0" for x in
+                                          rep_list])
+                    code += " else "
+            else:
+                max_id = index_list[i]
+                code += f"{var}_{index} if "
+                rep_list = [x for x in list(range(max_id)) if x
+                            not in index_list[:i]]
+                code += " and ".join([f"not {condition_var}_{x}_0" for x in
+                                      rep_list])
+                if len(rep_list) == 0:
+                    code += f"{condition}_0"
+                else:
+                    code += f" and {condition}_0"
+                code += " else "
+
+        code += f"{var}_xx"
+        return code
 
 
 def get_path(file_name: str, instance: str):
