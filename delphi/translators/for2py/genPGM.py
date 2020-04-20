@@ -344,7 +344,8 @@ class GrFNGenerator(object):
                         self.derived_types.extend(self.module_summary[
                                                       imported_module][
                                                       "derived_type_list"])
-                        state.lambda_strings.insert(0, f"from {node.module} import *\n")
+                        # Comment it out for now to avoid "import *" case.
+                        # state.lambda_strings.insert(0, f"from {node.module} import *\n")
                     return []
         elif isinstance(node, list):
             return self.process_list(node, state, call_source)
@@ -2776,6 +2777,16 @@ class GrFNGenerator(object):
         # Currently, bypassing any `i_g_n_o_r_e___m_e__` variables which are
         # used for comment extraction.
         if not re.match(r"i_g_n_o_r_e___m_e__.*", node.id):
+            for mod in self.imported_module_paths:
+                mod_name = mod.split('.')[-1][2:]
+                import_str = f"from {mod} import {node.id}\n"
+                if (
+                        mod_name in self.module_summary
+                        and node.id in self.module_summary[mod_name]["exports"]
+                        and import_str not in state.lambda_strings
+                ):
+                    state.lambda_strings.insert(0, import_str)
+
             last_definition = self.get_last_definition(
                 node.id, state.last_definitions, state.last_definition_default
             )
