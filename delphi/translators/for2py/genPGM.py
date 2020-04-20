@@ -162,6 +162,7 @@ class GrFNGenerator(object):
         self.exit_candidates = []
         self.global_state = None
         self.imported_module = []
+        self.imported_module_paths = []
         self.original_python_src = ""
 
         self.global_grfn = {
@@ -339,10 +340,11 @@ class GrFNGenerator(object):
                             node.module.split(".")[-1]:
                         imported_module = node.module.split(".")[-1][2:]
                         self.imported_module.append(imported_module)
+                        self.imported_module_paths.append(node.module)
                         self.derived_types.extend(self.module_summary[
                                                       imported_module][
                                                       "derived_type_list"])
-                        state.lambda_strings.append(f"from {node.module} import *\n")
+                        state.lambda_strings.insert(0, f"from {node.module} import *\n")
                     return []
         elif isinstance(node, list):
             return self.process_list(node, state, call_source)
@@ -3310,6 +3312,15 @@ class GrFNGenerator(object):
                 state.lambda_strings.append("@dataclass\n")
 
             if isClass:
+                if "=" in line:
+                    splitted_line = line.split("=")
+                    var = splitted_line[0].rstrip()
+                    class_type = splitted_line[1].split("(")[0].strip()
+                    if class_type == "Array":
+                        line = f"{var} = []"
+                    elif class_type == "String":
+                        line = f"{var}: str"
+
                 state.lambda_strings.append(line + "\n")
                 if not line.strip():
                     isClass = False
@@ -3972,6 +3983,20 @@ class GrFNGenerator(object):
                 #        f"type. Annotation: {annotation}"
                 #    )
                 if annotation:
+                    if (
+                            annotation not in self.annotate_map
+                            and annotation in self.derived_types
+                    ):
+                        for mod in self.imported_module:
+                            mod_name = mod.split('.')[-1]
+                            import_str = f"from {mod} import {annotation}\n"
+                            if (
+                                    mod_name in self.module_summary
+                                    and annotation in self.module_summary[mod_name][
+                                        "derived_type_list"]
+                                    and import_str not in state.lambda_strings
+                            ):
+                                state.lambda_strings.insert(0, import_str)
                     argument_strings.append(f"{ip}: {annotation}")
                 else:
                     argument_strings.append(f"{ip}")
@@ -4899,6 +4924,8 @@ def create_grfn_dict(
         "import numpy as np\n",
         "from delphi.translators.for2py.strings import *\n",
         "from delphi.translators.for2py import intrinsics\n",
+        "from delphi.translators.for2py.arrays import *\n",
+        "from dataclasses import dataclass\n",
         "import delphi.translators.for2py.math_ext as math\n\n",
     ]
 
