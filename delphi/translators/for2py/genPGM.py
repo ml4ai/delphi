@@ -3447,6 +3447,15 @@ class GrFNGenerator(object):
                         line = f"{var} = []"
                     elif class_type == "String":
                         line = f"{var}: str"
+                    elif class_type in self.derived_types:
+                        for mod in self.imported_module:
+                            mod_name = mod.split('.')[-1]
+                            import_str = f"from {mod} import {class_type}\n"
+                            if (
+                                    mod_name in self.module_summary
+                                    and import_str not in state.lambda_strings
+                            ):
+                                state.lambda_strings.insert(0, import_str)
 
                 state.lambda_strings.append(line + "\n")
                 if not line.strip():
