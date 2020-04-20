@@ -3448,8 +3448,8 @@ class GrFNGenerator(object):
                     elif class_type == "String":
                         line = f"{var}: str"
                     elif class_type in self.derived_types:
-                        for mod in self.imported_module:
-                            mod_name = mod.split('.')[-1]
+                        for mod in self.imported_module_paths:
+                            mod_name = mod.split('.')[-1][2:]
                             import_str = f"from {mod} import {class_type}\n"
                             if (
                                     mod_name in self.module_summary
@@ -4124,8 +4124,8 @@ class GrFNGenerator(object):
                             annotation not in self.annotate_map
                             and annotation in self.derived_types
                     ):
-                        for mod in self.imported_module:
-                            mod_name = mod.split('.')[-1]
+                        for mod in self.imported_module_paths:
+                            mod_name = mod.split('.')[-1][2:]
                             import_str = f"from {mod} import {annotation}\n"
                             if (
                                     mod_name in self.module_summary
