@@ -8,6 +8,7 @@ C  Calculates saturated vapor pressure of air (Tetens, 1930).
 C  Input : T (C)
 C  Output: VPSAT (Pa)
 C=======================================================================
+
       REAL FUNCTION VPSAT(T)
 
       IMPLICIT NONE
@@ -25,7 +26,6 @@ C=======================================================================
 C=======================================================================
 
 
-
 C=======================================================================
 C  VPSLOP, Real Function, N.B. Pickering, 4/1/90
 C  Calculates slope of saturated vapor pressure versus temperature curve
@@ -37,6 +37,7 @@ C  using Classius-Clapeyron equation (see Brutsaert, 1982 p. 41)
 C  Input : T (C)
 C  Output: VPSLOP
 C=======================================================================
+
       REAL FUNCTION VPSLOP(T)
 
       IMPLICIT NONE
@@ -55,8 +56,6 @@ C=======================================================================
 ! VPSAT  Saturated vapor pressure of air (Pa)
 ! VPSLOP Slope of saturated vapor pressure versus temperature curve
 C=======================================================================
-
-
 
 C=======================================================================
 C  PETPNO, Subroutine, N.B. Pickering
@@ -155,6 +154,7 @@ C     Pa to kPa. Equation for RNETMG converts from MJ/m2/d to mm/day.
 !-----------------------------------------------------------------------
       RETURN
       END SUBROUTINE PETPNO
+
 !-----------------------------------------------------------------------
 !     PETPNO VARIABLES:
 !-----------------------------------------------------------------------
