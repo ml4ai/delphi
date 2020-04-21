@@ -12,6 +12,7 @@ import json
 from delphi.translators.for2py.genCode import genCode, PrintState
 from delphi.translators.for2py.mod_index_generator import get_index
 from delphi.translators.for2py.get_comments import get_comments
+from delphi.translators.for2py import syntax
 from delphi.translators.for2py import For2PyError
 from typing import List, Dict, Iterable, Optional
 from collections import OrderedDict
@@ -120,7 +121,6 @@ class GrFNGenerator(object):
         self.types = (list, ast.Module, ast.FunctionDef)
         self.current_scope = "global"
         self.loop_index = -1
-        self.if_index = -1
         self.parent_loop_state = None
         self.parent_if_state = None
         self.handling_f_args = True
@@ -156,11 +156,15 @@ class GrFNGenerator(object):
         self.current_d_object_attributes = []
         self.is_d_object_array_assign = False
         self.elseif_flag = False
+        self.if_index = -1
         self.module_summary = None
         self.global_scope_variables = {}
         self.exit_candidates = []
         self.global_state = None
         self.imported_module = []
+        self.imported_module_paths = []
+        self.original_python_src = ""
+
         self.global_grfn = {
             "containers": [{
                 "name": None,
@@ -336,9 +340,12 @@ class GrFNGenerator(object):
                             node.module.split(".")[-1]:
                         imported_module = node.module.split(".")[-1][2:]
                         self.imported_module.append(imported_module)
+                        self.imported_module_paths.append(node.module)
                         self.derived_types.extend(self.module_summary[
                                                       imported_module][
                                                       "derived_type_list"])
+                        # Comment it out for now to avoid "import *" case.
+                        # state.lambda_strings.insert(0, f"from {node.module} import *\n")
                     return []
         elif isinstance(node, list):
             return self.process_list(node, state, call_source)
@@ -927,6 +934,7 @@ class GrFNGenerator(object):
             False,
             False,
             [],
+            [],
             state,
             True,
         )
@@ -942,6 +950,7 @@ class GrFNGenerator(object):
             False,
             False,
             loop_condition_inputs_lambda,
+            [],
             state,
             True,
         )
@@ -1140,6 +1149,7 @@ class GrFNGenerator(object):
             False,
             False,
             lambda_inputs,
+            [],
             state,
             True,
         )
@@ -1188,6 +1198,7 @@ class GrFNGenerator(object):
             False,
             False,
             [index_name],
+            [],
             state,
             True,
         )
@@ -1379,6 +1390,7 @@ class GrFNGenerator(object):
             False,
             False,
             loop_condition_inputs_lambda,
+            [],
             state,
             True,
         )
@@ -1575,6 +1587,7 @@ class GrFNGenerator(object):
             False,
             False,
             lambda_inputs,
+            [],
             state,
             True,
         )
@@ -1713,7 +1726,7 @@ class GrFNGenerator(object):
         if not is_else_if:
             condition_number = 0
             if_state.next_definitions["#cond"] = condition_number + 1
-            condition_name = f"COND_{condition_number}"
+            condition_name = f"COND_{self.if_index}_{condition_number}"
             condition_index = self.get_last_definition(
                 condition_name, if_state.last_definitions, 0
             )
@@ -1727,7 +1740,7 @@ class GrFNGenerator(object):
                 "#cond", state.last_definitions, state.next_definitions,
                 default_if_index-1
             )
-            condition_name = f"COND_{condition_number}"
+            condition_name = f"COND_{self.if_index}_{condition_number}"
             condition_index = self.get_last_definition(
                 condition_name, state.last_definitions, 0
             )
@@ -1786,6 +1799,7 @@ class GrFNGenerator(object):
                 for src in condition_variables
                 if "var" in src
             ],
+            [],
             state,
             False,
         )
@@ -1857,6 +1871,7 @@ class GrFNGenerator(object):
         if_body_inputs = []
         if_body_outputs = {}
         container_updated = []
+        container_decisions = []
         function_updated = []
 
         container_body = [{"condition": [fn], "statements": []}]
@@ -1958,6 +1973,119 @@ class GrFNGenerator(object):
                         if_body_outputs]
         updated_vars = list(set([i for x in updated_vars for i in x]))
 
+        # Start of code that produces the  __decisions__ statements
+        # Get the updated variables in a format that is easier for the rest
+        # of this code to work on
+        # Structure:
+        #    {'z': [{'COND_0_1': 0, 'COND_0_2': 1, None: 3}, [1, 2, -1]]}
+        decision_inputs = self._get_decision_inputs(if_body_outputs,
+                                                    updated_vars)
+        # Get the maximum number of condition statements inside this `IF`
+        # container
+        condition_count = if_state.last_definitions.get("#cond", 0)
+        # For every updated variables, we'll make a decision statement and a
+        # lambda function
+        for updated, versions in decision_inputs.items():
+            condition_indexes = versions[-1]
+            condition_map = versions[0]
+            inputs = []
+            # If the variable is updated in the `else` clause (i.e. -1),
+            # all condition booleans will be an input to it
+            if -1 in condition_indexes:
+                for i in range(condition_count+1):
+                    inputs.append({
+                        "variable": f"COND_{self.if_index}_{i}",
+                        "index": 0
+                    })
+            else:
+                # In this case, all condition booleans up to the maximum
+                # condition will be an input
+                for i in range(max(condition_indexes)+1):
+                    inputs.append({
+                        "variable": f"COND_{self.if_index}_{i}",
+                        "index": 0
+                    })
+            # Now add the updated variables with their respective indexes
+            for cond, index in condition_map.items():
+                inputs.append({
+                    "variable": updated,
+                    "index": index
+                })
+            # Also, add the -1 index for the variable which is the default
+            # case when no conditions will be met
+            inputs.append({
+                    "variable": updated,
+                    "index": -1
+                })
+
+            # The output variable is the updated variable with its index as 
+            # index = latest_index+1
+            output = {
+                "variable": updated,
+                "index": self._get_next_definition(
+                    updated,
+                    if_state.last_definitions,
+                    if_state.next_definitions,
+                    if_state.last_definition_default,
+                ),
+            }
+            # Create a variable list and add it to the variable tag
+            variable_spec = self.generate_variable_definition(
+                [updated], None, False, if_state
+            )
+            grfn["variables"].append(variable_spec)
+
+            # Create a __decision__ function and add it to the `decisions` 
+            # tag of the container
+            function_name = self.generate_function_name(
+                "__decision__", variable_spec["name"], None
+            )
+            fn = {
+                "function": function_name,
+                "input": [
+                    f"@variable::{var['variable']}::{var['index']}"
+                    for var in inputs
+                ],
+                "output": [
+                    f"@variable::{output['variable']}:" f":{output['index']}"
+                ],
+                "updated": [],
+            }
+            container_decisions.append(fn)
+
+            # We sort the condition booleans dictionary in such a way that 
+            # the first conditions appear at the beginning
+            # Structure: {'COND_0_1': 0, 'COND_0_2': 1, None: 3} changes to
+            #    ('COND_0_1', 0), ('COND_0_2', 1), (None, 3)
+            versions[0] = [(k, v) for k, v in sorted(versions[0].items(),
+                                                     key=lambda item: item[1])]
+
+            # The inputs to the lambda function will not have the -1 index
+            # for the variable as `var_-1` is an invalid variable name. So,
+            # `-1` is replaces by `xx`. Default variables will be represented
+            # as `var_xx`
+            lambda_inputs = []
+            for src in inputs:
+                if src["index"] == -1:
+                    lambda_inputs.append(f"{src['variable']}_xx")
+                else:
+                    lambda_inputs.append(f"{src['variable']}_{src['index']}")
+
+            # Generate the lambda function string
+            lambda_string = self.generate_lambda_function(
+                node,
+                function_name["name"],
+                False,
+                True,
+                False,
+                False,
+                lambda_inputs,
+                versions,
+                if_state,
+                False,
+            )
+            state.lambda_strings.append(lambda_string)
+
         for index, item in enumerate(if_body_outputs):
             function_updated.append({
                 "condition": item,
@@ -2029,6 +2157,7 @@ class GrFNGenerator(object):
             "arguments": container_argument,
             "updated": container_updated,
             "return_value": [],
+            "decisions": container_decisions,
             "body": container_body,
         }
         if_function = {
@@ -2380,6 +2509,7 @@ class GrFNGenerator(object):
                             False,
                             False,
                             argument_list,
+                            [],
                             state,
                             False,
                         )
@@ -2489,6 +2619,7 @@ class GrFNGenerator(object):
                         False,
                         False,
                         argument_list,
+                        [],
                         state,
                         False,
                     )
@@ -2534,6 +2665,7 @@ class GrFNGenerator(object):
                     True,
                     False,
                     argument_list,
+                    [],
                     state,
                     False,
                 )
@@ -2645,6 +2777,16 @@ class GrFNGenerator(object):
         # Currently, bypassing any `i_g_n_o_r_e___m_e__` variables which are
         # used for comment extraction.
         if not re.match(r"i_g_n_o_r_e___m_e__.*", node.id):
+            for mod in self.imported_module_paths:
+                mod_name = mod.split('.')[-1][2:]
+                import_str = f"from {mod} import {node.id}\n"
+                if (
+                        mod_name in self.module_summary
+                        and node.id in self.module_summary[mod_name]["exports"]
+                        and import_str not in state.lambda_strings
+                ):
+                    state.lambda_strings.insert(0, import_str)
+
             last_definition = self.get_last_definition(
                 node.id, state.last_definitions, state.last_definition_default
             )
@@ -2768,6 +2910,7 @@ class GrFNGenerator(object):
                         for src in sources
                         if "var" in src
                     ],
+                    [],
                     state,
                     False,
                 )
@@ -3083,6 +3226,7 @@ class GrFNGenerator(object):
                     is_string_assign,
                     is_d_type_object_assignment,
                     source_list,
+                    [],
                     state,
                     False,
                 )
@@ -3293,9 +3437,44 @@ class GrFNGenerator(object):
         """This function handles user defined type (class) by populating
         types grfn attribute.
         """
+        class_name = node.name
+        src_string_list = self.original_python_src.split('\n')
+        isClass = False
+        for line in src_string_list:
+            class_info = syntax.is_class_def(line)
+            if (
+                    class_info[0]
+                    and class_info[1] == class_name
+            ):
+                isClass = True
+                state.lambda_strings.append("@dataclass\n")
+
+            if isClass:
+                if "=" in line:
+                    splitted_line = line.split("=")
+                    var = splitted_line[0].rstrip()
+                    class_type = splitted_line[1].split("(")[0].strip()
+                    if class_type == "Array":
+                        line = f"{var} = []"
+                    elif class_type == "String":
+                        line = f"{var}: str"
+                    elif class_type in self.derived_types:
+                        for mod in self.imported_module_paths:
+                            mod_name = mod.split('.')[-1][2:]
+                            import_str = f"from {mod} import {class_type}\n"
+                            if (
+                                    mod_name in self.module_summary
+                                    and import_str not in state.lambda_strings
+                            ):
+                                state.lambda_strings.insert(0, import_str)
+
+                state.lambda_strings.append(line + "\n")
+                if not line.strip():
+                    isClass = False
+                
         grfn = {"name": "", "type": "type", "attributes": []}
         namespace = self._get_namespace(self.fortran_file)
-        type_name = f"@type::{namespace}::@global::{node.name}"
+        type_name = f"@type::{namespace}::@global::{class_name}"
         grfn["name"] = type_name
 
         # Keep a track of declared user-defined types
@@ -3873,12 +4052,13 @@ class GrFNGenerator(object):
         string_assign: bool,
         d_type_assign: bool,
         inputs,
+        decision_versions,
         state,
         is_custom: bool,
     ):
         self.generated_lambda_functions.append(function_name)
         lambda_for_var = True
-        lambda_strings = []
+        lambda_strings = ["\n"]
         argument_strings = []
 
         # We need to remove the attribute (class member var) from
@@ -3951,6 +4131,20 @@ class GrFNGenerator(object):
                 #        f"type. Annotation: {annotation}"
                 #    )
                 if annotation:
+                    if (
+                            annotation not in self.annotate_map
+                            and annotation in self.derived_types
+                    ):
+                        for mod in self.imported_module_paths:
+                            mod_name = mod.split('.')[-1][2:]
+                            import_str = f"from {mod} import {annotation}\n"
+                            if (
+                                    mod_name in self.module_summary
+                                    and annotation in self.module_summary[mod_name][
+                                        "derived_type_list"]
+                                    and import_str not in state.lambda_strings
+                            ):
+                                state.lambda_strings.insert(0, import_str)
                     argument_strings.append(f"{ip}: {annotation}")
                 else:
                     argument_strings.append(f"{ip}")
@@ -3980,10 +4174,16 @@ class GrFNGenerator(object):
         # If a `decision` tag comes up, override the call to genCode to manually
         # enter the python script for the lambda file.
         if "__decision__" in function_name:
-            if self.use_numpy:
-                code = f"np.where({inputs[2]}, {inputs[1]}, {inputs[0]})"
-            else:
-                code = f"{inputs[1]} if {inputs[2]} else {inputs[0]}"
+            # Get the condition var to know the instance of IF function we're
+            # on i.e. COND_1 or COND_0 and so on
+            condition_var = inputs[0].rsplit("_", 2)[0]
+            # Get the maximum number of `if COND` booleans we have for this
+            # if container
+            max_conditions = state.last_definitions.get("#cond", 0)
+            code = self._generate_decision_lambda(decision_versions,
+                                                  condition_var,
+                                                  max_conditions,
+                                                  inputs[-1].split("_")[0])
         elif not string_assign:
             array_name = None
             if state.array_assign_name:
@@ -4755,6 +4955,78 @@ class GrFNGenerator(object):
 
         return variable_list
 
+    @staticmethod
+    def _get_decision_inputs(if_body_outputs, updated_vars):
+        """
+        This is a helper function that converts the updated dictionary of
+        variables in the if-containers into a form that is easier to process
+        for finding the decision tags
+        """
+        decision_inputs = {}
+        condition_var_regex = re.compile(r"COND_\d+_\d+")
+        for var in updated_vars:
+            if not condition_var_regex.match(var):
+                decision_inputs[var] = []
+
+        for var in decision_inputs:
+            condition_index_list = []
+            condition_index_map = {}
+            for item, value in if_body_outputs.items():
+                if var in value:
+                    condition_index_map[item] = int(value[var])
+                    if item:
+                        condition_index_list.append(int(item[-1]))
+                    else:
+                        condition_index_list.append(-1)
+            decision_inputs[var].append(condition_index_map)
+            decision_inputs[var].append(condition_index_list)
+
+        return decision_inputs
+
+    @staticmethod
+    def _generate_decision_lambda(decision_versions, condition_var,
+                                  max_conditions, var):
+        """
+        This helper function generates the lambda function code for decision
+        statements of if clauses.
+        """
+        code = ""
+        condition_map = decision_versions[0]
+        index_list = decision_versions[1]
+        for i, cond in enumerate(condition_map):
+            condition = cond[0]
+            index = cond[1]
+            if not condition:
+                if len(index_list) == 1 and index_list[0] == -1:
+                    code += f"{var}_{index} if "
+                    code += " and ".join([f"not {condition_var}_{x}_0" for x in
+                                          range(max_conditions+1)])
+                    code += " else "
+                else:
+                    assert i == (len(index_list)-1), f"None is not at the end " \
+                                                   f"of the list."
+                    code += f"{var}_{index} if "
+                    rep_list = [x for x in list(range(max_conditions+1)) if x
+                                not in index_list[:i]]
+                    code += " and ".join([f"not {condition_var}_{x}_0" for x in
+                                          rep_list])
+                    code += " else "
+            else:
+                max_id = index_list[i]
+                code += f"{var}_{index} if "
+                rep_list = [x for x in list(range(max_id)) if x
+                            not in index_list[:i]]
+                code += " and ".join([f"not {condition_var}_{x}_0" for x in
+                                      rep_list])
+                if len(rep_list) == 0:
+                    code += f"{condition}_0"
+                else:
+                    code += f" and {condition}_0"
+                code += " else "
+
+        code += f"{var}_xx"
+        return code
+
 
 def get_path(file_name: str, instance: str):
     """
@@ -4854,7 +5126,7 @@ def process_comments(source_comment_dict, generator_object):
 # noinspection PyDefaultArgument
 def create_grfn_dict(
     lambda_file: str,
-    asts: List,
+    python_source_string: str,
     file_name: str,
     mode_mapper_dict: list,
     original_file: str,
@@ -4863,20 +5135,27 @@ def create_grfn_dict(
     module_file_exist=False,
     module_import_paths={},
 ) -> Dict:
+
     """ Create a Python dict representing the GrFN, with additional metadata
     for JSON output. """
+    generator = GrFNGenerator()
+
+    generator.original_python_src = python_source_string
+
+    asts = [ast.parse(python_source_string)]
 
     lambda_string_list = [
         "from numbers import Real\n",
         "from random import random\n",
-        "from delphi.translators.for2py.strings import *\n",
         "import numpy as np\n",
+        "from delphi.translators.for2py.strings import *\n",
         "from delphi.translators.for2py import intrinsics\n",
+        "from delphi.translators.for2py.arrays import *\n",
+        "from dataclasses import dataclass\n",
         "import delphi.translators.for2py.math_ext as math\n\n",
     ]
 
     state = GrFNState(lambda_string_list)
-    generator = GrFNGenerator()
     generator.mode_mapper = mode_mapper_dict[0]
     # Populate list of modules that the program imports
     for mod in generator.mode_mapper["modules"]:

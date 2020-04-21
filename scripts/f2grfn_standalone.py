@@ -49,7 +49,6 @@ if __name__ == "__main__":
     parser.add_argument(
         "-r",
         "--root",
-        nargs="*",
         help="A root directory to begin file scanning.",
         default=".",
     )
@@ -57,7 +56,6 @@ if __name__ == "__main__":
     parser.add_argument(
         "-m",
         "--moduleLog",
-        nargs="*",
         help="Module log file name.",
         default="modFileLog.json",
     )
