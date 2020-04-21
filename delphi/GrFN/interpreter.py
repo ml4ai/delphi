@@ -2,26 +2,14 @@ import os
 import re
 import sys
 import importlib
-import enum as enum
 from pathlib import Path
-from abc import ABC, abstractmethod
 from typing import Set, Dict
+from abc import ABC, abstractmethod
+
 from delphi.translators.for2py import f2grfn
 from delphi.GrFN.extraction import extract_GrFN
-from inspect import currentframe, getframeinfo
-
-
-@enum.unique
-class CodeType(enum.Enum):
-    ACCESSOR = enum.auto()
-    CALCULATION = enum.auto()
-    CONVERSION = enum.auto()
-    FILEIO = enum.auto()
-    HELPER = enum.auto()
-    LOGGING = enum.auto()
-    MODEL = enum.auto()
-    PIPELINE = enum.auto()
-    UNKNOWN = enum.auto()
+from delphi.GrFN.structures import GenericContainer, GenericStmt
+from delphi.GrFN.code_types import CodeType, build_code_type_decision_tree
 
 
 class SourceInterpreter(ABC):
@@ -31,25 +19,27 @@ class SourceInterpreter(ABC):
         self.variables = V
         self.types = T
         self.documentation = D
-        self.container_code_types = {
-            name: CodeType.UNKNOWN for name in self.containers
-        }
-        self.container_stats = {
-            con_name: {
-                "num_calls": 0,
-                "max_call_depth": 0,
-                "num_math_assgs": 0,
-                "num_data_changes": 0,
-                "num_var_access": 0,
-                "num_assgs": 0,
-                "num_switches": 0,
-                "num_loops": 0,
-                "max_loop_depth": 0,
-                "num_conditionals": 0,
-                "max_conditional_depth": 0,
-            }
-            for con_name in self.containers
-        }
+        # self.container_code_types = {
+        #     name: CodeType.UNKNOWN for name in self.containers
+        # }
+        # self.container_stats = {
+        #     con_name: {
+        #         "num_calls": 0,
+        #         "max_call_depth": 0,
+        #         "num_math_assgs": 0,
+        #         "num_data_changes": 0,
+        #         "num_var_access": 0,
+        #         "num_assgs": 0,
+        #         "num_switches": 0,
+        #         "num_loops": 0,
+        #         "max_loop_depth": 0,
+        #         "num_conditionals": 0,
+        #         "max_conditional_depth": 0,
+        #     }
+        #     for con_name in self.containers
+        # }
+
+        self.decision_tree = build_code_type_decision_tree()
 
     @classmethod
     @abstractmethod
@@ -63,107 +53,20 @@ class SourceInterpreter(ABC):
 
     @staticmethod
     @abstractmethod
-    def extract_IR(filepath):
+    def interp_file_IR(filepath):
         pass
 
 
 class ImperativeInterpreter(SourceInterpreter):
     def __init__(self, L, C, V, T, D):
         super().__init__(L, C, V, T, D)
-        import networkx as nx
-
-        G = nx.DiGraph()
-        G.add_node(
-            "C0",
-            type="condition",
-            func=lambda d: d["num_switches"] >= 1,
-            shape="rectangle",
-            label="num_switches >= 1",
-        )
-        G.add_node(
-            "C1",
-            type="condition",
-            func=lambda d: d["max_call_depth"] <= 2,
-            shape="rectangle",
-            label="max_call_depth <= 2",
-        )
-        G.add_node(
-            "C2",
-            type="condition",
-            func=lambda d: d["num_assgs"] >= 1,
-            shape="rectangle",
-            label="num_assgs >= 1",
-        )
-        G.add_node(
-            "C3",
-            type="condition",
-            func=lambda d: d["num_math_assgs"] >= 1,
-            shape="rectangle",
-            label="num_math_assgs >= 1",
-        )
-        G.add_node(
-            "C4",
-            type="condition",
-            func=lambda d: d["num_data_changes"] >= 1,
-            shape="rectangle",
-            label="num_data_changes >= 1",
-        )
-        G.add_node(
-            "C5",
-            type="condition",
-            func=lambda d: d["num_var_access"] >= 1,
-            shape="rectangle",
-            label="num_var_access >= 1",
-        )
-        G.add_node(
-            "C6",
-            type="condition",
-            func=lambda d: d["num_math_assgs"] >= 5,
-            shape="rectangle",
-            label="num_math_assgs >= 5",
-        )
-
-        G.add_node("Accessor", type=CodeType.ACCESSOR, color="blue")
-        G.add_node("Calculation", type=CodeType.CALCULATION, color="blue")
-        G.add_node("Conversion", type=CodeType.CONVERSION, color="blue")
-        G.add_node("File I/O", type=CodeType.FILEIO, color="blue")
-        # G.add_node("Helper", type=CodeType.HELPER, color='blue')
-        # G.add_node("Logging", type=CodeType.LOGGING, color='blue')
-        G.add_node("Model", type=CodeType.MODEL, color="blue")
-        G.add_node("Pipeline", type=CodeType.PIPELINE, color="blue")
-        G.add_node("Unknown", type=CodeType.UNKNOWN, color="blue")
-
-        G.add_edge("C0", "Pipeline", type=True, color="darkgreen")
-        G.add_edge("C0", "C1", type=False, color="red")
-
-        G.add_edge("C1", "C2", type=True, color="darkgreen")
-        G.add_edge("C1", "Pipeline", type=False, color="red")
-
-        G.add_edge("C2", "File I/O", type=False, color="red")
-        G.add_edge("C2", "C3", type=True, color="darkgreen")
-
-        G.add_edge("C3", "C4", type=True, color="darkgreen")
-        G.add_edge("C3", "C5", type=False, color="red")
-
-        G.add_edge("C4", "C6", type=True, color="darkgreen")
-        G.add_edge("C4", "Conversion", type=False, color="red")
-
-        G.add_edge("C5", "Accessor", type=True, color="darkgreen")
-        G.add_edge("C5", "Unknown", type=False, color="red")
-
-        G.add_edge("C6", "Model", type=True, color="darkgreen")
-        G.add_edge("C6", "Calculation", type=False, color="red")
-
-        A = nx.nx_agraph.to_agraph(G)
-        A.draw('decision_tree.png', prog='dot')
-        self.decision_tree = G
 
     @classmethod
     def from_src_file(cls, file):
         if not (file.endswith(".for") or file.endswith(".f")):
-            raise ValueError("Unsupported file type ending for: {file}")
+            raise ValueError(f"Unsupported file type ending for: {file}")
 
-        (L, C, V, T, D) = cls.extract_IR(file)
+        (L, C, V, T, D) = cls.interp_file_IR(file)
         return cls(C, V, T, D)
 
     @classmethod
@@ -177,7 +80,7 @@ class ImperativeInterpreter(SourceInterpreter):
 
         L, C, V, T, D = {}, {}, {}, {}, {}
         for src_path in src_paths:
-            (L_new, C_new, V_new, T_new, D_new) = cls.extract_IR(src_path)
+            (L_new, C_new, V_new, T_new, D_new) = cls.interp_file_IR(src_path)
             L.update(L_new)
             C.update(C_new)
             V.update(V_new)
@@ -187,7 +90,7 @@ class ImperativeInterpreter(SourceInterpreter):
         return cls(L, C, V, T, D)
 
     @staticmethod
-    def extract_IR(fortran_file):
+    def interp_file_IR(fortran_file):
         (
             python_sources,
             translated_python_files,
@@ -208,7 +111,10 @@ class ImperativeInterpreter(SourceInterpreter):
             processing_modules,
         )
 
-        C = {c["name"]: c for c in ir_dict["containers"]}
+        C = {
+            c["name"]: GenericContainer.create_container(c)
+            for c in ir_dict["containers"]
+        }
         V = {v["name"]: v for v in ir_dict["variables"]}
         T = {t["name"]: t for t in ir_dict["types"]}
 
@@ -284,9 +190,7 @@ class ImperativeInterpreter(SourceInterpreter):
             if temp >= self.container_stats[con_name]["max_loop_depth"]:
                 self.container_stats[con_name]["max_loop_depth"] = temp
         else:
-            raise ValueError(
-                f"Unidentified container type: {child_con_type}"
-            )
+            raise ValueError(f"Unidentified container type: {child_con_type}")
 
     def __is_data_access(lambda_str):
         """

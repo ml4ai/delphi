@@ -1,23 +1,29 @@
-import xml.etree.ElementTree as ET
+from typing import List, Dict, Iterable, Set, Union
+from numbers import Number
+from abc import ABC, ABCMeta, abstractmethod
+from functools import singledispatch
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Iterable, Set, Union
-from typing import List
+from uuid import uuid4
 import importlib
 import inspect
 import json
 import os
 
 import networkx as nx
+import numpy as np
 from networkx.algorithms.simple_paths import all_simple_paths
 
-# from delphi.GrFN.analysis import get_max_s2_sensitivity
-from delphi.GrFN.utils import ScopeNode
-from delphi.utils.misc import choose_font
-from delphi.translators.for2py import (
-    genPGM,
-    f2grfn,
+from delphi.GrFN.structures import (
+    GenericContainer,
+    FuncContainer,
+    CondContainer,
+    LoopContainer,
+    LambdaType,
 )
-import numpy as np
+from delphi.utils.misc import choose_font
+from delphi.translators.for2py import f2grfn
+
 
 FONT = choose_font()
 
@@ -96,7 +102,7 @@ class ComputationalGraph(nx.DiGraph):
 
         Args:
             inputs: Input set where keys are the names of input nodes in the
-                GrFN and each key points to a set of input values (or just one).
+                GrFN and each key points to a set of input values (or just one)
 
         Returns:
             A set of outputs from executing the GrFN, one for every set of
@@ -255,13 +261,6 @@ class GroundedFunctionNetwork(ComputationalGraph):
         def identity(x):
             return x
 
-        def make_identifier(scope: str, var: str):
-            (_, name, idx) = var.split("::")
-            return make_variable_name(scope, name, idx)
-
-        def make_variable_name(parent: str, basename: str, index: str):
-            return f"{parent}::{basename}::{index}"
-
         def add_variable_node(
             parent: str, basename: str, index: str, is_exit: bool = False
         ):
@@ -282,20 +281,21 @@ class GroundedFunctionNetwork(ComputationalGraph):
             )
             return full_var_name
 
-        def process_wiring_statement(stmt, scope, inputs, cname):
-            lambda_name = stmt["function"]["name"]
-            lambda_node_name = f"{scope.name}::" + lambda_name
+        @singledispatch
+        def process_statment(stmt: GenericStmt, inputs: list) -> None:
+            raise TypeError(f"Unrecognized statment type: {type(stmt)}")
 
-            stmt_type = lambda_name.split("__")[-3]
-            if stmt_type == "assign" and len(stmt["input"]) == 0:
-                stmt_type = "literal"
-
-            for output in stmt["output"]:
-                (_, var_name, idx) = output.split("::")
+        @process_statment.register
+        def _(stmt: LambdaStmt, inputs: list):
+            for output in stmt.outputs:
+                exit_node = output.basename == "EXIT"
                 node_name = add_variable_node(
-                    scope.name, var_name, idx, is_exit=var_name == "EXIT"
+                    stmt.parent.name,
+                    output.basename,
+                    output.index,
+                    is_exit=exit_node,
                 )
-                G.add_edge(lambda_node_name, node_name)
+                G.add_edge(stmt.lambda_node_name, node_name)
 
             ordered_inputs = list()
             for inp in stmt["input"]:
@@ -327,14 +327,9 @@ class GroundedFunctionNetwork(ComputationalGraph):
                 occurrences[container_name] = 0
 
             new_container = functions[container_name]
-            container_color = (
-                "navyblue" if new_container["repeat"] else "forestgreen"
-            )
-            new_scope = ScopeNode(
+            new_scope = create_container_node(
                 new_container, occurrences[container_name], parent=scope
             )
-            scope_tree.add_node(new_scope.name, color=container_color)
-            scope_tree.add_edge(scope.name, new_scope.name)
 
             input_values = list()
             for inp in stmt["input"]:
@@ -393,10 +388,17 @@ class GroundedFunctionNetwork(ComputationalGraph):
                 G.add_edge(lambda_node_name, caller_var)
             occurrences[container_name] += 1
 
-        def process_container(scope, input_vals, cname):
-            if len(scope.arguments) == len(input_vals):
+        @singledispatch
+        def process_container(
+            scope: GenericContainer, scope_inputs: list
+        ) -> tuple:
+            raise TypeError(f"Unrecognized container scope: {type(scope)}")
+
+        @process_container.register
+        def _(scope: FuncContainer, scope_inputs: list) -> tuple:
+            if len(scope.arguments) == len(scope_inputs):
                 input_vars = {
-                    a: v for a, v in zip(scope.arguments, input_vals)
+                    a: v for a, v in zip(scope.arguments, scope_inputs)
                 }
             elif len(scope.arguments) > 0:
                 input_vars = {
@@ -408,11 +410,115 @@ class GroundedFunctionNetwork(ComputationalGraph):
                 func_def = stmt["function"]
                 func_type = func_def["type"]
                 if func_type == "lambda":
-                    process_wiring_statement(stmt, scope, input_vars, cname)
+                    process_wiring_statement(
+                        stmt, scope, input_vars, scope.name
+                    )
                 elif func_type == "container":
-                    process_call_statement(stmt, scope, input_vars, cname)
+                    process_call_statement(stmt, scope, input_vars, scope.name)
                 else:
                     raise ValueError(f"Undefined function type: {func_type}")
+
+            scope_tree.add_node(scope.name, color="forestgreen")
+            if scope.parent is not None:
+                scope_tree.add_edge(scope.parent.name, scope.name)
+
+            return_list, updated_list = list(), list()
+            for var_name in scope.returns:
+                (_, basename, idx) = var_name.split("::")
+                return_list.append(
+                    make_variable_name(scope.name, basename, idx)
+                )
+
+            for var_name in scope.updated:
+                (_, basename, idx) = var_name.split("::")
+                updated_list.append(
+                    make_variable_name(scope.name, basename, idx)
+                )
+            return return_list, updated_list
+
+        @process_container.register
+        def _(scope: CondContainer, scope_inputs: list) -> tuple:
+            if len(scope.arguments) == len(scope_inputs):
+                input_vars = {
+                    a: v for a, v in zip(scope.arguments, scope_inputs)
+                }
+            elif len(scope.arguments) > 0:
+                input_vars = {
+                    a: (scope.name,) + tuple(a.split("::")[1:])
+                    for a in scope.arguments
+                }
+
+            conditions, statements = list(), list()
+            for cond_obj in scope.body:
+                cond = cond_obj["condition"]
+                stmts = cond_obj["statements"]
+
+                if cond is None:
+                    conditions.append(None)
+                else:
+                    # FIXME: generalize cond handling in the future
+                    cond_stmt = cond[0]
+                    process_wiring_statement(
+                        cond_stmt, scope, input_vars, scope.name
+                    )
+
+                for stmt in stmts:
+                    func_def = stmt["function"]
+                    func_type = func_def["type"]
+                    if func_type == "lambda":
+                        process_wiring_statement(
+                            stmt, scope, input_vars, scope.name
+                        )
+                    elif func_type == "container":
+                        process_call_statement(
+                            stmt, scope, input_vars, scope.name
+                        )
+                    else:
+                        raise ValueError(
+                            f"Undefined function type: {func_type}"
+                        )
+
+            return_list, updated_list = list(), list()
+            for var_name in scope.returns:
+                (_, basename, idx) = var_name.split("::")
+                return_list.append(
+                    make_variable_name(scope.name, basename, idx)
+                )
+
+            for var_name in scope.updated:
+                (_, basename, idx) = var_name.split("::")
+                updated_list.append(
+                    make_variable_name(scope.name, basename, idx)
+                )
+            return return_list, updated_list
+
+        @process_container.register
+        def _(scope: LoopContainer, scope_inputs: list) -> tuple:
+            if len(scope.arguments) == len(scope_inputs):
+                input_vars = {
+                    a: v for a, v in zip(scope.arguments, scope_inputs)
+                }
+            elif len(scope.arguments) > 0:
+                input_vars = {
+                    a: (scope.name,) + tuple(a.split("::")[1:])
+                    for a in scope.arguments
+                }
+
+            for stmt in scope.body:
+                func_def = stmt["function"]
+                func_type = func_def["type"]
+                if func_type == "lambda":
+                    process_wiring_statement(
+                        stmt, scope, input_vars, scope.name
+                    )
+                elif func_type == "container":
+                    process_call_statement(stmt, scope, input_vars, scope.name)
+                else:
+                    raise ValueError(f"Undefined function type: {func_type}")
+
+            scope_tree.add_node(scope.name, color="navyblue")
+            if scope.parent is not None:
+                scope_tree.add_edge(scope.parent.name, scope.name)
 
             return_list, updated_list = list(), list()
             for var_name in scope.returns:
@@ -430,14 +536,9 @@ class GroundedFunctionNetwork(ComputationalGraph):
 
         root = data["start"][0]
         occurrences[root] = 0
-        cur_scope = ScopeNode(functions[root], occurrences[root])
-        scope_tree.add_node(cur_scope.name, color="forestgreen")
-        returns, updates = process_container(cur_scope, [], root)
+        cur_scope = create_container_node(functions[root], occurrences[root])
+        returns, updates = process_container(cur_scope, [])
         return cls(G, scope_tree, returns + updates)
-
-    @staticmethod
-    def create_container_dict(G: nx.DiGraph):
-        containers = {node_name: dict() for node_name in scope_tree.nodes}
 
     @classmethod
     def from_python_file(
@@ -523,8 +624,8 @@ class GroundedFunctionNetwork(ComputationalGraph):
         Args:
             fortran_src: A string with Fortran source code.
             dir: (Optional) - the directory in which the temporary Fortran file
-                will be created (make sure you have write permission!) Defaults to
-                the current directory.
+                will be created (make sure you have write permission!) Defaults
+                to the current directory.
         Returns:
             A GroundedFunctionNetwork instance
         """
@@ -823,3 +924,176 @@ class ForwardInfluenceBlanket(ComputationalGraph):
         A.node_attr.update({"shape": "rectangle", "style": "rounded"})
         A.edge_attr.update({"arrowsize": 0.5})
         return A
+
+
+class GenericNetwork(nx.DiGraph, metaclass=ABCMeta):
+    def __init__(self, basename: str, occ: int, parent=None):
+        super().__init__()
+        self.label = f"{basename}::{occ}"
+        self.parent = parent
+        self.hyper_edges = list()
+        self.variable_nodes = list()
+        self.lambda_nodes = list()
+        self.input_variables = list()
+        self.output_variables = list()
+
+    def __repr__(self):
+        return self.__str__()
+
+    @abstractmethod
+    def __str__(self):
+        L_sz = str(len(self.lambda_nodes))
+        V_sz = str(len(self.variable_nodes))
+        I_sz = str(len(self.input_variables))
+        O_sz = str(len(self.output_variables))
+        return f"<{self.label}, L: {L_sz}, V: {V_sz}, I: {I_sz}, O: {O_sz}>"
+
+    def add_variable_node(self, var_identifier: str, V: list):
+        var_node = V[var_identifier]
+        var_args = var_node.get_kwargs()
+        self.add_node(var_node, **var_args)
+        return var_node.identifier
+
+    def add_lambda_node(
+        self, lambda_type: LambdaType, lambda_fn: callable, inputs: list
+    ):
+        node_id = self.__create_node_id()
+        self.add_node(
+            node_id,
+            type="lambda",
+            lambda_fn=lambda_fn,
+            func_inputs=inputs,
+            visited=False,
+            shape="rectangle",
+            parent=self.label,
+            label=lambda_type.shortname(),
+            padding=10,
+        )
+        self.lambda_nodes.append(node_id)
+        return node_id
+
+    def add_hyper_edge(self, inputs: list, lambda_id: str, outputs: list):
+        self.add_edges_from([(inp_id, lambda_id) for inp_id in inputs])
+        self.add_edges_from([(out_id, lambda_id) for out_id in outputs])
+        self.hyper_edges.append(
+            {"in": inputs, "lambda_fn": lambda_id, "out": outputs}
+        )
+
+    def __create_node_id(self):
+        return str(uuid4())
+
+
+class CondNetwork(GenericNetwork):
+    def __init__(self, basename: str, occ: int, parent=None):
+        super().__init__(basename, occ, parent=parent)
+        self.color = "crimson"
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self):
+        return f"({self.__name__}){super().__str__()}\n"
+
+
+class FuncNetwork(GenericNetwork):
+    def __init__(self, basename: str, occ: int, parent=None):
+        super().__init__(basename, occ, parent=parent)
+        self.color = "forestgreen"
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self):
+        return f"({self.__name__}){super().__str__()}\n"
+
+
+class GroundedFactorNetwork(GenericNetwork):
+    def __init__(self, basename: str, occ: int, parent=None):
+        super().__init__(basename, occ, parent=parent)
+        self.color = "lightskyblue"
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self):
+        return f"({self.__name__}){super().__str__()}\n"
+
+
+class LoopNetwork(GenericNetwork):
+    def __init__(self, basename: str, occ: int, parent=None):
+        super().__init__(basename, occ, parent=parent)
+        self.color = "navyblue"
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self):
+        return f"({self.__name__}){super().__str__()}\n"
+
+
+@dataclass(repr=False, frozen=True)
+class GenericNode(ABC):
+    identifier: str
+    parent: str
+
+    def __repr__(self):
+        return self.__str__()
+
+    @abstractmethod
+    def __str__(self):
+        return self.identifier
+
+    @abstractmethod
+    def get_kwargs(self):
+        return NotImplemented
+
+
+@dataclass(repr=False, frozen=False)
+class VariableNode(GenericNode):
+    name: str
+    index: int
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self):
+        return self.name
+
+    def get_fullname(self):
+        return f"{self.parent}::{self.name}::{self.index}"
+
+    def get_kwargs(self):
+        is_exit = self.name == "EXIT"
+        return {
+            "color": "crimson",
+            "fontcolor": "white" if is_exit else "black",
+            "fillcolor": "crimson" if is_exit else "white",
+            "style": "filled" if is_exit else "",
+            "padding": 15,
+            "value": None,
+        }
+
+
+@dataclass(repr=False, frozen=False)
+class LambdaNode(ABC):
+    function: callable
+    inputs: tuple
+
+    def __repr__(self):
+        return self.__str__()
+
+    @abstractmethod
+    def __str__(self):
+        return self.identifier
+
+    def get_kwargs(self):
+        node_id = self.__create_node_id()
+        self.add_node(
+            node_id,
+            type="lambda",
+            func_inputs=inputs,
+            shape="rectangle",
+            parent=self.label,
+            label=lambda_type.shortname(),
+            padding=10,
+        )

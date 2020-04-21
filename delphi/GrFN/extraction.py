@@ -1,15 +1,27 @@
 import importlib
 from pathlib import Path
+from functools import singledispatch
 
 import networkx as nx
 
 from typing import Dict
 from delphi.GrFN.networks import GroundedFunctionNetwork
-from delphi.GrFN.utils import ScopeNode
+from delphi.GrFN.structures import (
+    GenericNetwork,
+    FuncNetwork,
+    CondNetwork,
+    LoopNetwork,
+    GenericStmt,
+    LambdaStmt,
+    CallStmt,
+)
 
 
 def extract_GrFN(
-    con_name: str, containers: dict, variables: dict, container_lambdas_map: Dict[str, str]
+    con_name: str,
+    containers: dict,
+    variables: dict,
+    container_lambdas_map: Dict[str, str],
 ):
     """Builds the GrFN for container con_name given all containers, variables,
     and lambdas that were defined in the AutoMATES Intermediate Representation
@@ -32,20 +44,12 @@ def extract_GrFN(
     # TODO Adarsh: This is the old code from GroundedFunctionNetwork.from_dict()
     # it needs to be updated to work with the inputs provided by the interpreter
     lambdas = importlib.__import__(str(Path(lambdas_path).stem))
-    functions = {d["name"]: d for d in data["containers"]}
     occurrences = {}
     G = nx.DiGraph()
     scope_tree = nx.DiGraph()
 
     def identity(x):
         return x
-
-    def make_identifier(scope: str, var: str):
-        (_, name, idx) = var.split("::")
-        return make_variable_name(scope, name, idx)
-
-    def make_variable_name(parent: str, basename: str, index: str):
-        return f"{parent}::{basename}::{index}"
 
     def add_variable_node(
         parent: str, basename: str, index: str, is_exit: bool = False
@@ -67,20 +71,21 @@ def extract_GrFN(
         )
         return full_var_name
 
-    def process_wiring_statement(stmt, scope, inputs, cname):
-        lambda_name = stmt["function"]["name"]
-        lambda_node_name = f"{scope.name}::" + lambda_name
+    @singledispatch
+    def process_statment(stmt: GenericStmt, inputs: list) -> None:
+        raise TypeError(f"Unrecognized statment type: {type(stmt)}")
 
-        stmt_type = lambda_name.split("__")[-3]
-        if stmt_type == "assign" and len(stmt["input"]) == 0:
-            stmt_type = "literal"
-
-        for output in stmt["output"]:
-            (_, var_name, idx) = output.split("::")
+    @process_statment.register
+    def _(stmt: LambdaStmt, inputs: list) -> None:
+        for output in stmt.outputs:
+            exit_node = output.basename == "EXIT"
             node_name = add_variable_node(
-                scope.name, var_name, idx, is_exit=var_name == "EXIT"
+                stmt.parent.name,
+                output.basename,
+                output.index,
+                is_exit=exit_node,
             )
-            G.add_edge(lambda_node_name, node_name)
+            G.add_edge(stmt.lambda_node_name, node_name)
 
         ordered_inputs = list()
         for inp in stmt["input"]:
@@ -106,20 +111,16 @@ def extract_GrFN(
             padding=10,
         )
 
-    def process_call_statement(stmt, scope, inputs, cname):
+    @process_statment.register
+    def _(stmt: LambdaStmt, inputs: list) -> None:
         container_name = stmt["function"]["name"]
         if container_name not in occurrences:
             occurrences[container_name] = 0
 
-        new_container = functions[container_name]
-        container_color = (
-            "navyblue" if new_container["repeat"] else "forestgreen"
-        )
-        new_scope = ScopeNode(
+        new_container = containers[container_name]
+        new_scope = create_container_node(
             new_container, occurrences[container_name], parent=scope
         )
-        scope_tree.add_node(new_scope.name, color=container_color)
-        scope_tree.add_edge(scope.name, new_scope.name)
 
         input_values = list()
         for inp in stmt["input"]:
@@ -178,9 +179,14 @@ def extract_GrFN(
             G.add_edge(lambda_node_name, caller_var)
         occurrences[container_name] += 1
 
-    def process_container(scope, input_vals, cname):
-        if len(scope.arguments) == len(input_vals):
-            input_vars = {a: v for a, v in zip(scope.arguments, input_vals)}
+    @singledispatch
+    def process_container(scope: GenericNetwork, scope_inputs: list) -> tuple:
+        raise TypeError(f"Unrecognized container scope: {type(scope)}")
+
+    @process_container.register
+    def _(scope: FuncNetwork, scope_inputs: list) -> tuple:
+        if len(scope.arguments) == len(scope_inputs):
+            input_vars = {a: v for a, v in zip(scope.arguments, scope_inputs)}
         elif len(scope.arguments) > 0:
             input_vars = {
                 a: (scope.name,) + tuple(a.split("::")[1:])
@@ -191,11 +197,95 @@ def extract_GrFN(
             func_def = stmt["function"]
             func_type = func_def["type"]
             if func_type == "lambda":
-                process_wiring_statement(stmt, scope, input_vars, cname)
+                process_wiring_statement(stmt, scope, input_vars, scope.name)
             elif func_type == "container":
-                process_call_statement(stmt, scope, input_vars, cname)
+                process_call_statement(stmt, scope, input_vars, scope.name)
             else:
                 raise ValueError(f"Undefined function type: {func_type}")
+
+        scope_tree.add_node(scope.name, color="forestgreen")
+        if scope.parent is not None:
+            scope_tree.add_edge(scope.parent.name, scope.name)
+
+        return_list, updated_list = list(), list()
+        for var_name in scope.returns:
+            (_, basename, idx) = var_name.split("::")
+            return_list.append(make_variable_name(scope.name, basename, idx))
+
+        for var_name in scope.updated:
+            (_, basename, idx) = var_name.split("::")
+            updated_list.append(make_variable_name(scope.name, basename, idx))
+        return return_list, updated_list
+
+    @process_container.register
+    def _(scope: CondNetwork, scope_inputs: list) -> tuple:
+        if len(scope.arguments) == len(scope_inputs):
+            input_vars = {a: v for a, v in zip(scope.arguments, scope_inputs)}
+        elif len(scope.arguments) > 0:
+            input_vars = {
+                a: (scope.name,) + tuple(a.split("::")[1:])
+                for a in scope.arguments
+            }
+
+        conditions, statements = list(), list()
+        for cond_obj in scope.body:
+            cond = cond_obj["condition"]
+            stmts = cond_obj["statements"]
+
+            if cond is None:
+                conditions.append(None)
+            else:
+                # FIXME: generalize cond handling in the future
+                cond_stmt = cond[0]
+                process_wiring_statement(
+                    cond_stmt, scope, input_vars, scope.name
+                )
+
+            for stmt in stmts:
+                func_def = stmt["function"]
+                func_type = func_def["type"]
+                if func_type == "lambda":
+                    process_wiring_statement(
+                        stmt, scope, input_vars, scope.name
+                    )
+                elif func_type == "container":
+                    process_call_statement(stmt, scope, input_vars, scope.name)
+                else:
+                    raise ValueError(f"Undefined function type: {func_type}")
+
+        return_list, updated_list = list(), list()
+        for var_name in scope.returns:
+            (_, basename, idx) = var_name.split("::")
+            return_list.append(make_variable_name(scope.name, basename, idx))
+
+        for var_name in scope.updated:
+            (_, basename, idx) = var_name.split("::")
+            updated_list.append(make_variable_name(scope.name, basename, idx))
+        return return_list, updated_list
+
+    @process_container.register
+    def _(scope: LoopNetwork, scope_inputs: list) -> tuple:
+        if len(scope.arguments) == len(scope_inputs):
+            input_vars = {a: v for a, v in zip(scope.arguments, scope_inputs)}
+        elif len(scope.arguments) > 0:
+            input_vars = {
+                a: (scope.name,) + tuple(a.split("::")[1:])
+                for a in scope.arguments
+            }
+
+        for stmt in scope.body:
+            func_def = stmt["function"]
+            func_type = func_def["type"]
+            if func_type == "lambda":
+                process_wiring_statement(stmt, scope, input_vars, scope.name)
+            elif func_type == "container":
+                process_call_statement(stmt, scope, input_vars, scope.name)
+            else:
+                raise ValueError(f"Undefined function type: {func_type}")
+
+        scope_tree.add_node(scope.name, color="navyblue")
+        if scope.parent is not None:
+            scope_tree.add_edge(scope.parent.name, scope.name)
 
         return_list, updated_list = list(), list()
         for var_name in scope.returns:
@@ -208,7 +298,8 @@ def extract_GrFN(
         return return_list, updated_list
 
     occurrences[con_name] = 0
-    cur_scope = ScopeNode(functions[con_name], occurrences[con_name])
-    scope_tree.add_node(cur_scope.name, color="forestgreen")
-    returns, updates = process_container(cur_scope, [], con_name)
+    cur_scope = GenericNetwork.create_scope(
+        containers[con_name], occurrences[con_name]
+    )
+    returns, updates = process_container(cur_scope.name, [])
     return GroundedFunctionNetwork(G, scope_tree, returns + updates)
