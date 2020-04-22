@@ -31,7 +31,6 @@ params = {
 
 data = urllib.parse.urlencode(params)
 data = data.encode('utf-8')
-#req = urllib.request.Request(url, data)
 #req = urllib.request.Request(f'{url_base}/data/field/topic?version={version}&client_id={client_id}', data)
 req = urllib.request.Request(f'{url_base}/data/field/topic', data)
 with urllib.request.urlopen(req) as f:
@@ -48,8 +47,6 @@ empty_topics = []  # Keep track of Topics without datasets
 
 # For each topic get the list of datasets
 for topic_idx, topic_struct in enumerate(topics_json, 1):
-    no_data = True
-
     topic = topic_struct['id']
     print(topic_idx, topic)
     print('------------------------------')
@@ -77,14 +74,13 @@ for topic_idx, topic_struct in enumerate(topics_json, 1):
     # so that we will not miss data for this Topic.
     # Repeat this extra waiting and re-issuing request until we get data for
     # this Topic.
-    while no_data:
+    while True:
         try:
             with urllib.request.urlopen(req) as f:
                 response = f.read()
-            no_data = False
+            break 
         except urllib.error.HTTPError:
             print('Too many requests')
-            no_data = True
             time.sleep(60)
 
     #print(response.decode('utf-8'))
@@ -101,9 +97,12 @@ for topic_idx, topic_struct in enumerate(topics_json, 1):
         dset_name = dset_struct['name']
         dset_id = dset_struct['id']
         dset_owner = dset_struct['owner']
+        dset_desc = dset_struct['description']
         dset_ref = dset_struct['ref']
         dset_src_name = dset_struct['source']['name']
         dset_src_id = dset_struct['source']['id']
+        dset_src_license_type = dset_struct['source']['licenseTypeName']
+        dset_src_terms_of_use = dset_struct['source']['termsOfUseLink']
 
         print(dset_idx, dset_name)
         print('\t', dset_id)
@@ -133,18 +132,21 @@ for topic_idx, topic_struct in enumerate(topics_json, 1):
                         'Dataset Source ID' : dset_src_id,
                         'Dataset Source Name' : dset_src_name,
                         'Dataset Dimension IDs' : dim_ids,
-                        'Dataset Dimension Names' : dim_names
+                        'Dataset Dimension Names' : dim_names,
+                        'Dataset Description' : dset_desc,
+                        'Dataset Source License Type' : dset_src_license_type,
+                        'Dataset Source Terms of Use' : dset_src_terms_of_use 
                         })
 
 
 
-    pd.DataFrame(datasets).to_csv(f'AIH_datasets.csv', index=False, columns=['Topic', 'Dataset ID', 'Dataset Name', 'Dataset Owner', 'Dataset ref', 'Dataset Source ID', 'Dataset Source Name', 'Dataset Dimension IDs', 'Dataset Dimension Names'])
+    pd.DataFrame(datasets).to_csv(f'AIH_datasets_per_topic.csv', index=False, columns=['Topic', 'Dataset ID', 'Dataset Name', 'Dataset Owner', 'Dataset ref', 'Dataset Source ID', 'Dataset Source Name', 'Dataset Dimension IDs', 'Dataset Dimension Names', 'Dataset Description', 'Dataset Source License Type', 'Dataset Source Terms of Use'])
 
-    with open('empty_topics.data', 'wb') as filehandle:
+    with open('AIH_empty_topics.data', 'wb') as filehandle:
         # store the data as binary data stream
         pickle.dump(empty_topics, filehandle)
 
-    with open('dimensions.data', 'wb') as filehandle:
+    with open('AIH_dimensions.data', 'wb') as filehandle:
         # store the data as binary data stream
         pickle.dump(dimensions, filehandle)
 
