@@ -4,7 +4,7 @@ from abc import ABC, ABCMeta, abstractmethod
 from functools import singledispatch
 from dataclasses import dataclass
 from pathlib import Path
-from uuid import uuid4
+from uuid import uuid4, UUID
 import importlib
 import inspect
 import json
@@ -927,10 +927,14 @@ class ForwardInfluenceBlanket(ComputationalGraph):
 
 
 class GenericNetwork(nx.DiGraph, metaclass=ABCMeta):
-    def __init__(self, basename: str, occ: int, parent=None):
+    def __init__(self, name: str, occ: int, parent=None):
         super().__init__()
-        self.label = f"{basename}::{occ}"
-        self.parent = parent
+        (_, namespace, scope, basename) = name.split("::")
+        self.name = basename
+        self.occurrence_num = occ
+        self.label = f"{self.name}\n({self.occurrence_num})"
+        self.parent_network = parent
+        self.child_networks = list()
         self.hyper_edges = list()
         self.variable_nodes = list()
         self.lambda_nodes = list()
@@ -942,22 +946,27 @@ class GenericNetwork(nx.DiGraph, metaclass=ABCMeta):
 
     @abstractmethod
     def __str__(self):
+        return NotImplemented
+
+    def print_network_data(self):
         L_sz = str(len(self.lambda_nodes))
         V_sz = str(len(self.variable_nodes))
         I_sz = str(len(self.input_variables))
         O_sz = str(len(self.output_variables))
         return f"<{self.label}, L: {L_sz}, V: {V_sz}, I: {I_sz}, O: {O_sz}>"
 
-    def add_variable_node(self, var_identifier: str, V: list):
-        var_node = V[var_identifier]
-        var_args = var_node.get_kwargs()
-        self.add_node(var_node, **var_args)
-        return var_node.identifier
+    def add_variable_node(self, var_identifier: str):
+        (_, basename, index) = var_identifier.split("::")
+        node_id = self.__create_node_id()
+        var_node = VariableNode(node_id, self, basename, index)
+        self.add_node(var_node, **(var_node.get_kwargs()))
+        return var_node.uid
 
     def add_lambda_node(
         self, lambda_type: LambdaType, lambda_fn: callable, inputs: list
     ):
         node_id = self.__create_node_id()
+        func_node = LambdaNode(node_id, self, lambda_type, lambda_fn, inputs)
         self.add_node(
             node_id,
             type="lambda",
@@ -1031,17 +1040,20 @@ class LoopNetwork(GenericNetwork):
         return f"({self.__name__}){super().__str__()}\n"
 
 
-@dataclass(repr=False, frozen=True)
+@dataclass(repr=False, frozen=False)
 class GenericNode(ABC):
-    identifier: str
-    parent: str
+    uid: UUID
+    parent: GenericNetwork
+
+    def __hash__(self):
+        return hash(self.uid)
 
     def __repr__(self):
         return self.__str__()
 
     @abstractmethod
     def __str__(self):
-        return self.identifier
+        return self.uid
 
     @abstractmethod
     def get_kwargs(self):
@@ -1076,24 +1088,15 @@ class VariableNode(GenericNode):
 
 @dataclass(repr=False, frozen=False)
 class LambdaNode(ABC):
+    func_type: LambdaType
     function: callable
     inputs: tuple
 
     def __repr__(self):
         return self.__str__()
 
-    @abstractmethod
     def __str__(self):
-        return self.identifier
+        return self.func_type.shortname()
 
     def get_kwargs(self):
-        node_id = self.__create_node_id()
-        self.add_node(
-            node_id,
-            type="lambda",
-            func_inputs=inputs,
-            shape="rectangle",
-            parent=self.label,
-            label=lambda_type.shortname(),
-            padding=10,
-        )
+        return {"shape": "rectangle", "padding": 10}
