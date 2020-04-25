@@ -13,14 +13,15 @@
         X = X+1
         Y = X+2
         X = Y+2
+        Z = 5
       ELSE IF (COND2 .GE. 9) THEN
         Y = Y+1
-        Z = Z+5
+        Z = X+5
       ELSE IF (COND1 .GE. 6) THEN
         X = X+Y
         Z = X+W
       ELSE
-        Z = Z+4
+        Z = Y+4
         W = W+2
         Z = X+Y
       END IF

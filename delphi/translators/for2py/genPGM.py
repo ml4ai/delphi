@@ -1895,6 +1895,8 @@ class GrFNGenerator(object):
         current_condition = None
         for body_dict in container_body:
             for key in body_dict:
+                if key == "statements":
+                    self._fix_input_index(body_dict[key])
                 if body_dict[key]:
                     for function in body_dict[key]:
                         if key == "condition":
@@ -1947,7 +1949,7 @@ class GrFNGenerator(object):
                 and state.last_definitions.get(item) is not None
             ):
                 function_input.append(
-                    f"@variable::{item}::" f"{state.last_definitions[item]}"
+                    f"@variable::{item}::{state.last_definitions[item]}"
                 )
                 container_argument.append(f"@variable::{item}::-1")
 
@@ -2011,14 +2013,32 @@ class GrFNGenerator(object):
                     "variable": updated,
                     "index": index
                 })
-            # Also, add the -1 index for the variable which is the default
-            # case when no conditions will be met
-            inputs.append({
-                    "variable": updated,
-                    "index": -1
-                })
 
-            # The output variable is the updated variable with its index as 
+            # If some variables don't end up always getting updated during the
+            # if-else checks, then their -1 indexed versions should be added to
+            # the input list. For example
+            # if cond_0: x = 3
+            # else: y = 4
+            # Here, x won't get updated if cond_0 is unmet and vice versa for y
+            # But in cases like:
+            # if cond_0: x = 3
+            # else: x = 4
+            # x is always updated so it's -1 index will be not added as an input
+            if len(condition_map) <= condition_count+1:
+                ip = f"@variable::{updated}::{state.last_definitions[updated]}"
+                if ip not in function_input:
+                    function_input.append(ip)
+                ip = f"@variable::{updated}::-1"
+                if ip not in container_argument:
+                    container_argument.append(ip)
+                # Also, add the -1 index for the variable which is the default
+                # case when no conditions will be met
+                inputs.append({
+                        "variable": updated,
+                        "index": -1
+                    })
+
+            # The output variable is the updated variable with its index as
             # index = latest_index+1
             output = {
                 "variable": updated,
@@ -2035,7 +2055,7 @@ class GrFNGenerator(object):
             )
             grfn["variables"].append(variable_spec)
 
-            # Create a __decision__ function and add it to the `decisions` 
+            # Create a __decision__ function and add it to the `decisions`
             # tag of the container
             function_name = self.generate_function_name(
                 "__decision__", variable_spec["name"], None
@@ -2053,7 +2073,7 @@ class GrFNGenerator(object):
             }
             container_decisions.append(fn)
 
-            # We sort the condition booleans dictionary in such a way that 
+            # We sort the condition booleans dictionary in such a way that
             # the first conditions appear at the beginning
             # Structure: {'COND_0_1': 0, 'COND_0_2': 1, None: 3} changes to
             #    ('COND_0_1', 0), ('COND_0_2', 1), (None, 3)
@@ -2149,22 +2169,21 @@ class GrFNGenerator(object):
                     node_lineno == int(comment) + 1:
                 if_type = "select-block"
 
+        merged_body = self._merge_container_body(container_body,
+                                                 container_decisions)
         if_container = {
             "name": container_id_name,
             "source_refs": [],
             "gensym": container_gensym,
             "type": if_type,
             "arguments": container_argument,
-            "updated": container_updated,
             "return_value": [],
-            "decisions": container_decisions,
-            "body": container_body,
+            "body": merged_body,
         }
         if_function = {
             "function": {"name": container_id_name, "type": "container"},
             "input": function_input,
             "output": [],
-            "updated": function_updated,
         }
 
         grfn["functions"].append(if_function)
@@ -2765,8 +2784,6 @@ class GrFNGenerator(object):
                     self.annotated_assigned.append(val[0]["var"]["variable"])
             else:
                 self.annotated_assigned.append(val[0]["var"]["variable"])
-        else:
-            assert False, "No variable name found for subscript node."
         return val
 
     def process_name(self, node, state, call_source):
@@ -2774,9 +2791,9 @@ class GrFNGenerator(object):
             This function handles the ast.Name node of the AST. This node
             represents any variable in the code.
         """
-        # Currently, bypassing any `i_g_n_o_r_e___m_e__` variables which are
+        # Currently, bypassing any `i_g_n_o_r_e__m_e___` variables which are
         # used for comment extraction.
-        if not re.match(r"i_g_n_o_r_e___m_e__.*", node.id):
+        if not re.match(r"i_g_n_o_r_e__m_e___.*", node.id):
             for mod in self.imported_module_paths:
                 mod_name = mod.split('.')[-1][2:]
                 import_str = f"from {mod} import {node.id}\n"
@@ -2805,6 +2822,8 @@ class GrFNGenerator(object):
             # TODO Change this structure. This is not required for the new
             #  spec. It made sense for the old spec but now it is not required.
             return [{"var": {"variable": node.id, "index": last_definition}}]
+        else:
+            return []
 
     def process_annotated_assign(self, node, state, *_):
         """
@@ -3471,7 +3490,7 @@ class GrFNGenerator(object):
                 state.lambda_strings.append(line + "\n")
                 if not line.strip():
                     isClass = False
-                
+
         grfn = {"name": "", "type": "type", "attributes": []}
         namespace = self._get_namespace(self.fortran_file)
         type_name = f"@type::{namespace}::@global::{class_name}"
@@ -4104,6 +4123,11 @@ class GrFNGenerator(object):
 
         # Sort the arguments in the function call as it is used in the operation
         input_list = sorted(set(inputs), key=inputs.index)
+
+        if "__decision__" in function_name:
+            argument_map = self._generate_argument_map(inputs)
+            input_list = list(argument_map.values())
+
         # Add type annotations to the function arguments
         for ip in input_list:
             annotation = state.variable_types.get(ip)
@@ -4183,7 +4207,8 @@ class GrFNGenerator(object):
             code = self._generate_decision_lambda(decision_versions,
                                                   condition_var,
                                                   max_conditions,
-                                                  inputs[-1].split("_")[0])
+                                                  inputs[-1].split("_")[0],
+                                                  argument_map)
         elif not string_assign:
             array_name = None
             if state.array_assign_name:
@@ -4720,7 +4745,7 @@ class GrFNGenerator(object):
                 md_array_name = node.value.func.value.id
             elif hasattr(node.value.func.value, "value"):
                 md_array_name = node.value.func.value.value.id
-            
+
             if md_array_name not in self.md_array:
                 self.md_array.append(md_array_name)
             dimensions = args.elts
@@ -4985,7 +5010,7 @@ class GrFNGenerator(object):
 
     @staticmethod
     def _generate_decision_lambda(decision_versions, condition_var,
-                                  max_conditions, var):
+                                  max_conditions, var, argument_map):
         """
         This helper function generates the lambda function code for decision
         statements of if clauses.
@@ -4998,34 +5023,98 @@ class GrFNGenerator(object):
             index = cond[1]
             if not condition:
                 if len(index_list) == 1 and index_list[0] == -1:
-                    code += f"{var}_{index} if "
-                    code += " and ".join([f"not {condition_var}_{x}_0" for x in
-                                          range(max_conditions+1)])
+                    code += f"{argument_map[f'{var}_{index}']} if "
+                    condition_list = [f"not "
+                                      f"{argument_map[f'{condition_var}_{x}_0']}"
+                                      for x in range(max_conditions+1)]
+                    code += " and ".join(condition_list)
                     code += " else "
                 else:
                     assert i == (len(index_list)-1), f"None is not at the end " \
                                                    f"of the list."
-                    code += f"{var}_{index} if "
-                    rep_list = [x for x in list(range(max_conditions+1)) if x
+                    rep_list = [x for x in list(range(max_conditions + 1)) if x
                                 not in index_list[:i]]
-                    code += " and ".join([f"not {condition_var}_{x}_0" for x in
-                                          rep_list])
-                    code += " else "
+                    if len(rep_list) == 0:
+                        code += argument_map[f'{var}_{index}']
+                    else:
+                        code += f"{argument_map[f'{var}_{index}']} if "
+                        condition_list = [f"not "
+                                          f"{argument_map[f'{condition_var}_{x}_0']}"
+                                          for x in rep_list]
+                        code += " and ".join(condition_list)
+                        code += " else "
             else:
                 max_id = index_list[i]
-                code += f"{var}_{index} if "
+                code += f"{argument_map[f'{var}_{index}']} if "
                 rep_list = [x for x in list(range(max_id)) if x
                             not in index_list[:i]]
-                code += " and ".join([f"not {condition_var}_{x}_0" for x in
-                                      rep_list])
+                condition_list = [f"not "
+                                  f"{argument_map[f'{condition_var}_{x}_0']}"
+                                  for x in rep_list]
+                code += " and ".join(condition_list)
                 if len(rep_list) == 0:
-                    code += f"{condition}_0"
+                    code += argument_map[f"{condition}_0"]
                 else:
-                    code += f" and {condition}_0"
+                    code += f" and {argument_map[f'{condition}_0']}"
                 code += " else "
 
-        code += f"{var}_xx"
+        code += argument_map.get(f"{var}_xx", "")
         return code
+
+    @staticmethod
+    def _generate_argument_map(inputs):
+        """
+        This function generates a different mapping of the arguments to the
+        lambda function for decision statements. For every variable,
+        the indexing starts from 0 and increases accordingly in the inputs list
+        """
+        cond_count = 0
+        var_count = 0
+        arg_map = {}
+        for ip in inputs:
+            if ip.split("_", 1)[0] == "COND":
+                var = ip.split("_", 1)[0]
+                arg_map[ip] = f"{var}_{cond_count}"
+                cond_count += 1
+            else:
+                var = ip.rsplit("_", 1)[0]
+                arg_map[ip] = f"{var}_{var_count}"
+                var_count += 1
+        return arg_map
+
+    @staticmethod
+    def _merge_container_body(container_body, container_decisions):
+        """
+        This function merges the container body of if containers so that
+        every condition and assignment statement is inside a single list.
+        This list is then suffixed with the decisions statements
+        """
+        final_body = []
+        for item in container_body:
+            if item["condition"]:
+                final_body += item["condition"]
+            final_body += item["statements"]
+
+        final_body += container_decisions
+        return final_body
+
+    @staticmethod
+    def _fix_input_index(statement_list):
+        """
+        For every statement list of a condition in `if-containers`,
+        all inputs should start from -1 and increase accordingly. This
+        function does the work of checking if such changes need to be for
+        every statement list
+        """
+        output_list = []
+        for stmt in statement_list:
+            input_list = stmt["input"]
+            for index in range(len(input_list)):
+                var_parts = input_list[index].split("::")
+                if var_parts[1] not in output_list and int(var_parts[-1]) != -1:
+                    var_parts[-1] = '-1'
+                    input_list[index] = "::".join(var_parts)
+            output_list += [x.split("::")[1] for x in stmt["output"]]
 
 
 def get_path(file_name: str, instance: str):
