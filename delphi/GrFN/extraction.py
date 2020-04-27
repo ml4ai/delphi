@@ -7,10 +7,10 @@ import networkx as nx
 from typing import Dict
 from delphi.GrFN.networks import GroundedFunctionNetwork
 from delphi.GrFN.structures import (
-    GenericNetwork,
-    FuncNetwork,
-    CondNetwork,
-    LoopNetwork,
+    GenericSubgraph,
+    FuncSubgraph,
+    CondSubgraph,
+    LoopSubgraph,
     GenericStmt,
     LambdaStmt,
     CallStmt,
@@ -180,11 +180,11 @@ def extract_GrFN(
         occurrences[container_name] += 1
 
     @singledispatch
-    def process_container(scope: GenericNetwork, scope_inputs: list) -> tuple:
+    def process_container(scope: GenericSubgraph, scope_inputs: list) -> tuple:
         raise TypeError(f"Unrecognized container scope: {type(scope)}")
 
     @process_container.register
-    def _(scope: FuncNetwork, scope_inputs: list) -> tuple:
+    def _(scope: FuncSubgraph, scope_inputs: list) -> tuple:
         if len(scope.arguments) == len(scope_inputs):
             input_vars = {a: v for a, v in zip(scope.arguments, scope_inputs)}
         elif len(scope.arguments) > 0:
@@ -218,7 +218,7 @@ def extract_GrFN(
         return return_list, updated_list
 
     @process_container.register
-    def _(scope: CondNetwork, scope_inputs: list) -> tuple:
+    def _(scope: CondSubgraph, scope_inputs: list) -> tuple:
         if len(scope.arguments) == len(scope_inputs):
             input_vars = {a: v for a, v in zip(scope.arguments, scope_inputs)}
         elif len(scope.arguments) > 0:
@@ -264,7 +264,7 @@ def extract_GrFN(
         return return_list, updated_list
 
     @process_container.register
-    def _(scope: LoopNetwork, scope_inputs: list) -> tuple:
+    def _(scope: LoopSubgraph, scope_inputs: list) -> tuple:
         if len(scope.arguments) == len(scope_inputs):
             input_vars = {a: v for a, v in zip(scope.arguments, scope_inputs)}
         elif len(scope.arguments) > 0:
@@ -298,7 +298,7 @@ def extract_GrFN(
         return return_list, updated_list
 
     occurrences[con_name] = 0
-    cur_scope = GenericNetwork.create_scope(
+    cur_scope = GenericSubgraph.create_scope(
         containers[con_name], occurrences[con_name]
     )
     returns, updates = process_container(cur_scope.name, [])

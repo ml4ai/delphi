@@ -926,124 +926,9 @@ class ForwardInfluenceBlanket(ComputationalGraph):
         return A
 
 
-class GenericNetwork(nx.DiGraph, metaclass=ABCMeta):
-    def __init__(self, name: str, occ: int, parent=None):
-        super().__init__()
-        (_, namespace, scope, basename) = name.split("::")
-        self.name = basename
-        self.occurrence_num = occ
-        self.label = f"{self.name}\n({self.occurrence_num})"
-        self.parent_network = parent
-        self.child_networks = list()
-        self.hyper_edges = list()
-        self.variable_nodes = list()
-        self.lambda_nodes = list()
-        self.input_variables = list()
-        self.output_variables = list()
-
-    def __repr__(self):
-        return self.__str__()
-
-    @abstractmethod
-    def __str__(self):
-        return NotImplemented
-
-    def print_network_data(self):
-        L_sz = str(len(self.lambda_nodes))
-        V_sz = str(len(self.variable_nodes))
-        I_sz = str(len(self.input_variables))
-        O_sz = str(len(self.output_variables))
-        return f"<{self.label}, L: {L_sz}, V: {V_sz}, I: {I_sz}, O: {O_sz}>"
-
-    def add_variable_node(self, var_identifier: str):
-        (_, basename, index) = var_identifier.split("::")
-        node_id = self.__create_node_id()
-        var_node = VariableNode(node_id, self, basename, index)
-        self.add_node(var_node, **(var_node.get_kwargs()))
-        return var_node.uid
-
-    def add_lambda_node(
-        self, lambda_type: LambdaType, lambda_fn: callable, inputs: list
-    ):
-        node_id = self.__create_node_id()
-        func_node = LambdaNode(node_id, self, lambda_type, lambda_fn, inputs)
-        self.add_node(
-            node_id,
-            type="lambda",
-            lambda_fn=lambda_fn,
-            func_inputs=inputs,
-            visited=False,
-            shape="rectangle",
-            parent=self.label,
-            label=lambda_type.shortname(),
-            padding=10,
-        )
-        self.lambda_nodes.append(node_id)
-        return node_id
-
-    def add_hyper_edge(self, inputs: list, lambda_id: str, outputs: list):
-        self.add_edges_from([(inp_id, lambda_id) for inp_id in inputs])
-        self.add_edges_from([(out_id, lambda_id) for out_id in outputs])
-        self.hyper_edges.append(
-            {"in": inputs, "lambda_fn": lambda_id, "out": outputs}
-        )
-
-    def __create_node_id(self):
-        return str(uuid4())
-
-
-class CondNetwork(GenericNetwork):
-    def __init__(self, basename: str, occ: int, parent=None):
-        super().__init__(basename, occ, parent=parent)
-        self.color = "crimson"
-
-    def __repr__(self):
-        return self.__str__()
-
-    def __str__(self):
-        return f"({self.__name__}){super().__str__()}\n"
-
-
-class FuncNetwork(GenericNetwork):
-    def __init__(self, basename: str, occ: int, parent=None):
-        super().__init__(basename, occ, parent=parent)
-        self.color = "forestgreen"
-
-    def __repr__(self):
-        return self.__str__()
-
-    def __str__(self):
-        return f"({self.__name__}){super().__str__()}\n"
-
-
-class GroundedFactorNetwork(GenericNetwork):
-    def __init__(self, basename: str, occ: int, parent=None):
-        super().__init__(basename, occ, parent=parent)
-        self.color = "lightskyblue"
-
-    def __repr__(self):
-        return self.__str__()
-
-    def __str__(self):
-        return f"({self.__name__}){super().__str__()}\n"
-
-
-class LoopNetwork(GenericNetwork):
-    def __init__(self, basename: str, occ: int, parent=None):
-        super().__init__(basename, occ, parent=parent)
-        self.color = "navyblue"
-
-    def __repr__(self):
-        return self.__str__()
-
-    def __str__(self):
-        return f"({self.__name__}){super().__str__()}\n"
-
-
 @dataclass(repr=False, frozen=False)
 class GenericNode(ABC):
     uid: UUID
-    parent: GenericNetwork
 
     def __hash__(self):
         return hash(self.uid)
@@ -1054,6 +939,10 @@ class GenericNode(ABC):
     @abstractmethod
     def __str__(self):
         return self.uid
+
+    @staticmethod
+    def create_node_id() -> UUID:
+        return uuid4()
 
     @abstractmethod
     def get_kwargs(self):
@@ -1072,7 +961,7 @@ class VariableNode(GenericNode):
         return self.name
 
     def get_fullname(self):
-        return f"{self.parent}::{self.name}::{self.index}"
+        return f"{self.name}\n({self.index})"
 
     def get_kwargs(self):
         is_exit = self.name == "EXIT"
@@ -1089,8 +978,9 @@ class VariableNode(GenericNode):
 @dataclass(repr=False, frozen=False)
 class LambdaNode(ABC):
     func_type: LambdaType
+    func_str: str
     function: callable
-    inputs: tuple
+    inputs: Iterable[VariableNode]
 
     def __repr__(self):
         return self.__str__()
@@ -1100,3 +990,95 @@ class LambdaNode(ABC):
 
     def get_kwargs(self):
         return {"shape": "rectangle", "padding": 10}
+
+    def get_signature(self):
+        return self.function.__code__.co_varnames
+
+
+class GroundedFactorNetwork(nx.DiGraph):
+    def __init__(self, name: str):
+        super().__init__()
+        (_, self.namespace, self.scope, self.basename) = name.split("::")
+        self.label = f"{self.basename} ({self.namespace}.{self.scope})"
+        self.subgraphs = list()
+        self.hyper_edges = list()
+        self.variable_nodes = list()
+        self.lambda_nodes = list()
+        self.input_variables = list()
+        self.output_variables = list()
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self):
+        L_sz = str(len(self.lambda_nodes))
+        V_sz = str(len(self.variable_nodes))
+        I_sz = str(len(self.input_variables))
+        O_sz = str(len(self.output_variables))
+        size_str = f"< |L|: {L_sz}, |V|: {V_sz}, |I|: {I_sz}, |O|: {O_sz} >"
+        return f"{self.label}\n{size_str}"
+
+    def add_variable_node(self, var_identifier: str) -> VariableNode:
+        (_, basename, index) = var_identifier.split("::")
+        node = VariableNode(
+            GenericNode.create_node_id(), self, basename, index
+        )
+        self.add_node(node, **(node.get_kwargs()))
+        self.variable_nodes.append(node)
+        return node
+
+    def add_lambda_node(
+        self,
+        lambda_type: LambdaType,
+        lambda_str: str,
+        inputs: Iterable[VariableNode],
+    ) -> LambdaNode:
+        lambda_fn = eval(lambda_str)
+        node_id = GenericNode.create_node_id()
+        node = LambdaNode(
+            node_id, self, lambda_type, lambda_str, lambda_fn, inputs,
+        )
+        self.add_node(node, **(node.get_kwargs()))
+        self.lambda_nodes.append(node)
+        return node
+
+    def add_hyper_edge(
+        self,
+        inputs: Iterable[VariableNode],
+        lambda_node: LambdaNode,
+        outputs: Iterable[VariableNode],
+    ) -> None:
+        self.add_edges_from([(in_node, lambda_node) for in_node in inputs])
+        self.add_edges_from([(out_node, lambda_node) for out_node in outputs])
+        self.hyper_edges.append(
+            {
+                "in": [n.uid for n in inputs],
+                "lambda_fn": lambda_node.uid,
+                "out": [n.uid for n in outputs],
+            }
+        )
+
+
+@dataclass
+class GrFNSubgraph:
+    namespace: str
+    scope: str
+    basename: str
+    occurrence_num: int
+    border_color: str
+    nodes: Iterable[GenericNode]
+
+    @classmethod
+    def from_container(cls, con: GenericContainer, occ: int):
+        if isinstance(con, CondContainer):
+            clr = "orange"
+        elif isinstance(con, FuncContainer):
+            clr = "forestgreen"
+        elif isinstance(con, LoopContainer):
+            clr = "navyblue"
+        else:
+            # TODO: perhaps use this in the future
+            # clr = "lightskyblue"
+            raise TypeError(f"Unrecognized container type: {type(con)}")
+        id = con.identifier
+        return cls(id.namespace, id.scope, id.basename, occ, clr, [])

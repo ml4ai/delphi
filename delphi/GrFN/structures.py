@@ -1,22 +1,76 @@
 from abc import ABC, abstractmethod
 from enum import Enum, auto, unique
+from dataclasses import dataclass
 from types import ModuleType
 
 from delphi.GrFN.networks import (
-    GenericNetwork,
-    CondNetwork,
-    FuncNetwork,
-    LoopNetwork,
+    GroundedFactorNetwork,
+    GrFNSubgraph,
 )
 from delphi.GrFN.code_types import CodeType
 
 
+@dataclass(frozen=True)
+class GenericIdentifier(ABC):
+    namespace: str
+    scope: str
+    basename: str
+
+    @staticmethod
+    def from_str(data: str):
+        components = data.split("::")
+        type_str = components[0]
+        if type_str == "@container":
+            (_, ns, sc, n) = components
+            return ContainerIdentifier(ns, sc, n)
+        elif type_str == "@type":
+            (_, ns, sc, n) = components
+            return TypeIdentifier(ns, sc, n)
+        elif type_str == "@variable":
+            (_, ns, sc, n, idx) = components
+            return VariableIdentifier(ns, sc, n, int(idx))
+
+
+@dataclass(frozen=True)
+class ContainerIdentifier(GenericIdentifier):
+    def is_global_scope(self):
+        return self.scope == "@global"
+
+
+@dataclass(frozen=True)
+class TypeIdentifier(GenericIdentifier):
+    def is_global_scope(self):
+        return self.scope == "@global"
+
+
+@dataclass(frozen=True)
+class VariableIdentifier(GenericIdentifier):
+    index: int
+
+    @classmethod
+    def from_str_and_con(cls, data: str, con: ContainerIdentifier):
+        (_, name, idx) = data.split("::")
+        return cls(con.namespace, con.scope, name, int(idx))
+
+
 class GenericContainer(ABC):
-    def __init__(self, name: str, data: dict):
-        self.name = name
-        self.arguments = data["arguments"]
-        self.updated = data["updated"]
-        self.returns = data["return_value"]
+    def __init__(self, data: dict):
+        self.identifier = GenericIdentifier.from_str(data["name"])
+        self.arguments = [
+            VariableIdentifier.from_str_and_con(var_str, self.identifier)
+            for var_str in data["arguments"]
+        ]
+        self.updated = [
+            VariableIdentifier.from_str_and_con(var_str, self.identifier)
+            for var_str in data["updated"]
+        ]
+        self.returns = [
+            VariableIdentifier.from_str_and_con(var_str, self.identifier)
+            for var_str in data["return_value"]
+        ]
+        self.statements = [
+            GenericStmt.create_statement(stmt) for stmt in data["body"]
+        ]
 
         # NOTE: store base name as key and update index during wiring
         self.variables = dict()
@@ -46,15 +100,6 @@ class GenericContainer(ABC):
         )
         return f"Inputs:\n{args_str}\nVariables:\n{vars_str}"
 
-    def dump_containers(self):
-        print(self)
-        if self.parent is not None:
-            if not isinstance(self.parent, GenericContainer):
-                raise TypeError(
-                    f"Unrecognized container node parent: {type(self.parent)}"
-                )
-            self.parent.dump_containers()
-
     @staticmethod
     def create_container(data: dict):
         con_type = data["type"]
@@ -69,35 +114,16 @@ class GenericContainer(ABC):
         else:
             raise ValueError(f"Unrecognized container type value: {con_type}")
 
-    @staticmethod
-    def create_statement_list(stmts: list):
-        return [GenericStmt.create_statement(stmt) for stmt in stmts]
-
     @abstractmethod
     def translate(
         self, call_inputs: list, containers: dict, occurrences: dict
-    ) -> GenericNetwork:
+    ) -> GrFNSubgraph:
         return NotImplemented
 
 
 class CondContainer(GenericContainer):
     def __init__(self, data: dict):
-        name = data["name"]
-        (_, namespace, sub_name, con_name) = name.split("::")
-        n = f"{namespace}::{sub_name}::{con_name}"
-        super().__init__(n, data)
-
-        self.guarded_statements = [
-            {
-                "guard": GenericContainer.create_statement_list(
-                    blocks["condition"]
-                ),
-                "statments": GenericContainer.create_statement_list(
-                    blocks["statements"]
-                ),
-            }
-            for blocks in data["body"]
-        ]
+        super().__init__(data)
 
     def __repr__(self):
         return self.__str__()
@@ -108,19 +134,13 @@ class CondContainer(GenericContainer):
 
     def translate(
         self, call_inputs: list, containers: dict, occurrences: dict
-    ) -> CondNetwork:
+    ) -> GrFNSubgraph:
         return NotImplemented
 
 
 class FuncContainer(GenericContainer):
     def __init__(self, data: dict):
-        name = data["name"]
-        (_, namespace, scope, sub_name) = name.split("::")
-        n = f"{namespace}::{scope}::{sub_name}"
-        super().__init__(n, data)
-        self.statement_list = GenericContainer.create_statement_list(
-            data["body"]
-        )
+        super().__init__(data)
 
     def __repr__(self):
         return self.__str__()
@@ -131,24 +151,17 @@ class FuncContainer(GenericContainer):
 
     def translate(
         self, call_inputs: list, containers: dict, occurrences: dict
-    ) -> FuncNetwork:
+    ) -> GrFNSubgraph:
         if self.name not in occurrences:
             occurrences[self.name] = 0
 
         network_idx = occurrences[self.name]
-        new_network = FuncNetwork(self.name, network_idx, parent=None)
+        new_network = GrFNSubgraph(self.name, network_idx, parent=None)
 
 
 class LoopContainer(GenericContainer):
     def __init__(self, data: dict):
-        name = data["name"]
-        (_, namespace, sub_name, loop_name) = name.split("::")
-        n = f"{namespace}::{sub_name}::{loop_name}"
-        super().__init__(n, data)
-
-        self.statement_list = GenericContainer.create_statement_list(
-            data["body"]
-        )
+        super().__init__(data)
 
     def __repr__(self):
         return self.__str__()
@@ -159,7 +172,7 @@ class LoopContainer(GenericContainer):
 
     def translate(
         self, call_inputs: list, containers: dict, occurrences: dict
-    ) -> LoopNetwork:
+    ) -> GrFNSubgraph:
         if len(self.arguments) == len(call_inputs):
             input_vars = {a: v for a, v in zip(self.arguments, call_inputs)}
         elif len(self.arguments) > 0:
@@ -201,6 +214,7 @@ class LambdaType(Enum):
     LITERAL = auto()
     CONDITION = auto()
     DECISION = auto()
+    PASS = auto()
 
     def __str__(self):
         return str(self.name)
@@ -209,8 +223,7 @@ class LambdaType(Enum):
         return self.__str__()[0]
 
     @classmethod
-    def get_lambda_type(cls, lambda_name: str, num_inputs: int):
-        type_str = lambda_name.split("__")[-3]
+    def get_lambda_type(cls, type_str: str, num_inputs: int):
         if type_str == "assign":
             if num_inputs == 0:
                 return cls.LITERAL
@@ -219,32 +232,38 @@ class LambdaType(Enum):
             return cls.CONDITION
         elif type_str == "decision":
             return cls.DECISION
+        elif type_str == "pass":
+            return cls.PASS
         else:
             raise ValueError(f"Unrecognized lambda type name: {type_str}")
 
 
 class GenericStmt(ABC):
-    def __init__(
-        self, n: str, inputs: list, outputs: list, p: GenericContainer
-    ):
-        self.name = n
+    def __init__(self, stmt: dict, p: GenericContainer):
         self.container = p
-
-        self.inputs = [GenericStmt.__get_variable_data(i) for i in inputs]
-        self.outputs = [GenericStmt.__get_variable_data(o) for o in outputs]
+        inputs = stmt["input"]
+        outputs = stmt["output"] + stmt["updated"]
+        self.inputs = [
+            VariableIdentifier.from_str_and_con(i, self.container.identifier)
+            for i in inputs
+        ]
+        self.outputs = [
+            VariableIdentifier.from_str_and_con(o, self.container.identifier)
+            for o in outputs
+        ]
 
     def __repr__(self):
         return self.__str__()
 
     @abstractmethod
     def __str__(self):
-        inputs_str = "\n\t".join(
-            [f'{i["basename"]}::{i["index"]}' for i in self.inputs]
+        inputs_str = ", ".join(
+            [f"{id.basename} ({id.index})" for id in self.inputs]
         )
-        outputs_str = "\n\t".join(
-            [f'{i["basename"]}::{i["index"]}' for i in self.outputs]
+        outputs_str = ", ".join(
+            [f"{id.basename} ({id.index})" for id in self.outputs]
         )
-        return f"Inputs:\n{inputs_str}\nOutputs:\n{outputs_str}"
+        return f"Inputs: {inputs_str}\nOutputs: {outputs_str}"
 
     @staticmethod
     def create_statement(stmt_data: dict, container: GenericContainer):
@@ -256,129 +275,70 @@ class GenericStmt(ABC):
         else:
             raise ValueError(f"Undefined statement type: {func_type}")
 
-    @staticmethod
-    def __get_variable_data(var_repr: str) -> dict:
-        (_, var_name, idx) = var_repr.split("::")
-        return {"basename": var_name, "index": int(idx)}
-
-    # def make_variable_name(self):
-    #     return f"{parent}::{basename}::{index}"
+    def correct_input_list(self, alt_inputs: list) -> list:
+        return [v if v.index != -1 else alt_inputs[v] for v in self.inputs]
 
 
 def CallStmt(GenericStmt):
     def __init__(self, stmt: dict, con: GenericContainer):
-        super().__init__(
-            stmt["function"]["name"],
-            stmt["input"],
-            stmt["output"] + stmt["updated"],
-            con,
-        )
+        super().__init__(stmt, con)
+        self.call_id = GenericIdentifier.from_str(stmt["function"]["name"])
 
     def __repr__(self):
         return self.__str__()
 
     def __str__(self):
         generic_str = super().__str__()
-        return f"<CallStmt>: {self.name}\n{generic_str}"
+        return f"<CallStmt>: {self.call_id}\n{generic_str}"
 
-    def translate(self, containers: dict, occurrences: dict) -> GenericNetwork:
-        new_con_name = self.name
-        if new_con_name not in occurrences:
-            occurrences[new_con_name] = 0
+    def translate(
+        self,
+        container_inputs: dict,
+        network: GroundedFactorNetwork,
+        containers: dict,
+        occurrences: dict,
+    ) -> None:
+        new_container = containers[self.call_id]
+        if self.call_id not in occurrences:
+            occurrences[self.call_id] = 0
 
-        call_inputs = list()
-        for in_var in self.inputs:
-            if in_var["index"] == -1:
-                pass
-            else:
-                pass
+        call_inputs = self.correct_input_list(container_inputs)
+        outputs = new_container.translate(call_inputs, containers, occurrences)
 
-        new_container = containers[new_con_name]
-        new_container.translate(call_inputs, containers, occurrences)
+        out_var_names = [n.name for n in outputs]
+        out_var_str = ",".join(out_var_names)
+        pass_func_str = f"lambda {out_var_str}:({out_var_str})"
+        func = network.add_lambda_node(LambdaType.PASS, pass_func_str, outputs)
 
-        input_values = list()
-        for inp in stmt["input"]:
-            if inp.endswith("-1"):
-                (parent, var_name, idx) = inputs[inp]
-            else:
-                parent = scope.name
-                (_, var_name, idx) = inp.split("::")
-            input_values.append((parent, var_name, idx))
-
-        callee_ret, callee_up = process_container(
-            new_scope, input_values, container_name
-        )
+        out_nodes = [network.add_variable_node(var) for var in self.outputs]
+        network.add_hyper_edge(outputs, func, out_nodes)
 
         caller_ret, caller_up = list(), list()
-        for var in stmt["output"]:
-            parent = scope.name
-            (_, var_name, idx) = var.split("::")
-            node_name = add_variable_node(parent, var_name, idx)
-            caller_ret.append(node_name)
 
-        for var in stmt["updated"]:
-            parent = scope.name
-            (_, var_name, idx) = var.split("::")
-            node_name = add_variable_node(parent, var_name, idx)
-            caller_up.append(node_name)
-
-        for callee_var, caller_var in zip(callee_ret, caller_ret):
-            lambda_node_name = f"{callee_var}-->{caller_var}"
-            G.add_node(
-                lambda_node_name,
-                type="function",
-                lambda_fn=identity,
-                func_inputs=[callee_var],
-                shape="rectangle",
-                parent=scope.name,
-                label="A",
-                padding=10,
-            )
-            G.add_edge(callee_var, lambda_node_name)
-            G.add_edge(lambda_node_name, caller_var)
-
-        for callee_var, caller_var in zip(callee_up, caller_up):
-            lambda_node_name = f"{callee_var}-->{caller_var}"
-            G.add_node(
-                lambda_node_name,
-                type="function",
-                lambda_fn=identity,
-                func_inputs=[callee_var],
-                shape="rectangle",
-                parent=scope.name,
-                label="A",
-                padding=10,
-            )
-            G.add_edge(callee_var, lambda_node_name)
-            G.add_edge(lambda_node_name, caller_var)
-        occurrences[container_name] += 1
+        occurrences[self.call_id] += 1
 
 
 def LambdaStmt(GenericStmt):
     def __init__(self, stmt: dict, con: GenericContainer):
-        super().__init__(
-            stmt["function"]["name"], stmt["input"], stmt["output"], con
-        )
-        self.lambda_node_name = f"{self.parent.name}::" + self.name
-        self.type = LambdaType.get_lambda_type(self.name, len(self.inputs))
+        super().__init__(stmt, con)
+        type_str = stmt["function"]["lambda_type"]
+        # NOTE: we shouldn't need this since we will use UUIDs
+        # self.lambda_node_name = f"{self.parent.name}::" + self.name
+        self.type = LambdaType.get_lambda_type(type_str, len(self.inputs))
+        self.func_str = stmt["function"]["lambda_fn"]
 
     def __repr__(self):
         return self.__str__()
 
     def __str__(self):
         generic_str = super().__str__()
-        return f"<LambdaStmt>: {self.name}\n{generic_str}"
+        return f"<LambdaStmt>: {self.type}\n{generic_str}"
 
     def translate(
-        self, inputs: dict, lambdas: ModuleType, network: GenericNetwork
-    ):
-        corrected_inputs = [
-            inp if inp["index"] != "-1" else inputs[inp["basename"]]
-            for inp in self.inputs
-        ]
-        in_ids = [network.add_variable_node(var) for var in corrected_inputs]
-        out_ids = [network.add_variable_node(var) for var in self.outputs]
-
-        fn = getattr(lambdas, self.lambda_node_name)
-        lambda_id = network.add_lambda_node(self.type, fn, self.inputs)
-        network.add_hyper_edge(in_ids, lambda_id, out_ids)
+        self, container_inputs: dict, network: GroundedFactorNetwork
+    ) -> None:
+        corrected_inputs = self.correct_input_list(container_inputs)
+        in_nodes = [network.add_variable_node(var) for var in corrected_inputs]
+        out_nodes = [network.add_variable_node(var) for var in self.outputs]
+        func = network.add_lambda_node(self.type, self.func_str, in_nodes)
+        network.add_hyper_edge(in_nodes, func, out_nodes)
