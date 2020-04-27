@@ -64,7 +64,6 @@ for topic_idx, topic_struct in enumerate(topics_json, 1):
 
     data = urllib.parse.urlencode(params)
     data = data.encode('utf-8')
-    #req = urllib.request.Request(url, data)
     #req = urllib.request.Request(f'{url_base}/meta/dataset?version={version}&client_id={client_id}', data)
     req = urllib.request.Request(f'{url_base}/meta/dataset', data)
 
