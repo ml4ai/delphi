@@ -75,8 +75,8 @@ def get_comments(src_file_name: str):
     comments = OrderedDict()
     lineno = 1
 
-    comments["$file_head"] = []
-    comments["$file_foot"] = []
+    comments["$file_head"] = None
+    comments["$file_foot"] = None
 
     _, f_ext = os.path.splitext(src_file_name)
 
@@ -85,18 +85,18 @@ def get_comments(src_file_name: str):
             if line_is_comment(line):
                 curr_comment.append(line)
             else:
-                if curr_fn is not None and comments["$file_head"] == []:
+                if comments["$file_head"] is None:
                     comments["$file_head"] = curr_comment
 
                 f_start, f_name_maybe = line_starts_subpgm(line)
                 if f_start:
                     f_name = f_name_maybe
 
-                    if prev_fn != None:
-                        comments[prev_fn]["foot"] = curr_comment
-
                     prev_fn = curr_fn
                     curr_fn = f_name
+
+                    if prev_fn is not None:
+                        comments[prev_fn]["foot"] = curr_comment
 
                     comments[curr_fn] = init_comment_map(
                         curr_comment, [], [], OrderedDict()
@@ -132,6 +132,12 @@ def get_comments(src_file_name: str):
     if curr_comment != [] and comments.get(curr_fn):
         comments[curr_fn]["foot"] = curr_comment
         comments["$file_foot"] = curr_comment
+
+    if comments["$file_head"] is None:
+        comments["$file_head"] = []
+    if comments["$file_foot"] is None:
+        comments["$file_foot"] = []
+
     return comments
 
 
