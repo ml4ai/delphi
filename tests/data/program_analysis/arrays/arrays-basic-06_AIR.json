@@ -774,7 +774,12 @@
     "arrays-basic-06.f"
   ],
   "source_comments": {
-    "$file_head": [],
+    "$file_head": [
+      "C File: arrays-basic-06.f\n",
+      "C This program has a 3-D array with mixed explicit and implicit lower bounds.\n",
+      "C     A is a 3-D array (5x5x5) of integers with mixed explicit and implicit\n",
+      "C     lower-bounds.\n"
+    ],
     "$file_foot": []
   },
   "system": {

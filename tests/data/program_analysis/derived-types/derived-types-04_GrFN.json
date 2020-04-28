@@ -1,0 +1,205 @@
+{
+  "start": [
+    "@container::derived-types-04::@global::main"
+  ],
+  "containers": [
+    {
+      "name": "@container::derived-types-04::@global::main",
+      "source_refs": [],
+      "repeat": false,
+      "arguments": [],
+      "updated": [],
+      "return_value": [],
+      "body": [
+        {
+          "function": {
+            "name": "derived_types_04__main__assign__var_x_a__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::var::0"
+          ],
+          "output": [
+            "@variable::var_x_a::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "derived_types_04__main__assign__var_y_c__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::var::0"
+          ],
+          "output": [
+            "@variable::var_y_c::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "derived_types_04__main__assign__var_x_b__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::var::0"
+          ],
+          "output": [
+            "@variable::var_x_b::0"
+          ],
+          "updated": []
+        },
+        {
+          "function": {
+            "name": "derived_types_04__main__assign__var_y_d__0",
+            "type": "lambda"
+          },
+          "input": [
+            "@variable::var::0"
+          ],
+          "output": [
+            "@variable::var_y_d::0"
+          ],
+          "updated": []
+        }
+      ]
+    }
+  ],
+  "variables": [
+    {
+      "name": "@variable::derived-types-04::main::var::0",
+      "source_refs": [],
+      "domain": {
+        "name": "mytype_123_456",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::derived-types-04::main::var_x_a::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::derived-types-04::main::var_y_c::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::derived-types-04::main::var_x_b::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::derived-types-04::main::var_y_d::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    }
+  ],
+  "grounding": [],
+  "types": [
+    [
+      {
+        "name": "@type::derived-types-04::@global::mytype_123",
+        "type": "type",
+        "attributes": [
+          {
+            "name": "ctr",
+            "type": "integer"
+          },
+          {
+            "name": "a",
+            "type": "integer"
+          },
+          {
+            "name": "b",
+            "type": "integer"
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "name": "@type::derived-types-04::@global::mytype_456",
+        "type": "type",
+        "attributes": [
+          {
+            "name": "ctr",
+            "type": "integer"
+          },
+          {
+            "name": "c",
+            "type": "integer"
+          },
+          {
+            "name": "d",
+            "type": "integer"
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "name": "@type::derived-types-04::@global::mytype_123_456",
+        "type": "type",
+        "attributes": [
+          {
+            "name": "x",
+            "type": "mytype_123"
+          },
+          {
+            "name": "y",
+            "type": "mytype_456"
+          }
+        ]
+      }
+    ]
+  ],
+  "source": [
+    "derived-types-04.f"
+  ],
+  "source_comments": {
+    "$file_head": [
+      "C File: derived-types-04.f\n",
+      "C This program uses a derived type whose fields are themselves derived types.\n",
+      "C The output produced by this program is:\n",
+      "C  123     12   34\n",
+      "C  456     21   45\n"
+    ],
+    "$file_foot": []
+  },
+  "system": {
+    "name": "derived-types-04",
+    "components": [
+      {
+        "grfn_source": "./derived-types-04_GrFN.json",
+        "code_source": [
+          "tests/data/program_analysis/derived-types/derived-types-04.f"
+        ],
+        "imports": []
+      }
+    ]
+  }
+}

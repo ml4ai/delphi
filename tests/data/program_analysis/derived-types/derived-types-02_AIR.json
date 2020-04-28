@@ -557,7 +557,19 @@
     "derived-types-02.f"
   ],
   "source_comments": {
-    "$file_head": [],
+    "$file_head": [
+      "C File: derived-types-02.f\n",
+      "C Illustrates more complex derived types involving fields that\n",
+      "C are aggregates (in this case, 1-D arrays)\n",
+      "C \n",
+      "C This code is adapted from \n",
+      "C https://courses.physics.illinois.edu/phys466/sp2013/comp_info/derived.html\n",
+      "C\n",
+      "C The generated output is:\n",
+      "C  1   4.000   1.000   1.500   2.000\n",
+      "C  2   5.000   1.500   2.000   2.500\n",
+      "C  3   6.000   2.000   2.500   3.000\n"
+    ],
     "$file_foot": []
   },
   "system": {
