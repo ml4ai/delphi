@@ -14,7 +14,6 @@ from delphi.GrFN.code_types import CodeType
 class GenericIdentifier(ABC):
     namespace: str
     scope: str
-    basename: str
 
     @staticmethod
     def from_str(data: str):
@@ -33,18 +32,23 @@ class GenericIdentifier(ABC):
 
 @dataclass(frozen=True)
 class ContainerIdentifier(GenericIdentifier):
+    con_name: str
+
     def is_global_scope(self):
         return self.scope == "@global"
 
 
 @dataclass(frozen=True)
 class TypeIdentifier(GenericIdentifier):
+    type_name: str
+
     def is_global_scope(self):
         return self.scope == "@global"
 
 
 @dataclass(frozen=True)
 class VariableIdentifier(GenericIdentifier):
+    var_name: str
     index: int
 
     @classmethod
