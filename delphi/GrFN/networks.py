@@ -1,4 +1,4 @@
-from typing import List, Dict, Iterable, Set, Union
+from typing import List, Dict, Iterable, Set, Union, Any
 from numbers import Number
 from abc import ABC, ABCMeta, abstractmethod
 from functools import singledispatch
@@ -953,6 +953,7 @@ class GenericNode(ABC):
 class VariableNode(GenericNode):
     name: str
     index: int
+    value: None
 
     def __repr__(self):
         return self.__str__()
@@ -976,7 +977,7 @@ class VariableNode(GenericNode):
 
 
 @dataclass(repr=False, frozen=False)
-class LambdaNode(ABC):
+class LambdaNode(GenericNode):
     func_type: LambdaType
     func_str: str
     function: callable
@@ -987,6 +988,22 @@ class LambdaNode(ABC):
 
     def __str__(self):
         return self.func_type.shortname()
+
+    def __call__(self, input_vals: dict[str, Any]) -> Any:
+        if len(self.inputs) != len(input_vals.keys()):
+            raise RuntimeError(
+                f"""
+                Incorrect number of inputs
+                (expected {len(self.inputs)} found {len(input_vals.keys())})
+                for lambda:\n{self.func_str}
+                """
+            )
+        try:
+            arg_vals = [input_vals[iname] for iname in self.inputs]
+            return self.function(*arg_vals)
+        except Exception as e:
+            print(f"Exception occured in {self.func_str}")
+            raise e
 
     def get_kwargs(self):
         return {"shape": "rectangle", "padding": 10}
@@ -1017,6 +1034,48 @@ class GroundedFactorNetwork(nx.DiGraph):
         O_sz = str(len(self.output_variables))
         size_str = f"< |L|: {L_sz}, |V|: {V_sz}, |I|: {I_sz}, |O|: {O_sz} >"
         return f"{self.label}\n{size_str}"
+
+    def __call__(self, inputs: Dict[str, Any]) -> Iterable[Any]:
+        """Executes the GrFN over a particular set of inputs and returns the
+        result.
+
+        Args:
+            inputs: Input set where keys are the names of input nodes in the
+                GrFN and each key points to a set of input values (or just one)
+
+        Returns:
+            A set of outputs from executing the GrFN, one for every set of
+            inputs.
+        """
+        # TODO: update this function to work with new GrFN object
+        full_inputs = {self.input_name_map[n]: v for n, v in inputs.items()}
+        # Set input values
+        for i in self.inputs:
+            value = full_inputs[i]
+            if isinstance(value, float):
+                value = np.array([value], dtype=np.float32)
+            if isinstance(value, int):
+                value = np.array([value], dtype=np.int32)
+            elif isinstance(value, list):
+                value = np.array(value, dtype=np.float32)
+
+            self.nodes[i]["value"] = value
+        for func_set in self.function_sets:
+            for func_name in func_set:
+                signature = self.nodes[func_name]["func_inputs"]
+                input_values = [self.nodes[n]["value"] for n in signature]
+                lambda_fn = self.nodes[func_name]["lambda_fn"]
+                res = lambda_fn(*input_values)
+
+                # Convert output to a NumPy matrix if a constant was returned
+                if len(input_values) == 0:
+                    res = np.array(res, dtype=np.float32)
+
+                output_node = list(self.successors(func_name))[0]
+                self.nodes[output_node]["value"] = res
+
+        # Return the output
+        return [self.nodes[o]["value"] for o in self.outputs]
 
     def add_variable_node(self, var_identifier: str) -> VariableNode:
         (_, basename, index) = var_identifier.split("::")
@@ -1057,6 +1116,16 @@ class GroundedFactorNetwork(nx.DiGraph):
                 "out": [n.uid for n in outputs],
             }
         )
+
+    @classmethod
+    def from_container(
+        cls,
+        con_id: ContainerIdentifier,
+        C: dict[ContainerIdentifier, GenericContainer],
+        V,
+        T,
+    ) -> GroundedFactorNetwork:
+        pass
 
 
 @dataclass
