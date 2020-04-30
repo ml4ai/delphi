@@ -1,7 +1,4 @@
 {
-  "start": [
-    "@container::derived-types-04::@global::main"
-  ],
   "containers": [
     {
       "name": "@container::derived-types-04::@global::main",
@@ -118,6 +115,9 @@
       "domain_constraint": "(and (> v -infty) (< v infty)))"
     }
   ],
+  "start": [
+    "@container::derived-types-04::@global::main"
+  ],
   "grounding": [],
   "types": [
     [
@@ -186,7 +186,10 @@
       "C This program uses a derived type whose fields are themselves derived types.\n",
       "C The output produced by this program is:\n",
       "C  123     12   34\n",
-      "C  456     21   45\n"
+      "C  456     21   45\n",
+      "\n",
+      "\n",
+      "\n"
     ],
     "$file_foot": []
   },
