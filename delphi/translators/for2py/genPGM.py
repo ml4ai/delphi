@@ -3525,19 +3525,19 @@ class GrFNGenerator(object):
         self.derived_types.append(node.name.lower())
         self.derived_types_attributes[node.name] = []
 
-        attributes = node.body[0].body
+        attributes = node.body
         # Populate class member variables into attributes array.
         for attrib in attributes:
             attrib_is_array = False
             attrib_ast = attrib.__repr__().split()[0][2:]
             if attrib_ast == "ast.AnnAssign":
-                attrib_name = attrib.target.attr
+                attrib_name = attrib.target.id
                 if attrib.annotation.id in self.annotate_map:
                     attrib_type = self.annotate_map[attrib.annotation.id]
                 elif attrib.annotation.id in self.derived_types:
                     attrib_type = attrib.annotation.id
             elif attrib_ast == "ast.Assign":
-                attrib_name = attrib.targets[0].attr
+                attrib_name = attrib.targets[0].id
                 attrib_type = attrib.value.func.id
                 assert (
                     attrib_type in self.derived_types
