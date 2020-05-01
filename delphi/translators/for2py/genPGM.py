@@ -2233,8 +2233,6 @@ class GrFNGenerator(object):
                 "a handler if possible or remove this assert and "
                 "allow the code below to handle such cases."
             )
-        # DEBUG
-        # print ("process_bin_op - node.left: ", node.left)
         # If the operands are anything other than numbers (ast.Str,
         # ast.BinOp, etc), call `gen_grfn` on each side so their respective
         # ast handlers will process them and return a [{grfn_spec}, ..] form
@@ -2804,8 +2802,6 @@ class GrFNGenerator(object):
                         and import_str not in state.lambda_strings
                 ):
                     state.lambda_strings.insert(0, import_str)
-            # DEBUG
-            # print ("process_name - node.id: ", node.id)
             last_definition = self.get_last_definition(
                 node.id, state.last_definitions, state.last_definition_default
             )
@@ -2959,11 +2955,7 @@ class GrFNGenerator(object):
         d_type_object_name = None
         # Get the GrFN element of the RHS side of the assignment which are
         # the variables involved in the assignment operations.
-        # DEBUG
-        # print ("process_assign - node.value: ", node.value)
         sources = self.gen_grfn(node.value, state, "assign")
-        # DEBUG
-        # print ("process_assign - sources: ", sources)
         node_name = node.targets[0].__repr__().split()[0][2:]
         if node_name == "ast.Attribute":
             node_value = node.targets[0].value
@@ -3328,8 +3320,6 @@ class GrFNGenerator(object):
 
         inputs = []
         for arg in node.args:
-            # DEBUG
-            # print ("process_call - arg: ", arg)
             argument = self.gen_grfn(arg, state, _)
             inputs.append(argument)
 
@@ -3344,12 +3334,8 @@ class GrFNGenerator(object):
         """
         grfn_list = []
         for cur in node.body:
-            # DEBUG
-            # print ("process_module - cur: ", dump_ast(cur))
             node_name = cur.__repr__().split()[0][2:]
             grfn = self.gen_grfn(cur, state, "module")
-            # DEBUG
-            # print ("process_module - grfn: ", merged_grfn)
             if grfn and "name" in grfn[0] and "@type" in grfn[0]["name"]:
                 self.derived_types_grfn.append(grfn[0])
             elif self.current_scope == "global" and  \
@@ -3369,8 +3355,6 @@ class GrFNGenerator(object):
         if self.global_grfn["containers"][0]["name"]:
             grfn_list += [self.global_grfn]
         merged_grfn = [self._merge_dictionary(grfn_list)]
-        # DEBUG
-        print ("process_module - merged_grfn: ", merged_grfn)
         return merged_grfn
         # TODO Implement this. This needs to be done for generality
         # We fill in the `updated` field of function calls by looking at the
@@ -3484,6 +3468,7 @@ class GrFNGenerator(object):
         class_name = node.name
         src_string_list = self.original_python_src.split('\n')
         isClass = False
+        class_code = ""
         for line in src_string_list:
             class_info = syntax.is_class_def(line)
             if (
@@ -3492,16 +3477,20 @@ class GrFNGenerator(object):
             ):
                 isClass = True
                 state.lambda_strings.append("@dataclass\n")
+                class_code += "@dataclass\n"
 
             if isClass:
                 if "=" in line:
                     splitted_line = line.split("=")
                     var = splitted_line[0].rstrip()
                     class_type = splitted_line[1].split("(")[0].strip()
+                    data_type = splitted_line[1].split("(")[1].split(",")[0].strip()
                     if class_type == "Array":
-                        line = f"{var} = []"
+                        if data_type == "String":
+                            data_type = "str"
+                        line = f"{var}:List[{data_type}]"
                     elif class_type == "String":
-                        line = f"{var}: str"
+                        line = f"{var}:str"
                     elif class_type in self.derived_types:
                         for mod in self.imported_module_paths:
                             mod_name = mod.split('.')[-1][2:]
@@ -3513,10 +3502,11 @@ class GrFNGenerator(object):
                                 state.lambda_strings.insert(0, import_str)
 
                 state.lambda_strings.append(line + "\n")
+                class_code += f"{line.strip()}\n\t"
                 if not line.strip():
                     isClass = False
 
-        grfn = {"name": "", "type": "type", "attributes": []}
+        grfn = {"name": "", "type": "type", "attributes": [], "code": class_code.strip()}
         namespace = self._get_namespace(self.fortran_file)
         type_name = f"@type::{namespace}::@global::{class_name}"
         grfn["name"] = type_name
