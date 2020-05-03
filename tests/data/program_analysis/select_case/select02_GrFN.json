@@ -1,7 +1,4 @@
 {
-  "start": [
-    "@container::select02::@global::main"
-  ],
   "containers": [
     {
       "name": "@container::select02::@global::main",
@@ -255,6 +252,9 @@
       ]
     }
   ],
+  "start": [
+    "@container::select02::@global::main"
+  ],
   "variables": [
     {
       "name": "@variable::select02::main.loop$0::IF_1::0",
@@ -445,7 +445,14 @@
   "source_comments": {
     "$file_head": [
       "C FORTRAN test file to test CASE constructs\n",
-      "C This file tests an integer with various types of comparisons\n"
+      "C This file tests an integer with various types of comparisons\n",
+      "\n",
+      "\n",
+      "\n",
+      "\n",
+      "\n",
+      "\n",
+      "\n"
     ],
     "$file_foot": []
   },
