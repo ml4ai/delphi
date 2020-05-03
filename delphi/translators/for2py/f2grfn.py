@@ -97,6 +97,7 @@ def generate_ofp_xml(
 
     return ofp_xml_string
 
+
 def generate_preprocessed_fortran(original_fortran_file, temp_dir):
     """This function generates preprocessed fortran file.
     
@@ -121,7 +122,6 @@ def generate_preprocessed_fortran(original_fortran_file, temp_dir):
         f.write("".join(preprocessed_fortran))
 
     return preprocessed_fortran_file_path
-
 
 
 def generate_rectified_xml(
@@ -277,7 +277,6 @@ def generate_grfn(
 
     module_mapper = mod_index_generator.get_index(xml_file, mod_log_file_path)
     module_import_paths = {}
-
 
     # Get all the comments
     comments = {}

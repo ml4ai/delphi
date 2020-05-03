@@ -18,13 +18,13 @@ C  3   6.000   2.000   2.500   3.000
           real, dimension(3) :: a    !  <<< derived type element that is an array
       end type mytype
 
-      integer i, j
+      integer i, j, z
 
       type (mytype) var
       type (mytype), dimension(3) :: x    ! <<< x: array of derived type values
 
       var%i = 3
-      
+      z = var%i
       do i = 1, var%i
           var%a(i) = var%i + i
 

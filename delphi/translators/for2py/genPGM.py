@@ -156,7 +156,7 @@ class GrFNGenerator(object):
         self.current_d_object_attributes = []
         self.is_d_object_array_assign = False
         self.elseif_flag = False
-        self.if_index = -1
+        self.elif_index = 0
         self.module_summary = None
         self.global_scope_variables = {}
         self.exit_candidates = []
@@ -1657,13 +1657,16 @@ class GrFNGenerator(object):
         if self.elseif_flag:
             is_else_if = True
             self.elseif_flag = False
+            if_index = self.elif_index
         else:
             is_else_if = False
             # Increment the loop index universally across the program
-            if self.if_index > -1:
-                self.if_index += 1
+            if state.last_definitions.get("#if") is not None:
+                if_index = state.last_definitions["#if"] + 1
+                state.last_definitions["#if"] += 1
             else:
-                self.if_index = 0
+                if_index = 0
+                state.last_definitions["#if"] = 0
             # Define a new empty state that will be used for mapping the
             # state of the operations within the for-loop container
             loop_last_definition = {}
@@ -1672,12 +1675,13 @@ class GrFNGenerator(object):
                 next_definitions={},
                 last_definition_default=-1,
             )
+            if_state.last_definitions["#if"] = state.last_definitions["#if"]
             # First, get the `container_id_name` of the if container
             container_id_name = self.generate_container_id_name(
-                self.fortran_file, self.current_scope, f"IF_{self.if_index}"
+                self.fortran_file, self.current_scope, f"IF_{if_index}"
             )
             # Update the scope to include the new `if-block`
-            self.current_scope = f"{self.current_scope}.IF_{self.if_index}"
+            self.current_scope = f"{self.current_scope}.IF_{if_index}"
 
             # We want the if_state to have state information about variables
             # defined one scope above its current parent scope. The below code
@@ -1726,7 +1730,7 @@ class GrFNGenerator(object):
         if not is_else_if:
             condition_number = 0
             if_state.next_definitions["#cond"] = condition_number + 1
-            condition_name = f"COND_{self.if_index}_{condition_number}"
+            condition_name = f"COND_{if_index}_{condition_number}"
             condition_index = self.get_last_definition(
                 condition_name, if_state.last_definitions, 0
             )
@@ -1740,7 +1744,7 @@ class GrFNGenerator(object):
                 "#cond", state.last_definitions, state.next_definitions,
                 default_if_index-1
             )
-            condition_name = f"COND_{self.if_index}_{condition_number}"
+            condition_name = f"COND_{if_index}_{condition_number}"
             condition_index = self.get_last_definition(
                 condition_name, state.last_definitions, 0
             )
@@ -1814,11 +1818,14 @@ class GrFNGenerator(object):
             if_grfn = self.gen_grfn(node.body, state, "if")
             if else_node_name == "ast.If":
                 self.elseif_flag = True
+                self.elif_index = if_index
             else_grfn = self.gen_grfn(node.orelse, state, "if")
         else:
             if_grfn = self.gen_grfn(node.body, if_state, "if")
+            state.last_definitions["#if"] = if_state.last_definitions["#if"]
             if else_node_name == "ast.If":
                 self.elseif_flag = True
+                self.elif_index = if_index
             else_grfn = self.gen_grfn(node.orelse, if_state, "if")
 
         # Sometimes, some if-else body blocks only contain I/O operations,
@@ -1996,7 +2003,7 @@ class GrFNGenerator(object):
             if -1 in condition_indexes:
                 for i in range(condition_count+1):
                     inputs.append({
-                        "variable": f"COND_{self.if_index}_{i}",
+                        "variable": f"COND_{if_index}_{i}",
                         "index": 0
                     })
             else:
@@ -2004,7 +2011,7 @@ class GrFNGenerator(object):
                 # condition will be an input
                 for i in range(max(condition_indexes)+1):
                     inputs.append({
-                        "variable": f"COND_{self.if_index}_{i}",
+                        "variable": f"COND_{if_index}_{i}",
                         "index": 0
                     })
             # Now add the updated variables with their respective indexes
@@ -2160,6 +2167,19 @@ class GrFNGenerator(object):
                     len(function_updated[-1]["updates"]) == 0:
                 function_updated.pop()
 
+        function_updated = []
+        container_updated = []
+        for statement in container_decisions:
+            for output in statement["output"]:
+                container_updated.append(output)
+                segments = output.split("::")
+                var = segments[1]
+                if state.last_definitions.get(var, -2) == -2:
+                    updated_index = 0
+                else:
+                    updated_index = state.last_definitions[var]
+                function_updated.append(f"@variable::{var}::{updated_index}")
+
         container_gensym = self.generate_gensym("container")
 
         if_type = "if-block"
@@ -2177,12 +2197,14 @@ class GrFNGenerator(object):
             "gensym": container_gensym,
             "type": if_type,
             "arguments": container_argument,
+            "updated": container_updated,
             "return_value": [],
             "body": merged_body,
         }
         if_function = {
             "function": {"name": container_id_name, "type": "container"},
             "input": function_input,
+            "updated": function_updated,
             "output": [],
         }
 
@@ -2807,6 +2829,18 @@ class GrFNGenerator(object):
             last_definition = self.get_last_definition(
                 node.id, state.last_definitions, state.last_definition_default
             )
+            # This is a test. Might not always work
+            if (
+                    call_source == "assign" and
+                    isinstance(node.ctx, ast.Store)
+            ):
+                last_definition = self._get_next_definition(
+                    node.id,
+                    state.last_definitions,
+                    state.next_definitions,
+                    state.last_definition_default,
+                )
+
             if (
                 isinstance(node.ctx, ast.Store)
                 and state.next_definitions.get(node.id)
@@ -3235,7 +3269,6 @@ class GrFNGenerator(object):
                 return []
 
             source_list = self.make_source_list_dict(sources)
-
             if not io_source and not is_function_call:
                 lambda_string = self.generate_lambda_function(
                     node,
@@ -4207,7 +4240,7 @@ class GrFNGenerator(object):
             code = self._generate_decision_lambda(decision_versions,
                                                   condition_var,
                                                   max_conditions,
-                                                  inputs[-1].split("_")[0],
+                                                  inputs[-1].rsplit("_",1)[0],
                                                   argument_map)
         elif not string_assign:
             array_name = None
@@ -4694,6 +4727,7 @@ class GrFNGenerator(object):
             False,
             False,
             argument_list,
+            [],
             state,
             False,
         )
@@ -5000,7 +5034,7 @@ class GrFNGenerator(object):
                 if var in value:
                     condition_index_map[item] = int(value[var])
                     if item:
-                        condition_index_list.append(int(item[-1]))
+                        condition_index_list.append(int(item.rsplit("_", 1)[1]))
                     else:
                         condition_index_list.append(-1)
             decision_inputs[var].append(condition_index_map)
@@ -5232,6 +5266,8 @@ def create_grfn_dict(
     generator.original_python_src = python_source_string
 
     asts = [ast.parse(python_source_string)]
+
+    # print(dump_ast(asts[-1])))
 
     lambda_string_list = [
         "from numbers import Real\n",
