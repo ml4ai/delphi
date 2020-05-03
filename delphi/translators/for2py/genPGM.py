@@ -2255,7 +2255,6 @@ class GrFNGenerator(object):
                 "a handler if possible or remove this assert and "
                 "allow the code below to handle such cases."
             )
-
         # If the operands are anything other than numbers (ast.Str,
         # ast.BinOp, etc), call `gen_grfn` on each side so their respective
         # ast handlers will process them and return a [{grfn_spec}, ..] form
@@ -2825,7 +2824,6 @@ class GrFNGenerator(object):
                         and import_str not in state.lambda_strings
                 ):
                     state.lambda_strings.insert(0, import_str)
-
             last_definition = self.get_last_definition(
                 node.id, state.last_definitions, state.last_definition_default
             )
@@ -3450,17 +3448,28 @@ class GrFNGenerator(object):
                     attributes,
                     last_definitions,
                 ) = self.get_derived_type_attributes(node, state)
-                attribs = []
-                for attr in attributes:
-                    variable_info = {
-                        "var": {
-                            "variable": attr,
-                            "index": last_definitions[attr],
-                        }
-                    }
-                    attribs.append(variable_info)
 
-                return attribs
+                # Derived type reference variable on the RHS of assignment
+                # needs to have a syntax like x__b (x%b in Fortran), so first
+                # form "x_" here.
+                new_variable = node.value.id + "_"
+                new_var_index = 0
+                for attr in attributes:
+                    # Then, append attributes to the new variable
+                    new_variable = new_variable + f"_{attr}"
+                    new_var_index = last_definitions[attr]
+                # Since we've geneerated a new variable, we need to update
+                # last_definitions dictionary.
+                state.last_definitions[new_variable] = 0
+
+                variable_info = {
+                    "var": {
+                        "variable": new_variable,
+                        "index": new_var_index,
+                    }
+                }
+
+                return [variable_info]
 
     def process_return_value(self, node, state, *_):
         """
@@ -3492,6 +3501,7 @@ class GrFNGenerator(object):
         class_name = node.name
         src_string_list = self.original_python_src.split('\n')
         isClass = False
+        class_code = ""
         for line in src_string_list:
             class_info = syntax.is_class_def(line)
             if (
@@ -3500,16 +3510,20 @@ class GrFNGenerator(object):
             ):
                 isClass = True
                 state.lambda_strings.append("@dataclass\n")
+                class_code += "@dataclass\n"
 
             if isClass:
                 if "=" in line:
                     splitted_line = line.split("=")
                     var = splitted_line[0].rstrip()
                     class_type = splitted_line[1].split("(")[0].strip()
+                    data_type = splitted_line[1].split("(")[1].split(",")[0].strip()
                     if class_type == "Array":
-                        line = f"{var} = []"
+                        if data_type == "String":
+                            data_type = "str"
+                        line = f"{var}:List[{data_type}]"
                     elif class_type == "String":
-                        line = f"{var}: str"
+                        line = f"{var}:str"
                     elif class_type in self.derived_types:
                         for mod in self.imported_module_paths:
                             mod_name = mod.split('.')[-1][2:]
@@ -3521,10 +3535,11 @@ class GrFNGenerator(object):
                                 state.lambda_strings.insert(0, import_str)
 
                 state.lambda_strings.append(line + "\n")
+                class_code += f"{line.strip()}\n\t"
                 if not line.strip():
                     isClass = False
 
-        grfn = {"name": "", "type": "type", "attributes": []}
+        grfn = {"name": "", "type": "type", "attributes": [], "code": class_code.strip()}
         namespace = self._get_namespace(self.fortran_file)
         type_name = f"@type::{namespace}::@global::{class_name}"
         grfn["name"] = type_name
@@ -3533,19 +3548,19 @@ class GrFNGenerator(object):
         self.derived_types.append(node.name.lower())
         self.derived_types_attributes[node.name] = []
 
-        attributes = node.body[0].body
+        attributes = node.body
         # Populate class member variables into attributes array.
         for attrib in attributes:
             attrib_is_array = False
             attrib_ast = attrib.__repr__().split()[0][2:]
             if attrib_ast == "ast.AnnAssign":
-                attrib_name = attrib.target.attr
+                attrib_name = attrib.target.id
                 if attrib.annotation.id in self.annotate_map:
                     attrib_type = self.annotate_map[attrib.annotation.id]
                 elif attrib.annotation.id in self.derived_types:
                     attrib_type = attrib.annotation.id
             elif attrib_ast == "ast.Assign":
-                attrib_name = attrib.targets[0].attr
+                attrib_name = attrib.targets[0].id
                 attrib_type = attrib.value.func.id
                 assert (
                     attrib_type in self.derived_types
