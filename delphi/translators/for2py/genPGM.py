@@ -164,6 +164,7 @@ class GrFNGenerator(object):
         self.imported_module = []
         self.imported_module_paths = []
         self.original_python_src = ""
+        self.generated_import_codes = []
 
         self.global_grfn = {
             "containers": [{
@@ -3502,7 +3503,13 @@ class GrFNGenerator(object):
         src_string_list = self.original_python_src.split('\n')
         isClass = False
         class_code = ""
+        import_code = ""
+        # Read in the Python source string line by line
         for line in src_string_list:
+            # If the current line is a start of class definition
+            #   class myClass:
+            # , then set isClass to True and append @dataclass
+            # to class_code string variable
             class_info = syntax.is_class_def(line)
             if (
                     class_info[0]
@@ -3512,12 +3519,17 @@ class GrFNGenerator(object):
                 state.lambda_strings.append("@dataclass\n")
                 class_code += "@dataclass\n"
 
+            # If isClass is True, then it means that current line
+            # is part of class definition.
             if isClass:
+                # If a line contains "=", then it means class variables
+                # are one of Array, String, or derived-type type.
                 if "=" in line:
                     splitted_line = line.split("=")
                     var = splitted_line[0].rstrip()
                     class_type = splitted_line[1].split("(")[0].strip()
                     data_type = splitted_line[1].split("(")[1].split(",")[0].strip()
+                    # If type is eeither Array or String, modify the syntax to List[__type__].
                     if class_type == "Array":
                         if data_type == "String":
                             data_type = "str"
@@ -3525,13 +3537,19 @@ class GrFNGenerator(object):
                     elif class_type == "String":
                         line = f"{var}:str"
                     elif class_type in self.derived_types:
+                        # If type is derived-type, we neeed to extract the module name and
+                        # form "from __filename__ import __class_name__" string.
+                        # However, we have not discussed where this will be inserted, so
+                        # if found out, please modify it.
                         for mod in self.imported_module_paths:
                             mod_name = mod.split('.')[-1][2:]
                             import_str = f"from {mod} import {class_type}\n"
                             if (
                                     mod_name in self.module_summary
-                                    and import_str not in state.lambda_strings
+                                    and import_str not in self.generated_import_codes
                             ):
+                                self.generated_import_codes.append(import_str)
+                                import_code += import_str
                                 state.lambda_strings.insert(0, import_str)
 
                 state.lambda_strings.append(line + "\n")
