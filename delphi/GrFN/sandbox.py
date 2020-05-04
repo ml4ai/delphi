@@ -6,8 +6,17 @@ import re
 import numpy as np
 
 
-UNSAFE_BUILTINS = (
-    r"(?=,)?(?=\s)?(__import__\([\"'][A-Za-z_]+[\"']\)|globals\(\)|locals\(\))"
+UNSAFE_BUILTINS = re.compile(
+    r"""
+    (?=,)?(?=\s)?               # Match if proceeded by a comma or whitespace
+    (
+        __import__\([\"'][A-Za-z_]+[\"']\) |    # Match the import runtime var
+        __loader__\. |    # Match the loader runtime var
+        globals\(\) |                           # Match the global() builtin
+        locals\(\)                              # Match the local() builtin
+    )
+    """,
+    re.VERBOSE,
 )
 UNSAFE_IMPORT = r"\bimport [A-Za-z_]+\b"
 
