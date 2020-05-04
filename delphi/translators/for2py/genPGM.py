@@ -156,6 +156,7 @@ class GrFNGenerator(object):
         self.current_d_object_attributes = []
         self.is_d_object_array_assign = False
         self.elseif_flag = False
+        self.if_index = -1
         self.elif_index = 0
         self.module_summary = None
         self.global_scope_variables = {}
@@ -346,7 +347,8 @@ class GrFNGenerator(object):
                                                       imported_module][
                                                       "derived_type_list"])
                         # Comment it out for now to avoid "import *" case.
-                        # state.lambda_strings.insert(0, f"from {node.module} import *\n")
+                        # state.lambda_strings.insert(0, f"from {node.module}
+                        # import *\n")
                     return []
         elif isinstance(node, list):
             return self.process_list(node, state, call_source)
@@ -1662,12 +1664,13 @@ class GrFNGenerator(object):
         else:
             is_else_if = False
             # Increment the loop index universally across the program
-            if state.last_definitions.get("#if") is not None:
-                if_index = state.last_definitions["#if"] + 1
-                state.last_definitions["#if"] += 1
+            if self.if_index > -1:
+                self.if_index += 1
+                if_index = self.if_index
             else:
-                if_index = 0
-                state.last_definitions["#if"] = 0
+                self.if_index = 0
+                if_index = self.if_index
+
             # Define a new empty state that will be used for mapping the
             # state of the operations within the for-loop container
             loop_last_definition = {}
@@ -1676,7 +1679,6 @@ class GrFNGenerator(object):
                 next_definitions={},
                 last_definition_default=-1,
             )
-            if_state.last_definitions["#if"] = state.last_definitions["#if"]
             # First, get the `container_id_name` of the if container
             container_id_name = self.generate_container_id_name(
                 self.fortran_file, self.current_scope, f"IF_{if_index}"
@@ -1730,6 +1732,7 @@ class GrFNGenerator(object):
         # check and increment by 1 for every `elif` check
         if not is_else_if:
             condition_number = 0
+            if_state.last_definitions["#cond"] = condition_number
             if_state.next_definitions["#cond"] = condition_number + 1
             condition_name = f"COND_{if_index}_{condition_number}"
             condition_index = self.get_last_definition(
@@ -1823,7 +1826,6 @@ class GrFNGenerator(object):
             else_grfn = self.gen_grfn(node.orelse, state, "if")
         else:
             if_grfn = self.gen_grfn(node.body, if_state, "if")
-            state.last_definitions["#if"] = if_state.last_definitions["#if"]
             if else_node_name == "ast.If":
                 self.elseif_flag = True
                 self.elif_index = if_index
@@ -2033,18 +2035,19 @@ class GrFNGenerator(object):
             # else: x = 4
             # x is always updated so it's -1 index will be not added as an input
             if len(condition_map) <= condition_count+1:
-                ip = f"@variable::{updated}::{state.last_definitions[updated]}"
-                if ip not in function_input:
-                    function_input.append(ip)
-                ip = f"@variable::{updated}::-1"
-                if ip not in container_argument:
-                    container_argument.append(ip)
-                # Also, add the -1 index for the variable which is the default
-                # case when no conditions will be met
-                inputs.append({
-                        "variable": updated,
-                        "index": -1
-                    })
+                if state.last_definitions.get(updated) is not None:
+                    ip = f"@variable::{updated}::{state.last_definitions[updated]}"
+                    if ip not in function_input:
+                        function_input.append(ip)
+                    ip = f"@variable::{updated}::-1"
+                    if ip not in container_argument:
+                        container_argument.append(ip)
+                    # Also, add the -1 index for the variable which is the
+                    # default case when no conditions will be met
+                    inputs.append({
+                            "variable": updated,
+                            "index": -1
+                        })
 
             # The output variable is the updated variable with its index as
             # index = latest_index+1
@@ -3112,6 +3115,14 @@ class GrFNGenerator(object):
                 self.exclude_list.append(target_names[0])
                 return []
 
+            # When declaring a derived type, the source will be the name of the
+            # derived type. If so, bypass the assign
+            if len(sources) == 1 and \
+                    "var" in sources[0] and \
+                    sources[0]["var"]["variable"] in self.derived_types:
+                state.last_definitions[target_names[0]] = 0
+                return []
+
             # If the target is a list of variables, the grfn notation for the
             # target will be a list of variable names i.e. "[a, b, c]"
             # TODO: This does not seem right. Discuss with Clay and Paul
@@ -3453,13 +3464,23 @@ class GrFNGenerator(object):
                 # Derived type reference variable on the RHS of assignment
                 # needs to have a syntax like x__b (x%b in Fortran), so first
                 # form "x_" here.
-                new_variable = node.value.id + "_"
+                # Currently, only going two levels deep.
+                # TODO: This can be arbitrary level deep
+                if isinstance(node.value, ast.Name):
+                    new_variable = node.value.id + "_"
+                elif isinstance(node.value, ast.Attribute) or \
+                        isinstance(node.value, ast.Subscript):
+                    new_variable = node.value.value.id + "_"
+                else:
+                    assert False, "Too deep levels or unhandled type"
+
                 new_var_index = 0
                 for attr in attributes:
                     # Then, append attributes to the new variable
-                    new_variable = new_variable + f"_{attr}"
+                    new_variable = new_variable + f"_{attr}_"
                     new_var_index = last_definitions[attr]
-                # Since we've geneerated a new variable, we need to update
+                new_variable = new_variable[:-1]
+                # Since we've generated a new variable, we need to update
                 # last_definitions dictionary.
                 state.last_definitions[new_variable] = 0
 
@@ -3527,9 +3548,13 @@ class GrFNGenerator(object):
                 if "=" in line:
                     splitted_line = line.split("=")
                     var = splitted_line[0].rstrip()
-                    class_type = splitted_line[1].split("(")[0].strip()
-                    data_type = splitted_line[1].split("(")[1].split(",")[0].strip()
-                    # If type is eeither Array or String, modify the syntax to List[__type__].
+                    rhs_split = splitted_line[1].split("(")
+                    class_type = rhs_split[0].strip()
+                    if len(rhs_split) > 1:
+                        data_type = rhs_split[1].split(",")[0].strip()
+                    else:
+                        data_type = None
+
                     if class_type == "Array":
                         if data_type == "String":
                             data_type = "str"
@@ -3557,7 +3582,8 @@ class GrFNGenerator(object):
                 if not line.strip():
                     isClass = False
 
-        grfn = {"name": "", "type": "type", "attributes": [], "code": class_code.strip()}
+        grfn = {"name": "", "type": "type", "attributes": [], "code":
+            class_code.strip()}
         namespace = self._get_namespace(self.fortran_file)
         type_name = f"@type::{namespace}::@global::{class_name}"
         grfn["name"] = type_name
@@ -3579,7 +3605,10 @@ class GrFNGenerator(object):
                     attrib_type = attrib.annotation.id
             elif attrib_ast == "ast.Assign":
                 attrib_name = attrib.targets[0].id
-                attrib_type = attrib.value.func.id
+                try:
+                    attrib_type = attrib.value.func.id
+                except AttributeError:
+                    attrib_type = attrib.value.id
                 assert (
                     attrib_type in self.derived_types
                     or attrib_type in self.library_types
@@ -5112,6 +5141,8 @@ class GrFNGenerator(object):
                         code += " else "
             else:
                 max_id = index_list[i]
+                if index == -1:
+                    index = "xx"
                 code += f"{argument_map[f'{var}_{index}']} if "
                 rep_list = [x for x in list(range(max_id)) if x
                             not in index_list[:i]]
@@ -5300,7 +5331,7 @@ def create_grfn_dict(
 
     asts = [ast.parse(python_source_string)]
 
-    # print(dump_ast(asts[-1])))
+    # print(dump_ast(asts[-1]))
 
     lambda_string_list = [
         "from numbers import Real\n",
@@ -5438,6 +5469,12 @@ def create_grfn_dict(
     # dateCreated stores the date and time on which the lambda and GrFN files
     # were created. It is stored in the YYYMMDD format
     grfn["date_created"] = f"{datetime.utcnow().isoformat('T')}Z"
+
+    # If some fields are not present, add an empty one
+    if not grfn.get("containers"):
+        grfn["containers"] = []
+    if not grfn.get("variables"):
+        grfn["variables"] = []
 
     with open(lambda_file, "w") as lambda_fh:
         lambda_fh.write("".join(lambda_string_list))
