@@ -82,7 +82,7 @@ def get_comments(src_file_name: str):
 
     with open(src_file_name, "r", encoding="latin-1") as f:
         for line in f:
-            if line_is_comment(line):
+            if line_is_comment(line) or line.strip() == "":
                 curr_comment.append(line)
             else:
                 if comments["$file_head"] is None:

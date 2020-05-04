@@ -1506,12 +1506,12 @@ class PythonCodeGenerator(object):
 
             if "is_derived_type" in node and node["is_derived_type"] == "true":
                 self.pyStrings.append(
-                    f"{self.nameMapper[node['name']]} =  {varType}()"
+                    f"{self.nameMapper[node['name']]} = {varType}"
                 )
                 self.declaredDerivedTVars.append(node["name"])
             else:
                 if printState.functionScope:
-                    if not var_name in self.funcArgs.get(
+                    if var_name not in self.funcArgs.get(
                             printState.functionScope
                     ):
                         self.pyStrings.append(
@@ -1610,7 +1610,6 @@ class PythonCodeGenerator(object):
         # For a record, store the declared derived type names
         self.declaredDerivedTypes.append(derived_type_class_info["type"])
 
-        self.pyStrings.append("    def __init__(self):\n")
         for var in range(num_of_variables):
             name = derived_type_variables[var]["name"]
 
@@ -1638,7 +1637,7 @@ class PythonCodeGenerator(object):
                     if var_type == "String":
                         str_length = derived_type_variables[var]["length"]
                         self.pyStrings.append(
-                            f"        self.{name} = {var_type}({str_length}"
+                            f"    {name} = {var_type}({str_length}"
                         )
 
                         if "value" in derived_type_variables[var]:
@@ -1648,7 +1647,7 @@ class PythonCodeGenerator(object):
                             self.pyStrings.append(f", \"{value}\"")
                         self.pyStrings.append(")")
                     else:
-                        self.pyStrings.append(f"        self.{name}: {var_type}")
+                        self.pyStrings.append(f"    {name}: {var_type}")
                         if "value" in derived_type_variables[var]:
                             value = self.proc_literal(
                                 derived_type_variables[var]["value"][0]
@@ -1656,7 +1655,7 @@ class PythonCodeGenerator(object):
                             self.pyStrings.append(f" = {value}")
                 else:
                     self.pyStrings.append(
-                        f"        self.{name} = {var_type}()"
+                        f"    {name} = {var_type}"
                     )
 
             else:
@@ -1667,7 +1666,7 @@ class PythonCodeGenerator(object):
                     var_type = f"String(" \
                                f"{derived_type_variables[var]['length']})"
                 self.pyStrings.append(
-                    f"        self.{name} = Array({var_type}, [{array_range}])"
+                    f"    {name} = Array({var_type}, [{array_range}])"
                 )
             self.pyStrings.append(printState.sep)
 
@@ -2173,8 +2172,8 @@ def get_python_sources_and_variable_map(outputDict: Dict,
 
         # Print derived type declaration(s)
         if derived_type_ast:
-            code_generator.pyStrings.append("@dataclass\n")
             for i in range(len(derived_type_ast)):
+                code_generator.pyStrings.append("\n@dataclass")
                 assert (
                         derived_type_ast[i]["is_derived_type"] == "true"
                 ), "[derived_type_ast] holds non-derived type ast"

@@ -12,6 +12,12 @@
       IF (COND1 .LE. 5) THEN
         X = X+1
         Y = X+2
+        IF (COND1 .EQ. 6) THEN
+          X = 4
+          IF (Y .GT. 5) THEN
+            Y = 2
+           END IF
+        END IF
         X = Y+2
         Z = 5
       ELSE IF (COND2 .GE. 9) THEN
