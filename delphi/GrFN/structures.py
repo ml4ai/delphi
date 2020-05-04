@@ -29,21 +29,18 @@ class GenericIdentifier(ABC):
             (_, ns, sc, n, idx) = components
             return VariableIdentifier(ns, sc, n, int(idx))
 
+    def is_global_scope(self):
+        return self.scope == "@global"
+
 
 @dataclass(frozen=True)
 class ContainerIdentifier(GenericIdentifier):
     con_name: str
 
-    def is_global_scope(self):
-        return self.scope == "@global"
-
 
 @dataclass(frozen=True)
 class TypeIdentifier(GenericIdentifier):
     type_name: str
-
-    def is_global_scope(self):
-        return self.scope == "@global"
 
 
 @dataclass(frozen=True)
@@ -55,6 +52,43 @@ class VariableIdentifier(GenericIdentifier):
     def from_str_and_con(cls, data: str, con: ContainerIdentifier):
         (_, name, idx) = data.split("::")
         return cls(con.namespace, con.scope, name, int(idx))
+
+
+@dataclass(frozen=True)
+class GenericDefinition(ABC):
+    identifier: GenericIdentifier
+    type: str
+
+    @staticmethod
+    def from_dict(data: dict):
+        if "domain" in data:
+            return VariableDefinition(
+                GenericIdentifier.from_str(data["name"]),
+                data["domain"]["type"],
+                data["domain"]["mutable"],
+                data["domain"]["name"],
+                data["domain_constraint"],
+                tuple(data["source_refs"]),
+            )
+        else:
+            return TypeDefinition(
+                GenericIdentifier.from_str(data["name"]),
+                data["type"],
+                tuple(data["attributes"]),
+            )
+
+
+@dataclass(frozen=True)
+class VariableDefinition(GenericDefinition):
+    is_mutable: bool
+    domain_name: str
+    domain_constraint: str
+    source_refs: tuple
+
+
+@dataclass(frozen=True)
+class TypeDefinition(GenericDefinition):
+    attributes: tuple
 
 
 class GenericContainer(ABC):
@@ -105,7 +139,7 @@ class GenericContainer(ABC):
         return f"Inputs:\n{args_str}\nVariables:\n{vars_str}"
 
     @staticmethod
-    def create_container(data: dict):
+    def from_dict(data: dict):
         con_type = data["type"]
         if con_type == "function":
             return FuncContainer(data)
@@ -245,15 +279,13 @@ class LambdaType(Enum):
 class GenericStmt(ABC):
     def __init__(self, stmt: dict, p: GenericContainer):
         self.container = p
-        inputs = stmt["input"]
-        outputs = stmt["output"] + stmt["updated"]
         self.inputs = [
             VariableIdentifier.from_str_and_con(i, self.container.identifier)
-            for i in inputs
+            for i in stmt["input"]
         ]
         self.outputs = [
             VariableIdentifier.from_str_and_con(o, self.container.identifier)
-            for o in outputs
+            for o in (stmt["output"] + stmt["updated"])
         ]
 
     def __repr__(self):
@@ -262,10 +294,10 @@ class GenericStmt(ABC):
     @abstractmethod
     def __str__(self):
         inputs_str = ", ".join(
-            [f"{id.basename} ({id.index})" for id in self.inputs]
+            [f"{id.var_name} ({id.index})" for id in self.inputs]
         )
         outputs_str = ", ".join(
-            [f"{id.basename} ({id.index})" for id in self.outputs]
+            [f"{id.var_name} ({id.index})" for id in self.outputs]
         )
         return f"Inputs: {inputs_str}\nOutputs: {outputs_str}"
 
@@ -279,8 +311,10 @@ class GenericStmt(ABC):
         else:
             raise ValueError(f"Undefined statement type: {func_type}")
 
-    def correct_input_list(self, alt_inputs: list) -> list:
-        return [v if v.index != -1 else alt_inputs[v] for v in self.inputs]
+    # def correct_input_list(
+    #     self, alt_inputs: Dict[VariableIdentifier, VariableNode]
+    # ) -> List[VariableNode]:
+    #     return [v if v.index != -1 else alt_inputs[v] for v in self.inputs]
 
 
 def CallStmt(GenericStmt):

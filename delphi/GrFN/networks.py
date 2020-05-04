@@ -1,6 +1,5 @@
 from typing import List, Dict, Iterable, Set, Union, Any
-from numbers import Number
-from abc import ABC, ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 from functools import singledispatch
 from dataclasses import dataclass
 from pathlib import Path
@@ -20,6 +19,14 @@ from delphi.GrFN.structures import (
     CondContainer,
     LoopContainer,
     LambdaType,
+    GenericStmt,
+    CallStmt,
+    LambdaStmt,
+    ContainerIdentifier,
+    VariableIdentifier,
+    TypeIdentifier,
+    VariableDefinition,
+    TypeDefinition,
 )
 from delphi.utils.misc import choose_font
 from delphi.translators.for2py import f2grfn
@@ -253,7 +260,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
 
         """
         lambdas = importlib.__import__(str(Path(lambdas_path).stem))
-        functions = {d["name"]: d for d in data["containers"]}
+        # functions = {d["name"]: d for d in data["containers"]}
         occurrences = {}
         G = nx.DiGraph()
         scope_tree = nx.DiGraph()
@@ -264,7 +271,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
         def add_variable_node(
             parent: str, basename: str, index: str, is_exit: bool = False
         ):
-            full_var_name = make_variable_name(parent, basename, index)
+            full_var_name = ""  # make_variable_name(parent, basename, index)
             G.add_node(
                 full_var_name,
                 type="variable",
@@ -298,6 +305,11 @@ class GroundedFunctionNetwork(ComputationalGraph):
                 G.add_edge(stmt.lambda_node_name, node_name)
 
             ordered_inputs = list()
+            # Dummy code to stop warnings
+            lambda_node_name = ""
+            lambda_name = ""
+            stmt_type = list()
+            scope = None
             for inp in stmt["input"]:
                 if inp.endswith("-1"):
                     (parent, var_name, idx) = inputs[inp]
@@ -326,10 +338,11 @@ class GroundedFunctionNetwork(ComputationalGraph):
             if container_name not in occurrences:
                 occurrences[container_name] = 0
 
-            new_container = functions[container_name]
-            new_scope = create_container_node(
-                new_container, occurrences[container_name], parent=scope
-            )
+            # new_container = functions[container_name]
+            new_scope = None
+            # new_scope = create_container_node(
+            #     new_container, occurrences[container_name], parent=scope
+            # )
 
             input_values = list()
             for inp in stmt["input"]:
@@ -410,9 +423,10 @@ class GroundedFunctionNetwork(ComputationalGraph):
                 func_def = stmt["function"]
                 func_type = func_def["type"]
                 if func_type == "lambda":
-                    process_wiring_statement(
-                        stmt, scope, input_vars, scope.name
-                    )
+                    pass
+                    # process_wiring_statement(
+                    #     stmt, scope, input_vars, scope.name
+                    # )
                 elif func_type == "container":
                     process_call_statement(stmt, scope, input_vars, scope.name)
                 else:
@@ -426,13 +440,13 @@ class GroundedFunctionNetwork(ComputationalGraph):
             for var_name in scope.returns:
                 (_, basename, idx) = var_name.split("::")
                 return_list.append(
-                    make_variable_name(scope.name, basename, idx)
+                    # make_variable_name(scope.name, basename, idx)
                 )
 
             for var_name in scope.updated:
                 (_, basename, idx) = var_name.split("::")
                 updated_list.append(
-                    make_variable_name(scope.name, basename, idx)
+                    # make_variable_name(scope.name, basename, idx)
                 )
             return return_list, updated_list
 
@@ -448,7 +462,7 @@ class GroundedFunctionNetwork(ComputationalGraph):
                     for a in scope.arguments
                 }
 
-            conditions, statements = list(), list()
+            conditions = list()
             for cond_obj in scope.body:
                 cond = cond_obj["condition"]
                 stmts = cond_obj["statements"]
@@ -457,18 +471,20 @@ class GroundedFunctionNetwork(ComputationalGraph):
                     conditions.append(None)
                 else:
                     # FIXME: generalize cond handling in the future
-                    cond_stmt = cond[0]
-                    process_wiring_statement(
-                        cond_stmt, scope, input_vars, scope.name
-                    )
+                    # cond_stmt = cond[0]
+                    pass
+                    # process_wiring_statement(
+                    #     cond_stmt, scope, input_vars, scope.name
+                    # )
 
                 for stmt in stmts:
                     func_def = stmt["function"]
                     func_type = func_def["type"]
                     if func_type == "lambda":
-                        process_wiring_statement(
-                            stmt, scope, input_vars, scope.name
-                        )
+                        # process_wiring_statement(
+                        #     stmt, scope, input_vars, scope.name
+                        # )
+                        pass
                     elif func_type == "container":
                         process_call_statement(
                             stmt, scope, input_vars, scope.name
@@ -482,13 +498,13 @@ class GroundedFunctionNetwork(ComputationalGraph):
             for var_name in scope.returns:
                 (_, basename, idx) = var_name.split("::")
                 return_list.append(
-                    make_variable_name(scope.name, basename, idx)
+                    # make_variable_name(scope.name, basename, idx)
                 )
 
             for var_name in scope.updated:
                 (_, basename, idx) = var_name.split("::")
                 updated_list.append(
-                    make_variable_name(scope.name, basename, idx)
+                    # make_variable_name(scope.name, basename, idx)
                 )
             return return_list, updated_list
 
@@ -508,9 +524,10 @@ class GroundedFunctionNetwork(ComputationalGraph):
                 func_def = stmt["function"]
                 func_type = func_def["type"]
                 if func_type == "lambda":
-                    process_wiring_statement(
-                        stmt, scope, input_vars, scope.name
-                    )
+                    pass
+                    # process_wiring_statement(
+                    #     stmt, scope, input_vars, scope.name
+                    # )
                 elif func_type == "container":
                     process_call_statement(stmt, scope, input_vars, scope.name)
                 else:
@@ -524,21 +541,21 @@ class GroundedFunctionNetwork(ComputationalGraph):
             for var_name in scope.returns:
                 (_, basename, idx) = var_name.split("::")
                 return_list.append(
-                    make_variable_name(scope.name, basename, idx)
+                    # make_variable_name(scope.name, basename, idx)
                 )
 
             for var_name in scope.updated:
                 (_, basename, idx) = var_name.split("::")
                 updated_list.append(
-                    make_variable_name(scope.name, basename, idx)
+                    # make_variable_name(scope.name, basename, idx)
                 )
             return return_list, updated_list
 
         root = data["start"][0]
         occurrences[root] = 0
-        cur_scope = create_container_node(functions[root], occurrences[root])
-        returns, updates = process_container(cur_scope, [])
-        return cls(G, scope_tree, returns + updates)
+        # cur_scope = create_container_node(functions[root], occurrences[root])
+        # returns, updates = process_container(cur_scope, [])
+        # return cls(G, scope_tree, returns + updates)
 
     @classmethod
     def from_python_file(
@@ -909,7 +926,7 @@ class ForwardInfluenceBlanket(ComputationalGraph):
             inputs.
         """
         # Abort run if covers does not match our expected cover set
-        if len(covers) != len(blanket_nodes):
+        if len(covers) != len(self.blanket_nodes):
             raise ValueError("Incorrect number of cover values.")
 
         # Set the cover node values
@@ -951,15 +968,18 @@ class GenericNode(ABC):
 
 @dataclass(repr=False, frozen=False)
 class VariableNode(GenericNode):
-    name: str
-    index: int
-    value: None
+    identifier: VariableIdentifier
+    value: Any
 
     def __repr__(self):
         return self.__str__()
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def from_id(cls, id: VariableIdentifier):
+        return cls(GenericNode.create_node_id(), id, None)
 
     def get_fullname(self):
         return f"{self.name}\n({self.index})"
@@ -981,7 +1001,6 @@ class LambdaNode(GenericNode):
     func_type: LambdaType
     func_str: str
     function: callable
-    inputs: Iterable[VariableNode]
 
     def __repr__(self):
         return self.__str__()
@@ -989,18 +1008,20 @@ class LambdaNode(GenericNode):
     def __str__(self):
         return self.func_type.shortname()
 
-    def __call__(self, input_vals: dict[str, Any]) -> Any:
-        if len(self.inputs) != len(input_vals.keys()):
+    def __call__(self, *values) -> Iterable[Any]:
+        expected_num_args = len(self.get_signature())
+        input_num_args = len(values)
+        if expected_num_args != input_num_args:
             raise RuntimeError(
-                f"""
-                Incorrect number of inputs
-                (expected {len(self.inputs)} found {len(input_vals.keys())})
-                for lambda:\n{self.func_str}
-                """
+                f"""Incorrect number of inputs
+                (expected {expected_num_args} found {input_num_args})
+                for lambda:\n{self.func_str}"""
             )
         try:
-            arg_vals = [input_vals[iname] for iname in self.inputs]
-            return self.function(*arg_vals)
+            res = self.function(*values)
+            if not isinstance(res, Iterable):
+                res = list(res)
+            return res
         except Exception as e:
             print(f"Exception occured in {self.func_str}")
             raise e
@@ -1012,17 +1033,80 @@ class LambdaNode(GenericNode):
         return self.function.__code__.co_varnames
 
 
+@dataclass
+class HyperEdge:
+    inputs: Iterable[VariableNode]
+    lambda_fn: LambdaNode
+    outputs: Iterable[VariableNode]
+
+    def __call__(self):
+        result = self.lambda_fn(*[var.value for var in self.inputs])
+        for i, out_val in enumerate(result):
+            self.outputs[i].value = out_val
+
+
+@dataclass(repr=False)
+class GrFNSubgraph:
+    namespace: str
+    scope: str
+    basename: str
+    occurrence_num: int
+    border_color: str
+    nodes: Iterable[GenericNode]
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self):
+        return f"{self.basename}\n({self.occurrence_num})"
+
+    @classmethod
+    def from_container(cls, con: GenericContainer, occ: int):
+        if isinstance(con, CondContainer):
+            clr = "orange"
+        elif isinstance(con, FuncContainer):
+            clr = "forestgreen"
+        elif isinstance(con, LoopContainer):
+            clr = "navyblue"
+        else:
+            # TODO: perhaps use this in the future
+            # clr = "lightskyblue"
+            raise TypeError(f"Unrecognized container type: {type(con)}")
+        id = con.identifier
+        return cls(id.namespace, id.scope, id.basename, occ, clr, [])
+
+
 class GroundedFactorNetwork(nx.DiGraph):
-    def __init__(self, name: str):
-        super().__init__()
-        (_, self.namespace, self.scope, self.basename) = name.split("::")
-        self.label = f"{self.basename} ({self.namespace}.{self.scope})"
-        self.subgraphs = list()
-        self.hyper_edges = list()
-        self.variable_nodes = list()
-        self.lambda_nodes = list()
-        self.input_variables = list()
-        self.output_variables = list()
+    def __init__(
+        self,
+        id: ContainerIdentifier,
+        G: nx.DiGraph,
+        H: List[HyperEdge],
+        S: List[GrFNSubgraph],
+    ):
+        super().__init__(G)
+        self.hyper_edges = H
+        self.subgraphs = S
+
+        self.namespace = id.namespace
+        self.scope = id.scope
+        self.name = id.con_name
+        self.label = f"{self.name} ({self.namespace}.{self.scope})"
+
+        self.variables = [n for n in self.nodes if isinstance(n, VariableNode)]
+        self.lambdas = [n for n in self.nodes if isinstance(n, LambdaNode)]
+        self.inputs = [
+            n
+            for n in self.nodes
+            if len(list(self.predecessors(n))) == 0
+            and isinstance(n, VariableNode)
+        ]
+        self.outputs = [
+            n
+            for n in self.nodes
+            if len(list(self.successors(n))) == 0
+            and isinstance(n, VariableNode)
+        ]
 
     def __repr__(self):
         return self.__str__()
@@ -1077,77 +1161,134 @@ class GroundedFactorNetwork(nx.DiGraph):
         # Return the output
         return [self.nodes[o]["value"] for o in self.outputs]
 
-    def add_variable_node(self, var_identifier: str) -> VariableNode:
-        (_, basename, index) = var_identifier.split("::")
-        node = VariableNode(
-            GenericNode.create_node_id(), self, basename, index
-        )
-        self.add_node(node, **(node.get_kwargs()))
-        self.variable_nodes.append(node)
-        return node
-
-    def add_lambda_node(
-        self,
-        lambda_type: LambdaType,
-        lambda_str: str,
-        inputs: Iterable[VariableNode],
-    ) -> LambdaNode:
-        lambda_fn = eval(lambda_str)
-        node_id = GenericNode.create_node_id()
-        node = LambdaNode(
-            node_id, self, lambda_type, lambda_str, lambda_fn, inputs,
-        )
-        self.add_node(node, **(node.get_kwargs()))
-        self.lambda_nodes.append(node)
-        return node
-
-    def add_hyper_edge(
-        self,
-        inputs: Iterable[VariableNode],
-        lambda_node: LambdaNode,
-        outputs: Iterable[VariableNode],
-    ) -> None:
-        self.add_edges_from([(in_node, lambda_node) for in_node in inputs])
-        self.add_edges_from([(out_node, lambda_node) for out_node in outputs])
-        self.hyper_edges.append(
-            {
-                "in": [n.uid for n in inputs],
-                "lambda_fn": lambda_node.uid,
-                "out": [n.uid for n in outputs],
-            }
-        )
-
     @classmethod
-    def from_container(
+    def from_AIR(
         cls,
         con_id: ContainerIdentifier,
-        C: dict[ContainerIdentifier, GenericContainer],
-        V,
-        T,
-    ) -> GroundedFactorNetwork:
-        pass
+        containers: Dict[ContainerIdentifier, GenericContainer],
+        variables: Dict[VariableIdentifier, VariableDefinition],
+        types: Dict[TypeIdentifier, TypeDefinition],
+    ):
+        network = nx.DiGraph()
+        hyper_edges = list()
+        Occs = dict()
+        subgraphs = list()
 
+        def add_variable_node(id: VariableIdentifier) -> VariableNode:
+            node = VariableNode.from_id(id)
+            network.add_node(node, **(node.get_kwargs()))
+            return node
 
-@dataclass
-class GrFNSubgraph:
-    namespace: str
-    scope: str
-    basename: str
-    occurrence_num: int
-    border_color: str
-    nodes: Iterable[GenericNode]
+        def add_lambda_node(
+            lambda_type: LambdaType, lambda_str: str
+        ) -> LambdaNode:
+            lambda_fn = eval(lambda_str)
+            node_id = GenericNode.create_node_id()
+            node = LambdaNode(node_id, lambda_type, lambda_str, lambda_fn)
+            network.add_node(node, **(node.get_kwargs()))
+            return node
 
-    @classmethod
-    def from_container(cls, con: GenericContainer, occ: int):
-        if isinstance(con, CondContainer):
-            clr = "orange"
-        elif isinstance(con, FuncContainer):
-            clr = "forestgreen"
-        elif isinstance(con, LoopContainer):
-            clr = "navyblue"
-        else:
-            # TODO: perhaps use this in the future
-            # clr = "lightskyblue"
-            raise TypeError(f"Unrecognized container type: {type(con)}")
-        id = con.identifier
-        return cls(id.namespace, id.scope, id.basename, occ, clr, [])
+        def add_hyper_edge(
+            inputs: Iterable[VariableNode],
+            lambda_node: LambdaNode,
+            outputs: Iterable[VariableNode],
+        ) -> None:
+            network.add_edges_from(
+                [(in_node, lambda_node) for in_node in inputs]
+            )
+            network.add_edges_from(
+                [(lambda_node, out_node) for out_node in outputs]
+            )
+            hyper_edges.append(HyperEdge(inputs, lambda_node, outputs))
+
+        def translate_container(
+            con: GenericContainer, inputs: Iterable[VariableNode],
+        ) -> Iterable[VariableNode]:
+            # raise ValueError(f"Unsupported container type: {type(con)}")
+            if con.name not in Occs:
+                Occs[con.name] = 0
+
+            con_subgraph = GrFNSubgraph(con.name, Occs[con.name])
+            live_variables = dict()
+            if len(inputs) > 0:
+                in_var_names = [n.name for n in inputs]
+                in_var_str = ",".join(in_var_names)
+                pass_func_str = f"lambda {in_var_str}:({in_var_str})"
+                func = add_lambda_node(LambdaType.PASS, pass_func_str)
+                out_nodes = [add_variable_node(id) for id in con.arguments]
+                add_hyper_edge(inputs, func, out_nodes)
+                con_subgraph.nodes.append(func)
+
+                live_variables.update(
+                    {id: node for id, node in zip(con.arguments, out_nodes)}
+                )
+            else:
+                live_variables.update(
+                    {id: add_variable_node(id) for id in con.arguments}
+                )
+
+            for stmt in con.statements:
+                returned_nodes = translate_stmt(stmt, inputs, live_variables)
+                con_subgraph.nodes.extend(returned_nodes)
+
+            subgraphs.nodes.extend(list(live_variables.values()))
+            subgraphs.append(con_subgraph)
+
+            if len(inputs) > 0:
+                # Do this only if this is not the starting container
+                returned_vars = [live_variables[id] for id in con.returns]
+                update_vars = [live_variables[id] for id in con.updated]
+                output_vars = returned_vars + update_vars
+
+                out_var_names = [n.name for n in output_vars]
+                out_var_str = ",".join(out_var_names)
+                pass_func_str = f"lambda {out_var_str}:({out_var_str})"
+                func = network.add_lambda_node(LambdaType.PASS, pass_func_str)
+                return (output_vars, func)
+
+        @singledispatch
+        def translate_stmt(
+            stmt: GenericStmt,
+            live_variables: Dict[VariableIdentifier, VariableNode],
+        ) -> Iterable[GenericNode]:
+            raise ValueError(f"Unsupported statement type: {type(stmt)}")
+
+        @translate_stmt.register
+        def _(
+            stmt: CallStmt,
+            live_variables: Dict[VariableIdentifier, VariableNode],
+        ) -> Iterable[GenericNode]:
+            new_con = containers[stmt.call_id]
+            if stmt.call_id not in Occs:
+                Occs[stmt.call_id] = 0
+
+            inputs = [live_variables[id] for id in stmt.inputs]
+            (con_outputs, pass_func) = translate_container(new_con, inputs)
+            out_nodes = [add_variable_node(var) for var in stmt.outputs]
+            add_hyper_edge(con_outputs, pass_func, out_nodes)
+            for output_node in out_nodes:
+                var_id = output_node.identifier
+                live_variables[var_id] = output_node
+
+            Occs[stmt.call_id] += 1
+            return out_nodes
+
+        @translate_stmt.register
+        def _(
+            stmt: LambdaStmt,
+            live_variables: Dict[VariableIdentifier, VariableNode],
+        ) -> Iterable[GenericNode]:
+            inputs = [live_variables[id] for id in stmt.inputs]
+            out_nodes = [add_variable_node(var) for var in stmt.outputs]
+            func = add_lambda_node(stmt.type, stmt.func_str)
+            add_hyper_edge(inputs, func, out_nodes)
+            for output_node in out_nodes:
+                var_id = output_node.identifier
+                live_variables[var_id] = output_node
+
+            return [func] + out_nodes
+
+        start_container = containers[con_id]
+        Occs[con_id] = 0
+        translate_container(start_container, [])
+        return cls(network, hyper_edges, subgraphs)

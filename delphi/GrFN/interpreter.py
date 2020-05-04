@@ -7,38 +7,22 @@ from typing import Set, Dict
 from abc import ABC, abstractmethod
 
 from delphi.translators.for2py import f2grfn
-from delphi.GrFN.extraction import extract_GrFN
-from delphi.GrFN.structures import GenericContainer, GenericStmt
+from delphi.GrFN.networks import GroundedFactorNetwork
+from delphi.GrFN.structures import (
+    GenericContainer,
+    GenericStmt,
+    GenericIdentifier,
+    GenericDefinition,
+)
 from delphi.GrFN.code_types import CodeType, build_code_type_decision_tree
 
 
 class SourceInterpreter(ABC):
-    def __init__(self, L: Dict[str, str], C: Dict, V: Dict, T: Dict, D: Dict):
-        self.container_lambdas_map = L
+    def __init__(self, C: Dict, V: Dict, T: Dict, D: Dict):
         self.containers = C
         self.variables = V
         self.types = T
         self.documentation = D
-        # self.container_code_types = {
-        #     name: CodeType.UNKNOWN for name in self.containers
-        # }
-        # self.container_stats = {
-        #     con_name: {
-        #         "num_calls": 0,
-        #         "max_call_depth": 0,
-        #         "num_math_assgs": 0,
-        #         "num_data_changes": 0,
-        #         "num_var_access": 0,
-        #         "num_assgs": 0,
-        #         "num_switches": 0,
-        #         "num_loops": 0,
-        #         "max_loop_depth": 0,
-        #         "num_conditionals": 0,
-        #         "max_conditional_depth": 0,
-        #     }
-        #     for con_name in self.containers
-        # }
-
         self.decision_tree = build_code_type_decision_tree()
 
     @classmethod
@@ -58,15 +42,15 @@ class SourceInterpreter(ABC):
 
 
 class ImperativeInterpreter(SourceInterpreter):
-    def __init__(self, L, C, V, T, D):
-        super().__init__(L, C, V, T, D)
+    def __init__(self, C, V, T, D):
+        super().__init__(C, V, T, D)
 
     @classmethod
     def from_src_file(cls, file):
         if not (file.endswith(".for") or file.endswith(".f")):
             raise ValueError(f"Unsupported file type ending for: {file}")
 
-        (L, C, V, T, D) = cls.interp_file_IR(file)
+        (C, V, T, D) = cls.interp_file_IR(file)
         return cls(C, V, T, D)
 
     @classmethod
@@ -78,16 +62,15 @@ class ImperativeInterpreter(SourceInterpreter):
             if file.endswith(".for") or file.endswith(".f")
         ]
 
-        L, C, V, T, D = {}, {}, {}, {}, {}
+        C, V, T, D = {}, {}, {}, {}
         for src_path in src_paths:
-            (L_new, C_new, V_new, T_new, D_new) = cls.interp_file_IR(src_path)
-            L.update(L_new)
+            (C_new, V_new, T_new, D_new) = cls.interp_file_IR(src_path)
             C.update(C_new)
             V.update(V_new)
             T.update(T_new)
             D.update(D_new)
 
-        return cls(L, C, V, T, D)
+        return cls(C, V, T, D)
 
     @staticmethod
     def interp_file_IR(fortran_file):
@@ -111,30 +94,32 @@ class ImperativeInterpreter(SourceInterpreter):
             processing_modules,
         )
 
-        C = {
-            c["name"]: GenericContainer.create_container(c)
-            for c in ir_dict["containers"]
-        }
-        V = {v["name"]: v for v in ir_dict["variables"]}
-        T = {t["name"]: t for t in ir_dict["types"]}
+        C = dict()
+        for con_data in ir_dict["containers"]:
+            new_container = GenericContainer.from_dict(con_data)
+            C[new_container.identifier] = new_container
+
+        V = dict()
+        for var_data in ir_dict["variables"]:
+            new_var = GenericDefinition.from_dict(var_data)
+            V[new_var.identifier] = new_var
+
+        T = dict()
+        for type_data in ir_dict["types"]:
+            new_type = GenericDefinition.from_dict(type_data)
+            T[new_type.identifier] = new_type
 
         filename = ir_dict["source"][0]
 
         # TODO Paul - is it fine to switch from keying by filename to keying by
         # container name? Also, lowercasing? - Adarsh
         container_name = Path(filename).stem.lower()
-
-        L = {container_name: lambdas_path}
         D = {
             n if not n.startswith("$") else container_name + n: data
             for n, data in ir_dict["source_comments"].items()
         }
 
-        return L, C, V, T, D
-
-    def get_container_lambdas(self, container_name: str):
-        namespace = container_name.split("::")[1].lower()
-        return self.container_lambdas_map[namespace]
+        return C, V, T, D
 
     def __find_max_call_depth(self, depth, container, visited: Set[str]):
         # TODO Adarsh: implement this
@@ -233,10 +218,9 @@ class ImperativeInterpreter(SourceInterpreter):
         return False
 
     def __process_lambda_stmt_stats(self, stmt, con_name):
-        # TODO Adarsh: finish implementing this.
+        # TODO finish this implementation
         self.container_stats[con_name]["num_assgs"] += 1
         lambda_name = stmt["function"]["name"]
-        lambda_path = Path(self.get_container_lambdas(con_name))
         lambdas_dir = str(lambda_path.parent.resolve())
         if lambdas_dir not in sys.path:
             sys.path.insert(0, lambdas_dir)
@@ -296,11 +280,8 @@ class ImperativeInterpreter(SourceInterpreter):
         represent a scientific model.
         """
         return {
-            name: extract_GrFN(
-                name,
-                self.containers,
-                self.variables,
-                self.container_lambdas_map,
+            name: GroundedFactorNetwork.from_AIR(
+                name, self.containers, self.variables, self.types,
             )
             for name in self.containers.keys()
             if self.container_code_types[name] is CodeType.MODEL
