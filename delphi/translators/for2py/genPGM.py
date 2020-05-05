@@ -941,7 +941,7 @@ class GrFNGenerator(object):
             state,
             True,
         )
-        loop_state.lambda_strings.append(index_initiation_lambda)
+        index_function["function"]["code"] = index_initiation_lambda
 
         # Second, lambda function for IF_0_0 test
         loop_test_string = f"0 <= {index_name} < {loop_end_name}"
@@ -957,7 +957,8 @@ class GrFNGenerator(object):
             state,
             True,
         )
-        loop_state.lambda_strings.append(loop_continuation_test_lambda)
+        loop_condition_function["function"]["code"] = \
+            loop_continuation_test_lambda
 
         # Parse through the body of the loop container
         loop = self.gen_grfn(node.body, loop_state, "for")
@@ -1156,7 +1157,7 @@ class GrFNGenerator(object):
             state,
             True,
         )
-        loop_state.lambda_strings.append(loop_exit_test_lambda)
+        loop_break_function["function"]["code"] = loop_exit_test_lambda
 
         # TODO: For the `loop_body_outputs`, all variables that were
         #  defined/updated inside the loop body are included. Sometimes,
@@ -1205,7 +1206,7 @@ class GrFNGenerator(object):
             state,
             True,
         )
-        loop_state.lambda_strings.append(index_increment_lambda)
+        index_increment_function["function"]["code"] = index_increment_lambda
 
         loop_variables_grfn.append(index_increment_grfn)
         loop_functions_grfn.append(index_increment_function)
@@ -1397,7 +1398,8 @@ class GrFNGenerator(object):
             state,
             True,
         )
-        loop_state.lambda_strings.append(loop_continuation_test_lambda)
+        loop_condition_function["function"]["code"] = \
+            loop_continuation_test_lambda
 
         # Parse through the body of the loop container
         loop = self.gen_grfn(node.body, loop_state, "for")
@@ -1594,7 +1596,7 @@ class GrFNGenerator(object):
             state,
             True,
         )
-        loop_state.lambda_strings.append(loop_exit_test_lambda)
+        loop_break_function["function"]["code"] = loop_exit_test_lambda
 
         # TODO: For the `loop_body_outputs`, all variables that were
         #  defined/updated inside the loop body are included. Sometimes,
@@ -1811,10 +1813,7 @@ class GrFNGenerator(object):
             state,
             False,
         )
-        if not is_else_if:
-            if_state.lambda_strings.append(lambda_string)
-        else:
-            state.lambda_strings.append(lambda_string)
+        fn["function"]["code"] = lambda_string
 
         else_node_name = node.orelse.__repr__().split()[0][3:]
 
@@ -2115,7 +2114,7 @@ class GrFNGenerator(object):
                 if_state,
                 False,
             )
-            state.lambda_strings.append(lambda_string)
+            fn["function"]["code"] = lambda_string
 
         for index, item in enumerate(if_body_outputs):
             function_updated.append({
@@ -2557,7 +2556,7 @@ class GrFNGenerator(object):
                             state,
                             False,
                         )
-                        state.lambda_strings.append(lambda_string)
+                        function["function"]["code"] = lambda_string
                 else:
                     if function_name in self.arrays:
                         # If array type is <float> the argument holder
@@ -2667,7 +2666,7 @@ class GrFNGenerator(object):
                         state,
                         False,
                     )
-                    state.lambda_strings.append(lambda_string)
+                    function["function"]["code"] = lambda_string
                     need_lambdas = False
 
             # Make an assign function for a string .set_ operation
@@ -2713,7 +2712,7 @@ class GrFNGenerator(object):
                     state,
                     False,
                 )
-                state.lambda_strings.append(lambda_string)
+                function["function"]["code"] = lambda_string
 
             # This is sort of a hack for SIR to get the updated fields filled
             # in beforehand. For a generalized approach, look at
@@ -2969,7 +2968,7 @@ class GrFNGenerator(object):
                     state,
                     False,
                 )
-                state.lambda_strings.append(lambda_string)
+                fn["function"]["code"] = lambda_string
             # In the case of assignments of the form: "ud: List[float]"
             # an assignment function will be created with an empty input
             # list. Also, the function dictionary will be empty. We do
@@ -3292,7 +3291,7 @@ class GrFNGenerator(object):
                     state,
                     False,
                 )
-                state.lambda_strings.append(lambda_string)
+                fn["function"]["code"] = lambda_string
 
             grfn["functions"].append(fn)
             # We need to cleanup the object attribute tracking list.
@@ -4172,6 +4171,7 @@ class GrFNGenerator(object):
     ):
         self.generated_lambda_functions.append(function_name)
         lambda_for_var = True
+        inline_lambda = "lambda "
         lambda_strings = ["\n"]
         argument_strings = []
 
@@ -4195,26 +4195,32 @@ class GrFNGenerator(object):
             lambda_strings.append(
                 f"def {function_name}({', '.join(inputs)}):\n    "
             )
+            inline_lambda += f"{','.join(inputs)}:"
             if return_value:
                 if isinstance(node, str):
                     lambda_strings.append(f"return {node}")
+                    inline_lambda += node
                 elif isinstance(node, int):
                     lambda_strings.append(f"return {node}")
+                    inline_lambda += f"{node}"
                 elif isinstance(node, list) and node[0] == "EXIT":
                     exit_string = f"(not {inputs[0]})"
                     for ip in inputs[1:]:
                         exit_string += f" or (not {ip})"
                     lambda_strings.append(f"return {exit_string}")
+                    inline_lambda += exit_string
                 else:
                     lambda_code_generator = genCode(self.use_numpy)
                     code = lambda_code_generator.generate_code(
                         node, PrintState("\n    ")
                     )
                     lambda_strings.append(f"return {code}")
+                    inline_lambda += code
             else:
                 assert False, f"Should always return"
             lambda_strings.append("\n\n")
-            return "".join(lambda_strings)
+            return inline_lambda
+            # return "".join(lambda_strings)
 
         # Sort the arguments in the function call as it is used in the operation
         input_list = sorted(set(inputs), key=inputs.index)
@@ -4275,6 +4281,7 @@ class GrFNGenerator(object):
         lambda_strings.append(
             f"def {function_name}({', '.join(argument_strings)}):\n    "
         )
+        inline_lambda += f"{','.join(input_list)}:"
         # A case where calculating the sum of array.
         # In this case, we do not have to invoke genCode function(s).
         if (
@@ -4287,8 +4294,9 @@ class GrFNGenerator(object):
             # TODO: Currently, only handles 1D-list to satisfy cases
             # that onnly appears in the Min-SPAM files.
             lambda_strings.append(f"return sum({arr_name})\n")
-
-            return "".join(lambda_strings)
+            inline_lambda += f"sum({arr_name})"
+            return inline_lambda
+            # return "".join(lambda_strings)
 
         # If a `decision` tag comes up, override the call to genCode to manually
         # enter the python script for the lambda file.
@@ -4360,7 +4368,9 @@ class GrFNGenerator(object):
             lines[-1] = lines[-1][:indent] + "return " + lines[-1][indent:]
             lambda_strings.append("\n".join(lines))
         lambda_strings.append("\n\n")
-        return "".join(lambda_strings)
+        inline_lambda += code
+        return inline_lambda
+        # return "".join(lambda_strings)
 
     def generate_container_id_name(
         self, namespace_file: str, scope_path, container_basename: str
@@ -4793,7 +4803,7 @@ class GrFNGenerator(object):
             state,
             False,
         )
-        state.lambda_strings.append(lambda_string)
+        function["function"]["code"] = lambda_string
 
         return function
 
@@ -5476,8 +5486,8 @@ def create_grfn_dict(
     if not grfn.get("variables"):
         grfn["variables"] = []
 
-    with open(lambda_file, "w") as lambda_fh:
-        lambda_fh.write("".join(lambda_string_list))
+    # with open(lambda_file, "w") as lambda_fh:
+    #     lambda_fh.write("".join(lambda_string_list))
 
     with open(mod_log_file_path, "w+") as json_f:
         json_f.write(json.dumps(module_logs, indent=2))
