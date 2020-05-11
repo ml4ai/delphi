@@ -60,6 +60,8 @@ def extract_indicator_text(level, level_li, level_text_lst, inds):
             for lvl in range(max_levels + 1):
                 row[str(lvl)] = level_text_lst[lvl]
 
+            row['URL'] = ''
+
             inds.append(row)
             '''
             inds.append({
@@ -70,6 +72,25 @@ def extract_indicator_text(level, level_li, level_text_lst, inds):
                                 '4': level_text_lst[4]
                              })
             '''
+        else:
+            level_a = level_li.select_one('a.le')
+            if level_a:
+                # This is a downloadable file
+                level_text_lst[level] = level_a.get_text()
+                print('\t'*level, '++++', level_text_lst[level])
+                print('\t'*(level+1), '++++', level_a['href'])
+
+                for lvl in range(level+1, max_levels+1):
+                    level_text_lst[lvl] = ''
+
+                row = {}
+                for lvl in range(max_levels + 1):
+                    row[str(lvl)] = level_text_lst[lvl]
+
+                row['URL'] = level_a['href']
+
+                inds.append(row)
+
 
 indicators = []
 level_text = ['', '', '', '', '']
@@ -77,6 +98,7 @@ level_text = ['', '', '', '', '']
 with open('Final_Extracted_Data/UIS/UIS_indicator_html.txt', 'r') as ind_html:
     soup = BeautifulSoup(ind_html.read(), 'lxml')
     #print(soup.find(class_='treeview').prettify())
+    #exit()
     level0_lis = soup.select("ul.treeview > li")
     print(len(level0_lis))
     for level0_li in level0_lis:
