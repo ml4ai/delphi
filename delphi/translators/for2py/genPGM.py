@@ -1184,7 +1184,7 @@ class GrFNGenerator(object):
             [index_name], None, False, loop_state
         )
         index_increment_function_name = self.generate_function_name(
-            "__assign_", index_increment_grfn["name"], None
+            "__assign__", index_increment_grfn["name"], None
         )
         index_increment_function = {
             "function": index_increment_function_name,
