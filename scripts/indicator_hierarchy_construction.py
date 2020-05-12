@@ -69,7 +69,6 @@ def clean_FAOSTAT_data(outputFile):
                     if row[col] not in pointer:
                         pointer[row[col]] = {}  
                     pointer = pointer[row[col]]
-        #print(dict_file)
 
         with open(outputFile, 'a') as file:
             documents = yaml.dump(dict_file, file)
