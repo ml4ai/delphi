@@ -586,6 +586,15 @@ class GrFNGenerator(object):
                 argument_index
             )
 
+        # Some arguments to a function are output variables i.e. they are not
+        # used as inputs to a operation but are actually updated within the
+        # function. The reason for this is that Fortran/C design pattern of
+        # passing variables by reference to a callee subroutine so that there
+        # values can be populated by the callee subroutine and then used by
+        # the caller subroutine after the callee returns
+        # We need to remove these inputs from the argument_list
+        self._remove_output_variables(argument_list, body_grfn)
+
         # Create a gensym for the function container
         container_gensym = self.generate_gensym("container")
 
@@ -1184,7 +1193,7 @@ class GrFNGenerator(object):
             [index_name], None, False, loop_state
         )
         index_increment_function_name = self.generate_function_name(
-            "__assign_", index_increment_grfn["name"], None
+            "__assign__", index_increment_grfn["name"], None
         )
         index_increment_function = {
             "function": index_increment_function_name,
@@ -4966,6 +4975,33 @@ class GrFNGenerator(object):
                 )
 
         return updated_list
+
+    @staticmethod
+    def _remove_output_variables(arguments_list, body):
+        """
+        Remove output variables from the argument list of function definitions
+        """
+        input_list = []
+        arg_map = {}
+        for arg in arguments_list:
+            arg_map[arg.split("::")[1]] = arg
+
+        for obj in body:
+            if obj["functions"]:
+                for statement in obj["functions"]:
+                    for ip in statement["input"]:
+                        input_list.append(ip.split("::")[1])
+                    if statement["function"]["type"] == "lambda":
+                        check = "output"
+                    elif statement["function"]["type"] == "container":
+                        check = "updated"
+                    else:
+                        assert False, "Unknown function type detected"
+
+                    for op in statement[check]:
+                        op = op.split("::")[1]
+                        if op not in input_list and op in arg_map:
+                            arguments_list.remove(arg_map[op])
 
     def check_io_variables(self, variable_name):
         """
