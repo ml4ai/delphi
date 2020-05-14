@@ -12,6 +12,7 @@ import os
 import networkx as nx
 import numpy as np
 from networkx.algorithms.simple_paths import all_simple_paths
+from pygraphviz import AGraph
 
 from delphi.GrFN.structures import (
     GenericContainer,
@@ -704,37 +705,6 @@ class GroundedFunctionNetwork(ComputationalGraph):
         GrFN_json = self.to_json()
         json.dump(GrFN_json, open(filename, "w"))
 
-    def to_AGraph(self):
-        """ Export to a PyGraphviz AGraph object. """
-        A = nx.nx_agraph.to_agraph(self)
-        A.graph_attr.update(
-            {"dpi": 227, "fontsize": 20, "fontname": "Menlo", "rankdir": "LR"}
-        )
-        A.node_attr.update({"fontname": "Menlo"})
-
-        def build_tree(cluster_name, node_attrs, root_graph):
-            subgraph_nodes = [
-                node_name
-                for node_name, node_data in self.nodes(data=True)
-                if node_data["parent"] == cluster_name
-            ]
-            root_graph.add_nodes_from(subgraph_nodes)
-            subgraph = root_graph.add_subgraph(
-                subgraph_nodes,
-                name=f"cluster_{cluster_name}",
-                label=cluster_name,
-                style="bold, rounded",
-                rankdir="LR",
-                color=node_attrs[cluster_name]["color"],
-            )
-            for n in self.scope_tree.successors(cluster_name):
-                build_tree(n, node_attrs, subgraph)
-
-        root = [n for n, d in self.scope_tree.in_degree() if d == 0][0]
-        node_data = {n: d for n, d in self.scope_tree.nodes(data=True)}
-        build_tree(root, node_data, A)
-        return A
-
     def CAG_to_AGraph(self):
         """Returns a variable-only view of the GrFN in the form of an AGraph.
 
@@ -947,15 +917,11 @@ class ForwardInfluenceBlanket(ComputationalGraph):
 class GenericNode(ABC):
     uid: UUID
 
-    def __hash__(self):
-        return hash(self.uid)
-
     def __repr__(self):
         return self.__str__()
 
-    @abstractmethod
     def __str__(self):
-        return self.uid
+        return str(self.uid)
 
     @staticmethod
     def create_node_id() -> UUID:
@@ -965,17 +931,18 @@ class GenericNode(ABC):
     def get_kwargs(self):
         return NotImplemented
 
+    @abstractmethod
+    def get_label(self):
+        return NotImplemented
+
 
 @dataclass(repr=False, frozen=False)
 class VariableNode(GenericNode):
     identifier: VariableIdentifier
     value: Any
 
-    def __repr__(self):
-        return self.__str__()
-
-    def __str__(self):
-        return self.name
+    def __hash__(self):
+        return hash(self.uid)
 
     @classmethod
     def from_id(cls, id: VariableIdentifier):
@@ -985,15 +952,18 @@ class VariableNode(GenericNode):
         return f"{self.name}\n({self.index})"
 
     def get_kwargs(self):
-        is_exit = self.name == "EXIT"
+        is_exit = self.identifier.var_name == "EXIT"
         return {
             "color": "crimson",
             "fontcolor": "white" if is_exit else "black",
             "fillcolor": "crimson" if is_exit else "white",
             "style": "filled" if is_exit else "",
             "padding": 15,
-            "value": None,
+            "label": self.get_label(),
         }
+
+    def get_label(self):
+        return self.identifier.var_name
 
 
 @dataclass(repr=False, frozen=False)
@@ -1002,11 +972,8 @@ class LambdaNode(GenericNode):
     func_str: str
     function: callable
 
-    def __repr__(self):
-        return self.__str__()
-
-    def __str__(self):
-        return self.func_type.shortname()
+    def __hash__(self):
+        return hash(self.uid)
 
     def __call__(self, *values) -> Iterable[Any]:
         expected_num_args = len(self.get_signature())
@@ -1027,7 +994,10 @@ class LambdaNode(GenericNode):
             raise e
 
     def get_kwargs(self):
-        return {"shape": "rectangle", "padding": 10}
+        return {"shape": "rectangle", "padding": 10, "label": self.get_label()}
+
+    def get_label(self):
+        return self.func_type.shortname()
 
     def get_signature(self):
         return self.function.__code__.co_varnames
@@ -1054,11 +1024,15 @@ class GrFNSubgraph:
     border_color: str
     nodes: Iterable[GenericNode]
 
+    def __hash__(self):
+        return hash(self.__str__())
+
     def __repr__(self):
         return self.__str__()
 
     def __str__(self):
-        return f"{self.basename}\n({self.occurrence_num})"
+        context = f"{self.namespace}.{self.scope}"
+        return f"{self.basename}::{self.occurrence_num} ({context})"
 
     @classmethod
     def from_container(cls, con: GenericContainer, occ: int):
@@ -1073,7 +1047,7 @@ class GrFNSubgraph:
             # clr = "lightskyblue"
             raise TypeError(f"Unrecognized container type: {type(con)}")
         id = con.identifier
-        return cls(id.namespace, id.scope, id.basename, occ, clr, [])
+        return cls(id.namespace, id.scope, id.con_name, occ, clr, [])
 
 
 class GroundedFactorNetwork(nx.DiGraph):
@@ -1082,7 +1056,7 @@ class GroundedFactorNetwork(nx.DiGraph):
         id: ContainerIdentifier,
         G: nx.DiGraph,
         H: List[HyperEdge],
-        S: List[GrFNSubgraph],
+        S: nx.DiGraph,
     ):
         super().__init__(G)
         self.hyper_edges = H
@@ -1097,16 +1071,16 @@ class GroundedFactorNetwork(nx.DiGraph):
         self.lambdas = [n for n in self.nodes if isinstance(n, LambdaNode)]
         self.inputs = [
             n
-            for n in self.nodes
-            if len(list(self.predecessors(n))) == 0
-            and isinstance(n, VariableNode)
+            for n, d in self.in_degree()
+            if d == 0 and isinstance(n, VariableNode)
         ]
         self.outputs = [
             n
-            for n in self.nodes
-            if len(list(self.successors(n))) == 0
-            and isinstance(n, VariableNode)
+            for n, d in self.out_degree()
+            if d == 0 and isinstance(n, VariableNode)
         ]
+        self.FCG = self.to_FCG()
+        self.function_sets = self.build_function_sets()
 
     def __repr__(self):
         return self.__str__()
@@ -1172,7 +1146,7 @@ class GroundedFactorNetwork(nx.DiGraph):
         network = nx.DiGraph()
         hyper_edges = list()
         Occs = dict()
-        subgraphs = list()
+        subgraphs = nx.DiGraph()
 
         def add_variable_node(id: VariableIdentifier) -> VariableNode:
             node = VariableNode.from_id(id)
@@ -1202,16 +1176,18 @@ class GroundedFactorNetwork(nx.DiGraph):
             hyper_edges.append(HyperEdge(inputs, lambda_node, outputs))
 
         def translate_container(
-            con: GenericContainer, inputs: Iterable[VariableNode],
+            con: GenericContainer,
+            inputs: Iterable[VariableNode],
+            parent: GrFNSubgraph = None,
         ) -> Iterable[VariableNode]:
-            # raise ValueError(f"Unsupported container type: {type(con)}")
-            if con.name not in Occs:
-                Occs[con.name] = 0
+            con_name = con.identifier
+            if con_name not in Occs:
+                Occs[con_name] = 0
 
-            con_subgraph = GrFNSubgraph(con.name, Occs[con.name])
+            con_subgraph = GrFNSubgraph.from_container(con, Occs[con_name])
             live_variables = dict()
             if len(inputs) > 0:
-                in_var_names = [n.name for n in inputs]
+                in_var_names = [n.identifier.var_name for n in inputs]
                 in_var_str = ",".join(in_var_names)
                 pass_func_str = f"lambda {in_var_str}:({in_var_str})"
                 func = add_lambda_node(LambdaType.PASS, pass_func_str)
@@ -1227,12 +1203,15 @@ class GroundedFactorNetwork(nx.DiGraph):
                     {id: add_variable_node(id) for id in con.arguments}
                 )
 
-            for stmt in con.statements:
-                returned_nodes = translate_stmt(stmt, inputs, live_variables)
-                con_subgraph.nodes.extend(returned_nodes)
+            con_subgraph.nodes.extend(list(live_variables.values()))
 
-            subgraphs.nodes.extend(list(live_variables.values()))
-            subgraphs.append(con_subgraph)
+            for stmt in con.statements:
+                translate_stmt(stmt, live_variables, con_subgraph)
+
+            subgraphs.add_node(con_subgraph)
+
+            if parent is not None:
+                subgraphs.add_edge(parent, con_subgraph)
 
             if len(inputs) > 0:
                 # Do this only if this is not the starting container
@@ -1240,55 +1219,154 @@ class GroundedFactorNetwork(nx.DiGraph):
                 update_vars = [live_variables[id] for id in con.updated]
                 output_vars = returned_vars + update_vars
 
-                out_var_names = [n.name for n in output_vars]
+                out_var_names = [n.identifier.var_name for n in output_vars]
                 out_var_str = ",".join(out_var_names)
                 pass_func_str = f"lambda {out_var_str}:({out_var_str})"
-                func = network.add_lambda_node(LambdaType.PASS, pass_func_str)
+                func = add_lambda_node(LambdaType.PASS, pass_func_str)
+                con_subgraph.nodes.append(func)
                 return (output_vars, func)
 
         @singledispatch
         def translate_stmt(
             stmt: GenericStmt,
             live_variables: Dict[VariableIdentifier, VariableNode],
-        ) -> Iterable[GenericNode]:
+            parent: GrFNSubgraph,
+        ) -> None:
             raise ValueError(f"Unsupported statement type: {type(stmt)}")
 
         @translate_stmt.register
         def _(
             stmt: CallStmt,
             live_variables: Dict[VariableIdentifier, VariableNode],
-        ) -> Iterable[GenericNode]:
+            subgraph: GrFNSubgraph,
+        ) -> None:
             new_con = containers[stmt.call_id]
             if stmt.call_id not in Occs:
                 Occs[stmt.call_id] = 0
 
             inputs = [live_variables[id] for id in stmt.inputs]
-            (con_outputs, pass_func) = translate_container(new_con, inputs)
+            (con_outputs, pass_func) = translate_container(
+                new_con, inputs, subgraph
+            )
+            Occs[stmt.call_id] += 1
             out_nodes = [add_variable_node(var) for var in stmt.outputs]
+            subgraph.nodes.extend(out_nodes)
             add_hyper_edge(con_outputs, pass_func, out_nodes)
             for output_node in out_nodes:
                 var_id = output_node.identifier
                 live_variables[var_id] = output_node
 
-            Occs[stmt.call_id] += 1
-            return out_nodes
-
         @translate_stmt.register
         def _(
             stmt: LambdaStmt,
             live_variables: Dict[VariableIdentifier, VariableNode],
-        ) -> Iterable[GenericNode]:
+            subgraph: GrFNSubgraph,
+        ) -> None:
             inputs = [live_variables[id] for id in stmt.inputs]
             out_nodes = [add_variable_node(var) for var in stmt.outputs]
             func = add_lambda_node(stmt.type, stmt.func_str)
+
+            subgraph.nodes.append(func)
+            subgraph.nodes.extend(out_nodes)
+
             add_hyper_edge(inputs, func, out_nodes)
             for output_node in out_nodes:
                 var_id = output_node.identifier
                 live_variables[var_id] = output_node
 
-            return [func] + out_nodes
-
         start_container = containers[con_id]
         Occs[con_id] = 0
         translate_container(start_container, [])
-        return cls(network, hyper_edges, subgraphs)
+        return cls(con_id, network, hyper_edges, subgraphs)
+
+    def to_FCG(self):
+        G = nx.DiGraph()
+        func_to_func_edges = [
+            (func_node, node)
+            for node in self.nodes
+            if isinstance(node, LambdaNode)
+            for var_node in self.predecessors(node)
+            for func_node in self.predecessors(var_node)
+        ]
+        G.add_edges_from(func_to_func_edges)
+        return G
+
+    def build_function_sets(self):
+        initial_funcs = [n for n, d in self.FCG.in_degree() if d == 0]
+        distances = dict()
+
+        def find_distances(funcs, dist):
+            all_successors = list()
+            for func in funcs:
+                distances[func] = dist
+                all_successors.extend(self.FCG.successors(func))
+            if len(all_successors) > 0:
+                find_distances(list(set(all_successors)), dist + 1)
+
+        find_distances(initial_funcs, 0)
+        call_sets = dict()
+        for func_node, call_dist in distances.items():
+            if call_dist in call_sets:
+                call_sets[call_dist].add(func_node)
+            else:
+                call_sets[call_dist] = {func_node}
+
+        function_set_dists = sorted(
+            call_sets.items(), key=lambda t: (t[0], len(t[1]))
+        )
+        function_sets = [func_set for _, func_set in function_set_dists]
+        return function_sets
+
+    def to_AGraph(self):
+        """ Export to a PyGraphviz AGraph object. """
+        var_nodes = [n for n in self.nodes if isinstance(n, VariableNode)]
+        input_nodes = set([v for v in var_nodes if self.in_degree(v) == 0])
+        output_nodes = set([v for v in var_nodes if self.out_degree(v) == 0])
+
+        A = nx.nx_agraph.to_agraph(self)
+        A.graph_attr.update(
+            {"dpi": 227, "fontsize": 20, "fontname": "Menlo", "rankdir": "TB"}
+        )
+        A.node_attr.update({"fontname": "Menlo"})
+        # A.add_subgraph(input_nodes, rank="same")
+        # A.add_subgraph(output_nodes, rank="same")
+
+        def get_subgraph_nodes(subgraph: GrFNSubgraph):
+            return subgraph.nodes + [
+                node
+                for child_graph in self.subgraphs.successors(subgraph)
+                for node in get_subgraph_nodes(child_graph)
+            ]
+
+        def populate_subgraph(subgraph: GrFNSubgraph, parent: AGraph):
+            all_sub_nodes = get_subgraph_nodes(subgraph)
+            container_subgraph = parent.add_subgraph(
+                all_sub_nodes,
+                name=f"cluster_{str(subgraph)}",
+                label=subgraph.basename,
+                style="bold, rounded",
+                rankdir="TB",
+                color=subgraph.border_color,
+            )
+
+            input_var_nodes = set(input_nodes).intersection(subgraph.nodes)
+            container_subgraph.add_subgraph(list(input_var_nodes), rank="same")
+
+            for new_subgraph in self.subgraphs.successors(subgraph):
+                populate_subgraph(new_subgraph, container_subgraph)
+
+            for func_set in self.function_sets:
+                func_set = list(func_set.intersection(set(subgraph.nodes)))
+                container_subgraph.add_subgraph(func_set, rank="same")
+                output_var_nodes = list()
+                for func_node in func_set:
+                    succs = list(self.successors(func_node))
+                    output_var_nodes.extend(succs)
+                output_var_nodes = set(output_var_nodes) - output_nodes
+                var_nodes = output_var_nodes.intersection(subgraph.nodes)
+                container_subgraph.add_subgraph(list(var_nodes), rank="same")
+
+        root_subgraph = [n for n, d in self.subgraphs.in_degree() if d == 0][0]
+        populate_subgraph(root_subgraph, A)
+
+        return A
