@@ -390,7 +390,7 @@ class genCode:
                 elif function_name == "min":
                     function_name = "np.minimum"
 
-        if function_name is not "Array":
+        if function_name != "Array":
             # Check for setter and getter functions to differentiate between
             # array and string operations
             if ".set_" in function_name and len(node.args) > 1 and \

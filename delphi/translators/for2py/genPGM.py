@@ -3860,7 +3860,7 @@ class GrFNGenerator(object):
                     method_name = function_name
                 # Remove first index of an array function as it's
                 # really a type name not the variable for input.
-                if function_name is "Array":
+                if function_name == "Array":
                     del src["call"]["inputs"][0]
                 # If a RHS of an assignment is an array getter,
                 # for example, meani.get_((runs[0])), we only need
