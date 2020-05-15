@@ -9,9 +9,8 @@
       subroutine get_beta(intrinsic_growth_rate, gamma,
      &                    susceptible, relative_contact_rate,
      &                    beta)
-        real intrinsic_growth_rate, gamma, relative_contact_rate
-        real inv_contact_rate, updated_growth_rate, beta
-        integer susceptible
+        real intrinsic_growth_rate, susceptible, relative_contact_rate
+        real inv_contact_rate, updated_growth_rate, gamma, beta
 
         inv_contact_rate = 1.0 - relative_contact_rate
         updated_growth_rate = intrinsic_growth_rate + gamma
