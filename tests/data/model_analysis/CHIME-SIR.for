@@ -45,32 +45,32 @@
         use PolicyMod
         real s_n, i_n, r_n, n, gamma, beta
         integer d
-        integer i_day, index, d_idx, p_idx, N_d, N_p, N_t, T(N_t)
+        integer i_day, idx, d_idx, p_idx, N_d, N_p, N_t, T(N_t)
         type (Policy) policies(N_p)
         real S(N_t), E(N_t), I(N_t), R(N_t)
 
         n = s_n + i_n + r_n
         d = i_day
 
-        index = 1
+        idx = 1
         do p_idx = 1, N_p
           beta = policies(p_idx) % beta
           N_d = policies(p_idx) % num_days
           do d_idx = 1, N_d
-            T(index) = d
-            S(index) = s_n
-            I(index) = i_n
-            R(index) = r_n
-            index = index + 1
+            T(idx) = d
+            S(idx) = s_n
+            I(idx) = i_n
+            R(idx) = r_n
+            idx = idx + 1
             call sir(s_n, i_n, r_n, beta, gamma, n)
             d = d + 1
           enddo
         enddo
 
-        T(index) = d
-        S(index) = s_n
-        I(index) = i_n
-        R(index) = r_n
+        T(idx) = d
+        S(idx) = s_n
+        I(idx) = i_n
+        R(idx) = r_n
       end subroutine sim_sir
 
       program main

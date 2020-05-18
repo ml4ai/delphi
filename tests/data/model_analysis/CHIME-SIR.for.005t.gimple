@@ -1,0 +1,442 @@
+__copy_policymod_Policy (struct policy & restrict src, struct policy & restrict dst)
+{
+  *dst = *src;
+}
+
+
+sim_sir (real(kind=4) & restrict s_n, real(kind=4) & restrict i_n, real(kind=4) & restrict r_n, real(kind=4) & restrict gamma, integer(kind=4) & restrict i_day, integer(kind=4) & restrict n_p, integer(kind=4) & restrict n_t, struct policy[0:D.3964] * restrict policies, integer(kind=4)[0:D.3961] * restrict t, real(kind=4)[0:D.3958] * restrict s, real(kind=4)[0:] * restrict e, real(kind=4)[0:D.3955] * restrict i, real(kind=4)[0:D.3952] * restrict r)
+{
+  real(kind=4) beta;
+  integer(kind=4) d;
+  integer(kind=4) d_idx;
+  integer(kind=8) ubound.0;
+  integer(kind=8) size.1;
+  integer(kind=4) idx;
+  real(kind=4) n;
+  integer(kind=4) n_d;
+  integer(kind=4) p_idx;
+  integer(kind=8) ubound.2;
+  integer(kind=8) size.3;
+  integer(kind=8) ubound.4;
+  integer(kind=8) size.5;
+  integer(kind=8) ubound.6;
+  integer(kind=8) size.7;
+  integer(kind=8) ubound.8;
+  integer(kind=8) size.9;
+  integer(kind=8) D.3952;
+  bitsizetype D.3953;
+  sizetype D.3954;
+  integer(kind=8) D.3955;
+  bitsizetype D.3956;
+  sizetype D.3957;
+  integer(kind=8) D.3958;
+  bitsizetype D.3959;
+  sizetype D.3960;
+  integer(kind=8) D.3961;
+  bitsizetype D.3962;
+  sizetype D.3963;
+  integer(kind=8) D.3964;
+  bitsizetype D.3965;
+  sizetype D.3966;
+
+  try
+    {
+      _1 = *n_p;
+      ubound.2 = (integer(kind=8)) _1;
+      size.3 = ubound.2;
+      size.3 = MAX_EXPR <size.3, 0>;
+      D.3964 = size.3 + -1;
+      size.15_2 = (sizetype) size.3;
+      _3 = (bitsizetype) size.15_2;
+      D.3965 = _3 * 64;
+      size.16_4 = (sizetype) size.3;
+      D.3966 = size.16_4 * 8;
+      _5 = *n_t;
+      ubound.8 = (integer(kind=8)) _5;
+      size.9 = ubound.8;
+      size.9 = MAX_EXPR <size.9, 0>;
+      D.3961 = size.9 + -1;
+      size.17_6 = (sizetype) size.9;
+      _7 = (bitsizetype) size.17_6;
+      D.3962 = _7 * 32;
+      size.18_8 = (sizetype) size.9;
+      D.3963 = size.18_8 * 4;
+      _9 = *n_t;
+      ubound.6 = (integer(kind=8)) _9;
+      size.7 = ubound.6;
+      size.7 = MAX_EXPR <size.7, 0>;
+      D.3958 = size.7 + -1;
+      size.19_10 = (sizetype) size.7;
+      _11 = (bitsizetype) size.19_10;
+      D.3959 = _11 * 32;
+      size.20_12 = (sizetype) size.7;
+      D.3960 = size.20_12 * 4;
+      _13 = *n_t;
+      ubound.0 = (integer(kind=8)) _13;
+      size.1 = ubound.0;
+      size.1 = MAX_EXPR <size.1, 0>;
+      D.3955 = size.1 + -1;
+      size.21_14 = (sizetype) size.1;
+      _15 = (bitsizetype) size.21_14;
+      D.3956 = _15 * 32;
+      size.22_16 = (sizetype) size.1;
+      D.3957 = size.22_16 * 4;
+      _17 = *n_t;
+      ubound.4 = (integer(kind=8)) _17;
+      size.5 = ubound.4;
+      size.5 = MAX_EXPR <size.5, 0>;
+      D.3952 = size.5 + -1;
+      size.23_18 = (sizetype) size.5;
+      _19 = (bitsizetype) size.23_18;
+      D.3953 = _19 * 32;
+      size.24_20 = (sizetype) size.5;
+      D.3954 = size.24_20 * 4;
+      _21 = *s_n;
+      _22 = *i_n;
+      _23 = _21 + _22;
+      _24 = *r_n;
+      _25 = _23 + _24;
+      n = _25;
+      d = *i_day;
+      idx = 1;
+      {
+        integer(kind=4) D.3936;
+
+        D.3936 = *n_p;
+        p_idx = 1;
+        <D.4051>:
+        {
+          logical(kind=4) D.3939;
+
+          D.3939 = p_idx > D.3936;
+          if (D.3939 != 0) goto L.2; else goto <D.4052>;
+          <D.4052>:
+          _26 = (integer(kind=8)) p_idx;
+          _27 = _26 + -1;
+          _28 = *policies[_27].beta;
+          beta = _28;
+          _29 = (integer(kind=8)) p_idx;
+          _30 = _29 + -1;
+          n_d = *policies[_30].num_days;
+          {
+            integer(kind=4) D.3940;
+
+            D.3940 = n_d;
+            d_idx = 1;
+            <D.4053>:
+            {
+              logical(kind=4) D.3943;
+
+              D.3943 = d_idx > D.3940;
+              if (D.3943 != 0) goto L.4; else goto <D.4054>;
+              <D.4054>:
+              _31 = (integer(kind=8)) idx;
+              _32 = _31 + -1;
+              *t[_32] = d;
+              _33 = (integer(kind=8)) idx;
+              _34 = _33 + -1;
+              _35 = *s_n;
+              *s[_34] = _35;
+              _36 = (integer(kind=8)) idx;
+              _37 = _36 + -1;
+              _38 = *i_n;
+              *i[_37] = _38;
+              _39 = (integer(kind=8)) idx;
+              _40 = _39 + -1;
+              _41 = *r_n;
+              *r[_40] = _41;
+              idx = idx + 1;
+              sir (s_n, i_n, r_n, &beta, gamma, &n);
+              d = d + 1;
+              L.3:
+              d_idx = d_idx + 1;
+            }
+            goto <D.4053>;
+            L.4:
+          }
+          L.1:
+          p_idx = p_idx + 1;
+        }
+        goto <D.4051>;
+        L.2:
+      }
+      _42 = (integer(kind=8)) idx;
+      _43 = _42 + -1;
+      *t[_43] = d;
+      _44 = (integer(kind=8)) idx;
+      _45 = _44 + -1;
+      _46 = *s_n;
+      *s[_45] = _46;
+      _47 = (integer(kind=8)) idx;
+      _48 = _47 + -1;
+      _49 = *i_n;
+      *i[_48] = _49;
+      _50 = (integer(kind=8)) idx;
+      _51 = _50 + -1;
+      _52 = *r_n;
+      *r[_51] = _52;
+    }
+  finally
+    {
+      beta = {CLOBBER};
+      n = {CLOBBER};
+    }
+}
+
+
+get_beta (real(kind=4) & restrict intrinsic_growth_rate, real(kind=4) & restrict gamma, real(kind=4) & restrict susceptible, real(kind=4) & restrict relative_contact_rate, real(kind=4) & restrict beta)
+{
+  real(kind=4) inv_contact_rate;
+  real(kind=4) updated_growth_rate;
+
+  _1 = *relative_contact_rate;
+  inv_contact_rate = 1.0e+0 - _1;
+  _2 = *intrinsic_growth_rate;
+  _3 = *gamma;
+  updated_growth_rate = _2 + _3;
+  _4 = *susceptible;
+  _5 = updated_growth_rate / _4;
+  _6 = inv_contact_rate * _5;
+  *beta = _6;
+}
+
+
+get_growth_rate (real(kind=4) & restrict doubling_time, real(kind=4) & restrict growth_rate)
+{
+  _1 = *doubling_time;
+  if (_1 == 0.0) goto <D.4055>; else goto <D.4056>;
+  <D.4055>:
+  *growth_rate = 0.0;
+  goto <D.4057>;
+  <D.4056>:
+  _2 = *doubling_time;
+  _3 = 1.0e+0 / _2;
+  _4 = ((_3));
+  _5 = __builtin_powf (2.0e+0, _4);
+  _6 = _5 - 1.0e+0;
+  *growth_rate = _6;
+  <D.4057>:
+  L.5:
+}
+
+
+sir (real(kind=4) & restrict s, real(kind=4) & restrict i, real(kind=4) & restrict r, real(kind=4) & restrict beta, real(kind=4) & restrict gamma, real(kind=4) & restrict n)
+{
+  real(kind=4) i_n;
+  real(kind=4) r_n;
+  real(kind=4) s_n;
+  real(kind=4) scale;
+
+  _1 = *beta;
+  _2 = *s;
+  _3 = _1 * _2;
+  _4 = *i;
+  _5 = _3 * _4;
+  _6 = -_5;
+  _7 = ((_6));
+  _8 = *s;
+  s_n = _7 + _8;
+  _9 = *beta;
+  _10 = *s;
+  _11 = _9 * _10;
+  _12 = *i;
+  _13 = _11 * _12;
+  _14 = *gamma;
+  _15 = *i;
+  _16 = _14 * _15;
+  _17 = _13 - _16;
+  _18 = ((_17));
+  _19 = *i;
+  i_n = _18 + _19;
+  _20 = *gamma;
+  _21 = *i;
+  _22 = _20 * _21;
+  _23 = *r;
+  r_n = _22 + _23;
+  _24 = *n;
+  _25 = s_n + i_n;
+  _26 = r_n + _25;
+  _27 = ((_26));
+  scale = _24 / _27;
+  _28 = s_n * scale;
+  *s = _28;
+  _29 = i_n * scale;
+  *i = _29;
+  _30 = r_n * scale;
+  *r = _30;
+}
+
+
+MAIN__ ()
+{
+  real(kind=4) beta;
+  real(kind=4) doubling_time;
+  real(kind=4) e[121];
+  real(kind=4) growth_rate;
+  real(kind=4) i[121];
+  real(kind=4) i_n;
+  integer(kind=4) p_idx;
+  struct policy policies[3];
+  real(kind=4) r[121];
+  real(kind=4) r_n;
+  real(kind=4) s[121];
+  real(kind=4) s_n;
+  integer(kind=4) t[121];
+
+  try
+    {
+      s_n = 1.0e+3;
+      i_n = 0.0;
+      r_n = 0.0;
+      p_idx = 1;
+      <D.4058>:
+      {
+        logical(kind=4) D.4008;
+
+        D.4008 = p_idx > 3;
+        if (D.4008 != 0) goto L.7; else goto <D.4059>;
+        <D.4059>:
+        _1 = (real(kind=4)) p_idx;
+        _2 = _1 - 1.0e+0;
+        _3 = ((_2));
+        _4 = _3 * 5.0e+0;
+        doubling_time = _4;
+        get_growth_rate (&doubling_time, &growth_rate);
+        {
+          static real(kind=4) C.4009 = 7.1428574621677398681640625e-2;
+          static real(kind=4) C.4010 = 5.00000007450580596923828125e-2;
+
+          get_beta (&growth_rate, &C.4009, &s_n, &C.4010, &beta);
+        }
+        _5 = (integer(kind=8)) p_idx;
+        _6 = _5 + -1;
+        beta.25_7 = beta;
+        policies[_6].beta = beta.25_7;
+        _8 = (integer(kind=8)) p_idx;
+        _9 = _8 + -1;
+        _10 = p_idx * 20;
+        policies[_9].num_days = _10;
+        L.6:
+        p_idx = p_idx + 1;
+      }
+      goto <D.4058>;
+      L.7:
+      {
+        static real(kind=4) C.4011 = 7.1428574621677398681640625e-2;
+        static integer(kind=4) C.4012 = 17;
+        static integer(kind=4) C.4013 = 3;
+        static integer(kind=4) C.4014 = 121;
+        struct array01_policy parm.10;
+
+        try
+          {
+            parm.10.span = 8;
+            parm.10.dtype = {};
+            parm.10.dtype.elem_len = 8;
+            parm.10.dtype.rank = 1;
+            parm.10.dtype.type = 5;
+            parm.10.dim[0].lbound = 1;
+            parm.10.dim[0].ubound = 3;
+            parm.10.dim[0].stride = 1;
+            parm.10.data = &policies[0];
+            parm.10.offset = -1;
+            _11 = parm.10.data;
+            sim_sir (&s_n, &i_n, &r_n, &C.4011, &C.4012, &C.4013, &C.4014, _11, &t, &s, &e, &i, &r);
+          }
+        finally
+          {
+            parm.10 = {CLOBBER};
+          }
+      }
+      {
+        struct __st_parameter_dt dt_parm.11;
+
+        try
+          {
+            dt_parm.11.common.filename = &"CHIME-SIR.for"[1]{lb: 1 sz: 1};
+            dt_parm.11.common.line = 104;
+            dt_parm.11.common.flags = 128;
+            dt_parm.11.common.unit = 6;
+            _gfortran_st_write (&dt_parm.11);
+            _gfortran_transfer_real_write (&dt_parm.11, &s_n, 4);
+            _gfortran_transfer_real_write (&dt_parm.11, &i_n, 4);
+            _gfortran_transfer_real_write (&dt_parm.11, &r_n, 4);
+            _gfortran_st_write_done (&dt_parm.11);
+          }
+        finally
+          {
+            dt_parm.11 = {CLOBBER};
+          }
+      }
+      {
+        struct __st_parameter_dt dt_parm.12;
+
+        try
+          {
+            dt_parm.12.common.filename = &"CHIME-SIR.for"[1]{lb: 1 sz: 1};
+            dt_parm.12.common.line = 105;
+            dt_parm.12.common.flags = 128;
+            dt_parm.12.common.unit = 6;
+            _gfortran_st_write (&dt_parm.12);
+            {
+              struct array01_real(kind=4) parm.13;
+
+              try
+                {
+                  parm.13.span = 4;
+                  parm.13.dtype = {};
+                  parm.13.dtype.elem_len = 4;
+                  parm.13.dtype.rank = 1;
+                  parm.13.dtype.type = 3;
+                  parm.13.dim[0].lbound = 1;
+                  parm.13.dim[0].ubound = 121;
+                  parm.13.dim[0].stride = 1;
+                  parm.13.data = &e[0];
+                  parm.13.offset = -1;
+                  _gfortran_transfer_array_write (&dt_parm.12, &parm.13, 4, 0);
+                }
+              finally
+                {
+                  parm.13 = {CLOBBER};
+                }
+            }
+            _gfortran_st_write_done (&dt_parm.12);
+          }
+        finally
+          {
+            dt_parm.12 = {CLOBBER};
+          }
+      }
+    }
+  finally
+    {
+      beta = {CLOBBER};
+      doubling_time = {CLOBBER};
+      e = {CLOBBER};
+      growth_rate = {CLOBBER};
+      i = {CLOBBER};
+      i_n = {CLOBBER};
+      policies = {CLOBBER};
+      r = {CLOBBER};
+      r_n = {CLOBBER};
+      s = {CLOBBER};
+      s_n = {CLOBBER};
+      t = {CLOBBER};
+    }
+}
+
+
+__attribute__((externally_visible))
+main (integer(kind=4) argc, character(kind=1) * * argv)
+{
+  integer(kind=4) D.4060;
+  static integer(kind=4) options.14[7] = {2116, 4095, 0, 1, 1, 0, 31};
+
+  _gfortran_set_args (argc, argv);
+  _gfortran_set_options (7, &options.14[0]);
+  MAIN__ ();
+  D.4060 = 0;
+  return D.4060;
+}
+
+
