@@ -3479,8 +3479,14 @@ class GrFNGenerator(object):
                 elif isinstance(node.value, ast.Attribute) or \
                         isinstance(node.value, ast.Subscript):
                     new_variable = node.value.value.id + "_"
+                elif (
+                        isinstance(node.value, ast.Call)
+                        and node.value.func.attr == "get_"
+                ):
+                    new_variable = node.value.func.value.id + "_"
+                    new_variable += f"_{node.value.args[0].value.id}_"
                 else:
-                    assert False, "Too deep levels or unhandled type"
+                    assert False, f"Too deep levels or unhandled type. {dump_ast(node)}."
 
                 new_var_index = 0
                 for attr in attributes:
@@ -4716,9 +4722,9 @@ class GrFNGenerator(object):
             if isinstance(low_bound, int) and isinstance(upper_bound, int):
                 array_dimensions.append(upper_bound - low_bound + 1)
             elif isinstance(upper_bound, str):
-                assert (
-                    isinstance(low_bound, int) and low_bound == 0
-                ), "low_bound must be <integer> type and 0 (zero) for now."
+                # assert (
+                #    isinstance(low_bound, int) and low_bound == 0
+                # ), "low_bound must be <integer> type and 0 (zero) for now."
                 array_dimensions.append(upper_bound)
             else:
                 assert False, (

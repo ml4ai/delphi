@@ -784,7 +784,7 @@ class XML_to_JSON_translator(object):
     def process_name(self, root, state) -> List[Dict]:
         """ This function handles <name> tag. The name tag will be added to the
         new AST for the pyTranslate.py with "ref" tag.  """
-
+        
         assert (
             root.tag == "name"
         ), f"The root must be <name>. Current tag is {root.tag} with " \
