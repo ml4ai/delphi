@@ -630,7 +630,14 @@ class PythonCodeGenerator(object):
                     self.proc_expr(subs[i], False) for i in range(len(subs))
                 ]
                 subscripts = ", ".join(subs_strs)
-                expr_str = f"{ref_str}.get_(({subscripts}))"
+                if "ref" in node:
+                    if node["ref"][0]["is_array"] == "true":
+                        expr_str = f"{ref_str}.get_(({subscripts}))"
+                    else:
+                        expr_str = ref_str + "[0]"
+                else:
+                    expr_str = f"{ref_str}.get_(({subscripts}))"
+
             elif self.variableMap.get(node['name']) and \
                     self.variableMap[node['name']]['type'].lower() == \
                     "character":
@@ -662,7 +669,6 @@ class PythonCodeGenerator(object):
                 expr_str = ref_str
             else:
                 expr_str = ref_str + "[0]"
-
         return expr_str
 
     def proc_op(self, node):
@@ -898,14 +904,19 @@ class PythonCodeGenerator(object):
     def printAssignment(self, node, printState: PrintState):
         assert len(node["target"]) == 1 and len(node["value"]) == 1
         lhs, rhs = node["target"][0], node["value"][0]
-
         rhs_str = self.proc_expr(node["value"][0], False)
 
-        if lhs["is_derived_type_ref"] == "true":
+        if (
+                "is_derived_type_ref" in lhs
+                and lhs["is_derived_type_ref"] == "true"
+        ):
             assg_str = self.get_derived_type_ref(
                 lhs, int(lhs["numPartRef"]), True
             )
-        elif lhs["hasSubscripts"] == "true":
+        elif (
+                "hasSubscripts" in lhs
+                and lhs["hasSubscripts"] == "true"
+        ):
             assert (
                     "subscripts" in lhs
             ), "lhs 'hasSubscripts' and actual 'subscripts' existence does " \
@@ -943,7 +954,8 @@ class PythonCodeGenerator(object):
             assg_str = f"{lhs['name']}[0]"
         # Check if this is a parameter assignment
         if (
-                lhs["is_parameter"] == "true"
+                "is_parameter" in lhs
+                and lhs["is_parameter"] == "true"
                 and assg_str[:-3] in self.variableMap
         ):
             parameter_comment = f"  # PARAMETER: {assg_str[:-3].upper()}"
