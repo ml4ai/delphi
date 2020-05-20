@@ -20,28 +20,28 @@ def interpreter_test(filepath, con_name, outfile):
     A.draw(outfile, prog="dot")
 
 
-interpreter_test(
-    "../../tests/data/program_analysis/PETASCE_simple.for",
-    "@container::PETASCE_simple::@global::petasce",
-    "PETASCE--GrFN.pdf",
-)
 # interpreter_test(
-#     "../../tests/data/program_analysis/PETPNO.for",
+#     "tests/data/program_analysis/PETASCE_simple.for",
+#     "@container::PETASCE_simple::@global::petasce",
+#     "PETASCE--GrFN.pdf",
+# )
+# interpreter_test(
+#     "tests/data/program_analysis/PETPNO.for",
 #     "@container::PETPNO::@global::petpno",
 #     "PETPNO--GrFN.pdf",
 # )
 # interpreter_test(
-#     "../../tests/data/program_analysis/SIR-Gillespie-SD.f",
+#     "tests/data/program_analysis/SIR-Gillespie-SD.f",
 #     "@container::SIR-Gillespie-SD::@global::main",
 #     "Gillespie-SD--GrFN.pdf",
 # )
+interpreter_test(
+    "tests/data/model_analysis/CHIME-SIR.for",
+    "@container::CHIME-SIR::@global::main",
+    "CHIME-SIR--GrFN.pdf",
+)
 # interpreter_test(
-#     "../../tests/data/model_analysis/CHIME-SIR.for",
-#     "@container::CHIME-SIR::@global::main",
-#     "CHIME-SIR--GrFN.pdf",
-# )
-# interpreter_test(
-#     "../../tests/data/program_analysis/SIR-simple.f",
+#     "tests/data/program_analysis/SIR-simple.f",
 #     "@container::SIR-simple::@global::sir",
 #     "SIR-simple--GrFN.pdf",
 # )

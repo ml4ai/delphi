@@ -81,8 +81,9 @@ class ImperativeInterpreter(SourceInterpreter):
             fortran_filename,
             module_log_file_path,
             processing_modules,
-        ) = f2grfn.fortran_to_grfn(fortran_file)
+        ) = f2grfn.fortran_to_grfn(fortran_file, save_intermediate_files=True)
 
+        print(translated_python_files)
         C, V, T, D = dict(), dict(), dict(), dict()
         for file_num, python_file in enumerate(translated_python_files):
             lambdas_file_path = python_file.replace(".py", "_lambdas.py")

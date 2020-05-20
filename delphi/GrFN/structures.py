@@ -78,12 +78,19 @@ class GenericDefinition(ABC):
 
     @staticmethod
     def from_dict(data: dict):
+        print(data)
         if "domain" in data:
+            if "dimensions" in data["domain"]:
+                type_str = "type"
+                name_str = "array"
+            else:
+                name_str = data["domain"]["name"]
+                type_str = data["domain"]["type"]
             return VariableDefinition(
                 GenericIdentifier.from_str(data["name"]),
-                data["domain"]["type"],
+                type_str,
                 data["domain"]["mutable"],
-                data["domain"]["name"],
+                name_str,
                 data["domain_constraint"],
                 tuple(data["source_refs"]),
             )
@@ -150,9 +157,7 @@ class GenericContainer(ABC):
     @abstractmethod
     def __str__(self):
         args_str = "\n".join([f"\t{arg}" for arg in self.arguments])
-        outputs_str = "\n".join(
-            [f"\t{var}" for var in self.returns + self.updated]
-        )
+        outputs_str = "\n".join([f"\t{var}" for var in self.returns + self.updated])
         return f"Inputs:\n{args_str}\nVariables:\n{outputs_str}"
 
     @staticmethod
@@ -310,12 +315,8 @@ class GenericStmt(ABC):
 
     @abstractmethod
     def __str__(self):
-        inputs_str = ", ".join(
-            [f"{id.var_name} ({id.index})" for id in self.inputs]
-        )
-        outputs_str = ", ".join(
-            [f"{id.var_name} ({id.index})" for id in self.outputs]
-        )
+        inputs_str = ", ".join([f"{id.var_name} ({id.index})" for id in self.inputs])
+        outputs_str = ", ".join([f"{id.var_name} ({id.index})" for id in self.outputs])
         return f"Inputs: {inputs_str}\nOutputs: {outputs_str}"
 
     @staticmethod
