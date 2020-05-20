@@ -1,15 +1,15 @@
 ********************************************************************************
-C     Input Variables:
-C     S        Number of susceptible members
-C     I        Number of infected members
-C     R        Number of recovered members
-C     beta     Rate of infection
-C     gamma    Rate of recovery from an infection
-C     dt       Next inter-event time
-C
-C     State Variables:
-C     infected    Current state dependent rate of infection
-C     recovered   Current state dependent rate of recovery
+!     Input Variables:
+!     S        Amount of susceptible members at the current timestep
+!     I        Amount of infected members at the current timestep
+!     R        Amount of recovered members at the current timestep
+!     beta     Rate of transmission via contact
+!     gamma    Rate of recovery from infection
+!     dt       Next inter-event time
+!
+!     State Variables:
+!     infected    Increase in infected at the current timestep
+!     recovered   Increase in recovered at the current timestep
 ********************************************************************************
       subroutine sir(S, I, R, beta, gamma, dt)
         implicit none
