@@ -482,6 +482,7 @@ class GrFNGenerator(object):
             "updated_list": "",
             "updated_indices": [],
             "argument_list": "",
+            "argument_indices": [],
         }
         self.function_argument_map[node.name]["argument_list"] = argument_list
         # Update the current scope so that for every identifier inside the
@@ -593,7 +594,17 @@ class GrFNGenerator(object):
         # values can be populated by the callee subroutine and then used by
         # the caller subroutine after the callee returns
         # We need to remove these inputs from the argument_list
+        old_args = [x for x in argument_list]
         self._remove_output_variables(argument_list, body_grfn)
+        # Update the arguments in the function map as well
+        self.function_argument_map[node.name]["argument_list"] = argument_list
+
+        # Now, find the indices of argument variables that have been included
+        # in the final list i.e. those that are actual inputs to the function
+        for idx in range(len(old_args)):
+            if old_args[idx] in argument_list:
+                self.function_argument_map[node.name][
+                    "argument_indices"].append(idx)
 
         # Create a gensym for the function container
         container_gensym = self.generate_gensym("container")
@@ -914,7 +925,8 @@ class GrFNGenerator(object):
         # with the way this lambda function will be created.
         # TODO Add code to support a step other than +1 as well
         assert len(range_call["inputs"]) <= 3, (
-            f"Only two or three elements in range function supported as of now - {range_call}"
+            f"Only two or three elements in range function supported as of "
+            f"now - {range_call}"
         )
         loop_start = range_call["inputs"][0]
         loop_end = range_call["inputs"][1]
@@ -932,7 +944,10 @@ class GrFNGenerator(object):
             assert False, "Error in getting loop start name"
 
         if "var" in loop_end[0]:
-            loop_end_name = loop_end[0]["var"]["variable"]
+            # If the loop end is tested against a variable, such as:
+            # for p_idx[0] in range(1, n_p[0]+1):
+            # the loop_end_name should be the variable_name plus 1
+            loop_end_name = f"{loop_end[0]['var']['variable']}+1"
         elif "type" in loop_end[0] and loop_end[0]["type"] == "literal":
             loop_end_name = loop_end[0]["value"]
         else:
@@ -2732,8 +2747,9 @@ class GrFNGenerator(object):
                         self.function_argument_map[functions]["name"]
                         == function["function"]["name"]
                     ):
-                        for var in function["input"]:
-                            input_var = var.rsplit("::")
+                        new_input = []
+                        for idx in range(len(function["input"])):
+                            input_var = function["input"][idx].rsplit("::")
                             index = input_var[2]
                             if (
                                 input_var[1] in self.f_array_arg
@@ -2741,9 +2757,8 @@ class GrFNGenerator(object):
                                 in [x.rsplit("::")[1] for x in
                                     self.function_argument_map[functions][
                                         "updated_list"]]
-                                # in self.function_argument_map[functions][
-                                #     "updated_list"
-                                # ]
+                                or idx in self.function_argument_map[functions][
+                                        "updated_indices"]
                             ):
                                 variable_name = input_var[1]
                                 function["updated"].append(
@@ -2760,6 +2775,14 @@ class GrFNGenerator(object):
                                      [variable_name], None, False, state
                                     )
                                 grfn["variables"].append(variable_spec)
+                            # The inputs might need to be updated since some
+                            # inputs to the  functions are actually output
+                            # variables and are not used as  inputs inside the
+                            # function
+                            if idx in self.function_argument_map[functions][
+                             "argument_indices"]:
+                                new_input.append(function["input"][idx])
+                        function["input"] = new_input
             # Keep a track of all functions whose `update` might need to be
             # later updated, along with their scope.
             if len(function["input"]) > 0:
@@ -2842,7 +2865,8 @@ class GrFNGenerator(object):
             # This is a test. Might not always work
             if (
                     call_source == "assign" and
-                    isinstance(node.ctx, ast.Store)
+                    isinstance(node.ctx, ast.Store) and
+                    last_definition < 0
             ):
                 last_definition = self._get_next_definition(
                     node.id,
@@ -3504,6 +3528,19 @@ class GrFNGenerator(object):
                         "index": new_var_index,
                     }
                 }
+                # In the case of a saved variable, this node is called from
+                # the ast.Subscript
+                if call_source == "subscript":
+                    attribs = []
+                    for attr in attributes:
+                        variable_info = {
+                            "var": {
+                                "variable": attr,
+                                "index": last_definitions[attr],
+                            }
+                        }
+                        attribs.append(variable_info)
+                    return attribs
 
                 return [variable_info]
 
@@ -4350,8 +4387,14 @@ class GrFNGenerator(object):
                             "_", "."
                         )
                 lambda_strings.append(f"{state.array_assign_name} = {code}\n")
-                # lambda_strings.append(f"    return {state.array_assign_name}")
                 lambda_strings.append(f"    return {array_name}")
+
+                if "[" in state.array_assign_name:
+                    array_split = state.array_assign_name.split("[")
+                    array_name = array_split[0]
+                    array_index = array_split[1][:-1]
+                    code = f"({array_name}.__setitem__({array_index},{code})," \
+                           f"{array_name})[1]"
                 state.array_assign_name = None
             elif string_assign:
                 lambda_code_generator = genCode(
