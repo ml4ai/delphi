@@ -81,43 +81,45 @@ class ImperativeInterpreter(SourceInterpreter):
             fortran_filename,
             module_log_file_path,
             processing_modules,
-        ) = f2grfn.fortran_to_grfn(fortran_file, save_intermediate_files=True,)
-        python_file = translated_python_files[0]
-        lambdas_path = python_file.replace(".py", "_lambdas.py")
-        ir_dict = f2grfn.generate_grfn(
-            python_sources[0][0],
-            python_file,
-            lambdas_path,
-            mod_mapper_dict[0],
-            fortran_file,
-            module_log_file_path,
-            processing_modules,
-        )
+        ) = f2grfn.fortran_to_grfn(fortran_file)
 
-        C = dict()
-        for con_data in ir_dict["containers"]:
-            new_container = GenericContainer.from_dict(con_data)
-            C[new_container.identifier] = new_container
+        C, V, T, D = dict(), dict(), dict(), dict()
+        for file_num, python_file in enumerate(translated_python_files):
+            lambdas_file_path = python_file.replace(".py", "_lambdas.py")
+            ir_dict = f2grfn.generate_grfn(
+                python_sources[file_num][0],
+                python_file,
+                lambdas_file_path,
+                mod_mapper_dict[0],
+                fortran_file,
+                module_log_file_path,
+                processing_modules,
+            )
 
-        V = dict()
-        for var_data in ir_dict["variables"]:
-            new_var = GenericDefinition.from_dict(var_data)
-            V[new_var.identifier] = new_var
+            for con_data in ir_dict["containers"]:
+                print(con_data["name"])
+                new_container = GenericContainer.from_dict(con_data)
+                C[new_container.identifier] = new_container
 
-        T = dict()
-        for type_data in ir_dict["types"]:
-            new_type = GenericDefinition.from_dict(type_data)
-            T[new_type.identifier] = new_type
+            for var_data in ir_dict["variables"]:
+                new_var = GenericDefinition.from_dict(var_data)
+                V[new_var.identifier] = new_var
 
-        filename = ir_dict["source"][0]
+            for type_data in ir_dict["types"]:
+                new_type = GenericDefinition.from_dict(type_data)
+                T[new_type.identifier] = new_type
 
-        # TODO Paul - is it fine to switch from keying by filename to keying by
-        # container name? Also, lowercasing? - Adarsh
-        container_name = Path(filename).stem.lower()
-        D = {
-            n if not n.startswith("$") else container_name + n: data
-            for n, data in ir_dict["source_comments"].items()
-        }
+            filename = ir_dict["source"][0]
+
+            # TODO Paul - is it fine to switch from keying by filename to keying by
+            # container name? Also, lowercasing? - Adarsh
+            container_name = Path(filename).stem.lower()
+            D.update(
+                {
+                    n if not n.startswith("$") else container_name + n: data
+                    for n, data in ir_dict["source_comments"].items()
+                }
+            )
 
         return C, V, T, D
 
@@ -197,12 +199,8 @@ class ImperativeInterpreter(SourceInterpreter):
         # TODO Adarsh: debug this
         rhs_lambda = lambda_str[lambda_str.find("=") + 1 :]
         math_ops = r"\+|-|/|\*\*|\*|%"
-        math_funcs = (
-            r"np\.maximum|np\.minimum|np\.exp|np\.log|np\.sqrt|np\.log10"
-        )
-        trig_funcs = (
-            r"np\.sin|np\.cos|np\.tan|np\.arccos|np\.arcsin|np\.arctan"
-        )
+        math_funcs = r"np\.maximum|np\.minimum|np\.exp|np\.log|np\.sqrt|np\.log10"
+        trig_funcs = r"np\.sin|np\.cos|np\.tan|np\.arccos|np\.arcsin|np\.arctan"
         math_search = re.search(math_ops, rhs_lambda)
         if math_search is not None:
             return True
@@ -249,9 +247,7 @@ class ImperativeInterpreter(SourceInterpreter):
                     elif stmt_type == "lambda":
                         self.__process_lambda_stmt_stats(stmt, con_name)
                     else:
-                        raise ValueError(
-                            f"Unidentified statement type: {stmt_type}"
-                        )
+                        raise ValueError(f"Unidentified statement type: {stmt_type}")
 
     def label_container_code_type(self, current_node, stats):
         G = self.decision_tree
@@ -270,9 +266,9 @@ class ImperativeInterpreter(SourceInterpreter):
         # TODO Adarsh: Implement the code-type decision tree here
         root = "C0"
         for container, stats in self.container_stats.items():
-            self.container_code_types[
-                container
-            ] = self.label_container_code_type(root, stats)
+            self.container_code_types[container] = self.label_container_code_type(
+                root, stats
+            )
 
     def build_GrFNs(self):
         """
