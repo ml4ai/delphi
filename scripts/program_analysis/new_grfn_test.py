@@ -5,52 +5,46 @@ import networkx as nx
 
 from delphi.GrFN.interpreter import ImperativeInterpreter
 from delphi.GrFN.networks import GroundedFactorNetwork
-from delphi.GrFN.structures import GenericIdentifier, LambdaStmt
+from delphi.GrFN.structures import GenericIdentifier
 
 
-ITP = ImperativeInterpreter.from_src_file(
-    "../../tests/data/program_analysis/PETPNO.for"
+def interpreter_test(filepath, con_name, outfile):
+    ITP = ImperativeInterpreter.from_src_file(filepath)
+    con_id = GenericIdentifier.from_str(con_name)
+
+    G = GroundedFactorNetwork.from_AIR(
+        con_id, ITP.containers, ITP.variables, ITP.types,
+    )
+
+    A = G.to_AGraph()
+    A.draw(outfile, prog="dot")
+
+
+interpreter_test(
+    "../../tests/data/program_analysis/PETASCE_simple.for",
+    "@container::PETASCE_simple::@global::petasce",
+    "PETASCE--GrFN.pdf",
 )
-petpno_con_id = GenericIdentifier.from_str("@container::PETPNO::@global::petpno")
-
-PNO_GrFN = GroundedFactorNetwork.from_AIR(
-    petpno_con_id, ITP.containers, ITP.variables, ITP.types
-)
-
-A = PNO_GrFN.to_AGraph()
-A.draw("PETPNO--GrFN.pdf", prog="dot")
-#
-#
-# ITP = ImperativeInterpreter.from_src_file(
-#     "../../tests/data/program_analysis/PETPT.for"
+# interpreter_test(
+#     "../../tests/data/program_analysis/PETPNO.for",
+#     "@container::PETPNO::@global::petpno",
+#     "PETPNO--GrFN.pdf",
 # )
-# con_id = GenericIdentifier.from_str("@container::PETPT::@global::petpt")
-# G = GroundedFactorNetwork.from_AIR(
-#     con_id, ITP.containers, ITP.variables, ITP.types
+# interpreter_test(
+#     "../../tests/data/program_analysis/SIR-Gillespie-SD.f",
+#     "@container::SIR-Gillespie-SD::@global::main",
+#     "Gillespie-SD--GrFN.pdf",
 # )
-# A = G.to_AGraph()
-# A.draw("PETPT--GrFN.pdf", prog="dot")
-#
-#
-# ITP = ImperativeInterpreter.from_src_file(
-#     "../../tests/data/program_analysis/SIR-Gillespie-SD.f"
+# interpreter_test(
+#     "../../tests/data/model_analysis/CHIME-SIR.for",
+#     "@container::CHIME-SIR::@global::main",
+#     "CHIME-SIR--GrFN.pdf",
 # )
-# con_id = GenericIdentifier.from_str(
-#     "@container::SIR-Gillespie-SD::@global::main"
+# interpreter_test(
+#     "../../tests/data/program_analysis/SIR-simple.f",
+#     "@container::SIR-simple::@global::sir",
+#     "SIR-simple--GrFN.pdf",
 # )
-# G = GroundedFactorNetwork.from_AIR(
-#     con_id, ITP.containers, ITP.variables, ITP.types
-# )
-# A = G.to_AGraph()
-# A.draw("Gillespie-SD--GrFN.pdf", prog="dot")
-
-# ITP = ImperativeInterpreter.from_src_file(
-#     "../../tests/data/model_analysis/CHIME-SIR.for"
-# )
-# con_id = GenericIdentifier.from_str("@container::CHIME-SIR::@global::main")
-# G = GroundedFactorNetwork.from_AIR(con_id, ITP.containers, ITP.variables, ITP.types)
-# A = G.to_AGraph()
-# A.draw("CHIME-SIR--GrFN.pdf", prog="dot")
 
 
 # CAG = PNO_GrFN.CAG_to_AGraph()
