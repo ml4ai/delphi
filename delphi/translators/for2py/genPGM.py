@@ -2651,8 +2651,9 @@ class GrFNGenerator(object):
                                 if function_name not in argument_list:
                                     argument_list.append(function_name)
                             for call_input in function_call["inputs"]:
-                                # TODO: This is of a recursive nature. Make
-                                #  this a loop. Works for SIR for now.
+                                # TODO: This can be artitarily deep and needs
+                                #  a recursive function. For now,
+                                #  only looking 2 levels deep.
                                 for var in call_input:
                                     if "var" in var:
                                         function["input"].append(
@@ -2667,6 +2668,23 @@ class GrFNGenerator(object):
                                             argument_list.append(
                                                 var["var"]["variable"]
                                             )
+                                    elif "call" in var:
+                                        for call_ip in var["call"]["inputs"]:
+                                            for var1 in call_ip:
+                                                if "var" in var1:
+                                                    function["input"].append(
+                                                        f"@variable:"
+                                                        f":{var1['var']['variable']}::{var1['var']['index']}"
+                                                    )
+                                                    if (
+                                                            var1["var"][
+                                                                "variable"]
+                                                            not in argument_list
+                                                    ):
+                                                        argument_list.append(
+                                                            var1["var"][
+                                                                "variable"]
+                                                        )
 
                 function["input"] = self._remove_duplicate_from_list(
                     function["input"]
