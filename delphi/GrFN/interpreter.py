@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+import json
 import importlib
 from pathlib import Path
 from typing import Set, Dict
@@ -96,6 +97,9 @@ class ImperativeInterpreter(SourceInterpreter):
                 module_log_file_path,
                 processing_modules,
             )
+
+            with open(python_file.replace(".py", "_AIR.json"), "w") as f:
+                json.dump(ir_dict, f, indent=2)
 
             for con_data in ir_dict["containers"]:
                 print(con_data["name"])
@@ -200,8 +204,12 @@ class ImperativeInterpreter(SourceInterpreter):
         # TODO Adarsh: debug this
         rhs_lambda = lambda_str[lambda_str.find("=") + 1 :]
         math_ops = r"\+|-|/|\*\*|\*|%"
-        math_funcs = r"np\.maximum|np\.minimum|np\.exp|np\.log|np\.sqrt|np\.log10"
-        trig_funcs = r"np\.sin|np\.cos|np\.tan|np\.arccos|np\.arcsin|np\.arctan"
+        math_funcs = (
+            r"np\.maximum|np\.minimum|np\.exp|np\.log|np\.sqrt|np\.log10"
+        )
+        trig_funcs = (
+            r"np\.sin|np\.cos|np\.tan|np\.arccos|np\.arcsin|np\.arctan"
+        )
         math_search = re.search(math_ops, rhs_lambda)
         if math_search is not None:
             return True
@@ -248,7 +256,9 @@ class ImperativeInterpreter(SourceInterpreter):
                     elif stmt_type == "lambda":
                         self.__process_lambda_stmt_stats(stmt, con_name)
                     else:
-                        raise ValueError(f"Unidentified statement type: {stmt_type}")
+                        raise ValueError(
+                            f"Unidentified statement type: {stmt_type}"
+                        )
 
     def label_container_code_type(self, current_node, stats):
         G = self.decision_tree
@@ -267,9 +277,9 @@ class ImperativeInterpreter(SourceInterpreter):
         # TODO Adarsh: Implement the code-type decision tree here
         root = "C0"
         for container, stats in self.container_stats.items():
-            self.container_code_types[container] = self.label_container_code_type(
-                root, stats
-            )
+            self.container_code_types[
+                container
+            ] = self.label_container_code_type(root, stats)
 
     def build_GrFNs(self):
         """

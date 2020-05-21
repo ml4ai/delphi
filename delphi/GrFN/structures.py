@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from enum import Enum, auto, unique
 from dataclasses import dataclass
 from types import ModuleType
+import re
 
 # from delphi.GrFN.networks import (
 #     GroundedFactorNetwork,
@@ -157,7 +158,9 @@ class GenericContainer(ABC):
     @abstractmethod
     def __str__(self):
         args_str = "\n".join([f"\t{arg}" for arg in self.arguments])
-        outputs_str = "\n".join([f"\t{var}" for var in self.returns + self.updated])
+        outputs_str = "\n".join(
+            [f"\t{var}" for var in self.returns + self.updated]
+        )
         return f"Inputs:\n{args_str}\nVariables:\n{outputs_str}"
 
     @staticmethod
@@ -315,8 +318,12 @@ class GenericStmt(ABC):
 
     @abstractmethod
     def __str__(self):
-        inputs_str = ", ".join([f"{id.var_name} ({id.index})" for id in self.inputs])
-        outputs_str = ", ".join([f"{id.var_name} ({id.index})" for id in self.outputs])
+        inputs_str = ", ".join(
+            [f"{id.var_name} ({id.index})" for id in self.inputs]
+        )
+        outputs_str = ", ".join(
+            [f"{id.var_name} ({id.index})" for id in self.outputs]
+        )
         return f"Inputs: {inputs_str}\nOutputs: {outputs_str}"
 
     @staticmethod
@@ -380,8 +387,7 @@ class LambdaStmt(GenericStmt):
         # NOTE Want to use the form below eventually
         # type_str = stmt["function"]["lambda_type"]
 
-        name_components = stmt["function"]["name"].split("__")
-        type_str = name_components[-3]
+        type_str = self.type_str_from_name(stmt["function"]["name"])
 
         # NOTE: we shouldn't need this since we will use UUIDs
         # self.lambda_node_name = f"{self.parent.name}::" + self.name
@@ -394,6 +400,19 @@ class LambdaStmt(GenericStmt):
     def __str__(self):
         generic_str = super().__str__()
         return f"<LambdaStmt>: {self.type}\n{generic_str}"
+
+    @staticmethod
+    def type_str_from_name(name: str) -> str:
+        if re.search(r"__assign__", name) is not None:
+            return "assign"
+        elif re.search(r"__condition__", name) is not None:
+            return "condition"
+        elif re.search(r"__decision__", name) is not None:
+            return "decision"
+        else:
+            raise ValueError(
+                f"No recognized lambda type found from name string: {name}"
+            )
 
     # def translate(
     #     self, container_inputs: dict, network: GroundedFactorNetwork
