@@ -19,7 +19,7 @@ indicators = []
 next_link_idx = 0
 
 driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
-driver.maximize_window()
+#driver.maximize_window()
 # Open the web page with the topics
 driver.get(url_base)
 time.sleep(3)
@@ -44,20 +44,35 @@ with open('DP_branches.data', 'rb') as filehandle:
 '''
 branches = []
 
-for box_idx in range(1, 20000):
+num_lines = 200
+box_idx = 0
+last_success_idx = 0
+continuous_unsuccess = 0
+
+while True:
+#for box_idx in range(1, 20000):
 #for box_idx in branches:
+    box_idx += 1
     try:
         tree_open_boxes = driver.find_element_by_id(f'isc_19open_icon_{box_idx}')
         tree_open_boxes.click()
         print(box_idx, 'GOOD')
+        last_success_idx = box_idx
+        continuous_unsuccess = 0
         branches.append(box_idx)
         time.sleep(1)
         #tree_pane.send_keys(Keys.END)
         tree_pane.send_keys(Keys.PAGE_DOWN)
         #time.sleep(5)
     except common.exceptions.NoSuchElementException:
-        #print('ommon.exceptions.NoSuchElementException')
-        pass
+        #print('common.exceptions.NoSuchElementException')
+        continuous_unsuccess += 1
+        if continuous_unsuccess > num_lines:
+            #box_idx = last_success_idx + num_lines - 1
+            box_idx = last_success_idx + 1
+            continuous_unsuccess = 0
+            tree_pane.send_keys(Keys.PAGE_DOWN)
+        #pass
     except common.exceptions.ElementNotInteractableException:
         #print('common.exceptions.ElementNotInteractableException')
         pass
