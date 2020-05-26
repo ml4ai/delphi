@@ -52,7 +52,8 @@ for box_idx in range(1, 20000):
         print(box_idx, 'GOOD')
         branches.append(box_idx)
         time.sleep(1)
-        tree_pane.send_keys(Keys.END)
+        #tree_pane.send_keys(Keys.END)
+        tree_pane.send_keys(Keys.PAGE_DOWN)
         #time.sleep(5)
     except common.exceptions.NoSuchElementException:
         #print('ommon.exceptions.NoSuchElementException')
