@@ -19,7 +19,7 @@ indicators = []
 next_link_idx = 0
 
 driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
-#driver.maximize_window()
+driver.maximize_window()
 # Open the web page with the topics
 driver.get(url_base)
 time.sleep(3)
