@@ -94,6 +94,10 @@ while True:
     except common.exceptions.ElementNotInteractableException:
         pass
 
+    except common.exceptions.ElementClickInterceptedException:
+        box_idx -= 1
+        #pass
+
     except common.exceptions.StaleElementReferenceException:
         print('Done')
         break
