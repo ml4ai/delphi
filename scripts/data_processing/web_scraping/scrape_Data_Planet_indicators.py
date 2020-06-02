@@ -83,7 +83,7 @@ while True:
         num_lines = len(rows)
 
         if continuous_unsuccess > num_lines:
-            last_visible_line_struct = rows[-3].find_elements_by_css_selector('td > div > table > tbody > tr > td')
+            last_visible_line_struct = rows[-1].find_elements_by_css_selector('td > div > table > tbody > tr > td')
             last_ID = last_visible_line_struct[2].get_attribute('id')
             box_idx = int(last_ID.split('Cell')[1])
             continuous_unsuccess = 0
