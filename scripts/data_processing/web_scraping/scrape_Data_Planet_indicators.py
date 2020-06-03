@@ -80,7 +80,7 @@ while True:
 
         box_idx += 1
 
-    except common.exceptions.NoSuchElementException:
+    except (common.exceptions.NoSuchElementException, common.exceptions.ElementNotInteractableException):
 
         pd.DataFrame(indicators).to_csv('data_planet_indicators.csv', index=False)
 
