@@ -66,12 +66,8 @@ pip install --install-option="--include-path=/usr/local/include/" \
             --install-option="--library-path=/usr/local/lib" pygraphviz
 ```
 
-If you use MacPorts, invoke the following command to install pygraphviz along
-with graphviz:
+If you use MacPorts, just replace `usr` in the above command with `opt`.
 
-```
-port install pygraphviz
-```
 
 ### Debian
 
