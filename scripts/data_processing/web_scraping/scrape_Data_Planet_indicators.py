@@ -1,10 +1,8 @@
 import time
 from selenium import webdriver, common
 from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.action_chains import ActionChains
 import pandas as pd
-import pickle
+import copy
 
 
 def scroll_to_element(browser, parent_id, element_id):
@@ -26,9 +24,6 @@ options.add_argument('--incognito')
 
 url_base = 'https://statisticaldatasets.data-planet.com/'
 
-indicators = []
-next_link_idx = 0
-
 driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
 driver.maximize_window()
 # Open the web page with the topics
@@ -45,133 +40,54 @@ time.sleep(15)
 #popup.click()
 #time.sleep(1)
 
-# Expand the tree view of the indicators
-tree_pane = driver.find_element_by_id('isc_1C')
-
-'''
-with open('DP_branches.data', 'rb') as filehandle:
-    # store the data as binary data stream
-    branches = pickle.load(filehandle)
-'''
-branches = []
-
 box_idx = 0
-continuous_unsuccess = 0
+
+max_level = 7
+levels = {'0': '', '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': ''}
+indicators = []
 
 while True:
-    box_idx += 1
     if box_idx > 20000:
+        pd.DataFrame(indicators).to_csv('data_planet_indicators.csv', index=False)
+        print(f'box_idx exceeded {box_idx-1}')
+        driver.quit()
         exit()
-        break
 
     try:
-        tree_open_boxes = driver.find_element_by_id(f'isc_19open_icon_{box_idx}')
-        tree_open_boxes.click()
-        print(box_idx, 'GOOD')
-        continuous_unsuccess = 0
-        branches.append(box_idx)
-        time.sleep(1)
+        full_td = driver.find_element_by_id(f'isc_TreeViewImpl_1_0_body_cell{box_idx}_0')
+        full_tr = full_td.find_element_by_xpath('..')
+        click_box = full_td.find_elements_by_css_selector('nobr > span')
+        ind_td = full_td.find_element_by_id(f'isc_TreeViewImpl_1_0_valueCell{box_idx}')
+        expandable = click_box[0].get_attribute('id')
+        indicator = ind_td.get_attribute('innerText')
+        ind_level = int(full_tr.get_attribute('aria-level'))
 
-        scroll_to_element(driver, 'isc_1C', f'isc_TreeViewImpl_1_0_body_cell{box_idx}_0')
-        time.sleep(1)
+        levels[f'{ind_level - 1}'] = indicator
+
+        for level in range(ind_level, max_level + 1):
+            levels[f'{level}'] = ''
+
+        print(box_idx, ind_level, indicator)
+
+        if ind_level > 1:
+            indicators.append(copy.deepcopy(levels))
+
+        if expandable:
+            expanded = eval(full_tr.get_attribute('aria-expanded').capitalize())
+            if not expanded:
+                click_box[0].click()
+                time.sleep(1)
+
+        box_idx += 1
 
     except common.exceptions.NoSuchElementException:
-        continuous_unsuccess += 1
 
-        table = driver.find_element_by_id('isc_1Ctable')
-        rows = table.find_elements_by_css_selector('#isc_1Ctable > tbody > tr')
-        num_lines = len(rows)
+        pd.DataFrame(indicators).to_csv('data_planet_indicators.csv', index=False)
 
-        if continuous_unsuccess > num_lines:
-            last_visible_line_struct = rows[-1].find_elements_by_css_selector('td > div > table > tbody > tr > td')
-            last_ID = last_visible_line_struct[2].get_attribute('id')
-            box_idx = int(last_ID.split('Cell')[1])
-            continuous_unsuccess = 0
-            scroll_to_element(driver, 'isc_1C', f'isc_TreeViewImpl_1_0_body_cell{box_idx}_0')
-            time.sleep(1)
-        pass
-
-    except common.exceptions.ElementNotInteractableException:
-        pass
-
-    except common.exceptions.ElementClickInterceptedException:
-        box_idx -= 1
-        #pass
-
-    except common.exceptions.StaleElementReferenceException:
-        print('Done')
-        break
-
-
-with open('DP_branches.data', 'wb') as filehandle:
-    # store the data as binary data stream
-    pickle.dump(branches, filehandle)
-
-
-tree_pane.send_keys(Keys.HOME)
-
-'''
-# Changing the zoom level of the browser
-print('went home')
-time.sleep(1)
-driver.execute_script("document.body.style.zoom='150%'")
-#ActionChains(driver).key_down(Keys.CONTROL).send_keys('-').key_up(Keys.CONTROL).perform()
-print('size reduced')
-time.sleep(15)
-print('quitting')
-driver.quit()
-exit()
-'''
-
-first_ind_in_previous_page = ''
-first_ind_in_current_page = ''
-page = 1
-
-#for page in range(5):
-while True:
-    table = driver.find_element_by_id('isc_1Ctable')
-    rows = table.find_elements_by_css_selector('#isc_1Ctable > tbody > tr')
-    for idx, row in enumerate(rows):
-        level = row.get_attribute('aria-level')
-
-        ind_struct = row.find_elements_by_css_selector('td > div > table > tbody > tr > td')
-        #indicator = ind_struct[2].text
-        indicator = ind_struct[2].get_attribute('innerText')
-        ind_ID = ind_struct[2].get_attribute('id')
-
-        # Below is the idea call that I wanted to make. However for ind_idx values
-        # that end with 0, 1, 10 etc this removes the whole string :(
-        #ind_idx = int(ind_ID.lstrip('isc_TreeViewImpl_1_0_valueCell'))
         try:
-            ind_idx = int(ind_ID.split('isc_TreeViewImpl_1_0_valueCell')[1])
-        except AttributeError:
-            print('\t', 'AttributeError')
-            ind_idx = -1
-
-        print(idx, level, ind_idx, indicator)
-
-        indicators.append({
-                            'Page': page,
-                            'idx': idx,
-                            'ind_idx': ind_idx,
-                            'Level': level,
-                            'Indicator': indicator
-                         })
-
-        if idx == 0:
-            first_ind_in_current_page = indicator
-
-    if first_ind_in_previous_page == first_ind_in_current_page:
-        break
-    else:
-        page += 1
-        first_ind_in_previous_page = first_ind_in_current_page
-
-
-    pd.DataFrame(indicators).to_csv('DP_indicator_list.csv', index=False)
-    tree_pane.send_keys(Keys.PAGE_DOWN)
-    time.sleep(1)
-
-print('-----DONE-----')
-driver.quit()
-exit()
+            scroll_to_element(driver, 'isc_1C', f'isc_TreeViewImpl_1_0_body_cell{box_idx - 1}_0')
+            time.sleep(1)
+        except common.exceptions.JavascriptException:
+            print('---Done---')
+            driver.quit()
+            exit()
