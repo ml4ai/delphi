@@ -14,6 +14,12 @@ import contextlib
 
 data_dir = Path("data")
 
+def removeLastEmptyDict(pointer):
+    if not pointer: return
+    for key, val in pointer.items():
+        if val == {}: pointer[key] = None
+        else: removeLastEmptyDict(pointer[key])
+
 def clean_FAOSTAT_data(outputFile):
     yaml = YAML()
     open(outputFile, 'w').close()
@@ -44,6 +50,7 @@ def clean_FAOSTAT_data(outputFile):
             filename,
             encoding="latin-1",
         )
+        df = df.fillna(0)
 
         pointer2ndlayer = dict_file
         for dn in range(len(domain_name)):
@@ -69,6 +76,7 @@ def clean_FAOSTAT_data(outputFile):
                     if row[col] not in pointer:
                         pointer[row[col]] = {}  
                     pointer = pointer[row[col]]
+        removeLastEmptyDict(dict_file)
 
         with open(outputFile, 'a') as file:
             documents = yaml.dump(dict_file, file)
