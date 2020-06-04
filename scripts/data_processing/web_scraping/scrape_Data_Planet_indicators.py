@@ -1,6 +1,7 @@
 import time
 from selenium import webdriver, common
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.action_chains import ActionChains
 import pandas as pd
 import copy
 
@@ -18,6 +19,7 @@ def scroll_to_element(browser, parent_id, element_id):
 
 options = webdriver.ChromeOptions()
 options.add_argument('--ignore-certificate-errors')
+options.add_argument('--disable-notifications')
 options.add_argument('--incognito')
 # To open a browser window and watch the action comment the line below
 #options.add_argument('--headless')
@@ -75,7 +77,11 @@ while True:
         if expandable:
             expanded = eval(full_tr.get_attribute('aria-expanded').capitalize())
             if not expanded:
-                click_box[0].click()
+                actions = ActionChains(driver)
+                actions.move_to_element(click_box[0])
+                actions.click(click_box[0])
+                actions.perform()
+                #click_box[0].click()
                 time.sleep(1)
 
         box_idx += 1
