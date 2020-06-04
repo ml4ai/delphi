@@ -1,3 +1,49 @@
+'''
+    Scrape indicator information form the Data Planet website
+    URL: https://statisticaldatasets.data-planet.com/
+
+    1. Run the script
+    2. Wait till the script opens the browser
+    3. Most of the times there will be a pop-up window on the browser
+    4. Click the button of the pop-up to make it disappear.
+    5. Then the script will run till the end of extraction.
+    
+    The html structure of a single line of indicator information:
+
+    <tr tabindex="1279" aria-level="4" aria-expanded="true" aria-labelledby="isc_TreeViewImpl_1_0_valueCell14292 isc_1B">
+            <td class="treefolder" id="isc_TreeViewImpl_1_0_body_cell14292_0">
+                    <div>
+                            <table class="treefolder">
+                                    <colgroup>
+                                            <col width="60px">
+                                            <col width="23px">
+                                            <col>
+                                    </colgroup>
+                                    <tbody>
+                                            <tr>
+                                                    <td class="treefolder">
+                                                            <span>
+                                                            </span>
+                                                    </td>
+                                                    <td class="treefolder">
+                                                            <nobr>
+                                                                    <span id="isc_19open_icon_14292">
+                                                                    </span>
+                                                                    <span id="isc_19icon_14292">
+                                                                    </span>
+                                                            </nobr>
+                                                    </td>
+                                                    <td id="isc_TreeViewImpl_1_0_valueCell14292" class="treefolder" _wfx_id="academic-library-statistics-2014-to-current">
+                                                            Academic Library Statistics (2014 to Current)
+                                                    </td>
+                                            </tr>
+                                    </tbody>
+                            </table>
+                    </div>
+            </td>
+    </tr>
+'''
+
 import time
 from selenium import webdriver, common
 from webdriver_manager.chrome import ChromeDriverManager
@@ -6,14 +52,25 @@ import pandas as pd
 import copy
 
 
-def scroll_to_element(browser, parent_id, element_id):
+def scroll_to_element(browser, container_id, element_id):
+    # When possible, the contents of the container is
+    # scrolled down until the element is at the top
+    # of the container or as far up as it could be scrolled
+    #
+    # The element has absolute positioning, which gives the
+    # position relative to the page. As the branches get
+    # expanded, the container grows beyond the boundary of
+    # the page and we need the offsetTop of the element
+    # with respect to the container. So we change the style
+    # of the element to make its position relative to the
+    # container, which solves this issue.
     java_script_call =\
-        f"var myElement = document.getElementById('{element_id}');\
-        myElement.style.position = 'relative';\
-        var topPos = myElement.offsetTop;\
-        document.getElementById('{parent_id}').scrollTop = topPos - 55;\
+        f"var element = document.getElementById('{element_id}');\
+        element.style.position = 'relative';\
+        var topPos = element.offsetTop;\
+        document.getElementById('{container_id}').scrollTop = topPos - 55;\
         console.log(topPos);\
-        console.log(myElement.innerText);"
+        console.log(element.innerText);"
     browser.execute_script(java_script_call)
 
 
@@ -70,12 +127,15 @@ while True:
     '''
 
     try:
+        # Get the element that represents one row
         full_td = driver.find_element_by_id(f'isc_TreeViewImpl_1_0_body_cell{box_idx}_0')
         full_tr = full_td.find_element_by_xpath('..')
-        click_box = full_td.find_elements_by_css_selector('nobr > span')
+
+        # Get the element that represent the indicator information
         ind_td = full_td.find_element_by_id(f'isc_TreeViewImpl_1_0_valueCell{box_idx}')
-        expandable = click_box[0].get_attribute('id')
         indicator = ind_td.get_attribute('innerText')
+
+        # Get the position of this indicator in the hierarchy of nesting
         ind_level = int(full_tr.get_attribute('aria-level'))
 
         levels[f'{ind_level - 1}'] = indicator
@@ -85,10 +145,23 @@ while True:
 
         print(box_idx, ind_level, indicator)
 
+        # We know for sure the ind_level = 1 are group labels
+        # So we do not need them to occupy separate rows
         if ind_level > 1:
             indicators.append(copy.deepcopy(levels))
 
+        # Check whether this is a line where we can expand the tree.
+        # click_box gets two span elements. The first span is the
+        # one to click to open up the branch. This span has an id
+        # only when the current row is expandable. Otherwise we get
+        # an empty string.
+        click_box = full_td.find_elements_by_css_selector('nobr > span')
+        expandable = click_box[0].get_attribute('id')
+
         if expandable:
+            # aria-expanded is either true or false. We convert the value 
+            # returned to True or False. The eval converts to a boolean 
+            # in python.
             expanded = eval(full_tr.get_attribute('aria-expanded').capitalize())
 
             if not expanded:
@@ -107,6 +180,8 @@ while True:
         box_idx += 1
 
     except (common.exceptions.NoSuchElementException, common.exceptions.ElementNotInteractableException):
+        # We have reached the last indicator row attached to the container element.
+        # We have to scroll down the view within the container to access any other rows
 
         pd.DataFrame(indicators).to_csv('data_planet_indicators.csv', index=False)
 
