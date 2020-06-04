@@ -38,22 +38,36 @@ cookies.click()
 indicators = []
 
 time.sleep(15)
+
+# Trying to click on the pop-up message.
+# This did not work. So we cannot run this script headless.
+# We have to run the script, observe the browser window
+# opened by selenium, wait for the pop-up message and click
+# the button on it to make it go away.
 #popup = driver.find_element_by_css_selector('button.WFSTOJB')
 #popup.click()
 #time.sleep(1)
 
 box_idx = 0
+last_scroll_box_idx = -1
 
 max_level = 7
 levels = {'0': '', '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': ''}
 indicators = []
 
 while True:
-    if box_idx > 20000:
+    # Mainly for debugging purposes
+    # If you want to terminate the loop early extracting only few indicators
+    # set the value of the if condition to the number of indicators  you
+    # want to extract. 16939 was the total number of lines when the script
+    # was run for the first time
+    '''
+    if box_idx > 16939:
         pd.DataFrame(indicators).to_csv('data_planet_indicators.csv', index=False)
         print(f'box_idx exceeded {box_idx-1}')
         driver.quit()
         exit()
+    '''
 
     try:
         full_td = driver.find_element_by_id(f'isc_TreeViewImpl_1_0_body_cell{box_idx}_0')
@@ -76,7 +90,13 @@ while True:
 
         if expandable:
             expanded = eval(full_tr.get_attribute('aria-expanded').capitalize())
+
             if not expanded:
+                # Extend this branch
+                # When click_box[0].click() is used,sometimes (specially on Mac)
+                # tooltip from the previous line occludes the click box raising
+                # an exception. So we have to use action chains to first move
+                # the mouse over the click box and then perform the click.
                 actions = ActionChains(driver)
                 actions.move_to_element(click_box[0])
                 actions.click(click_box[0])
@@ -90,10 +110,22 @@ while True:
 
         pd.DataFrame(indicators).to_csv('data_planet_indicators.csv', index=False)
 
+        if last_scroll_box_idx == box_idx:
+            # We have not scrolled.
+            # This must be the last line.
+            # So stop
+            print('---Done---')
+            driver.quit()
+            exit()
+
+        last_scroll_box_idx = box_idx
+
         try:
             scroll_to_element(driver, 'isc_1C', f'isc_TreeViewImpl_1_0_body_cell{box_idx - 1}_0')
             time.sleep(1)
         except common.exceptions.JavascriptException:
-            print('---Done---')
+            # This exception should not happen
+            # Kept it here for additional safety
+            print('---Javascript Exception---')
             driver.quit()
             exit()
