@@ -23,6 +23,7 @@ def removeLastEmptyDict(pointer):
 def clean_FAOSTAT_data(outputFile):
     yaml = YAML()
     open(outputFile, 'w').close()
+
     faostat_dir = "FAOSTAT"
     domain_name = ['ASTI', 'CommodityBalances', 'ConsumerPriceIndices', 'Deflators', 'Development', 'Emissions_Agriculture', 'Emissions_Land_Use', 'Employment_Indicators', 'Environment', 'Exchange_rate', 'Food_Aid_Shipments', 'FoodBalance', 'Food_Security', 'FoodSupply', 'Forestry', 'Household_Surveys', 'Inputs', 'Investment', 'Macro-Statistics', 'Population', 'Price', 'Production', 'Trade']
     domain_name_yaml = ['ASTI R&D Indicators', 'Food Balance', 'Prices', 'Prices',  'Investment', 'Emissions - Agriculture', 'Emissions - Land Use', 'Inputs', 'Agri-Environmental Indicators', 'Prices', 'Emergency Response', 'Food Balance', 'Food Security', 'Food Security', 'Forestry', 'Food Security', 'Inputs', 'Investment', 'Macro-Statistics', 'Population', 'Prices', 'Production', 'Trade']
@@ -37,7 +38,10 @@ def clean_FAOSTAT_data(outputFile):
     'Livestock Manure', 'Livestock Patterns', 'Pesticides indicators', 'Temperature change', 'Exchange rates - Annual', 'Food Aid Shipments (WFP)', 'New Food Balances', 'Food Balances (old methodology and population)', 'Suite of Food Security Indicators', 'Food Supply - Crops Primary Equivalent', 'Food Supply - Livestock and Fish Primary Equivalent', 'Forestry Production and Trade', 'Forestry Trade Flows', 'Indicators from Household Surveys (gender, area, socioeconomics)', 'Fertilizers archive', 'Fertilizers by Nutrient', 'Fertilizers by Product', 'Land Use', 'Pesticides Trade', 'Pesticides Use', 'Capital Stock', 'Country Investment Statistics Profile', 
     'Credit to Agriculture', 'Foreign Direct Investment (FDI)', 'Government Expenditure', 'Machinery Archive', 'Machinery', 'Macro Indicators', 'Annual population', 'Producer Price Indices - Annual', 'Producer Prices - Archive', 'Producer Prices - Annual', 'Producer Prices - Monthly', 'Crops', 'Crops processed', 'Production Indices', 'Live Animals', 'Livestock Primary', 'Livestock Processed', 'Crops and livestock products', 'Detailed trade matrix', 'Trade Indices', 'Live animals', 'Value of Agricultural Production']
 
-    required_cols = ("Element", "Purpose", "FAO Source", "Breakdown Variable", "Indicator", "Measure", "Note")
+    required_cols = ("Element", "Purpose", "FAO Source", "Breakdown Variable", "Indicator", "Item", "Measure", "Note")
+
+    dict_file = {}
+
     for filename in tqdm(
         glob(str(faostat_dir) + "/*.csv"), desc="Processing FAOSTAT files"
     ):
@@ -45,7 +49,6 @@ def clean_FAOSTAT_data(outputFile):
 
         if 'Flags' in filename: continue
 
-        dict_file = {}
         df = pd.read_csv(
             filename,
             encoding="latin-1",
@@ -76,10 +79,10 @@ def clean_FAOSTAT_data(outputFile):
                     if row[col] not in pointer:
                         pointer[row[col]] = {}  
                     pointer = pointer[row[col]]
-        removeLastEmptyDict(dict_file)
+    removeLastEmptyDict(dict_file)
 
-        with open(outputFile, 'a') as file:
-            documents = yaml.dump(dict_file, file)
+    with open(outputFile, 'a') as file:
+        documents = yaml.dump(dict_file, file)
 
 if __name__ == "__main__":
     clean_FAOSTAT_data('FAOSTAT_hierarchy.yaml')
