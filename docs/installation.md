@@ -38,7 +38,7 @@ The following are the prerequisites for Delphi:
   - If you are a Delphi _developer_, create a fresh Python virtual environment,
     activate it, and then run the following commands:
     ```
-    git clone --recursive https://github.com/ml4ai/delphi
+    git clone https://github.com/ml4ai/delphi
     cd delphi
     pip install -e .[test,docs]
     ```
@@ -66,7 +66,8 @@ pip install --install-option="--include-path=/usr/local/include/" \
             --install-option="--library-path=/usr/local/lib" pygraphviz
 ```
 
-If you use MacPorts, change `usr` to `opt` in the above command.
+If you use MacPorts, just replace `usr` in the above command with `opt`.
+
 
 ### Debian
 
