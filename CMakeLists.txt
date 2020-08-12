@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.11)
 project(delphi)
 
+# Uncomment this line to generate debug code
+#set(CMAKE_BUILD_TYPE Debug)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -83,3 +86,8 @@ target_link_libraries(Delphi INTERFACE range-v3)
 
 pybind11_add_module(DelphiPython MODULE lib/DelphiPython.cpp)
 target_link_libraries(DelphiPython PRIVATE Delphi Eigen3::Eigen)
+
+# Executables
+add_executable(create_model apps/create_model.cpp)
+target_link_libraries(create_model PRIVATE Delphi Eigen3::Eigen)
+

@@ -12,10 +12,8 @@ AnalysisGraph::from_indra_statements_json_dict(nlohmann::json json_data,
                                                double belief_score_cutoff,
                                                double grounding_score_cutoff,
                                                string ontology) {
-  print("Loading INDRA statements JSON file.");
   AnalysisGraph G;
 
-  print("Processing INDRA statements...");
   for (auto stmt : json_data) {
     if (stmt["type"] == "Influence") {
       auto subj_ground = stmt["subj"]["concept"]["db_refs"][ontology][0][1];
@@ -90,7 +88,6 @@ AnalysisGraph::from_indra_statements_json_file(string filename,
                                                double belief_score_cutoff,
                                                double grounding_score_cutoff,
                                                string ontology) {
-  print("Loading INDRA statements JSON file.");
   auto json_data = load_json(filename);
 
   return AnalysisGraph::from_indra_statements_json_dict(
@@ -139,4 +136,45 @@ AnalysisGraph AnalysisGraph::from_json_string(string json_string) {
         .set_mean(indicator["mean"].get<double>());
   }
   return G;
+}
+
+/**
+ * copy constructor
+ * TODO: Most probably the copy is sharing the same
+ * random number generation class RNG
+ * TODO: If at any point we make a copy of AnalysisGraph
+ * and find that the copy does not behave as intended,
+ * we might have not copied something or we might have
+ * copied something incorrectly. This is one place to
+ * look for bugs.
+ */
+AnalysisGraph::AnalysisGraph(const AnalysisGraph& rhs) {
+  for_each(rhs.node_indices(), [&](int v) {
+    Node node_rhs = rhs.graph[v];
+
+    this->add_node(node_rhs.name);
+
+    for(const Indicator& ind : node_rhs.indicators) {
+      this->set_indicator(node_rhs.name, ind.name, ind.source);
+    }
+  });
+  /*
+  for (auto [vert_name, vert_id] : rhs.name_to_vertex) {
+    this->add_node(vert_name);
+  }
+  */
+
+  for_each(rhs.edges(), [&](auto e_rhs) {
+    auto [e_lhs, exists] = this->add_edge(rhs.graph[boost::source(e_rhs, rhs.graph)].name,
+		                          rhs.graph[boost::target(e_rhs, rhs.graph)].name);
+    this->graph[e_lhs] = rhs.graph[e_rhs];
+    /*
+    this->graph[e_lhs].evidence = rhs.graph[e_rhs].evidence;
+    this->graph[e_lhs].kde = rhs.graph[e_rhs].kde;
+    this->graph[e_lhs].name = rhs.graph[e_rhs].name;
+    this->graph[e_lhs].beta = rhs.graph[e_rhs].beta;
+    */
+
+    this->observed_state_sequence = rhs.observed_state_sequence;
+  });
 }

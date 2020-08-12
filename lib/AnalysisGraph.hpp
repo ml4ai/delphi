@@ -297,7 +297,7 @@ class AnalysisGraph {
     }
   }
 
-  auto node_indices() {
+  auto node_indices() const {
     return boost::make_iterator_range(boost::vertices(this->graph));
   };
 
@@ -645,6 +645,9 @@ class AnalysisGraph {
   /** From internal string representation output by to_json_string */
   static AnalysisGraph from_json_string(std::string);
 
+  /** Copy constructor */
+  AnalysisGraph(const AnalysisGraph& rhs);
+
   /*
    ============================================================================
    Public: Integration with Uncharted's CauseMos interface
@@ -683,7 +686,7 @@ class AnalysisGraph {
 
   size_t num_edges() { return boost::num_edges(this->graph); }
 
-  auto edges() { return boost::make_iterator_range(boost::edges(graph)); }
+  auto edges() const { return boost::make_iterator_range(boost::edges(graph)); }
 
   Edge& edge(EdgeDescriptor e) { return this->graph[e]; }
 

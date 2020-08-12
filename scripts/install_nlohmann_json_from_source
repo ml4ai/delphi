@@ -1,0 +1,12 @@
+#!/bin/bash
+
+version=3.7.3
+wget https://github.com/nlohmann/json/archive/v${version}.tar.gz
+tar -xf v${version}.tar.gz
+pushd json-${version} > /dev/null
+  mkdir build
+  cd build
+  cmake ..
+  make -j install
+popd > /dev/null
+rm -rf json-${version}
