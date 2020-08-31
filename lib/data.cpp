@@ -8,6 +8,7 @@
 
 using namespace std;
 
+// NOTE: A better name would be get_observations
 vector<double> get_data_value(string indicator,
                               string country,
                               string state,
@@ -21,6 +22,7 @@ vector<double> get_data_value(string indicator,
 
   sqlite3* db = nullptr;
 
+  // NOTE: A better name would be obs or observations
   vector<double> vals = {};
 
   int rc;

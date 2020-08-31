@@ -101,8 +101,8 @@ void AnalysisGraph::set_observed_state_sequence_from_data(int start_year,
                                                           string county) {
   this->observed_state_sequence.clear();
 
-  // Access
-  // [ timestep ][ vertex ][ indicator ]
+  // Access (concept is a vertex in the CAG)
+  // [ timestep ][ concept ][ indicator ][ observation ]
   this->observed_state_sequence = ObservedStateSequence(this->n_timesteps);
 
   int year = start_year;
@@ -129,8 +129,8 @@ vector<vector<vector<double>>> AnalysisGraph::get_observed_state_from_data(
 
   int num_verts = this->num_vertices();
 
-  // Access
-  // [ vertex ][ indicator ]
+  // Access (concept is a vertex in the CAG)
+  // [ concept ][ indicator ][ observation ]
   vector<vector<vector<double>>> observed_state(num_verts);
 
   for (int v = 0; v < num_verts; v++) {
