@@ -57,6 +57,8 @@ double Tran_Mat_Cell::compute_cell(const DiGraph& CAG) {
   return rs::accumulate(products, 0.0);
 }
 
+/*
+ * 2020-08-31: The method is not being used
 double Tran_Mat_Cell::sample_from_prior(const DiGraph& CAG, int samp_num) {
   for (int p = 0; p < this->paths.size(); p++) {
     this->products[p] = 1;
@@ -71,7 +73,7 @@ double Tran_Mat_Cell::sample_from_prior(const DiGraph& CAG, int samp_num) {
       const vector<double>& samples =
           CAG[edge(v, v + 1, CAG).first].kde.dataset;
 
-      // Check whether we have enough samples to fulfil this request
+      // Check whether we have enough samples to fulfill this request
       if (samples.size() > samp_num) {
         this->products[p] *=
             CAG[edge(v, v + 1, CAG).first].kde.dataset[samp_num];
@@ -87,6 +89,7 @@ double Tran_Mat_Cell::sample_from_prior(const DiGraph& CAG, int samp_num) {
 
   return rs::accumulate(products, 0.0);
 }
+*/
 
 // Given a β and an update amount, update all the products where β is a
 // factor. compute_cell() must be called once at the beginning befor calling

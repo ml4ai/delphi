@@ -66,6 +66,8 @@ void AnalysisGraph::sample_transition_matrix_collection_from_prior() {
   }
 }
 
+/*
+ * 2020-08-31: The method is not being used
 void AnalysisGraph::set_initial_latent_state_from_observed_state_sequence() {
   for (int v = 0; v < this->num_vertices(); v++) {
     vector<Indicator>& indicators = (*this)[v].indicators;
@@ -91,7 +93,9 @@ void AnalysisGraph::set_initial_latent_state_from_observed_state_sequence() {
     this->s0(2 * v + 1) = diff;
   }
 }
-
+*/
+/*
+ * 2020-08-31: The method is not being used
 void AnalysisGraph::set_initial_latent_from_end_of_training() {
 
   this->set_default_initial_state();
@@ -134,6 +138,7 @@ void AnalysisGraph::set_initial_latent_from_end_of_training() {
     this->s0(2 * v + 1) = diff;
   }
 }
+*/
 
 void AnalysisGraph::set_log_likelihood() {
   this->previous_log_likelihood = this->log_likelihood;

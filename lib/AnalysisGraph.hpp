@@ -448,9 +448,11 @@ class AnalysisGraph {
    *                  than the first time step. Not currently used.
    *                  0 <= timestep < this->n_timesteps
    */
-  void set_initial_latent_state_from_observed_state_sequence();
+  // 2020-08-31: The method is not being used
+  //void set_initial_latent_state_from_observed_state_sequence();
 
-  void set_initial_latent_from_end_of_training();
+  // 2020-08-31: The method is not being used
+  //void set_initial_latent_from_end_of_training();
 
   void set_log_likelihood();
 
