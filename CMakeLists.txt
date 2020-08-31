@@ -91,3 +91,11 @@ target_link_libraries(DelphiPython PRIVATE Delphi Eigen3::Eigen)
 add_executable(create_model apps/create_model.cpp)
 target_link_libraries(create_model PRIVATE Delphi Eigen3::Eigen)
 
+add_custom_command(TARGET DelphiPython POST_BUILD
+    COMMAND echo ""
+    COMMAND echo "Copying..."
+    COMMAND ls DelphiPython*
+    COMMAND echo "to ${PROJECT_SOURCE_DIR}/delphi/cpp/"
+    COMMAND echo ""
+    COMMAND rm -rf ${PROJECT_SOURCE_DIR}/delphi/cpp/DelphiPython*
+    COMMAND cp DelphiPython* ${PROJECT_SOURCE_DIR}/delphi/cpp/)
