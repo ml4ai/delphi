@@ -100,7 +100,7 @@ class AnalysisGraph {
   //
   // According to our current model, which uses variables and their partial
   // derivatives with respect to each other ( x --> y, βxy = ∂y/∂x ),
-  // atmost half of the transition matrix cells can be affected by βs.
+  // at most half of the transition matrix cells can be affected by βs.
   // According to the way we organize the transition matrix, the cells
   // A[row][col] where row is an even index and col is an odd index
   // are such cells.

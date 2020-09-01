@@ -64,19 +64,18 @@ class Tran_Mat_Cell {
   // Computes the value of this cell from scratch.
   // Should be called after adding all the paths using add_path()
   // and calling allocate_datastructures()
-  // TODO: This is just a dummy implementation. Update the logic to
-  // calculate the value using βs assigned to each path.
-  // To access βs, the graph needs to be passed in as an argument.
-  // Logic is similar to Tran_Mat_Cell::sample_from_prior()
-  // At the moment just compute the sum of lengths of all the paths
   double compute_cell(const DiGraph& CAG);
 
-  double sample_from_prior(const DiGraph& CAG, int samp_num = 0);
+  // 2020-08-31: The method is not being used
+  //double sample_from_prior(const DiGraph& CAG, int samp_num = 0);
 
+  /*
+   * 2020-08-31: The method is not being used
   // Given a β and an update amount, update all the products where β is a
   // factor. compute_cell() must be called once at the beginning befor calling
   // this.
   double update_cell(std::pair<int, int> beta, double amount);
+  */
 
   void print_products();
 
