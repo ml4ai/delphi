@@ -7,6 +7,7 @@ import seaborn as sns
 import warnings
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 
 
 class Error(Exception):
@@ -207,7 +208,7 @@ def data_to_list(
     **kwargs,
 ) -> Tuple[List[str], List[List[int]]]:
     """ Get the true values of the indicator variable given a start date and
-    end data. Allows for other specifications as well.
+    end date. Allows for other specifications as well.
 
     Args:
         variable: Name of target indicator variable.
@@ -323,9 +324,13 @@ def mean_data_to_df(
                 mean, _, _ = stats.bayes_mvs(obs, ci)
                 data_mean[i, 0] = mean[0]
                 data_mean[i, 1] = mean[1][0]
-                data_mean[i, 2] = mean[2][1]
+                data_mean[i, 2] = mean[1][1]
+            elif len(obs) == 1:
+                data_mean[i, 0] = obs[0]
+                data_mean[i, 1] = np.nan
+                data_mean[i, 2] = np.nan
             else:
-                data_mean[i, 0] = np.mean(obs)
+                data_mean[i, 0] = np.nan
                 data_mean[i, 1] = np.nan
                 data_mean[i, 2] = np.nan
 
@@ -424,6 +429,16 @@ def mean_pred_to_df(
     if ci is not None:
         pred_raw = pred_to_array(preds, indicator)
         _, pred_range, _ = preds
+
+        # WARNING: This line generates a warning!
+        # VisibleDeprecationWarning: Creating an ndarray from ragged nested
+        # sequences (which is a list-or-tuple of lists-or-tuples-or ndarrays
+        # with different lengths or shapes) is deprecated. If you meant to do
+        # this, you must specify 'dtype=object' when creating the ndarray
+        #   return array(a, dtype, copy=False, order=order, subok=True)
+        # When I do a similar call at the Python command line, the warning does
+        # not appear.
+        # Could not figure out how to make this warning go away.
         pred_stats = np.apply_along_axis(stats.bayes_mvs, 1, pred_raw.T, ci)[
             :, 0
         ]
@@ -475,7 +490,6 @@ def mean_pred_to_df(
             return pd.concat(
                 [mean_df, true_data_df, error_df],
                 axis=1,
-                join_axes=[true_data_df.index],
             )
         else:
             mean_df = mean_df.set_index(pd.Index(pred_range))
@@ -519,7 +533,6 @@ def mean_pred_to_df(
             return pd.concat(
                 [mean_df, true_data_df, error_df],
                 axis=1,
-                join_axes=[true_data_df.index],
             )
         else:
             mean_df = mean_df.set_index(pd.Index(pred_range))
@@ -627,12 +640,12 @@ def pred_plot(
                     if len(obs) > 0:
                         for o in obs:
                             true_data_y.append(o)
-                            true_data_x.append(i)
+                            true_data_x.append(true_date[i])
                     else:
                         true_data_y.append(np.nan)
-                        true_data_x.append(i)
+                        true_data_x.append(true_date[i])
                     if i >= pred_init_step:
-                        pred_x.append(i)
+                        pred_x.append(true_date[i])
 
                 df = mean_pred_to_df(
                     preds,
@@ -645,17 +658,17 @@ def pred_plot(
                 df_pred = df.drop(df.columns[[1, 2]], axis=1)
                 sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
                 ax = sns.scatterplot(
-                    x=true_data_x,
+                    x=pd.to_datetime(true_data_x),
                     y=true_data_y,
                     marker="x",
                     color="red",
                     s=100,
                 )
                 ax2 = sns.lineplot(
-                    x=pred_x, y=df_pred.values.ravel(), sort=False, ax=ax
+                    x=pd.to_datetime(pred_x), y=df_pred.values.ravel(), sort=False, ax=ax
                 )
                 ax2.fill_between(
-                    x=pred_x,
+                    x=pd.to_datetime(pred_x),
                     y1=df[
                         f"{indicator}(Upper Confidence Bound)"
                     ].values.astype(float),
@@ -664,10 +677,13 @@ def pred_plot(
                     ].values.astype(float),
                     alpha=0.5,
                 )
+                #ax.set_xticks([i for i, _ in enumerate(true_date)])
+                ax.set_xticks(pd.to_datetime(true_date))
                 ax.set_xticklabels(
-                    true_date, ha="right", rotation=45, fontsize=8
+                    pd.to_datetime(true_date), ha="right", rotation=45, fontsize=8
                 )
-                ax.set_xticks(true_data_x)
+                xfmt = mdates.DateFormatter('%Y-%m')
+                ax.xaxis.set_major_formatter(xfmt)
                 ax.set_title(f"Predictions vs. True values for {indicator}")
                 ax2.get_lines()[0].set_color("blue")
                 ax2.get_lines()[0].set_linestyle("-")
@@ -724,10 +740,10 @@ def pred_plot(
                     if len(obs) > 0:
                         for o in obs:
                             true_data_y.append(o)
-                            true_data_x.append(i)
+                            true_data_x.append(true_date[i])
                     else:
                         true_data_y.append(np.nan)
-                        true_data_x.append(i)
+                        true_data_x.append(true_date[i])
 
                 df = mean_pred_to_df(
                     preds,
@@ -738,10 +754,11 @@ def pred_plot(
                     **kwargs,
                 )
                 df_pred = df.drop(df.columns[[1, 2]], axis=1)
+                df_pred.index = pd.to_datetime(df_pred.index)
                 sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
                 ax = sns.lineplot(data=df_pred, sort=False, markers=["o"])
                 ax.fill_between(
-                    x=df.index.astype(str),
+                    x=df_pred.index,
                     y1=df[
                         f"{indicator}(Upper Confidence Bound)"
                     ].values.astype(float),
@@ -750,19 +767,22 @@ def pred_plot(
                     ].values.astype(float),
                     alpha=0.5,
                 )
-                ax.set_xticklabels(
-                    df.index.astype(str), rotation=45, ha="right", fontsize=8
-                )
                 ax.set_title(f"Predictions vs. True values for {indicator}")
                 ax.get_lines()[0].set_color("blue")
                 ax.get_lines()[0].set_linestyle("-")
                 ax = sns.scatterplot(
-                    x=true_data_x,
+                    x=pd.to_datetime(true_data_x),
                     y=true_data_y,
                     marker="x",
                     color="red",
                     s=100,
                 )
+                ax.set_xticks(df_pred.index)
+                ax.set_xticklabels(
+                    df_pred.index, rotation=45, ha="right", fontsize=8
+                )
+                xfmt = mdates.DateFormatter('%Y-%m')
+                ax.xaxis.set_major_formatter(xfmt)
                 handles, labels = ax.get_legend_handles_labels()
                 handles.append(
                     mpatches.Patch(color="red", label=f"{indicator}(True)")
@@ -781,6 +801,7 @@ def pred_plot(
         elif plot_type == "Error":
             df = mean_pred_to_df(preds, indicator, ci, True, **kwargs)
             df_error = df.drop(df.columns[[0, 1, 2, 3, 4, 5, 7, 8]], axis=1)
+            df_error.index = pd.to_datetime(df_error.index)
             sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
             ax = sns.lineplot(data=df_error, sort=False, markers=["o"])
             ax.fill_between(
@@ -789,7 +810,10 @@ def pred_plot(
                 y2=df["Lower Error Bound"].values,
                 alpha=0.5,
             )
-            ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
+            ax.set_xticks(df_error.index)
+            ax.set_xticklabels(df_error.index, rotation=45, ha="right", fontsize=8)
+            xfmt = mdates.DateFormatter('%Y-%m')
+            ax.xaxis.set_major_formatter(xfmt)
             ax.axhline(color="r")
             ax.set_title(f"Prediction Error for {indicator}")
             ax.get_lines()[0].set_color("blue")
@@ -817,12 +841,14 @@ def pred_plot(
                 y2=df[f"{indicator}(Lower Confidence Bound)"].values,
                 alpha=0.5,
             )
+            ax.set_xticks(df.index)
             ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
             ax.set_title(
                 f"Predictions vs. True values(Synthetic) for {indicator}"
             )
         else:
             df = mean_pred_to_df(preds, indicator, ci, False, **kwargs)
+            df.index = pd.to_datetime(df.index)
             df_pred = df.drop(df.columns[[1, 2]], axis=1)
             sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
             ax = sns.lineplot(data=df_pred, sort=False, markers=["o"])
@@ -832,13 +858,17 @@ def pred_plot(
                 y2=df[f"{indicator}(Lower Confidence Bound)"].values,
                 alpha=0.5,
             )
+            ax.set_xticks(df.index)
             ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
+            xfmt = mdates.DateFormatter('%Y-%m')
+            ax.xaxis.set_major_formatter(xfmt)
             ax.set_title(f"Predictions for {indicator}")
             ax.get_lines()[0].set_color("blue")
             ax.get_lines()[0].set_linestyle("-")
         if save_as is not None:
             fig = ax.get_figure()
             fig.savefig(save_as)
+            plt.close()
     else:
         if plot_type == "Comparison":
             if show_training_data:
@@ -874,12 +904,12 @@ def pred_plot(
                     if len(obs) > 0:
                         for o in obs:
                             true_data_y.append(o)
-                            true_data_x.append(i)
+                            true_data_x.append(true_date[i])
                     else:
                         true_data_y.append(np.nan)
-                        true_data_x.append(i)
+                        true_data_x.append(true_date[i])
                     if i >= pred_init_step:
-                        pred_x.append(i)
+                        pred_x.append(true_date[i])
 
                 df = mean_pred_to_df(
                     preds,
@@ -891,19 +921,22 @@ def pred_plot(
                 )
                 sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
                 ax = sns.scatterplot(
-                    x=true_data_x,
+                    x=pd.to_datetime(true_data_x),
                     y=true_data_y,
                     marker="x",
                     color="red",
                     s=100,
                 )
                 ax2 = sns.lineplot(
-                    x=pred_x, y=df.values.ravel(), sort=False, ax=ax
+                    x=pd.to_datetime(pred_x), y=df.values.ravel(), sort=False, ax=ax
                 )
+                #ax.set_xticks([i for i, _ in enumerate(true_date)])
+                ax.set_xticks(pd.to_datetime(true_date))
                 ax.set_xticklabels(
-                    true_date, ha="right", rotation=45, fontsize=8
+                    pd.to_datetime(true_date), ha="right", rotation=45, fontsize=8
                 )
-                ax.set_xticks(true_data_x)
+                xfmt = mdates.DateFormatter('%Y-%m')
+                ax.xaxis.set_major_formatter(xfmt)
                 ax.set_title(f"Predictions vs. True values for {indicator}")
                 ax2.get_lines()[0].set_color("blue")
                 ax2.get_lines()[0].set_linestyle("-")
@@ -960,10 +993,10 @@ def pred_plot(
                     if len(obs) > 0:
                         for o in obs:
                             true_data_y.append(o)
-                            true_data_x.append(i)
+                            true_data_x.append(true_date[i])
                     else:
                         true_data_y.append(np.nan)
-                        true_data_x.append(i)
+                        true_data_x.append(true_date[i])
 
                 df = mean_pred_to_df(
                     preds,
@@ -973,21 +1006,25 @@ def pred_plot(
                     use_heuristic_for_true,
                     **kwargs,
                 )
+                df.index = pd.to_datetime(df.index)
                 sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
                 ax = sns.lineplot(data=df, sort=False, markers=["o"])
-                ax.set_xticklabels(
-                    df.index.astype(str), rotation=45, ha="right", fontsize=8
-                )
                 ax.set_title(f"Predictions vs. True values for {indicator}")
                 ax.get_lines()[0].set_color("blue")
                 ax.get_lines()[0].set_linestyle("-")
                 ax = sns.scatterplot(
-                    x=true_data_x,
+                    x=pd.to_datetime(true_data_x),
                     y=true_data_y,
                     marker="x",
                     color="red",
                     s=100,
                 )
+                ax.set_xticks(pd.to_datetime(true_date))
+                ax.set_xticklabels(
+                    pd.to_datetime(true_date), rotation=45, ha="right", fontsize=8
+                )
+                xfmt = mdates.DateFormatter('%Y-%m')
+                ax.xaxis.set_major_formatter(xfmt)
                 handles, labels = ax.get_legend_handles_labels()
                 handles.append(
                     mpatches.Patch(color="red", label=f"{indicator}(True)")
@@ -1006,9 +1043,13 @@ def pred_plot(
         elif plot_type == "Error":
             df = mean_pred_to_df(preds, indicator, ci, True, **kwargs)
             df_error = df.drop(df.columns[[0, 1]], axis=1)
+            df_error.index = pd.to_datetime(df_error.index)
             sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
             ax = sns.lineplot(data=df_error, sort=False, markers=["o"])
-            ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
+            ax.set_xticks(df_error.index)
+            ax.set_xticklabels(df_error.index, rotation=45, ha="right", fontsize=8)
+            xfmt = mdates.DateFormatter('%Y-%m')
+            ax.xaxis.set_major_formatter(xfmt)
             ax.axhline(color="r")
             ax.set_title(f"Prediction Error for {indicator}")
             ax.get_lines()[0].set_color("blue")
@@ -1036,21 +1077,27 @@ def pred_plot(
                 y2=df[f"{indicator}(Lower Confidence Bound)"].values,
                 alpha=0.5,
             )
+            ax.set_xticks(df.index)
             ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
             ax.set_title(
                 f"Predictions vs. True values(Synthetic) for {indicator}"
             )
         else:
             df = mean_pred_to_df(preds, indicator, ci, False, **kwargs)
+            df.index = pd.to_datetime(df.index)
             sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
             ax = sns.lineplot(data=df, sort=False, markers=["o"])
+            ax.set_xticks(df.index)
             ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
+            xfmt = mdates.DateFormatter('%Y-%m')
+            ax.xaxis.set_major_formatter(xfmt)
             ax.set_title(f"Predictions for {indicator}")
             ax.get_lines()[0].set_color("blue")
             ax.get_lines()[0].set_linestyle("-")
         if save_as is not None:
             fig = ax.get_figure()
             fig.savefig(save_as)
+            plt.close()
 
 
 # ==========================================================================
@@ -1380,13 +1427,14 @@ def intervention(
     error_df = error_df.set_index(true_vals_df.index)
 
     compare_df = pd.concat(
-        [true_vals_df, preds_df], axis=1, join_axes=[true_vals_df.index]
+        [true_vals_df, preds_df], axis=1
     )
 
     if plot:
         if plot_type == "Error":
             sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
             ax = sns.lineplot(data=error_df)
+            ax.set_xticks(error_df.index)
             ax.set_xticklabels(
                 error_df.index, rotation=45, ha="right", fontsize=8
             )
@@ -1394,10 +1442,11 @@ def intervention(
         else:
             sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
             ax = sns.lineplot(data=compare_df)
+            ax.set_xticks(compare_df.index)
             ax.set_xticklabels(
                 compare_df.index, rotation=45, ha="right", fontsize=8
             )
 
     return pd.concat(
-        [compare_df, error_df], axis=1, join_axes=[true_vals_df.index]
+        [compare_df, error_df], axis=1
     )
