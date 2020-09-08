@@ -451,9 +451,9 @@ def mean_pred_to_df(
         mean_df = pd.DataFrame(
             pred_mean,
             columns=[
-                f"{indicator}(Mean Prediction)",
-                f"{indicator}(Lower Confidence Bound)",
-                f"{indicator}(Upper Confidence Bound)",
+                f"{indicator} (Mean Prediction)",
+                f"{indicator} (Lower Confidence Bound)",
+                f"{indicator} (Upper Confidence Bound)",
             ],
         )
         if true_vals == True:
@@ -605,499 +605,157 @@ def pred_plot(
         None
     """
 
-    if ci is not None:
-        if plot_type == "Comparison":
-            if show_training_data:
-                training_range, pred_range, _ = preds
+    # TODO: Test option may not work properly
 
-                start_year = training_range[0][0]
-                start_month = training_range[0][1]
-                end_year = int(pred_range[-1][0:4])
-                end_month = int(pred_range[-1][5:7])
+    df = mean_pred_to_df(
+        preds,
+        indicator,
+        ci,
+        plot_type == 'Error',
+        use_heuristic_for_true,
+        **kwargs,
+    )
+    df.index = pd.to_datetime(df.index)
 
-                total_timesteps = (
-                    calculate_timestep(
-                        start_year, start_month, end_year, end_month
-                    )
-                    + 1
-                )
-                pred_timesteps = len(pred_range)
-                pred_init_step = total_timesteps - pred_timesteps
-
-                true_date, true_data = data_to_list(
-                    indicator,
-                    start_year,
-                    start_month,
-                    end_year,
-                    end_month,
-                    use_heuristic_for_true,
-                    **kwargs,
-                )
-                true_data_x = []
-                true_data_y = []
-                pred_x = []
-                for i, obs in enumerate(true_data):
-                    if len(obs) > 0:
-                        for o in obs:
-                            true_data_y.append(o)
-                            true_data_x.append(true_date[i])
-                    else:
-                        true_data_y.append(np.nan)
-                        true_data_x.append(true_date[i])
-                    if i >= pred_init_step:
-                        pred_x.append(true_date[i])
-
-                df = mean_pred_to_df(
-                    preds,
-                    indicator,
-                    ci,
-                    False,
-                    use_heuristic_for_true,
-                    **kwargs,
-                )
-                df_pred = df.drop(df.columns[[1, 2]], axis=1)
-                sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
-                ax = sns.scatterplot(
-                    x=pd.to_datetime(true_data_x),
-                    y=true_data_y,
-                    marker="x",
-                    color="red",
-                    s=100,
-                )
-                ax2 = sns.lineplot(
-                    x=pd.to_datetime(pred_x), y=df_pred.values.ravel(), sort=False, ax=ax
-                )
-                ax2.fill_between(
-                    x=pd.to_datetime(pred_x),
-                    y1=df[
-                        f"{indicator}(Upper Confidence Bound)"
-                    ].values.astype(float),
-                    y2=df[
-                        f"{indicator}(Lower Confidence Bound)"
-                    ].values.astype(float),
-                    alpha=0.5,
-                )
-                #ax.set_xticks([i for i, _ in enumerate(true_date)])
-                ax.set_xticks(pd.to_datetime(true_date))
-                ax.set_xticklabels(
-                    pd.to_datetime(true_date), ha="right", rotation=45, fontsize=8
-                )
-                xfmt = mdates.DateFormatter('%Y-%m')
-                ax.xaxis.set_major_formatter(xfmt)
-                ax.set_title(f"Predictions vs. True values for {indicator}")
-                ax2.get_lines()[0].set_color("blue")
-                ax2.get_lines()[0].set_linestyle("-")
-                ax2.get_lines()[0].set_marker("o")
-                handles, labels = ax.get_legend_handles_labels()
-                handles.append(
-                    mpatches.Patch(
-                        edgecolor="red",
-                        hatch="x",
-                        label=f"{indicator}(True)",
-                        fill=False,
-                        linewidth=0,
-                    )
-                )
-                handles.append(
-                    mpatches.Patch(
-                        color="blue",
-                        linestyle="-",
-                        label=f"{indicator}(Mean Prediction)",
-                    )
-                )
-
-                if show_rmse:
-                    rmse = round(
-                        calculate_prediction_rmse(preds, indicator, **kwargs),
-                        4,
-                    )
-                    rmse_str = f"Root Mean Squared Error: {rmse}"
-
-                    handles.append(
-                        mpatches.Patch(color="none", label=rmse_str)
-                    )
-                ax.legend(handles=handles)
-            else:
-                _, pred_range, _ = preds
-
-                start_year = int(pred_range[0][0:4])
-                start_month = int(pred_range[0][5:7])
-                end_year = int(pred_range[-1][0:4])
-                end_month = int(pred_range[-1][5:7])
-
-                true_date, true_data = data_to_list(
-                    indicator,
-                    start_year,
-                    start_month,
-                    end_year,
-                    end_month,
-                    use_heuristic_for_true,
-                    **kwargs,
-                )
-                true_data_x = []
-                true_data_y = []
-                for i, obs in enumerate(true_data):
-                    if len(obs) > 0:
-                        for o in obs:
-                            true_data_y.append(o)
-                            true_data_x.append(true_date[i])
-                    else:
-                        true_data_y.append(np.nan)
-                        true_data_x.append(true_date[i])
-
-                df = mean_pred_to_df(
-                    preds,
-                    indicator,
-                    ci,
-                    False,
-                    use_heuristic_for_true,
-                    **kwargs,
-                )
-                df_pred = df.drop(df.columns[[1, 2]], axis=1)
-                df_pred.index = pd.to_datetime(df_pred.index)
-                sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
-                ax = sns.lineplot(data=df_pred, sort=False, markers=["o"])
-                ax.fill_between(
-                    x=df_pred.index,
-                    y1=df[
-                        f"{indicator}(Upper Confidence Bound)"
-                    ].values.astype(float),
-                    y2=df[
-                        f"{indicator}(Lower Confidence Bound)"
-                    ].values.astype(float),
-                    alpha=0.5,
-                )
-                ax.set_title(f"Predictions vs. True values for {indicator}")
-                ax.get_lines()[0].set_color("blue")
-                ax.get_lines()[0].set_linestyle("-")
-                ax = sns.scatterplot(
-                    x=pd.to_datetime(true_data_x),
-                    y=true_data_y,
-                    marker="x",
-                    color="red",
-                    s=100,
-                )
-                ax.set_xticks(df_pred.index)
-                ax.set_xticklabels(
-                    df_pred.index, rotation=45, ha="right", fontsize=8
-                )
-                xfmt = mdates.DateFormatter('%Y-%m')
-                ax.xaxis.set_major_formatter(xfmt)
-                handles, labels = ax.get_legend_handles_labels()
-                handles.append(
-                    mpatches.Patch(color="red", label=f"{indicator}(True)")
-                )
-
-                if show_rmse:
-                    rmse = round(
-                        calculate_prediction_rmse(preds, indicator, **kwargs),
-                        4,
-                    )
-                    rmse_str = f"Root Mean Squared Error: {rmse}"
-                    handles.append(
-                        mpatches.Patch(color="none", label=rmse_str)
-                    )
-                ax.legend(handles=handles)
-        elif plot_type == "Error":
-            df = mean_pred_to_df(preds, indicator, ci, True, **kwargs)
-            df_error = df.drop(df.columns[[0, 1, 2, 3, 4, 5, 7, 8]], axis=1)
-            df_error.index = pd.to_datetime(df_error.index)
-            sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
-            ax = sns.lineplot(data=df_error, sort=False, markers=["o"])
-            ax.fill_between(
-                x=df_error.index,
-                y1=df["Upper Error Bound"].values,
-                y2=df["Lower Error Bound"].values,
-                alpha=0.5,
-            )
-            ax.set_xticks(df_error.index)
-            ax.set_xticklabels(df_error.index, rotation=45, ha="right", fontsize=8)
-            xfmt = mdates.DateFormatter('%Y-%m')
-            ax.xaxis.set_major_formatter(xfmt)
-            ax.axhline(color="r")
-            ax.set_title(f"Prediction Error for {indicator}")
-            ax.get_lines()[0].set_color("blue")
-            ax.get_lines()[0].set_linestyle("-")
-            if show_rmse:
-                rmse = round(
-                    calculate_prediction_rmse(preds, indicator, **kwargs), 4
-                )
-                rmse_str = f"Root Mean Squared Error: {rmse}"
-                handles, labels = ax.get_legend_handles_labels()
-                handles.append(mpatches.Patch(color="none", label=rmse_str))
-                ax.legend(handles=handles)
-        elif plot_type == "Test":
-            # This option may not function properly
-            test_data = kwargs.get("test_data")
-            assert test_data is not None
-            df = mean_pred_to_df(preds, indicator, ci, False, **kwargs)
-            df_pred = df.drop(df.columns[[1, 2]], axis=1)
-            df_pred[f"{indicator}(Synthetic)"] = test_data
-            sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
-            ax = sns.lineplot(data=df_pred, sort=False)
-            ax.fill_between(
-                x=df_pred.index,
-                y1=df[f"{indicator}(Upper Confidence Bound)"].values,
-                y2=df[f"{indicator}(Lower Confidence Bound)"].values,
-                alpha=0.5,
-            )
-            ax.set_xticks(df.index)
-            ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
-            ax.set_title(
-                f"Predictions vs. True values(Synthetic) for {indicator}"
-            )
+    if plot_type == 'Error':
+        if ci:
+            df_plot = df.drop(df.columns[[0, 1, 2, 3, 4, 5, 7, 8]], axis=1)
         else:
-            df = mean_pred_to_df(preds, indicator, ci, False, **kwargs)
-            df.index = pd.to_datetime(df.index)
-            df_pred = df.drop(df.columns[[1, 2]], axis=1)
-            sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
-            ax = sns.lineplot(data=df_pred, sort=False, markers=["o"])
-            ax.fill_between(
-                x=df_pred.index,
-                y1=df[f"{indicator}(Upper Confidence Bound)"].values,
-                y2=df[f"{indicator}(Lower Confidence Bound)"].values,
-                alpha=0.5,
-            )
-            ax.set_xticks(df.index)
-            ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
-            xfmt = mdates.DateFormatter('%Y-%m')
-            ax.xaxis.set_major_formatter(xfmt)
-            ax.set_title(f"Predictions for {indicator}")
-            ax.get_lines()[0].set_color("blue")
-            ax.get_lines()[0].set_linestyle("-")
-        if save_as is not None:
-            fig = ax.get_figure()
-            fig.savefig(save_as)
-            plt.close()
+            df_plot = df.drop(df.columns[[0, 1]], axis=1)
     else:
-        if plot_type == "Comparison":
-            if show_training_data:
-                training_range, pred_range, _ = preds
-
-                start_year = training_range[0][0]
-                start_month = training_range[0][1]
-                end_year = int(pred_range[-1][0:4])
-                end_month = int(pred_range[-1][5:7])
-
-                total_timesteps = (
-                    calculate_timestep(
-                        start_year, start_month, end_year, end_month
-                    )
-                    + 1
-                )
-                pred_timesteps = len(pred_range)
-                pred_init_step = total_timesteps - pred_timesteps
-
-                true_date, true_data = data_to_list(
-                    indicator,
-                    start_year,
-                    start_month,
-                    end_year,
-                    end_month,
-                    use_heuristic_for_true,
-                    **kwargs,
-                )
-                true_data_x = []
-                true_data_y = []
-                pred_x = []
-                for i, obs in enumerate(true_data):
-                    if len(obs) > 0:
-                        for o in obs:
-                            true_data_y.append(o)
-                            true_data_x.append(true_date[i])
-                    else:
-                        true_data_y.append(np.nan)
-                        true_data_x.append(true_date[i])
-                    if i >= pred_init_step:
-                        pred_x.append(true_date[i])
-
-                df = mean_pred_to_df(
-                    preds,
-                    indicator,
-                    ci,
-                    False,
-                    use_heuristic_for_true,
-                    **kwargs,
-                )
-                sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
-                ax = sns.scatterplot(
-                    x=pd.to_datetime(true_data_x),
-                    y=true_data_y,
-                    marker="x",
-                    color="red",
-                    s=100,
-                )
-                ax2 = sns.lineplot(
-                    x=pd.to_datetime(pred_x), y=df.values.ravel(), sort=False, ax=ax
-                )
-                #ax.set_xticks([i for i, _ in enumerate(true_date)])
-                ax.set_xticks(pd.to_datetime(true_date))
-                ax.set_xticklabels(
-                    pd.to_datetime(true_date), ha="right", rotation=45, fontsize=8
-                )
-                xfmt = mdates.DateFormatter('%Y-%m')
-                ax.xaxis.set_major_formatter(xfmt)
-                ax.set_title(f"Predictions vs. True values for {indicator}")
-                ax2.get_lines()[0].set_color("blue")
-                ax2.get_lines()[0].set_linestyle("-")
-                ax2.get_lines()[0].set_marker("o")
-                handles, labels = ax.get_legend_handles_labels()
-                handles.append(
-                    mpatches.Patch(
-                        edgecolor="red",
-                        hatch="x",
-                        label=f"{indicator}(True)",
-                        fill=False,
-                        linewidth=0,
-                    )
-                )
-                handles.append(
-                    mpatches.Patch(
-                        color="blue",
-                        linestyle="-",
-                        label=f"{indicator}(Mean Prediction)",
-                    )
-                )
-
-                if show_rmse:
-                    rmse = round(
-                        calculate_prediction_rmse(preds, indicator, **kwargs),
-                        4,
-                    )
-                    rmse_str = f"Root Mean Squared Error: {rmse}"
-
-                    handles.append(
-                        mpatches.Patch(color="none", label=rmse_str)
-                    )
-                ax.legend(handles=handles)
-            else:
-                _, pred_range, _ = preds
-
-                start_year = int(pred_range[0][0:4])
-                start_month = int(pred_range[0][5:7])
-                end_year = int(pred_range[-1][0:4])
-                end_month = int(pred_range[-1][5:7])
-
-                true_date, true_data = data_to_list(
-                    indicator,
-                    start_year,
-                    start_month,
-                    end_year,
-                    end_month,
-                    use_heuristic_for_true,
-                    **kwargs,
-                )
-                true_data_x = []
-                true_data_y = []
-                for i, obs in enumerate(true_data):
-                    if len(obs) > 0:
-                        for o in obs:
-                            true_data_y.append(o)
-                            true_data_x.append(true_date[i])
-                    else:
-                        true_data_y.append(np.nan)
-                        true_data_x.append(true_date[i])
-
-                df = mean_pred_to_df(
-                    preds,
-                    indicator,
-                    ci,
-                    False,
-                    use_heuristic_for_true,
-                    **kwargs,
-                )
-                df.index = pd.to_datetime(df.index)
-                sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
-                ax = sns.lineplot(data=df, sort=False, markers=["o"])
-                ax.set_title(f"Predictions vs. True values for {indicator}")
-                ax.get_lines()[0].set_color("blue")
-                ax.get_lines()[0].set_linestyle("-")
-                ax = sns.scatterplot(
-                    x=pd.to_datetime(true_data_x),
-                    y=true_data_y,
-                    marker="x",
-                    color="red",
-                    s=100,
-                )
-                ax.set_xticks(pd.to_datetime(true_date))
-                ax.set_xticklabels(
-                    pd.to_datetime(true_date), rotation=45, ha="right", fontsize=8
-                )
-                xfmt = mdates.DateFormatter('%Y-%m')
-                ax.xaxis.set_major_formatter(xfmt)
-                handles, labels = ax.get_legend_handles_labels()
-                handles.append(
-                    mpatches.Patch(color="red", label=f"{indicator}(True)")
-                )
-
-                if show_rmse:
-                    rmse = round(
-                        calculate_prediction_rmse(preds, indicator, **kwargs),
-                        4,
-                    )
-                    rmse_str = f"Root Mean Squared Error: {rmse}"
-                    handles.append(
-                        mpatches.Patch(color="none", label=rmse_str)
-                    )
-                ax.legend(handles=handles)
-        elif plot_type == "Error":
-            df = mean_pred_to_df(preds, indicator, ci, True, **kwargs)
-            df_error = df.drop(df.columns[[0, 1]], axis=1)
-            df_error.index = pd.to_datetime(df_error.index)
-            sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
-            ax = sns.lineplot(data=df_error, sort=False, markers=["o"])
-            ax.set_xticks(df_error.index)
-            ax.set_xticklabels(df_error.index, rotation=45, ha="right", fontsize=8)
-            xfmt = mdates.DateFormatter('%Y-%m')
-            ax.xaxis.set_major_formatter(xfmt)
-            ax.axhline(color="r")
-            ax.set_title(f"Prediction Error for {indicator}")
-            ax.get_lines()[0].set_color("blue")
-            ax.get_lines()[0].set_linestyle("-")
-            if show_rmse:
-                rmse = round(
-                    calculate_prediction_rmse(preds, indicator, **kwargs), 4
-                )
-                rmse_str = f"Root Mean Squared Error: {rmse}"
-                handles, labels = ax.get_legend_handles_labels()
-                handles.append(mpatches.Patch(color="none", label=rmse_str))
-                ax.legend(handles=handles)
-        elif plot_type == "Test":
-            # This option may not function properly
-            test_data = kwargs.get("test_data")
-            assert test_data is not None
-            df = mean_pred_to_df(preds, indicator, ci, False, **kwargs)
-            df_pred = df.drop(df.columns[[1, 2]], axis=1)
-            df_pred[f"{indicator}(Synthetic)"] = test_data
-            sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
-            ax = sns.lineplot(data=df_pred, sort=False)
-            ax.fill_between(
-                x=df_pred.index,
-                y1=df[f"{indicator}(Upper Confidence Bound)"].values,
-                y2=df[f"{indicator}(Lower Confidence Bound)"].values,
-                alpha=0.5,
-            )
-            ax.set_xticks(df.index)
-            ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
-            ax.set_title(
-                f"Predictions vs. True values(Synthetic) for {indicator}"
-            )
+        if ci or plot_type == 'Test':
+            df_plot = df.drop(df.columns[[1, 2]], axis=1)
         else:
-            df = mean_pred_to_df(preds, indicator, ci, False, **kwargs)
-            df.index = pd.to_datetime(df.index)
-            sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
-            ax = sns.lineplot(data=df, sort=False, markers=["o"])
-            ax.set_xticks(df.index)
-            ax.set_xticklabels(df.index, rotation=45, ha="right", fontsize=8)
-            xfmt = mdates.DateFormatter('%Y-%m')
-            ax.xaxis.set_major_formatter(xfmt)
-            ax.set_title(f"Predictions for {indicator}")
-            ax.get_lines()[0].set_color("blue")
-            ax.get_lines()[0].set_linestyle("-")
-        if save_as is not None:
-            fig = ax.get_figure()
-            fig.savefig(save_as)
-            plt.close()
+            df_plot = df
+
+    # TODO: Test option may not work properly
+    if plot_type == 'Test':
+        test_data = kwargs.get("test_data")
+        assert test_data is not None
+        df_plot[f"{indicator} (Synthetic)"] = test_data
+
+    sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
+
+    ax = sns.lineplot(data=df_plot, sort=False, markers=['D'])
+
+    training_range, pred_range, _ = preds
+
+    if plot_type == 'Comparison' and show_training_data:
+        start_year = training_range[0][0]
+        start_month = training_range[0][1]
+    else:
+        start_year = int(pred_range[0][0:4])
+        start_month = int(pred_range[0][5:7])
+
+    end_year = int(pred_range[-1][0:4])
+    end_month = int(pred_range[-1][5:7])
+
+    true_date, true_data = data_to_list(
+        indicator,
+        start_year,
+        start_month,
+        end_year,
+        end_month,
+        use_heuristic_for_true,
+        **kwargs,
+    )
+
+    if plot_type == 'Comparison':
+        true_data_x = []
+        true_data_y = []
+        for i, obs in enumerate(true_data):
+            if len(obs) > 0:
+                for o in obs:
+                    true_data_y.append(o)
+                    true_data_x.append(true_date[i])
+            else:
+                true_data_y.append(np.nan)
+                true_data_x.append(true_date[i])
+
+        df_true = pd.DataFrame({f'{indicator} (True)': true_data_y, 'Year-Month':
+                true_data_x})
+        df_true['frequency'] = df_true['Year-Month'].apply(lambda x: 1)
+        df_true_grp = df_true.groupby(by=['Year-Month', f'{indicator} (True)'], as_index=False).count()
+        df_true_grp['Year-Month'] = pd.to_datetime(df_true_grp['Year-Month'])
+
+        sns.scatterplot(
+            data=df_true_grp,
+            y=f'{indicator} (True)',
+            x='Year-Month',
+            marker='o',
+            size=df_true_grp['frequency'].tolist(),
+            sizes=(0, 250),
+            hue=df_true_grp['frequency'].tolist(),
+            palette='ch:r=-.8, l=.75',
+            ax=ax,
+            label=f'{indicator} (True)',
+        )
+
+    if ci is not None:
+        if plot_type == 'Error':
+            upper = 'Upper Error Bound'
+            lower = 'Lower Error Bound'
+        else:
+            upper = f'{indicator} (Upper Confidence Bound)'
+            lower = f'{indicator} (Lower Confidence Bound)'
+
+        ax.fill_between(
+            x=df_plot.index,
+            y1=df[upper].values.astype(float),
+            y2=df[lower].values.astype(float),
+            alpha=0.2,
+            color='blue'
+        )
+
+    if plot_type == 'Comparison':
+        ax.set_title(f"Predictions vs. True values for {indicator}")
+        ax.set_ylabel(f'{indicator}')
+    elif plot_type == 'Error':
+        ax.set_title(f"Prediction Error for {indicator}")
+        ax.set_ylabel('Error')
+        ax.axhline(color="r")
+    elif plot_type == 'Test':
+        # TODO: Test option may not work properly
+        ax.set_title(
+            f"Predictions vs. True values (Synthetic) for {indicator}"
+        )
+    else: # plot_type == 'Prediction'
+        ax.set_title(f"Predictions for {indicator}")
+        ax.set_ylabel(f'{indicator}')
+
+    ax.set_xlabel('Year-Month')
+
+    # Set x-axis labels
+    ax.set_xticks(pd.to_datetime(true_date))
+    ax.set_xticklabels(
+        pd.to_datetime(true_date), rotation=45, ha="right", fontsize=8
+    )
+    xfmt = mdates.DateFormatter('%Y-%m')
+    ax.xaxis.set_major_formatter(xfmt)
+
+    handles, labels = ax.get_legend_handles_labels()
+
+    ax.get_lines()[0].set_color("blue")
+    ax.get_lines()[0].set_linestyle("-")
+    handles[0].set_color('blue')
+
+    if show_rmse:
+        rmse = round(
+            calculate_prediction_rmse(preds, indicator, **kwargs),
+            4,
+        )
+        rmse_str = f"Root Mean Squared Error: {rmse}"
+
+        handles.append(
+            mpatches.Patch(color="none", label=rmse_str)
+        )
+
+        ax.legend(handles=handles)
+
+    if save_as is not None:
+        fig = ax.get_figure()
+        fig.savefig(save_as)
+        plt.close()
 
 
 # ==========================================================================
