@@ -617,22 +617,36 @@ def pred_plot(
     )
     df.index = pd.to_datetime(df.index)
 
+    title = f'Predictions for {indicator}'
+    y_label = f'{indicator}'
+
     if plot_type == 'Error':
+        title = f"Prediction Error for {indicator}"
+        y_label = 'Error'
+
         if ci:
+            ci_upper = 'Upper Error Bound'
+            ci_lower = 'Lower Error Bound'
+
             df_plot = df.drop(df.columns[[0, 1, 2, 3, 4, 5, 7, 8]], axis=1)
         else:
             df_plot = df.drop(df.columns[[0, 1]], axis=1)
     else:
         if ci or plot_type == 'Test':
+            ci_upper = f'{indicator} (Upper Confidence Bound)'
+            ci_lower = f'{indicator} (Lower Confidence Bound)'
+
             df_plot = df.drop(df.columns[[1, 2]], axis=1)
+
+            if plot_type == 'Test':
+                # TODO: Test option may not work properly
+                title = f"Predictions vs. True values (Synthetic) for {indicator}"
+
+                synthetic_data = kwargs.get("test_data")
+                assert test_data is not None
+                df_plot[f"{indicator} (Synthetic)"] = synthetic_data
         else:
             df_plot = df
-
-    # TODO: Test option may not work properly
-    if plot_type == 'Test':
-        test_data = kwargs.get("test_data")
-        assert test_data is not None
-        df_plot[f"{indicator} (Synthetic)"] = test_data
 
     sns.set(rc={"figure.figsize": (15, 8)}, style="whitegrid")
 
@@ -661,6 +675,8 @@ def pred_plot(
     )
 
     if plot_type == 'Comparison':
+        title = f"Predictions vs. True values for {indicator}"
+
         true_data_x = []
         true_data_y = []
         for i, obs in enumerate(true_data):
@@ -674,6 +690,8 @@ def pred_plot(
 
         df_true = pd.DataFrame({f'{indicator} (True)': true_data_y, 'Year-Month':
                 true_data_x})
+
+        # Aggregate multiple coinciding data points
         df_true['frequency'] = df_true['Year-Month'].apply(lambda x: 1)
         df_true_grp = df_true.groupby(by=['Year-Month', f'{indicator} (True)'], as_index=False).count()
         df_true_grp['Year-Month'] = pd.to_datetime(df_true_grp['Year-Month'])
@@ -692,40 +710,24 @@ def pred_plot(
         )
 
     if ci is not None:
-        if plot_type == 'Error':
-            upper = 'Upper Error Bound'
-            lower = 'Lower Error Bound'
-        else:
-            upper = f'{indicator} (Upper Confidence Bound)'
-            lower = f'{indicator} (Lower Confidence Bound)'
+        df.dropna(inplace=True)
 
         ax.fill_between(
-            x=df_plot.index,
-            y1=df[upper].values.astype(float),
-            y2=df[lower].values.astype(float),
+            x=df.index,
+            y1=df[ci_upper],
+            y2=df[ci_lower],
             alpha=0.2,
             color='blue'
         )
 
-    if plot_type == 'Comparison':
-        ax.set_title(f"Predictions vs. True values for {indicator}")
-        ax.set_ylabel(f'{indicator}')
-    elif plot_type == 'Error':
-        ax.set_title(f"Prediction Error for {indicator}")
-        ax.set_ylabel('Error')
+    if plot_type == 'Error':
         ax.axhline(color="r")
-    elif plot_type == 'Test':
-        # TODO: Test option may not work properly
-        ax.set_title(
-            f"Predictions vs. True values (Synthetic) for {indicator}"
-        )
-    else: # plot_type == 'Prediction'
-        ax.set_title(f"Predictions for {indicator}")
-        ax.set_ylabel(f'{indicator}')
 
+    ax.set_title(title)
     ax.set_xlabel('Year-Month')
+    ax.set_ylabel(y_label)
 
-    # Set x-axis labels
+    # Set x-axis tick marks
     ax.set_xticks(pd.to_datetime(true_date))
     ax.set_xticklabels(
         pd.to_datetime(true_date), rotation=45, ha="right", fontsize=8
