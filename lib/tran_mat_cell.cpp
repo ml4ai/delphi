@@ -37,7 +37,7 @@ void Tran_Mat_Cell::allocate_datastructures() {
 // Computes the value of this cell from scratch.
 // Should be called after adding all the paths using add_path()
 // and calling allocate_datastructures()
-// TODO: These βs should be change to θs
+// TODO: These βs should be changed to θs
 //         βst
 // ┏━━━━━━━━━━━━━━━━━┓
 // ┃ βsx   βxy   βyt ↓
@@ -59,7 +59,8 @@ double Tran_Mat_Cell::compute_cell(const DiGraph& CAG) {
 
     for (int v = 0; v < this->paths[p].size() - 1; v++) {
       auto edg = edge(paths[p][v], paths[p][v + 1], CAG);
-      const double& beta = CAG[edg.first].beta;
+      // β = tan(θ)
+      double beta = tan(CAG[edg.first].beta);
 
       this->products[p] *= beta; //+= 1;
     }
