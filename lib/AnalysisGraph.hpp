@@ -100,7 +100,7 @@ class AnalysisGraph {
   //
   // According to our current model, which uses variables and their partial
   // derivatives with respect to each other ( x --> y, βxy = ∂y/∂x ),
-  // atmost half of the transition matrix cells can be affected by βs.
+  // at most half of the transition matrix cells can be affected by βs.
   // According to the way we organize the transition matrix, the cells
   // A[row][col] where row is an even index and col is an odd index
   // are such cells.
@@ -448,9 +448,11 @@ class AnalysisGraph {
    *                  than the first time step. Not currently used.
    *                  0 <= timestep < this->n_timesteps
    */
-  void set_initial_latent_state_from_observed_state_sequence();
+  // 2020-08-31: The method is not being used
+  //void set_initial_latent_state_from_observed_state_sequence();
 
-  void set_initial_latent_from_end_of_training();
+  // 2020-08-31: The method is not being used
+  //void set_initial_latent_from_end_of_training();
 
   void set_log_likelihood();
 

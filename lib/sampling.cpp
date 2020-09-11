@@ -52,18 +52,22 @@ void AnalysisGraph::sample_transition_matrix_collection_from_prior() {
   this->transition_matrix_collection.clear();
   this->transition_matrix_collection = vector<Eigen::MatrixXd>(this->res);
 
-  for (int i = 0; i < this->res; i++) {
+  for (int sample = 0; sample < this->res; sample++) {
     for (auto e : this->edges()) {
+        // TODO TODO TODO
+        // TODO: Theta to Beta change. Take the tangent.
       this->graph[e].beta = this->graph[e].kde.resample(
           1, this->rand_num_generator, this->uni_dist, this->norm_dist)[0];
     }
 
     // Create this->A_original based on the sampled β and remember it
     this->set_transition_matrix_from_betas();
-    this->transition_matrix_collection[i] = this->A_original;
+    this->transition_matrix_collection[sample] = this->A_original;
   }
 }
 
+/*
+ * 2020-08-31: The method is not being used
 void AnalysisGraph::set_initial_latent_state_from_observed_state_sequence() {
   for (int v = 0; v < this->num_vertices(); v++) {
     vector<Indicator>& indicators = (*this)[v].indicators;
@@ -89,7 +93,9 @@ void AnalysisGraph::set_initial_latent_state_from_observed_state_sequence() {
     this->s0(2 * v + 1) = diff;
   }
 }
-
+*/
+/*
+ * 2020-08-31: The method is not being used
 void AnalysisGraph::set_initial_latent_from_end_of_training() {
 
   this->set_default_initial_state();
@@ -132,6 +138,7 @@ void AnalysisGraph::set_initial_latent_from_end_of_training() {
     this->s0(2 * v + 1) = diff;
   }
 }
+*/
 
 void AnalysisGraph::set_log_likelihood() {
   this->previous_log_likelihood = this->log_likelihood;
@@ -140,8 +147,8 @@ void AnalysisGraph::set_log_likelihood() {
   for (int ts = 0; ts < this->n_timesteps; ts++) {
     this->set_current_latent_state(ts);
 
-    // Access
-    // observed_state[ vertex ][ indicator ]
+    // Access (concept is a vertex in the CAG)
+    // observed_state[ concept ][ indicator ][ observation ]
     const vector<vector<vector<double>>>& observed_state =
         this->observed_state_sequence[ts];
 
@@ -150,12 +157,12 @@ void AnalysisGraph::set_log_likelihood() {
 
       for (int i = 0; i < observed_state[v].size(); i++) {
         const Indicator& ind = this->graph[v].indicators[i];
-        for (int j = 0; j < observed_state[v][i].size(); j++) {
-          const double& value = observed_state[v][i][j];
+        for (int o = 0; o < observed_state[v][i].size(); o++) {
+          const double& obs = observed_state[v][i][o];
           // Even indices of latent_state keeps track of the state of each
           // vertex
           double log_likelihood_component = log_normpdf(
-              value, this->current_latent_state[2 * v] * ind.mean, ind.stdev);
+              obs, this->current_latent_state[2 * v] * ind.mean, ind.stdev);
           this->log_likelihood += log_likelihood_component;
         }
       }
@@ -189,7 +196,7 @@ void AnalysisGraph::sample_from_posterior() {
 }
 
 void AnalysisGraph::sample_from_proposal() {
-  // Flip a coin and decide whetehr the perturb a β or a derivative
+  // Flip a coin and decide whether to perturb a β or a derivative
   this->coin_flip = this->uni_dist(this->rand_num_generator);
 
   if (this->coin_flip < this->coin_flip_thresh) {
@@ -249,13 +256,20 @@ void AnalysisGraph::update_transition_matrix_cells(EdgeDescriptor e) {
 
 double AnalysisGraph::calculate_delta_log_prior() {
   if (this->coin_flip < this->coin_flip_thresh) {
+    // A β has been sampled
     KDE& kde = this->graph[this->previous_beta.first].kde;
 
+    // TODO TODO TODO
+    // TODO: Beta to Theta.
+    // KDE is in Theta space. So we have to convert Beta to Theta before
+    // consulting it.
     // We have to return: log( p( β_new )) - log( p( β_old ))
     return kde.logpdf(this->graph[this->previous_beta.first].beta) -
            kde.logpdf(this->previous_beta.second);
   }
   else {
+    // A derivative  has been sampled
+    // At the moment we are using a uniform prior.
     return 0.0;
   }
 }
@@ -264,6 +278,7 @@ void AnalysisGraph::revert_back_to_previous_state() {
   this->log_likelihood = this->previous_log_likelihood;
 
   if (this->coin_flip < this->coin_flip_thresh) {
+    // A β has been sampled
     this->graph[this->previous_beta.first].beta = this->previous_beta.second;
 
     // Reset the transition matrix cells that were changed
@@ -272,6 +287,7 @@ void AnalysisGraph::revert_back_to_previous_state() {
     this->update_transition_matrix_cells(this->previous_beta.first);
   }
   else {
+    // A derivative  has been sampled
     // this->s0 = this->s0_prev;
     s0[this->changed_derivative] = this->previous_derivative;
   }

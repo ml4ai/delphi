@@ -37,11 +37,22 @@ void Tran_Mat_Cell::allocate_datastructures() {
 // Computes the value of this cell from scratch.
 // Should be called after adding all the paths using add_path()
 // and calling allocate_datastructures()
-// TODO: This is just a dummy implementation. Update the logic to
-// calculate the value using βs assigned to each path.
-// To access βs, the graph needs to be passed in as an argument.
-// Logic is similar to Tran_Mat_Cell::sample_from_prior()
-// At the moment just compute the sum of lengths of all the paths
+// TODO: These βs should be change to θs
+//         βst
+// ┏━━━━━━━━━━━━━━━━━┓
+// ┃ βsx   βxy   βyt ↓
+// 〇━━━>〇━━━>〇━━━>〇
+// ┃  βsw      βwt   ↑
+// ┗━━━━━━━>〇━━━━━━━┛
+//
+// We are computing
+//   [tan(βst)] + [(tan(βsx) × tan(βxy) × tan(βyt)] + [tan(βsw) × tan(βwt)]
+// In the transition matrix A, this cell is for all the paths starting at
+// vertex s and ending at vertex t. If s and t are the indices of the
+// respective vertexes, this cell is A[2 × t][2 × s + 1]
+//
+// TODO: To make the terminology correct we have to rename some variable names
+// from beta to theta.
 double Tran_Mat_Cell::compute_cell(const DiGraph& CAG) {
   for (int p = 0; p < this->paths.size(); p++) {
     this->products[p] = 1; // 0;
@@ -57,6 +68,8 @@ double Tran_Mat_Cell::compute_cell(const DiGraph& CAG) {
   return rs::accumulate(products, 0.0);
 }
 
+/*
+ * 2020-08-31: The method is not being used
 double Tran_Mat_Cell::sample_from_prior(const DiGraph& CAG, int samp_num) {
   for (int p = 0; p < this->paths.size(); p++) {
     this->products[p] = 1;
@@ -71,7 +84,7 @@ double Tran_Mat_Cell::sample_from_prior(const DiGraph& CAG, int samp_num) {
       const vector<double>& samples =
           CAG[edge(v, v + 1, CAG).first].kde.dataset;
 
-      // Check whether we have enough samples to fulfil this request
+      // Check whether we have enough samples to fulfill this request
       if (samples.size() > samp_num) {
         this->products[p] *=
             CAG[edge(v, v + 1, CAG).first].kde.dataset[samp_num];
@@ -87,9 +100,12 @@ double Tran_Mat_Cell::sample_from_prior(const DiGraph& CAG, int samp_num) {
 
   return rs::accumulate(products, 0.0);
 }
+*/
 
+/*
+ * 2020-08-31: The method is not being used
 // Given a β and an update amount, update all the products where β is a
-// factor. compute_cell() must be called once at the beginning befor calling
+// factor. compute_cell() must be called once at the beginning before calling
 // this.
 double Tran_Mat_Cell::update_cell(pair<int, int> beta, double amount) {
   pair<MMAPIterator, MMAPIterator> res = this->beta2product.equal_range(beta);
@@ -100,6 +116,7 @@ double Tran_Mat_Cell::update_cell(pair<int, int> beta, double amount) {
 
   return rs::accumulate(products, 0.0);
 }
+*/
 
 void Tran_Mat_Cell::print_products() {
   for (double f : this->products) {
