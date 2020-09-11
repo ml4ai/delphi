@@ -68,56 +68,6 @@ double Tran_Mat_Cell::compute_cell(const DiGraph& CAG) {
   return rs::accumulate(products, 0.0);
 }
 
-/*
- * 2020-08-31: The method is not being used
-double Tran_Mat_Cell::sample_from_prior(const DiGraph& CAG, int samp_num) {
-  for (int p = 0; p < this->paths.size(); p++) {
-    this->products[p] = 1;
-
-    // Assume that none of the edges along this path has KDEs assigned.
-    // At the end of traversing this path, if that is the case, leaving
-    // the product for this path as 1 does not seem correct. In this case
-    // I feel that the best option is to make the product for this path 0.
-    bool hasKDE = false;
-
-    for (int v = 0; v < this->paths[p].size() - 1; v++) {
-      const vector<double>& samples =
-          CAG[edge(v, v + 1, CAG).first].kde.dataset;
-
-      // Check whether we have enough samples to fulfill this request
-      if (samples.size() > samp_num) {
-        this->products[p] *=
-            CAG[edge(v, v + 1, CAG).first].kde.dataset[samp_num];
-      }
-    }
-
-    // If none of the edges along this path had a KDE assigned,
-    // make the contribution of this path to the value of the cell 0.
-    if (!hasKDE) {
-      this->products[p] = 0;
-    }
-  }
-
-  return rs::accumulate(products, 0.0);
-}
-*/
-
-/*
- * 2020-08-31: The method is not being used
-// Given a β and an update amount, update all the products where β is a
-// factor. compute_cell() must be called once at the beginning before calling
-// this.
-double Tran_Mat_Cell::update_cell(pair<int, int> beta, double amount) {
-  pair<MMAPIterator, MMAPIterator> res = this->beta2product.equal_range(beta);
-
-  for (MMAPIterator it = res.first; it != res.second; it++) {
-    *(it->second) *= amount;
-  }
-
-  return rs::accumulate(products, 0.0);
-}
-*/
-
 void Tran_Mat_Cell::print_products() {
   for (double f : this->products) {
     cout << f << " ";

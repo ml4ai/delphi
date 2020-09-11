@@ -8,7 +8,7 @@
 
 /**
  * This class represents a single cell of the transition matrix which is
- * computed by a sum of products of βs. Accordign to our current model, which
+ * computed by a sum of products of βs. According to our current model, which
  * uses variables and their partial derivatives with respect to each other ( x
  * --> y, βxy = ∂y/∂x ), at most half of the transition matrix cells are
  * affected by βs. According to the way we organize the transition matrix, the
@@ -42,7 +42,7 @@ class Tran_Mat_Cell {
 
   // Maps each β to all the products where that β is a factor. This mapping
   // is needed to quickly update the products and the cell value upon
-  // purturbing one β.
+  // perturbing one β.
   std::multimap<std::pair<int, int>, double*> beta2product;
 
   public:
@@ -51,10 +51,10 @@ class Tran_Mat_Cell {
   // Add a path that starts with the start vertex and ends with the end vertex.
   bool add_path(std::vector<int>& path);
 
-  // Allocates the prodcut std::vector with the same length as the paths
+  // Allocates the product std::vector with the same length as the paths
   // std::vector Populates the beta2product multimap linking each β (edge - A
   // pair) to all the products that depend on it. This **MUST** be called after
-  // adding all the paths usign add_path(). After populating the beta2product
+  // adding all the paths using add_path(). After populating the beta2product
   // multimap, the length of the products std::vector **MUST NOT** be changed.
   // If it is changes, we run into the danger of OS moving the products
   // std::vector into a different location in memory and pointers kept in
@@ -65,17 +65,6 @@ class Tran_Mat_Cell {
   // Should be called after adding all the paths using add_path()
   // and calling allocate_datastructures()
   double compute_cell(const DiGraph& CAG);
-
-  // 2020-08-31: The method is not being used
-  //double sample_from_prior(const DiGraph& CAG, int samp_num = 0);
-
-  /*
-   * 2020-08-31: The method is not being used
-  // Given a β and an update amount, update all the products where β is a
-  // factor. compute_cell() must be called once at the beginning befor calling
-  // this.
-  double update_cell(std::pair<int, int> beta, double amount);
-  */
 
   void print_products();
 

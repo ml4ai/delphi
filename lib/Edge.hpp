@@ -60,7 +60,7 @@ class Edge {
 
   // The current β for this edge
   // TODO: Need to decide how to initialize this or
-  // decide whethr this is the correct way to do this.
+  // decide whether this is the correct way to do this.
   double beta = 1.0;
   void change_polarity(int subject_polarity, int object_polarity) {
     for (Statement stmt : evidence) {

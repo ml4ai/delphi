@@ -8,7 +8,7 @@ using fmt::print;
 
 /*
  ============================================================================
- Private: Syntheitc Data Experiment
+ Private: Synthetic Data Experiment
  ============================================================================
 */
 
@@ -16,7 +16,7 @@ void AnalysisGraph::init_betas_to(InitialBeta ib) {
   switch (ib) {
   // Initialize the initial β for this edge
   // Note: I am repeating the loop within each case for efficiency.
-  // If we embed the switch withn the for loop, there will be less code
+  // If we embed the switch within the for loop, there will be less code
   // but we will evaluate the switch for each iteration through the loop
   case InitialBeta::ZERO:
     for (EdgeDescriptor e : this->edges()) {
@@ -42,7 +42,7 @@ void AnalysisGraph::init_betas_to(InitialBeta ib) {
     for (EdgeDescriptor e : this->edges()) {
       // this->uni_dist() gives a random number in range [0, 1]
       // Multiplying by 2 scales the range to [0, 2]
-      // Sustracting 1 moves the range to [-1, 1]
+      // Subtracting 1 moves the range to [-1, 1]
       graph[e].beta = this->uni_dist(this->rand_num_generator) * 2 - 1;
     }
     break;
@@ -127,7 +127,7 @@ AnalysisGraph::sample_observed_state(VectorXd latent_state) {
 
 /*
  ============================================================================
- Public: Syntheitc data experiment
+ Public: Synthetic data experiment
  ============================================================================
 */
 
