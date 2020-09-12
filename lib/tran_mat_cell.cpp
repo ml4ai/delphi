@@ -37,22 +37,18 @@ void Tran_Mat_Cell::allocate_datastructures() {
 // Computes the value of this cell from scratch.
 // Should be called after adding all the paths using add_path()
 // and calling allocate_datastructures()
-// TODO: These βs should be changed to θs
-//         βst
+//         θst
 // ┏━━━━━━━━━━━━━━━━━┓
-// ┃ βsx   βxy   βyt ↓
+// ┃ θsx   θxy   θyt ↓
 // 〇━━━>〇━━━>〇━━━>〇
-// ┃  βsw      βwt   ↑
+// ┃  θsw      θwt   ↑
 // ┗━━━━━━━>〇━━━━━━━┛
 //
 // We are computing
-//   [tan(βst)] + [(tan(βsx) × tan(βxy) × tan(βyt)] + [tan(βsw) × tan(βwt)]
+//   [tan(θst)] + [(tan(θsx) × tan(θxy) × tan(θyt)] + [tan(θsw) × tan(θwt)]
 // In the transition matrix A, this cell is for all the paths starting at
 // vertex s and ending at vertex t. If s and t are the indices of the
 // respective vertexes, this cell is A[2 × t][2 × s + 1]
-//
-// TODO: To make the terminology correct we have to rename some variable names
-// from beta to theta.
 double Tran_Mat_Cell::compute_cell(const DiGraph& CAG) {
   for (int p = 0; p < this->paths.size(); p++) {
     this->products[p] = 1; // 0;
@@ -63,7 +59,9 @@ double Tran_Mat_Cell::compute_cell(const DiGraph& CAG) {
       double beta = tan(CAG[edg.first].theta);
 
       this->products[p] *= beta; //+= 1;
+      std::cout << "Beta: " << beta << std::endl;
     }
+    std::cout << this->products[p] << std::endl;
   }
 
   return rs::accumulate(products, 0.0);

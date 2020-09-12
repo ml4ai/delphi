@@ -14,11 +14,24 @@ using Eigen::VectorXd;
 // Sample elements of the stochastic transition matrix from the
 // prior distribution, based on gradable adjectives.
 // TODO: Fix the name and description of this function.
-void AnalysisGraph::set_transition_matrix_from_betas() {
+void AnalysisGraph::set_transition_matrix_from_betas(bool continous) {
   int num_verts = this->num_vertices();
 
   // A base transition matrix with the entries that does not change across
-  // samples.
+  // samples (A_c : continuous).
+  /*
+   *          0  1  2  3  4  5
+   *  var_1 | 0  1             | 0
+   *        | 0  0  0  0  0  0 | 1 ∂var_1 / ∂t
+   *  var_2 |       0  1       | 2
+   *        | 0  0  0  0  0  0 | 3
+   *  var_3 |             0  1 | 4
+   *        | 0  0  0  0  0  0 | 5
+   *
+   */
+
+  // A base transition matrix with the entries that does not change across
+  // samples (A_d : discretized).
   /*
    *          0  1  2  3  4  5
    *  var_1 | 1 Δt             | 0
@@ -34,17 +47,38 @@ void AnalysisGraph::set_transition_matrix_from_betas() {
    *  three rows for each variable and some of the off diagonal elements
    *  of rows with index % 3 = 1 would be non zero.
    */
-  this->A_original = Eigen::MatrixXd::Identity(num_verts * 2, num_verts * 2);
-
-  // Fill the Δts
-  for (int vert = 0; vert < 2 * num_verts; vert += 2) {
-    this->A_original(vert, vert + 1) = this->delta_t;
-  }
+  //this->A_original = Eigen::MatrixXd::Identity(num_verts * 2, num_verts * 2);
+  this->A_original = Eigen::MatrixXd::Zero(num_verts * 2, num_verts * 2);
 
   // Update the β factor dependent cells of this matrix
   for (auto& [row, col] : this->beta_dependent_cells) {
+    std::cout << row << ", " << col << std::endl;
     this->A_original(row * 2, col * 2 + 1) =
         this->A_beta_factors[row][col]->compute_cell(this->graph);
+  }
+
+  if (continous) {
+    std::cout << "Continous A\n";
+    for (int vert = 0; vert < 2 * num_verts; vert += 2) {
+        this->A_original(vert, vert + 1) = 1;
+    }
+    std::cout << A_original << std::endl;
+  }
+  else {
+    // A_d = I + A_c × Δt
+    // Fill the Δts
+    //for (int vert = 0; vert < 2 * num_verts; vert += 2) {
+    //    this->A_original(vert, vert + 1) = this->delta_t;
+    //}
+    for (int vert = 0; vert < 2 * num_verts; vert++) {
+        // Filling the diagonal (Adding I)
+        this->A_original(vert, vert) = 1;
+
+        if (vert % 2 == 0) {
+            // Fill the Δts
+            this->A_original(vert, vert + 1) = this->delta_t;
+        }
+    }
   }
 }
 
