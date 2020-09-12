@@ -131,8 +131,8 @@ void AnalysisGraph::sample_from_proposal() {
     sample(
         edge_it.begin(), edge_it.end(), e.begin(), 1, this->rand_num_generator);
 
-    // Remember the previous β
-    this->previous_beta = make_pair(e[0], this->graph[e[0]].theta);
+    // Remember the previous θ
+    this->previous_theta = make_pair(e[0], this->graph[e[0]].theta);
 
     // Perturb the θ
     // TODO: Check whether this perturbation is accurate
@@ -181,15 +181,15 @@ void AnalysisGraph::update_transition_matrix_cells(EdgeDescriptor e) {
 double AnalysisGraph::calculate_delta_log_prior() {
   if (this->coin_flip < this->coin_flip_thresh) {
     // A β has been sampled
-    KDE& kde = this->graph[this->previous_beta.first].kde;
+    KDE& kde = this->graph[this->previous_theta.first].kde;
 
     // TODO TODO TODO
     // TODO: Beta to Theta.
     // KDE is in Theta space. So we have to convert Beta to Theta before
     // consulting it.
     // We have to return: log( p( β_new )) - log( p( β_old ))
-    return kde.logpdf(this->graph[this->previous_beta.first].theta) -
-           kde.logpdf(this->previous_beta.second);
+    return kde.logpdf(this->graph[this->previous_theta.first].theta) -
+           kde.logpdf(this->previous_theta.second);
   }
   else {
     // A derivative  has been sampled
@@ -203,12 +203,12 @@ void AnalysisGraph::revert_back_to_previous_state() {
 
   if (this->coin_flip < this->coin_flip_thresh) {
     // A β has been sampled
-    this->graph[this->previous_beta.first].theta = this->previous_beta.second;
+    this->graph[this->previous_theta.first].theta = this->previous_theta.second;
 
     // Reset the transition matrix cells that were changed
     // TODO: Can we change the transition matrix only when the sample is
     // accepted?
-    this->update_transition_matrix_cells(this->previous_beta.first);
+    this->update_transition_matrix_cells(this->previous_theta.first);
   }
   else {
     // A derivative  has been sampled

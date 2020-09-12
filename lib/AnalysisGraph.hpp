@@ -141,15 +141,15 @@ class AnalysisGraph {
   double log_likelihood = 0.0;
   double previous_log_likelihood = 0.0;
 
-  // To decide whether to perturb a β or a derivative
-  // If coin_flip < coin_flip_thresh perturb β else perturb derivative
+  // To decide whether to perturb a θ or a derivative
+  // If coin_flip < coin_flip_thresh perturb θ else perturb derivative
   double coin_flip = 0;
   double coin_flip_thresh = 0.5;
 
-  // Remember the old β and the edge where we perturbed the β.
+  // Remember the old θ and the edge where we perturbed the θ.
   // We need this to revert the system to the previous state if the proposal
   // gets rejected.
-  std::pair<EdgeDescriptor, double> previous_beta;
+  std::pair<EdgeDescriptor, double> previous_theta;
 
   // Remember the old derivative and the concept we perturbed the derivative
   int changed_derivative;

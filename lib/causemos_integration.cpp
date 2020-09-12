@@ -165,7 +165,8 @@ string AnalysisGraph::get_edge_weights_for_causemos_viz() {
   vector<double> all_weights = {};
   for (auto e : this->edges()) {
     int n_samples = DEFAULT_N_SAMPLES;
-    vector<double> sampled_betas = this->edge(e).kde.resample(
+    // TODO: This variable is not used
+    vector<double> sampled_thetas = this->edge(e).kde.resample(
         n_samples, this->rand_num_generator, this->uni_dist, this->norm_dist);
     double weight = abs(median(this->edge(e).kde.dataset));
     all_weights.push_back(weight);
