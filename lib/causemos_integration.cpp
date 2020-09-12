@@ -135,7 +135,7 @@ AnalysisGraph AnalysisGraph::from_causemos_json_dict(nlohmann::json json_data) {
     }
   }
   G.initialize_random_number_generator();
-  G.construct_beta_pdfs();
+  G.construct_theta_pdfs();
   return G;
 }
 

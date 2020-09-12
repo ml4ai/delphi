@@ -805,12 +805,11 @@ class AnalysisGraph {
 
   /*
    ============================================================================
-   Public: Construct Beta Pdfs (in construct_beta_pdfs.cpp)
+   Public: Construct Theta Pdfs (in construct_beta_pdfs.cpp)
    ============================================================================
   */
 
-  // void construct_beta_pdfs(std::mt19937 rng);
-  void construct_beta_pdfs();
+  void construct_theta_pdfs();
 
   /*
    ============================================================================

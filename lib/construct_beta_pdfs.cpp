@@ -46,11 +46,11 @@ AdjectiveResponseMap construct_adjective_response_map(
 
 /*
  ============================================================================
- Public: Construct Beta Pdfs
+ Public: Construct Theta Pdfs
  ============================================================================
 */
 
-void AnalysisGraph::construct_beta_pdfs() {
+void AnalysisGraph::construct_theta_pdfs() {
 
   // The choice of sigma_X and sigma_Y is somewhat arbitrary here - we need to
   // come up with a principled way to select this value, or infer it from data.
