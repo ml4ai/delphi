@@ -805,7 +805,7 @@ class AnalysisGraph {
 
   /*
    ============================================================================
-   Public: Construct Theta Pdfs (in construct_beta_pdfs.cpp)
+   Public: Construct Theta Pdfs (in construct_theta_pdfs.cpp)
    ============================================================================
   */
 
