@@ -433,7 +433,7 @@ class AnalysisGraph {
 
   // Sample elements of the stochastic transition matrix from the
   // prior distribution, based on gradable adjectives.
-  void set_transition_matrix_from_betas(bool continous = true);
+  void set_transition_matrix_from_betas(bool continuous = true);
 
   void sample_transition_matrix_collection_from_prior();
 

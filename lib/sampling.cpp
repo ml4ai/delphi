@@ -11,10 +11,9 @@ using Eigen::VectorXd;
  ============================================================================
 */
 
-// Sample elements of the stochastic transition matrix from the
+// Initialize elements of the stochastic transition matrix from the
 // prior distribution, based on gradable adjectives.
-// TODO: Fix the name and description of this function.
-void AnalysisGraph::set_transition_matrix_from_betas(bool continous) {
+void AnalysisGraph::set_transition_matrix_from_betas(bool continuous) {
   int num_verts = this->num_vertices();
 
   // A base transition matrix with the entries that does not change across
