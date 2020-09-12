@@ -60,7 +60,7 @@ double Tran_Mat_Cell::compute_cell(const DiGraph& CAG) {
     for (int v = 0; v < this->paths[p].size() - 1; v++) {
       auto edg = edge(paths[p][v], paths[p][v + 1], CAG);
       // β = tan(θ)
-      double beta = tan(CAG[edg.first].beta);
+      double beta = tan(CAG[edg.first].theta);
 
       this->products[p] *= beta; //+= 1;
     }

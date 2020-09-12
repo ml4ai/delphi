@@ -97,8 +97,9 @@ void AnalysisGraph::construct_beta_pdfs() {
 
     this->graph[e].kde = KDE(all_thetas);
 
-    // Initialize the initial β for this edge
+    // Initialize the initial θ for this edge
+    // β = tan(θ)
     // TODO: Decide the correct way to initialize this
-    this->graph[e].beta = this->graph[e].kde.mu;
+    this->graph[e].theta = this->graph[e].kde.mu;
   }
 }

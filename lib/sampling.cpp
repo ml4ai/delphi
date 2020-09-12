@@ -54,9 +54,7 @@ void AnalysisGraph::sample_transition_matrix_collection_from_prior() {
 
   for (int sample = 0; sample < this->res; sample++) {
     for (auto e : this->edges()) {
-        // TODO TODO TODO
-        // TODO: Theta to Beta change. Take the tangent.
-      this->graph[e].beta = this->graph[e].kde.resample(
+      this->graph[e].theta = this->graph[e].kde.resample(
           1, this->rand_num_generator, this->uni_dist, this->norm_dist)[0];
     }
 
@@ -122,11 +120,11 @@ void AnalysisGraph::sample_from_posterior() {
 }
 
 void AnalysisGraph::sample_from_proposal() {
-  // Flip a coin and decide whether to perturb a β or a derivative
+  // Flip a coin and decide whether to perturb a θ or a derivative
   this->coin_flip = this->uni_dist(this->rand_num_generator);
 
   if (this->coin_flip < this->coin_flip_thresh) {
-    // Randomly pick an edge ≡ β
+    // Randomly pick an edge ≡ θ
     boost::iterator_range edge_it = this->edges();
 
     vector<EdgeDescriptor> e(1);
@@ -134,11 +132,11 @@ void AnalysisGraph::sample_from_proposal() {
         edge_it.begin(), edge_it.end(), e.begin(), 1, this->rand_num_generator);
 
     // Remember the previous β
-    this->previous_beta = make_pair(e[0], this->graph[e[0]].beta);
+    this->previous_beta = make_pair(e[0], this->graph[e[0]].theta);
 
-    // Perturb the β
+    // Perturb the θ
     // TODO: Check whether this perturbation is accurate
-    this->graph[e[0]].beta += this->norm_dist(this->rand_num_generator);
+    this->graph[e[0]].theta += this->norm_dist(this->rand_num_generator);
 
     this->update_transition_matrix_cells(e[0]);
   }
@@ -190,7 +188,7 @@ double AnalysisGraph::calculate_delta_log_prior() {
     // KDE is in Theta space. So we have to convert Beta to Theta before
     // consulting it.
     // We have to return: log( p( β_new )) - log( p( β_old ))
-    return kde.logpdf(this->graph[this->previous_beta.first].beta) -
+    return kde.logpdf(this->graph[this->previous_beta.first].theta) -
            kde.logpdf(this->previous_beta.second);
   }
   else {
@@ -205,7 +203,7 @@ void AnalysisGraph::revert_back_to_previous_state() {
 
   if (this->coin_flip < this->coin_flip_thresh) {
     // A β has been sampled
-    this->graph[this->previous_beta.first].beta = this->previous_beta.second;
+    this->graph[this->previous_beta.first].theta = this->previous_beta.second;
 
     // Reset the transition matrix cells that were changed
     // TODO: Can we change the transition matrix only when the sample is

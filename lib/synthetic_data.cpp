@@ -20,22 +20,26 @@ void AnalysisGraph::init_betas_to(InitialBeta ib) {
   // but we will evaluate the switch for each iteration through the loop
   case InitialBeta::ZERO:
     for (EdgeDescriptor e : this->edges()) {
-      graph[e].beta = 0;
+      // β = tan(0.0) = 0
+      graph[e].theta = 0.0;
     }
     break;
   case InitialBeta::ONE:
     for (EdgeDescriptor e : this->edges()) {
-      graph[e].beta = 1.0;
+      // θ = atan(1) = Π/4
+      // β = tan(atan(1)) = 1
+      graph[e].theta = std::atan(1);
     }
     break;
   case InitialBeta::HALF:
     for (EdgeDescriptor e : this->edges()) {
-      graph[e].beta = 0.5;
+      // β = tan(atan(0.5)) = 0.5
+      graph[e].theta = std::atan(0.5);
     }
     break;
   case InitialBeta::MEAN:
     for (EdgeDescriptor e : this->edges()) {
-      graph[e].beta = graph[e].kde.mu;
+      graph[e].theta = graph[e].kde.mu;
     }
     break;
   case InitialBeta::RANDOM:
@@ -43,7 +47,7 @@ void AnalysisGraph::init_betas_to(InitialBeta ib) {
       // this->uni_dist() gives a random number in range [0, 1]
       // Multiplying by 2 scales the range to [0, 2]
       // Subtracting 1 moves the range to [-1, 1]
-      graph[e].beta = this->uni_dist(this->rand_num_generator) * 2 - 1;
+      graph[e].theta = this->uni_dist(this->rand_num_generator) * 2 - 1;
     }
     break;
   }
