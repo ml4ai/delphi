@@ -56,8 +56,8 @@ void AnalysisGraph::set_transition_matrix_from_betas(bool continuous) {
         this->A_beta_factors[row][col]->compute_cell(this->graph);
   }
 
-  if (continous) {
-    std::cout << "Continous A\n";
+  if (continuous) {
+    std::cout << "Continuous A\n";
     for (int vert = 0; vert < 2 * num_verts; vert += 2) {
         this->A_original(vert, vert + 1) = 1;
     }
@@ -202,7 +202,7 @@ void AnalysisGraph::update_transition_matrix_cells(EdgeDescriptor e) {
 
     // Note that I am remembering row and col instead of 2*row and 2*col+1
     // row and col resembles an edge in the CAG: row -> col
-    // ( 2*row, 2*col+1 ) is the transition mateix cell that got changed.
+    // ( 2*row, 2*col+1 ) is the transition matrix cell that got changed.
     // this->A_cells_changed.push_back( make_tuple( row, col, A( row * 2, col
     // * 2 + 1 )));
 
