@@ -39,14 +39,19 @@ void AnalysisGraph::sample_predicted_latent_state_sequences(
           const MatrixXd& A_c = this->transition_matrix_collection[samp];
 
           for (int t = 0; t < this->n_timesteps; t++) {
+              // Computing e^At
+              const Eigen::MatrixXd& e_A_t = (A_c * t).exp();
+
               if (project) {
                   // Perform projection based on the perturbed initial latent state s0
-                  this->predicted_latent_state_sequences[samp][t] = A_c.pow(t) * this->s0;
+                  //this->predicted_latent_state_sequences[samp][t] = A_c.pow(t) * this->s0;
+                  this->predicted_latent_state_sequences[samp][t] = e_A_t * this->s0;
               }
               else {
                   // Perform inference based on the sampled initial latent states
                   const VectorXd& s0_samp = this->initial_latent_state_collection[samp];
-                  this->predicted_latent_state_sequences[samp][t] = A_c.pow(t) * s0_samp;
+                  //this->predicted_latent_state_sequences[samp][t] = A_c.pow(t) * s0_samp;
+                  this->predicted_latent_state_sequences[samp][t] = e_A_t * s0_samp;
               }
           }
       }
