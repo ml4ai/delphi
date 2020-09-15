@@ -95,6 +95,29 @@ void AnalysisGraph::sample_transition_matrix_collection_from_prior() {
   }
 }
 
+void AnalysisGraph::set_log_likelihood_helper(int ts) {
+    // Access (concept is a vertex in the CAG)
+    // observed_state[ concept ][ indicator ][ observation ]
+    const vector<vector<vector<double>>>& observed_state =
+        this->observed_state_sequence[ts];
+
+    for (int v : this->node_indices()) {
+        const int& num_inds_for_v = observed_state[v].size();
+
+        for (int i = 0; i < observed_state[v].size(); i++) {
+            const Indicator& ind = this->graph[v].indicators[i];
+            for (int o = 0; o < observed_state[v][i].size(); o++) {
+                const double& obs = observed_state[v][i][o];
+                // Even indices of latent_state keeps track of the state of each
+                // vertex
+                double log_likelihood_component = log_normpdf(
+                        obs, this->current_latent_state[2 * v] * ind.mean, ind.stdev);
+                this->log_likelihood += log_likelihood_component;
+            }
+        }
+    }
+}
+
 void AnalysisGraph::set_log_likelihood() {
   this->previous_log_likelihood = this->log_likelihood;
   this->log_likelihood = 0.0;
@@ -102,54 +125,14 @@ void AnalysisGraph::set_log_likelihood() {
   if (this->continuous) {
       for (int ts = 0; ts < this->n_timesteps; ts++) {
           this->set_current_latent_state(ts);
-
-          // Access (concept is a vertex in the CAG)
-          // observed_state[ concept ][ indicator ][ observation ]
-          const vector<vector<vector<double>>>& observed_state =
-              this->observed_state_sequence[ts];
-
-          for (int v : this->node_indices()) {
-              const int& num_inds_for_v = observed_state[v].size();
-
-              for (int i = 0; i < observed_state[v].size(); i++) {
-                  const Indicator& ind = this->graph[v].indicators[i];
-                  for (int o = 0; o < observed_state[v][i].size(); o++) {
-                      const double& obs = observed_state[v][i][o];
-                      // Even indices of latent_state keeps track of the state of each
-                      // vertex
-                      double log_likelihood_component = log_normpdf(
-                              obs, this->current_latent_state[2 * v] * ind.mean, ind.stdev);
-                      this->log_likelihood += log_likelihood_component;
-                  }
-              }
-          }
+          set_log_likelihood_helper(ts);
       }
   } else {
       // Discretized version
       this->current_latent_state = this->s0;
 
       for (int ts = 0; ts < this->n_timesteps; ts++) {
-
-          // Access (concept is a vertex in the CAG)
-          // observed_state[ concept ][ indicator ][ observation ]
-          const vector<vector<vector<double>>>& observed_state =
-              this->observed_state_sequence[ts];
-
-          for (int v : this->node_indices()) {
-              const int& num_inds_for_v = observed_state[v].size();
-
-              for (int i = 0; i < observed_state[v].size(); i++) {
-                  const Indicator& ind = this->graph[v].indicators[i];
-                  for (int o = 0; o < observed_state[v][i].size(); o++) {
-                      const double& obs = observed_state[v][i][o];
-                      // Even indices of latent_state keeps track of the state of each
-                      // vertex
-                      double log_likelihood_component = log_normpdf(
-                              obs, this->current_latent_state[2 * v] * ind.mean, ind.stdev);
-                      this->log_likelihood += log_likelihood_component;
-                  }
-              }
-          }
+          set_log_likelihood_helper(ts);
           this->current_latent_state = this->A_original * this->current_latent_state;
       }
   }
@@ -202,13 +185,11 @@ void AnalysisGraph::sample_from_proposal() {
     this->update_transition_matrix_cells(e[0]);
   }
   else {
-    // this->s0_prev = s0;
-    // this->set_random_initial_latent_state();
     // Randomly select a concept to change the derivative
     this->changed_derivative =
         2 * this->uni_disc_dist(this->rand_num_generator) + 1;
-    this->previous_derivative = s0[this->changed_derivative];
-    s0[this->changed_derivative] += this->norm_dist(this->rand_num_generator);
+    this->previous_derivative = this->s0[this->changed_derivative];
+    this->s0[this->changed_derivative] += this->norm_dist(this->rand_num_generator);
   }
 }
 

@@ -444,6 +444,8 @@ class AnalysisGraph {
 
   void sample_transition_matrix_collection_from_prior();
 
+  void set_log_likelihood_helper(int ts);
+
   void set_log_likelihood();
 
   void set_current_latent_state(int ts);

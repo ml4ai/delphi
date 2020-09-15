@@ -36,22 +36,17 @@ void AnalysisGraph::sample_predicted_latent_state_sequences(
 
   if (this->continuous) {
       for (int samp = 0; samp < this->res; samp++) {
+          const MatrixXd& A_c = this->transition_matrix_collection[samp];
+
           for (int t = 0; t < this->n_timesteps; t++) {
-              const MatrixXd& A_d = this->transition_matrix_collection.at(samp);
               if (project) {
                   // Perform projection based on the perturbed initial latent state s0
-                  // FIXME The matrix A_d here is the transition matrix for a discrete update.
-                  // In order to use the matrix exponential it must be the the matrix for
-                  // the continuous 'differential' update equation.
-                  this->predicted_latent_state_sequences[samp][t] = A_d.pow(t) * this->s0;
-                  if (samp == 0) {
-                      this->print_latent_state(this->predicted_latent_state_sequences[samp][t]);
-                  }
+                  this->predicted_latent_state_sequences[samp][t] = A_c.pow(t) * this->s0;
               }
               else {
                   // Perform inference based on the sampled initial latent states
                   const VectorXd& s0_samp = this->initial_latent_state_collection[samp];
-                  this->predicted_latent_state_sequences[samp][t] = A_d.pow(t) * s0_samp;
+                  this->predicted_latent_state_sequences[samp][t] = A_c.pow(t) * s0_samp;
               }
           }
       }
