@@ -59,9 +59,7 @@ double Tran_Mat_Cell::compute_cell(const DiGraph& CAG) {
       double beta = tan(CAG[edg.first].theta);
 
       this->products[p] *= beta; //+= 1;
-      std::cout << "Beta: " << beta << std::endl;
     }
-    std::cout << this->products[p] << std::endl;
   }
 
   return rs::accumulate(products, 0.0);

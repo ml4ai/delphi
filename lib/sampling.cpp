@@ -13,7 +13,7 @@ using Eigen::VectorXd;
 
 // Initialize elements of the stochastic transition matrix from the
 // prior distribution, based on gradable adjectives.
-void AnalysisGraph::set_transition_matrix_from_betas(bool continuous) {
+void AnalysisGraph::set_transition_matrix_from_betas() {
   int num_verts = this->num_vertices();
 
   // A base transition matrix with the entries that does not change across
@@ -51,19 +51,17 @@ void AnalysisGraph::set_transition_matrix_from_betas(bool continuous) {
 
   // Update the β factor dependent cells of this matrix
   for (auto& [row, col] : this->beta_dependent_cells) {
-    std::cout << row << ", " << col << std::endl;
     this->A_original(row * 2, col * 2 + 1) =
         this->A_beta_factors[row][col]->compute_cell(this->graph);
   }
 
-  if (continuous) {
-    std::cout << "Continuous A\n";
+  if (this->continuous) {
     for (int vert = 0; vert < 2 * num_verts; vert += 2) {
         this->A_original(vert, vert + 1) = 1;
     }
-    std::cout << A_original << std::endl;
   }
   else {
+    // Discretized version
     // A_d = I + A_c × Δt
     // Fill the Δts
     //for (int vert = 0; vert < 2 * num_verts; vert += 2) {
@@ -101,29 +99,59 @@ void AnalysisGraph::set_log_likelihood() {
   this->previous_log_likelihood = this->log_likelihood;
   this->log_likelihood = 0.0;
 
-  for (int ts = 0; ts < this->n_timesteps; ts++) {
-    this->set_current_latent_state(ts);
+  if (this->continuous) {
+      for (int ts = 0; ts < this->n_timesteps; ts++) {
+          this->set_current_latent_state(ts);
 
-    // Access (concept is a vertex in the CAG)
-    // observed_state[ concept ][ indicator ][ observation ]
-    const vector<vector<vector<double>>>& observed_state =
-        this->observed_state_sequence[ts];
+          // Access (concept is a vertex in the CAG)
+          // observed_state[ concept ][ indicator ][ observation ]
+          const vector<vector<vector<double>>>& observed_state =
+              this->observed_state_sequence[ts];
 
-    for (int v : this->node_indices()) {
-      const int& num_inds_for_v = observed_state[v].size();
+          for (int v : this->node_indices()) {
+              const int& num_inds_for_v = observed_state[v].size();
 
-      for (int i = 0; i < observed_state[v].size(); i++) {
-        const Indicator& ind = this->graph[v].indicators[i];
-        for (int o = 0; o < observed_state[v][i].size(); o++) {
-          const double& obs = observed_state[v][i][o];
-          // Even indices of latent_state keeps track of the state of each
-          // vertex
-          double log_likelihood_component = log_normpdf(
-              obs, this->current_latent_state[2 * v] * ind.mean, ind.stdev);
-          this->log_likelihood += log_likelihood_component;
-        }
+              for (int i = 0; i < observed_state[v].size(); i++) {
+                  const Indicator& ind = this->graph[v].indicators[i];
+                  for (int o = 0; o < observed_state[v][i].size(); o++) {
+                      const double& obs = observed_state[v][i][o];
+                      // Even indices of latent_state keeps track of the state of each
+                      // vertex
+                      double log_likelihood_component = log_normpdf(
+                              obs, this->current_latent_state[2 * v] * ind.mean, ind.stdev);
+                      this->log_likelihood += log_likelihood_component;
+                  }
+              }
+          }
       }
-    }
+  } else {
+      // Discretized version
+      this->current_latent_state = this->s0;
+
+      for (int ts = 0; ts < this->n_timesteps; ts++) {
+
+          // Access (concept is a vertex in the CAG)
+          // observed_state[ concept ][ indicator ][ observation ]
+          const vector<vector<vector<double>>>& observed_state =
+              this->observed_state_sequence[ts];
+
+          for (int v : this->node_indices()) {
+              const int& num_inds_for_v = observed_state[v].size();
+
+              for (int i = 0; i < observed_state[v].size(); i++) {
+                  const Indicator& ind = this->graph[v].indicators[i];
+                  for (int o = 0; o < observed_state[v][i].size(); o++) {
+                      const double& obs = observed_state[v][i][o];
+                      // Even indices of latent_state keeps track of the state of each
+                      // vertex
+                      double log_likelihood_component = log_normpdf(
+                              obs, this->current_latent_state[2 * v] * ind.mean, ind.stdev);
+                      this->log_likelihood += log_likelihood_component;
+                  }
+              }
+          }
+          this->current_latent_state = this->A_original * this->current_latent_state;
+      }
   }
 }
 
@@ -213,14 +241,10 @@ void AnalysisGraph::update_transition_matrix_cells(EdgeDescriptor e) {
 
 double AnalysisGraph::calculate_delta_log_prior() {
   if (this->coin_flip < this->coin_flip_thresh) {
-    // A β has been sampled
+    // A θ has been sampled
     KDE& kde = this->graph[this->previous_theta.first].kde;
 
-    // TODO TODO TODO
-    // TODO: Beta to Theta.
-    // KDE is in Theta space. So we have to convert Beta to Theta before
-    // consulting it.
-    // We have to return: log( p( β_new )) - log( p( β_old ))
+    // We have to return: log( p( θ_new )) - log( p( θ_old ))
     return kde.logpdf(this->graph[this->previous_theta.first].theta) -
            kde.logpdf(this->previous_theta.second);
   }
@@ -235,7 +259,7 @@ void AnalysisGraph::revert_back_to_previous_state() {
   this->log_likelihood = this->previous_log_likelihood;
 
   if (this->coin_flip < this->coin_flip_thresh) {
-    // A β has been sampled
+    // A θ has been sampled
     this->graph[this->previous_theta.first].theta = this->previous_theta.second;
 
     // Reset the transition matrix cells that were changed

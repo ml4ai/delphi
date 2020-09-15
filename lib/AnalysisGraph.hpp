@@ -165,6 +165,20 @@ class AnalysisGraph {
   // rename this to A.
   Eigen::MatrixXd A_original;
 
+  // Determines whether to use the continuous version or the discretized
+  // version of the solution for the system of differential equations.
+  //
+  // continuous = true:
+  //    Continuous version of the solution. We use the continuous form of the
+  //    transition matrix and matrix exponential.
+  //
+  // continuous = false:
+  //    Discretized version of the solution. We use the discretized version of
+  //    the transition matrix and repeated matrix multiplication.
+  //
+  // A_discretized = I + A_continuous * Δt
+  bool continuous = true;
+
   // Access this as
   // current_latent_state
   Eigen::VectorXd current_latent_state;
@@ -172,13 +186,6 @@ class AnalysisGraph {
   // Access this as
   // observed_state_sequence[ time step ][ vertex ][ indicator ]
   ObservedStateSequence observed_state_sequence;
-
-  // This is a column of the
-  // this->training_latent_state_sequences
-  // prediction_initial_latent_states.size() = this->res
-  // TODO: If we make the code using this variable to directly fetch the values
-  // from this->training_latent_state_sequences, we can get rid of this
-  // std::vector<Eigen::VectorXd> prediction_initial_latent_states;
 
   // Access this as
   // prediction_latent_state_sequences[ sample ][ time step ]
@@ -433,7 +440,7 @@ class AnalysisGraph {
 
   // Sample elements of the stochastic transition matrix from the
   // prior distribution, based on gradable adjectives.
-  void set_transition_matrix_from_betas(bool continuous = true);
+  void set_transition_matrix_from_betas();
 
   void sample_transition_matrix_collection_from_prior();
 
@@ -881,6 +888,10 @@ class AnalysisGraph {
    * @param units       : Units for each indicator. Maps
    *                      indicator name --> unit
    * @param initial_beta: Criteria to initialize β
+   * @param use_continuous: Choose between continuous vs discretized versions
+   *                        of the differential equation solution.
+   *                        Default is to use the continuous version with
+   *                        matrix exponential.
    */
   void train_model(int start_year = 2012,
                    int start_month = 1,
@@ -893,7 +904,8 @@ class AnalysisGraph {
                    std::string county = "",
                    std::map<std::string, std::string> units = {},
                    InitialBeta initial_beta = InitialBeta::ZERO,
-                   bool use_heuristic = false);
+                   bool use_heuristic = false,
+                   bool use_continuous = true);
 
   /*
    ============================================================================

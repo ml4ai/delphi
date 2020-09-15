@@ -17,7 +17,10 @@ void AnalysisGraph::train_model(int start_year,
                                 string county,
                                 map<string, string> units,
                                 InitialBeta initial_beta,
-                                bool use_heuristic) {
+                                bool use_heuristic,
+                                bool use_continuous) {
+
+  this->continuous = use_continuous;
 
   this->initialize_random_number_generator();
   this->uni_disc_dist = uniform_int_distribution<int>(0, this->num_nodes() - 1);
