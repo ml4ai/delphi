@@ -81,8 +81,8 @@ PYBIND11_MODULE(DelphiPython, m) {
            "label_depth"_a = 1,
            "node_to_highlight"_a = "",
            "rankdir"_a = "TB")
-      .def("construct_beta_pdfs",
-           (void (AnalysisGraph::*)()) & AnalysisGraph::construct_beta_pdfs)
+      .def("construct_theta_pdfs",
+           (void (AnalysisGraph::*)()) & AnalysisGraph::construct_theta_pdfs)
       .def("add_node", &AnalysisGraph::add_node, "concept"_a)
       .def("remove_node",
            py::overload_cast<string>(&AnalysisGraph::remove_node),
@@ -150,7 +150,8 @@ PYBIND11_MODULE(DelphiPython, m) {
            "county"_a = "",
            py::arg("units") = map<std::string, std::string>{},
            "initial_beta"_a = InitialBeta::ZERO,
-           "use_heuristic"_a = false)
+           "use_heuristic"_a = false,
+           "use_continuous"_a = true)
       .def("generate_prediction",
            &AnalysisGraph::generate_prediction,
            "start_year"_a,

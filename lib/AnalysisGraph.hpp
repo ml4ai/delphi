@@ -74,7 +74,7 @@ class AnalysisGraph {
   // Uniform distribution used by the MCMC sampler
   std::uniform_real_distribution<double> uni_dist;
 
-  // Normal distrubution used to perturb β
+  // Normal distribution used to perturb β
   std::normal_distribution<double> norm_dist;
 
   // Uniform discrete distribution used by the MCMC sampler
@@ -141,15 +141,15 @@ class AnalysisGraph {
   double log_likelihood = 0.0;
   double previous_log_likelihood = 0.0;
 
-  // To decide whether to perturb a β or a derivative
-  // If coin_flip < coin_flip_thresh perturb β else perturb derivative
+  // To decide whether to perturb a θ or a derivative
+  // If coin_flip < coin_flip_thresh perturb θ else perturb derivative
   double coin_flip = 0;
   double coin_flip_thresh = 0.5;
 
-  // Remember the old β and the edge where we perturbed the β.
+  // Remember the old θ and the edge where we perturbed the θ.
   // We need this to revert the system to the previous state if the proposal
   // gets rejected.
-  std::pair<EdgeDescriptor, double> previous_beta;
+  std::pair<EdgeDescriptor, double> previous_theta;
 
   // Remember the old derivative and the concept we perturbed the derivative
   int changed_derivative;
@@ -161,9 +161,23 @@ class AnalysisGraph {
 
   // Transition matrix that is evolved by sampling.
   // Since variable A has been already used locally in other methods,
-  // I chose to name this A_orginal. After refactoring the code, we could
+  // I chose to name this A_original. After refactoring the code, we could
   // rename this to A.
   Eigen::MatrixXd A_original;
+
+  // Determines whether to use the continuous version or the discretized
+  // version of the solution for the system of differential equations.
+  //
+  // continuous = true:
+  //    Continuous version of the solution. We use the continuous form of the
+  //    transition matrix and matrix exponential.
+  //
+  // continuous = false:
+  //    Discretized version of the solution. We use the discretized version of
+  //    the transition matrix and repeated matrix multiplication.
+  //
+  // A_discretized = I + A_continuous * Δt
+  bool continuous = true;
 
   // Access this as
   // current_latent_state
@@ -172,13 +186,6 @@ class AnalysisGraph {
   // Access this as
   // observed_state_sequence[ time step ][ vertex ][ indicator ]
   ObservedStateSequence observed_state_sequence;
-
-  // This is a column of the
-  // this->training_latent_state_sequences
-  // prediction_initial_latent_states.size() = this->res
-  // TODO: If we make the code using this variable to directly fetch the values
-  // from this->training_latent_state_sequences, we can get rid of this
-  // std::vector<Eigen::VectorXd> prediction_initial_latent_states;
 
   // Access this as
   // prediction_latent_state_sequences[ sample ][ time step ]
@@ -246,7 +253,7 @@ class AnalysisGraph {
    * Utility function that converts a time range given a start date and end date
    * into an integer value.
    * At the moment returns the number of months withing the time range.
-   * This should be the number of traing data time points we have
+   * This should be the number of training data time points we have
    *
    * @param start_year  : Start year of the training data sequence
    * @param start_month : Start month of the training data sequence
@@ -286,7 +293,6 @@ class AnalysisGraph {
 
   int num_nodes() { return boost::num_vertices(graph); }
 
-  // int get_vertex_id(std::string concept);
   int get_vertex_id(std::string concept) {
     using namespace fmt::literals;
     try {
@@ -338,7 +344,6 @@ class AnalysisGraph {
     return this->successors(this->name_to_vertex.at(node_name));
   }
 
-  // std::vector<Node> get_successor_list(std::string node_name);
   std::vector<Node> get_successor_list(std::string node) {
     std::vector<Node> successors = {};
     for (int successor : this->successors(node)) {
@@ -439,20 +444,7 @@ class AnalysisGraph {
 
   void sample_transition_matrix_collection_from_prior();
 
-  /**
-   * Utility function that sets an initial latent state from observed data.
-   * This is used for the inference of the transition matrix as well as the
-   * training latent state sequences.
-   *
-   * @param timestep: Optional setting for setting the initial state to be other
-   *                  than the first time step. Not currently used.
-   *                  0 <= timestep < this->n_timesteps
-   */
-  // 2020-08-31: The method is not being used
-  //void set_initial_latent_state_from_observed_state_sequence();
-
-  // 2020-08-31: The method is not being used
-  //void set_initial_latent_from_end_of_training();
+  void set_log_likelihood_helper(int ts);
 
   void set_log_likelihood();
 
@@ -517,7 +509,7 @@ class AnalysisGraph {
                                                int total_timesteps,
                                                bool project = false);
 
-  /** Generate predicted observed state sequenes given predicted latent state
+  /** Generate predicted observed state sequences given predicted latent state
    * sequences using the emission model
    */
   void
@@ -822,12 +814,11 @@ class AnalysisGraph {
 
   /*
    ============================================================================
-   Public: Construct Beta Pdfs (in construct_beta_pdfs.cpp)
+   Public: Construct Theta Pdfs (in construct_theta_pdfs.cpp)
    ============================================================================
   */
 
-  // void construct_beta_pdfs(std::mt19937 rng);
-  void construct_beta_pdfs();
+  void construct_theta_pdfs();
 
   /*
    ============================================================================
@@ -889,7 +880,7 @@ class AnalysisGraph {
    * @param start_year  : Start year of the sequence of data
    * @param start_month : Start month of the sequence of data
    * @param end_year    : End year of the sequence of data
-   * @param end_month   : End month of the sequenec of data
+   * @param end_month   : End month of the sequence of data
    * @param res         : Sampling resolution. The number of samples to retain.
    * @param burn        : Number of samples to throw away. Start retaining
    *                      samples after throwing away this many samples.
@@ -899,6 +890,10 @@ class AnalysisGraph {
    * @param units       : Units for each indicator. Maps
    *                      indicator name --> unit
    * @param initial_beta: Criteria to initialize β
+   * @param use_continuous: Choose between continuous vs discretized versions
+   *                        of the differential equation solution.
+   *                        Default is to use the continuous version with
+   *                        matrix exponential.
    */
   void train_model(int start_year = 2012,
                    int start_month = 1,
@@ -911,7 +906,8 @@ class AnalysisGraph {
                    std::string county = "",
                    std::map<std::string, std::string> units = {},
                    InitialBeta initial_beta = InitialBeta::ZERO,
-                   bool use_heuristic = false);
+                   bool use_heuristic = false,
+                   bool use_continuous = true);
 
   /*
    ============================================================================
@@ -944,7 +940,7 @@ class AnalysisGraph {
    * @return Predicted observed state (indicator value) sequence for the
    *         prediction period including start and end time points.
    *         This is a tuple.
-   *         The first element is a std::vector of std::strings with lables for
+   *         The first element is a std::vector of std::strings with labels for
    * each time point predicted (year-month). The second element contains
    * predicted values. Access it as: [ sample number ][ time point ][ vertex
    * name ][ indicator name ]
@@ -958,7 +954,7 @@ class AnalysisGraph {
   generate_causemos_projection(std::string json_projection);
 
   /**
-   * this->generate_prediction() must be called before callign this method.
+   * this->generate_prediction() must be called before calling this method.
    * Outputs raw predictions for a given indicator that were generated by
    * generate_prediction(). Each column is a time step and the rows are the
    * samples for that time step.

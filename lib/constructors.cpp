@@ -172,7 +172,7 @@ AnalysisGraph::AnalysisGraph(const AnalysisGraph& rhs) {
     this->graph[e_lhs].evidence = rhs.graph[e_rhs].evidence;
     this->graph[e_lhs].kde = rhs.graph[e_rhs].kde;
     this->graph[e_lhs].name = rhs.graph[e_rhs].name;
-    this->graph[e_lhs].beta = rhs.graph[e_rhs].beta;
+    this->graph[e_lhs].theta = rhs.graph[e_rhs].theta;
     */
 
     this->observed_state_sequence = rhs.observed_state_sequence;

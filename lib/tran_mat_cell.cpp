@@ -37,29 +37,26 @@ void Tran_Mat_Cell::allocate_datastructures() {
 // Computes the value of this cell from scratch.
 // Should be called after adding all the paths using add_path()
 // and calling allocate_datastructures()
-// TODO: These βs should be change to θs
-//         βst
+//         θst
 // ┏━━━━━━━━━━━━━━━━━┓
-// ┃ βsx   βxy   βyt ↓
+// ┃ θsx   θxy   θyt ↓
 // 〇━━━>〇━━━>〇━━━>〇
-// ┃  βsw      βwt   ↑
+// ┃  θsw      θwt   ↑
 // ┗━━━━━━━>〇━━━━━━━┛
 //
 // We are computing
-//   [tan(βst)] + [(tan(βsx) × tan(βxy) × tan(βyt)] + [tan(βsw) × tan(βwt)]
+//   [tan(θst)] + [(tan(θsx) × tan(θxy) × tan(θyt)] + [tan(θsw) × tan(θwt)]
 // In the transition matrix A, this cell is for all the paths starting at
 // vertex s and ending at vertex t. If s and t are the indices of the
 // respective vertexes, this cell is A[2 × t][2 × s + 1]
-//
-// TODO: To make the terminology correct we have to rename some variable names
-// from beta to theta.
 double Tran_Mat_Cell::compute_cell(const DiGraph& CAG) {
   for (int p = 0; p < this->paths.size(); p++) {
     this->products[p] = 1; // 0;
 
     for (int v = 0; v < this->paths[p].size() - 1; v++) {
       auto edg = edge(paths[p][v], paths[p][v + 1], CAG);
-      const double& beta = CAG[edg.first].beta;
+      // β = tan(θ)
+      double beta = tan(CAG[edg.first].theta);
 
       this->products[p] *= beta; //+= 1;
     }
@@ -67,56 +64,6 @@ double Tran_Mat_Cell::compute_cell(const DiGraph& CAG) {
 
   return rs::accumulate(products, 0.0);
 }
-
-/*
- * 2020-08-31: The method is not being used
-double Tran_Mat_Cell::sample_from_prior(const DiGraph& CAG, int samp_num) {
-  for (int p = 0; p < this->paths.size(); p++) {
-    this->products[p] = 1;
-
-    // Assume that none of the edges along this path has KDEs assigned.
-    // At the end of traversing this path, if that is the case, leaving
-    // the product for this path as 1 does not seem correct. In this case
-    // I feel that the best option is to make the product for this path 0.
-    bool hasKDE = false;
-
-    for (int v = 0; v < this->paths[p].size() - 1; v++) {
-      const vector<double>& samples =
-          CAG[edge(v, v + 1, CAG).first].kde.dataset;
-
-      // Check whether we have enough samples to fulfill this request
-      if (samples.size() > samp_num) {
-        this->products[p] *=
-            CAG[edge(v, v + 1, CAG).first].kde.dataset[samp_num];
-      }
-    }
-
-    // If none of the edges along this path had a KDE assigned,
-    // make the contribution of this path to the value of the cell 0.
-    if (!hasKDE) {
-      this->products[p] = 0;
-    }
-  }
-
-  return rs::accumulate(products, 0.0);
-}
-*/
-
-/*
- * 2020-08-31: The method is not being used
-// Given a β and an update amount, update all the products where β is a
-// factor. compute_cell() must be called once at the beginning before calling
-// this.
-double Tran_Mat_Cell::update_cell(pair<int, int> beta, double amount) {
-  pair<MMAPIterator, MMAPIterator> res = this->beta2product.equal_range(beta);
-
-  for (MMAPIterator it = res.first; it != res.second; it++) {
-    *(it->second) *= amount;
-  }
-
-  return rs::accumulate(products, 0.0);
-}
-*/
 
 void Tran_Mat_Cell::print_products() {
   for (double f : this->products) {

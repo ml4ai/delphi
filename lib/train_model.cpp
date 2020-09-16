@@ -17,12 +17,15 @@ void AnalysisGraph::train_model(int start_year,
                                 string county,
                                 map<string, string> units,
                                 InitialBeta initial_beta,
-                                bool use_heuristic) {
+                                bool use_heuristic,
+                                bool use_continuous) {
+
+  this->continuous = use_continuous;
 
   this->initialize_random_number_generator();
   this->uni_disc_dist = uniform_int_distribution<int>(0, this->num_nodes() - 1);
 
-  this->construct_beta_pdfs();
+  this->construct_theta_pdfs();
   this->find_all_paths();
   this->data_heuristic = use_heuristic;
 
@@ -42,29 +45,8 @@ void AnalysisGraph::train_model(int start_year,
         start_year, start_month, end_year, end_month, country, state, county);
   }
 
-  //this->set_initial_latent_state_from_observed_state_sequence();
-
   this->set_log_likelihood();
 
-  // Accumulates the transition matrices for accepted samples
-  // Access: [ sample number ]
-  // training_sampled_transition_matrix_sequence.clear();
-  // training_sampled_transition_matrix_sequence =
-  //    vector<Eigen::MatrixXd>(this->res);
-  //
-  // generate_prediction()      uses
-  // sample_from_likelihood. It uses
-  // transition_matrix_collection
-  // So to keep things simple for the moment
-  // I had to fall back to
-  // transition_matrix_collection
-  // HOWEVER: The purpose of transition_matrix_collection
-  // seem to be different in the prevous code than here.
-  // In the earlier code, (in sample_from_prior()) this is
-  // populated with DEFAULT_N_SAMPLES of initial transition matrices.
-  // Here we populate it with res number of sampler emitted transition
-  // matrices.
-  //
   this->transition_matrix_collection.clear();
   this->initial_latent_state_collection.clear();
   this->transition_matrix_collection = vector<Eigen::MatrixXd>(this->res);

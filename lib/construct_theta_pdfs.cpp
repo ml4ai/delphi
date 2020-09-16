@@ -46,11 +46,11 @@ AdjectiveResponseMap construct_adjective_response_map(
 
 /*
  ============================================================================
- Public: Construct Beta Pdfs
+ Public: Construct Theta Pdfs
  ============================================================================
 */
 
-void AnalysisGraph::construct_beta_pdfs() {
+void AnalysisGraph::construct_theta_pdfs() {
 
   // The choice of sigma_X and sigma_Y is somewhat arbitrary here - we need to
   // come up with a principled way to select this value, or infer it from data.
@@ -97,8 +97,9 @@ void AnalysisGraph::construct_beta_pdfs() {
 
     this->graph[e].kde = KDE(all_thetas);
 
-    // Initialize the initial β for this edge
+    // Initialize the initial θ for this edge
+    // β = tan(θ)
     // TODO: Decide the correct way to initialize this
-    this->graph[e].beta = this->graph[e].kde.mu;
+    this->graph[e].theta = this->graph[e].kde.mu;
   }
 }

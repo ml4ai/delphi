@@ -76,7 +76,7 @@ void AnalysisGraph::merge_nodes(string concept_1,
 
   for (int successor : this->successors(concept_1)) {
 
-    // Get the edge descripter for
+    // Get the edge descriptor for
     //                   vertex_to_remove --> successor
     Edge& edge_to_remove = this->edge(concept_1, successor);
     vector<Statement>& evidence_move = edge_to_remove.evidence;

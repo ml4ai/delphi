@@ -87,7 +87,7 @@ void AnalysisGraph::print_cells_affected_by_beta(int source, int target) {
       this->beta2cell.equal_range(beta);
 
   cout << endl
-       << "Cells of A afected by beta_(" << source << ", " << target << ")"
+       << "Cells of A affected by beta_(" << source << ", " << target << ")"
        << endl;
 
   for (MMapIterator it = beta_dept_cells.first; it != beta_dept_cells.second;
