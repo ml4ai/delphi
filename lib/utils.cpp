@@ -2,6 +2,8 @@
 #include <cmath>
 #include <fstream>
 #include <boost/range/numeric.hpp>
+#include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/statistics/median.hpp>
 
 using namespace std;
 
@@ -21,6 +23,18 @@ double sum(std::vector<double> v) { return boost::accumulate(v, 0.0); }
  * Returns the arithmetic mean of a vector of doubles.
  */
 double mean(std::vector<double> v) { return sum(v) / v.size(); }
+
+/**
+ * Returns the median of a vector of doubles.
+ */
+double median(std::vector<double> xs) {
+  using namespace boost::accumulators;
+  accumulator_set<double, features<tag::median>> acc;
+  for (auto x : xs) {
+    acc(x);
+  }
+  return boost::accumulators::median(acc);
+}
 
 double log_normpdf(double x, double mean, double sd) {
   double var = pow(sd, 2);

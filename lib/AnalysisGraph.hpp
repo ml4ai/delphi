@@ -393,7 +393,7 @@ class AnalysisGraph {
    * @param start_year  : Start year of the sequence of data
    * @param start_month : Start month of the sequence of data
    * @param end_year    : End year of the sequence of data
-   * @param end_month   : End month of the sequenec of data
+   * @param end_month   : End month of the sequence of data
    * @param country     : Country where the data is about
    * @param state       : State where the data is about
    * @param county      : County where the data is about
@@ -431,6 +431,7 @@ class AnalysisGraph {
                                std::string country,
                                std::string state = "",
                                std::string county = "");
+
 
   /*
    ============================================================================
@@ -663,6 +664,19 @@ class AnalysisGraph {
    * visualizing AnalysisGraph models in CauseMos. */
   std::string get_edge_weights_for_causemos_viz();
 
+  /**
+   * Set the observed state sequence for a given time range from json input.
+   * The sequence includes both ends of the range.
+   *
+   * @param start_year  : Start year of the sequence of data
+   * @param start_month : Start month of the sequence of data
+   * @param end_year    : End year of the sequence of data
+   * @param end_month   : End month of the sequence of data
+   * @param json_data   : Json data
+   *
+   */
+  void
+  set_observed_state_sequence_from_json_dict(nlohmann::json json_data);
   /*
    ============================================================================
    Public: Accessors

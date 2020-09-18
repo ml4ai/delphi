@@ -2,8 +2,6 @@
 
 #include "AnalysisGraph.hpp"
 #include "utils.hpp"
-#include <boost/accumulators/accumulators.hpp>
-#include <boost/accumulators/statistics/median.hpp>
 #include <fmt/format.h>
 #include <fstream>
 #include <range/v3/all.hpp>
@@ -14,6 +12,9 @@
 using namespace std;
 using namespace delphi::utils;
 using namespace fmt::literals;
+
+// Just for debugging. Remove later
+using fmt::print;
 
 AnalysisGraph AnalysisGraph::from_causemos_json_dict(nlohmann::json json_data) {
   AnalysisGraph G;
@@ -95,119 +96,12 @@ AnalysisGraph AnalysisGraph::from_causemos_json_dict(nlohmann::json json_data) {
   G.construct_theta_pdfs();
   dbg("theta pdfs done");
   return G;
-
-  // Access: [concept][indicator][(year, month)]
-  // One concept can have multiple indicators. So it is a multimap from concept
-  // to indicator.
-  //
-  //      concept        indicator               year month  value
-  //multimap<string, multimap<string, multimap<pair<int, int>, double>>> observations;
-  for (Node& n : G.nodes()) {
-    // At the moment we are only attaching one indicator per node
-    // when Analysis graph is called through CauseMos
-    string indicator_name = "Qualitative measure of {}"_format(n.name);
-    string indicator_source = "Delphi";
-
-    if (json_data["conceptIndicators"][n.name].is_null()) {
-      // In this case we do not have any observation data to train the model
-      G[n.name].add_indicator(indicator_name, indicator_source);
-      G[n.name].get_indicator(indicator_name).set_mean(1.0);
-    }
-    else {
-      auto mapping = json_data["conceptIndicators"][n.name];
-
-      if (!mapping["source"].is_null()) {
-        string indicator_source = mapping["source"].get<string>();
-      }
-
-      if (mapping["name"].is_null()) {
-        // This case there could be observations. However we are discarding
-        // them. Why?
-        G[n.name].add_indicator(indicator_name, indicator_source);
-        G[n.name].get_indicator(indicator_name).set_mean(1.0);
-      }
-      else {
-        string indicator_name = mapping["name"].get<string>();
-        dbg("---------------------------");
-        dbg(indicator_name);
-
-        // Calculate aggregate from the values given
-        vector<double> values = {};
-        time_t timestamp;
-        int year;
-        int month;
-        int start_year = INT_MAX;
-        int start_month = 13;
-        int end_year = 0;
-        int end_month = 0;
-        struct tm *ptm;
-        for (auto& data_point : mapping["values"]) {
-          values.push_back(data_point["value"].get<double>());
-          //year = data_point["year"].get<int>();
-          //month = data_point["month"].get<int>();
-          timestamp = data_point["timestamp"].get<long>() / 1000;
-          //dbg(timestamp);
-          ptm = gmtime(&timestamp);
-          year = 1900 + ptm->tm_year;
-          month = 1 + ptm->tm_mon;
-          dbg(year);
-          //dbg(1900 + ptm->tm_year);
-          dbg(month);
-          //dbg(1 + ptm->tm_mon);
-
-          if (start_year > year) {
-              start_year = year;
-              start_month = month;
-          } else if (start_year == year && start_month > month) {
-              start_month = month;
-          }
-
-          if (end_year < year) {
-              end_year = year;
-              end_month = month;
-          } else if (end_year == year && end_month < month) {
-              end_month = month;
-          }
-        }
-        dbg(start_year);
-        dbg(start_month);
-        dbg(end_year);
-        dbg(end_month);
-        // Aggregation function
-        string func = mapping["func"].get<string>();
-        double aggregated_value = 0.0;
-        if (func == "max") {
-          aggregated_value = ranges::max(values);
-        }
-        else if (func == "min") {
-          aggregated_value = ranges::min(values);
-        }
-        else if (func == "mean") {
-          aggregated_value = mean(values);
-        }
-        else {
-          throw runtime_error(
-              "Invalid value of \"func\": {}. It must be one of [max|min|mean]"_format(
-                  func));
-        }
-        G[n.name].add_indicator(indicator_name, indicator_source);
-        G[n.name].get_indicator(indicator_name).set_mean(aggregated_value);
-      }
-    }
-  }
 }
 
 
 void
 AnalysisGraph::set_observed_state_sequence_from_json_dict(
-                                                          nlohmann::json json_data) {
-
-    dbg("New function called");
-    this->print_nodes();
-    this->print_edges();
-    this->print_indicators();
-    this->print_name_to_vertex();
-
+        nlohmann::json json_data) {
     using ranges::to;
     using ranges::views::transform;
 
@@ -301,18 +195,18 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
 
             double observation = data_point["value"].get<double>();
 
+            // NOTE: This variable assumes that there is a single observation
+            // per indicator per time point.
+            // If we are updating to single indicator having multiple
+            // observations per time point, we have to reconsider this.
             values.push_back(observation);
-            //year = data_point["year"].get<int>();
-            //month = data_point["month"].get<int>();
+
+            if (data_point["timestamp"].is_null()) {continue;}
             timestamp = data_point["timestamp"].get<long>() / 1000;
-            //dbg(timestamp);
+
             ptm = gmtime(&timestamp);
             year = 1900 + ptm->tm_year;
             month = 1 + ptm->tm_mon;
-            dbg(year);
-            //dbg(1900 + ptm->tm_year);
-            dbg(month);
-            //dbg(1 + ptm->tm_mon);
 
             pair<int, int> year_month = make_pair(year, month);
             indicator_data.insert(make_pair(year_month, observation));
@@ -337,7 +231,7 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
         concept_indicator_data[v].push_back(indicator_data);
 
         // Assess the frequency of the data
-        vector<pair<int, int>> date_sorted; // = vector<pair<int, int>>(dates.size());
+        vector<pair<int, int>> date_sorted;
         for (auto ym : dates) {
             date_sorted.push_back(ym);
         }
@@ -345,6 +239,46 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
         concept_indicator_dates[v] = date_sorted;
 
         // Aggregation function
+        // NOTE: This portion is not aligned with a single indicator having
+        // multiple observations per time point. At the moment we assume single
+        // observation per indicator per time point.
+
+        // "last" is the default function specified in the specification.
+        string func = "last";
+        double aggregated_value = 0.0;
+
+        if (!indicator["func"].is_null()) {
+            func = indicator["func"].get<string>();
+        }
+
+        if (func == "max") {
+            aggregated_value = ranges::max(values);
+        }
+        else if (func == "min") {
+            aggregated_value = ranges::min(values);
+        }
+        else if (func == "mean") {
+            aggregated_value = mean(values);
+        }
+        else if (func == "median") {
+            aggregated_value = median(values);
+        }
+        else if (func == "first") {
+            aggregated_value = values[0];
+        }
+        else if (func == "last") {
+            aggregated_value = values.back();
+        }
+        else {
+            // Since we set func = "last" as the default value, this error will
+            // never happen. We can remove this part.
+            throw runtime_error(
+                    "Invalid value of \"func\": {}. It must be one of [max|min|mean|median|first|last]"_format(
+                        func));
+        }
+
+        n.get_indicator(indicator_name).set_aggregation_method(func);
+        n.get_indicator(indicator_name).set_mean(aggregated_value);
 
     }
 
@@ -403,7 +337,10 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
     //      frequent_gap > 1 ⇒ lot of missing data
     // 1 < shortest_gap < longest_gap
     //      best frequency to model at is the greatest common divisor of all
-    //      gaps.
+    //      gaps. For example if we see gaps 4, 6, 10 then gcd(4, 6, 10) = 2
+    //      and modeling at a frequency of 2 months starting from the start
+    //      date would allow us to capture all the observation sequences while
+    //      aligning them with each other.
     // TODO: At the moment, by default we are modeling at monthly frequency. We
     // can and might need to make the program adapt to best frequency present
     // in the training data.
@@ -428,18 +365,24 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
     month = start_month;
 
     for (int ts = 0; ts < this->n_timesteps; ts++) {
+        this->observed_state_sequence[ts] = vector<vector<vector<double>>>(num_verts);
         for (int v = 0; v < num_verts; v++) {
             Node& n = (*this)[v];
+            this->observed_state_sequence[ts][v] = vector<vector<double>>(n.indicators.size());
 
             for (int i = 0; i < n.indicators.size(); i++) {
-                //vector<vector<multimap<pair<int, int>, double>>> concept_indicator_data(num_verts);
-                //concept_indicator_data[v][i]
                 this->observed_state_sequence[ts][v][i] = vector<double>();
 
                 pair<int, int> year_month = make_pair(year, month);
                 pair<multimap<pair<int, int>, double>::iterator,
                      multimap<pair<int, int>, double>::iterator> obs =
                     concept_indicator_data[v][i].equal_range(year_month);
+
+                for(auto it = obs.first; it != obs.second; it++) {
+                    this->observed_state_sequence[ts][v][i].push_back(it->second);
+
+                    //print("{}: {}: {}-{} --> {}\n", n.name, n.indicators[i].get_name(), year, month, this->observed_state_sequence[ts][v][i].back());
+                }
             }
         }
 
@@ -463,15 +406,6 @@ AnalysisGraph AnalysisGraph::from_causemos_json_string(string json_string) {
 AnalysisGraph AnalysisGraph::from_causemos_json_file(string filename) {
   auto json_data = load_json(filename);
   return AnalysisGraph::from_causemos_json_dict(json_data);
-}
-
-double median(vector<double> xs) {
-  using namespace boost::accumulators;
-  accumulator_set<double, features<tag::median>> acc;
-  for (auto x : xs) {
-    acc(x);
-  }
-  return boost::accumulators::median(acc);
 }
 
 string AnalysisGraph::get_edge_weights_for_causemos_viz() {
