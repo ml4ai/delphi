@@ -321,7 +321,7 @@ void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json
  *
  * Check method declaration in AnalysisGraph.hpp for a detailed comment.
  */
-void AnalysisGraph::assess_observation_frequency(
+void AnalysisGraph::infer_least_common_observation_frequency(
                         const ConceptIndicatorDates &concept_indicator_dates,
                         int &shortest_gap,
                         int &longest_gap,
@@ -426,7 +426,7 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
     int frequent_gap = 0;
     int highest_frequency = 0;
 
-    assess_observation_frequency(concept_indicator_dates, shortest_gap,
+    infer_least_common_observation_frequency(concept_indicator_dates, shortest_gap,
                                 longest_gap, frequent_gap, highest_frequency);
 
     dbg(shortest_gap);

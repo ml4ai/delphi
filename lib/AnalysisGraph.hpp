@@ -790,7 +790,7 @@ class AnalysisGraph {
    *                                  in all the observation sequences.
    * @returns void
    */
-  void assess_observation_frequency(
+  void infer_least_common_observation_frequency(
                         const ConceptIndicatorDates &concept_indicator_dates,
                         int &shortest_gap,
                         int &longest_gap,
