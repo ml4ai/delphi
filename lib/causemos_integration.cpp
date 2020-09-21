@@ -88,7 +88,13 @@ AnalysisGraph AnalysisGraph::from_causemos_json_dict(nlohmann::json json_data) {
     G.add_edge(causal_fragment);
   }
 
-  G.set_observed_state_sequence_from_json_dict(json_data);
+  if (json_data["conceptIndicators"].is_null()) {
+      // No indicator data provided.
+      // TODO: What is the best action here?
+      throw runtime_error("No indicator information provided");
+  }
+
+  G.set_observed_state_sequence_from_json_dict(json_data["conceptIndicators"]);
 
   dbg("Done with json");
   G.initialize_random_number_generator();
@@ -99,33 +105,23 @@ AnalysisGraph AnalysisGraph::from_causemos_json_dict(nlohmann::json json_data) {
 }
 
 
-void
-AnalysisGraph::set_observed_state_sequence_from_json_dict(
-        nlohmann::json json_data) {
-    using ranges::to;
-    using ranges::views::transform;
+void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json(
+        nlohmann::json json_indicators,
+        ConceptIndicatorData &concept_indicator_data,
+        ConceptIndicatorDates &concept_indicator_dates,
+        int &start_year, int &start_month,
+        int &end_year, int &end_month) {
 
     int num_verts = this->num_vertices();
 
-    // This is a multimap to keep provision to have multiple observations per
-    // time point per indicator.
-    // Access (concept is a vertex in the CAG)
-    // [ concept ][ indicator ][ <year, month> --→ observation ]
-    vector<vector<multimap<pair<int, int>, double>>> concept_indicator_data(num_verts);
-
-    // Keeps the sequence of dates for which data points are available
-    // Data points are sorted according to dates
-    // Access:
-    // [ concept ][ indicator ][<year, month>]
-    vector<vector<pair<int, int>>> concept_indicator_dates(num_verts);
+    start_year = INT_MAX;
+    start_month = 13;
+    end_year = 0;
+    end_month = 0;
 
     time_t timestamp;
     int year;
     int month;
-    int start_year = INT_MAX;
-    int start_month = 13;
-    int end_year = 0;
-    int end_month = 0;
     struct tm *ptm;
 
     for (int v = 0; v < num_verts; v++) {
@@ -135,7 +131,7 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
         string indicator_name = "Qualitative measure of {}"_format(n.name);
         string indicator_source = "Delphi";
 
-        if (json_data["conceptIndicators"][n.name].is_null()) {
+        if (json_indicators[n.name].is_null()) {
             // In this case we do not have any observation data to train the model
             n.add_indicator(indicator_name, indicator_source);
             n.get_indicator(indicator_name).set_mean(1.0);
@@ -147,8 +143,8 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
         // multiple indicators per concept, this is one place we have to
         // update. Instead of a single indicator, we might get a list of
         // indicators here. Rest of the code would have to be updated
-        // according to whatever the updated json file  format we come up with.
-        auto indicator = json_data["conceptIndicators"][n.name];
+        // according to whatever the updated json file format we come up with.
+        auto indicator = json_indicators[n.name];
 
         if (!indicator["source"].is_null()) {
             indicator_source = indicator["source"].get<string>();
@@ -185,6 +181,10 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
         dbg(indicator_name);
 
         // Calculate aggregate from the values given
+        // NOTE: This variable assumes that there is a single observation
+        // per indicator per time point.
+        // If we are updating to single indicator having multiple
+        // observations per time point, we have to reconsider this.
         vector<double> values = {};
 
         for (auto& data_point : indicator["values"]) {
@@ -195,24 +195,39 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
 
             double observation = data_point["value"].get<double>();
 
-            // NOTE: This variable assumes that there is a single observation
-            // per indicator per time point.
-            // If we are updating to single indicator having multiple
-            // observations per time point, we have to reconsider this.
             values.push_back(observation);
 
             if (data_point["timestamp"].is_null()) {continue;}
+
+            // The HMI uses milliseconds. So they multiply time-stamps by 1000.
+            // Before converting them back to year and month, we have to divide
+            // by 1000.
             timestamp = data_point["timestamp"].get<long>() / 1000;
 
+            // Convert the time-step to year and month.
+            // We are converting it according to GMT.
             ptm = gmtime(&timestamp);
             year = 1900 + ptm->tm_year;
             month = 1 + ptm->tm_mon;
 
             pair<int, int> year_month = make_pair(year, month);
+
+            // Keep track of multiple observations for each year-month
             indicator_data.insert(make_pair(year_month, observation));
 
+            // Record the dates where observations are available for this
+            // indicator. This data is used to assess the observation
+            // frequency.
+            // At the moment Delphi assumes a monthly observation frequency.
+            // This part is added thinking that we might be able to relax that
+            // constrain in the future. At the moment, this information is not
+            // used in the modeling process.
             dates.insert(year_month);
 
+            // Find the start year and month of observations. When observation
+            // sequences are not aligned:
+            // start year month => earliest observation among all the
+            // observation sequences.
             if (start_year > year) {
                 start_year = year;
                 start_month = month;
@@ -220,6 +235,10 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
                 start_month = month;
             }
 
+            // Find the end year and month of observations. When observation
+            // sequences are not aligned:
+            // end year month => latest observation among all the observation
+            // sequences.
             if (end_year < year) {
                 end_year = year;
                 end_month = month;
@@ -228,9 +247,12 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
             }
         }
 
+        // Add this indicator observations to the concept. The data structure
+        // has provision to assign multiple indicator observation sequences for
+        // a single concept.
         concept_indicator_data[v].push_back(indicator_data);
 
-        // Assess the frequency of the data
+        // To assess the frequency of the data
         vector<pair<int, int>> date_sorted;
         for (auto ym : dates) {
             date_sorted.push_back(ym);
@@ -281,16 +303,36 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
         n.get_indicator(indicator_name).set_mean(aggregated_value);
 
     }
+}
 
-    dbg(start_year);
-    dbg(start_month);
-    dbg(end_year);
-    dbg(end_month);
+// NOTE:
+// shortest_gap = longest_gap = 1  ⇒ monthly with no missing data
+// shortest_gap = longest_gap = 12 ⇒ yearly with no missing data
+// shortest_gap = longest_gap ≠ 1 or 12  ⇒ no missing data odd frequency
+// shortest_gap = 1 < longest_gap ⇒ monthly with missing data
+//      frequent_gap = 1 ⇒ little missing data
+//      frequent_gap > 1 ⇒ lot of missing data
+// 1 < shortest_gap < longest_gap
+//      best frequency to model at is the greatest common divisor of all
+//      gaps. For example if we see gaps 4, 6, 10 then gcd(4, 6, 10) = 2
+//      and modeling at a frequency of 2 months starting from the start
+//      date would allow us to capture all the observation sequences while
+//      aligning them with each other.
+// TODO: At the moment, by default we are modeling at monthly frequency. We
+// can and might need to make the program adapt to best frequency present
+// in the training data.
+//
+// Decide the data frequency.
+void AnalysisGraph::assess_observation_frequency(
+                        ConceptIndicatorDates &concept_indicator_dates,
+                        int &shortest_gap,
+                        int &longest_gap,
+                        int &frequent_gap,
+                        int &highest_frequency) {
 
-    // Decide the data frequency.
-    // TODO: Move this to a separate method
     unordered_map<int, int> gap_frequencies;
     unordered_map<int, int>::iterator itr;
+
     for (vector<pair<int, int>> ind_dates : concept_indicator_dates) {
         // Compute number of months between data points
         for (int i = 0; i < ind_dates.size() - 1;  i++) {
@@ -298,22 +340,33 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
             int m1 = ind_dates[i].second;
             int y2 = ind_dates[i+1].first;
             int m2 = ind_dates[i+1].second;
+
             int months_between = (y2 - y1) * 12 + (m2 - m1);
 
+            // Check whether two adjacent data points with months_between
+            // months in between is already found.
             itr = gap_frequencies.find(months_between);
 
             if (itr != gap_frequencies.end()) {
+                // There were previous adjacent pairs of data points with
+                // months_between months in between. Now we have found one more
+                // so increase the number of data points at this frequency.
                 itr->second++;
             } else {
+                // This is the first data point that is months_between months
+                // away from its previous data point. Start recording this new
+                // frequency.
                 gap_frequencies.insert(make_pair(months_between, 1));
             }
         }
     }
+
     // Find the smallest gap and most frequent gap
-    int shortest_gap = INT_MAX;
-    int longest_gap = 0;
-    int frequent_gap = 0;
-    int highest_frequency = 0;
+    shortest_gap = INT_MAX;
+    longest_gap = 0;
+    frequent_gap = 0;
+    highest_frequency = 0;
+
     for (itr = gap_frequencies.begin(); itr != gap_frequencies.end(); itr++) {
         if (shortest_gap > itr->first) {
             shortest_gap = itr->first;
@@ -328,22 +381,49 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
             frequent_gap = itr->first;
         }
     }
-    // NOTE:
-    // shortest_gap = longest_gap = 1  ⇒ monthly with no missing data
-    // shortest_gap = longest_gap = 12 ⇒ yearly with no missing data
-    // shortest_gap = longest_gap ≠ 1 or 12  ⇒ no missing data odd frequency
-    // shortest_gap = 1 < longest_gap ⇒ monthly with missing data
-    //      frequent_gap = 1 ⇒ little missing data
-    //      frequent_gap > 1 ⇒ lot of missing data
-    // 1 < shortest_gap < longest_gap
-    //      best frequency to model at is the greatest common divisor of all
-    //      gaps. For example if we see gaps 4, 6, 10 then gcd(4, 6, 10) = 2
-    //      and modeling at a frequency of 2 months starting from the start
-    //      date would allow us to capture all the observation sequences while
-    //      aligning them with each other.
-    // TODO: At the moment, by default we are modeling at monthly frequency. We
-    // can and might need to make the program adapt to best frequency present
-    // in the training data.
+}
+
+void
+AnalysisGraph::set_observed_state_sequence_from_json_dict(
+        nlohmann::json json_indicators) {
+
+    int num_verts = this->num_vertices();
+
+    // This is a multimap to keep provision to have multiple observations per
+    // time point per indicator.
+    // Access (concept is a vertex in the CAG)
+    // [ concept ][ indicator ][ <year, month> --→ observation ]
+    ConceptIndicatorData concept_indicator_data(num_verts);
+
+    // Keeps the sequence of dates for which data points are available
+    // Data points are sorted according to dates
+    // Access:
+    // [ concept ][ indicator ][<year, month>]
+    ConceptIndicatorDates concept_indicator_dates(num_verts);
+
+    int start_year = INT_MAX;
+    int start_month = 13;
+    int end_year = 0;
+    int end_month = 0;
+
+    extract_concept_indicator_mapping_and_observations_from_json(
+            json_indicators, concept_indicator_data, concept_indicator_dates,
+                                start_year, start_month, end_year, end_month);
+
+    dbg(start_year);
+    dbg(start_month);
+    dbg(end_year);
+    dbg(end_month);
+
+    // Decide the data frequency.
+    int shortest_gap = INT_MAX;
+    int longest_gap = 0;
+    int frequent_gap = 0;
+    int highest_frequency = 0;
+
+    assess_observation_frequency(concept_indicator_dates, shortest_gap,
+                                longest_gap, frequent_gap, highest_frequency);
+
     dbg(shortest_gap);
     dbg(longest_gap);
     dbg(frequent_gap);
@@ -361,11 +441,12 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
     // [ timestep ][ concept ][ indicator ][ observation ]
     this->observed_state_sequence = ObservedStateSequence(this->n_timesteps);
 
-    year = start_year;
-    month = start_month;
+    int year = start_year;
+    int month = start_month;
 
     for (int ts = 0; ts < this->n_timesteps; ts++) {
         this->observed_state_sequence[ts] = vector<vector<vector<double>>>(num_verts);
+
         for (int v = 0; v < num_verts; v++) {
             Node& n = (*this)[v];
             this->observed_state_sequence[ts][v] = vector<vector<double>>(n.indicators.size());

@@ -24,6 +24,19 @@ enum InitialBeta { ZERO, ONE, HALF, MEAN, RANDOM };
 typedef std::unordered_map<std::string, std::vector<double>>
     AdjectiveResponseMap;
 
+// This is a multimap to keep provision to have multiple observations per
+// time point per indicator.
+// Access (concept is a vertex in the CAG)
+// [ concept ][ indicator ][ <year, month> --→ observation ]
+typedef std::vector<std::vector<std::multimap<std::pair<int, int>, double>>>
+    ConceptIndicatorData;
+
+// Keeps the sequence of dates for which data points are available
+// Data points are sorted according to dates
+// Access:
+// [ concept ][ indicator ][<year, month>]
+typedef std::vector<std::vector<std::pair<int, int>>> ConceptIndicatorDates;
+
 typedef std::vector<std::vector<std::vector<std::vector<double>>>>
     ObservedStateSequence;
 
@@ -668,15 +681,30 @@ class AnalysisGraph {
    * Set the observed state sequence for a given time range from json input.
    * The sequence includes both ends of the range.
    *
-   * @param start_year  : Start year of the sequence of data
-   * @param start_month : Start month of the sequence of data
-   * @param end_year    : End year of the sequence of data
-   * @param end_month   : End month of the sequence of data
-   * @param json_data   : Json data
+   * @param start_year      : Start year of the sequence of data
+   * @param start_month     : Start month of the sequence of data
+   * @param end_year        : End year of the sequence of data
+   * @param end_month       : End month of the sequence of data
+   * @param json_indicators : Json concept-indicator mapping and observations
    *
    */
   void
-  set_observed_state_sequence_from_json_dict(nlohmann::json json_data);
+  set_observed_state_sequence_from_json_dict(nlohmann::json json_indicators);
+
+  void extract_concept_indicator_mapping_and_observations_from_json(
+                        nlohmann::json json_indicators,
+                        ConceptIndicatorData &concept_indicator_data,
+                        ConceptIndicatorDates &concept_indicator_dates,
+                        int &start_year, int &start_month,
+                        int &end_year, int &end_month);
+
+  void assess_observation_frequency(
+                        ConceptIndicatorDates &concept_indicator_dates,
+                        int &shortest_gap,
+                        int &longest_gap,
+                        int &frequent_gap,
+                        int &highest_frequency);
+
   /*
    ============================================================================
    Public: Accessors
