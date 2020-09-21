@@ -16,7 +16,7 @@ using namespace fmt::literals;
 // Just for debugging. Remove later
 using fmt::print;
 
-AnalysisGraph AnalysisGraph::from_causemos_json_dict(nlohmann::json json_data) {
+AnalysisGraph AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data) {
   AnalysisGraph G;
 
   auto statements = json_data["statements"];
@@ -105,8 +105,14 @@ AnalysisGraph AnalysisGraph::from_causemos_json_dict(nlohmann::json json_data) {
 }
 
 
+/** Extracts concept to indicator mapping and the indicator observation
+ * sequences from the create model JSON input received from the CauseMose
+ * HMI.
+ *
+ * Check method declaration in AnalysisGraph.hpp for a detailed comment.
+ */
 void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json(
-        nlohmann::json json_indicators,
+        const nlohmann::json &json_indicators,
         ConceptIndicatorData &concept_indicator_data,
         ConceptIndicatorDates &concept_indicator_dates,
         int &start_year, int &start_month,
@@ -305,26 +311,18 @@ void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json
     }
 }
 
-// NOTE:
-// shortest_gap = longest_gap = 1  ⇒ monthly with no missing data
-// shortest_gap = longest_gap = 12 ⇒ yearly with no missing data
-// shortest_gap = longest_gap ≠ 1 or 12  ⇒ no missing data odd frequency
-// shortest_gap = 1 < longest_gap ⇒ monthly with missing data
-//      frequent_gap = 1 ⇒ little missing data
-//      frequent_gap > 1 ⇒ lot of missing data
-// 1 < shortest_gap < longest_gap
-//      best frequency to model at is the greatest common divisor of all
-//      gaps. For example if we see gaps 4, 6, 10 then gcd(4, 6, 10) = 2
-//      and modeling at a frequency of 2 months starting from the start
-//      date would allow us to capture all the observation sequences while
-//      aligning them with each other.
-// TODO: At the moment, by default we are modeling at monthly frequency. We
-// can and might need to make the program adapt to best frequency present
-// in the training data.
-//
-// Decide the data frequency.
+/** Infer the least common observation frequency for all the
+ * observation sequences so that they are time aligned starting from the
+ * start_year and start_month.
+ * At the moment we do not use the information we gather in this method as
+ * the rest of the code by default models at a monthly frequency. The
+ * advantage of modeling at the least common observation frequency is less
+ * missing data points.
+ *
+ * Check method declaration in AnalysisGraph.hpp for a detailed comment.
+ */
 void AnalysisGraph::assess_observation_frequency(
-                        ConceptIndicatorDates &concept_indicator_dates,
+                        const ConceptIndicatorDates &concept_indicator_dates,
                         int &shortest_gap,
                         int &longest_gap,
                         int &frequent_gap,
@@ -383,9 +381,16 @@ void AnalysisGraph::assess_observation_frequency(
     }
 }
 
+/**
+ * Set the observed state sequence from the create model JSON input received
+ * from the HMI.
+ * The start_year, start_month, end_year, and end_month are inferred from the
+ * observation sequences for indicators provided in the JSON input.
+ * The sequence includes both ends of the range.
+ */
 void
 AnalysisGraph::set_observed_state_sequence_from_json_dict(
-        nlohmann::json json_indicators) {
+        const nlohmann::json &json_indicators) {
 
     int num_verts = this->num_vertices();
 
