@@ -50,7 +50,7 @@ vector<double> get_data_value(string indicator,
         query = check_q;
       }
       else {
-        print("Could not find data for country {}. Averaging data over all "
+        print("Could not find data for country {0}. Averaging data over all "
               "countries for given axes (Default Setting)\n",
               country);
       }
@@ -67,7 +67,7 @@ vector<double> get_data_value(string indicator,
       query = check_q;
     }
     else {
-      print("Could not find data for state {}. Only obtaining data "
+      print("Could not find data for state {0}. Only obtaining data "
             "of the country level (Default Setting)\n",
             state);
     }
@@ -83,7 +83,7 @@ vector<double> get_data_value(string indicator,
       query = check_q;
     }
     else {
-      print("Could not find data for county {}. Only obtaining data "
+      print("Could not find data for county {0}. Only obtaining data "
             "of the state level (Default Setting)\n",
             county);
     }
@@ -101,7 +101,7 @@ vector<double> get_data_value(string indicator,
     else {
       sqlite3_finalize(stmt);
       stmt = nullptr;
-      print("Could not find data for unit {}. Using first unit in "
+      print("Could not find data for unit {0}. Using first unit in "
             "alphabetical order (Default Setting)\n",
             unit);
 
@@ -120,7 +120,7 @@ vector<double> get_data_value(string indicator,
         query = "{0} and `Unit` is '{1}'"_format(query, units.front());
       }
       else {
-        print("No units found for indicator {}", indicator);
+        print("No units found for indicator {0}", indicator);
       }
     }
   }
@@ -135,25 +135,25 @@ vector<double> get_data_value(string indicator,
       query = check_q;
     }
     else {
-      print("Could not find data for year {}. Aggregating data "
+      print("Could not find data for year {0}. Aggregating data "
             "over all years (Default Setting)\n",
-            county);
+            year);
     }
     sqlite3_finalize(stmt);
     stmt = nullptr;
   }
 
-  if (!(month == 0)) {
-    check_q = "{0} and `Year` is '{1}'"_format(query, month);
+  if (month != 0) {
+    check_q = "{0} and `Month` is '{1}'"_format(query, month);
     rc = sqlite3_prepare_v2(db, check_q.c_str(), -1, &stmt, NULL);
     rc = sqlite3_step(stmt);
     if (rc == SQLITE_ROW) {
       query = check_q;
     }
     else {
-      print("Could not find data for month {}. Aggregating data "
+      print("Could not find data for month {0}. Aggregating data "
             "over all months (Default Setting)\n",
-            county);
+            month);
     }
     sqlite3_finalize(stmt);
     stmt = nullptr;
