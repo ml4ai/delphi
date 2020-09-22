@@ -817,6 +817,16 @@ class AnalysisGraph {
   void
   set_observed_state_sequence_from_json_dict(const nlohmann::json &json_indicators);
 
+  /**
+   * Generate the response for the create model request from the HMI.
+   * For now we always return success. We need to update this by conveying
+   * errors into this response.
+   * TODO: This method replaces
+   * AnalysisGraph::get_edge_weights_for_causemos_viz() method. We can remove
+   * that after properly testing this new method.
+   */
+  std::string generate_create_model_response();
+
   /*
    ============================================================================
    Public: Accessors

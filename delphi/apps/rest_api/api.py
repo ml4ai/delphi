@@ -51,8 +51,11 @@ def createNewModel():
     model = DelphiModel(id=data["id"], model=G.to_json_string())
     db.session.merge(model)
     db.session.commit()
-    edge_weights = G.get_edge_weights_for_causemos_viz()
-    return jsonify({"status": "success", "relations": edge_weights})
+    #edge_weights = G.get_edge_weights_for_causemos_viz()
+    #return jsonify({"status": "success", "relations": edge_weights})
+    response = G.generate_create_model_response()
+    #print(eval(response))
+    return jsonify(eval(response))
 
 
 @bp.route("/delphi/search-indicators", methods=["POST"])

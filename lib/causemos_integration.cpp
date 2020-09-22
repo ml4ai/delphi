@@ -479,6 +479,57 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
     this->to_png("CAG_from_json.png");
 }
 
+/**
+ * Generate the response for the create model request from the HMI.
+ * For now we always return success. We need to update this by conveying
+ * errors into this response.
+ */
+string AnalysisGraph::generate_create_model_response() {
+    using nlohmann::json, ranges::max;
+
+    json j;
+    j["status"] = "success";
+    j["relations"] = {};
+    j["conceptIndicators"] = {};
+
+    vector<double> all_weights = {};
+
+    for (auto e : this->edges()) {
+        int n_samples = DEFAULT_N_SAMPLES;
+
+        // TODO: This variable is not used
+        vector<double> sampled_thetas = this->edge(e).kde.resample(
+                n_samples, this->rand_num_generator, this->uni_dist, this->norm_dist);
+        double weight = abs(median(this->edge(e).kde.dataset));
+        all_weights.push_back(weight);
+
+        json edge_json = {{"source", this->source(e).name},
+                          {"target", this->target(e).name},
+                          {"weight", weight}};
+
+        j["relations"].push_back(edge_json);
+    }
+
+    double max_weight = max(all_weights);
+
+    // Divide the weights by the max weight so they all lie between 0-1
+    for (auto& relation : j["relations"]) {
+        relation["weight"] = relation["weight"].get<double>() / max_weight;
+    }
+
+    int num_verts = this->num_vertices();
+
+    for (int v = 0; v < num_verts; v++) {
+        Node& n = (*this)[v];
+        j["conceptIndicators"][n.name] = {{"initialValue", "null"},
+                                          {"scalingFactor", "null"},
+                                          {"scalingBias", "null"}};
+    }
+
+    return j.dump();
+}
+
+
 AnalysisGraph AnalysisGraph::from_causemos_json_string(string json_string) {
   AnalysisGraph G;
 
