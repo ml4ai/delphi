@@ -663,7 +663,7 @@ class AnalysisGraph {
   */
 
   /** Construct an AnalysisGraph object from JSON exported by CauseMos. */
-  static AnalysisGraph from_causemos_json_dict(const nlohmann::json &json_data);
+  void from_causemos_json_dict(const nlohmann::json &json_data);
 
   /** Construct an AnalysisGraph object from a JSON string exported by CauseMos.
    */

@@ -16,8 +16,7 @@ using namespace fmt::literals;
 // Just for debugging. Remove later
 using fmt::print;
 
-AnalysisGraph AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data) {
-  AnalysisGraph G;
+void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data) {
 
   auto statements = json_data["statements"];
 
@@ -85,7 +84,7 @@ AnalysisGraph AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_
     auto causal_fragment =
         CausalFragment({subj_adj_str, subj_polarity, subj_name},
                        {obj_adj_str, obj_polarity, obj_name});
-    G.add_edge(causal_fragment);
+    this->add_edge(causal_fragment);
   }
 
   if (json_data["conceptIndicators"].is_null()) {
@@ -94,14 +93,10 @@ AnalysisGraph AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_
       throw runtime_error("No indicator information provided");
   }
 
-  G.set_observed_state_sequence_from_json_dict(json_data["conceptIndicators"]);
+  this->set_observed_state_sequence_from_json_dict(json_data["conceptIndicators"]);
 
-  dbg("Done with json");
-  G.initialize_random_number_generator();
-  dbg("starting theta pdfs");
-  G.construct_theta_pdfs();
-  dbg("theta pdfs done");
-  return G;
+  this->initialize_random_number_generator();
+  this->construct_theta_pdfs();
 }
 
 
@@ -411,7 +406,7 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
     int end_year = 0;
     int end_month = 0;
 
-    extract_concept_indicator_mapping_and_observations_from_json(
+    this->extract_concept_indicator_mapping_and_observations_from_json(
             json_indicators, concept_indicator_data, concept_indicator_dates,
                                 start_year, start_month, end_year, end_month);
 
@@ -426,8 +421,8 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
     int frequent_gap = 0;
     int highest_frequency = 0;
 
-    infer_least_common_observation_frequency(concept_indicator_dates, shortest_gap,
-                                longest_gap, frequent_gap, highest_frequency);
+    this->infer_least_common_observation_frequency(concept_indicator_dates,
+                  shortest_gap, longest_gap, frequent_gap, highest_frequency);
 
     dbg(shortest_gap);
     dbg(longest_gap);
@@ -485,13 +480,19 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
 }
 
 AnalysisGraph AnalysisGraph::from_causemos_json_string(string json_string) {
+  AnalysisGraph G;
+
   auto json_data = nlohmann::json::parse(json_string);
-  return AnalysisGraph::from_causemos_json_dict(json_data);
+  G.from_causemos_json_dict(json_data);
+  return G;
 }
 
 AnalysisGraph AnalysisGraph::from_causemos_json_file(string filename) {
+  AnalysisGraph G;
+
   auto json_data = load_json(filename);
-  return AnalysisGraph::from_causemos_json_dict(json_data);
+  G.from_causemos_json_dict(json_data);
+  return G;
 }
 
 string AnalysisGraph::get_edge_weights_for_causemos_viz() {
