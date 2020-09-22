@@ -107,7 +107,7 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
       if (!at_least_one_indicator_found) {
         print("No suitable indicators found for concept '{0}' for country "
               "'{1}', please select "
-              "one manually.",
+              "one manually.\n",
               node.name,
               country);
       }
