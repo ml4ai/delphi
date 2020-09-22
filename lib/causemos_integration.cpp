@@ -18,6 +18,8 @@ using fmt::print;
 
 void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data) {
 
+  this->causemos_call = true;
+
   auto statements = json_data["statements"];
 
   for (auto stmt : statements) {

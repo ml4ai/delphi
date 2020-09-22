@@ -35,16 +35,23 @@ void AnalysisGraph::train_model(int start_year,
   this->init_betas_to(initial_beta);
   this->set_transition_matrix_from_betas();
   this->set_default_initial_state();
-  this->parameterize(country, state, county, start_year, start_month, units);
 
   this->training_range = make_pair(make_pair(start_year, start_month),
                                    make_pair(end_year, end_month));
 
-  if (!synthetic_data_experiment) {
+  if (!synthetic_data_experiment && !causemos_call) {
+    // Delphi is run locally using observation data from delphi.db
+    // For a synthetic data experiment, the observed state sequence is
+    // generated.
+    // For a CauseMos call, the observation sequences are provided in the create
+    // model JSON call and the observed state sequence is set in the method
+    // AnalysisGraph::set_observed_state_sequence_from_json_data(), which is
+    // defined in causemos_integration.cpp
     this->set_observed_state_sequence_from_data(
         start_year, start_month, end_year, end_month, country, state, county);
   }
 
+  this->parameterize(country, state, county, start_year, start_month, units);
   this->set_log_likelihood();
 
   this->transition_matrix_collection.clear();

@@ -77,6 +77,9 @@ AdjectiveResponseMap construct_adjective_response_map(size_t n_kernels);
 class AnalysisGraph {
 
   private:
+  // True only when Delphi is run through the CauseMos HMI.
+  bool causemos_call = false;
+
   DiGraph graph;
 
   // Handle to the random number generator singleton object
