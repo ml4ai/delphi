@@ -20,11 +20,11 @@ void AnalysisGraph::set_transition_matrix_from_betas() {
   // samples (A_c : continuous).
   /*
    *          0  1  2  3  4  5
-   *  var_1 | 0  1             | 0
+   *  var_1 | 0  1  0     0    | 0
    *        | 0  0  0  0  0  0 | 1 ∂var_1 / ∂t
-   *  var_2 |       0  1       | 2
+   *  var_2 | 0     0  1  0    | 2
    *        | 0  0  0  0  0  0 | 3
-   *  var_3 |             0  1 | 4
+   *  var_3 | 0     0     0  1 | 4
    *        | 0  0  0  0  0  0 | 5
    *
    */
@@ -33,11 +33,11 @@ void AnalysisGraph::set_transition_matrix_from_betas() {
   // samples (A_d : discretized).
   /*
    *          0  1  2  3  4  5
-   *  var_1 | 1 Δt             | 0
+   *  var_1 | 1 Δt  0     0    | 0
    *        | 0  1  0  0  0  0 | 1 ∂var_1 / ∂t
-   *  var_2 |       1 Δt       | 2
+   *  var_2 | 0     1 Δt  0    | 2
    *        | 0  0  0  1  0  0 | 3
-   *  var_3 |             1 Δt | 4
+   *  var_3 | 0     0     1 Δt | 4
    *        | 0  0  0  0  0  1 | 5
    *
    *  Based on the directed simple paths in the CAG, some of the remaining

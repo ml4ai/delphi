@@ -15,12 +15,6 @@ using boost::adaptors::transformed;
  ============================================================================
 */
 
-void AnalysisGraph::print_latent_state(const VectorXd& v) {
-  for (int i=0; i < this->num_vertices(); i++){
-    cout << (*this)[i].name << " " << v[2*i] << endl;
-  }
-}
-
 void AnalysisGraph::sample_predicted_latent_state_sequences(
     int prediction_timesteps,
     int initial_prediction_step,

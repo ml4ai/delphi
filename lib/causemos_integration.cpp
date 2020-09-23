@@ -16,91 +16,11 @@ using namespace fmt::literals;
 // Just for debugging. Remove later
 using fmt::print;
 
-void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data) {
-
-  this->causemos_call = true;
-
-  auto statements = json_data["statements"];
-
-  for (auto stmt : statements) {
-    auto evidence = stmt["evidence"];
-
-    if (evidence.is_null()) {
-      continue;
-    }
-
-    auto subj = stmt["subj"];
-    auto obj = stmt["obj"];
-
-    if (subj.is_null() or obj.is_null()) {
-      continue;
-    }
-
-    auto subj_db_ref = subj["db_refs"];
-    auto obj_db_ref = obj["db_refs"];
-
-    if (subj_db_ref.is_null() or obj_db_ref.is_null()) {
-      continue;
-    }
-
-    auto subj_concept_json = subj_db_ref["concept"];
-    auto obj_concept_json = obj_db_ref["concept"];
-
-    if (subj_concept_json.is_null() or obj_concept_json.is_null()) {
-      continue;
-    }
-
-    string subj_name = subj_concept_json.get<string>();
-    string obj_name = obj_concept_json.get<string>();
-
-    auto subj_delta = stmt["subj_delta"];
-    auto obj_delta = stmt["obj_delta"];
-
-    auto subj_polarity_json = subj_delta["polarity"];
-    auto obj_polarity_json = obj_delta["polarity"];
-
-    // We set polarities to 1 (positive) by default if they are not specified.
-    int subj_polarity = 1;
-    int obj_polarity = 1;
-    if (!subj_polarity_json.is_null()) {
-      subj_polarity = subj_polarity_json.get<int>();
-    }
-
-    if (!obj_polarity_json.is_null()) {
-      obj_polarity = obj_polarity_json.get<int>();
-    }
-
-    auto subj_adjectives = subj_delta["adjectives"];
-    auto obj_adjectives = obj_delta["adjectives"];
-    auto subj_adjective =
-        // TODO: How does this "and" in the condition work??
-        (!subj_adjectives.is_null() and subj_adjectives.size() > 0)
-            ? subj_adjectives[0]
-            : "None";
-    auto obj_adjective =
-        (obj_adjectives.size() > 0) ? obj_adjectives[0] : "None";
-
-    string subj_adj_str = subj_adjective.get<string>();
-    string obj_adj_str = obj_adjective.get<string>();
-
-    auto causal_fragment =
-        CausalFragment({subj_adj_str, subj_polarity, subj_name},
-                       {obj_adj_str, obj_polarity, obj_name});
-    this->add_edge(causal_fragment);
-  }
-
-  if (json_data["conceptIndicators"].is_null()) {
-      // No indicator data provided.
-      // TODO: What is the best action here?
-      throw runtime_error("No indicator information provided");
-  }
-
-  this->set_observed_state_sequence_from_json_dict(json_data["conceptIndicators"]);
-
-  this->initialize_random_number_generator();
-  this->construct_theta_pdfs();
-}
-
+/*
+============================================================================
+Private: Integration with Uncharted's CauseMos interface
+============================================================================
+*/
 
 /** Extracts concept to indicator mapping and the indicator observation
  * sequences from the create model JSON input received from the CauseMose
@@ -481,6 +401,113 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
     this->to_png("CAG_from_json.png");
 }
 
+/*
+============================================================================
+Public: Integration with Uncharted's CauseMos interface
+============================================================================
+*/
+
+void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data) {
+
+  this->causemos_call = true;
+
+  auto statements = json_data["statements"];
+
+  for (auto stmt : statements) {
+    auto evidence = stmt["evidence"];
+
+    if (evidence.is_null()) {
+      continue;
+    }
+
+    auto subj = stmt["subj"];
+    auto obj = stmt["obj"];
+
+    if (subj.is_null() or obj.is_null()) {
+      continue;
+    }
+
+    auto subj_db_ref = subj["db_refs"];
+    auto obj_db_ref = obj["db_refs"];
+
+    if (subj_db_ref.is_null() or obj_db_ref.is_null()) {
+      continue;
+    }
+
+    auto subj_concept_json = subj_db_ref["concept"];
+    auto obj_concept_json = obj_db_ref["concept"];
+
+    if (subj_concept_json.is_null() or obj_concept_json.is_null()) {
+      continue;
+    }
+
+    string subj_name = subj_concept_json.get<string>();
+    string obj_name = obj_concept_json.get<string>();
+
+    auto subj_delta = stmt["subj_delta"];
+    auto obj_delta = stmt["obj_delta"];
+
+    auto subj_polarity_json = subj_delta["polarity"];
+    auto obj_polarity_json = obj_delta["polarity"];
+
+    // We set polarities to 1 (positive) by default if they are not specified.
+    int subj_polarity = 1;
+    int obj_polarity = 1;
+    if (!subj_polarity_json.is_null()) {
+      subj_polarity = subj_polarity_json.get<int>();
+    }
+
+    if (!obj_polarity_json.is_null()) {
+      obj_polarity = obj_polarity_json.get<int>();
+    }
+
+    auto subj_adjectives = subj_delta["adjectives"];
+    auto obj_adjectives = obj_delta["adjectives"];
+    auto subj_adjective =
+        // TODO: How does this "and" in the condition work??
+        (!subj_adjectives.is_null() and subj_adjectives.size() > 0)
+            ? subj_adjectives[0]
+            : "None";
+    auto obj_adjective =
+        (obj_adjectives.size() > 0) ? obj_adjectives[0] : "None";
+
+    string subj_adj_str = subj_adjective.get<string>();
+    string obj_adj_str = obj_adjective.get<string>();
+
+    auto causal_fragment =
+        CausalFragment({subj_adj_str, subj_polarity, subj_name},
+                       {obj_adj_str, obj_polarity, obj_name});
+    this->add_edge(causal_fragment);
+  }
+
+  if (json_data["conceptIndicators"].is_null()) {
+      // No indicator data provided.
+      // TODO: What is the best action here?
+      throw runtime_error("No indicator information provided");
+  }
+
+  this->set_observed_state_sequence_from_json_dict(json_data["conceptIndicators"]);
+
+  this->initialize_random_number_generator();
+  this->construct_theta_pdfs();
+}
+
+AnalysisGraph AnalysisGraph::from_causemos_json_string(string json_string) {
+  AnalysisGraph G;
+
+  auto json_data = nlohmann::json::parse(json_string);
+  G.from_causemos_json_dict(json_data);
+  return G;
+}
+
+AnalysisGraph AnalysisGraph::from_causemos_json_file(string filename) {
+  AnalysisGraph G;
+
+  auto json_data = load_json(filename);
+  G.from_causemos_json_dict(json_data);
+  return G;
+}
+
 /**
  * Generate the response for the create model request from the HMI.
  * For now we always return success. We need to update this by conveying
@@ -531,23 +558,10 @@ string AnalysisGraph::generate_create_model_response() {
     return j.dump();
 }
 
-
-AnalysisGraph AnalysisGraph::from_causemos_json_string(string json_string) {
-  AnalysisGraph G;
-
-  auto json_data = nlohmann::json::parse(json_string);
-  G.from_causemos_json_dict(json_data);
-  return G;
-}
-
-AnalysisGraph AnalysisGraph::from_causemos_json_file(string filename) {
-  AnalysisGraph G;
-
-  auto json_data = load_json(filename);
-  G.from_causemos_json_dict(json_data);
-  return G;
-}
-
+/*
+ * TODO: Remove this method
+ * generate_create_model_response would replace this method
+ */
 string AnalysisGraph::get_edge_weights_for_causemos_viz() {
   using nlohmann::json, ranges::max;
   json j;
