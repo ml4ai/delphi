@@ -401,6 +401,42 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
     this->to_png("CAG_from_json.png");
 }
 
+void AnalysisGraph::sample_transition_matrix_collection_from_prior() {
+  this->transition_matrix_collection.clear();
+  this->transition_matrix_collection = vector<Eigen::MatrixXd>(this->res);
+
+  for (int sample = 0; sample < this->res; sample++) {
+    for (auto e : this->edges()) {
+      this->graph[e].theta = this->graph[e].kde.resample(
+          1, this->rand_num_generator, this->uni_dist, this->norm_dist)[0];
+    }
+
+    // Create this->A_original based on the sampled β and remember it
+    this->set_transition_matrix_from_betas();
+    this->transition_matrix_collection[sample] = this->A_original;
+  }
+}
+
+FormattedProjectionResult AnalysisGraph::format_projection_result() {
+  // Access
+  // [ vertex_name ][ timestep ][ sample ]
+  FormattedProjectionResult result;
+
+  for (auto [vert_name, vert_id] : this->name_to_vertex) {
+    result[vert_name] =
+        vector<vector<double>>(this->pred_timesteps, vector<double>(this->res));
+    for (int ts = 0; ts < this->pred_timesteps; ts++) {
+      for (int samp = 0; samp < this->res; samp++) {
+        result[vert_name][ts][samp] =
+            this->predicted_observed_state_sequences[samp][ts][vert_id][0];
+      }
+      ranges::sort(result[vert_name][ts]);
+    }
+  }
+
+  return result;
+}
+
 /*
 ============================================================================
 Public: Integration with Uncharted's CauseMos interface

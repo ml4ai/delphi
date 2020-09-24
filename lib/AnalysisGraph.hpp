@@ -369,6 +369,10 @@ class AnalysisGraph {
   void
   set_observed_state_sequence_from_json_dict(const nlohmann::json &json_indicators);
 
+  void sample_transition_matrix_collection_from_prior();
+
+  FormattedProjectionResult format_projection_result();
+
   /*
    ============================================================================
    Private: Utilities (in graph_utils.cpp)
@@ -603,8 +607,6 @@ class AnalysisGraph {
   // prior distribution, based on gradable adjectives.
   void set_transition_matrix_from_betas();
 
-  void sample_transition_matrix_collection_from_prior();
-
   void set_log_likelihood_helper(int ts);
 
   void set_log_likelihood();
@@ -686,8 +688,6 @@ class AnalysisGraph {
    *         [ sample number ][ time point ][ vertex name ][ indicator name ]
    */
   FormattedPredictionResult format_prediction_result();
-
-  FormattedProjectionResult format_projection_result();
 
   void run_model(int start_year,
                  int start_month,

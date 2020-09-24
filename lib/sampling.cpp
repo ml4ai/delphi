@@ -79,22 +79,6 @@ void AnalysisGraph::set_transition_matrix_from_betas() {
   }
 }
 
-void AnalysisGraph::sample_transition_matrix_collection_from_prior() {
-  this->transition_matrix_collection.clear();
-  this->transition_matrix_collection = vector<Eigen::MatrixXd>(this->res);
-
-  for (int sample = 0; sample < this->res; sample++) {
-    for (auto e : this->edges()) {
-      this->graph[e].theta = this->graph[e].kde.resample(
-          1, this->rand_num_generator, this->uni_dist, this->norm_dist)[0];
-    }
-
-    // Create this->A_original based on the sampled β and remember it
-    this->set_transition_matrix_from_betas();
-    this->transition_matrix_collection[sample] = this->A_original;
-  }
-}
-
 void AnalysisGraph::set_log_likelihood_helper(int ts) {
     // Access (concept is a vertex in the CAG)
     // observed_state[ concept ][ indicator ][ observation ]
