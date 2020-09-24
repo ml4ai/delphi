@@ -15,7 +15,7 @@ using boost::adaptors::transformed;
  ============================================================================
 */
 
-void AnalysisGraph::sample_predicted_latent_state_sequences(
+void AnalysisGraph::generate_predicted_latent_state_sequences_from_sampled_parameters(
     int prediction_timesteps,
     int initial_prediction_step,
     int total_timesteps,
@@ -180,7 +180,7 @@ void AnalysisGraph::run_model(int start_year,
     }
   }
 
-  this->sample_predicted_latent_state_sequences(
+  this->generate_predicted_latent_state_sequences_from_sampled_parameters(
       this->pred_timesteps, 0, total_timesteps, project);
   this->generate_predicted_observed_state_sequences_from_predicted_latent_state_sequences();
 }

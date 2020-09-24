@@ -657,20 +657,25 @@ class AnalysisGraph {
   */
 
   /**
-   * Sample a collection of observed state sequences from the likelihood
-   * model given a collection of transition matrices.
+   * Generate a collection of latent state sequences from the likelihood
+   * model given a collection of sampled
+   * (initial latent state,  transition matrix) pairs.
    *
-   * @param prediction_timesteps: The number of timesteps for the prediction
-   * sequences.
+   * @param prediction_timesteps   : The number of timesteps for the prediction
+   *                                 sequences.
    * @param initial_prediction_step: The initial prediction timestep relative
    *                                 to training timesteps.
-   * @param total_timesteps: Total number of timesteps from the initial
-   *                         training date to the end prediction date.
+   * @param total_timesteps        : Total number of timesteps from the initial
+   *                                 training date to the end prediction date.
+   * @param project                : Default false. If true, generate a single
+   *                                 latent state sequence based on the
+   *                                 perturbed initial latent state s0.
    */
-  void sample_predicted_latent_state_sequences(int prediction_timesteps,
-                                               int initial_prediction_step,
-                                               int total_timesteps,
-                                               bool project = false);
+  void generate_predicted_latent_state_sequences_from_sampled_parameters(
+                                                  int prediction_timesteps,
+                                                  int initial_prediction_step,
+                                                  int total_timesteps,
+                                                  bool project = false);
 
   /** Generate predicted observed state sequences given predicted latent state
    * sequences using the emission model
