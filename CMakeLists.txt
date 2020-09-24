@@ -47,15 +47,15 @@ add_library(Delphi
   lib/graphviz_interface.cpp
   lib/graphviz_interface.hpp
   lib/graphviz.cpp
-  lib/kde.cpp
-  lib/kde.hpp
-  lib/random_variables.cpp
-  lib/random_variables.hpp
+  lib/KDE.cpp
+  lib/KDE.hpp
+  lib/Random_Variables.cpp
+  lib/Random_Variables.hpp
   lib/rng.cpp
   lib/rng.hpp
   lib/train_model.cpp
-  lib/tran_mat_cell.hpp
-  lib/tran_mat_cell.cpp
+  lib/Tran_Mat_Cell.hpp
+  lib/Tran_Mat_Cell.cpp
   lib/utils.cpp
   lib/utils.hpp
   lib/Node.hpp

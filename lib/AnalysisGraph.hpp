@@ -11,7 +11,7 @@
 #include "graphviz_interface.hpp"
 
 #include "DiGraph.hpp"
-#include "tran_mat_cell.hpp"
+#include "Tran_Mat_Cell.hpp"
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
 
