@@ -35,4 +35,5 @@ string AnalysisGraph::to_json_string(int indent) {
 }
 
 string AnalysisGraph::serialize_to_json_string() {
+    return "";
 }

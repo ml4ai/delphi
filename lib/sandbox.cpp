@@ -36,6 +36,7 @@ using fmt::print;
  * You can look into corresponding methods in causemose_integration.cpp
  * Suggestion: you can start by writing code to deserialize the json string
  * created by to_json_string() method in to_json.cpp
+ * Also you can look at from_json_string()
  */
 void AnalysisGraph::from_delphi_json_dict(const nlohmann::json &json_data) {
 }
