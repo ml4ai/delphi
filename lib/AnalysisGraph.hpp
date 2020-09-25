@@ -11,7 +11,7 @@
 #include "graphviz_interface.hpp"
 
 #include "DiGraph.hpp"
-#include "tran_mat_cell.hpp"
+#include "Tran_Mat_Cell.hpp"
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
 
@@ -24,6 +24,21 @@ enum InitialBeta { ZERO, ONE, HALF, MEAN, RANDOM };
 typedef std::unordered_map<std::string, std::vector<double>>
     AdjectiveResponseMap;
 
+// This is a multimap to keep provision to have multiple observations per
+// time point per indicator.
+// Access (concept is a vertex in the CAG)
+// [ concept ][ indicator ][ <year, month> --→ observation ]
+typedef std::vector<std::vector<std::multimap<std::pair<int, int>, double>>>
+    ConceptIndicatorData;
+
+// Keeps the sequence of dates for which data points are available
+// Data points are sorted according to dates
+// Access:
+// [ concept ][ indicator ][<year, month>]
+typedef std::vector<std::vector<std::pair<int, int>>> ConceptIndicatorDates;
+
+// Access
+// [ timestep ][ concept ][ indicator ][ observation ]
 typedef std::vector<std::vector<std::vector<std::vector<double>>>>
     ObservedStateSequence;
 
@@ -64,6 +79,9 @@ AdjectiveResponseMap construct_adjective_response_map(size_t n_kernels);
 class AnalysisGraph {
 
   private:
+  // True only when Delphi is run through the CauseMos HMI.
+  bool causemos_call = false;
+
   DiGraph graph;
 
   // Handle to the random number generator singleton object
@@ -208,7 +226,158 @@ class AnalysisGraph {
 
   /*
    ============================================================================
-   Private: Utilities (in graph_util.cpp)
+   Private: Integration with Uncharted's CauseMos interface
+                                                  (in causemos_integration.cpp)
+   ============================================================================
+  */
+
+  /** Extracts concept to indicator mapping and the indicator observation
+   * sequences from the create model JSON input received from the CauseMose
+   * HMI. The JSON input specifies time as POSIX time stamps in milliseconds.
+   * Also the JSON input does not mention anything about the observation
+   * frequency, missing data points, or whether observation sequences for
+   * multiple indicators are time aligned (e.g. Whether they have the same
+   * starting and ending time, whether data points for a single indicator are
+   * ordered in chronologically increasing order).
+   *
+   * This method does not assume any of these unspoken qualities. This method
+   * reads in the observations from JSON and populate an internal intermediate
+   * and temporary data structure time aligning observations.
+   *
+   * All the parameters except the first are used to return the results back to
+   * the caller. The caller should declare these variables and pass them here so
+   * that after the execution of this method, the caller can access the results.
+   *
+   * @param json_indicators         : conceptIndicators portion of the JSON
+   *                                  input received from the HMI.
+   * @param concept_indicator_data  : This data structure gets filled with
+   *                                  chronologically ordered observation
+   *                                  sequences for all the indicators,
+   *                                  segmented according to the concepts they
+   *                                  attach to. This is a temporary
+   *                                  intermediate data structure used to time
+   *                                  align observation and accumulate multiple
+   *                                  observations for an indicator at a time
+   *                                  point. Observed state sequence is filled
+   *                                  using data in this data structure.
+   * @param concept_indicator_dates : This data structure gets filled with
+   *                                  year-month date points where observations
+   *                                  are available for each indicator. Each
+   *                                  indicator gets a separate sequence of
+   *                                  chronologically ordered year-months.
+   *                                  These are used to asses the best
+   *                                  frequency to align observations across
+   *                                  all the indicators.
+   * @param start_year              : Start year of the observations. Note
+   *                                  that there could be some observation
+   *                                  sequences that start after start_year,
+   *                                  start_month date.
+   * @param start_month             : Start month of the observations. Note
+   *                                  that there could be some observation
+   *                                  sequences that start after start_year,
+   *                                  start_month date.
+   * @param end_year                : Ending year of the observations. Note
+   *                                  that there could be some observation
+   *                                  sequences that end before end_year,
+   *                                  end_month date.
+   * @param end_month               : Ending month of the observations. Note
+   *                                  that there could be some observation
+   *                                  sequences that end before end_year,
+   *                                  end_month date.
+   * @returns void
+   *
+   */
+  void extract_concept_indicator_mapping_and_observations_from_json(
+                        const nlohmann::json &json_indicators,
+                        ConceptIndicatorData &concept_indicator_data,
+                        ConceptIndicatorDates &concept_indicator_dates,
+                        int &start_year, int &start_month,
+                        int &end_year, int &end_month);
+
+  /** Infer the least common observation frequency for all the
+   * observation sequences so that they are time aligned starting from the
+   * start_year and start_month.
+   * At the moment we do not use the information we gather in this method as
+   * the rest of the code by default models at a monthly frequency. The
+   * advantage of modeling at the least common observation frequency is less
+   * missing data points.
+   *
+   * TODO: We can and might need to make Delphi adapt to least common
+   * observation frequency present in the training data. However, to reach
+   * that level, we would have to update some of the older code in other
+   * functions. One such method is AnalysisGraph::calculate_num_timesteps(),
+   * which assumes a monthly frequency when calculating the number of time
+   * steps. We also have to update the plotting functions. There could be other
+   * functions I do not foresee that needs updating.
+   *
+   * NOTE: Some thought about how to use this information:
+   * shortest_gap = longest_gap = 1  ⇒ monthly with no missing data
+   * shortest_gap = longest_gap = 12 ⇒ yearly with no missing data
+   * shortest_gap = longest_gap ≠ 1 or 12  ⇒ no missing data odd frequency
+   * shortest_gap = 1 < longest_gap ⇒ monthly with missing data
+   *    frequent_gap = 1 ⇒ little missing data
+   *    frequent_gap > 1 ⇒ lot of missing data
+   * 1 < shortest_gap < longest_gap
+   *    Best frequency to model at is the greatest common divisor of all
+   *    gaps. For example if we see gaps 4, 6, 10 then gcd(4, 6, 10) = 2
+   *    and modeling at a frequency of 2 months starting from the start
+   *    date would allow us to capture all the observation sequences while
+   *    aligning them with each other.
+   *
+   * All the parameters except the first are used to return the results back to
+   * the caller. The caller should declare these variables and pass them here so
+   * that after the execution of this method, the caller can access the results.
+   *
+   * @param concept_indicator_dates : Chronologically ordered observation date
+   *                                  sequences for each indicator extracted
+   *                                  from the JSON data in the create model
+   *                                  request. This data structure is populated
+   *                                  by AnalysisGraph::
+   *                                  extract_concept_indicator_mapping_and_observations_from_json().
+   * @param shortest_gap            : Least number of months between any two
+   *                                  consecutive observations.
+   * @param longest_gap             : Longest number of months between any two
+   *                                  consecutive observations.
+   * @param frequent_gap            : Most frequent number of months between
+   *                                  two consecutive observations.
+   * @param highest_frequency       : Number of time the frequent_gap is seen
+   *                                  in all the observation sequences.
+   * @returns void
+   */
+  void infer_least_common_observation_frequency(
+                        const ConceptIndicatorDates &concept_indicator_dates,
+                        int &shortest_gap,
+                        int &longest_gap,
+                        int &frequent_gap,
+                        int &highest_frequency);
+
+  /**
+   * Set the observed state sequence from the create model JSON input received
+   * from the HMI.
+   * The start_year, start_month, end_year, and end_month are inferred from the
+   * observation sequences for indicators provided in the JSON input.
+   * The sequence includes both ends of the range.
+   *
+   * NOTE: When Delphi is run locally, the observed state sequence is set in a
+   *       separate method:
+   *       AnalysisGraph::set_observed_state_sequence_from_data(), which the
+   *       code could be found in train_model.cpp.
+   *       It would be better if we could combine these two methods into one.
+   *
+   * @param json_indicators : JSON concept-indicator mapping and observations
+   * @returns void
+   *
+   */
+  void
+  set_observed_state_sequence_from_json_dict(const nlohmann::json &json_indicators);
+
+  void sample_transition_matrix_collection_from_prior();
+
+  FormattedProjectionResult format_projection_result();
+
+  /*
+   ============================================================================
+   Private: Utilities (in graph_utils.cpp)
    ============================================================================
   */
 
@@ -220,9 +389,6 @@ class AnalysisGraph {
 
   // Allocate a num_verts x num_verts 2D array (std::vector of std::vectors)
   void allocate_A_beta_factors();
-
-  // AnalysisGraph
-  // find_all_paths_for_concept(std::string concept, int depth, bool reverse);
 
   /**
    * Finds all the simple paths starting at the start vertex and
@@ -393,7 +559,7 @@ class AnalysisGraph {
    * @param start_year  : Start year of the sequence of data
    * @param start_month : Start month of the sequence of data
    * @param end_year    : End year of the sequence of data
-   * @param end_month   : End month of the sequenec of data
+   * @param end_month   : End month of the sequence of data
    * @param country     : Country where the data is about
    * @param state       : State where the data is about
    * @param county      : County where the data is about
@@ -432,6 +598,7 @@ class AnalysisGraph {
                                std::string state = "",
                                std::string county = "");
 
+
   /*
    ============================================================================
    Private: Training by MCMC Sampling (in sampling.cpp)
@@ -441,8 +608,6 @@ class AnalysisGraph {
   // Sample elements of the stochastic transition matrix from the
   // prior distribution, based on gradable adjectives.
   void set_transition_matrix_from_betas();
-
-  void sample_transition_matrix_collection_from_prior();
 
   void set_log_likelihood_helper(int ts);
 
@@ -494,20 +659,25 @@ class AnalysisGraph {
   */
 
   /**
-   * Sample a collection of observed state sequences from the likelihood
-   * model given a collection of transition matrices.
+   * Generate a collection of latent state sequences from the likelihood
+   * model given a collection of sampled
+   * (initial latent state,  transition matrix) pairs.
    *
-   * @param prediction_timesteps: The number of timesteps for the prediction
-   * sequences.
+   * @param prediction_timesteps   : The number of timesteps for the prediction
+   *                                 sequences.
    * @param initial_prediction_step: The initial prediction timestep relative
    *                                 to training timesteps.
-   * @param total_timesteps: Total number of timesteps from the initial
-   *                         training date to the end prediction date.
+   * @param total_timesteps        : Total number of timesteps from the initial
+   *                                 training date to the end prediction date.
+   * @param project                : Default false. If true, generate a single
+   *                                 latent state sequence based on the
+   *                                 perturbed initial latent state s0.
    */
-  void sample_predicted_latent_state_sequences(int prediction_timesteps,
-                                               int initial_prediction_step,
-                                               int total_timesteps,
-                                               bool project = false);
+  void generate_predicted_latent_state_sequences_from_sampled_parameters(
+                                                  int prediction_timesteps,
+                                                  int initial_prediction_step,
+                                                  int total_timesteps,
+                                                  bool project = false);
 
   /** Generate predicted observed state sequences given predicted latent state
    * sequences using the emission model
@@ -525,8 +695,6 @@ class AnalysisGraph {
    *         [ sample number ][ time point ][ vertex name ][ indicator name ]
    */
   FormattedPredictionResult format_prediction_result();
-
-  FormattedProjectionResult format_projection_result();
 
   void run_model(int start_year,
                  int start_month,
@@ -645,11 +813,12 @@ class AnalysisGraph {
   /*
    ============================================================================
    Public: Integration with Uncharted's CauseMos interface
+                                                  (in causemos_integration.cpp)
    ============================================================================
   */
 
   /** Construct an AnalysisGraph object from JSON exported by CauseMos. */
-  static AnalysisGraph from_causemos_json_dict(nlohmann::json json_data);
+  void from_causemos_json_dict(const nlohmann::json &json_data);
 
   /** Construct an AnalysisGraph object from a JSON string exported by CauseMos.
    */
@@ -659,9 +828,27 @@ class AnalysisGraph {
    * CauseMos. */
   static AnalysisGraph from_causemos_json_file(std::string filename);
 
-  /** Calculate and return a JSON string with edge weight information for
+  /**
+   * Generate the response for the create model request from the HMI.
+   * Calculate and return a JSON string with edge weight information for
+   * visualizing AnalysisGraph models in CauseMos.
+   * For now we always return success. We need to update this by conveying
+   * errors into this response.
+   * TODO: This method replaces
+   * AnalysisGraph::get_edge_weights_for_causemos_viz() method. We can remove
+   * that after properly testing this new method.
+   */
+  std::string generate_create_model_response();
+
+  /**
+   * TODO: Remove this method
+   * generate_create_model_response would replace this method
+   * Calculate and return a JSON string with edge weight information for
    * visualizing AnalysisGraph models in CauseMos. */
   std::string get_edge_weights_for_causemos_viz();
+
+  FormattedProjectionResult
+  generate_causemos_projection(std::string json_projection);
 
   /*
    ============================================================================
@@ -747,7 +934,7 @@ class AnalysisGraph {
 
   /*
    ============================================================================
-   Public: Subgraph (in subgraph.cpp)
+   Public: Subgraphs (in subgraphs.cpp)
    ============================================================================
   */
 
@@ -870,7 +1057,7 @@ class AnalysisGraph {
 
   /*
    ============================================================================
-   Public: Training the Model (in training_model.cpp)
+   Public: Training the Model (in train_model.cpp)
    ============================================================================
   */
 
@@ -949,9 +1136,6 @@ class AnalysisGraph {
                                  int start_month,
                                  int end_year,
                                  int end_month);
-
-  FormattedProjectionResult
-  generate_causemos_projection(std::string json_projection);
 
   /**
    * this->generate_prediction() must be called before calling this method.

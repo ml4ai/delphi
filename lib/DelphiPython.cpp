@@ -22,6 +22,7 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def_readwrite("id", &AnalysisGraph::id)
       .def("to_json_string", &AnalysisGraph::to_json_string, "indent"_a = 0)
       .def("from_json_string", &AnalysisGraph::from_json_string)
+      .def("generate_create_model_response", &AnalysisGraph::generate_create_model_response)
       .def("get_edge_weights_for_causemos_viz", &AnalysisGraph::get_edge_weights_for_causemos_viz)
       .def_readwrite("data_heuristic", &AnalysisGraph::data_heuristic)
       .def_readwrite("res", &AnalysisGraph::res)

@@ -17,7 +17,7 @@ class Node {
   // Maps each indicator name to its index in the indicators vector
   std::map<std::string, int> nameToIndexMap;
 
-  void add_indicator(std::string indicator, std::string source) {
+  int add_indicator(std::string indicator, std::string source) {
     // TODO: What if this indicator already exists?
     //      At the moment only the last indicator is recorded
     //      in the nameToIndexMap map
@@ -29,11 +29,12 @@ class Node {
     // across that case, we will just write a function that swaps ids.*
     if (delphi::utils::in(this->nameToIndexMap,indicator)) {
       std::cout << indicator << " already attached to " << name << std::endl;
-      return;
+      return -1;
     }
 
     this->nameToIndexMap[indicator] = this->indicators.size();
     this->indicators.push_back(Indicator(indicator, source));
+    return this->indicators.size() - 1;
   }
 
   void delete_indicator(std::string indicator) {

@@ -59,6 +59,11 @@ double sum(std::vector<double> v);
  */
 double mean(std::vector<double> v);
 
+/**
+ * Returns the median of a vector of doubles.
+ */
+double median(std::vector<double> xs);
+
 double log_normpdf(double x, double mean, double sd);
 
 /** Load JSON data from a file */

@@ -1,6 +1,6 @@
 # pragma once
 
-#include "kde.hpp"
+#include "KDE.hpp"
 #include <string>
 #include <vector>
 #include "utils.hpp"

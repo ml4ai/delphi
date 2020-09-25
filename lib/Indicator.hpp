@@ -2,7 +2,7 @@
 
 #include <string>
 #include <vector>
-#include "random_variables.hpp"
+#include "Random_Variables.hpp"
 
 /**
  * The Indicator class represents an abstraction of a concrete, tangible

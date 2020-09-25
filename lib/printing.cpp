@@ -57,6 +57,12 @@ void AnalysisGraph::print_A_beta_factors() {
   }
 }
 
+void AnalysisGraph::print_latent_state(const Eigen::VectorXd& v) {
+  for (int i=0; i < this->num_vertices(); i++){
+    cout << (*this)[i].name << " " << v[2*i] << endl;
+  }
+}
+
 void AnalysisGraph::print_all_paths() {
   int num_verts = this->num_vertices();
 
