@@ -37,6 +37,8 @@ typedef std::vector<std::vector<std::multimap<std::pair<int, int>, double>>>
 // [ concept ][ indicator ][<year, month>]
 typedef std::vector<std::vector<std::pair<int, int>>> ConceptIndicatorDates;
 
+// Access
+// [ timestep ][ concept ][ indicator ][ observation ]
 typedef std::vector<std::vector<std::vector<std::vector<double>>>>
     ObservedStateSequence;
 
