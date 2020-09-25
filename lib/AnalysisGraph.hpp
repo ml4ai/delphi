@@ -377,6 +377,14 @@ class AnalysisGraph {
 
   /*
    ============================================================================
+   Private: Model serialization (in serialize.cpp)
+   ============================================================================
+  */
+
+  void from_delphi_json_dict(const nlohmann::json &json_data);
+
+  /*
+   ============================================================================
    Private: Utilities (in graph_utils.cpp)
    ============================================================================
   */
@@ -849,6 +857,18 @@ class AnalysisGraph {
 
   FormattedProjectionResult
   generate_causemos_projection(std::string json_projection);
+
+  /*
+   ============================================================================
+   Private: Model serialization (in serialize.cpp)
+   ============================================================================
+  */
+
+  std::string serialize_to_json_string();
+
+  AnalysisGraph deserialize_from_json_string(std::string json_string);
+
+  AnalysisGraph deserialize_from_json_file(std::string filename);
 
   /*
    ============================================================================

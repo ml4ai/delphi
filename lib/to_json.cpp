@@ -33,3 +33,6 @@ string AnalysisGraph::to_json_string(int indent) {
   }
   return j.dump(indent);
 }
+
+string AnalysisGraph::serialize_to_json_string() {
+}
