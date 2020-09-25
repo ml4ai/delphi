@@ -73,6 +73,7 @@ add_library(Delphi
   lib/graph_utils.cpp
   lib/printing.cpp
   lib/indicator_manipulation.cpp
+  lib/sandbox.cpp
 )
 
 target_link_libraries(Delphi
