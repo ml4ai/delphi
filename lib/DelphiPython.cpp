@@ -111,7 +111,6 @@ PYBIND11_MODULE(DelphiPython, m) {
            &AnalysisGraph::map_concepts_to_indicators,
            "n"_a = 1,
            "country"_a = "South Sudan")
-      .def("parameterize", &AnalysisGraph::parameterize)
       .def("print_indicators", &AnalysisGraph::print_indicators)
       .def("set_indicator",
            &AnalysisGraph::set_indicator,

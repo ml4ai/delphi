@@ -119,12 +119,12 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
   db = nullptr;
 }
 
-void AnalysisGraph::parameterize(string country,
-                                 string state,
-                                 string county,
-                                 int year,
-                                 int month,
-                                 map<string, string> units) {
+void AnalysisGraph::initialize_parameters(string country,
+                                          string state,
+                                          string county,
+                                          int year,
+                                          int month,
+                                          map<string, string> units) {
   double stdev, mean;
   for (Node& node : this->nodes()) {
     for (Indicator& indicator : node.indicators) {

@@ -681,17 +681,15 @@ class AnalysisGraph {
    *                                 latent state sequence based on the
    *                                 perturbed initial latent state s0.
    */
-  void generate_predicted_latent_state_sequences_from_sampled_parameters(
-                                                  int prediction_timesteps,
-                                                  int initial_prediction_step,
-                                                  int total_timesteps,
-                                                  bool project = false);
+  void generate_latent_state_sequences(int prediction_timesteps,
+                                       int initial_prediction_step,
+                                       int total_timesteps,
+                                       bool project = false);
 
-  /** Generate predicted observed state sequences given predicted latent state
+  /** Generate observed state sequences given predicted latent state
    * sequences using the emission model
    */
-  void
-  generate_predicted_observed_state_sequences_from_predicted_latent_state_sequences();
+  void generate_observed_state_sequences();
 
   /**
    * Format the prediction result into a format Python callers favor.
@@ -1051,14 +1049,14 @@ class AnalysisGraph {
   void map_concepts_to_indicators(int n = 1, std::string country = "");
 
   /**
-   * Parameterize the indicators of the AnalysisGraph.
+   * Initialize the parameters of the Delphi model.
    */
-  void parameterize(std::string country = "South Sudan",
-                    std::string state = "",
-                    std::string county = "",
-                    int year = -1,
-                    int month = 0,
-                    std::map<std::string, std::string> units = {});
+  void initialize_parameters(std::string country = "South Sudan",
+                             std::string state = "",
+                             std::string county = "",
+                             int year = -1,
+                             int month = 0,
+                             std::map<std::string, std::string> units = {});
 
   /*
    ============================================================================

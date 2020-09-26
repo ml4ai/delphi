@@ -66,7 +66,7 @@ add_library(Delphi
   lib/constructors.cpp
   lib/causemos_integration.cpp
   lib/sampling.cpp
-  lib/inference.cpp
+  lib/prediction.cpp
   lib/synthetic_data.cpp
   lib/graph_building.cpp
   lib/graph_modification.cpp

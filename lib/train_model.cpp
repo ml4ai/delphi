@@ -51,7 +51,8 @@ void AnalysisGraph::train_model(int start_year,
         start_year, start_month, end_year, end_month, country, state, county);
   }
 
-  this->parameterize(country, state, county, start_year, start_month, units);
+  this->initialize_parameters(country, state, county,
+                              start_year, start_month, units);
   this->set_log_likelihood();
 
   this->transition_matrix_collection.clear();
