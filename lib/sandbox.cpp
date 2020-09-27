@@ -50,18 +50,20 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json &json_data) {
     }
 
     //for (auto& concept_arr : json_data["conceptIndicators"])
-    //{
-    //  for (auto& indicator_arr : concept_arr)
-    //  {
-    //    // We set polarities to 1 (positive) by default 
-    //    int subj_polarity = 1;
-    //    int obj_polarity = 1;
-    //    auto causal_fragment =
-    //      CausalFragment({"subj_adj_str", subj_polarity, indicator_arr["source"]},
-    //                     {"obj_adj_str", obj_polarity, indicator_arr["indicator"]});
-    //    this->add_edge(causal_fragment);
-    //  }
-    //}
+    int conceptIndicators_arrSize = 0;
+    if (sizeof(json_data["conceptIndicators"])){ int conceptIndicators_arrSize = sizeof(json_data["conceptIndicators"])/sizeof(json_data["conceptIndicators"][0]);}
+    
+    for (int v = 0; v < conceptIndicators_arrSize; v++)
+    {
+      Node &n = (*this)[v];
+      for (auto& indicator_arr : json_data["conceptIndicators"][v])
+      {
+        int indicator_index =  n.add_indicator(indicator_arr["indicator"], indicator_arr["source"]); 
+        n.indicators[indicator_index].aggregation_method = indicator_arr["func"];
+        n.indicators[indicator_index].unit = indicator_arr["unit"];
+      }
+    }
+
     for (auto& edge_element : json_data["edges"])
     {
       for (auto& evidence : edge_element["evidence"])
@@ -79,7 +81,7 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json &json_data) {
 
 
     if (verbose) {
-         this->training_range.first.first  = json_data["start_year"];
+        this->training_range.first.first  = json_data["start_year"];
         this->training_range.first.second  = json_data["start_month"];
         this->training_range.second.first  = json_data["end_year"];
         this->training_range.second.second = json_data["end_month"];
