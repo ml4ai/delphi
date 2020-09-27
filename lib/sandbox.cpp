@@ -74,6 +74,18 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json &json_data) {
     }
 
 
+    if (verbose) {
+         this->training_range.first.first  = json_data["start_year"];
+        this->training_range.first.second  = json_data["start_month"];
+        this->training_range.second.first  = json_data["end_year"];
+        this->training_range.second.second = json_data["end_month"];
+    } else {
+        // This is a pair of pairs where the first pair is <start_year,
+        // start_month> and the second pair is <end_year, end_month>
+        this->training_range = json_data["training_range"];
+    }
+    this->observed_state_sequence = json_data["observations"];
+
 
 }
 
