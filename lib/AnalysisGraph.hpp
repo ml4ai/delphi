@@ -17,7 +17,9 @@
 
 const double tuning_param = 1.0;
 
-const size_t DEFAULT_N_SAMPLES = 1000;
+//TODO: Change back to 1000
+//************************
+const size_t DEFAULT_N_SAMPLES = 4;//1000;
 
 enum InitialBeta { ZERO, ONE, HALF, MEAN, RANDOM };
 
@@ -344,7 +346,7 @@ class AnalysisGraph {
    *                                  in all the observation sequences.
    * @returns void
    */
-  void infer_least_common_observation_frequency(
+  void infer_modeling_frequency(
                         const ConceptIndicatorDates &concept_indicator_dates,
                         int &shortest_gap,
                         int &longest_gap,
@@ -662,7 +664,7 @@ class AnalysisGraph {
 
   /*
    ============================================================================
-   Private: Inference (in inference.cpp)
+   Private: Prediction (in prediction.cpp)
    ============================================================================
   */
 
@@ -1126,7 +1128,7 @@ class AnalysisGraph {
 
   /*
    ============================================================================
-   Public: Inference (in inference.cpp)
+   Public: Prediction (in prediction.cpp)
    ============================================================================
   */
 

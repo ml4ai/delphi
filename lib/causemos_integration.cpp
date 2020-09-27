@@ -238,7 +238,7 @@ void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json
  *
  * Check method declaration in AnalysisGraph.hpp for a detailed comment.
  */
-void AnalysisGraph::infer_least_common_observation_frequency(
+void AnalysisGraph::infer_modeling_frequency(
                         const ConceptIndicatorDates &concept_indicator_dates,
                         int &shortest_gap,
                         int &longest_gap,
@@ -332,6 +332,9 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
             json_indicators, concept_indicator_data, concept_indicator_dates,
                                 start_year, start_month, end_year, end_month);
 
+    this->training_range = make_pair(make_pair(start_year, start_month),
+                                            make_pair(end_year, end_month));
+
     dbg(start_year);
     dbg(start_month);
     dbg(end_year);
@@ -343,7 +346,7 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
     int frequent_gap = 0;
     int highest_frequency = 0;
 
-    this->infer_least_common_observation_frequency(concept_indicator_dates,
+    this->infer_modeling_frequency(concept_indicator_dates,
                   shortest_gap, longest_gap, frequent_gap, highest_frequency);
 
     dbg(shortest_gap);
@@ -586,9 +589,9 @@ string AnalysisGraph::generate_create_model_response() {
 
     for (int v = 0; v < num_verts; v++) {
         Node& n = (*this)[v];
-        j["conceptIndicators"][n.name] = {{"initialValue", "null"},
-                                          {"scalingFactor", "null"},
-                                          {"scalingBias", "null"}};
+        j["conceptIndicators"][n.name] = {{"initialValue", nullptr},
+                                          {"scalingFactor", nullptr},
+                                          {"scalingBias", nullptr}};
     }
 
     return j.dump();
