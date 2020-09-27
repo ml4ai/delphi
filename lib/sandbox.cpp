@@ -49,18 +49,28 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json &json_data) {
       this->add_node(concept_name);
     }
 
-    for (auto& concept_arr : json_data["conceptIndicators"])
+    //for (auto& concept_arr : json_data["conceptIndicators"])
+    //{
+    //  for (auto& indicator_arr : concept_arr)
+    //  {
+    //    // We set polarities to 1 (positive) by default 
+    //    int subj_polarity = 1;
+    //    int obj_polarity = 1;
+    //    auto causal_fragment =
+    //      CausalFragment({"subj_adj_str", subj_polarity, indicator_arr["source"]},
+    //                     {"obj_adj_str", obj_polarity, indicator_arr["indicator"]});
+    //    this->add_edge(causal_fragment);
+    //  }
+    //}
+
+    for (auto& evidence : json_data["edges"]["evidence"])
     {
-      for (auto& indicator_arr : concept_arr)
-      {
-        // We set polarities to 1 (positive) by default 
-        int subj_polarity = 1;
-        int obj_polarity = 1;
+        auto subject = evidence.first;
+        auto object = evidence.second;
         auto causal_fragment =
-          CausalFragment({"subj_adj_str", subj_polarity, indicator_arr["source"]},
-                         {"obj_adj_str", obj_polarity, indicator_arr["indicator"]});
+          CausalFragment({std::get<0>(subject), std::get<1>(subject), std::get<2>(subject)},
+                         {std::get<0>(object), std::get<1>(object), std::get<2>(object)});
         this->add_edge(causal_fragment);
-      }
     }
 
 
