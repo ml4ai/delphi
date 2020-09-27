@@ -39,6 +39,32 @@ using fmt::print;
  * Also you can look at from_json_string()
  */
 void AnalysisGraph::from_delphi_json_dict(const nlohmann::json &json_data) {
+    this->id = json_data["id"];
+    //this->name_to_vertex = json_data["concepts"];
+    //this->ObservedStateSequence
+     //nlohmann::json::parse  .items():  std::cout << jd.key() << " : " << jd.value() << '\n';
+
+    for (auto& concept_name : json_data["concepts"])
+    {
+      this->add_node(concept_name);
+    }
+
+    for (auto& concept_arr : json_data["conceptIndicators"])
+    {
+      for (auto& indicator_arr : concept_arr)
+      {
+        // We set polarities to 1 (positive) by default 
+        int subj_polarity = 1;
+        int obj_polarity = 1;
+        auto causal_fragment =
+          CausalFragment({"subj_adj_str", subj_polarity, indicator_arr["source"]},
+                         {"obj_adj_str", obj_polarity, indicator_arr["indicator"]});
+        this->add_edge(causal_fragment);
+      }
+    }
+
+
+
 }
 
 /*
