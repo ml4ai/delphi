@@ -38,7 +38,7 @@ using fmt::print;
  * created by to_json_string() method in to_json.cpp
  * Also you can look at from_json_string()
  */
-void AnalysisGraph::from_delphi_json_dict(const nlohmann::json &json_data) {
+void AnalysisGraph::from_delphi_json_dict(const nlohmann::json &json_data, bool verbose) {
     this->id = json_data["id"];
     //this->name_to_vertex = json_data["concepts"];
     //this->ObservedStateSequence
@@ -101,18 +101,18 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json &json_data) {
  ============================================================================
 */
 
-AnalysisGraph AnalysisGraph::deserialize_from_json_string(string json_string) {
+AnalysisGraph AnalysisGraph::deserialize_from_json_string(string json_string, bool verbose) {
   AnalysisGraph G;
 
   auto json_data = nlohmann::json::parse(json_string);
-  G.from_delphi_json_dict(json_data);
+  G.from_delphi_json_dict(json_data, bool verbose);
   return G;
 }
 
-AnalysisGraph AnalysisGraph::deserialize_from_json_file(string filename) {
+AnalysisGraph AnalysisGraph::deserialize_from_json_file(string filename, bool verbose) {
   AnalysisGraph G;
 
   auto json_data = load_json(filename);
-  G.from_delphi_json_dict(json_data);
+  G.from_delphi_json_dict(json_data, bool verbose);
   return G;
 }
