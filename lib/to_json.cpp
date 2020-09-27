@@ -38,7 +38,7 @@ string AnalysisGraph::to_json_string(int indent) {
   return j.dump(indent);
 }
 
-string AnalysisGraph::serialize_to_json_string() {
+string AnalysisGraph::serialize_to_json_string(bool verbose) {
     nlohmann::json j;
     j["id"] = this->id;
 
@@ -47,11 +47,11 @@ string AnalysisGraph::serialize_to_json_string() {
     // Indicator assignment and observations are recorded according to this id.
     // Concept  ids are continuous between 0 and this->num_vertices()
     // Edges are also described based on concept ids.
-    j["concepts"] = this->name_to_vertex;
+    //j["concepts"] = this->name_to_vertex;
 
     // To go for a more compressed version of concepts where array index is the
     // concept id
-    //j["concepts"] = {};
+    j["concepts"] = {};
 
     // Concept to indicator mapping. This is an array of array of objects
     // Outer array goes from 0 to this->num_vertices() - 1 and it is indexed by
@@ -64,35 +64,42 @@ string AnalysisGraph::serialize_to_json_string() {
     for (int v = 0; v < this->num_vertices(); v++) {
         Node &n = (*this)[v];
 
-        // This is a more compressed way to store concept information where
-        // array index keeps track of the concept id
-        //j["concepts"][this->name_to_vertex.at(n.name)] = n.name;
+        if (verbose) {
+            j["concepts"].push_back(
+                        {{"concept", n.name},
+                         {"cid", this->name_to_vertex.at(n.name)}});
 
-        for (Indicator &ind : n.indicators) {
-            j["conceptIndicators"][this->name_to_vertex.at(n.name)].push_back(
-            //j["conceptIndicators"][n.name].push_back(
-                        {
-                            {"indicator", ind.name},
-                            {"iid", n.nameToIndexMap.at(ind.name)},
-                            {"source", ind.source},
-                            {"func", ind.aggregation_method},
-                            {"unit", ind.unit}
-                        }
-                    );
-            /*
-            // This is a more compressed representation. We do not store iid
-            // separately. iid is the index at which this indicator information
-            // object is stored at.
-            j["conceptIndicators"]
-             [this->name_to_vertex.at(n.name)]
-             [n.nameToIndexMap.at(ind.name)] =
-                        {
-                            {"indicator", ind.name},
-                            {"source", ind.source},
-                            {"func", ind.aggregation_method},
-                            {"unit", ind.unit}
-                        };
-            */
+            for (Indicator &ind : n.indicators) {
+                j["conceptIndicators"][this->name_to_vertex.at(n.name)].push_back(
+                //j["conceptIndicators"][n.name].push_back(
+                            {
+                                {"indicator", ind.name},
+                                {"iid", n.nameToIndexMap.at(ind.name)},
+                                {"source", ind.source},
+                                {"func", ind.aggregation_method},
+                                {"unit", ind.unit}
+                            }
+                        );
+            }
+        } else {
+            // This is a more compressed way to store concept information where
+            // array index keeps track of the concept id
+            j["concepts"][this->name_to_vertex.at(n.name)] = n.name;
+
+            for (Indicator &ind : n.indicators) {
+                // This is a more compressed representation. We do not store iid
+                // separately. iid is the index at which this indicator information
+                // object is stored at.
+                j["conceptIndicators"]
+                [this->name_to_vertex.at(n.name)]
+                [n.nameToIndexMap.at(ind.name)] =
+                            {
+                                {"indicator", ind.name},
+                                {"source", ind.source},
+                                {"func", ind.aggregation_method},
+                                {"unit", ind.unit}
+                            };
+            }
         }
     }
     // To test how things get ordered in the json side
@@ -127,7 +134,7 @@ string AnalysisGraph::serialize_to_json_string() {
 
         int num_evidence = this->edge(e).evidence.size();
         Evidence evidence = Evidence(num_evidence);
-        for (int evid = 0; evid < num_evidence; evid++ ) {
+        for (int evid = 0; evid < num_evidence; evid++) {
             const Statement &stmt = this->edge(e).evidence[evid];
             const Event &subj = stmt.subject;
             const Event &obj  = stmt.object;
@@ -135,24 +142,33 @@ string AnalysisGraph::serialize_to_json_string() {
             evidence[evid] = {{subj.adjective, subj.polarity, subj.concept_name},
                               {obj.adjective, obj.polarity, obj.concept_name}};
         }
-        j["edges"].push_back({{"source",name_to_vertex.at(source.name)},
-                              {"target", name_to_vertex.at(target.name)},
-                              {"kernels", this->edge(e).kde.dataset},
-                              {"evidence", evidence}});
-        /*
-        // This is a more compressed version of edges. We do not utilize space
-        // for key names. Maybe once we have debugged the whole process, we
-        // might be able to go for this.
-        j["edges"].push_back(make_tuple(name_to_vertex.at(source.name),
-                                        name_to_vertex.at(target.name),
-                                        this->edge(e).kde.dataset,
-                                        evidence));
-                                        */
+        if (verbose) {
+            j["edges"].push_back({{"source",name_to_vertex.at(source.name)},
+                                {"target", name_to_vertex.at(target.name)},
+                                {"kernels", this->edge(e).kde.dataset},
+                                {"evidence", evidence}});
+        }
+        else {
+            // This is a more compressed version of edges. We do not utilize space
+            // for key names. Maybe once we have debugged the whole process, we
+            // might be able to go for this.
+            j["edges"].push_back(make_tuple(name_to_vertex.at(source.name),
+                                            name_to_vertex.at(target.name),
+                                            this->edge(e).kde.dataset,
+                                            evidence));
+        }
     }
 
-    // This is a pair of pairs where the first pair is <start_year,
-    // start_month> and the second pair is <end_year, end_month>
-    j["training_range"] = this->training_range;
+    if (verbose) {
+        j["start_year"] = this->training_range.first.first;
+        j["start_month"] = this->training_range.first.second;
+        j["end_year"] = this->training_range.second.first;
+        j["end_month"] = this->training_range.second.second;
+    } else {
+        // This is a pair of pairs where the first pair is <start_year,
+        // start_month> and the second pair is <end_year, end_month>
+        j["training_range"] = this->training_range;
+    }
 
     // This contains all the observations. Indexing goes by
     // [ timestep ][ concept ][ indicator ][ observaton ]

@@ -864,7 +864,7 @@ class AnalysisGraph {
    ============================================================================
   */
 
-  std::string serialize_to_json_string();
+  std::string serialize_to_json_string(bool verbose = true);
 
   static AnalysisGraph deserialize_from_json_string(std::string json_string);
 
