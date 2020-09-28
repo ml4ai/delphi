@@ -1053,12 +1053,7 @@ class AnalysisGraph {
   /**
    * Initialize the parameters of the Delphi model.
    */
-  void initialize_parameters(std::string country = "South Sudan",
-                             std::string state = "",
-                             std::string county = "",
-                             int year = -1,
-                             int month = 0,
-                             std::map<std::string, std::string> units = {});
+  void initialize_parameters();
 
   /*
    ============================================================================

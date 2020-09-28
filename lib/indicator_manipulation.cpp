@@ -120,12 +120,7 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
   db = nullptr;
 }
 
-void AnalysisGraph::initialize_parameters(string country,
-                                          string state,
-                                          string county,
-                                          int year,
-                                          int month,
-                                          map<string, string> units) {
+void AnalysisGraph::initialize_parameters() {
   int num_verts = this->num_vertices();
   vector<double> mean_sequence;
   vector<double> std_sequence;

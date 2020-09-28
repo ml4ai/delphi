@@ -154,8 +154,7 @@ AnalysisGraph::test_inference_with_synthetic_data(int start_year,
       start_year, start_month, end_year, end_month);
   this->init_betas_to(initial_beta);
   this->set_transition_matrix_from_betas();
-  this->initialize_parameters(country, state, county,
-                              start_year, start_month, units);
+  this->initialize_parameters();
 
   // Initialize the latent state vector at time 0
   this->set_random_initial_latent_state();

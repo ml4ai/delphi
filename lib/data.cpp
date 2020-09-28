@@ -176,6 +176,10 @@ vector<double> get_data_value(string indicator,
 
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
       value = sqlite3_column_double(stmt, 1);
+      // TODO: This math is only valid if the value we query is an annual
+      // aggregate. For example if it is an yearly sample or an yearly average
+      // this is not correct. We need a more intelligent way to handle this
+      // situation.
       value = value / 12;
       vals.push_back(value);
     }
