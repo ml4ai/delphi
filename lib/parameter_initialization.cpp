@@ -5,6 +5,115 @@
 using namespace std;
 using namespace delphi::utils;
 
+void AnalysisGraph::initialize_parameters() {
+  int num_verts = this->num_vertices();
+  vector<double> mean_sequence;
+  vector<double> std_sequence;
+  vector<int> ts_sequence;
+
+  for (int v = 0; v < num_verts; v++) {
+      Node &n = (*this)[v];
+
+      for (int i = 0; i < n.indicators.size(); i++) {
+          Indicator &ind = n.indicators[i];
+
+          // The (v, i) pair uniquely identifies an indicator. It is the i th
+          // indicator of v th concept.
+          // For each indicator, there could be multiple observations per
+          // time step. Aggregate those observations to create a single
+          // observation time series for the indicator (v, i).
+          // We also ignore the missing values.
+          mean_sequence.clear();
+          std_sequence.clear();
+          ts_sequence.clear();
+          for (int ts = 0; ts < this->n_timesteps; ts++) {
+              vector<double> &obs_at_ts = this->observed_state_sequence[ts][v][i];
+
+              if (!obs_at_ts.empty()) {
+                  // There is an observation for indicator (v, i) at ts.
+                  ts_sequence.push_back(ts);
+                  mean_sequence.push_back(delphi::utils::mean(obs_at_ts));
+                  std_sequence.push_back(delphi::utils::standard_deviation(mean_sequence.back(), obs_at_ts));
+              } //else {
+                // This is a missing observation
+                //}
+          }
+
+          // Set the indicator standard deviation
+          // NOTE: This is what we have been doing earlier for delphi local
+          // run:
+          //stdev = 0.1 * abs(indicator.get_mean());
+          //stdev = stdev == 0 ? 1 : stdev;
+          //indicator.set_stdev(stdev);
+          // Surprisingly, I did not see indicator standard deviation being set
+          // when delphi is called from CauseMos HMI and in the Indicator class
+          // the default standard deviation was set to be 0. This could be an
+          // omission. I updated Indicator class so that the default indicator
+          // mean is 1.
+          double max_std = ranges::max(std_sequence);
+          if(!isnan(max_std)) {
+              // For indicator (v, i), at least one time step had
+              // more than one observation.
+              // We can use that to assign the indicator standard deviation.
+              // TODO: Is that a good idea?
+              ind.set_stdev(max_std);
+          }   // else {
+              // All the time steps had either 0 or 1 observation.
+              // In this case, indicator standard deviation defaults to 1
+              // TODO: Is this a good idea?
+              //}
+
+          // Set the indicator mean
+          string aggregation_method = ind.get_aggregation_method();
+
+          // TODO: Instead of comparing text, it would be better to define an
+          // enumerated type say AggMethod and use it. Such an enumerated type
+          // needs to be shared between AnalysisGraph and Indicator classes.
+          if (aggregation_method.compare("first") != 0) {
+              if (ts_sequence[0] == 0) {
+                  // The first observation is not missing
+                  ind.set_mean(mean_sequence[0]);
+              } else {
+                  // First observation is missing
+                  // TODO: Decide what to do
+                  // I feel getting a decaying weighted average of existing
+                  // observations with earlier the observation, higher the
+                  // weight is a good idea. TODO: If so how to calculate
+                  // weights? We need i < j => w_i > w_j and sum of w's = 1.
+                  // For the moment as a placeholder, average of the earliest
+                  // available observation is used to set the indicator mean.
+                  ind.set_mean(mean_sequence[0]);
+              }
+          }
+          else if (aggregation_method.compare("last") != 0) {
+              int last_obs_idx = this->n_timesteps - 1;
+              if (ts_sequence.back() == last_obs_idx) {
+                  // The first observation is not missing
+                  ind.set_mean(mean_sequence.back());
+              } else {
+                  // First observation is missing
+                  // TODO: Similar to "first" decide what to do.
+                  // For the moment the observation closest to the final
+                  // time step is used to set the indicator mean.
+                  ind.set_mean(mean_sequence.back());
+              }
+          }
+          else if (aggregation_method.compare("min") != 0) {
+              ind.set_mean(ranges::min(mean_sequence));
+          }
+          else if (aggregation_method.compare("max") != 0) {
+              ind.set_mean(ranges::max(mean_sequence));
+          }
+          else if (aggregation_method.compare("mean") != 0) {
+              ind.set_mean(delphi::utils::mean(mean_sequence));
+          }
+          else if (aggregation_method.compare("median") != 0) {
+              ind.set_mean(delphi::utils::median(mean_sequence));
+          }
+      }
+  }
+}
+
 AdjectiveResponseMap construct_adjective_response_map(
     mt19937 gen,
     uniform_real_distribution<double>& uni_dist,
