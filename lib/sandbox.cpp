@@ -25,6 +25,10 @@ using fmt::print;
 #include "dbg.h" // To quickly print the value of a variable v do dbg(v)
 
 
+typedef vector<pair<tuple<string, int, string>, tuple<string, int, string>>>
+Evidence;
+//typedef vector<vector<string, int>, vector<string, int>, vector<string, Edge::KDE>, vector<string, Evidence>> Edges_vector;
+
 /*
  ============================================================================
  Private: Model serialization
@@ -56,7 +60,7 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json &json_data, bool 
     for (int v = 0; v < conceptIndicators_arrSize; v++)
     {
       Node &n = (*this)[v];
-      for (auto& indicator_arr : json_data["conceptIndicators"][v])
+      for (auto indicator_arr : json_data["conceptIndicators"][v])
       {
         int indicator_index =  n.add_indicator(indicator_arr["indicator"], indicator_arr["source"]); 
         n.indicators[indicator_index].aggregation_method = indicator_arr["func"];
@@ -67,30 +71,72 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json &json_data, bool 
     for (auto& edge_element : json_data["edges"])
     {
       if (verbose) {
-        for (auto& evidence : edge_element["evidence"])
+        //for (auto& element : edge_element[0]["evidence"].items())
+        for (auto& element : edge_element[0].items())
         {
+          if (element.key() == "evidence"){
+            cout << element.value() << endl;
+            auto evidence = element.value();
             auto subject = evidence.first;
             auto object = evidence.second;
             auto causal_fragment =
-              CausalFragment({std::get<0>(subject), std::get<1>(subject), std::get<2>(subject)},
-                             {std::get<0>(object), std::get<1>(object), std::get<2>(object)});
+              CausalFragment({get<0>(subject), get<1>(subject), get<2>(subject)},
+                             {get<0>(object), get<1>(object), get<2>(object)});
             this->add_edge(causal_fragment);
+          }
         }
-        Edge* e = this->edge(edge_element["source"], edge_element["target"]);
-        e.kde = edge_element["kernels"];
+
+        string source = edge_element[2]["source"].get<string>();
+        string target = edge_element[3]["target"].get<string>();
+        this->edge(source, target).kde.dataset = edge_element[1]["kernels"].get<vector<double>>();
+      
+        //for (auto evidence : edge_element[0]["evidence"])
+        //{
+        //    auto subject = evidence.first;
+        //    auto object = evidence.second;
+        //    auto causal_fragment =
+        //      CausalFragment({get<0>(subject), get<1>(subject), get<2>(subject)},
+        //                     {get<0>(object), get<1>(object), get<2>(object)});
+        //    this->add_edge(causal_fragment);
+        //}
+        ////auto e = this->edge(edge_element["source"], edge_element["target"]);
+        ////e->kde = edge_element["kernels"];
+        //string source = edge_element["source"].get<string>();
+        //string target = edge_element["target"].get<string>();
+        //this->edge(source, target).kde.dataset = edge_element["kernels"].get<vector<double>>();
       }
       else{
-        for (auto& evidence : std::get<3>(edge_element))
+        //int source;
+        //int target;
+        //KDE kde_data;
+        //Evidence evidences;
+//
+        //tie(source,target,kde_data,evidences) = edge_element; 
+        //for (auto evidence : evidences)
+        //{
+        //    auto subject = evidence.first;
+        //    auto object = evidence.second;
+        //    auto causal_fragment =
+        //      CausalFragment({get<0>(subject), get<1>(subject), get<2>(subject)},
+        //                     {get<0>(object), get<1>(object), get<2>(object)});
+        //    this->add_edge(causal_fragment);
+        //}
+        //auto e = this->edge(source, target);
+        ////this->KDE::edge(source, target).kde(kde_data);
+
+
+
+        for (auto evidence : get<3>(edge_element))
         {
             auto subject = evidence.first;
             auto object = evidence.second;
             auto causal_fragment =
-              CausalFragment({std::get<0>(subject), std::get<1>(subject), std::get<2>(subject)},
-                             {std::get<0>(object), std::get<1>(object), std::get<2>(object)});
+              CausalFragment({get<0>(subject), get<1>(subject), get<2>(subject)},
+                             {get<0>(object), get<1>(object), get<2>(object)});
             this->add_edge(causal_fragment);
         }
-        Edge* e = this->edge(std::get<0>(edge_element), std::get<1>(edge_element));
-        e.kde = std::get<2>(edge_element);
+        auto e = this->edge(get<0>(edge_element), get<1>(edge_element));
+        e->kde = get<2>(edge_element);
       }
     }
 
@@ -105,7 +151,7 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json &json_data, bool 
         // start_month> and the second pair is <end_year, end_month>
         this->training_range = json_data["training_range"];
     }
-    this->observed_state_sequence = json_data["observations"];
+    //////////////this->observed_state_sequence = json_data["observations"].get<vector<vector<pair<int, int>>>>();
 
 
 }
@@ -119,15 +165,15 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json &json_data, bool 
 AnalysisGraph AnalysisGraph::deserialize_from_json_string(string json_string, bool verbose) {
   AnalysisGraph G;
 
-  auto json_data = nlohmann::json::parse(json_string);
-  G.from_delphi_json_dict(json_data, bool verbose);
+  nlohmann::json json_data = nlohmann::json::parse(json_string);
+  G.from_delphi_json_dict(json_data, verbose);
   return G;
 }
 
 AnalysisGraph AnalysisGraph::deserialize_from_json_file(string filename, bool verbose) {
   AnalysisGraph G;
 
-  auto json_data = load_json(filename);
-  G.from_delphi_json_dict(json_data, bool verbose);
+  nlohmann::json json_data = load_json(filename);
+  G.from_delphi_json_dict(json_data, verbose);
   return G;
 }
