@@ -383,7 +383,7 @@ class AnalysisGraph {
    ============================================================================
   */
 
-  void from_delphi_json_dict(const nlohmann::json &json_data);
+  void from_delphi_json_dict(const nlohmann::json &json_data, bool verbose);
 
   /*
    ============================================================================
@@ -866,9 +866,9 @@ class AnalysisGraph {
 
   std::string serialize_to_json_string(bool verbose = true);
 
-  static AnalysisGraph deserialize_from_json_string(std::string json_string);
+  static AnalysisGraph deserialize_from_json_string(std::string json_string, bool verbose = true);
 
-  static AnalysisGraph deserialize_from_json_file(std::string filename);
+  static AnalysisGraph deserialize_from_json_file(std::string filename, bool verbose = true);
 
   /*
    ============================================================================
