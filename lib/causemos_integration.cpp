@@ -103,13 +103,6 @@ void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json
         dbg("---------------------------");
         dbg(indicator_name);
 
-        // Calculate aggregate from the values given
-        // NOTE: This variable assumes that there is a single observation
-        // per indicator per time point.
-        // If we are updating to single indicator having multiple
-        // observations per time point, we have to reconsider this.
-        vector<double> values = {};
-
         for (auto& data_point : indicator["values"]) {
             if (data_point["value"].is_null()) {
                 // This is a missing data point
@@ -117,8 +110,6 @@ void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json
             }
 
             double observation = data_point["value"].get<double>();
-
-            values.push_back(observation);
 
             if (data_point["timestamp"].is_null()) {continue;}
 
@@ -190,41 +181,12 @@ void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json
 
         // "last" is the default function specified in the specification.
         string func = "last";
-        double aggregated_value = 0.0;
 
         if (!indicator["func"].is_null()) {
             func = indicator["func"].get<string>();
         }
 
-        if (func == "max") {
-            aggregated_value = ranges::max(values);
-        }
-        else if (func == "min") {
-            aggregated_value = ranges::min(values);
-        }
-        else if (func == "mean") {
-            aggregated_value = mean(values);
-        }
-        else if (func == "median") {
-            aggregated_value = median(values);
-        }
-        else if (func == "first") {
-            aggregated_value = values[0];
-        }
-        else if (func == "last") {
-            aggregated_value = values.back();
-        }
-        else {
-            // Since we set func = "last" as the default value, this error will
-            // never happen. We can remove this part.
-            throw runtime_error(
-                    "Invalid value of \"func\": {}. It must be one of [max|min|mean|median|first|last]"_format(
-                        func));
-        }
-
         n.get_indicator(indicator_name).set_aggregation_method(func);
-        n.get_indicator(indicator_name).set_mean(aggregated_value);
-
     }
 }
 
