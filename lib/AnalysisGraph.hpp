@@ -619,6 +619,8 @@ class AnalysisGraph {
    */
   void initialize_parameters();
 
+  void set_indicator_means_and_standard_deviations();
+
   void construct_theta_pdfs();
 
 
