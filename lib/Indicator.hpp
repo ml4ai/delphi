@@ -32,7 +32,7 @@ public:
   double stdev = 1;
   std::string time = ""; // TODO: Need a proper type. There is one in c++20
   std::vector<std::string> aggaxes = {};
-  std::string aggregation_method = "mean";
+  std::string aggregation_method = "first";
   double timeseries = 0;
   std::vector<double> samples = {};
 
@@ -47,7 +47,7 @@ public:
       double stdev = 1,
       std::string time = "", // TODO: Need a proper type. There is one in c++20
       std::vector<std::string> aggaxes = {},
-      std::string aggregation_method = "mean",
+      std::string aggregation_method = "first",
       double timeseries = 0,
       std::vector<double> samples = {})
       : RV(name), source(source), unit(unit), mean(mean), value(value),
