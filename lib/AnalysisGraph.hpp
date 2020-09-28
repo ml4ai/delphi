@@ -608,6 +608,14 @@ class AnalysisGraph {
                                std::string state = "",
                                std::string county = "");
 
+  /*
+   ============================================================================
+   Private: Initializing model parameters (in parameter_initialization.cpp)
+   ============================================================================
+  */
+
+  void construct_theta_pdfs();
+
 
   /*
    ============================================================================
@@ -1018,14 +1026,6 @@ class AnalysisGraph {
                                int source_polarity,
                                std::string target_concept,
                                int target_polarity);
-
-  /*
-   ============================================================================
-   Public: Construct Theta Pdfs (in construct_theta_pdfs.cpp)
-   ============================================================================
-  */
-
-  void construct_theta_pdfs();
 
   /*
    ============================================================================

@@ -39,7 +39,7 @@ find_package(SQLite3 REQUIRED)
 
 add_library(Delphi
   lib/AnalysisGraph.hpp
-  lib/construct_theta_pdfs.cpp
+  lib/parameter_initialization.cpp
   lib/to_json.cpp
   lib/data.cpp
   lib/data.hpp

@@ -131,7 +131,7 @@ void AnalysisGraph::run_model(int start_year,
       (start_year == this->training_range.first.first &&
        start_month < this->training_range.first.second)) {
     print("The initial prediction date can't be before the "
-         "inital training date. Defaulting initial prediction date "
+         "initial training date. Defaulting initial prediction date "
          "to initial training date.");
     start_year = this->training_range.first.first;
     start_month = this->training_range.first.second;
