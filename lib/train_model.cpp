@@ -126,14 +126,14 @@ vector<vector<vector<double>>> AnalysisGraph::get_observed_state_from_data(
     vector<Indicator>& indicators = (*this)[v].indicators;
 
     for (auto& ind : indicators) {
-      vector<double> vals = get_data_value(ind.get_name(),
-                                            country,
-                                            state,
-                                            county,
-                                            year,
-                                            month,
-                                            ind.get_unit(),
-                                            this->data_heuristic);
+      vector<double> vals = get_observations_for(ind.get_name(),
+                                                 country,
+                                                 state,
+                                                 county,
+                                                 year,
+                                                 month,
+                                                 ind.get_unit(),
+                                                 this->data_heuristic);
 
       observed_state[v].push_back(vals);
     }

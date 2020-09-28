@@ -562,7 +562,7 @@ class AnalysisGraph {
   /**
    * Set the observed state sequence for a given time range from data.
    * The sequence includes both ends of the range.
-   * See data.hpp::get_data_value() for missing data rules.
+   * See data.hpp::get_observations_for() for missing data rules.
    * Note: units are automatically set according
    * to the parameterization of the given CAG.
    *
@@ -587,7 +587,7 @@ class AnalysisGraph {
   /**
    * Get the observed state (values for all the indicators)
    * for a given time point from data.
-   * See data.hpp::get_data_value() for missing data rules.
+   * See data.hpp::get_observations_for() for missing data rules.
    * Note: units are automatically set according
    * to the parameterization of the given CAG.
    *
