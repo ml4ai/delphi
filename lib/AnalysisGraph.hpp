@@ -614,6 +614,11 @@ class AnalysisGraph {
    ============================================================================
   */
 
+  /**
+   * Initialize the parameters of the Delphi model.
+   */
+  void initialize_parameters();
+
   void construct_theta_pdfs();
 
 
@@ -1049,11 +1054,6 @@ class AnalysisGraph {
    * node.
    */
   void map_concepts_to_indicators(int n = 1, std::string country = "");
-
-  /**
-   * Initialize the parameters of the Delphi model.
-   */
-  void initialize_parameters();
 
   /*
    ============================================================================
