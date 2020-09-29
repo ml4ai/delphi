@@ -6,6 +6,10 @@ using namespace std;
 using namespace delphi::utils;
 
 void AnalysisGraph::initialize_parameters() {
+    this->set_indicator_means_and_standard_deviations();
+}
+
+void AnalysisGraph::set_indicator_means_and_standard_deviations() {
   int num_verts = this->num_vertices();
   vector<double> mean_sequence;
   vector<double> std_sequence;
