@@ -105,15 +105,12 @@ AnalysisGraph::test_inference_with_synthetic_data(int start_year,
                                                   string state,
                                                   string county,
                                                   map<string, string> units,
-                                                  InitialBeta initial_beta) {
+                                                  InitialBeta initial_beta,
+                                                  bool use_continuous) {
   synthetic_data_experiment = true;
-  this->initialize_random_number_generator();
-
   this->n_timesteps = this->calculate_num_timesteps(
       start_year, start_month, end_year, end_month);
-  this->init_betas_to(initial_beta);
-  this->set_transition_matrix_from_betas();
-  this->initialize_parameters();
+  this->initialize_parameters(res, initial_beta, use_continuous);
 
   // Initialize the latent state vector at time 0
   this->set_random_initial_latent_state();

@@ -5,8 +5,32 @@
 using namespace std;
 using namespace delphi::utils;
 
-void AnalysisGraph::initialize_parameters() {
+void AnalysisGraph::initialize_parameters(int res,
+                                          InitialBeta initial_beta,
+                                          bool use_continuous) {
+    this->initialize_random_number_generator();
+    this->uni_disc_dist = uniform_int_distribution<int>(0, this->num_nodes() - 1);
+
+    this->continuous = use_continuous;
+    this->res = res;
+
+    this->find_all_paths();
+
+    if (!causemos_call) {
+        this->construct_theta_pdfs();
+    }
+    this->init_betas_to(initial_beta);
+
     this->set_indicator_means_and_standard_deviations();
+    this->set_transition_matrix_from_betas();
+    this->set_default_initial_state();
+    this->set_log_likelihood();
+
+    this->transition_matrix_collection.clear();
+    this->initial_latent_state_collection.clear();
+
+    this->transition_matrix_collection = vector<Eigen::MatrixXd>(this->res);
+    this->initial_latent_state_collection = vector<Eigen::VectorXd>(this->res);
 }
 
 void AnalysisGraph::init_betas_to(InitialBeta ib) {
@@ -250,10 +274,5 @@ void AnalysisGraph::construct_theta_pdfs() {
     }
 
     this->graph[e].kde = KDE(all_thetas);
-
-    // Initialize the initial θ for this edge
-    // β = tan(θ)
-    // TODO: Decide the correct way to initialize this
-    this->graph[e].theta = this->graph[e].kde.mu;
   }
 }
