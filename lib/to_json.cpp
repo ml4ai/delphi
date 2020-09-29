@@ -8,6 +8,9 @@ using namespace nlohmann;
 typedef vector<pair<tuple<string, int, string>, tuple<string, int, string>>>
 Evidence;
 
+// TODO: For debugging remove later.
+using fmt::print;
+
 string AnalysisGraph::to_json_string(int indent) {
   nlohmann::json j;
   j["id"] = this->id;
@@ -175,6 +178,26 @@ string AnalysisGraph::serialize_to_json_string(bool verbose) {
     // Concept and indicator indexes are according to the concept and indicator
     // ids mentioned above.
     j["observations"] = this->observed_state_sequence;
-    cout << j.dump(4) << endl;
+    //cout << j.dump(4) << endl;
+    //
+    // NOTE: Just to guide Aishwarya. Delete Later.
+    // How to access edges and evidence for deserialization.
+    nlohmann::json json_data = nlohmann::json::parse(j.dump());
+    auto edges = json_data["edges"];
+    for (auto edg : edges) {
+        int source = edg["source"].get<int>();
+        int target = edg["target"].get<int>();
+        print("{0} --> {1}\n", source, target);
+
+        for (CausalFragment cf: edg["evidence"]) {
+            //this->add_edge(cf);
+            //Let's print the values just to see things are working properly
+            print("subject: {0}, {1}, {2}\nobject: {3}, {4}, {5}\n\n", get<0>(cf.first), get<1>(cf.first), get<2>(cf.first), get<0>(cf.second), get<1>(cf.second), get<2>(cf.second));
+        }
+    }
+    // Accessing a single CausalFragment
+    CausalFragment cf = edges[0]["evidence"][0];
+    print("{0}, {1}, {2}\n", get<0>(cf.first), get<1>(cf.first), get<2>(cf.first));
+
     return j.dump();
 }
