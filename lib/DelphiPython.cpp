@@ -134,7 +134,8 @@ PYBIND11_MODULE(DelphiPython, m) {
            "state"_a = "",
            "county"_a = "",
            py::arg("units") = map<std::string, std::string>{},
-           "initial_beta"_a = InitialBeta::HALF)
+           "initial_beta"_a = InitialBeta::HALF,
+           "use_continuous"_a = true)
       .def("train_model",
            &AnalysisGraph::train_model,
            "start_year"_a = 2012,

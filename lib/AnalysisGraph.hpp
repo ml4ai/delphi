@@ -576,11 +576,7 @@ class AnalysisGraph {
    *
    */
   void
-  set_observed_state_sequence_from_data(int start_year,
-                                        int start_month,
-                                        int end_year,
-                                        int end_month,
-                                        std::string country = "South Sudan",
+  set_observed_state_sequence_from_data(std::string country = "South Sudan",
                                         std::string state = "",
                                         std::string county = "");
 
@@ -617,9 +613,18 @@ class AnalysisGraph {
   /**
    * Initialize the parameters of the Delphi model.
    */
-  void initialize_parameters();
+  void initialize_parameters(int res,
+                             InitialBeta initial_beta,
+                             bool use_continuous);
 
   void set_indicator_means_and_standard_deviations();
+
+  /**
+   * To help experiment with initializing βs to different values
+   *
+   * @param ib: Criteria to initialize β
+   */
+  void init_betas_to(InitialBeta ib = InitialBeta::MEAN);
 
   void construct_theta_pdfs();
 
@@ -730,13 +735,6 @@ class AnalysisGraph {
    Private: Synthetic Data Experiment (in synthetic_data.cpp)
    ============================================================================
   */
-
-  /**
-   * To help experiment with initializing βs to different values
-   *
-   * @param ib: Criteria to initialize β
-   */
-  void init_betas_to(InitialBeta ib = InitialBeta::MEAN);
 
   void set_random_initial_latent_state();
 
@@ -1186,7 +1184,8 @@ class AnalysisGraph {
       std::string state = "",
       std::string county = "",
       std::map<std::string, std::string> units = {},
-      InitialBeta initial_beta = InitialBeta::HALF);
+      InitialBeta initial_beta = InitialBeta::HALF,
+      bool use_continuous = true);
 
   /*
    ============================================================================
