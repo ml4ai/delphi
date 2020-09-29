@@ -27,8 +27,6 @@ using fmt::print;
 
 typedef vector<pair<tuple<string, int, string>, tuple<string, int, string>>>
 Evidence;
-//typedef vector<vector<string, int>, vector<string, int>, vector<string, vector<double>>, vector<string, Evidence>> Edges_vector;
-//typedef vector<vector<string, int>, vector<string, int>, vector<string, vector<double>>, vector<string, vector<pair<tuple<string, int, string>, tuple<string, int, string>>>>> Edges_vector;
 typedef pair<tuple<string, int, string>, tuple<string, int, string>> Evidence_Pair;
 typedef tuple<int, int, vector<double>, vector<pair<tuple<string, int, string>, tuple<string, int, string>>>> Edge_tuple;
 
