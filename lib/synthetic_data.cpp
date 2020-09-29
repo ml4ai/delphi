@@ -12,47 +12,6 @@ using fmt::print;
  ============================================================================
 */
 
-void AnalysisGraph::init_betas_to(InitialBeta ib) {
-  switch (ib) {
-  // Initialize the initial β for this edge
-  // Note: I am repeating the loop within each case for efficiency.
-  // If we embed the switch within the for loop, there will be less code
-  // but we will evaluate the switch for each iteration through the loop
-  case InitialBeta::ZERO:
-    for (EdgeDescriptor e : this->edges()) {
-      // β = tan(0.0) = 0
-      graph[e].theta = 0.0;
-    }
-    break;
-  case InitialBeta::ONE:
-    for (EdgeDescriptor e : this->edges()) {
-      // θ = atan(1) = Π/4
-      // β = tan(atan(1)) = 1
-      graph[e].theta = std::atan(1);
-    }
-    break;
-  case InitialBeta::HALF:
-    for (EdgeDescriptor e : this->edges()) {
-      // β = tan(atan(0.5)) = 0.5
-      graph[e].theta = std::atan(0.5);
-    }
-    break;
-  case InitialBeta::MEAN:
-    for (EdgeDescriptor e : this->edges()) {
-      graph[e].theta = graph[e].kde.mu;
-    }
-    break;
-  case InitialBeta::RANDOM:
-    for (EdgeDescriptor e : this->edges()) {
-      // this->uni_dist() gives a random number in range [0, 1]
-      // Multiplying by 2 scales the range to [0, 2]
-      // Subtracting 1 moves the range to [-1, 1]
-      graph[e].theta = this->uni_dist(this->rand_num_generator) * 2 - 1;
-    }
-    break;
-  }
-}
-
 void AnalysisGraph::set_random_initial_latent_state() {
   int num_verts = this->num_vertices();
 
