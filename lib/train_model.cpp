@@ -19,12 +19,6 @@ void AnalysisGraph::train_model(int start_year,
                                 InitialBeta initial_beta,
                                 bool use_heuristic,
                                 bool use_continuous) {
-  this->data_heuristic = use_heuristic;
-
-  this->n_timesteps = this->calculate_num_timesteps(start_year, start_month,
-                                                      end_year,   end_month);
-  this->training_range = make_pair(make_pair(start_year, start_month),
-                                   make_pair(  end_year,   end_month));
 
   if (!synthetic_data_experiment && !causemos_call) {
     // Delphi is run locally using observation data from delphi.db
