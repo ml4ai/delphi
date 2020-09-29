@@ -576,7 +576,9 @@ class AnalysisGraph {
    *
    */
   void
-  set_observed_state_sequence_from_data(std::string country = "South Sudan",
+  set_observed_state_sequence_from_data(int start_year = 2012,
+                                        int start_month = 1,
+                                        std::string country = "South Sudan",
                                         std::string state = "",
                                         std::string county = "");
 
@@ -611,11 +613,32 @@ class AnalysisGraph {
   */
 
   /**
-   * Initialize the parameters of the Delphi model.
+   * Initialize all the parameters and hyper-parameters of the Delphi model.
+   *
+   * @param start_year  : Start year of the sequence of data
+   * @param start_month : Start month of the sequence of data
+   * @param end_year    : End year of the sequence of data
+   * @param end_month   : End month of the sequence of data
+   * @param res         : Sampling resolution. The number of samples to retain.
+   * @param initial_beta: Criteria to initialize β
+   * @param use_heuristic : Informs how to handle missing observations.
+   *                        false => let them be missing.
+   *                        true => fill them. See
+   *                        data.hpp::get_observations_for() for missing data
+   *                        rules.
+   * @param use_continuous: Choose between continuous vs discretized versions
+   *                        of the differential equation solution.
+   *                        Default is to use the continuous version with
+   *                        matrix exponential.
    */
-  void initialize_parameters(int res,
-                             InitialBeta initial_beta,
-                             bool use_continuous);
+  void initialize_parameters(int start_year = 2012,
+                             int start_month = 1,
+                             int end_year = 2017,
+                             int end_month = 12,
+                             int res = 200,
+                             InitialBeta initial_beta = InitialBeta::ZERO,
+                             bool use_heuristic = false,
+                             bool use_continuous = true);
 
   void set_indicator_means_and_standard_deviations();
 
@@ -1092,6 +1115,11 @@ class AnalysisGraph {
    * @param units       : Units for each indicator. Maps
    *                      indicator name --> unit
    * @param initial_beta: Criteria to initialize β
+   * @param use_heuristic : Informs how to handle missing observations.
+   *                        false => let them be missing.
+   *                        true => fill them. See
+   *                        data.hpp::get_observations_for() for missing data
+   *                        rules.
    * @param use_continuous: Choose between continuous vs discretized versions
    *                        of the differential equation solution.
    *                        Default is to use the continuous version with

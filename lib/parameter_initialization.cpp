@@ -5,18 +5,42 @@
 using namespace std;
 using namespace delphi::utils;
 
-void AnalysisGraph::initialize_parameters(int res,
+/*
+============================================================================
+Private: Initializing model parameters
+============================================================================
+*/
+
+/**
+ * Initialize all the parameters and hyper-parameters of the Delphi model.
+ */
+void AnalysisGraph::initialize_parameters(int start_year,
+                                          int start_month,
+                                          int end_year,
+                                          int end_month,
+                                          int res,
                                           InitialBeta initial_beta,
+                                          bool use_heuristic,
                                           bool use_continuous) {
     this->initialize_random_number_generator();
     this->uni_disc_dist = uniform_int_distribution<int>(0, this->num_nodes() - 1);
 
-    this->continuous = use_continuous;
     this->res = res;
+    this->continuous = use_continuous;
+    this->data_heuristic = use_heuristic;
+    this->training_range = make_pair(make_pair(start_year, start_month),
+                                     make_pair(  end_year,   end_month));
+    this->n_timesteps = this->calculate_num_timesteps(start_year, start_month,
+                                                        end_year,   end_month);
 
     this->find_all_paths();
 
     if (!causemos_call) {
+        // θ pdfs are generated during the create-model call and they are
+        // serialized into json. So we do not need to re-generate them now,
+        // which is a bit time consuming task.
+        // We had to generate θ pdfs while create-model to generate the
+        // appropriate model-creation response, which requires edge weights.
         this->construct_theta_pdfs();
     }
     this->init_betas_to(initial_beta);
@@ -183,6 +207,9 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
   }
 }
 
+/**
+ * This is a helper function used by construct_theta_pdfs()
+ */
 AdjectiveResponseMap construct_adjective_response_map(
     mt19937 gen,
     uniform_real_distribution<double>& uni_dist,
@@ -221,12 +248,6 @@ AdjectiveResponseMap construct_adjective_response_map(
   db = nullptr;
   return adjective_response_map;
 }
-
-/*
- ============================================================================
- Public: Construct Theta Pdfs
- ============================================================================
-*/
 
 void AnalysisGraph::construct_theta_pdfs() {
 
