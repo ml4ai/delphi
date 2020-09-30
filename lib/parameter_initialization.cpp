@@ -162,7 +162,7 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
           // TODO: Instead of comparing text, it would be better to define an
           // enumerated type say AggMethod and use it. Such an enumerated type
           // needs to be shared between AnalysisGraph and Indicator classes.
-          if (aggregation_method.compare("first") != 0) {
+          if (aggregation_method.compare("first") == 0) {
               if (ts_sequence[0] == 0) {
                   // The first observation is not missing
                   ind.set_mean(mean_sequence[0]);
@@ -178,7 +178,7 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
                   ind.set_mean(mean_sequence[0]);
               }
           }
-          else if (aggregation_method.compare("last") != 0) {
+          else if (aggregation_method.compare("last") == 0) {
               int last_obs_idx = this->n_timesteps - 1;
               if (ts_sequence.back() == last_obs_idx) {
                   // The first observation is not missing
@@ -191,16 +191,16 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
                   ind.set_mean(mean_sequence.back());
               }
           }
-          else if (aggregation_method.compare("min") != 0) {
+          else if (aggregation_method.compare("min") == 0) {
               ind.set_mean(ranges::min(mean_sequence));
           }
-          else if (aggregation_method.compare("max") != 0) {
+          else if (aggregation_method.compare("max") == 0) {
               ind.set_mean(ranges::max(mean_sequence));
           }
-          else if (aggregation_method.compare("mean") != 0) {
+          else if (aggregation_method.compare("mean") == 0) {
               ind.set_mean(delphi::utils::mean(mean_sequence));
           }
-          else if (aggregation_method.compare("median") != 0) {
+          else if (aggregation_method.compare("median") == 0) {
               ind.set_mean(delphi::utils::median(mean_sequence));
           }
       }
