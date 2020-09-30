@@ -46,24 +46,49 @@ typedef tuple<int, int, vector<double>, vector<pair<tuple<string, int, string>, 
 void AnalysisGraph::from_delphi_json_dict(const nlohmann::json &json_data, bool verbose) {
     this->id = json_data["id"];
 
-    for (auto& concept_name : json_data["concepts"])
-    {
-      this->add_node(concept_name);
-    }
 
     int conceptIndicators_arrSize = 0;
     if (sizeof(json_data["conceptIndicators"])){ int conceptIndicators_arrSize = sizeof(json_data["conceptIndicators"])/sizeof(json_data["conceptIndicators"][0]);}
     
-    for (int v = 0; v < conceptIndicators_arrSize; v++)
-    {
-      Node &n = (*this)[v];
-      for (auto indicator_arr : json_data["conceptIndicators"][v])
+    //for (int v = 0; v < conceptIndicators_arrSize; v++)
+    //{
+    //  Node &n = (*this)[v];
+
+    if (verbose){
+      for (auto& concept_arr : json_data["concepts"])
       {
-        int indicator_index =  n.add_indicator(indicator_arr["indicator"], indicator_arr["source"]); 
-        n.indicators[indicator_index].aggregation_method = indicator_arr["func"];
-        n.indicators[indicator_index].unit = indicator_arr["unit"];
+        this->add_node(concept_arr[0][1]);
+      }
+    } else{
+      for (auto& concept_name : json_data["concepts"])
+      {
+        this->add_node(concept_name);
       }
     }
+
+    for (Node &n : this->nodes())
+    {    
+  
+      for (auto indicator_arr : json_data["conceptIndicators"][this->name_to_vertex.at(n.name)])
+      {
+        if (verbose){
+          int indicator_index =  n.add_indicator(indicator_arr[0][1], indicator_arr[2][1]); 
+          n.indicators[indicator_index].aggregation_method = indicator_arr[3][1];
+          n.indicators[indicator_index].unit = indicator_arr[4][1];
+        } 
+        else{
+          int indicator_index = 0;
+          if (sizeof(indicator_arr)){ int indicator_index = sizeof(indicator_arr)/sizeof(indicator_arr[0]);}
+    
+          for (int i = 0; i < indicator_index; i++){
+            n.add_indicator(indicator_arr[i][0][1], indicator_arr[i][1][1]); 
+            n.indicators[i].aggregation_method = indicator_arr[i][2][1];
+            n.indicators[i].unit = indicator_arr[i][3][1];
+          }
+        }
+      }
+    }
+    
 
     if (verbose) {
       for (auto& edge_element : json_data["edges"])
@@ -96,10 +121,11 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json &json_data, bool 
                              {get<0>(object), get<1>(object), get<2>(object)});
             this->add_edge(causal_fragment);
         }
-        auto e = this->edge(get<0>(edge_element), get<1>(edge_element));
-        e.kde = get<2>(edge_element);
+        //print("this:  {0} {1}", get<0>(edge_element), get<1>(edge_element));
+        this->edge(get<0>(edge_element), get<1>(edge_element)).kde.dataset = get<2>(edge_element);
       }
     }
+
 
     if (verbose) {
         this->training_range.first.first  = json_data["start_year"];
@@ -110,6 +136,7 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json &json_data, bool 
         this->training_range = json_data["training_range"];
     }
 
+    this->observed_state_sequence = json_data["observations"].get<ObservedStateSequence>();
 }
 
 /*
