@@ -178,6 +178,8 @@ string AnalysisGraph::serialize_to_json_string(bool verbose) {
     // Concept and indicator indexes are according to the concept and indicator
     // ids mentioned above.
     j["observations"] = this->observed_state_sequence;
+
+    /*
     //cout << j.dump(4) << endl;
     //
     // NOTE: Just to guide Aishwarya. Delete Later.
@@ -198,6 +200,7 @@ string AnalysisGraph::serialize_to_json_string(bool verbose) {
     // Accessing a single CausalFragment
     CausalFragment cf = edges[0]["evidence"][0];
     print("{0}, {1}, {2}\n", get<0>(cf.first), get<1>(cf.first), get<2>(cf.first));
+    */
 
-    return j.dump();
+    return j.dump(4);
 }
