@@ -110,8 +110,7 @@ AnalysisGraph::test_inference_with_synthetic_data(int start_year,
   synthetic_data_experiment = true;
   this->n_timesteps = this->calculate_num_timesteps(
       start_year, start_month, end_year, end_month);
-  this->initialize_parameters(start_year, start_month, end_year, end_month,
-                                            res, initial_beta, false, use_continuous);
+  this->initialize_parameters(res, initial_beta, false, use_continuous);
 
   // Initialize the latent state vector at time 0
   this->set_random_initial_latent_state();

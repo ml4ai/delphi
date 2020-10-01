@@ -87,7 +87,7 @@ class AnalysisGraph {
   DiGraph graph;
 
   // Handle to the random number generator singleton object
-  RNG* rng_instance;
+  RNG* rng_instance = nullptr;
 
   std::mt19937 rand_num_generator;
 
@@ -150,8 +150,8 @@ class AnalysisGraph {
   // generate_prediction()
   bool trained = false;
 
-  int n_timesteps;
-  int pred_timesteps;
+  int n_timesteps = 0;
+  int pred_timesteps = 0;
   std::pair<std::pair<int, int>, std::pair<int, int>> training_range;
   std::vector<std::string> pred_range;
 
@@ -172,8 +172,8 @@ class AnalysisGraph {
   std::pair<EdgeDescriptor, double> previous_theta;
 
   // Remember the old derivative and the concept we perturbed the derivative
-  int changed_derivative;
-  double previous_derivative;
+  int changed_derivative = 0;
+  double previous_derivative = 0;
 
   // Latent state that is evolved by sampling.
   Eigen::VectorXd s0;
@@ -576,9 +576,7 @@ class AnalysisGraph {
    *
    */
   void
-  set_observed_state_sequence_from_data(int start_year = 2012,
-                                        int start_month = 1,
-                                        std::string country = "South Sudan",
+  set_observed_state_sequence_from_data(std::string country = "South Sudan",
                                         std::string state = "",
                                         std::string county = "");
 
@@ -631,11 +629,7 @@ class AnalysisGraph {
    *                        Default is to use the continuous version with
    *                        matrix exponential.
    */
-  void initialize_parameters(int start_year = 2012,
-                             int start_month = 1,
-                             int end_year = 2017,
-                             int end_month = 12,
-                             int res = 200,
+  void initialize_parameters(int res = 200,
                              InitialBeta initial_beta = InitialBeta::ZERO,
                              bool use_heuristic = false,
                              bool use_continuous = true);

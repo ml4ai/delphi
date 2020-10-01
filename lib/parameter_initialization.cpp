@@ -14,11 +14,7 @@ Private: Initializing model parameters
 /**
  * Initialize all the parameters and hyper-parameters of the Delphi model.
  */
-void AnalysisGraph::initialize_parameters(int start_year,
-                                          int start_month,
-                                          int end_year,
-                                          int end_month,
-                                          int res,
+void AnalysisGraph::initialize_parameters(int res,
                                           InitialBeta initial_beta,
                                           bool use_heuristic,
                                           bool use_continuous) {
@@ -28,10 +24,6 @@ void AnalysisGraph::initialize_parameters(int start_year,
     this->res = res;
     this->continuous = use_continuous;
     this->data_heuristic = use_heuristic;
-    this->training_range = make_pair(make_pair(start_year, start_month),
-                                     make_pair(  end_year,   end_month));
-    this->n_timesteps = this->calculate_num_timesteps(start_year, start_month,
-                                                        end_year,   end_month);
 
     this->find_all_paths();
 
