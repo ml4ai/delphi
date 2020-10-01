@@ -71,10 +71,9 @@ void AnalysisGraph::generate_latent_state_sequences(
           //                  equation becomes,
           //                      s_{t+1} = e^{Ac * Δt } * s_t
           //                  What this equation says is that although vector
-          //                  indices advance by 1, predictions stored in two
-          //                  adjacent vector cells need not be a single time
-          //                  step apart. They are actually Δt time steps
-          //                  apart.
+          //                  indices advance by 1, the duration between two
+          //                  predictions stored in two adjacent vector cells
+          //                  need not be 1. The time duration is actually Δt.
           //                  The actual line of code represents,
           //                        s_t = e^{Ac * Δt } * s_{t-1}
           // When discrete  : s_t = Ad * s_{t-1}
