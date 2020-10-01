@@ -28,85 +28,62 @@ void AnalysisGraph::generate_latent_state_sequences(
       this->res,
       vector<VectorXd>(this->n_timesteps, VectorXd(this->num_vertices() * 2)));
 
-  if (this->continuous) {
-      for (int samp = 0; samp < this->res; samp++) {
-          const MatrixXd& A_c = this->transition_matrix_collection[samp];
-          // Computing e^A (The matrix exponential for a single step. t = 1)
-          const Eigen::MatrixXd e_A_1 = A_c.exp();
-
-          /*******************************************/
-          /* Old version without constraints
-          for (int t = 0; t < this->n_timesteps; t++) {
-              // Computing e^At
-              const Eigen::MatrixXd e_A_t = (A_c * t).exp();
-
-              if (project) {
-                  // Perform projection based on the perturbed initial latent state s0
-                  //this->predicted_latent_state_sequences[samp][t] = A_c.pow(t) * this->s0;
-                  this->predicted_latent_state_sequences[samp][t] = e_A_t * this->s0;
-              }
-              else {
-                  // Perform inference based on the sampled initial latent states
-                  const VectorXd& s0_samp = this->initial_latent_state_collection[samp];
-                  //this->predicted_latent_state_sequences[samp][t] = A_c.pow(t) * s0_samp;
-                  this->predicted_latent_state_sequences[samp][t] = e_A_t * s0_samp;
-              }
-          }
-          Old version end*/
-          /*******************************************/
-
-          /* New version begins*/
-          if (project) {
-              this->predicted_latent_state_sequences[samp][0] = this->s0;
-          } else {
-              // Perform inference based on the sampled initial latent states
-              this->predicted_latent_state_sequences[samp][0] =
-                  this->initial_latent_state_collection[samp];
-
-              // Apply constraints to latent state if any
-              if (delphi::utils::in(this->latent_state_constraints, 0)) {
-                  this->perturb_predicted_latent_state_at(0, samp);
-              }
-          }
-
-          for (int t = 1; t < this->n_timesteps; t++) {
-              // s_t = e^A * s_{t-1}
-              this->predicted_latent_state_sequences[samp][t] =
-                  e_A_1 * this->predicted_latent_state_sequences[samp][t - 1];
-
-              // Apply constraints to latent state if any
-              if (delphi::utils::in(this->latent_state_constraints, t)) {
-                  this->perturb_predicted_latent_state_at(t, samp);
-              }
-          }
-          /* New version ends*/
+  for (int samp = 0; samp < this->res; samp++) {
+      // The sampled transition matrices would be either of matrix exponential
+      // (continuous) version or discretized version depending on whether the
+      // matrix exponential (continuous) version or the discretized transition
+      // matrix version had been used to train the model. This allows us to
+      // make the prediction routine common for both the versions, except for
+      // the exponentiation of the matrix exponential (continuous) transition
+      // matrices.
+      MatrixXd A;
+      if (this->continuous) {
+          // Here Ac = this->transition_matrix_collection[samp] (continuous)
+          // Computing the matrix exponential for a Δt time step.
+          // By default we are using Δt = 1
+          // A = e^{Ac * Δt)
+          A = (this->transition_matrix_collection[samp] * this->delta_t).exp();
+      } else {
+          // Here A = Ad = this->transition_matrix_collection[samp] (discrete)
+          A = this->transition_matrix_collection[samp];
       }
-  } else {
-      // Discretized version
-      for (int samp = 0; samp < this->res; samp++) {
-          const MatrixXd& A_d = this->transition_matrix_collection[samp];
 
-          if (project) {
-              this->predicted_latent_state_sequences[samp][0] = this->s0;
-          } else {
-              // Perform inference based on the sampled initial latent states
-              this->predicted_latent_state_sequences[samp][0] =
-                  this->initial_latent_state_collection[samp];
+      if (project) {
+          this->predicted_latent_state_sequences[samp][0] = this->s0;
+      } else {
+          // Perform inference based on the sampled initial latent states
+          this->predicted_latent_state_sequences[samp][0] =
+              this->initial_latent_state_collection[samp];
 
-              // Apply constraints to latent state if any
-              if (delphi::utils::in(this->latent_state_constraints, 0)) {
-                  this->perturb_predicted_latent_state_at(0, samp);
-              }
+          // Apply constraints to latent state if any
+          if (delphi::utils::in(this->latent_state_constraints, 0)) {
+              this->perturb_predicted_latent_state_at(0, samp);
           }
+      }
 
-          for (int t = 1; t < this->n_timesteps; t++) {
-              this->predicted_latent_state_sequences[samp][t] =
-                  A_d * this->predicted_latent_state_sequences[samp][t - 1];
+      for (int t = 1; t < this->n_timesteps; t++) {
+          // When continuous: The standard matrix exponential equation is,
+          //                        s_{t+Δt} = e^{Ac * Δt } * s_t
+          //                  Since vector indexes are integral values, and in
+          //                  the implementation s is the vector, to index into
+          //                  the vector we uses consecutive integers. Thus in
+          //                  the implementation, the matrix exponential
+          //                  equation becomes,
+          //                      s_{t+1} = e^{Ac * Δt } * s_t
+          //                  What this equation says is that although vector
+          //                  indexes advance by 1, predictions stored in two
+          //                  adjacent vector cells need not be a single time
+          //                  step apart. They are actually Δt time steps
+          //                  apart.
+          //                  The actual line of code represents,
+          //                        s_t = e^{Ac * Δt } * s_{t-1}
+          // When discrete  : s_t = Ad * s_{t-1}
+          this->predicted_latent_state_sequences[samp][t] =
+              A * this->predicted_latent_state_sequences[samp][t - 1];
 
-              // Apply constraints to latent state if any
-              if (delphi::utils::in(this->latent_state_constraints, t)) {
-                  this->perturb_predicted_latent_state_at(t, samp);
-              }
+          // Apply constraints to latent state if any
+          if (delphi::utils::in(this->latent_state_constraints, t)) {
+              this->perturb_predicted_latent_state_at(t, samp);
           }
       }
   }
