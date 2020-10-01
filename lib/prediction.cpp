@@ -64,14 +64,14 @@ void AnalysisGraph::generate_latent_state_sequences(
       for (int t = 1; t < this->n_timesteps; t++) {
           // When continuous: The standard matrix exponential equation is,
           //                        s_{t+Δt} = e^{Ac * Δt } * s_t
-          //                  Since vector indexes are integral values, and in
+          //                  Since vector indices are integral values, and in
           //                  the implementation s is the vector, to index into
           //                  the vector we uses consecutive integers. Thus in
           //                  the implementation, the matrix exponential
           //                  equation becomes,
           //                      s_{t+1} = e^{Ac * Δt } * s_t
           //                  What this equation says is that although vector
-          //                  indexes advance by 1, predictions stored in two
+          //                  indices advance by 1, predictions stored in two
           //                  adjacent vector cells need not be a single time
           //                  step apart. They are actually Δt time steps
           //                  apart.
@@ -92,8 +92,8 @@ void AnalysisGraph::generate_latent_state_sequences(
 void AnalysisGraph::perturb_predicted_latent_state_at(int timestep, int sample_number) {
     // Let vertices of the CAG be v = 0, 1, 2, 3, ...
     // Then,
-    //    indexes 2*v keeps track of the state of each variable v
-    //    indexes 2*v+1 keeps track of the state of ∂v/∂t
+    //    indices 2*v keeps track of the state of each variable v
+    //    indices 2*v+1 keeps track of the state of ∂v/∂t
     for (auto constraint : this->latent_state_constraints.at(t)) {
         int node_id = constraint.first;
         double value = constraint.second;
