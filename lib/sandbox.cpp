@@ -77,6 +77,7 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json &json_data, bool 
           n.indicators[indicator_index].unit = indicator_arr[4][1];
         } 
         else{
+            /*
           int indicator_index = 0;
           if (sizeof(indicator_arr)){ int indicator_index = sizeof(indicator_arr)/sizeof(indicator_arr[0]);}
     
@@ -85,9 +86,26 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json &json_data, bool 
             n.indicators[i].aggregation_method = indicator_arr[i][2][1];
             n.indicators[i].unit = indicator_arr[i][3][1];
           }
+          */
         }
       }
     }
+    // Manujinda solution start
+    if (!verbose) {
+        for (int v = 0; v < this->num_vertices(); v++) {
+            Node &n = (*this)[v];
+
+            auto ind_data = json_data["conceptIndicators"][v];
+
+            for (auto ind : ind_data) {
+                string ind_name = ind["indicator"].get<string>();
+                n.add_indicator(ind_name, ind["source"].get<string>());
+                n.get_indicator(ind_name).set_aggregation_method(ind["func"].get<string>());
+                n.get_indicator(ind_name).set_unit(ind["unit"].get<string>());
+            }
+        }
+    }
+    // Manujinda solution end
     
 
     if (verbose) {
