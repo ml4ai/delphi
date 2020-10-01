@@ -219,6 +219,19 @@ class AnalysisGraph {
 
   PredictedObservedStateSequence test_observed_state_sequence;
 
+  // To store constraints (or interventions)
+  // For some times steps of the prediction range, latent state values could be
+  // constrained to a value external from what the LDS predicts that value
+  // should be. When prediction happens, if constrains are present at a time
+  // step for some concepts, the predicted latent state values for those
+  // concepts are overwritten by the constraints supplied in this data
+  // structure.
+  // Access
+  // [ time step ] --> [(concept id, constrained value), ... ]
+  // latent_state_constraints.at(time step)
+  std::unordered_map<int, std::vector<std::pair<int, double>>>
+      latent_state_constraints;
+
   std::vector<Eigen::MatrixXd> transition_matrix_collection;
   std::vector<Eigen::VectorXd> initial_latent_state_collection;
 
@@ -725,6 +738,8 @@ class AnalysisGraph {
                                        int total_timesteps,
                                        bool project = false);
 
+  void perturb_predicted_latent_state_at(int timestep, int sample_number);
+
   /** Generate observed state sequences given predicted latent state
    * sequences using the emission model
    */
@@ -791,7 +806,9 @@ class AnalysisGraph {
       std::string rankdir = "TB");
 
   public:
-  AnalysisGraph() {}
+  AnalysisGraph() {
+      latent_state_constraints.clear();
+  }
 
   ~AnalysisGraph() {}
 

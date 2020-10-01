@@ -31,10 +31,14 @@ void AnalysisGraph::generate_latent_state_sequences(
   if (this->continuous) {
       for (int samp = 0; samp < this->res; samp++) {
           const MatrixXd& A_c = this->transition_matrix_collection[samp];
+          // Computing e^A (The matrix exponential for a single step. t = 1)
+          const Eigen::MatrixXd e_A_1 = A_c.exp();
 
+          /*******************************************/
+          /* Old version without constraints
           for (int t = 0; t < this->n_timesteps; t++) {
               // Computing e^At
-              const Eigen::MatrixXd& e_A_t = (A_c * t).exp();
+              const Eigen::MatrixXd e_A_t = (A_c * t).exp();
 
               if (project) {
                   // Perform projection based on the perturbed initial latent state s0
@@ -48,6 +52,34 @@ void AnalysisGraph::generate_latent_state_sequences(
                   this->predicted_latent_state_sequences[samp][t] = e_A_t * s0_samp;
               }
           }
+          Old version end*/
+          /*******************************************/
+
+          /* New version begins*/
+          if (project) {
+              this->predicted_latent_state_sequences[samp][0] = this->s0;
+          } else {
+              // Perform inference based on the sampled initial latent states
+              this->predicted_latent_state_sequences[samp][0] =
+                  this->initial_latent_state_collection[samp];
+
+              // Apply constraints to latent state if any
+              if (delphi::utils::in(this->latent_state_constraints, 0)) {
+                  this->perturb_predicted_latent_state_at(0, samp);
+              }
+          }
+
+          for (int t = 1; t < this->n_timesteps; t++) {
+              // s_t = e^A * s_{t-1}
+              this->predicted_latent_state_sequences[samp][t] =
+                  e_A_1 * this->predicted_latent_state_sequences[samp][t - 1];
+
+              // Apply constraints to latent state if any
+              if (delphi::utils::in(this->latent_state_constraints, t)) {
+                  this->perturb_predicted_latent_state_at(t, samp);
+              }
+          }
+          /* New version ends*/
       }
   } else {
       // Discretized version
@@ -60,14 +92,37 @@ void AnalysisGraph::generate_latent_state_sequences(
               // Perform inference based on the sampled initial latent states
               this->predicted_latent_state_sequences[samp][0] =
                   this->initial_latent_state_collection[samp];
+
+              // Apply constraints to latent state if any
+              if (delphi::utils::in(this->latent_state_constraints, 0)) {
+                  this->perturb_predicted_latent_state_at(0, samp);
+              }
           }
 
           for (int t = 1; t < this->n_timesteps; t++) {
               this->predicted_latent_state_sequences[samp][t] =
                   A_d * this->predicted_latent_state_sequences[samp][t - 1];
+
+              // Apply constraints to latent state if any
+              if (delphi::utils::in(this->latent_state_constraints, t)) {
+                  this->perturb_predicted_latent_state_at(t, samp);
+              }
           }
       }
   }
+}
+
+void AnalysisGraph::perturb_predicted_latent_state_at(int timestep, int sample_number) {
+    // Let vertices of the CAG be v = 0, 1, 2, 3, ...
+    // Then,
+    //    indexes 2*v keeps track of the state of each variable v
+    //    indexes 2*v+1 keeps track of the state of ∂v/∂t
+    for (auto constraint : this->latent_state_constraints.at(t)) {
+        int node_id = constraint.first;
+        double value = constraint.second;
+
+        this->predicted_latent_state_sequences[sample_number][t](2 * node_id) = value;
+    }
 }
 
 void AnalysisGraph::generate_observed_state_sequences() {
