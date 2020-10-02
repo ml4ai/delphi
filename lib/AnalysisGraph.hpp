@@ -219,6 +219,52 @@ class AnalysisGraph {
 
   PredictedObservedStateSequence test_observed_state_sequence;
 
+  // Implementing constraints or interventions.
+  // -------------------------------------------------------------------------
+  // We are implementing two ways to constrain the model.
+  //    1. One-off constraints.
+  //        A latent state is clamped to a constrained value just for the
+  //        specified time step and released to evolve from the subsequent time
+  //        step onward until the next constrained time step and so on.
+  //        E.g. Getting a one time grant.
+  //    2. Perpetual constraints
+  //        Once a latent state gets clamped at a value at a particular time
+  //        step, it stays clamped at that value in subsequent time steps until
+  //        another constrain overwrites the current constrain or the end of
+  //        the prediction time is reached.
+  //        NOTE: Currently we do not have a way to have a semi-perpetual
+  //        constraint: A constraint is applied perpetually for some number of
+  //        continuous time steps and then switched off. With a little bit of
+  //        work we can implement this. We just need a special constraint value
+  //        to signal end of a constraint. One suggestion is to use NaN.
+  //        E.g. Maintaining a water level of a reservoir at a certain amount.
+  //
+  // NOTE: WE either apply One-off or Perpetual constraints to all the
+  //       concepts. The current design does not permit applying mixed
+  //       constraints such that some concepts are constrained one-off while
+  //       some others are constrained perpetual. With a little bit more work,
+  //       we could also achieve this. Moving the constraint type into the
+  //       constraint information data structure would work for keeping track
+  //       of mixed constraint types:
+  //        std::unordered_map<int, std::vector<std::tuple<int, double, bool>>>
+  //       Then we would have to update the constraint processing logic
+  //       accordingly.
+  // -------------------------------------------------------------------------
+  //
+  // NOTE: This implementation of the constraints does not work at all with
+  // multiple indicators being attached to a single concept. Constraining the
+  // concept effects all the indicators and we cannot constrain targeted for a
+  // particular indicator. In the current model we might achieve this by
+  // constraining the scaling factor (which we incorrectly call as the
+  // indicator mean).
+  // Currently we are doing:
+  //    constrained latent state = constrained indicator value / scaling factor
+  // The constraining that might work with multiple indicators per concept:
+  //    constrained scaling factor = constrained indicator value / latent state
+  // -------------------------------------------------------------------------
+  //
+  // Implementing the One-off constraints:
+  // -------------------------------------------------------------------------
   // To store constraints (or interventions)
   // For some times steps of the prediction range, latent state values could be
   // constrained to a value external from what the LDS predicts that value
@@ -230,7 +276,20 @@ class AnalysisGraph {
   // [ time step ] --> [(concept id, constrained value), ... ]
   // latent_state_constraints.at(time step)
   std::unordered_map<int, std::vector<std::pair<int, double>>>
-      latent_state_constraints;
+      one_off_constraints={{5, {std::make_pair(1, 2.0)}}, {15, {std::make_pair(1, 3.0)}}};
+  //
+  // Implementing Perpetual constraints:
+  // -------------------------------------------------------------------------
+  // Access
+  // [ concept id ] --> constrained value
+  // perpetual_constraints.at(concept id)
+  std::unordered_map<int, double> perpetual_constraints;
+  //
+  // Deciding which type of constraints to enforce
+  // one_off_constraints is empty => unconstrained prediction
+  // is_one_off_constraints = true => One-off constraints
+  // is_one_off_constraints = false => Perpetual constraints
+  bool is_one_off_constraints = true;
 
   std::vector<Eigen::MatrixXd> transition_matrix_collection;
   std::vector<Eigen::VectorXd> initial_latent_state_collection;
@@ -807,7 +866,8 @@ class AnalysisGraph {
 
   public:
   AnalysisGraph() {
-      latent_state_constraints.clear();
+     one_off_constraints.clear();
+     perpetual_constraints.clear();
   }
 
   ~AnalysisGraph() {}

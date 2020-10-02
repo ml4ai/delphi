@@ -9,6 +9,8 @@ using fmt::print, fmt::format;
 namespace rs = ranges;
 using boost::adaptors::transformed;
 
+#include "dbg.h"
+using fmt::print;
 /*
  ============================================================================
  Private: Prediction
@@ -48,6 +50,9 @@ void AnalysisGraph::generate_latent_state_sequences(
           A = this->transition_matrix_collection[samp];
       }
 
+      // Clear out perpetual constraints residual from previous sample
+      this->perpetual_constraints.clear();
+
       if (project) {
           this->predicted_latent_state_sequences[samp][0] = this->s0;
       } else {
@@ -56,12 +61,12 @@ void AnalysisGraph::generate_latent_state_sequences(
               this->initial_latent_state_collection[samp];
 
           // Apply constraints to latent state if any
-          if (delphi::utils::in(this->latent_state_constraints, 0)) {
+          if (delphi::utils::in(this->one_off_constraints, 0)) {
               this->perturb_predicted_latent_state_at(0, samp);
           }
       }
 
-      for (int t = 1; t < this->n_timesteps; t++) {
+      for (int ts = 1; ts < this->n_timesteps; ts++) {
           // When continuous: The standard matrix exponential equation is,
           //                        s_{t+Δt} = e^{Ac * Δt } * s_t
           //                  Since vector indices are integral values, and in
@@ -77,27 +82,72 @@ void AnalysisGraph::generate_latent_state_sequences(
           //                  The actual line of code represents,
           //                        s_t = e^{Ac * Δt } * s_{t-1}
           // When discrete  : s_t = Ad * s_{t-1}
-          this->predicted_latent_state_sequences[samp][t] =
-              A * this->predicted_latent_state_sequences[samp][t - 1];
+          this->predicted_latent_state_sequences[samp][ts] =
+              A * this->predicted_latent_state_sequences[samp][ts - 1];
 
           // Apply constraints to latent state if any
-          if (delphi::utils::in(this->latent_state_constraints, t)) {
-              this->perturb_predicted_latent_state_at(t, samp);
+          // Logic of this condition:
+          //    Initially perpetual_constraints = ∅
+          //
+          //    one_off_constraints.at(ts) = ∅ => Unconstrained ∀ ts
+          //
+          //    one_off_constraints.at(ts) ‡ ∅
+          //        => ∃ some constraints (But we do not know what kind)
+          //        => Perturb latent state
+          //           Call perturb_predicted_latent_state_at()
+          //           one_off_constraints == true
+          //                => We are applying One-off constraints
+          //           one_off_constraints == false
+          //                => We are applying perpetual constraints
+          //                => We add constraints to perpetual_constraints
+          //                => perpetual_constraints ‡ ∅
+          //                => The if condition is true ∀ subsequent time steps
+          //                   after ts (the first time step s.t.
+          //                   one_off_constraints.at(ts) ‡ ∅
+          //                => Constraints are perpetual
+          //
+          if (delphi::utils::in(this->one_off_constraints, ts) ||
+                  !this->perpetual_constraints.empty()) {
+              this->perturb_predicted_latent_state_at(ts, samp);
           }
       }
   }
 }
 
+/*
+ * Applying constraints (interventions) to latent states
+ * Check the data structure definition to get more descriptions
+ */
 void AnalysisGraph::perturb_predicted_latent_state_at(int timestep, int sample_number) {
     // Let vertices of the CAG be v = 0, 1, 2, 3, ...
     // Then,
     //    indices 2*v keeps track of the state of each variable v
     //    indices 2*v+1 keeps track of the state of ∂v/∂t
-    for (auto constraint : this->latent_state_constraints.at(t)) {
-        int node_id = constraint.first;
-        double value = constraint.second;
+    if (is_one_off_constraints) {
+        for (auto constraint : this->one_off_constraints.at(timestep)) {
+            int node_id = constraint.first;
+            double value = constraint.second;
 
-        this->predicted_latent_state_sequences[sample_number][t](2 * node_id) = value;
+            this->predicted_latent_state_sequences[sample_number][timestep](2 * node_id) = value;
+        }
+    } else { // Perpetual constraints
+        if (delphi::utils::in(this->one_off_constraints, timestep)) {
+            // Update any previous perpetual constraints
+            for (auto constraint : this->one_off_constraints.at(timestep)) {
+                int node_id = constraint.first;
+                double value = constraint.second;
+
+                this->perpetual_constraints[node_id] = value;
+            }
+        }
+
+        // Apply perpetual constraints
+        for (auto constraint : this->perpetual_constraints) {
+            int node_id = constraint.first;
+            double value = constraint.second;
+
+            this->predicted_latent_state_sequences[sample_number][timestep](2 * node_id) = value;
+        }
     }
 }
 
