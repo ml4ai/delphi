@@ -305,6 +305,10 @@ class AnalysisGraph {
    ============================================================================
   */
 
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                            create-model
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
   /** Extracts concept to indicator mapping and the indicator observation
    * sequences from the create model JSON input received from the CauseMose
    * HMI. The JSON input specifies time as POSIX time stamps in milliseconds.
@@ -444,6 +448,13 @@ class AnalysisGraph {
    */
   void
   set_observed_state_sequence_from_json_dict(const nlohmann::json &json_indicators);
+
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                          create-experiment
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+  void run_causemose_projection_experiment(
+                                const nlohmann::json &projection_parameters);
 
   void sample_transition_matrix_collection_from_prior();
 
@@ -932,6 +943,10 @@ class AnalysisGraph {
    ============================================================================
   */
 
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                            create-model
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
   /** Construct an AnalysisGraph object from JSON exported by CauseMos. */
   void from_causemos_json_dict(const nlohmann::json &json_data);
 
@@ -961,6 +976,26 @@ class AnalysisGraph {
    * Calculate and return a JSON string with edge weight information for
    * visualizing AnalysisGraph models in CauseMos. */
   std::string get_edge_weights_for_causemos_viz();
+
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                          create-experiment
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+  void create_causemos_experiment_from_json_string(std::string json_string);
+
+  void create_causemos_experiment_from_json_file(std::string filename);
+
+  std::pair<int, int> timestamp_to_year_month(long timestamp);
+
+  std::pair<int, int> calculate_end_year_month(int start_year, int start_month,
+                                               int num_timesteps);
+
+  double calculate_prediction_timestep_length(int start_year, int start_month,
+                                              int end_year, int end_month,
+                                              int pred_timesteps);
+
+  void extract_projection_constraints(
+                                const nlohmann::json &projection_constraints);
 
   FormattedProjectionResult
   generate_causemos_projection(std::string json_projection);

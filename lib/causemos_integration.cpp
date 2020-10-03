@@ -22,6 +22,10 @@ Private: Integration with Uncharted's CauseMos interface
 ============================================================================
 */
 
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                            create-model
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 /** Extracts concept to indicator mapping and the indicator observation
  * sequences from the create model JSON input received from the CauseMose
  * HMI.
@@ -408,6 +412,10 @@ Public: Integration with Uncharted's CauseMos interface
 ============================================================================
 */
 
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                            create-model
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data) {
 
   this->causemos_call = true;
@@ -586,6 +594,269 @@ string AnalysisGraph::get_edge_weights_for_causemos_viz() {
     relation["weight"] = relation["weight"].get<double>() / max_weight;
   }
   return j.dump();
+}
+
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                          create-experiment
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+void AnalysisGraph::create_causemos_experiment_from_json_string(
+                                                std::string json_string) {
+
+  auto json_data = nlohmann::json::parse(json_string);
+
+  string experiment_type = json_data["experimentType"].get<string>();
+
+  if (experiment_type.compare("PROJECTION") == 0)
+  {
+  }
+}
+
+void AnalysisGraph::create_causemos_experiment_from_json_file(string filename) {
+
+  dbg("in exp");
+  auto json_data = load_json(filename);
+
+  string experiment_type = json_data["experimentType"].get<string>();
+
+  if (experiment_type.compare("PROJECTION") == 0)
+  {
+      this->run_causemose_projection_experiment(json_data["experimentParam"]);
+  }
+}
+
+std::pair<int, int> AnalysisGraph::timestamp_to_year_month(long timestamp) {
+    //struct tm *ptm;
+    //
+    // The HMI uses milliseconds. So they multiply time-stamps by 1000.
+    // Before converting them back to year and month, we have to divide
+    // by 1000.
+    timestamp /=  1000;
+
+    // Convert the time-step to year and month.
+    // We are converting it according to GMT.
+    struct tm *ptm = gmtime(&timestamp);
+    int year = 1900 + ptm->tm_year;
+    int month = 1 + ptm->tm_mon;
+
+    return make_pair(year, month);
+}
+
+std::pair<int, int> AnalysisGraph::calculate_end_year_month(int start_year,
+                                                            int start_month,
+                                                            int num_timesteps) {
+    int end_year = start_year + (start_month + num_timesteps -1) / 12;
+    int end_month = (start_month + num_timesteps -1) % 12;
+
+    if (end_month == 0) {
+        end_month = 12;
+        end_year--;
+    }
+
+    return make_pair(end_year, end_month);
+}
+
+double AnalysisGraph::calculate_prediction_timestep_length(int start_year,
+                                                           int start_month,
+                                                           int end_year,
+                                                           int end_month,
+                                                           int pred_timesteps) {
+
+    /*
+     * We calculate the number of training time steps that fits within the
+     * provided start time point and the end time point (both ends inclusive)
+     * and then divide that number by the number of requested prediction time
+     * steps.
+     *
+     * Example:
+     * pred_timesteps : 1 2  3 4  5 6  7 8  9 10  11 12  13 14  15 16
+     * train_timesteps:  1    2    3    4    5      6      7      8
+     *
+     *            (# of training time steps between  *  (training time step
+     *                 prediction start and end)             duration)
+     * Δt_pred  = -----------------------------------------------------------
+     *                             prediction time steps
+     *
+     *            (# of training time steps between  *  Δt_train
+     *                 prediction start and end)
+     * Δt_pred  = -----------------------------------------------------------
+     *                             prediction time steps
+     *
+     * Δt_train = 1 (we set it as this for convenience)
+     *
+     *            (# of training time steps between prediction start and end)
+     * Δt_pred  = -----------------------------------------------------------
+     *                             prediction time steps
+     *
+     * Δt_pred  = 8/16 = 0.5
+     *
+     * In effect for each training time step we produce two prediction points.
+     */
+    // Calculate the number of training time steps between start and end of the
+    // prediction time points (# training time steps)
+    int num_training_time_steps = this->calculate_num_timesteps(start_year,
+                                            start_month, end_year, end_month);
+
+    return (double)num_training_time_steps / (double)pred_timesteps;
+}
+
+void AnalysisGraph::extract_projection_constraints(
+                            const nlohmann::json &projection_constraints) {
+    // During the create-model call we called construct_theta_pdfs() and
+    // serialized them to json. When we recreate the model we load them. So to
+    // prevent Delphi putting cycle to compute them again when we call
+    // initialize_parameters() below, let us inform Delphi that this is a
+    // CauseMos call.
+    // NOTE: In hind site, I might be able to prevent Delphi calling
+    //       initialize_parameters() within train_model() when we train due to
+    //       a CauseMos call. I need revise it to see whether anything is
+    //       called out of order.
+    this->causemos_call = true;
+
+    // We need indicator means (calling them mean is incorrect. However since
+    // we have been doing it so far for consistency that is carried forward
+    // here. The proper way to call this is staling factor). So set indicator
+    // means:
+    this->initialize_parameters();
+
+    for (auto constraint : projection_constraints) {
+        if (constraint["concept"].is_null()) {continue;}
+        string concept_name = constraint["concept"].get<string>();
+        dbg(concept_name);
+
+        // Check whether this concept is in the CAG
+        if (!in(this->name_to_vertex, concept_name)) {
+            print("Concept \"{0}\" not in CAG!\n", concept_name);
+            continue;
+        }
+
+        int concept_id = this->name_to_vertex.at(concept_name);
+
+        // Get the first indicator of this node
+        // NOTE: Delphi is capable of attaching multiple indicators to a single
+        //       concept. Since we are constraining the latent state, We can
+        //       constrain (or intervene) based on only one of those
+        //       indicators. We choose to constrain the first indicator
+        //       attached to a concept which should be present irrespective of
+        //       whether this concept has one or more indicators attached to
+        //       it.
+        const int ind_id = 0;
+        Indicator& ind =  (*this)[concept_id].indicators[ind_id];
+
+        // Allocate the One off constraints data structure to be populated with
+        // constraints
+        this->one_off_constraints.clear();
+        for (auto values : constraint["values"]) {
+            if (values["step"].is_null()) {continue;}
+            int step     = values["step"].get<int>();
+
+            this->one_off_constraints[step] = vector<pair<int, double>>();
+
+            dbg(step);
+        }
+
+        for (auto values : constraint["values"]) {
+            // We need both the step and the value to proceed. Thus checking
+            // again to reduce bookkeeping.
+            if (values["step"].is_null()) {continue;}
+            if (values["value"].is_null()) {continue;}
+            int step     = values["step"].get<int>();
+            double ind_value = values["value"].get<double>();
+
+            // We have to clamp the latent state value corresponding to this
+            // indicator such that the probability where the emission Gaussian
+            // emitting the requested indicator value is the highest. For a
+            // Gaussian emission function, the highest probable value is its
+            // mean. So we have to set:
+            //      μ = ind_value
+            //      latent_clam_value * scaling_factor = ind_value
+            //      latent_clamp_value = ind_value / scaling_factor
+            // NOTE: In our code we incorrectly call scaling_factor as
+            //       indicator mean. To avoid confusion here, I am using the
+            //       correct terminology.
+            //       (Gosh, when we have incorrect terminology and we know it
+            //       and we have not fixed it, I have to type a lot of
+            //       comments)
+            double latent_clamp_value = ind_value / ind.get_mean();
+            dbg(ind_value);
+            dbg(ind.get_mean());
+            dbg(latent_clamp_value);
+
+            this->one_off_constraints[step].push_back(
+                                    make_pair(concept_id, latent_clamp_value));
+        }
+    }
+}
+
+void AnalysisGraph::run_causemose_projection_experiment(
+                            const nlohmann::json &projection_parameters) {
+    using namespace fmt::literals;
+
+    dbg("running exp");
+    time_t timestamp;
+    pair<int, int> year_month;
+
+    if (projection_parameters["startTime"].is_null()) {return;}
+    timestamp = projection_parameters["startTime"].get<long>();
+
+    year_month = this->timestamp_to_year_month(timestamp);
+    int start_year = year_month.first;
+    int start_month = year_month.second;
+
+    dbg(start_year);
+    dbg(start_month);
+
+    if (projection_parameters["endTime"].is_null()) {return;}
+    timestamp = projection_parameters["endTime"].get<long>();
+
+    year_month = this->timestamp_to_year_month(timestamp);
+    int end_year_given = year_month.first;
+    int end_month_given = year_month.second;
+
+    dbg(end_year_given);
+    dbg(end_month_given);
+
+    if (projection_parameters["numTimesteps"].is_null()) {return;}
+    int num_timesteps = projection_parameters["numTimesteps"].get<int>();
+
+    // Calculate end_year, end_month assuming that each time step is a month.
+    // In other words, we are calculating the end_year, end_month assuming that
+    // the duration of a prediction time step = the duration of a training time
+    // step.
+    // Yet another explanation is we are assuming that both training and
+    // prediction frequencies are the same.
+    // NOTE: We are calculating this because:
+    //       Earlier both CauseMos and Delphi used (year, month) as the time
+    //       stamp interval. So it is somewhat hard coded into Delphi.
+    //       Uncharted suddenly changed the protocol and stated to use Posix
+    //       time stamps to index data. So we are using a hack hear. For the
+    //       moment we are disregarding the CauseMos provided end_year and
+    //       end_month (end_year_given and end_month_given) above and compute
+    //       the end_year, end_month to match up with the number of prediction
+    //       time steps CauseMos is requesting for. Then we are feeding these
+    //       calculated end_year, end_month to Delphi prediction so that Delphi
+    //       generates the desired number of prediction points. One caveat is
+    //       that now Delphi is predicting on a monthly basis. We can do better
+    //       by making Delphi predict at a different frequency than the
+    //       training frequency by setting Δt appropriately.
+    year_month = calculate_end_year_month(start_year, start_month, num_timesteps);
+    int end_year_calculated = year_month.first;
+    int end_month_calculated = year_month.second;
+
+    dbg(end_year_calculated);
+    dbg(end_month_calculated);
+
+    // NOTE: At the moment we are assuming that delta_t for prediction is also
+    // 1. This is an effort to do otherwise which might make things better in
+    // the long run. This is commented because, we have to check whether this
+    // is mathematically sound and this is the correct way to handle the
+    // situation.
+    //this->delta_t = calculate_prediction_timestep_length(start_year, start_month,
+    //                                                     end_year_given,
+    //                                                     end_month_given,
+    //                                                     num_timesteps);
+
+    this->extract_projection_constraints(projection_parameters["constraints"]);
 }
 
 FormattedProjectionResult
