@@ -7,6 +7,9 @@
 #include <range/v3/all.hpp>
 #include <time.h>
 #include <limits.h>
+#include <uuid/uuid.h>// for uuid
+#include <sys/wait.h> // for fork
+#include <unistd.h>   // for fork
 #include "dbg.h"
 
 using namespace std;
@@ -604,24 +607,25 @@ void AnalysisGraph::create_causemos_experiment_from_json_string(
                                                 std::string json_string) {
 
   auto json_data = nlohmann::json::parse(json_string);
-
-  string experiment_type = json_data["experimentType"].get<string>();
-
-  if (experiment_type.compare("PROJECTION") == 0)
-  {
-  }
+  create_causemos_experiment_from_json_dict(json_data);
 }
 
 void AnalysisGraph::create_causemos_experiment_from_json_file(string filename) {
 
-  dbg("in exp");
   auto json_data = load_json(filename);
+  create_causemos_experiment_from_json_dict(json_data);
+}
 
+void AnalysisGraph::create_causemos_experiment_from_json_dict(
+                                            const nlohmann::json &json_data) {
   string experiment_type = json_data["experimentType"].get<string>();
 
+  // Decide the type of the experiment to run
   if (experiment_type.compare("PROJECTION") == 0)
   {
-      this->run_causemose_projection_experiment(json_data["experimentParam"]);
+      string response = this->run_causemose_projection_experiment(
+                                                json_data["experimentParam"]);
+      dbg(response);
   }
 }
 
@@ -788,35 +792,36 @@ void AnalysisGraph::extract_projection_constraints(
     }
 }
 
-void AnalysisGraph::run_causemose_projection_experiment(
+string AnalysisGraph::run_causemose_projection_experiment(
                             const nlohmann::json &projection_parameters) {
     using namespace fmt::literals;
+    using nlohmann::json;
 
     dbg("running exp");
     time_t timestamp;
     pair<int, int> year_month;
 
-    if (projection_parameters["startTime"].is_null()) {return;}
+    if (projection_parameters["startTime"].is_null()) {return("");}
     timestamp = projection_parameters["startTime"].get<long>();
 
     year_month = this->timestamp_to_year_month(timestamp);
-    int start_year = year_month.first;
-    int start_month = year_month.second;
+    int pred_start_year = year_month.first;
+    int pred_start_month = year_month.second;
 
-    dbg(start_year);
-    dbg(start_month);
+    dbg(pred_start_year);
+    dbg(pred_start_month);
 
-    if (projection_parameters["endTime"].is_null()) {return;}
+    if (projection_parameters["endTime"].is_null()) {return("");}
     timestamp = projection_parameters["endTime"].get<long>();
 
     year_month = this->timestamp_to_year_month(timestamp);
-    int end_year_given = year_month.first;
-    int end_month_given = year_month.second;
+    int pred_end_year_given = year_month.first;
+    int pred_end_month_given = year_month.second;
 
-    dbg(end_year_given);
-    dbg(end_month_given);
+    dbg(pred_end_year_given);
+    dbg(pred_end_month_given);
 
-    if (projection_parameters["numTimesteps"].is_null()) {return;}
+    if (projection_parameters["numTimesteps"].is_null()) {return("");}
     int num_timesteps = projection_parameters["numTimesteps"].get<int>();
 
     // Calculate end_year, end_month assuming that each time step is a month.
@@ -839,12 +844,13 @@ void AnalysisGraph::run_causemose_projection_experiment(
     //       that now Delphi is predicting on a monthly basis. We can do better
     //       by making Delphi predict at a different frequency than the
     //       training frequency by setting Δt appropriately.
-    year_month = calculate_end_year_month(start_year, start_month, num_timesteps);
-    int end_year_calculated = year_month.first;
-    int end_month_calculated = year_month.second;
+    year_month = calculate_end_year_month(pred_start_year, pred_start_month,
+                                          num_timesteps);
+    int pred_end_year_calculated = year_month.first;
+    int pred_end_month_calculated = year_month.second;
 
-    dbg(end_year_calculated);
-    dbg(end_month_calculated);
+    dbg(pred_end_year_calculated);
+    dbg(pred_end_month_calculated);
 
     // NOTE: At the moment we are assuming that delta_t for prediction is also
     // 1. This is an effort to do otherwise which might make things better in
@@ -857,6 +863,58 @@ void AnalysisGraph::run_causemose_projection_experiment(
     //                                                     num_timesteps);
 
     this->extract_projection_constraints(projection_parameters["constraints"]);
+
+    // Generate the experiment UUID
+    char ch[37];
+    memset(ch, 0, 37);
+    uuid_t uuid;
+    uuid_generate(uuid);
+    uuid_unparse(uuid, ch);
+    string* projection_experiment_uuid = new string(ch);
+    dbg(*projection_experiment_uuid);
+
+    // Create create-experiment::projection response
+    json create_projection_response;
+    create_projection_response["experimentId"] = *projection_experiment_uuid;
+    free(projection_experiment_uuid);
+
+    dbg(create_projection_response.dump(4));
+
+    int train_start_year = this->training_range.first.first;
+    int train_start_month = this->training_range.first.second;
+    int train_end_year = this->training_range.second.first;
+    int train_end_month = this->training_range.second.second;
+
+    //this->train_model(train_start_year, train_start_month,
+    //                            train_end_year, train_end_month, 20, 20);
+    //return(create_projection_response.dump());
+
+    // Create a parent and child processes
+    // parent will return to the caller and the child will train the model
+    pid_t pid = fork();
+
+    if (pid > 0) {
+        print("Parent process. Child is {0}\n", pid);
+        /*
+        int stat;
+        wait(NULL);
+        if (WIFEXITED(stat)) {
+            printf("Exit status: %d\n", WEXITSTATUS(stat));
+        } else if (WIFSIGNALED(stat)) {
+            psignal(WTERMSIG(stat), "Exit signal");
+        }
+        */
+        return(create_projection_response.dump());
+    } else {
+        print("Child process. I got pid as {0}\n", pid);
+        this->train_model(train_start_year, train_start_month,
+                                train_end_year, train_end_month);
+        this->generate_prediction(pred_start_year, pred_start_month,
+                                  pred_end_year_calculated,
+                                  pred_end_month_calculated);
+        dbg("Training completed");
+        return("Child returns\n");
+    }
 }
 
 FormattedProjectionResult

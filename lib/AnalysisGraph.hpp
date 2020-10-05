@@ -62,6 +62,16 @@ typedef std::vector<std::vector<
 typedef std::unordered_map<std::string, std::vector<std::vector<double>>>
     FormattedProjectionResult;
 
+// Access
+// get<0>:
+//      Training range
+//      <<start_year, start_month>, <end_year, end_month>>
+// get<1>:
+//      Sequence of prediction time steps
+//      [yyyy-mm₀, yyyy-mm₁, yyyy-mm₂, yyyy-mm₃, .....]
+// get<2>:
+//      Prediction results
+//      [ sample ][ time_step ][ vertex_name ][ indicator_name ]
 typedef std::tuple<std::pair<std::pair<int, int>, std::pair<int, int>>,
                    std::vector<std::string>,
                    FormattedPredictionResult>
@@ -452,9 +462,6 @@ class AnalysisGraph {
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                           create-experiment
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-  void run_causemose_projection_experiment(
-                                const nlohmann::json &projection_parameters);
 
   void sample_transition_matrix_collection_from_prior();
 
@@ -985,6 +992,9 @@ class AnalysisGraph {
 
   void create_causemos_experiment_from_json_file(std::string filename);
 
+  void create_causemos_experiment_from_json_dict(
+                                            const nlohmann::json &json_data);
+
   std::pair<int, int> timestamp_to_year_month(long timestamp);
 
   std::pair<int, int> calculate_end_year_month(int start_year, int start_month,
@@ -993,6 +1003,9 @@ class AnalysisGraph {
   double calculate_prediction_timestep_length(int start_year, int start_month,
                                               int end_year, int end_month,
                                               int pred_timesteps);
+
+  std::string run_causemose_projection_experiment(
+                                const nlohmann::json &projection_parameters);
 
   void extract_projection_constraints(
                                 const nlohmann::json &projection_constraints);
