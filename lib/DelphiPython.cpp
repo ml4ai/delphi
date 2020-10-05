@@ -160,13 +160,25 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def("generate_causemos_projection",
            &AnalysisGraph::generate_causemos_projection,
            "json_projection"_a)
+      .def("create_causemos_experiment_from_json_string",
+           &AnalysisGraph::create_causemos_experiment_from_json_string,
+           "json_string"_a)
+      .def("run_causemose_projection_experiment",
+           &AnalysisGraph::run_causemose_projection_experiment,
+           "projection_parameters"_a)
       .def("prediction_to_array",
            &AnalysisGraph::prediction_to_array,
            "indicator"_a)
       .def("set_derivative", &AnalysisGraph::set_derivative)
       .def("set_default_initial_state",
            &AnalysisGraph::set_default_initial_state)
-      .def("set_random_seed", &AnalysisGraph::set_random_seed);
+      .def("set_random_seed", &AnalysisGraph::set_random_seed)
+      .def("serialize_to_json_string",
+              &AnalysisGraph::serialize_to_json_string,
+              "verbose"_a = false)
+      .def("deserialize_from_json_string",
+              &AnalysisGraph::deserialize_from_json_string,
+              "verbose"_a = false);
 
   py::class_<RV>(m, "RV")
       .def(py::init<std::string>())
