@@ -19,6 +19,7 @@ PYBIND11_MODULE(DelphiPython, m) {
       .value("RANDOM", InitialBeta::RANDOM);
 
   py::class_<AnalysisGraph>(m, "AnalysisGraph")
+      .def(py::init())
       .def_readwrite("id", &AnalysisGraph::id)
       .def("to_json_string", &AnalysisGraph::to_json_string, "indent"_a = 0)
       .def("from_json_string", &AnalysisGraph::from_json_string)
