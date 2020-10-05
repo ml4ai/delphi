@@ -355,8 +355,6 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
 
                 for(auto it = obs.first; it != obs.second; it++) {
                     this->observed_state_sequence[ts][v][i].push_back(it->second);
-
-                    //print("{}: {}: {}-{} --> {}\n", n.name, n.indicators[i].get_name(), year, month, this->observed_state_sequence[ts][v][i].back());
                 }
             }
         }
@@ -423,6 +421,12 @@ void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data) {
 
   this->causemos_call = true;
 
+  // TODO: If model id is not present, we might want to not create the model
+  // and send a failure response. At the moment we just create a blank model,
+  // which could lead to future bugs that are hard to debug.
+  if (json_data["id"].is_null()){return;}
+  this->id = json_data["id"].get<string>();
+
   auto statements = json_data["statements"];
 
   for (auto stmt : statements) {
@@ -476,12 +480,13 @@ void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data) {
     auto subj_adjectives = subj_delta["adjectives"];
     auto obj_adjectives = obj_delta["adjectives"];
     auto subj_adjective =
-        // TODO: How does this "and" in the condition work??
         (!subj_adjectives.is_null() and subj_adjectives.size() > 0)
             ? subj_adjectives[0]
             : "None";
     auto obj_adjective =
-        (obj_adjectives.size() > 0) ? obj_adjectives[0] : "None";
+        (!obj_adjectives.is_null() and obj_adjectives.size() > 0)
+            ? obj_adjectives[0]
+            : "None";
 
     string subj_adj_str = subj_adjective.get<string>();
     string obj_adj_str = obj_adjective.get<string>();
@@ -495,10 +500,13 @@ void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data) {
   if (json_data["conceptIndicators"].is_null()) {
       // No indicator data provided.
       // TODO: What is the best action here?
-      throw runtime_error("No indicator information provided");
+      //throw runtime_error("No indicator information provided");
+      // Maybe this is acceptable since there is another call: edit-indicators,
+      // which is not yet implemented. An analyst can create a CAG structure
+      // without any indicators and then later attach indicators one by one.
+  } else {
+      this->set_observed_state_sequence_from_json_dict(json_data["conceptIndicators"]);
   }
-
-  this->set_observed_state_sequence_from_json_dict(json_data["conceptIndicators"]);
 
   this->initialize_random_number_generator();
   this->construct_theta_pdfs();

@@ -47,8 +47,9 @@ def createNewModel():
     """ Create a new Delphi model. """
     data = json.loads(request.data)
     G = AnalysisGraph.from_causemos_json_string(request.data)
-    G.id = data["id"]
-    model = DelphiModel(id=data["id"], model=G.to_json_string())
+    #G.id = data["id"]
+    model = DelphiModel(id=data["id"],
+            model=G.serialize_to_json_string(verbose=False))
     db.session.merge(model)
     db.session.commit()
     #edge_weights = G.get_edge_weights_for_causemos_viz()
