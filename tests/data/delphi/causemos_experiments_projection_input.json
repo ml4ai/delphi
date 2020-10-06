@@ -1,0 +1,2 @@
+{"experimentType": "PROJECTION", "experimentParam": {"startTime": 1609477200000.0, "endTime": 1641013200000.0, "numTimesteps": 30, "constraints": [{"concept": "a", "values": [{"step": 0, "value": 3.0}, {"step": 15, "value": -4.5}]}, {"concept": "b", "values": [{"step": 0, "value": 2.0}, {"step": 15, "value": -4.0}]}, {"concept": "c", "values": [{"step": 0, "value": 0.0}, {"step": 15, "value": 4.5}]}]}}
+
