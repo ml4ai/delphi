@@ -1,5 +1,6 @@
 #include "AnalysisGraph.hpp"
 #include <fmt/format.h>
+#include "dbg.h"
 
 using namespace std;
 using namespace fmt::literals;
@@ -42,6 +43,12 @@ string AnalysisGraph::to_json_string(int indent) {
 }
 
 string AnalysisGraph::serialize_to_json_string(bool verbose) {
+
+        dbg("Entering serialize");
+        dbg(this->training_range.first.first);
+         dbg(this->training_range.first.second);
+        dbg( this->training_range.second.first);
+        dbg( this->training_range.second.second);
     nlohmann::json j;
     j["id"] = this->id;
 
@@ -170,7 +177,15 @@ string AnalysisGraph::serialize_to_json_string(bool verbose) {
     } else {
         // This is a pair of pairs where the first pair is <start_year,
         // start_month> and the second pair is <end_year, end_month>
+        //this->training_range= make_pair(make_pair(1, 2), make_pair(3, 4));
         j["training_range"] = this->training_range;
+        //j["training_range"] = make_pair(make_pair(1, 2), make_pair(3, 4));
+
+        dbg("Dates");
+        dbg(this->training_range.first.first);
+         dbg(this->training_range.first.second);
+        dbg( this->training_range.second.first);
+        dbg( this->training_range.second.second);
     }
 
     // This contains all the observations. Indexing goes by
@@ -180,7 +195,6 @@ string AnalysisGraph::serialize_to_json_string(bool verbose) {
     j["observations"] = this->observed_state_sequence;
 
     /*
-    //cout << j.dump(4) << endl;
     //
     // NOTE: Just to guide Aishwarya. Delete Later.
     // How to access edges and evidence for deserialization.
@@ -202,5 +216,6 @@ string AnalysisGraph::serialize_to_json_string(bool verbose) {
     print("{0}, {1}, {2}\n", get<0>(cf.first), get<1>(cf.first), get<2>(cf.first));
     */
 
+    //cout << j.dump(4) << endl;
     return j.dump(4);
 }

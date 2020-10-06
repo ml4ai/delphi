@@ -105,6 +105,7 @@ PYBIND11_MODULE(DelphiPython, m) {
            "source"_a,
            "target"_a)
       .def("print_name_to_vertex", &AnalysisGraph::print_name_to_vertex)
+      .def("print_training_range", &AnalysisGraph::print_training_range)
       .def("map_concepts_to_indicators",
            &AnalysisGraph::map_concepts_to_indicators,
            "n"_a = 1,

@@ -309,6 +309,12 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
     dbg(end_year);
     dbg(end_month);
 
+        dbg("Assigned training range");
+        dbg(this->training_range.first.first);
+         dbg(this->training_range.first.second);
+        dbg( this->training_range.second.first);
+        dbg( this->training_range.second.second);
+
     // Decide the data frequency.
     int shortest_gap = INT_MAX;
     int longest_gap = 0;
@@ -369,6 +375,11 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
     }
 
     this->to_png("CAG_from_json.png");
+
+        dbg("exciting the assignment function");
+        dbg(this->training_range.first.first);
+         dbg(this->training_range.first.second);
+        dbg( this->training_range.second.first);
 }
 
 void AnalysisGraph::sample_transition_matrix_collection_from_prior() {
@@ -508,6 +519,11 @@ void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data) {
       this->set_observed_state_sequence_from_json_dict(json_data["conceptIndicators"]);
   }
 
+        dbg("after setting observed sequence");
+        dbg(this->training_range.first.first);
+         dbg(this->training_range.first.second);
+        dbg( this->training_range.second.first);
+
   this->initialize_random_number_generator();
   this->construct_theta_pdfs();
 }
@@ -523,10 +539,14 @@ AnalysisGraph AnalysisGraph::from_causemos_json_string(string json_string) {
 AnalysisGraph AnalysisGraph::from_causemos_json_file(string filename) {
   AnalysisGraph G;
 
-  dbg(filename);
   auto json_data = load_json(filename);
-  cout << json_data.dump(4) << endl;
   G.from_causemos_json_dict(json_data);
+
+        dbg("before returning graph");
+        dbg(G.training_range.first.first);
+         dbg(G.training_range.first.second);
+        dbg( G.training_range.second.first);
+        G.print_training_range();
   return G;
 }
 
