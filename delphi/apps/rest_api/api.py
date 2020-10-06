@@ -423,6 +423,94 @@ def getExperimentResults(modelID: str, experimentID: str):
         )
 
 
+@bp.route("/delphi/models/<string:modelID>/experiments", methods=["POST"])
+def createCausemosExperiment(modelID):
+
+    print(modelID)
+    model = DelphiModel.query.filter_by(id=modelID).first().model
+    G = AnalysisGraph.deserialize_from_json_string(model, verbose=False)
+
+    print(request.get_json())
+    experiment_type = request.get_json()["experimentType"]
+    print(experiment_type)
+
+    '''
+    projection_result = G.generate_causemos_projection(request.data)
+
+    experiment_id = str(uuid4())
+
+    def runExperiment():
+        experiment = ForwardProjection(
+            baseType="ForwardProjection", id=experiment_id
+        )
+        db.session.add(experiment)
+        db.session.commit()
+
+        result = CauseMosForwardProjectionResult(
+            id=experiment_id, baseType="CauseMosForwardProjectionResult"
+        )
+        result.results = {
+            G[n].name: {
+                "values": [],
+                "confidenceInterval": {"upper": [], "lower": []},
+            }
+            for n in G
+        }
+        db.session.add(result)
+
+        data = json.loads(request.data)
+        startTime = data["startTime"]
+
+        # # From https://www.ucl.ac.uk/child-health/short-courses-events/
+        # #     about-statistical-courses/research-methods-and-statistics/chapter-8-content-8
+        n = G.res
+        lower_rank = int((n - 1.96 * sqrt(n)) / 2)
+        upper_rank = int((2 + n + 1.96 * sqrt(n)) / 2)
+
+        lower_rank = 0 if lower_rank < 0 else lower_rank
+        upper_rank = n - 1 if upper_rank >= n else upper_rank
+
+        for concept, samples in projection_result.items():
+            d = parse(f"{startTime['year']} {startTime['month']}")
+            for ts in range(int(data["timeStepsInMonths"])):
+                d = d + relativedelta(months=1)
+
+                median_value = median(samples[ts])
+                lower_limit = samples[ts][lower_rank]
+                upper_limit = samples[ts][upper_rank]
+
+                value_dict = {
+                    "year": d.year,
+                    "month": d.month,
+                    "value": median_value,
+                }
+
+                result.results[concept]["values"].append(value_dict.copy())
+                value_dict.update({"value": lower_limit})
+                result.results[concept]["confidenceInterval"]["lower"].append(
+                    value_dict.copy()
+                )
+                value_dict.update({"value": upper_limit})
+                result.results[concept]["confidenceInterval"]["upper"].append(
+                    value_dict.copy()
+                )
+
+        db.session.add(result)
+        db.session.commit()
+
+    executor.submit_stored(experiment_id, runExperiment)
+
+    return jsonify(
+        {
+            "experimentId": experiment_id,
+            "results": executor.futures._state(experiment_id),
+        }
+    )
+    '''
+    return jsonify({"experimentId": "123"})
+
+
+
 # =======
 # ICM API
 # =======
