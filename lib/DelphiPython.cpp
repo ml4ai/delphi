@@ -162,7 +162,7 @@ PYBIND11_MODULE(DelphiPython, m) {
            "json_projection"_a)
       .def("run_causemose_projection_experiment",
            &AnalysisGraph::run_causemose_projection_experiment,
-           "projection_parameters"_a)
+           "json_string"_a)
       .def("prediction_to_array",
            &AnalysisGraph::prediction_to_array,
            "indicator"_a)
