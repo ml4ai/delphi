@@ -808,3 +808,36 @@ def traverse(uuid: str, prim_id: str):
 def getVersion():
     """ Get the version of the ICM API supported"""
     return "", 415
+
+
+#bp.route("/delphi/<string:uuid>/experiments", methods=["POST"])
+#ef createExperiment(uuid: str):
+#   """ Execute an experiment over the model"""
+#   experimentID = str(uuid4())
+#   if not executor.futures.done(experimentID):
+#       G = DelphiModel.query.filter_by(id=uuid).first().model
+#       json_serialized_model = G.serialize_to_json_string(False)
+#       #G_deserialized = G.deserialize_from_json_string(json_serialized_model, verbose)
+#       G.create_causemos_experiment_from_json_string(json_serialized_model)
+#       return jsonify(
+#           {
+#               "experimentId": experimentID,
+#               "status": executor.futures._state(experimentID),
+#           }
+#       )
+#   else:
+#       experimentResult = CauseMosForwardProjectionResult.query.filter_by(
+#           id=experimentID
+#       ).first()
+#       return jsonify(
+#           {
+#               "experimentId": experimentID,
+#               "results": experimentResult.deserialize()["results"],
+#               "status": "COMPLETE",
+#           }
+#       )
+
+
+
+
+

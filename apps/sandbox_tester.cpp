@@ -16,7 +16,6 @@ int main(int argc, char* argv[]) {
     using fmt::print;
 
     AnalysisGraph G = AnalysisGraph::from_causemos_json_file("../tests/data/delphi_create_model_payload.json");
-//<<<<<<< Updated upstream
 
     // Serialize the model
     string json_compact = G.serialize_to_json_string(false);
@@ -44,11 +43,12 @@ int main(int argc, char* argv[]) {
     fs << json_compact_2;
     fs.close();
 
-    /*
-    // NOTE: This line generates an error.
+    
+    /*// NOTE: This line generates an error.
     // If this cannot be debugged quickly we can keep it to later.
+    print("before \n");
     AnalysisGraph G_from_verbose = AnalysisGraph::deserialize_from_json_string(json_verbose, true); 
-
+    print("after \n");
     // Serialize these models again.
     string json_verbose_2 = G_from_verbose.serialize_to_json_string(true);
 
@@ -58,7 +58,6 @@ int main(int argc, char* argv[]) {
         print("Serialization: verbose failure\n");
     }
 
-    ofstream fs;
     fs.open ("json_original_verbose.txt");
     fs << json_verbose;
     fs.close();

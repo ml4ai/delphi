@@ -39,24 +39,26 @@ typedef tuple<int, int, vector<double>, vector<pair<tuple<string, int, string>, 
 void AnalysisGraph::from_delphi_json_dict(const nlohmann::json &json_data, bool verbose) {
     this->id = json_data["id"];
 
-    int conceptIndicators_arrSize = 0;
-    if (sizeof(json_data["conceptIndicators"])){ int conceptIndicators_arrSize = sizeof(json_data["conceptIndicators"])/sizeof(json_data["conceptIndicators"][0]);}
-
+    //int conceptIndicators_arrSize = 0;
+    //if (sizeof(json_data["conceptIndicators"])){ int conceptIndicators_arrSize = sizeof(json_data["conceptIndicators"])/sizeof(json_data["conceptIndicators"][0]);}
     if (verbose){
+      
+      //for (vector<tuple<string, string>, tuple<string, int>> concept_arr : json_data["concepts"])
       for (auto& concept_arr : json_data["concepts"])
-      {
-        this->add_node(concept_arr[0][1]);
+      { 
+        //print("{0} \n", concept_arr.value()[0]);
+        // this->add_node(get<1>(concept_arr[0]).get<int>());
+        this->add_node(concept_arr["concept"].get<string>());
       }
-      for (Node &n : this->nodes())
-      {    
-        for (auto indicator_arr : json_data["conceptIndicators"][this->name_to_vertex.at(n.name)])
+      for (int v = 0; v < this->num_vertices(); v++) {
+        Node &n = (*this)[v];
+        for (auto& indicator_arr : json_data["conceptIndicators"][this->name_to_vertex.at(n.name)])
         {
-            int indicator_index =  n.add_indicator(indicator_arr[0][1], indicator_arr[2][1]); 
-            n.indicators[indicator_index].aggregation_method = indicator_arr[3][1];
-            n.indicators[indicator_index].unit = indicator_arr[4][1];        
+            int indicator_index =  n.add_indicator(indicator_arr["indicator"].get<string>(), indicator_arr["source"].get<string>()); 
+            n.indicators[indicator_index].aggregation_method = indicator_arr["func"].get<string>();
+            n.indicators[indicator_index].unit = indicator_arr["unit"].get<int>();        
         }
       }
-
       for (auto& edge_element : json_data["edges"])
       {
         for (Evidence evidence : edge_element[0]["evidence"])
