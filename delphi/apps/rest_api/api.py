@@ -435,11 +435,11 @@ def createCausemosExperiment(modelID):
     print(experiment_type)
 
     '''
-    projection_result = G.generate_causemos_projection(request.data)
-
     experiment_id = str(uuid4())
 
     def runExperiment():
+        projection_result = G.generate_causemos_projection(request.data)
+
         experiment = ForwardProjection(
             baseType="ForwardProjection", id=experiment_id
         )
