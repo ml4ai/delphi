@@ -631,9 +631,7 @@ void AnalysisGraph::create_causemos_experiment_from_json_dict(
   // Decide the type of the experiment to run
   if (experiment_type.compare("PROJECTION") == 0)
   {
-      string response = this->run_causemose_projection_experiment(
-                                                json_data["experimentParam"]);
-      dbg(response);
+     this->run_causemose_projection_experiment(json_data["experimentParam"]);
   }
 }
 
@@ -800,16 +798,20 @@ void AnalysisGraph::extract_projection_constraints(
     }
 }
 
-string AnalysisGraph::run_causemose_projection_experiment(
+Prediction AnalysisGraph::run_causemose_projection_experiment(
                             const nlohmann::json &projection_parameters) {
     using namespace fmt::literals;
     using nlohmann::json;
+
+    // Just a dummy empty prediction to signal that there is an error in
+    // projection parameters.
+    Prediction null_prediction = Prediction();
 
     dbg("running exp");
     time_t timestamp;
     pair<int, int> year_month;
 
-    if (projection_parameters["startTime"].is_null()) {return("");}
+    if (projection_parameters["startTime"].is_null()) {return null_prediction;}
     timestamp = projection_parameters["startTime"].get<long>();
 
     year_month = this->timestamp_to_year_month(timestamp);
@@ -819,7 +821,7 @@ string AnalysisGraph::run_causemose_projection_experiment(
     dbg(pred_start_year);
     dbg(pred_start_month);
 
-    if (projection_parameters["endTime"].is_null()) {return("");}
+    if (projection_parameters["endTime"].is_null()) {return null_prediction;}
     timestamp = projection_parameters["endTime"].get<long>();
 
     year_month = this->timestamp_to_year_month(timestamp);
@@ -829,7 +831,7 @@ string AnalysisGraph::run_causemose_projection_experiment(
     dbg(pred_end_year_given);
     dbg(pred_end_month_given);
 
-    if (projection_parameters["numTimesteps"].is_null()) {return("");}
+    if (projection_parameters["numTimesteps"].is_null()) {return null_prediction;}
     int num_timesteps = projection_parameters["numTimesteps"].get<int>();
 
     // Calculate end_year, end_month assuming that each time step is a month.
@@ -872,6 +874,20 @@ string AnalysisGraph::run_causemose_projection_experiment(
 
     this->extract_projection_constraints(projection_parameters["constraints"]);
 
+    int train_start_year = this->training_range.first.first;
+    int train_start_month = this->training_range.first.second;
+    int train_end_year = this->training_range.second.first;
+    int train_end_month = this->training_range.second.second;
+
+    this->train_model(train_start_year, train_start_month,
+                            train_end_year, train_end_month);
+    return this->generate_prediction(pred_start_year, pred_start_month,
+                                     pred_end_year_calculated,
+                                     pred_end_month_calculated);
+
+    // We do not need to create multiple processes at Delphi end as Flask is
+    // handling that.
+    /*
     // Generate the experiment UUID
     char ch[37];
     memset(ch, 0, 37);
@@ -888,11 +904,6 @@ string AnalysisGraph::run_causemose_projection_experiment(
 
     dbg(create_projection_response.dump(4));
 
-    int train_start_year = this->training_range.first.first;
-    int train_start_month = this->training_range.first.second;
-    int train_end_year = this->training_range.second.first;
-    int train_end_month = this->training_range.second.second;
-
     //this->train_model(train_start_year, train_start_month,
     //                            train_end_year, train_end_month, 20, 20);
     //return(create_projection_response.dump());
@@ -903,7 +914,6 @@ string AnalysisGraph::run_causemose_projection_experiment(
 
     if (pid > 0) {
         print("Parent process. Child is {0}\n", pid);
-        /*
         int stat;
         wait(NULL);
         if (WIFEXITED(stat)) {
@@ -911,7 +921,6 @@ string AnalysisGraph::run_causemose_projection_experiment(
         } else if (WIFSIGNALED(stat)) {
             psignal(WTERMSIG(stat), "Exit signal");
         }
-        */
         return(create_projection_response.dump());
     } else {
         print("Child process. I got pid as {0}\n", pid);
@@ -923,6 +932,7 @@ string AnalysisGraph::run_causemose_projection_experiment(
         dbg("Training completed");
         return("Child returns\n");
     }
+    */
 }
 
 FormattedProjectionResult
