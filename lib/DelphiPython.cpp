@@ -5,6 +5,7 @@
 #include <pybind11/stl.h>
 
 #include "AnalysisGraph.hpp"
+#include "PybindTester.hpp"
 
 namespace py = pybind11;
 using namespace pybind11::literals;
@@ -242,4 +243,10 @@ PYBIND11_MODULE(DelphiPython, m) {
                         KDE kde(t[0].cast<vector<double>>());
                         return kde;
                       }));
+
+  py::class_<PybindTester>(m, "PybindTester")
+      .def_static("from_something",
+                  &PybindTester::from_something)
+      .def("print_PybindTester",
+                  &PybindTester::print_PybindTester);
 }
