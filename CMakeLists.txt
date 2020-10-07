@@ -74,6 +74,7 @@ add_library(Delphi
   lib/printing.cpp
   lib/indicator_manipulation.cpp
   lib/sandbox.cpp
+  lib/PybindTester.hpp
 )
 
 target_link_libraries(Delphi
@@ -93,6 +94,8 @@ add_executable(create_model apps/create_model.cpp)
 target_link_libraries(create_model PRIVATE Delphi Eigen3::Eigen)
 add_executable(sandbox_tester apps/sandbox_tester.cpp)
 target_link_libraries(sandbox_tester PRIVATE Delphi Eigen3::Eigen)
+
+add_executable(pybind_tester_driver apps/pybind_tester_driver.cpp)
 
 add_custom_command(TARGET DelphiPython POST_BUILD
     COMMAND echo ""

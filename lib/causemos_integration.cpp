@@ -523,9 +523,7 @@ AnalysisGraph AnalysisGraph::from_causemos_json_string(string json_string) {
 AnalysisGraph AnalysisGraph::from_causemos_json_file(string filename) {
   AnalysisGraph G;
 
-  dbg(filename);
   auto json_data = load_json(filename);
-  cout << json_data.dump(4) << endl;
   G.from_causemos_json_dict(json_data);
   return G;
 }

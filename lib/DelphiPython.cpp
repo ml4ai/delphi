@@ -5,6 +5,7 @@
 #include <pybind11/stl.h>
 
 #include "AnalysisGraph.hpp"
+#include "PybindTester.hpp"
 
 namespace py = pybind11;
 using namespace pybind11::literals;
@@ -105,6 +106,7 @@ PYBIND11_MODULE(DelphiPython, m) {
            "source"_a,
            "target"_a)
       .def("print_name_to_vertex", &AnalysisGraph::print_name_to_vertex)
+      .def("print_training_range", &AnalysisGraph::print_training_range)
       .def("map_concepts_to_indicators",
            &AnalysisGraph::map_concepts_to_indicators,
            "n"_a = 1,
@@ -170,9 +172,10 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def("set_default_initial_state",
            &AnalysisGraph::set_default_initial_state)
       .def("set_random_seed", &AnalysisGraph::set_random_seed)
-      .def("deserialize_from_json_string",
-              &AnalysisGraph::deserialize_from_json_string,
-              "verbose"_a = false)
+      .def_static("deserialize_from_json_string",
+                  &AnalysisGraph::deserialize_from_json_string,
+                  "json_string"_a,
+                  "verbose"_a = false)
       .def("serialize_to_json_string", 
            &AnalysisGraph::serialize_to_json_string, 
            "verbose"_a = true)
@@ -241,4 +244,10 @@ PYBIND11_MODULE(DelphiPython, m) {
                         KDE kde(t[0].cast<vector<double>>());
                         return kde;
                       }));
+
+  py::class_<PybindTester>(m, "PybindTester")
+      .def_static("from_something",
+                  &PybindTester::from_something)
+      .def("print_PybindTester",
+                  &PybindTester::print_PybindTester);
 }
