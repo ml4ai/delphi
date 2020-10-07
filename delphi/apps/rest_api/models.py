@@ -350,6 +350,7 @@ class ForwardProjectionResult(ExperimentResult):
     __mapper_args__ = {"polymorphic_identity": "ForwardProjectionResult"}
 
 
+
 class SensitivityAnalysisResult(ExperimentResult):
     """ Placeholder docstring for class SensitivityAnalysisResult. """
 
@@ -362,3 +363,35 @@ class SensitivityAnalysisResult(ExperimentResult):
     )
     results = db.Column(JsonEncodedList, nullable=True)
     __mapper_args__ = {"polymorphic_identity": "SensitivityAnalysisResult"}
+
+
+
+
+class CauseMosAsyncExperiment(Experiment):
+    """ Placeholder docstring for class CauseMosAsyncExperiment. """
+
+    __tablename__ = "causemosasyncexperiment"
+    id = db.Column(
+        db.String,
+        db.ForeignKey("experiment.id"),
+        primary_key=True,
+        default=str(uuid4()),
+    )
+    interventions = db.Column(JsonEncodedList, nullable=True)
+    projection = db.Column(JsonEncodedDict, nullable=True)
+    __mapper_args__ = {"polymorphic_identity": "CauseMosAsyncExperiment"}
+
+
+class CauseMosAsyncExperimentResult(ExperimentResult):
+    """ Placeholder docstring for class CauseMosAsyncExperimentResult. """
+
+    __tablename__ = "causemosasyncexperimentresult"
+    id = db.Column(
+        db.String,
+        db.ForeignKey("experimentresult.id"),
+        primary_key=True,
+        default=str(uuid4()),
+    )
+    results = db.Column(JsonEncodedDict, nullable=True)
+    __mapper_args__ = {"polymorphic_identity": "CauseMosAsyncExperimentResult"}
+
