@@ -710,23 +710,6 @@ double AnalysisGraph::calculate_prediction_timestep_length(int start_year,
 
 void AnalysisGraph::extract_projection_constraints(
                             const nlohmann::json &projection_constraints) {
-    // During the create-model call we called construct_theta_pdfs() and
-    // serialized them to json. When we recreate the model we load them. So to
-    // prevent Delphi putting cycle to compute them again when we call
-    // initialize_parameters() below, let us inform Delphi that this is a
-    // CauseMos call.
-    // NOTE: In hind site, I might be able to prevent Delphi calling
-    //       initialize_parameters() within train_model() when we train due to
-    //       a CauseMos call. I need revise it to see whether anything is
-    //       called out of order.
-    this->causemos_call = true;
-
-    // We need indicator means (calling them mean is incorrect. However since
-    // we have been doing it so far for consistency that is carried forward
-    // here. The proper way to call this is staling factor). So set indicator
-    // means:
-    this->initialize_parameters();
-
     for (auto constraint : projection_constraints) {
         if (constraint["concept"].is_null()) {continue;}
         string concept_name = constraint["concept"].get<string>();
@@ -804,6 +787,17 @@ Prediction AnalysisGraph::run_causemose_projection_experiment(std::string json_s
     // projection parameters.
     Prediction null_prediction = Prediction();
 
+    // During the create-model call we called construct_theta_pdfs() and
+    // serialized them to json. When we recreate the model we load them. So to
+    // prevent Delphi putting cycle to compute them again when we call
+    // initialize_parameters() below, let us inform Delphi that this is a
+    // CauseMos call.
+    // NOTE: In hind site, I might be able to prevent Delphi calling
+    //       initialize_parameters() within train_model() when we train due to
+    //       a CauseMos call. I need revise it to see whether anything is
+    //       called out of order.
+    this->causemos_call = true;
+
     auto json_data = nlohmann::json::parse(json_string);
     if (json_data["experimentParam"].is_null()) {return null_prediction;}
     auto projection_parameters = json_data["experimentParam"];
@@ -862,6 +856,14 @@ Prediction AnalysisGraph::run_causemose_projection_experiment(std::string json_s
     dbg(proj_end_year_calculated);
     dbg(proj_end_month_calculated);
 
+    int train_start_year = this->training_range.first.first;
+    int train_start_month = this->training_range.first.second;
+    int train_end_year = this->training_range.second.first;
+    int train_end_month = this->training_range.second.second;
+
+    this->train_model(train_start_year, train_start_month,
+                            train_end_year, train_end_month);
+
     // NOTE: At the moment we are assuming that delta_t for prediction is also
     // 1. This is an effort to do otherwise which might make things better in
     // the long run. This is commented because, we have to check whether this
@@ -874,13 +876,6 @@ Prediction AnalysisGraph::run_causemose_projection_experiment(std::string json_s
 
     this->extract_projection_constraints(projection_parameters["constraints"]);
 
-    int train_start_year = this->training_range.first.first;
-    int train_start_month = this->training_range.first.second;
-    int train_end_year = this->training_range.second.first;
-    int train_end_month = this->training_range.second.second;
-
-    this->train_model(train_start_year, train_start_month,
-                            train_end_year, train_end_month);
     Prediction pred = this->generate_prediction(proj_start_year,
                                                 proj_start_month,
                                                 proj_end_year_calculated,
