@@ -1027,7 +1027,8 @@ class AnalysisGraph {
                                               int end_year, int end_month,
                                               int pred_timesteps);
 
-  Prediction run_causemose_projection_experiment(std::string json_string);
+  CausemosProjectionExperimentResult
+  run_causemose_projection_experiment(std::string json_string);
 
   void extract_projection_constraints(
                                 const nlohmann::json &projection_constraints);

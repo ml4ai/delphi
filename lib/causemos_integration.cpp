@@ -779,13 +779,15 @@ void AnalysisGraph::extract_projection_constraints(
     }
 }
 
-Prediction AnalysisGraph::run_causemose_projection_experiment(std::string json_string) {
+CausemosProjectionExperimentResult
+AnalysisGraph::run_causemose_projection_experiment(std::string json_string) {
     using namespace fmt::literals;
     using nlohmann::json;
 
     // Just a dummy empty prediction to signal that there is an error in
     // projection parameters.
-    Prediction null_prediction = Prediction();
+    CausemosProjectionExperimentResult null_prediction =
+                                        CausemosProjectionExperimentResult();
 
     // During the create-model call we called construct_theta_pdfs() and
     // serialized them to json. When we recreate the model we load them. So to
@@ -885,8 +887,7 @@ Prediction AnalysisGraph::run_causemose_projection_experiment(std::string json_s
                                                          proj_end_timestamp,
                                                          proj_num_timesteps,
                                                          get<2>(pred));
-    // TODO: Eventually we need to return cper
-    return pred;
+    return cper;
 
     // We do not need to create multiple processes at Delphi end as Flask is
     // handling that.
