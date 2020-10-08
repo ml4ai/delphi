@@ -52,6 +52,7 @@ typedef std::pair<std::tuple<std::string, int, std::string>,
     CausalFragment;
 
 // Access
+// [ sample ][ time_step ]{ vertex_name --> { indicator_name --> pred}}
 // [ sample ][ time_step ][ vertex_name ][ indicator_name ]
 typedef std::vector<std::vector<
     std::unordered_map<std::string, std::unordered_map<std::string, double>>>>
@@ -71,11 +72,26 @@ typedef std::unordered_map<std::string, std::vector<std::vector<double>>>
 //      [yyyy-mm₀, yyyy-mm₁, yyyy-mm₂, yyyy-mm₃, .....]
 // get<2>:
 //      Prediction results
+//      [ sample ][ time_step ]{ vertex_name --> { indicator_name --> pred}}
 //      [ sample ][ time_step ][ vertex_name ][ indicator_name ]
 typedef std::tuple<std::pair<std::pair<int, int>, std::pair<int, int>>,
                    std::vector<std::string>,
                    FormattedPredictionResult>
     Prediction;
+
+// Access
+// get<0>:
+//      Prediction start time (startTime)
+// get<1>:
+//      prediction end time (endTime)
+// get<2>:
+//      Prediction time steps (numTimesteps)
+// get<3>:
+//      Prediction results
+//      [ sample ][ time_step ]{ vertex_name --> { indicator_name --> pred}}
+//      [ sample ][ time_step ][ vertex_name ][ indicator_name ]
+typedef std::tuple<long, long, int, FormattedPredictionResult>
+    CausemosProjectionExperimentResult;
 
 typedef boost::graph_traits<DiGraph>::edge_descriptor EdgeDescriptor;
 typedef boost::graph_traits<DiGraph>::edge_iterator EdgeIterator;
