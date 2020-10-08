@@ -134,7 +134,7 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
           // when delphi is called from CauseMos HMI and in the Indicator class
           // the default standard deviation was set to be 0. This could be an
           // omission. I updated Indicator class so that the default indicator
-          // mean is 1.
+          // standard deviation is 1.
           double max_std = ranges::max(std_sequence);
           if(!isnan(max_std)) {
               // For indicator (v, i), at least one time step had
