@@ -286,7 +286,7 @@ class AnalysisGraph {
   // [ time step ] --> [(concept id, constrained value), ... ]
   // latent_state_constraints.at(time step)
   std::unordered_map<int, std::vector<std::pair<int, double>>>
-      one_off_constraints={{5, {std::make_pair(1, 2.0)}}, {15, {std::make_pair(1, 3.0)}}};
+      one_off_constraints;//={{5, {std::make_pair(1, 2.0)}}, {15, {std::make_pair(1, 3.0)}}};
   //
   // Implementing Perpetual constraints:
   // -------------------------------------------------------------------------
@@ -305,7 +305,6 @@ class AnalysisGraph {
   std::vector<Eigen::VectorXd> initial_latent_state_collection;
 
   std::vector<Eigen::VectorXd> synthetic_latent_state_sequence;
-  // ObservedStateSequence synthetic_observed_state_sequence;
   bool synthetic_data_experiment = false;
 
   /*
