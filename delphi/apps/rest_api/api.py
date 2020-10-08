@@ -435,24 +435,26 @@ def createCausemosExperiment(modelID):
     experiment_type = request.get_json()["experimentType"]
     #print(experiment_type)
 
+    #projection_result = G.generate_causemos_projection(request.data)
+
     experiment_id = str(uuid4())
     
     def runExperiment():
-        '''
+        
         if experiment_type == 'PROJECTION':
             causemos_experiment_result = G.run_causemose_projection_experiment(request.data)
         #elif experiment_type == 'sensitivityanalysis':
         #    causemos_experiment_result = G.run_causemose_projection_experiment(request.data)
 
-        print(causemos_experiment_result)
+        #print(causemos_experiment_result)
+#
+        #experiment = CauseMosAsyncExperiment(
+        #    baseType="CauseMosAsyncExperiment", id=experiment_id
+        #)
+        #db.session.add(experiment)
+        #db.session.commit()
 
-        experiment = CauseMosAsyncExperiment(
-            baseType="CauseMosAsyncExperiment", id=experiment_id
-        )
-        db.session.add(experiment)
-        db.session.commit()
-
-
+        '''
         result = CauseMosAsyncExperimentResult(
             id=experiment_id, baseType="CauseMosAsyncExperimentResult"
         )
