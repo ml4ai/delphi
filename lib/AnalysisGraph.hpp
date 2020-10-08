@@ -1011,13 +1011,6 @@ class AnalysisGraph {
                           create-experiment
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-  void create_causemos_experiment_from_json_string(std::string json_string);
-
-  void create_causemos_experiment_from_json_file(std::string filename);
-
-  void create_causemos_experiment_from_json_dict(
-                                            const nlohmann::json &json_data);
-
   std::pair<int, int> timestamp_to_year_month(long timestamp);
 
   std::pair<int, int> calculate_end_year_month(int start_year, int start_month,

@@ -178,10 +178,7 @@ PYBIND11_MODULE(DelphiPython, m) {
                   "verbose"_a = false)
       .def("serialize_to_json_string", 
            &AnalysisGraph::serialize_to_json_string, 
-           "verbose"_a = true)
-      .def("create_causemos_experiment_from_json_string", 
-           &AnalysisGraph::create_causemos_experiment_from_json_string, 
-           "json_string"_a);
+           "verbose"_a = true);
 
   py::class_<RV>(m, "RV")
       .def(py::init<std::string>())

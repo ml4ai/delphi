@@ -611,30 +611,6 @@ string AnalysisGraph::get_edge_weights_for_causemos_viz() {
                           create-experiment
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-void AnalysisGraph::create_causemos_experiment_from_json_string(
-                                                std::string json_string) {
-
-  auto json_data = nlohmann::json::parse(json_string);
-  create_causemos_experiment_from_json_dict(json_data);
-}
-
-void AnalysisGraph::create_causemos_experiment_from_json_file(string filename) {
-
-  auto json_data = load_json(filename);
-  create_causemos_experiment_from_json_dict(json_data);
-}
-
-void AnalysisGraph::create_causemos_experiment_from_json_dict(
-                                            const nlohmann::json &json_data) {
-  string experiment_type = json_data["experimentType"].get<string>();
-
-  // Decide the type of the experiment to run
-  if (experiment_type.compare("PROJECTION") == 0)
-  {
-     this->run_causemose_projection_experiment(json_data["experimentParam"]);
-  }
-}
-
 std::pair<int, int> AnalysisGraph::timestamp_to_year_month(long timestamp) {
     // The HMI uses milliseconds. So they multiply time-stamps by 1000.
     // Before converting them back to year and month, we have to divide
