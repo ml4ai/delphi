@@ -180,20 +180,6 @@ void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json
         }
         sort(date_sorted.begin(), date_sorted.end());
         concept_indicator_dates[v] = date_sorted;
-
-        // Aggregation function
-        // NOTE: This portion is not aligned with a single indicator having
-        // multiple observations per time point. At the moment we assume single
-        // observation per indicator per time point.
-
-        // "last" is the default function specified in the specification.
-        string func = "last";
-
-        if (!indicator["func"].is_null()) {
-            func = indicator["func"].get<string>();
-        }
-
-        n.get_indicator(indicator_name).set_aggregation_method(func);
     }
 }
 
