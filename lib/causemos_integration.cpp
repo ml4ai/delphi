@@ -7,9 +7,9 @@
 #include <range/v3/all.hpp>
 #include <time.h>
 #include <limits.h>
-#include <uuid/uuid.h>// for uuid
-#include <sys/wait.h> // for fork
-#include <unistd.h>   // for fork
+//#include <uuid/uuid.h>// for uuid
+//#include <sys/wait.h> // for fork
+//#include <unistd.h>   // for fork
 #include "dbg.h"
 
 using namespace std;
