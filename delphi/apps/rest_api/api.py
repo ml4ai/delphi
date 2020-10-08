@@ -430,7 +430,7 @@ def createCausemosExperiment(modelID):
     model = DelphiModel.query.filter_by(id=modelID).first().model
     G = AnalysisGraph.deserialize_from_json_string(model, verbose=False)
 
-    #print(request.data)
+    print(request.data)
     json_request = request.get_json()
     experiment_type = request.get_json()["experimentType"]
     #print(experiment_type)
@@ -446,38 +446,38 @@ def createCausemosExperiment(modelID):
         #elif experiment_type == 'sensitivityanalysis':
         #    causemos_experiment_result = G.run_causemose_projection_experiment(request.data)
 
-        #print(causemos_experiment_result)
+        print(causemos_experiment_result)
 #
-        #experiment = CauseMosAsyncExperiment(
-        #    baseType="CauseMosAsyncExperiment", id=experiment_id
-        #)
-        #db.session.add(experiment)
-        #db.session.commit()
+        experiment = CauseMosAsyncExperiment(
+            baseType="CauseMosAsyncExperiment", id=experiment_id
+        )
+        db.session.add(experiment)
+        db.session.commit()
 
-        '''
+        
         result = CauseMosAsyncExperimentResult(
             id=experiment_id, baseType="CauseMosAsyncExperimentResult"
         )
         print(result)
-        #result.results = {
-        #    G[n].name: {
-        #        "values": [],
-        #        "confidenceInterval": {"upper": [], "lower": []},
-        #    }
-        #    for n in G
-        #}
         result.results = {
-            "data": causemos_experiment_result,
+            G[n].name: {
+                "values": [],
+                "confidenceInterval": {"upper": [], "lower": []},
+            }
+            for n in G
         }
+        #result.results = {
+        #    "data": causemos_experiment_result,
+        #}
         print(result)
         db.session.add(result)
         
-        '''
         
-        '''
+        
+        
         data = json.loads(request.data)
         startTime = data["startTime"]
-
+        print(startTime)
         # # From https://www.ucl.ac.uk/child-health/short-courses-events/
         # #     about-statistical-courses/research-methods-and-statistics/chapter-8-content-8
         n = G.res
@@ -487,8 +487,10 @@ def createCausemosExperiment(modelID):
         lower_rank = 0 if lower_rank < 0 else lower_rank
         upper_rank = n - 1 if upper_rank >= n else upper_rank
 
-        for concept, samples in projection_result.items():
+        for concept, samples in causemos_experiment_result.items():
             d = parse(f"{startTime['year']} {startTime['month']}")
+            print("concept, samples, d")
+            print(concept, samples, d)
             for ts in range(int(data["timeStepsInMonths"])):
                 d = d + relativedelta(months=1)
 
@@ -514,7 +516,7 @@ def createCausemosExperiment(modelID):
 
         db.session.add(result)
         db.session.commit()
-        '''
+        
 
         '''
         experiment = ForwardProjection(
