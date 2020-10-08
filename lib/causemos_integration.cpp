@@ -636,8 +636,6 @@ void AnalysisGraph::create_causemos_experiment_from_json_dict(
 }
 
 std::pair<int, int> AnalysisGraph::timestamp_to_year_month(long timestamp) {
-    //struct tm *ptm;
-    //
     // The HMI uses milliseconds. So they multiply time-stamps by 1000.
     // Before converting them back to year and month, we have to divide
     // by 1000.
@@ -802,39 +800,39 @@ Prediction AnalysisGraph::run_causemose_projection_experiment(std::string json_s
     using namespace fmt::literals;
     using nlohmann::json;
 
-    auto json_data = nlohmann::json::parse(json_string);
-    auto projection_parameters = json_data["experimentParam"];
-
     // Just a dummy empty prediction to signal that there is an error in
     // projection parameters.
     Prediction null_prediction = Prediction();
 
+    auto json_data = nlohmann::json::parse(json_string);
+    if (json_data["experimentParam"].is_null()) {return null_prediction;}
+    auto projection_parameters = json_data["experimentParam"];
+
     dbg("running exp");
-    time_t timestamp;
     pair<int, int> year_month;
 
     if (projection_parameters["startTime"].is_null()) {return null_prediction;}
-    timestamp = projection_parameters["startTime"].get<long>();
+    long proj_start_timestamp = projection_parameters["startTime"].get<long>();
 
-    year_month = this->timestamp_to_year_month(timestamp);
-    int pred_start_year = year_month.first;
-    int pred_start_month = year_month.second;
+    year_month = this->timestamp_to_year_month(proj_start_timestamp );
+    int proj_start_year = year_month.first;
+    int proj_start_month = year_month.second;
 
-    dbg(pred_start_year);
-    dbg(pred_start_month);
+    dbg(proj_start_year);
+    dbg(proj_start_month);
 
     if (projection_parameters["endTime"].is_null()) {return null_prediction;}
-    timestamp = projection_parameters["endTime"].get<long>();
+    long proj_end_timestamp = projection_parameters["endTime"].get<long>();
 
-    year_month = this->timestamp_to_year_month(timestamp);
-    int pred_end_year_given = year_month.first;
-    int pred_end_month_given = year_month.second;
+    year_month = this->timestamp_to_year_month(proj_end_timestamp );
+    int proj_end_year_given = year_month.first;
+    int proj_end_month_given = year_month.second;
 
-    dbg(pred_end_year_given);
-    dbg(pred_end_month_given);
+    dbg(proj_end_year_given);
+    dbg(proj_end_month_given);
 
     if (projection_parameters["numTimesteps"].is_null()) {return null_prediction;}
-    int num_timesteps = projection_parameters["numTimesteps"].get<int>();
+    int proj_num_timesteps = projection_parameters["numTimesteps"].get<int>();
 
     // Calculate end_year, end_month assuming that each time step is a month.
     // In other words, we are calculating the end_year, end_month assuming that
@@ -856,13 +854,13 @@ Prediction AnalysisGraph::run_causemose_projection_experiment(std::string json_s
     //       that now Delphi is predicting on a monthly basis. We can do better
     //       by making Delphi predict at a different frequency than the
     //       training frequency by setting Δt appropriately.
-    year_month = calculate_end_year_month(pred_start_year, pred_start_month,
-                                          num_timesteps);
-    int pred_end_year_calculated = year_month.first;
-    int pred_end_month_calculated = year_month.second;
+    year_month = calculate_end_year_month(proj_start_year, proj_start_month,
+                                          proj_num_timesteps);
+    int proj_end_year_calculated = year_month.first;
+    int proj_end_month_calculated = year_month.second;
 
-    dbg(pred_end_year_calculated);
-    dbg(pred_end_month_calculated);
+    dbg(proj_end_year_calculated);
+    dbg(proj_end_month_calculated);
 
     // NOTE: At the moment we are assuming that delta_t for prediction is also
     // 1. This is an effort to do otherwise which might make things better in
@@ -883,9 +881,17 @@ Prediction AnalysisGraph::run_causemose_projection_experiment(std::string json_s
 
     this->train_model(train_start_year, train_start_month,
                             train_end_year, train_end_month);
-    return this->generate_prediction(pred_start_year, pred_start_month,
-                                     pred_end_year_calculated,
-                                     pred_end_month_calculated);
+    Prediction pred = this->generate_prediction(proj_start_year,
+                                                proj_start_month,
+                                                proj_end_year_calculated,
+                                                proj_end_month_calculated);
+
+    CausemosProjectionExperimentResult cper = make_tuple(proj_start_timestamp,
+                                                         proj_end_timestamp,
+                                                         proj_num_timesteps,
+                                                         get<2>(pred));
+    // TODO: Eventually we need to return cper
+    return pred;
 
     // We do not need to create multiple processes at Delphi end as Flask is
     // handling that.
