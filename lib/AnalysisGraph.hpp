@@ -303,7 +303,7 @@ class AnalysisGraph {
   // [ time step ] --> [(concept id, constrained value), ... ]
   // latent_state_constraints.at(time step)
   std::unordered_map<int, std::vector<std::pair<int, double>>>
-      one_off_constraints;//={{5, {std::make_pair(1, 2.0)}}, {15, {std::make_pair(1, 3.0)}}};
+      one_off_constraints={{5, {std::make_pair(1, 2.0)}}, {15, {std::make_pair(1, 3.0)}}};
   //
   // Implementing Perpetual constraints:
   // -------------------------------------------------------------------------
@@ -317,6 +317,17 @@ class AnalysisGraph {
   // is_one_off_constraints = true => One-off constraints
   // is_one_off_constraints = false => Perpetual constraints
   bool is_one_off_constraints = true;
+  //
+  // Deciding whether to clamp the latent variable or the derivative
+  // true  => clamp at latent variable
+  // false => clamp at derivative
+  bool clamp_at_derivative = true;
+  //
+  // When we are clamping derivatives the clamp sticks since derivatives never
+  // chance in our current model. So for one-off clamping, we have to reset the
+  // derivative back to original after the clamping step. This variable
+  // remembers the time step to reset the clamped derivatives.
+  int rest_derivative_clamp_ts = -1;
 
   std::vector<Eigen::MatrixXd> transition_matrix_collection;
   std::vector<Eigen::VectorXd> initial_latent_state_collection;
@@ -900,7 +911,7 @@ class AnalysisGraph {
 
   public:
   AnalysisGraph() {
-     one_off_constraints.clear();
+     //one_off_constraints.clear();
      perpetual_constraints.clear();
   }
 

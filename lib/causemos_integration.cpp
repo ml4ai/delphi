@@ -703,7 +703,17 @@ void AnalysisGraph::extract_projection_constraints(
             if (values["step"].is_null()) {continue;}
             int step     = values["step"].get<int>();
 
-            this->one_off_constraints[step] = vector<pair<int, double>>();
+            // When constraining latent state derivatives, to reach the
+            // prescribed value for an observation at projection step t, we have
+            // to  clamp the derivative at projection step t-1 appropriately.
+            // Therefor, to constrain at projection step 0, we have to clamp the
+            // derivative at projection step -1.
+            // To facilitate this, we start projection one time step before the
+            // requested projection start time.
+            // To correct for that and make internal vector indexing easier,
+            // nicer and less error prone, we shift all the constraints by one
+            // step up.
+            this->one_off_constraints[step + 1] = vector<pair<int, double>>();
 
             dbg(step);
         }
@@ -735,7 +745,17 @@ void AnalysisGraph::extract_projection_constraints(
             dbg(ind.get_mean());
             dbg(latent_clamp_value);
 
-            this->one_off_constraints[step].push_back(
+            // When constraining latent state derivatives, to reach the
+            // prescribed value for an observation at projection step t, we have
+            // to  clamp the derivative at projection step t-1 appropriately.
+            // Therefor, to constrain at projection step 0, we have to clamp the
+            // derivative at projection step -1.
+            // To facilitate this, we start projection one time step before the
+            // requested projection start time.
+            // To correct for that and make internal vector indexing easier,
+            // nicer and less error prone, we shift all the constraints by one
+            // step up.
+            this->one_off_constraints[step + 1].push_back(
                                     make_pair(concept_id, latent_clamp_value));
         }
     }
