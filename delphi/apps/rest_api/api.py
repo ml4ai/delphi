@@ -2,6 +2,7 @@
 import os
 import re
 import json
+import numpy as np
 from math import exp, sqrt
 from uuid import uuid4
 import pickle
@@ -446,19 +447,18 @@ def createCausemosExperiment(modelID):
         #elif experiment_type == 'sensitivityanalysis':
         #    causemos_experiment_result = G.run_causemose_projection_experiment(request.data)
 
-        print(causemos_experiment_result)
+        #print(causemos_experiment_result)
 #
-        experiment = CauseMosAsyncExperiment(
-            baseType="CauseMosAsyncExperiment", id=experiment_id
-        )
-        db.session.add(experiment)
-        db.session.commit()
+        #experiment = CauseMosAsyncExperiment(
+        #    baseType="CauseMosAsyncExperiment", id=experiment_id
+        #)
+        #db.session.add(experiment)
+        #db.session.commit()
 
         
         result = CauseMosAsyncExperimentResult(
             id=experiment_id, baseType="CauseMosAsyncExperimentResult"
         )
-        print(result)
         result.results = {
             G[n].name: {
                 "values": [],
@@ -466,18 +466,16 @@ def createCausemosExperiment(modelID):
             }
             for n in G
         }
-        #result.results = {
-        #    "data": causemos_experiment_result,
-        #}
-        print(result)
         db.session.add(result)
         
         
         
-        
         data = json.loads(request.data)
+        #print(isinstance( data[0] , dict), isinstance( data[0] , tuple))
         startTime = data["startTime"]
-        print(startTime)
+        endTime = data["endTime"]
+        numTimesteps = data["numTimesteps"]
+        timesteps_arr = np.round(np.linspace(startTime, endTime, numTimesteps))
         # # From https://www.ucl.ac.uk/child-health/short-courses-events/
         # #     about-statistical-courses/research-methods-and-statistics/chapter-8-content-8
         n = G.res
@@ -486,11 +484,12 @@ def createCausemosExperiment(modelID):
 
         lower_rank = 0 if lower_rank < 0 else lower_rank
         upper_rank = n - 1 if upper_rank >= n else upper_rank
-
-        for concept, samples in causemos_experiment_result.items():
+        print(type(causemos_experiment_result))
+        print(causemos_experiment_result[0])
+        for samples in causemos_experiment_result[3]:
             d = parse(f"{startTime['year']} {startTime['month']}")
-            print("concept, samples, d")
-            print(concept, samples, d)
+            print("samples")
+            print(samples)
             for ts in range(int(data["timeStepsInMonths"])):
                 d = d + relativedelta(months=1)
 
