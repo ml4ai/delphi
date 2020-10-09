@@ -45,6 +45,7 @@ def test_createExperiment(client):
     with open("tests/data/delphi/causemos_experiments_projection_input.json", encoding="utf-8") as f: data = json.load(f)
     model_id="XYZ"
     rv = client.post(f"/delphi/models/{model_id}/experiments", json=data)
+    print(rv.get_json())
     assert True
 
 
