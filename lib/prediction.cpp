@@ -27,7 +27,7 @@ void AnalysisGraph::generate_latent_state_sequences(
   // initial prediction step. Therefore we are predicting one additional time
   // step. Hence we add 1 here. When we are returning results, we have to
   // remove the predictions at the 0th index.
-  this->n_timesteps = prediction_timesteps + 1;
+  this->n_timesteps = prediction_timesteps;
 
   // Allocate memory for prediction_latent_state_sequences
   this->predicted_latent_state_sequences.clear();
@@ -132,25 +132,35 @@ void AnalysisGraph::generate_latent_state_sequences(
           this->predicted_latent_state_sequences[samp][ts] =
               A * this->predicted_latent_state_sequences[samp][ts - 1];
 
-          if (this->clamp_at_derivative) {
+          if (this->clamp_at_derivative ) {
               if (ts == this->rest_derivative_clamp_ts) {
-                  for (auto constraint : this->one_off_constraints.at(ts)) {
-                      int node_id = constraint.first;
+                  // We have perturbed the derivative at ts - 1. If we do not
+                  // take any action, that clamped derivative will be in effect
+                  // until another clamping or end of prediction. This is where
+                  // we take the necessary actions.
 
-                      this->predicted_latent_state_sequences[samp][ts]
-                                                            (2 * node_id + 1) =
-                          this->initial_latent_state_collection[samp]
-                                                            (2 * node_id + 1);
-                      dbg("Resetting");
-                      dbg(ts);
-                      dbg(this->predicted_latent_state_sequences[samp][ts](2 * node_id + 1));
+                  if (is_one_off_constraints) {
+                      // We should revert the derivative to its original value
+                      // at this time step so that clamping does not affect
+                      // time step ts + 1.
+                      for (auto constraint : this->one_off_constraints.at(ts)) {
+                          int node_id = constraint.first;
+
+                          this->predicted_latent_state_sequences[samp][ts]
+                              (2 * node_id + 1) =
+                              this->initial_latent_state_collection[samp]
+                              (2 * node_id + 1);
+                          dbg("Resetting");
+                          dbg(ts);
+                          dbg(this->predicted_latent_state_sequences[samp][ts](2 * node_id + 1));
+                  }
+                  } else {
                   }
               }
-          }
-          if (this->clamp_at_derivative ) {
+
               // To clamp a latent state value to x_c at prediction step ts + 1
               // via clamping the derivative, we have to perturb the derivative
-              // at prediction step ts, before evolving it to time prediction
+              // at prediction step ts, before evolving it to prediction time
               // step ts + 1. So we have to look one time step ahead whether we
               // have to clamp at ts + 1 and clamp the derivative now.
               //
@@ -199,7 +209,6 @@ void AnalysisGraph::perturb_predicted_latent_state_at(int timestep, int sample_n
     //    indices 2*v keeps track of the state of each variable v
     //    indices 2*v+1 keeps track of the state of ∂v/∂t
     if (is_one_off_constraints) {
-        this->rest_derivative_clamp_ts = timestep;
 
         for (auto constraint : this->one_off_constraints.at(timestep)) {
             int node_id = constraint.first;
@@ -230,6 +239,16 @@ void AnalysisGraph::perturb_predicted_latent_state_at(int timestep, int sample_n
                 this->predicted_latent_state_sequences[sample_number]
                     [timestep - 1](2 * node_id + 1) = clamped_derivative;
                 dbg(clamped_derivative);
+
+                // Clamping the derivative at t-1 changes the value at t.
+                // According to our model, derivatives never chance. So if we
+                // do not revert it, clamped derivative stays till another
+                // clamping or the end of prediction. Since this is a one-off
+                // clamping, we have to return the derivative back to its
+                // original value at time step t, before we use it to evolve
+                // time step t + 1. Thus we remember the time step at which we
+                // have to perform this.
+                this->rest_derivative_clamp_ts = timestep;
             } else {
                 this->predicted_latent_state_sequences[sample_number][timestep](2 * node_id) = value;
                 dbg("value");
@@ -280,6 +299,12 @@ void AnalysisGraph::generate_observed_state_sequences() {
 }
 
 FormattedPredictionResult AnalysisGraph::format_prediction_result() {
+
+  // NOTE: To facilitate clamping derivatives, we start prediction one time
+  //       step before the requested prediction start time. We are omitting
+  //       that additional time step from the results returned to the user.
+  this->pred_timesteps--;
+
   // Access
   // [ sample ][ time_step ][ vertex_name ][ indicator_name ]
   auto result = FormattedPredictionResult(
@@ -288,10 +313,13 @@ FormattedPredictionResult AnalysisGraph::format_prediction_result() {
           this->pred_timesteps));
 
   for (int samp = 0; samp < this->res; samp++) {
-    for (int ts = 0; ts < this->pred_timesteps; ts++) {
+    // NOTE: To facilitate clamping derivatives, we start prediction one time
+    //       step before the requested prediction start time. We are omitting
+    //       that additional time step from the results returned to the user.
+    for (int ts = 1; ts < this->pred_timesteps; ts++) {
       for (auto [vert_name, vert_id] : this->name_to_vertex) {
         for (auto [ind_name, ind_id] : (*this)[vert_id].nameToIndexMap) {
-          result[samp][ts][vert_name][ind_name] =
+          result[samp][ts - 1][vert_name][ind_name] =
               this->predicted_observed_state_sequences[samp][ts][vert_id]
                                                       [ind_id];
         }
@@ -316,12 +344,17 @@ void AnalysisGraph::run_model(int start_year,
   // Check for sensible ranges.
   if (start_year < this->training_range.first.first ||
       (start_year == this->training_range.first.first &&
-       start_month < this->training_range.first.second)) {
+       start_month <= this->training_range.first.second)) {
     print("The initial prediction date can't be before the "
          "initial training date. Defaulting initial prediction date "
          "to initial training date.");
-    start_year = this->training_range.first.first;
-    start_month = this->training_range.first.second;
+    start_month = this->training_range.first.second + 1;
+    if (start_month == 13) {
+        start_year = this->training_range.first.first + 1;
+        start_month = 1;
+    } else {
+        start_year = this->training_range.first.first;
+    }
   }
 
   /*
@@ -365,6 +398,11 @@ void AnalysisGraph::run_model(int start_year,
       month++;
     }
   }
+
+  // NOTE: To facilitate clamping derivatives, we start prediction one time
+  //       step before the requested prediction start time. We are omitting
+  //       that additional time step from the results returned to the user.
+  this->pred_timesteps++;
 
   this->generate_latent_state_sequences(this->pred_timesteps, pred_init_timestep,
                                                     total_timesteps, project);
