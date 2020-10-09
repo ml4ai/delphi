@@ -433,7 +433,6 @@ def createCausemosExperiment(modelID):
     experiment_id = str(uuid4())
     
     def runExperiment():
-        
         if experiment_type == 'PROJECTION':
             causemos_experiment_result = G.run_causemose_projection_experiment(request.data)
         #elif experiment_type == 'sensitivityanalysis':
@@ -448,8 +447,6 @@ def createCausemosExperiment(modelID):
         startTime = causemos_experiment_result[0]
         endTime = causemos_experiment_result[1]
         numTimesteps = causemos_experiment_result[2]
-
-
         timesteps_nparr = np.round(np.linspace(startTime, endTime, numTimesteps))
         # # From https://www.ucl.ac.uk/child-health/short-courses-events/
         # #     about-statistical-courses/research-methods-and-statistics/chapter-8-content-8
