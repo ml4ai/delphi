@@ -399,7 +399,7 @@ def createProjection(modelID):
 
 
 @bp.route(
-    "/delphi/models/<string:modelID>/experiment/<string:experimentID>",
+    "/delphi/models/<string:modelID>/experiments/<string:experimentID>",
     methods=["GET"],
 )
 def getExperimentResults(modelID: str, experimentID: str):

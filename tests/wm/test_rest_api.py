@@ -1,5 +1,6 @@
 import json
 import pytest
+import time
 from delphi.cpp.DelphiPython import AnalysisGraph
 
 from delphi.apps.rest_api import create_app, db
@@ -46,6 +47,20 @@ def test_createExperiment(client):
     model_id="XYZ"
     rv = client.post(f"/delphi/models/{model_id}/experiments", json=data)
     print(rv.get_json())
+
+    # An ides to test the responwe from flask
+    '''
+    # Retrieve experiment results
+    # Extract the experiment uuid
+    experiment_id = "this_is_a_dummy"
+    status = "not completed" # Replace this with returned json value
+    while status != "completed":
+        rv = client.post(f"/delphi/models/{model_id}/experiments/{experiment_id}")
+        print(rv.get_json())
+        time.sleep(1)
+        # Extract returned json and read status
+        status = "completed" # Replace this with returned json value
+    '''
     assert True
 
 
