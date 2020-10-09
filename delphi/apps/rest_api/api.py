@@ -459,23 +459,35 @@ def createCausemosExperiment(modelID):
         result = CauseMosAsyncExperimentResult(
             id=experiment_id, baseType="CauseMosAsyncExperimentResult"
         )
-        result.results = {
-            G[n].name: {
-                "values": [],
-                "confidenceInterval": {"upper": [], "lower": []},
-            }
-            for n in G
-        }
-        db.session.add(result)
+        result.modelId = modelID
+        result.experimentId = experiment_id
+        result.experimentType = experiment_type
         
-        
+        print(type(causemos_experiment_result))
+        print(causemos_experiment_result[0])
         
         data = json.loads(request.data)
-        #print(isinstance( data[0] , dict), isinstance( data[0] , tuple))
         startTime = data["startTime"]
         endTime = data["endTime"]
         numTimesteps = data["numTimesteps"]
-        timesteps_arr = np.round(np.linspace(startTime, endTime, numTimesteps))
+
+        if len(causemos_experiment_result[3]) < numTimesteps:
+            result.status = "failed"
+            result.results = {}
+            db.session.add(result)
+            db.session.commit()
+            return
+
+        #result.results = {
+        #    G[n].name: {
+        #        "values": [],
+        #        "confidenceInterval": {"upper": [], "lower": []},
+        #    }
+        #    for n in G
+        #}
+        #db.session.add(result)
+
+        timesteps_nparr = np.round(np.linspace(startTime, endTime, numTimesteps))
         # # From https://www.ucl.ac.uk/child-health/short-courses-events/
         # #     about-statistical-courses/research-methods-and-statistics/chapter-8-content-8
         n = G.res
@@ -485,103 +497,63 @@ def createCausemosExperiment(modelID):
         lower_rank = 0 if lower_rank < 0 else lower_rank
         upper_rank = n - 1 if upper_rank >= n else upper_rank
         print(type(causemos_experiment_result))
-        print(causemos_experiment_result[0])
+        print("causemos_experiment_result")
+        print(causemos_experiment_result[3])
+
+
+        result.status = "completed"
+        result.results = {"data": []}
+
+
+
+
         for samples in causemos_experiment_result[3]:
-            d = parse(f"{startTime['year']} {startTime['month']}")
             print("samples")
             print(samples)
-            for ts in range(int(data["timeStepsInMonths"])):
-                d = d + relativedelta(months=1)
+            data_dict = {}
+            for i, time_step_arr_from_results in enumerate(samples):
+                for vertex_name, indicator_name_dict in time_step_arr_from_results.items():
+                    data_dict["concept"] = vertex_name
+                    data_dict["values"] = []
+                    data_dict["confidenceInterval"] = {"upper": [], "lower": []}
+                    for indicator_name, pred  in indicator_name_dict.items():
+                        #lower_limit = samples[i][lower_rank]
+                        #upper_limit = samples[i][upper_rank]
+                        data_dict["values"].append({timesteps_nparr[i]: pred})
+            result.results["data"].append(data_dict)
 
-                median_value = median(samples[ts])
-                lower_limit = samples[ts][lower_rank]
-                upper_limit = samples[ts][upper_rank]
 
-                value_dict = {
-                    "year": d.year,
-                    "month": d.month,
-                    "value": median_value,
-                }
-
-                result.results[concept]["values"].append(value_dict.copy())
-                value_dict.update({"value": lower_limit})
-                result.results[concept]["confidenceInterval"]["lower"].append(
-                    value_dict.copy()
-                )
-                value_dict.update({"value": upper_limit})
-                result.results[concept]["confidenceInterval"]["upper"].append(
-                    value_dict.copy()
-                )
-
-        db.session.add(result)
-        db.session.commit()
-        
-
-        '''
-        experiment = ForwardProjection(
-            baseType="ForwardProjection", id=experiment_id
-        )
-        db.session.add(experiment)
-        db.session.commit()
-
-        result = CauseMosForwardProjectionResult(
-            id=experiment_id, baseType="CauseMosForwardProjectionResult"
-        )
-        result.results = {
-            G[n].name: {
-                "values": [],
-                "confidenceInterval": {"upper": [], "lower": []},
-            }
-            for n in G
-        }
-        db.session.add(result)
-
-        data = json.loads(request.data)
-        startTime = data["startTime"]
-
-        # # From https://www.ucl.ac.uk/child-health/short-courses-events/
-        # #     about-statistical-courses/research-methods-and-statistics/chapter-8-content-8
-        n = G.res
-        lower_rank = int((n - 1.96 * sqrt(n)) / 2)
-        upper_rank = int((2 + n + 1.96 * sqrt(n)) / 2)
-
-        lower_rank = 0 if lower_rank < 0 else lower_rank
-        upper_rank = n - 1 if upper_rank >= n else upper_rank
-
-        for concept, samples in projection_result.items():
-            d = parse(f"{startTime['year']} {startTime['month']}")
-            for ts in range(int(data["timeStepsInMonths"])):
-                d = d + relativedelta(months=1)
-
-                median_value = median(samples[ts])
-                lower_limit = samples[ts][lower_rank]
-                upper_limit = samples[ts][upper_rank]
-
-                value_dict = {
-                    "year": d.year,
-                    "month": d.month,
-                    "value": median_value,
-                }
-
-                result.results[concept]["values"].append(value_dict.copy())
-                value_dict.update({"value": lower_limit})
-                result.results[concept]["confidenceInterval"]["lower"].append(
-                    value_dict.copy()
-                )
-                value_dict.update({"value": upper_limit})
-                result.results[concept]["confidenceInterval"]["upper"].append(
-                    value_dict.copy()
-                )
+                #median_value = median(samples[i])
+                #lower_limit = samples[i][lower_rank]
+                #upper_limit = samples[i][upper_rank]
+#
+                #value_dict = {
+                #    "year": abs(timesteps_nparr[i]-startTime)//(365*24*60*60),
+                #    "month": abs(timesteps_nparr[i]-startTime)//(365*24*60*60),
+                #    "value": median_value,
+                #}
+#
+                #result.results[concept]["values"].append(value_dict.copy())
+                #value_dict.update({"value": lower_limit})
+                #result.results[concept]["confidenceInterval"]["lower"].append(
+                #    value_dict.copy()
+                #)
+                #value_dict.update({"value": upper_limit})
+                #result.results[concept]["confidenceInterval"]["upper"].append(
+                #    value_dict.copy()
+                #)
 
         db.session.add(result)
         db.session.commit()
-        '''
-        
+                
     executor.submit_stored(experiment_id, runExperiment)
 
     return jsonify(
         {
+            "modelId": modelID,
             "experimentId": experiment_id,
+            "experimentType": experiment_type, 
+            "status": "in progress",
             "results": executor.futures._state(experiment_id),
         }
     )
