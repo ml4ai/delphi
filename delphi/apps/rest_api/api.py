@@ -426,18 +426,10 @@ def getExperimentResults(modelID: str, experimentID: str):
 
 @bp.route("/delphi/models/<string:modelID>/experiments", methods=["POST"])
 def createCausemosExperiment(modelID):
-
-    print(modelID)
     model = DelphiModel.query.filter_by(id=modelID).first().model
     G = AnalysisGraph.deserialize_from_json_string(model, verbose=False)
-
-    print(request.data)
     json_request = request.get_json()
     experiment_type = request.get_json()["experimentType"]
-    #print(experiment_type)
-
-    #projection_result = G.generate_causemos_projection(request.data)
-
     experiment_id = str(uuid4())
     
     def runExperiment():
@@ -446,15 +438,6 @@ def createCausemosExperiment(modelID):
             causemos_experiment_result = G.run_causemose_projection_experiment(request.data)
         #elif experiment_type == 'sensitivityanalysis':
         #    causemos_experiment_result = G.run_causemose_projection_experiment(request.data)
-
-        #print(causemos_experiment_result)
-#
-        #experiment = CauseMosAsyncExperiment(
-        #    baseType="CauseMosAsyncExperiment", id=experiment_id
-        #)
-        #db.session.add(experiment)
-        #db.session.commit()
-
         
         result = CauseMosAsyncExperimentResult(
             id=experiment_id, baseType="CauseMosAsyncExperimentResult"
@@ -462,30 +445,10 @@ def createCausemosExperiment(modelID):
         result.modelId = modelID
         result.experimentId = experiment_id
         result.experimentType = experiment_type
-        
-        print(type(causemos_experiment_result))
-        print(causemos_experiment_result[0])
-        
-        data = json.loads(request.data)
-        startTime = data["startTime"]
-        endTime = data["endTime"]
-        numTimesteps = data["numTimesteps"]
+        startTime = causemos_experiment_result[0]
+        endTime = causemos_experiment_result[1]
+        numTimesteps = causemos_experiment_result[2]
 
-        if len(causemos_experiment_result[3]) < numTimesteps:
-            result.status = "failed"
-            result.results = {}
-            db.session.add(result)
-            db.session.commit()
-            return
-
-        #result.results = {
-        #    G[n].name: {
-        #        "values": [],
-        #        "confidenceInterval": {"upper": [], "lower": []},
-        #    }
-        #    for n in G
-        #}
-        #db.session.add(result)
 
         timesteps_nparr = np.round(np.linspace(startTime, endTime, numTimesteps))
         # # From https://www.ucl.ac.uk/child-health/short-courses-events/
@@ -496,52 +459,35 @@ def createCausemosExperiment(modelID):
 
         lower_rank = 0 if lower_rank < 0 else lower_rank
         upper_rank = n - 1 if upper_rank >= n else upper_rank
-        print(type(causemos_experiment_result))
-        print("causemos_experiment_result")
-        print(causemos_experiment_result[3])
-
-
         result.status = "completed"
         result.results = {"data": []}
-
-
-
-
-        for samples in causemos_experiment_result[3]:
-            print("samples")
-            print(samples)
+        for conceptname, timestamp_sample_matrix in causemos_experiment_result[3].items():
             data_dict = {}
-            for i, time_step_arr_from_results in enumerate(samples):
-                for vertex_name, indicator_name_dict in time_step_arr_from_results.items():
-                    data_dict["concept"] = vertex_name
-                    data_dict["values"] = []
-                    data_dict["confidenceInterval"] = {"upper": [], "lower": []}
-                    for indicator_name, pred  in indicator_name_dict.items():
-                        #lower_limit = samples[i][lower_rank]
-                        #upper_limit = samples[i][upper_rank]
-                        data_dict["values"].append({timesteps_nparr[i]: pred})
+            data_dict["concept"] = conceptname
+            data_dict["values"] = []
+            data_dict["confidenceInterval"] = {"upper": [], "lower": []}
+            for i, time_step in enumerate(timestamp_sample_matrix):
+                time_step.sort()
+                l = len(time_step)//2
+                median_value = time_step[l] if len(time_step)%2 else (time_step[l]+time_step[l-1])/2
+                lower_limit = time_step[lower_rank]
+                upper_limit = time_step[upper_rank]
+
+                value_dict = {
+                    "timestamp": timesteps_nparr[i],
+                    "value": median_value,
+                }
+
+                data_dict["values"].append(value_dict.copy())
+                value_dict.update({"value": lower_limit})
+                data_dict["confidenceInterval"]["lower"].append(
+                    value_dict.copy()
+                )
+                value_dict.update({"value": upper_limit})
+                data_dict["confidenceInterval"]["upper"].append(
+                    value_dict.copy()
+                )
             result.results["data"].append(data_dict)
-
-
-                #median_value = median(samples[i])
-                #lower_limit = samples[i][lower_rank]
-                #upper_limit = samples[i][upper_rank]
-#
-                #value_dict = {
-                #    "year": abs(timesteps_nparr[i]-startTime)//(365*24*60*60),
-                #    "month": abs(timesteps_nparr[i]-startTime)//(365*24*60*60),
-                #    "value": median_value,
-                #}
-#
-                #result.results[concept]["values"].append(value_dict.copy())
-                #value_dict.update({"value": lower_limit})
-                #result.results[concept]["confidenceInterval"]["lower"].append(
-                #    value_dict.copy()
-                #)
-                #value_dict.update({"value": upper_limit})
-                #result.results[concept]["confidenceInterval"]["upper"].append(
-                #    value_dict.copy()
-                #)
 
         db.session.add(result)
         db.session.commit()
