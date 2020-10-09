@@ -90,7 +90,8 @@ typedef std::tuple<std::pair<std::pair<int, int>, std::pair<int, int>>,
 //      Prediction results
 //      [ sample ][ time_step ]{ vertex_name --> { indicator_name --> pred}}
 //      [ sample ][ time_step ][ vertex_name ][ indicator_name ]
-typedef std::tuple<long, long, int, FormattedPredictionResult>
+//typedef std::tuple<long, long, int, FormattedPredictionResult>
+typedef std::tuple<long, long, int, FormattedProjectionResult>
     CausemosProjectionExperimentResult;
 
 typedef boost::graph_traits<DiGraph>::edge_descriptor EdgeDescriptor;

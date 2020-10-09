@@ -845,10 +845,16 @@ AnalysisGraph::run_causemose_projection_experiment(std::string json_string) {
                                                 proj_end_year_calculated,
                                                 proj_end_month_calculated);
 
+    /*
     CausemosProjectionExperimentResult cper = make_tuple(proj_start_timestamp,
                                                          proj_end_timestamp,
                                                          proj_num_timesteps,
                                                          get<2>(pred));
+    */
+    CausemosProjectionExperimentResult cper = make_tuple(proj_start_timestamp,
+                                                         proj_end_timestamp,
+                                                         proj_num_timesteps,
+                                                         this->format_projection_result());
     return cper;
 
     // We do not need to create multiple processes at Delphi end as Flask is
