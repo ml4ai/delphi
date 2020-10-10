@@ -155,6 +155,10 @@ void AnalysisGraph::generate_latent_state_sequences(
                           dbg(this->predicted_latent_state_sequences[samp][ts](2 * node_id + 1));
                   }
                   } else {
+                      for (auto [node_id, value]: this->one_off_constraints.at(ts)) {
+                          this->predicted_latent_state_sequences[samp][ts]
+                                                        (2 * node_id + 1) = 0;
+                      }
                   }
               }
 
@@ -202,74 +206,121 @@ void AnalysisGraph::generate_latent_state_sequences(
 /*
  * Applying constraints (interventions) to latent states
  * Check the data structure definition to get more descriptions
+ *
+ * Clamping at time step ts for value v
+ * Two methods work in tandem to achieve this. Let us label them as follows:
+ *      glss  : generate_latent_state_sequences()
+ *      ppls@ : perturb_predicted_latent_state_at()
+ *                                 ┍━━━━━━━━━━━━━━━━━━━━━━━━┑
+ *                                 │           How          ┃
+ *                                 ┝━━━━━━━━━━┳━━━━━━━━━━━━━┫
+ *                                 │ One-off  ┃  Perpetual  ┃
+ * ━━━━━━┳━━━━━━━━━━━━┯━━━━━━━━━━━━┿━━━━━━━━━━┻━━━━━━━━━━━━━┫
+ *       ┃            │ Clamp at   │           v - x_{ts-1} ┃
+ *       ┃            │ (by ppls@) │   ts-1 to ──────────── ┃
+ *       ┃            │            │               Δt       ┃
+ *       ┃ Derivative ├┈┈┈┈┈┈┈┈┈┈┈┈┼┈┈┈┈┈┈┈┈┈┈┰┈┈┈┈┈┈┈┈┈┈┈┈┈┨
+ * Where ┃            │ Reset at   │ ts to ẋ₀ ┃ ts to 0     ┃
+ *       ┃            │ (by glss)  │ from S₀  ┃             ┃
+ *       ┣━━━━━━━━━━━━┿━━━━━━━━━━━━┿━━━━━━━━━━╋━━━━━━━━━━━━━┫
+ *       ┃ Value      │ Clamp at   │ ts to v  ┃ ∀ t≥ts to v ┃
+ *       ┃            │ (by ppls@) │          ┃             ┃
+ * ━━━━━━┻━━━━━━━━━━━━┷━━━━━━━━━━━━┷━━━━━━━━━━┻━━━━━━━━━━━━━┛
  */
 void AnalysisGraph::perturb_predicted_latent_state_at(int timestep, int sample_number) {
     // Let vertices of the CAG be v = 0, 1, 2, 3, ...
     // Then,
     //    indices 2*v keeps track of the state of each variable v
     //    indices 2*v+1 keeps track of the state of ∂v/∂t
+
+    if (this->clamp_at_derivative) {
+        for (auto [node_id, value]: this->one_off_constraints.at(timestep)) {
+            // To clamp the latent state value to x_c at time step t via
+            // clamping the derivative, we have to clamp the derivative
+            // appropriately at time step t-1.
+            // Example:
+            //      Say we want to clamp the latent state at t=6 to value
+            //      x_c (i.e. we want x₆ = x_c. So we have to set the
+            //      derivative at t=6-1=5, ẋ₅, as follows:
+            //                  x_c - x₅
+            //             ẋ₅ = --------- ........... (1)
+            //                     Δt
+            //             x₆ = x₅ + (ẋ₅ × Δt)
+            //                = x_c
+            //      Thus clamping ẋ₅ (at t = 5) as described in (1) gives
+            //      us the desired clamping at t = 5 + 1 = 6
+            dbg("Derivative");
+            dbg(timestep);
+            dbg(this->predicted_latent_state_sequences[sample_number][timestep - 1](2 * node_id + 1));
+            double clamped_derivative = (value -
+                    this->predicted_latent_state_sequences[sample_number]
+                    [timestep - 1](2 * node_id)) / this->delta_t;
+
+            this->predicted_latent_state_sequences[sample_number]
+                [timestep - 1](2 * node_id + 1) = clamped_derivative;
+            dbg(clamped_derivative);
+        }
+
+        // Clamping the derivative at t-1 changes the value at t.
+        // According to our model, derivatives never chance. So if we
+        // do not revert it, clamped derivative stays till another
+        // clamping or the end of prediction. Since this is a one-off
+        // clamping, we have to return the derivative back to its
+        // original value at time step t, before we use it to evolve
+        // time step t + 1. Thus we remember the time step at which we
+        // have to perform this.
+        this->rest_derivative_clamp_ts = timestep;
+
+        /*
+        this->perpetual_constraints.clear();
+
+        if (!is_one_off_constraints) {
+            // We clamped the derivative at timestamp - 1 to achieve the
+            // desired latent state value at timestamp. Now we have to maintain
+            // that value throughout. To keep this value stationary, we have to
+            // set the derivative to 0 from timestep onward. To do that
+            // remember the clamped derivatives. Since we do not change the
+            // derivative, we only need to set these derivative to 0 only at
+            // timestep. So we can forget
+            for (auto [node_id, value]: this->one_off_constraints.at(timestep)) {
+                //int node_id = constraint.first;
+                //double value = constraint.second;
+
+                this->perpetual_constraints[node_id] = value;
+            }
+        }
+        */
+
+        return;
+    }
+
     if (is_one_off_constraints) {
 
-        for (auto constraint : this->one_off_constraints.at(timestep)) {
-            int node_id = constraint.first;
-            double value = constraint.second;
+        for (auto [node_id, value]: this->one_off_constraints.at(timestep)) {
+            //int node_id = constraint.first;
+            //double value = constraint.second;
 
-            if (this->clamp_at_derivative) {
-                // To clamp the latent state value to x_c at time step t via
-                // clamping the derivative, we have to clamp the derivative
-                // appropriately at time step t-1.
-                // Example:
-                //      Say we want to clamp the latent state at t=6 to value
-                //      x_c (i.e. we want x₆ = x_c. So we have to set the
-                //      derivative at t=6-1=5, ẋ₅, as follows:
-                //                  x_c - x₅
-                //             ẋ₅ = --------- ........... (1)
-                //                     Δt
-                //             x₆ = x₅ + (ẋ₅ × Δt)
-                //                = x_c
-                //      Thus clamping ẋ₅ (at t = 5) as described in (1) gives
-                //      us the desired clamping at t = 5 + 1 = 6
-                dbg("Derivative");
-                dbg(timestep);
-                dbg(this->predicted_latent_state_sequences[sample_number][timestep - 1](2 * node_id + 1));
-                double clamped_derivative = (value -
-                        this->predicted_latent_state_sequences[sample_number]
-                        [timestep - 1](2 * node_id)) / this->delta_t;
-
-                this->predicted_latent_state_sequences[sample_number]
-                    [timestep - 1](2 * node_id + 1) = clamped_derivative;
-                dbg(clamped_derivative);
-
-                // Clamping the derivative at t-1 changes the value at t.
-                // According to our model, derivatives never chance. So if we
-                // do not revert it, clamped derivative stays till another
-                // clamping or the end of prediction. Since this is a one-off
-                // clamping, we have to return the derivative back to its
-                // original value at time step t, before we use it to evolve
-                // time step t + 1. Thus we remember the time step at which we
-                // have to perform this.
-                this->rest_derivative_clamp_ts = timestep;
-            } else {
-                this->predicted_latent_state_sequences[sample_number][timestep](2 * node_id) = value;
-                dbg("value");
-                dbg(value);
-            }
+            this->predicted_latent_state_sequences[sample_number][timestep](2 * node_id) = value;
+            dbg("value");
+            dbg(value);
         }
     } else { // Perpetual constraints
         if (delphi::utils::in(this->one_off_constraints, timestep)) {
             // Update any previous perpetual constraints
-            for (auto constraint : this->one_off_constraints.at(timestep)) {
-                int node_id = constraint.first;
-                double value = constraint.second;
+            for (auto [node_id, value]: this->one_off_constraints.at(timestep)) {
+                //int node_id = constraint.first;
+                //double value = constraint.second;
+                dbg("Perpetual");
+                dbg(value);
 
                 this->perpetual_constraints[node_id] = value;
             }
         }
 
         // Apply perpetual constraints
-        for (auto constraint : this->perpetual_constraints) {
-            int node_id = constraint.first;
-            double value = constraint.second;
+        for (auto [node_id, value]: this->perpetual_constraints) {
+            //int node_id = constraint.first;
+            //double value = constraint.second;
 
             this->predicted_latent_state_sequences[sample_number][timestep](2 * node_id) = value;
         }

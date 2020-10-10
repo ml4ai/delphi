@@ -303,7 +303,7 @@ class AnalysisGraph {
   // [ time step ] --> [(concept id, constrained value), ... ]
   // latent_state_constraints.at(time step)
   std::unordered_map<int, std::vector<std::pair<int, double>>>
-      one_off_constraints={{5, {std::make_pair(1, 2.0)}}, {15, {std::make_pair(1, 3.0)}}};
+      one_off_constraints;
   //
   // Implementing Perpetual constraints:
   // -------------------------------------------------------------------------
@@ -911,7 +911,7 @@ class AnalysisGraph {
 
   public:
   AnalysisGraph() {
-     //one_off_constraints.clear();
+     one_off_constraints.clear();
      perpetual_constraints.clear();
   }
 
