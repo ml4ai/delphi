@@ -860,8 +860,7 @@ class AnalysisGraph {
   void run_model(int start_year,
                  int start_month,
                  int end_year,
-                 int end_month,
-                 bool project = false);
+                 int end_month);
 
   /*
    ============================================================================

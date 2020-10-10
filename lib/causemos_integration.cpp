@@ -927,6 +927,8 @@ AnalysisGraph::run_causemose_projection_experiment(std::string json_string) {
     */
 }
 
+// TODO: This method is obsolete. After clearing the callers of this method,
+// this should be deleted.
 FormattedProjectionResult
 AnalysisGraph::generate_causemos_projection(string json_projection) {
   auto json_data = nlohmann::json::parse(json_projection);
@@ -958,7 +960,8 @@ AnalysisGraph::generate_causemos_projection(string json_projection) {
   }
 
   this->trained = true;
-  this->run_model(start_year, start_month, end_year, end_month, true);
+  // This is obsolete
+  //this->run_model(start_year, start_month, end_year, end_month, true);
   this->trained = false;
 
   return this->format_projection_result();

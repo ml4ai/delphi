@@ -333,8 +333,7 @@ FormattedPredictionResult AnalysisGraph::format_prediction_result() {
 void AnalysisGraph::run_model(int start_year,
                               int start_month,
                               int end_year,
-                              int end_month,
-                              bool project) {
+                              int end_month) {
   if (!this->trained) {
     print("Passed untrained Causal Analysis Graph (CAG) Model. \n",
           "Try calling <CAG>.train_model(...) first!");
