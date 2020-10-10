@@ -18,10 +18,7 @@ using fmt::print;
 */
 
 void AnalysisGraph::generate_latent_state_sequences(
-    int prediction_timesteps,
-    int initial_prediction_step,
-    int total_timesteps,
-    bool project) {
+    int initial_prediction_step) {
 
   // Allocate memory for prediction_latent_state_sequences
   this->predicted_latent_state_sequences.clear();
@@ -85,21 +82,6 @@ void AnalysisGraph::generate_latent_state_sequences(
               this->perturb_predicted_latent_state_at(1, samp);
           }
       }
-
-      /*
-      if (project) {
-          this->predicted_latent_state_sequences[samp][0] = this->s0;
-      } else {
-          // Perform inference based on the sampled initial latent states
-          this->predicted_latent_state_sequences[samp][0] =
-              this->initial_latent_state_collection[samp];
-
-          // Apply constraints to latent state if any
-          if (delphi::utils::in(this->one_off_constraints, 0)) {
-              this->perturb_predicted_latent_state_at(0, samp);
-          }
-      }
-      */
 
       // Since we used ts = 0 for the initial_prediction_step - 1, this loop is
       // one ahead of the prediction time steps. That is, index 1 in the
@@ -428,8 +410,7 @@ void AnalysisGraph::run_model(int start_year,
   //       Adding that additional time step.
   this->pred_timesteps++;
 
-  this->generate_latent_state_sequences(this->pred_timesteps, pred_init_timestep,
-                                                    total_timesteps, project);
+  this->generate_latent_state_sequences(pred_init_timestep);
   this->generate_observed_state_sequences();
 }
 

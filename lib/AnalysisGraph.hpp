@@ -837,10 +837,7 @@ class AnalysisGraph {
    *                                 latent state sequence based on the
    *                                 perturbed initial latent state s0.
    */
-  void generate_latent_state_sequences(int prediction_timesteps,
-                                       int initial_prediction_step,
-                                       int total_timesteps,
-                                       bool project = false);
+  void generate_latent_state_sequences(int initial_prediction_step);
 
   void perturb_predicted_latent_state_at(int timestep, int sample_number);
 
