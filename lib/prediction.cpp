@@ -23,17 +23,11 @@ void AnalysisGraph::generate_latent_state_sequences(
     int total_timesteps,
     bool project) {
 
-  // We start the predicted latent state sequence from one time step before the
-  // initial prediction step. Therefore we are predicting one additional time
-  // step. Hence we add 1 here. When we are returning results, we have to
-  // remove the predictions at the 0th index.
-  this->n_timesteps = prediction_timesteps;
-
   // Allocate memory for prediction_latent_state_sequences
   this->predicted_latent_state_sequences.clear();
   this->predicted_latent_state_sequences = vector<vector<VectorXd>>(
       this->res,
-      vector<VectorXd>(this->n_timesteps, VectorXd(this->num_vertices() * 2)));
+      vector<VectorXd>(this->pred_timesteps, VectorXd(this->num_vertices() * 2)));
 
   for (int samp = 0; samp < this->res; samp++) {
       // The sampled transition matrices would be either of matrix exponential
@@ -113,7 +107,7 @@ void AnalysisGraph::generate_latent_state_sequences(
       // prediction sequence. Hence, when we are at time step ts, we should
       // check whether there are any constconstraints
         // time step index is 1
-      for (int ts = 1; ts < this->n_timesteps; ts++) {
+      for (int ts = 1; ts < this->pred_timesteps; ts++) {
           // When continuous: The standard matrix exponential equation is,
           //                        s_{t+Δt} = e^{Ac * Δt } * s_t
           //                  Since vector indices are integral values, and in
@@ -271,35 +265,12 @@ void AnalysisGraph::perturb_predicted_latent_state_at(int timestep, int sample_n
         // have to perform this.
         this->rest_derivative_clamp_ts = timestep;
 
-        /*
-        this->perpetual_constraints.clear();
-
-        if (!is_one_off_constraints) {
-            // We clamped the derivative at timestamp - 1 to achieve the
-            // desired latent state value at timestamp. Now we have to maintain
-            // that value throughout. To keep this value stationary, we have to
-            // set the derivative to 0 from timestep onward. To do that
-            // remember the clamped derivatives. Since we do not change the
-            // derivative, we only need to set these derivative to 0 only at
-            // timestep. So we can forget
-            for (auto [node_id, value]: this->one_off_constraints.at(timestep)) {
-                //int node_id = constraint.first;
-                //double value = constraint.second;
-
-                this->perpetual_constraints[node_id] = value;
-            }
-        }
-        */
-
         return;
     }
 
     if (is_one_off_constraints) {
 
         for (auto [node_id, value]: this->one_off_constraints.at(timestep)) {
-            //int node_id = constraint.first;
-            //double value = constraint.second;
-
             this->predicted_latent_state_sequences[sample_number][timestep](2 * node_id) = value;
             dbg("value");
             dbg(value);
@@ -308,8 +279,6 @@ void AnalysisGraph::perturb_predicted_latent_state_at(int timestep, int sample_n
         if (delphi::utils::in(this->one_off_constraints, timestep)) {
             // Update any previous perpetual constraints
             for (auto [node_id, value]: this->one_off_constraints.at(timestep)) {
-                //int node_id = constraint.first;
-                //double value = constraint.second;
                 dbg("Perpetual");
                 dbg(value);
 
@@ -319,8 +288,6 @@ void AnalysisGraph::perturb_predicted_latent_state_at(int timestep, int sample_n
 
         // Apply perpetual constraints
         for (auto [node_id, value]: this->perpetual_constraints) {
-            //int node_id = constraint.first;
-            //double value = constraint.second;
 
             this->predicted_latent_state_sequences[sample_number][timestep](2 * node_id) = value;
         }
@@ -335,7 +302,7 @@ void AnalysisGraph::generate_observed_state_sequences() {
   this->predicted_observed_state_sequences =
       vector<PredictedObservedStateSequence>(
           this->res,
-          PredictedObservedStateSequence(this->n_timesteps,
+          PredictedObservedStateSequence(this->pred_timesteps,
                                          vector<vector<double>>()));
 
   for (int samp = 0; samp < this->res; samp++) {
@@ -392,7 +359,11 @@ void AnalysisGraph::run_model(int start_year,
     throw "Model not yet trained";
   }
 
-  // Check for sensible ranges.
+  // Check for sensible prediction time step ranges.
+  // NOTE: To facilitate clamping derivatives, we start prediction one time
+  //       step before the requested prediction start time. Therefor, the
+  //       possible valid earliest prediction time step is one time step after
+  //       the training start time.
   if (start_year < this->training_range.first.first ||
       (start_year == this->training_range.first.first &&
        start_month <= this->training_range.first.second)) {
@@ -451,8 +422,10 @@ void AnalysisGraph::run_model(int start_year,
   }
 
   // NOTE: To facilitate clamping derivatives, we start prediction one time
-  //       step before the requested prediction start time. We are omitting
-  //       that additional time step from the results returned to the user.
+  //       step before the requested prediction start time. When we are
+  //       returning results, we have to remove the predictions at the 0th
+  //       index of each predicted observed state sequence.
+  //       Adding that additional time step.
   this->pred_timesteps++;
 
   this->generate_latent_state_sequences(this->pred_timesteps, pred_init_timestep,
