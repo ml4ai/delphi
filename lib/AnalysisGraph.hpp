@@ -927,14 +927,6 @@ class AnalysisGraph {
 
   ~AnalysisGraph() {}
 
-  void print_training_range() {
-      std::cout << "ID         : " << this->id << std::endl;
-      std::cout << "Start year : " << this->training_range.first.first << std::endl;
-      std::cout << "Start month: " << this->training_range.first.second << std::endl;
-      std::cout << "End year   : " << this->training_range.second.first << std::endl;
-      std::cout << "End month  : " << this->training_range.second.second << std::endl;
-  }
-
   std::string id;
   std::string to_json_string(int indent = 0);
   bool data_heuristic = false;
@@ -1416,4 +1408,6 @@ class AnalysisGraph {
   // Given an edge (source, target vertex ids - i.e. a β ≡ ∂target/∂source),
   // print all the transition matrix cells that are dependent on it.
   void print_cells_affected_by_beta(int source, int target);
+
+  void print_training_range();
 };
