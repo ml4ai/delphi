@@ -334,8 +334,7 @@ def createCausemosExperiment(modelID):
             )
 
         result = CauseMosAsyncExperimentResult(
-            id=experiment_id,
-            baseType="CauseMosAsyncExperimentResult",
+            id=experiment_id, baseType="CauseMosAsyncExperimentResult",
         )
         startTime = causemos_experiment_result[0]
         endTime = causemos_experiment_result[1]
@@ -395,15 +394,7 @@ def createCausemosExperiment(modelID):
 
     executor.submit_stored(experiment_id, runExperiment)
 
-    return jsonify(
-        {
-            "modelId": modelID,
-            "experimentId": experiment_id,
-            "experimentType": experiment_type,
-            "status": "in progress",
-            "results": executor.futures._state(experiment_id),
-        }
-    )
+    return jsonify({"experimentId": experiment_id})
 
 
 @bp.route(
@@ -413,10 +404,10 @@ def createCausemosExperiment(modelID):
 def getExperimentResults(modelID: str, experimentID: str):
     """ Fetch experiment results"""
     response = {
-                "modelId": modelID,
-                "experimentId": experimentID,
-                "experimentType": "PROJECTION",
-            }
+        "modelId": modelID,
+        "experimentId": experimentID,
+        "experimentType": "PROJECTION",
+    }
     if not executor.futures.done(experimentID):
         response["status"] = "in progress"
         response["results"] = {}
