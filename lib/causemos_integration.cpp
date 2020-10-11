@@ -7,17 +7,10 @@
 #include <range/v3/all.hpp>
 #include <time.h>
 #include <limits.h>
-//#include <uuid/uuid.h>// for uuid
-//#include <sys/wait.h> // for fork
-//#include <unistd.h>   // for fork
-#include "dbg.h"
 
 using namespace std;
 using namespace delphi::utils;
 using namespace fmt::literals;
-
-// Just for debugging. Remove later
-using fmt::print;
 
 /*
 ============================================================================
@@ -106,9 +99,6 @@ void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json
         // The idea is to use this to assess the frequency of the data. Either
         // yearly or monthly.
         set<pair<int, int>> dates;
-
-        dbg("---------------------------");
-        dbg(indicator_name);
 
         for (auto& data_point : indicator["values"]) {
             if (data_point["value"].is_null()) {
@@ -290,11 +280,6 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
     this->training_range = make_pair(make_pair(start_year, start_month),
                                             make_pair(end_year, end_month));
 
-    dbg(start_year);
-    dbg(start_month);
-    dbg(end_year);
-    dbg(end_month);
-
     // Decide the data frequency.
     int shortest_gap = INT_MAX;
     int longest_gap = 0;
@@ -303,11 +288,6 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
 
     this->infer_modeling_frequency(concept_indicator_dates,
                   shortest_gap, longest_gap, frequent_gap, highest_frequency);
-
-    dbg(shortest_gap);
-    dbg(longest_gap);
-    dbg(frequent_gap);
-    dbg(highest_frequency);
 
     // Fill in observed state sequence
     // NOTE: This code is very similar to the implementations in
@@ -721,7 +701,6 @@ AnalysisGraph::run_causemos_projection_experiment(std::string json_string) {
     if (json_data["experimentParam"].is_null()) {return null_prediction;}
     auto projection_parameters = json_data["experimentParam"];
 
-    dbg("running exp");
     pair<int, int> year_month;
 
     if (projection_parameters["startTime"].is_null()) {return null_prediction;}
@@ -731,18 +710,12 @@ AnalysisGraph::run_causemos_projection_experiment(std::string json_string) {
     int proj_start_year = year_month.first;
     int proj_start_month = year_month.second;
 
-    dbg(proj_start_year);
-    dbg(proj_start_month);
-
     if (projection_parameters["endTime"].is_null()) {return null_prediction;}
     long proj_end_timestamp = projection_parameters["endTime"].get<long>();
 
     year_month = this->timestamp_to_year_month(proj_end_timestamp );
     int proj_end_year_given = year_month.first;
     int proj_end_month_given = year_month.second;
-
-    dbg(proj_end_year_given);
-    dbg(proj_end_month_given);
 
     if (projection_parameters["numTimesteps"].is_null()) {return null_prediction;}
     int proj_num_timesteps = projection_parameters["numTimesteps"].get<int>();
@@ -771,9 +744,6 @@ AnalysisGraph::run_causemos_projection_experiment(std::string json_string) {
                                           proj_num_timesteps);
     int proj_end_year_calculated = year_month.first;
     int proj_end_month_calculated = year_month.second;
-
-    dbg(proj_end_year_calculated);
-    dbg(proj_end_month_calculated);
 
     int train_start_year = this->training_range.first.first;
     int train_start_month = this->training_range.first.second;
@@ -811,53 +781,4 @@ AnalysisGraph::run_causemos_projection_experiment(std::string json_string) {
                                                          proj_num_timesteps,
                                                          this->format_projection_result());
     return result;
-
-    // We do not need to create multiple processes at Delphi end as Flask is
-    // handling that.
-    /*
-    // Generate the experiment UUID
-    char ch[37];
-    memset(ch, 0, 37);
-    uuid_t uuid;
-    uuid_generate(uuid);
-    uuid_unparse(uuid, ch);
-    string* projection_experiment_uuid = new string(ch);
-    dbg(*projection_experiment_uuid);
-
-    // Create create-experiment::projection response
-    json create_projection_response;
-    create_projection_response["experimentId"] = *projection_experiment_uuid;
-    free(projection_experiment_uuid);
-
-    dbg(create_projection_response.dump(4));
-
-    //this->train_model(train_start_year, train_start_month,
-    //                            train_end_year, train_end_month, 20, 20);
-    //return(create_projection_response.dump());
-
-    // Create a parent and child processes
-    // parent will return to the caller and the child will train the model
-    pid_t pid = fork();
-
-    if (pid > 0) {
-        print("Parent process. Child is {0}\n", pid);
-        int stat;
-        wait(NULL);
-        if (WIFEXITED(stat)) {
-            printf("Exit status: %d\n", WEXITSTATUS(stat));
-        } else if (WIFSIGNALED(stat)) {
-            psignal(WTERMSIG(stat), "Exit signal");
-        }
-        return(create_projection_response.dump());
-    } else {
-        print("Child process. I got pid as {0}\n", pid);
-        this->train_model(train_start_year, train_start_month,
-                                train_end_year, train_end_month);
-        this->generate_prediction(pred_start_year, pred_start_month,
-                                  pred_end_year_calculated,
-                                  pred_end_month_calculated);
-        dbg("Training completed");
-        return("Child returns\n");
-    }
-    */
 }

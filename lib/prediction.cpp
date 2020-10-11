@@ -9,7 +9,6 @@ using fmt::print, fmt::format;
 namespace rs = ranges;
 using boost::adaptors::transformed;
 
-#include "dbg.h"
 using fmt::print;
 /*
  ============================================================================
@@ -126,9 +125,6 @@ void AnalysisGraph::generate_latent_state_sequences(
                               (2 * node_id + 1) =
                               this->initial_latent_state_collection[samp]
                               (2 * node_id + 1);
-                          dbg("Resetting");
-                          dbg(ts);
-                          dbg(this->predicted_latent_state_sequences[samp][ts](2 * node_id + 1));
                   }
                   } else {
                       for (auto [node_id, value]: this->one_off_constraints.at(ts)) {
@@ -225,16 +221,12 @@ void AnalysisGraph::perturb_predicted_latent_state_at(int timestep, int sample_n
             //                = x_c
             //      Thus clamping ẋ₅ (at t = 5) as described in (1) gives
             //      us the desired clamping at t = 5 + 1 = 6
-            dbg("Derivative");
-            dbg(timestep);
-            dbg(this->predicted_latent_state_sequences[sample_number][timestep - 1](2 * node_id + 1));
             double clamped_derivative = (value -
                     this->predicted_latent_state_sequences[sample_number]
                     [timestep - 1](2 * node_id)) / this->delta_t;
 
             this->predicted_latent_state_sequences[sample_number]
                 [timestep - 1](2 * node_id + 1) = clamped_derivative;
-            dbg(clamped_derivative);
         }
 
         // Clamping the derivative at t-1 changes the value at t.
@@ -250,19 +242,15 @@ void AnalysisGraph::perturb_predicted_latent_state_at(int timestep, int sample_n
         return;
     }
 
-    if (is_one_off_constraints) {
+    if (this->is_one_off_constraints) {
 
         for (auto [node_id, value]: this->one_off_constraints.at(timestep)) {
             this->predicted_latent_state_sequences[sample_number][timestep](2 * node_id) = value;
-            dbg("value");
-            dbg(value);
         }
     } else { // Perpetual constraints
         if (delphi::utils::in(this->one_off_constraints, timestep)) {
             // Update any previous perpetual constraints
             for (auto [node_id, value]: this->one_off_constraints.at(timestep)) {
-                dbg("Perpetual");
-                dbg(value);
 
                 this->perpetual_constraints[node_id] = value;
             }
@@ -316,7 +304,7 @@ FormattedPredictionResult AnalysisGraph::format_prediction_result() {
     // NOTE: To facilitate clamping derivatives, we start prediction one time
     //       step before the requested prediction start time. We are omitting
     //       that additional time step from the results returned to the user.
-    for (int ts = 1; ts < this->pred_timesteps; ts++) {
+    for (int ts = 1; ts <= this->pred_timesteps; ts++) {
       for (auto [vert_name, vert_id] : this->name_to_vertex) {
         for (auto [ind_name, ind_id] : (*this)[vert_id].nameToIndexMap) {
           result[samp][ts - 1][vert_name][ind_name] =
@@ -483,13 +471,7 @@ void AnalysisGraph::add_constraint(int step, string concept_name, string indicat
     //       (Gosh, when we have incorrect terminology and we know it
     //       and we have not fixed it, I have to type a lot of
     //       comments)
-    double latent_clamp_value = indicator_clamp_value/ ind.get_mean();
-    dbg(step);
-    dbg(concept_name);
-    dbg(indicator_name);
-    dbg(indicator_clamp_value);
-    dbg(ind.get_mean());
-    dbg(latent_clamp_value);
+    double latent_clamp_value = indicator_clamp_value / ind.get_mean();
 
     this->one_off_constraints[step].push_back(
                                     make_pair(concept_id, latent_clamp_value));
@@ -504,7 +486,23 @@ void AnalysisGraph::add_constraint(int step, string concept_name, string indicat
 Prediction AnalysisGraph::generate_prediction(int start_year,
                                               int start_month,
                                               int end_year,
-                                              int end_month) {
+                                              int end_month,
+                                              ConstraintSchedule constraints,
+                                              bool one_off,
+                                              bool clamp_deri) {
+  this->is_one_off_constraints = one_off;
+  this->clamp_at_derivative = clamp_deri;
+
+  for (auto [step, const_vec] : constraints) {
+      for (auto constraint : const_vec) {
+          string concept_name = get<0>(constraint);
+          string indicator_name = get<1>(constraint);
+          double value = get<2>(constraint);
+
+          this->add_constraint(step, concept_name, indicator_name, value);
+      }
+  }
+
   this->run_model(start_year, start_month, end_year, end_month);
 
   return make_tuple(

@@ -35,12 +35,19 @@ void AnalysisGraph::print_name_to_vertex() {
 }
 
 void AnalysisGraph::print_indicators() {
+  cout << "-----Indicators-----\n";
+  cout << "Indicators attached to nodes\n";
   for (int v : this->node_indices()) {
     cout << v << ":" << (*this)[v].name << endl;
     for (auto [name, vert] : (*this)[v].nameToIndexMap) {
       cout << "\t"
            << "indicator " << vert << ": " << name << endl;
     }
+  }
+
+  cout << "\nIndicators in CAG \n";
+  for (string ind : this->indicators_in_CAG) {
+      cout << "indicator: " << ind << endl;
   }
 }
 
@@ -102,4 +109,12 @@ void AnalysisGraph::print_cells_affected_by_beta(int source, int target) {
          << ") ";
   }
   cout << endl;
+}
+
+void AnalysisGraph::print_training_range() {
+    std::cout << "ID         : " << this->id << std::endl;
+    std::cout << "Start year : " << this->training_range.first.first << std::endl;
+    std::cout << "Start month: " << this->training_range.first.second << std::endl;
+    std::cout << "End year   : " << this->training_range.second.first << std::endl;
+    std::cout << "End month  : " << this->training_range.second.second << std::endl;
 }

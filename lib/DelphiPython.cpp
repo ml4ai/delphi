@@ -158,7 +158,10 @@ PYBIND11_MODULE(DelphiPython, m) {
            "start_year"_a,
            "start_month"_a,
            "end_year"_a,
-           "end_month"_a)
+           "end_month"_a,
+           "constraints"_a = ConstraintSchedule(),
+           "one_off"_a = true,
+           "clamp_deri"_a = true)
       .def("run_causemos_projection_experiment",
            &AnalysisGraph::run_causemos_projection_experiment,
            "json_string"_a)

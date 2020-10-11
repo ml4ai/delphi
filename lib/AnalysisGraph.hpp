@@ -80,6 +80,17 @@ typedef std::tuple<std::pair<std::pair<int, int>, std::pair<int, int>>,
     Prediction;
 
 // Access
+// [prediction time step] -->
+//      get<0>:
+//          concept name
+//      get<1>
+//          indicator name
+//      get<2>
+//          value
+typedef std::unordered_map<int, std::vector<std::tuple<std::string,
+        std::string, double>>> ConstraintSchedule;
+
+// Access
 // get<0>:
 //      Prediction start time (startTime)
 // get<1>:
@@ -319,8 +330,8 @@ class AnalysisGraph {
   bool is_one_off_constraints = true;
   //
   // Deciding whether to clamp the latent variable or the derivative
-  // true  => clamp at latent variable
-  // false => clamp at derivative
+  // true  => clamp at derivative
+  // false => clamp at latent variable
   bool clamp_at_derivative = true;
   //
   // When we are clamping derivatives the clamp sticks since derivatives never
@@ -916,14 +927,6 @@ class AnalysisGraph {
 
   ~AnalysisGraph() {}
 
-  void print_training_range() {
-      std::cout << "ID         : " << this->id << std::endl;
-      std::cout << "Start year : " << this->training_range.first.first << std::endl;
-      std::cout << "Start month: " << this->training_range.first.second << std::endl;
-      std::cout << "End year   : " << this->training_range.second.first << std::endl;
-      std::cout << "End month  : " << this->training_range.second.second << std::endl;
-  }
-
   std::string id;
   std::string to_json_string(int indent = 0);
   bool data_heuristic = false;
@@ -1321,7 +1324,11 @@ class AnalysisGraph {
   Prediction generate_prediction(int start_year,
                                  int start_month,
                                  int end_year,
-                                 int end_month);
+                                 int end_month,
+                                 ConstraintSchedule constraints =
+                                                        ConstraintSchedule(),
+                                 bool one_off = true,
+                                 bool clamp_deri = true);
 
   /**
    * this->generate_prediction() must be called before calling this method.
@@ -1398,4 +1405,6 @@ class AnalysisGraph {
   // Given an edge (source, target vertex ids - i.e. a β ≡ ∂target/∂source),
   // print all the transition matrix cells that are dependent on it.
   void print_cells_affected_by_beta(int source, int target);
+
+  void print_training_range();
 };
