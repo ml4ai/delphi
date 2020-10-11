@@ -9,7 +9,6 @@ using fmt::print, fmt::format;
 namespace rs = ranges;
 using boost::adaptors::transformed;
 
-#include "dbg.h"
 using fmt::print;
 /*
  ============================================================================
@@ -126,9 +125,6 @@ void AnalysisGraph::generate_latent_state_sequences(
                               (2 * node_id + 1) =
                               this->initial_latent_state_collection[samp]
                               (2 * node_id + 1);
-                          dbg("Resetting");
-                          dbg(ts);
-                          dbg(this->predicted_latent_state_sequences[samp][ts](2 * node_id + 1));
                   }
                   } else {
                       for (auto [node_id, value]: this->one_off_constraints.at(ts)) {
@@ -225,16 +221,12 @@ void AnalysisGraph::perturb_predicted_latent_state_at(int timestep, int sample_n
             //                = x_c
             //      Thus clamping ẋ₅ (at t = 5) as described in (1) gives
             //      us the desired clamping at t = 5 + 1 = 6
-            dbg("Derivative");
-            dbg(timestep);
-            dbg(this->predicted_latent_state_sequences[sample_number][timestep - 1](2 * node_id + 1));
             double clamped_derivative = (value -
                     this->predicted_latent_state_sequences[sample_number]
                     [timestep - 1](2 * node_id)) / this->delta_t;
 
             this->predicted_latent_state_sequences[sample_number]
                 [timestep - 1](2 * node_id + 1) = clamped_derivative;
-            dbg(clamped_derivative);
         }
 
         // Clamping the derivative at t-1 changes the value at t.
@@ -254,15 +246,11 @@ void AnalysisGraph::perturb_predicted_latent_state_at(int timestep, int sample_n
 
         for (auto [node_id, value]: this->one_off_constraints.at(timestep)) {
             this->predicted_latent_state_sequences[sample_number][timestep](2 * node_id) = value;
-            dbg("value");
-            dbg(value);
         }
     } else { // Perpetual constraints
         if (delphi::utils::in(this->one_off_constraints, timestep)) {
             // Update any previous perpetual constraints
             for (auto [node_id, value]: this->one_off_constraints.at(timestep)) {
-                dbg("Perpetual");
-                dbg(value);
 
                 this->perpetual_constraints[node_id] = value;
             }
@@ -484,12 +472,6 @@ void AnalysisGraph::add_constraint(int step, string concept_name, string indicat
     //       and we have not fixed it, I have to type a lot of
     //       comments)
     double latent_clamp_value = indicator_clamp_value / ind.get_mean();
-    dbg(step);
-    dbg(concept_name);
-    dbg(indicator_name);
-    dbg(indicator_clamp_value);
-    dbg(ind.get_mean());
-    dbg(latent_clamp_value);
 
     this->one_off_constraints[step].push_back(
                                     make_pair(concept_id, latent_clamp_value));
