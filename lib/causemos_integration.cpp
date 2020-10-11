@@ -544,35 +544,6 @@ string AnalysisGraph::generate_create_model_response() {
     return j.dump();
 }
 
-/*
- * TODO: Remove this method
- * generate_create_model_response would replace this method
- */
-string AnalysisGraph::get_edge_weights_for_causemos_viz() {
-  using nlohmann::json, ranges::max;
-  json j;
-  j["relations"] = {};
-  vector<double> all_weights = {};
-  for (auto e : this->edges()) {
-    int n_samples = DEFAULT_N_SAMPLES;
-    // TODO: This variable is not used
-    vector<double> sampled_thetas = this->edge(e).kde.resample(
-        n_samples, this->rand_num_generator, this->uni_dist, this->norm_dist);
-    double weight = abs(median(this->edge(e).kde.dataset));
-    all_weights.push_back(weight);
-    json edge_json = {{"source", this->source(e).name},
-                      {"target", this->target(e).name},
-                      {"weight", weight}};
-    j["relations"].push_back(edge_json);
-  }
-  double max_weight = max(all_weights);
-  // Divide the weights by the max weight so they all lie between 0-1
-  for (auto& relation : j["relations"]) {
-    relation["weight"] = relation["weight"].get<double>() / max_weight;
-  }
-  return j.dump();
-}
-
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                           create-experiment
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -770,12 +741,6 @@ AnalysisGraph::run_causemose_projection_experiment(std::string json_string) {
                                                 proj_end_year_calculated,
                                                 proj_end_month_calculated);
 
-    /*
-    CausemosProjectionExperimentResult cper = make_tuple(proj_start_timestamp,
-                                                         proj_end_timestamp,
-                                                         proj_num_timesteps,
-                                                         get<2>(pred));
-    */
     CausemosProjectionExperimentResult cper = make_tuple(proj_start_timestamp,
                                                          proj_end_timestamp,
                                                          proj_num_timesteps,
