@@ -321,20 +321,6 @@ class ExperimentResult(db.Model, Serializable):
     }
 
 
-class CauseMosForwardProjectionResult(ExperimentResult):
-    """ Placeholder docstring for class CauseMosForwardProjectionResult. """
-
-    __tablename__ = "causemosforwardprojectionresult"
-    id = db.Column(
-        db.String,
-        db.ForeignKey("experimentresult.id"),
-        primary_key=True,
-        default=str(uuid4()),
-    )
-    results = db.Column(JsonEncodedDict, nullable=True)
-    __mapper_args__ = {"polymorphic_identity": "CauseMosForwardProjectionResult"}
-
-
 class ForwardProjectionResult(ExperimentResult):
     """ Placeholder docstring for class ForwardProjectionResult. """
 
@@ -366,22 +352,6 @@ class SensitivityAnalysisResult(ExperimentResult):
 
 
 
-
-#class CauseMosAsyncExperiment(Experiment):
-#    """ Placeholder docstring for class CauseMosAsyncExperiment. """
-#
-#    __tablename__ = "causemosasyncexperiment"
-#    id = db.Column(
-#        db.String,
-#        db.ForeignKey("experiment.id"),
-#        primary_key=True,
-#        default=str(uuid4()),
-#    )
-#    interventions = db.Column(JsonEncodedList, nullable=True)
-#    projection = db.Column(JsonEncodedDict, nullable=True)
-#    __mapper_args__ = {"polymorphic_identity": "CauseMosAsyncExperiment"}
-
-
 class CauseMosAsyncExperimentResult(ExperimentResult):
     """ Placeholder docstring for class CauseMosAsyncExperimentResult. """
 
@@ -394,4 +364,3 @@ class CauseMosAsyncExperimentResult(ExperimentResult):
     )
     results = db.Column(JsonEncodedDict, nullable=True)
     __mapper_args__ = {"polymorphic_identity": "CauseMosAsyncExperimentResult"}
-

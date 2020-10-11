@@ -48,12 +48,13 @@ def createNewModel():
     """ Create a new Delphi model. """
     data = json.loads(request.data)
     G = AnalysisGraph.from_causemos_json_string(request.data)
-    model = DelphiModel(id=data["id"],
-            model=G.serialize_to_json_string(verbose=False))
+    model = DelphiModel(
+        id=data["id"], model=G.serialize_to_json_string(verbose=False)
+    )
     db.session.merge(model)
     db.session.commit()
-    #edge_weights = G.get_edge_weights_for_causemos_viz()
-    #return jsonify({"status": "success", "relations": edge_weights})
+    # edge_weights = G.get_edge_weights_for_causemos_viz()
+    # return jsonify({"status": "success", "relations": edge_weights})
     response = G.generate_create_model_response()
     return jsonify(response)
 
@@ -327,45 +328,49 @@ def createCausemosExperiment(modelID):
     experiment_id = str(uuid4())
 
     def runExperiment():
-        if experiment_type == 'PROJECTION':
-            causemos_experiment_result = G.run_causemos_projection_experiment(request.data)
+        if experiment_type == "PROJECTION":
+            causemos_experiment_result = G.run_causemos_projection_experiment(
+                request.data
+            )
 
         result = CauseMosAsyncExperimentResult(
-            id=experiment_id, baseType="CauseMosAsyncExperimentResult"
+            id=experiment_id,
+            baseType="CauseMosAsyncExperimentResult",
         )
-        result.modelId = modelID
-        result.experimentId = experiment_id
-        result.experimentType = experiment_type
         startTime = causemos_experiment_result[0]
         endTime = causemos_experiment_result[1]
         numTimesteps = causemos_experiment_result[2]
-        #if len(causemos_experiment_result[3]) < numTimesteps:
-        #    result.status = "failed"
-        #    result.results = {}
-        #    db.session.add(result)
-        #    db.session.commit()
-        #    return
 
-        timesteps_nparr = np.round(np.linspace(startTime, endTime, numTimesteps))
-        # # From https://www.ucl.ac.uk/child-health/short-courses-events/
-        # #     about-statistical-courses/research-methods-and-statistics/chapter-8-content-8
+        timesteps_nparr = np.round(
+            np.linspace(startTime, endTime, numTimesteps)
+        )
+
+        # The calculation of the 95% confidence interval about the median is
+        # taken from:
+        # https://www.ucl.ac.uk/child-health/short-courses-events/ \
+        #     about-statistical-courses/research-methods-and-statistics/chapter-8-content-8
         n = G.res
         lower_rank = int((n - 1.96 * sqrt(n)) / 2)
         upper_rank = int((2 + n + 1.96 * sqrt(n)) / 2)
 
         lower_rank = 0 if lower_rank < 0 else lower_rank
         upper_rank = n - 1 if upper_rank >= n else upper_rank
-        result.status = "completed"
         result.results = {"data": []}
-        for conceptname, timestamp_sample_matrix in causemos_experiment_result[3].items():
+        for conceptname, timestamp_sample_matrix in causemos_experiment_result[
+            3
+        ].items():
             data_dict = {}
             data_dict["concept"] = conceptname
             data_dict["values"] = []
             data_dict["confidenceInterval"] = {"upper": [], "lower": []}
             for i, time_step in enumerate(timestamp_sample_matrix):
                 time_step.sort()
-                l = len(time_step)//2
-                median_value = time_step[l] if len(time_step)%2 else (time_step[l]+time_step[l-1])/2
+                l = len(time_step) // 2
+                median_value = (
+                    time_step[l]
+                    if len(time_step) % 2
+                    else (time_step[l] + time_step[l - 1]) / 2
+                )
                 lower_limit = time_step[lower_rank]
                 upper_limit = time_step[upper_rank]
 
@@ -387,6 +392,7 @@ def createCausemosExperiment(modelID):
 
         db.session.add(result)
         db.session.commit()
+
     executor.submit_stored(experiment_id, runExperiment)
 
     return jsonify(
@@ -399,30 +405,29 @@ def createCausemosExperiment(modelID):
         }
     )
 
+
 @bp.route(
     "/delphi/models/<string:modelID>/experiments/<string:experimentID>",
     methods=["GET"],
 )
 def getExperimentResults(modelID: str, experimentID: str):
     """ Fetch experiment results"""
-    if not executor.futures.done(experimentID):
-        return jsonify(
-            {
+    response = {
+                "modelId": modelID,
                 "experimentId": experimentID,
-                "status": executor.futures._state(experimentID),
+                "experimentType": "PROJECTION",
             }
-        )
+    if not executor.futures.done(experimentID):
+        response["status"] = "in progress"
+        response["results"] = {}
+        return jsonify(response)
     else:
-        experimentResult = CauseMosAsyncExperimentResult.query.filter_by(
+        result = CauseMosAsyncExperimentResult.query.filter_by(
             id=experimentID
         ).first()
-        return jsonify(
-            {
-                "experimentId": experimentID,
-                "results": experimentResult.deserialize()["results"],
-                "status": "COMPLETE",
-            }
-        )
+        response["status"] = "completed"
+        response["results"] = result.deserialize()["results"]
+        return jsonify(response)
 
 
 # =======
