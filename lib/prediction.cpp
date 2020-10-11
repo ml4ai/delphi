@@ -436,21 +436,34 @@ void AnalysisGraph::add_constraint(int step, string concept_name, string indicat
     int concept_id = this->name_to_vertex.at(concept_name);
     Node& n = (*this)[concept_id];
 
-    if (!delphi::utils::in(this->indicators_in_CAG, indicator_name)) {
-        print("Indicator \"{0}\" is not in CAG!\n", indicator_name);
+    if (n.indicators.size() <= 0) {
+        // This concept does not have any indicators attached.
+        print("Concept \"{0}\" does not have any indicators attached!\n", concept_name);
+        print("\tCannot set constraint\n");
         return;
     }
 
-    if (!delphi::utils::in(n.nameToIndexMap, indicator_name)) {
-        print("Indicator \"{0}\" is not attached to {1} in CAG!\n",
-                indicator_name,
-                concept_name);
-        return;
+    // If the indicator name is empty we clamp the first indicator attached to
+    // this concept
+    int ind_id = 0;
+
+    if (!indicator_name.empty()) {
+        if (!delphi::utils::in(this->indicators_in_CAG, indicator_name)) {
+            print("Indicator \"{0}\" is not in CAG!\n", indicator_name);
+            return;
+        }
+
+        if (!delphi::utils::in(n.nameToIndexMap, indicator_name)) {
+            print("Indicator \"{0}\" is not attached to {1} in CAG!\n",
+                    indicator_name,
+                    concept_name);
+            return;
+        }
+
+        ind_id = n.nameToIndexMap.at(indicator_name);
     }
 
-    int ind_id = n.nameToIndexMap.at(indicator_name);
     Indicator& ind = n.indicators[ind_id];
-    //Indicator& ind =  (*this)[concept_id].indicators[indicator_id];
 
     if (!delphi::utils::in(this->one_off_constraints, step)) {
         this->one_off_constraints[step] = vector<pair<int, double>>();

@@ -676,26 +676,6 @@ void AnalysisGraph::extract_projection_constraints(
         if (constraint["concept"].is_null()) {continue;}
         string concept_name = constraint["concept"].get<string>();
 
-        // Check whether this concept is in the CAG
-        if (!in(this->name_to_vertex, concept_name)) {
-            print("Concept \"{0}\" not in CAG!\n", concept_name);
-            continue;
-        }
-
-        int concept_id = this->name_to_vertex.at(concept_name);
-
-        // Get the first indicator of this node
-        // NOTE: Delphi is capable of attaching multiple indicators to a single
-        //       concept. Since we are constraining the latent state, We can
-        //       constrain (or intervene) based on only one of those
-        //       indicators. We choose to constrain the first indicator
-        //       attached to a concept which should be present irrespective of
-        //       whether this concept has one or more indicators attached to
-        //       it.
-        const int ind_id = 0;
-        Indicator& ind =  (*this)[concept_id].indicators[ind_id];
-
-        string ind_name = (*this)[concept_id].indicators[ind_id].get_name();
         for (auto values : constraint["values"]) {
             // We need both the step and the value to proceed. Thus checking
             // again to reduce bookkeeping.
@@ -704,7 +684,14 @@ void AnalysisGraph::extract_projection_constraints(
             int step     = values["step"].get<int>();
             double ind_value = values["value"].get<double>();
 
-            this->add_constraint(step, concept_name, ind_name, ind_value);
+            // NOTE: Delphi is capable of attaching multiple indicators to a
+            //       single concept. Since we are constraining the latent state,
+            //       we can constrain (or intervene) based on only one of those
+            //       indicators. By passing an empty indicator name, we choose
+            //       to constrain the first indicator attached to a concept
+            //       which should be present irrespective of whether this
+            //       concept has one or more indicators attached to it.
+            this->add_constraint(step, concept_name, "", ind_value);
         }
     }
 }
