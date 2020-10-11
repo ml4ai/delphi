@@ -158,7 +158,10 @@ PYBIND11_MODULE(DelphiPython, m) {
            "start_year"_a,
            "start_month"_a,
            "end_year"_a,
-           "end_month"_a)
+           "end_month"_a,
+           "constraints"_a = ConstraintSchedule(),
+           "one_off"_a = true,
+           "clamp_deri"_a = true)
       .def("generate_causemos_projection",
            &AnalysisGraph::generate_causemos_projection,
            "json_projection"_a)

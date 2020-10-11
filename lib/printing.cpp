@@ -35,12 +35,19 @@ void AnalysisGraph::print_name_to_vertex() {
 }
 
 void AnalysisGraph::print_indicators() {
+  cout << "-----Indicators-----\n";
+  cout << "Indicators attached to nodes\n";
   for (int v : this->node_indices()) {
     cout << v << ":" << (*this)[v].name << endl;
     for (auto [name, vert] : (*this)[v].nameToIndexMap) {
       cout << "\t"
            << "indicator " << vert << ": " << name << endl;
     }
+  }
+
+  cout << "\nIndicators in CAG \n";
+  for (string ind : this->indicators_in_CAG) {
+      cout << "indicator: " << ind << endl;
   }
 }
 
