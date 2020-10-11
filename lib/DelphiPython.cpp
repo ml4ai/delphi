@@ -159,11 +159,8 @@ PYBIND11_MODULE(DelphiPython, m) {
            "start_month"_a,
            "end_year"_a,
            "end_month"_a)
-      .def("generate_causemos_projection",
-           &AnalysisGraph::generate_causemos_projection,
-           "json_projection"_a)
-      .def("run_causemose_projection_experiment",
-           &AnalysisGraph::run_causemose_projection_experiment,
+      .def("run_causemos_projection_experiment",
+           &AnalysisGraph::run_causemos_projection_experiment,
            "json_string"_a)
       .def("prediction_to_array",
            &AnalysisGraph::prediction_to_array,
@@ -176,8 +173,8 @@ PYBIND11_MODULE(DelphiPython, m) {
                   &AnalysisGraph::deserialize_from_json_string,
                   "json_string"_a,
                   "verbose"_a = false)
-      .def("serialize_to_json_string", 
-           &AnalysisGraph::serialize_to_json_string, 
+      .def("serialize_to_json_string",
+           &AnalysisGraph::serialize_to_json_string,
            "verbose"_a = true);
 
   py::class_<RV>(m, "RV")

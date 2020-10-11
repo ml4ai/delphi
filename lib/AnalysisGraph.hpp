@@ -1037,9 +1037,6 @@ class AnalysisGraph {
   void extract_projection_constraints(
                                 const nlohmann::json &projection_constraints);
 
-  FormattedProjectionResult
-  generate_causemos_projection(std::string json_projection);
-
   /*
    ============================================================================
    Private: Model serialization (in serialize.cpp)

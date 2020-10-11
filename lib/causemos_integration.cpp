@@ -713,7 +713,7 @@ AnalysisGraph::run_causemos_projection_experiment(std::string json_string) {
     // CauseMos call.
     // NOTE: In hind site, I might be able to prevent Delphi calling
     //       initialize_parameters() within train_model() when we train due to
-    //       a CauseMos call. I need revise it to see whether anything is
+    //       a CauseMos call. I need to revise it to see whether anything is
     //       called out of order.
     this->causemos_call = true;
 
@@ -806,11 +806,11 @@ AnalysisGraph::run_causemos_projection_experiment(std::string json_string) {
                                                          proj_num_timesteps,
                                                          get<2>(pred));
     */
-    CausemosProjectionExperimentResult cper = make_tuple(proj_start_timestamp,
+    CausemosProjectionExperimentResult result = make_tuple(proj_start_timestamp,
                                                          proj_end_timestamp,
                                                          proj_num_timesteps,
                                                          this->format_projection_result());
-    return cper;
+    return result;
 
     // We do not need to create multiple processes at Delphi end as Flask is
     // handling that.
@@ -860,44 +860,4 @@ AnalysisGraph::run_causemos_projection_experiment(std::string json_string) {
         return("Child returns\n");
     }
     */
-}
-
-// TODO: This method is obsolete. After clearing the callers of this method,
-// this should be deleted.
-FormattedProjectionResult
-AnalysisGraph::generate_causemos_projection(string json_projection) {
-  auto json_data = nlohmann::json::parse(json_projection);
-  this->initialize_random_number_generator();
-  this->find_all_paths();
-  this->sample_transition_matrix_collection_from_prior();
-
-  auto start_time = json_data["startTime"];
-  int start_year = start_time["year"].get<int>();
-  int start_month = start_time["month"].get<int>();
-
-  int time_steps = json_data["timeStepsInMonths"].get<int>();
-
-  // This calculation adds one more month to the time steps
-  // To avoid that we need to check some corner cases
-  int end_year = start_year + (start_month + time_steps) / 12;
-  int end_month = (start_month + time_steps) % 12;
-
-  // Create the perturbed initial latent state
-  this->set_default_initial_state();
-
-  auto perturbations = json_data["perturbations"];
-
-  for (auto pert : perturbations) {
-    string concept = pert["concept"].get<string>();
-    double value = pert["value"].get<double>();
-
-    this->s0(2 * this->name_to_vertex.at(concept) + 1) = value;
-  }
-
-  this->trained = true;
-  // This is obsolete
-  //this->run_model(start_year, start_month, end_year, end_month, true);
-  this->trained = false;
-
-  return this->format_projection_result();
 }
