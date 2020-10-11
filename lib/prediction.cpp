@@ -413,6 +413,75 @@ void AnalysisGraph::run_model(int start_year,
   this->generate_observed_state_sequences();
 }
 
+void AnalysisGraph::add_constraint(int step, string concept_name, string indicator_name,
+                                                double indicator_clamp_value) {
+    // When constraining latent state derivatives, to reach the
+    // prescribed value for an observation at projection step t, we have
+    // to  clamp the derivative at projection step t-1 appropriately.
+    // Therefor, to constrain at projection step 0, we have to clamp the
+    // derivative at projection step -1.
+    // To facilitate this, we start projection one time step before the
+    // requested projection start time.
+    // To correct for that and make internal vector indexing easier,
+    // nicer and less error prone, we shift all the constraints by one
+    // step up.
+    step++;
+
+    // Check whether this concept is in the CAG
+    if (!delphi::utils::in(this->name_to_vertex, concept_name)) {
+        print("Concept \"{0}\" not in CAG!\n", concept_name);
+        return;
+    }
+
+    int concept_id = this->name_to_vertex.at(concept_name);
+    Node& n = (*this)[concept_id];
+
+    if (!delphi::utils::in(this->indicators_in_CAG, indicator_name)) {
+        print("Indicator \"{0}\" is not in CAG!\n", indicator_name);
+        return;
+    }
+
+    if (!delphi::utils::in(n.nameToIndexMap, indicator_name)) {
+        print("Indicator \"{0}\" is not attached to {1} in CAG!\n",
+                indicator_name,
+                concept_name);
+        return;
+    }
+
+    int ind_id = n.nameToIndexMap.at(indicator_name);
+    Indicator& ind = n.indicators[ind_id];
+    //Indicator& ind =  (*this)[concept_id].indicators[indicator_id];
+
+    if (!delphi::utils::in(this->one_off_constraints, step)) {
+        this->one_off_constraints[step] = vector<pair<int, double>>();
+    }
+
+    // We have to clamp the latent state value corresponding to this
+    // indicator such that the probability where the emission Gaussian
+    // emitting the requested indicator value is the highest. For a
+    // Gaussian emission function, the highest probable value is its
+    // mean. So we have to set:
+    //      μ = ind_value
+    //      latent_clamp_value * scaling_factor = ind_value
+    //      latent_clamp_value = ind_value / scaling_factor
+    // NOTE: In our code we incorrectly call scaling_factor as
+    //       indicator mean. To avoid confusion here, I am using the
+    //       correct terminology.
+    //       (Gosh, when we have incorrect terminology and we know it
+    //       and we have not fixed it, I have to type a lot of
+    //       comments)
+    double latent_clamp_value = indicator_clamp_value/ ind.get_mean();
+    dbg(step);
+    dbg(concept_name);
+    dbg(indicator_name);
+    dbg(indicator_clamp_value);
+    dbg(ind.get_mean());
+    dbg(latent_clamp_value);
+
+    this->one_off_constraints[step].push_back(
+                                    make_pair(concept_id, latent_clamp_value));
+}
+
 /*
  ============================================================================
  Public: Prediction

@@ -93,7 +93,8 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json &json_data, bool 
           auto ind_data = json_data["conceptIndicators"][v];
           for (auto ind : ind_data) {
               string ind_name = ind["indicator"].get<string>();
-              n.add_indicator(ind_name, ind["source"].get<string>());
+              string ind_source = ind["source"].get<string>();
+              this->set_indicator(n.name, ind_name, ind_source);
               n.get_indicator(ind_name).set_aggregation_method(ind["func"].get<string>());
               n.get_indicator(ind_name).set_unit(ind["unit"].get<string>());
           }

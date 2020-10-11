@@ -862,6 +862,9 @@ class AnalysisGraph {
                  int end_year,
                  int end_month);
 
+  void add_constraint(int step, std::string concept_name, std::string indicator_name,
+                                                double indicator_clamp_value);
+
   /*
    ============================================================================
    Private: Synthetic Data Experiment (in synthetic_data.cpp)
@@ -1204,7 +1207,7 @@ class AnalysisGraph {
    ============================================================================
   */
 
-  void
+  int
   set_indicator(std::string concept, std::string indicator, std::string source);
 
   void delete_indicator(std::string concept, std::string indicator);

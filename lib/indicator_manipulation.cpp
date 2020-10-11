@@ -16,7 +16,7 @@ using namespace fmt::literals;
  ============================================================================
 */
 
-void AnalysisGraph::set_indicator(string concept,
+int AnalysisGraph::set_indicator(string concept,
                                   string indicator,
                                   string source) {
   if (in(this->indicators_in_CAG, indicator)) {
@@ -24,10 +24,11 @@ void AnalysisGraph::set_indicator(string concept,
           "not added to Concept {1}.",
           indicator,
           concept);
-    return;
+    return -1;
   }
-  (*this)[concept].add_indicator(indicator, source);
+  int ind_id = (*this)[concept].add_indicator(indicator, source);
   this->indicators_in_CAG.insert(indicator);
+  return ind_id;
 }
 
 void AnalysisGraph::delete_indicator(string concept, string indicator) {

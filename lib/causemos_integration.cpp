@@ -63,7 +63,7 @@ void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json
 
         if (json_indicators[n.name].is_null()) {
             // In this case we do not have any observation data to train the model
-            n.add_indicator(indicator_name, indicator_source);
+            this->set_indicator(n.name, indicator_name, indicator_source);
             n.get_indicator(indicator_name).set_mean(1.0);
             continue;
         }
@@ -83,14 +83,14 @@ void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json
         if (indicator["name"].is_null()) {
             // This case there could be observations. However we are discarding
             // them. Why?
-            n.add_indicator(indicator_name, indicator_source);
+            this->set_indicator(n.name, indicator_name, indicator_source);
             n.get_indicator(indicator_name).set_mean(1.0);
             continue;
         }
 
         indicator_name = indicator["name"].get<string>();
 
-        int ind_idx = n.add_indicator(indicator_name, indicator_source);
+        int ind_idx = this->set_indicator(n.name, indicator_name, indicator_source);
 
         if (ind_idx == -1) {
             // This is a duplicate indicator, and will not be added again.
@@ -675,7 +675,6 @@ void AnalysisGraph::extract_projection_constraints(
     for (auto constraint : projection_constraints) {
         if (constraint["concept"].is_null()) {continue;}
         string concept_name = constraint["concept"].get<string>();
-        dbg(concept_name);
 
         // Check whether this concept is in the CAG
         if (!in(this->name_to_vertex, concept_name)) {
@@ -696,28 +695,7 @@ void AnalysisGraph::extract_projection_constraints(
         const int ind_id = 0;
         Indicator& ind =  (*this)[concept_id].indicators[ind_id];
 
-        // Allocate the One off constraints data structure to be populated with
-        // constraints
-        this->one_off_constraints.clear();
-        for (auto values : constraint["values"]) {
-            if (values["step"].is_null()) {continue;}
-            int step     = values["step"].get<int>();
-
-            // When constraining latent state derivatives, to reach the
-            // prescribed value for an observation at projection step t, we have
-            // to  clamp the derivative at projection step t-1 appropriately.
-            // Therefor, to constrain at projection step 0, we have to clamp the
-            // derivative at projection step -1.
-            // To facilitate this, we start projection one time step before the
-            // requested projection start time.
-            // To correct for that and make internal vector indexing easier,
-            // nicer and less error prone, we shift all the constraints by one
-            // step up.
-            this->one_off_constraints[step + 1] = vector<pair<int, double>>();
-
-            dbg(step);
-        }
-
+        string ind_name = (*this)[concept_id].indicators[ind_id].get_name();
         for (auto values : constraint["values"]) {
             // We need both the step and the value to proceed. Thus checking
             // again to reduce bookkeeping.
@@ -726,37 +704,7 @@ void AnalysisGraph::extract_projection_constraints(
             int step     = values["step"].get<int>();
             double ind_value = values["value"].get<double>();
 
-            // We have to clamp the latent state value corresponding to this
-            // indicator such that the probability where the emission Gaussian
-            // emitting the requested indicator value is the highest. For a
-            // Gaussian emission function, the highest probable value is its
-            // mean. So we have to set:
-            //      μ = ind_value
-            //      latent_clam_value * scaling_factor = ind_value
-            //      latent_clamp_value = ind_value / scaling_factor
-            // NOTE: In our code we incorrectly call scaling_factor as
-            //       indicator mean. To avoid confusion here, I am using the
-            //       correct terminology.
-            //       (Gosh, when we have incorrect terminology and we know it
-            //       and we have not fixed it, I have to type a lot of
-            //       comments)
-            double latent_clamp_value = ind_value / ind.get_mean();
-            dbg(ind_value);
-            dbg(ind.get_mean());
-            dbg(latent_clamp_value);
-
-            // When constraining latent state derivatives, to reach the
-            // prescribed value for an observation at projection step t, we have
-            // to  clamp the derivative at projection step t-1 appropriately.
-            // Therefor, to constrain at projection step 0, we have to clamp the
-            // derivative at projection step -1.
-            // To facilitate this, we start projection one time step before the
-            // requested projection start time.
-            // To correct for that and make internal vector indexing easier,
-            // nicer and less error prone, we shift all the constraints by one
-            // step up.
-            this->one_off_constraints[step + 1].push_back(
-                                    make_pair(concept_id, latent_clamp_value));
+            this->add_constraint(step, concept_name, ind_name, ind_value);
         }
     }
 }

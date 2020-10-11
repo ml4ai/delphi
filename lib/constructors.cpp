@@ -150,6 +150,10 @@ AnalysisGraph AnalysisGraph::from_json_string(string json_string) {
  */
 AnalysisGraph::AnalysisGraph(const AnalysisGraph& rhs) {
   // Copying private members
+  this->indicators_in_CAG = rhs.indicators_in_CAG;
+  // NOTE: Copying this gives a segmentation fault
+  //       Investigate
+  //this->name_to_vertex = rhs.name_to_vertex;
   this->causemos_call = rhs.causemos_call;
   this->trained = rhs.trained;
   this->n_timesteps = rhs.n_timesteps;
