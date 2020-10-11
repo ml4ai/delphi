@@ -697,7 +697,7 @@ void AnalysisGraph::extract_projection_constraints(
 }
 
 CausemosProjectionExperimentResult
-AnalysisGraph::run_causemose_projection_experiment(std::string json_string) {
+AnalysisGraph::run_causemos_projection_experiment(std::string json_string) {
     using namespace fmt::literals;
     using nlohmann::json;
 

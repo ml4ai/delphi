@@ -27,7 +27,7 @@ def app():
     with app.app_context():
         db.create_all()
         yield app
-        #db.drop_all()
+        # db.drop_all()
 
 
 @pytest.fixture(scope="module")
@@ -37,42 +37,47 @@ def client(app):
 
 
 def test_createModelNew(client):
-    with open("tests/data/delphi/causemos_create-model.json", encoding="utf-8") as f:
+    with open(
+        "tests/data/delphi/causemos_create-model.json", encoding="utf-8"
+    ) as f:
         data = json.load(f)
     rv = client.post(f"/delphi/create-model", json=data)
     assert True
 
-def test_createExperiment(client):
-    with open("tests/data/delphi/causemos_experiments_projection_input.json", encoding="utf-8") as f: data = json.load(f)
-    model_id="XYZ"
-    rv = client.post(f"/delphi/models/{model_id}/experiments", json=data)
-    print(rv.get_json())
 
-    # An ides to test the responwe from flask
-    '''
-    # Retrieve experiment results
-    # Extract the experiment uuid
-    experiment_id = "this_is_a_dummy"
-    status = "not completed" # Replace this with returned json value
-    while status != "completed":
-        rv = client.post(f"/delphi/models/{model_id}/experiments/{experiment_id}")
-        print(rv.get_json())
+def test_createExperiment(client):
+    with open(
+        "tests/data/delphi/causemos_experiments_projection_input.json",
+        encoding="utf-8",
+    ) as f:
+        data = json.load(f)
+    model_id = "XYZ"
+    rv = client.post(f"/delphi/models/{model_id}/experiments", json=data)
+    experiment_id = rv.get_json()["experimentId"]
+    status = rv.get_json()["status"]
+    while status != "COMPLETE":
         time.sleep(1)
+        rv = client.get(f"/delphi/models/{model_id}/experiments/{experiment_id}")
+        status = rv.get_json()["status"]
         # Extract returned json and read status
-        status = "completed" # Replace this with returned json value
-    '''
+    print(rv.get_json()["results"])
     assert True
 
 
 @pytest.mark.skip
 def test_createModel(client):
-    with open("tests/data/delphi_create_model_payload.json", encoding="utf-8") as f:
+    with open(
+        "tests/data/delphi_create_model_payload.json", encoding="utf-8"
+    ) as f:
         data = json.load(f)
     rv = client.post(f"/delphi/create-model", json=data)
     post_data = {
         "startTime": {"year": 2017, "month": 4},
         "perturbations": [
-            {"concept": "wm/concept/indicator_and_reported_property/weather/rainfall", "value": 0.1}
+            {
+                "concept": "wm/concept/indicator_and_reported_property/weather/rainfall",
+                "value": 0.1,
+            }
         ],
         "timeStepsInMonths": 6,
     }
@@ -83,7 +88,7 @@ def test_createModel(client):
     print("Waiting 10 seconds to query for results")
     sleep(10)
     rv = client.get(url)
-    output = rv.json['results']
+    output = rv.json["results"]
     # This chunk of code is for plotting outputs to compare with CauseMos views
     # and debug. Set plot_figs=True to create plots.
 
@@ -92,14 +97,13 @@ def test_createModel(client):
         for concept, results in output.items():
             xs = []
             ys = []
-            for datapoint in results['values']:
-                xs.append(datapoint['month'])
-                ys.append(datapoint['value'])
+            for datapoint in results["values"]:
+                xs.append(datapoint["month"])
+                ys.append(datapoint["value"])
             fig, ax = plt.subplots()
             ax.plot(xs, ys, label=concept)
             ax.legend()
             plt.savefig(f"{concept.replace('/','_')}.pdf")
-
 
     # Test overwriting
     rv = client.post(f"/delphi/create-model", json=data)

@@ -397,33 +397,6 @@ def createProjection(modelID):
         }
     )
 
-
-@bp.route(
-    "/delphi/models/<string:modelID>/experiments/<string:experimentID>",
-    methods=["GET"],
-)
-def getExperimentResults(modelID: str, experimentID: str):
-    """ Fetch experiment results"""
-    if not executor.futures.done(experimentID):
-        return jsonify(
-            {
-                "experimentId": experimentID,
-                "status": executor.futures._state(experimentID),
-            }
-        )
-    else:
-        experimentResult = CauseMosForwardProjectionResult.query.filter_by(
-            id=experimentID
-        ).first()
-        return jsonify(
-            {
-                "experimentId": experimentID,
-                "results": experimentResult.deserialize()["results"],
-                "status": "COMPLETE",
-            }
-        )
-
-
 @bp.route("/delphi/models/<string:modelID>/experiments", methods=["POST"])
 def createCausemosExperiment(modelID):
     model = DelphiModel.query.filter_by(id=modelID).first().model
@@ -431,14 +404,11 @@ def createCausemosExperiment(modelID):
     json_request = request.get_json()
     experiment_type = request.get_json()["experimentType"]
     experiment_id = str(uuid4())
-    
+
     def runExperiment():
-        
         if experiment_type == 'PROJECTION':
-            causemos_experiment_result = G.run_causemose_projection_experiment(request.data)
-        #elif experiment_type == 'sensitivityanalysis':
-        #    causemos_experiment_result = G.run_causemose_projection_experiment(request.data)
-        
+            causemos_experiment_result = G.run_causemos_projection_experiment(request.data)
+
         result = CauseMosAsyncExperimentResult(
             id=experiment_id, baseType="CauseMosAsyncExperimentResult"
         )
@@ -496,20 +466,42 @@ def createCausemosExperiment(modelID):
 
         db.session.add(result)
         db.session.commit()
-                
     executor.submit_stored(experiment_id, runExperiment)
 
     return jsonify(
         {
             "modelId": modelID,
             "experimentId": experiment_id,
-            "experimentType": experiment_type, 
+            "experimentType": experiment_type,
             "status": "in progress",
             "results": executor.futures._state(experiment_id),
         }
     )
-    
 
+@bp.route(
+    "/delphi/models/<string:modelID>/experiments/<string:experimentID>",
+    methods=["GET"],
+)
+def getExperimentResults(modelID: str, experimentID: str):
+    """ Fetch experiment results"""
+    if not executor.futures.done(experimentID):
+        return jsonify(
+            {
+                "experimentId": experimentID,
+                "status": executor.futures._state(experimentID),
+            }
+        )
+    else:
+        experimentResult = CauseMosForwardProjectionResult.query.filter_by(
+            id=experimentID
+        ).first()
+        return jsonify(
+            {
+                "experimentId": experimentID,
+                "results": experimentResult.deserialize()["results"],
+                "status": "COMPLETE",
+            }
+        )
 
 
 # =======
@@ -809,36 +801,3 @@ def traverse(uuid: str, prim_id: str):
 def getVersion():
     """ Get the version of the ICM API supported"""
     return "", 415
-
-
-#bp.route("/delphi/<string:uuid>/experiments", methods=["POST"])
-#ef createExperiment(uuid: str):
-#   """ Execute an experiment over the model"""
-#   experimentID = str(uuid4())
-#   if not executor.futures.done(experimentID):
-#       G = DelphiModel.query.filter_by(id=uuid).first().model
-#       json_serialized_model = G.serialize_to_json_string(False)
-#       #G_deserialized = G.deserialize_from_json_string(json_serialized_model, verbose)
-#       G.create_causemos_experiment_from_json_string(json_serialized_model)
-#       return jsonify(
-#           {
-#               "experimentId": experimentID,
-#               "status": executor.futures._state(experimentID),
-#           }
-#       )
-#   else:
-#       experimentResult = CauseMosForwardProjectionResult.query.filter_by(
-#           id=experimentID
-#       ).first()
-#       return jsonify(
-#           {
-#               "experimentId": experimentID,
-#               "results": experimentResult.deserialize()["results"],
-#               "status": "COMPLETE",
-#           }
-#       )
-
-
-
-
-

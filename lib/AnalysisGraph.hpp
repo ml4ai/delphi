@@ -1032,7 +1032,7 @@ class AnalysisGraph {
                                               int pred_timesteps);
 
   CausemosProjectionExperimentResult
-  run_causemose_projection_experiment(std::string json_string);
+  run_causemos_projection_experiment(std::string json_string);
 
   void extract_projection_constraints(
                                 const nlohmann::json &projection_constraints);
