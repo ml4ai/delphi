@@ -17,9 +17,7 @@
 
 const double tuning_param = 1.0;
 
-//TODO: Change back to 1000
-//************************
-const size_t DEFAULT_N_SAMPLES = 4;//1000;
+const size_t DEFAULT_N_SAMPLES = 1000;
 
 enum InitialBeta { ZERO, ONE, HALF, MEAN, RANDOM };
 
