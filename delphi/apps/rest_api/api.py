@@ -327,17 +327,26 @@ def createCausemosExperiment(modelID):
     experiment_type = request_body["experimentType"]
     experiment_id = str(uuid4())
 
+    result = CauseMosAsyncExperimentResult(
+        id=experiment_id,
+        baseType="CauseMosAsyncExperimentResult",
+        experimentType="PROJECTION",
+        status = "in progress",
+    )
+
+
+    db.session.add(result)
+    db.session.commit()
     def runExperiment():
         if experiment_type == "PROJECTION":
             causemos_experiment_result = G.run_causemos_projection_experiment(
                 request.data
             )
 
-        result = CauseMosAsyncExperimentResult(
-            id=experiment_id,
-            baseType="CauseMosAsyncExperimentResult",
-            experimentType="PROJECTION",
-        )
+
+        result = CauseMosAsyncExperimentResult.query.filter_by(
+            id=experiment_id
+        ).first()
         startTime = causemos_experiment_result[0]
         endTime = causemos_experiment_result[1]
         numTimesteps = causemos_experiment_result[2]
@@ -349,7 +358,7 @@ def createCausemosExperiment(modelID):
             result.status = "failed"
             result.results = {}
         else:
-            result.status = "complete"
+            result.status = "completed"
 
             timesteps_nparr = np.round(
                 np.linspace(startTime, endTime, numTimesteps)
@@ -415,21 +424,18 @@ def createCausemosExperiment(modelID):
 )
 def getExperimentResults(modelID: str, experimentID: str):
     """ Fetch experiment results"""
+    result = CauseMosAsyncExperimentResult.query.filter_by(
+        id=experimentID
+    ).first()
+
     response = {
         "modelId": modelID,
         "experimentId": experimentID,
+        "experimentType": result.experimentType,
+        "status": result.status,
+        "results": result.results
     }
-    if not executor.futures.done(experimentID):
-        response["status"] = "in progress"
-        response["results"] = {}
-        return jsonify(response)
-    else:
-        result = CauseMosAsyncExperimentResult.query.filter_by(
-            id=experimentID
-        ).first()
-        response["status"] = "completed"
-        response["results"] = result.deserialize()["results"]
-        return jsonify(response)
+    return jsonify(response)
 
 
 # =======
