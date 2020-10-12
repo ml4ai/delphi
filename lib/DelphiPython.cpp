@@ -5,6 +5,7 @@
 #include <pybind11/stl.h>
 
 #include "AnalysisGraph.hpp"
+//#include "PybindTester.hpp"
 
 namespace py = pybind11;
 using namespace pybind11::literals;
@@ -24,9 +25,7 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def("to_json_string", &AnalysisGraph::to_json_string, "indent"_a = 0)
       .def("from_json_string", &AnalysisGraph::from_json_string)
       .def("generate_create_model_response", &AnalysisGraph::generate_create_model_response)
-      .def("get_edge_weights_for_causemos_viz", &AnalysisGraph::get_edge_weights_for_causemos_viz)
       .def_readwrite("data_heuristic", &AnalysisGraph::data_heuristic)
-      .def_readwrite("res", &AnalysisGraph::res)
       .def_property("s0",
                     &AnalysisGraph::get_initial_latent_state,
                     &AnalysisGraph::set_initial_latent_state)
@@ -47,6 +46,7 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def("__getitem__", [](AnalysisGraph& G, string name) { return G[name]; })
       .def("__getitem__",
            [](AnalysisGraph& G, int node_index) { return G[node_index]; })
+      .def("get_res", &AnalysisGraph::get_res)
       .def("get_subgraph_for_concept",
            &AnalysisGraph::get_subgraph_for_concept,
            "concept"_a,
@@ -83,8 +83,6 @@ PYBIND11_MODULE(DelphiPython, m) {
            "label_depth"_a = 1,
            "node_to_highlight"_a = "",
            "rankdir"_a = "TB")
-      .def("construct_theta_pdfs",
-           (void (AnalysisGraph::*)()) & AnalysisGraph::construct_theta_pdfs)
       .def("add_node", &AnalysisGraph::add_node, "concept"_a)
       .def("remove_node",
            py::overload_cast<string>(&AnalysisGraph::remove_node),
@@ -108,11 +106,11 @@ PYBIND11_MODULE(DelphiPython, m) {
            "source"_a,
            "target"_a)
       .def("print_name_to_vertex", &AnalysisGraph::print_name_to_vertex)
+      .def("print_training_range", &AnalysisGraph::print_training_range)
       .def("map_concepts_to_indicators",
            &AnalysisGraph::map_concepts_to_indicators,
            "n"_a = 1,
            "country"_a = "South Sudan")
-      .def("parameterize", &AnalysisGraph::parameterize)
       .def("print_indicators", &AnalysisGraph::print_indicators)
       .def("set_indicator",
            &AnalysisGraph::set_indicator,
@@ -138,7 +136,8 @@ PYBIND11_MODULE(DelphiPython, m) {
            "state"_a = "",
            "county"_a = "",
            py::arg("units") = map<std::string, std::string>{},
-           "initial_beta"_a = InitialBeta::HALF)
+           "initial_beta"_a = InitialBeta::HALF,
+           "use_continuous"_a = true)
       .def("train_model",
            &AnalysisGraph::train_model,
            "start_year"_a = 2012,
@@ -159,17 +158,27 @@ PYBIND11_MODULE(DelphiPython, m) {
            "start_year"_a,
            "start_month"_a,
            "end_year"_a,
-           "end_month"_a)
-      .def("generate_causemos_projection",
-           &AnalysisGraph::generate_causemos_projection,
-           "json_projection"_a)
+           "end_month"_a,
+           "constraints"_a = ConstraintSchedule(),
+           "one_off"_a = true,
+           "clamp_deri"_a = true)
+      .def("run_causemos_projection_experiment",
+           &AnalysisGraph::run_causemos_projection_experiment,
+           "json_string"_a)
       .def("prediction_to_array",
            &AnalysisGraph::prediction_to_array,
            "indicator"_a)
       .def("set_derivative", &AnalysisGraph::set_derivative)
       .def("set_default_initial_state",
            &AnalysisGraph::set_default_initial_state)
-      .def("set_random_seed", &AnalysisGraph::set_random_seed);
+      .def("set_random_seed", &AnalysisGraph::set_random_seed)
+      .def_static("deserialize_from_json_string",
+                  &AnalysisGraph::deserialize_from_json_string,
+                  "json_string"_a,
+                  "verbose"_a = false)
+      .def("serialize_to_json_string",
+           &AnalysisGraph::serialize_to_json_string,
+           "verbose"_a = true);
 
   py::class_<RV>(m, "RV")
       .def(py::init<std::string>())
@@ -232,4 +241,12 @@ PYBIND11_MODULE(DelphiPython, m) {
                         KDE kde(t[0].cast<vector<double>>());
                         return kde;
                       }));
+
+  /*
+  py::class_<PybindTester>(m, "PybindTester")
+      .def_static("from_something",
+                  &PybindTester::from_something)
+      .def("print_PybindTester",
+                  &PybindTester::print_PybindTester);
+  */
 }

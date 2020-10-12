@@ -1,5 +1,7 @@
 import json
 import pytest
+import time
+from pprint import pprint
 from delphi.cpp.DelphiPython import AnalysisGraph
 
 from delphi.apps.rest_api import create_app, db
@@ -35,44 +37,30 @@ def client(app):
     return app.test_client()
 
 
-def test_createModel(client):
-    with open("tests/data/delphi_create_model_payload.json", encoding="utf-8") as f:
+def test_createModel_and_createExperiment(client):
+    # test_createModel
+    with open(
+        "tests/data/delphi/causemos_create-model.json", encoding="utf-8"
+    ) as f:
         data = json.load(f)
     rv = client.post(f"/delphi/create-model", json=data)
-    post_data = {
-        "startTime": {"year": 2017, "month": 4},
-        "perturbations": [
-            {"concept": "wm/concept/indicator_and_reported_property/weather/rainfall", "value": 0.1}
-        ],
-        "timeStepsInMonths": 6,
-    }
 
-    rv = client.post(f"/delphi/models/{data['id']}/projection", json=post_data)
-    experimentId = rv.json["experimentId"]
-    url = f"delphi/models/{data['id']}/experiment/{experimentId}"
-    print("Waiting 10 seconds to query for results")
-    sleep(10)
-    rv = client.get(url)
-    output = rv.json['results']
-    # This chunk of code is for plotting outputs to compare with CauseMos views
-    # and debug. Set plot_figs=True to create plots.
+    # Test createExperiment
+    with open(
+        "tests/data/delphi/causemos_experiments_projection_input.json",
+        encoding="utf-8",
+    ) as f:
+        data = json.load(f)
+    model_id = "XYZ"
+    rv = client.post(f"/delphi/models/{model_id}/experiments", json=data)
+    experiment_id = rv.get_json()["experimentId"]
+    status = "in progress"
 
-    plot_figs = False
-    if plot_figs:
-        for concept, results in output.items():
-            xs = []
-            ys = []
-            for datapoint in results['values']:
-                xs.append(datapoint['month'])
-                ys.append(datapoint['value'])
-            fig, ax = plt.subplots()
-            ax.plot(xs, ys, label=concept)
-            ax.legend()
-            plt.savefig(f"{concept.replace('/','_')}.pdf")
+    while status != "completed":
+        time.sleep(1)
+        rv = client.get(f"/delphi/models/{model_id}/experiments/{experiment_id}")
+        status = rv.get_json()["status"]
 
-
-    # Test overwriting
-    rv = client.post(f"/delphi/create-model", json=data)
     assert True
 
 

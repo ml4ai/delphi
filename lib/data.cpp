@@ -8,22 +8,20 @@
 
 using namespace std;
 
-// NOTE: A better name would be get_observations
-vector<double> get_data_value(string indicator,
-                              string country,
-                              string state,
-                              string county,
-                              int year,
-                              int month,
-                              string unit,
-                              bool use_heuristic) {
+vector<double> get_observations_for(string indicator,
+                                    string country,
+                                    string state,
+                                    string county,
+                                    int year,
+                                    int month,
+                                    string unit,
+                                    bool use_heuristic) {
   using fmt::print;
   using namespace fmt::literals;
 
   sqlite3* db = nullptr;
 
-  // NOTE: A better name would be obs or observations
-  vector<double> vals = {};
+  vector<double> observations = {};
 
   int rc;
   rc = sqlite3_open(getenv("DELPHI_DB"), &db);
@@ -159,25 +157,29 @@ vector<double> get_data_value(string indicator,
     stmt = nullptr;
   }
 
-  double value;
+  double observation;
 
   rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
   while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-    value = sqlite3_column_double(stmt, 1);
-    vals.push_back(value);
+    observation = sqlite3_column_double(stmt, 1);
+    observations.push_back(observation);
   }
   sqlite3_finalize(stmt);
   stmt = nullptr;
 
-  if (vals.empty() and use_heuristic) {
+  if (observations.empty() and use_heuristic) {
     string final_query =
         "{0} and `Year` is '{1}' and `Month` is '0'"_format(query, year);
     sqlite3_prepare_v2(db, final_query.c_str(), -1, &stmt, NULL);
 
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-      value = sqlite3_column_double(stmt, 1);
-      value = value / 12;
-      vals.push_back(value);
+      observation = sqlite3_column_double(stmt, 1);
+      // TODO: This math is only valid if the observation we query is an annual
+      // aggregate. For example if it is an yearly sample or an yearly average
+      // this is not correct. We need a more intelligent way to handle this
+      // situation.
+      observation = observation / 12;
+      observations.push_back(observation);
     }
     sqlite3_finalize(stmt);
     stmt = nullptr;
@@ -187,5 +189,5 @@ vector<double> get_data_value(string indicator,
   rc = sqlite3_close(db);
   stmt = nullptr;
   db = nullptr;
-  return vals;
+  return observations;
 }
