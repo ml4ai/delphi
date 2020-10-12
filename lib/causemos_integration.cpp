@@ -19,7 +19,7 @@ Private: Integration with Uncharted's CauseMos interface
 */
 
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                            create-model
+                         create-model (private)
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 /** Extracts concept to indicator mapping and the indicator observation
@@ -337,20 +337,107 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
     this->to_png("CAG_from_json.png");
 }
 
-void AnalysisGraph::sample_transition_matrix_collection_from_prior() {
-  this->transition_matrix_collection.clear();
-  this->transition_matrix_collection = vector<Eigen::MatrixXd>(this->res);
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                      create-experiment (private)
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-  for (int sample = 0; sample < this->res; sample++) {
-    for (auto e : this->edges()) {
-      this->graph[e].theta = this->graph[e].kde.resample(
-          1, this->rand_num_generator, this->uni_dist, this->norm_dist)[0];
+std::pair<int, int> AnalysisGraph::timestamp_to_year_month(long timestamp) {
+    // The HMI uses milliseconds. So they multiply time-stamps by 1000.
+    // Before converting them back to year and month, we have to divide
+    // by 1000.
+    timestamp /=  1000;
+
+    // Convert the time-step to year and month.
+    // We are converting it according to GMT.
+    struct tm *ptm = gmtime(&timestamp);
+    int year = 1900 + ptm->tm_year;
+    int month = 1 + ptm->tm_mon;
+
+    return make_pair(year, month);
+}
+
+std::pair<int, int> AnalysisGraph::calculate_end_year_month(int start_year,
+                                                            int start_month,
+                                                            int num_timesteps) {
+    int end_year = start_year + (start_month + num_timesteps -1) / 12;
+    int end_month = (start_month + num_timesteps -1) % 12;
+
+    if (end_month == 0) {
+        end_month = 12;
+        end_year--;
     }
 
-    // Create this->A_original based on the sampled β and remember it
-    this->set_transition_matrix_from_betas();
-    this->transition_matrix_collection[sample] = this->A_original;
-  }
+    return make_pair(end_year, end_month);
+}
+
+double AnalysisGraph::calculate_prediction_timestep_length(int start_year,
+                                                           int start_month,
+                                                           int end_year,
+                                                           int end_month,
+                                                           int pred_timesteps) {
+
+    /*
+     * We calculate the number of training time steps that fits within the
+     * provided start time point and the end time point (both ends inclusive)
+     * and then divide that number by the number of requested prediction time
+     * steps.
+     *
+     * Example:
+     * pred_timesteps : 1 2  3 4  5 6  7 8  9 10  11 12  13 14  15 16
+     * train_timesteps:  1    2    3    4    5      6      7      8
+     *
+     *            (# of training time steps between  *  (training time step
+     *                 prediction start and end)             duration)
+     * Δt_pred  = -----------------------------------------------------------
+     *                             prediction time steps
+     *
+     *            (# of training time steps between  *  Δt_train
+     *                 prediction start and end)
+     * Δt_pred  = -----------------------------------------------------------
+     *                             prediction time steps
+     *
+     * Δt_train = 1 (we set it as this for convenience)
+     *
+     *            (# of training time steps between prediction start and end)
+     * Δt_pred  = -----------------------------------------------------------
+     *                             prediction time steps
+     *
+     * Δt_pred  = 8/16 = 0.5
+     *
+     * In effect for each training time step we produce two prediction points.
+     */
+    // Calculate the number of training time steps between start and end of the
+    // prediction time points (# training time steps)
+    int num_training_time_steps = this->calculate_num_timesteps(start_year,
+                                            start_month, end_year, end_month);
+
+    return (double)num_training_time_steps / (double)pred_timesteps;
+}
+
+void AnalysisGraph::extract_projection_constraints(
+                            const nlohmann::json &projection_constraints) {
+    for (auto constraint : projection_constraints) {
+        if (constraint["concept"].is_null()) {continue;}
+        string concept_name = constraint["concept"].get<string>();
+
+        for (auto values : constraint["values"]) {
+            // We need both the step and the value to proceed. Thus checking
+            // again to reduce bookkeeping.
+            if (values["step"].is_null()) {continue;}
+            if (values["value"].is_null()) {continue;}
+            int step     = values["step"].get<int>();
+            double ind_value = values["value"].get<double>();
+
+            // NOTE: Delphi is capable of attaching multiple indicators to a
+            //       single concept. Since we are constraining the latent state,
+            //       we can constrain (or intervene) based on only one of those
+            //       indicators. By passing an empty indicator name, we choose
+            //       to constrain the first indicator attached to a concept
+            //       which should be present irrespective of whether this
+            //       concept has one or more indicators attached to it.
+            this->add_constraint(step, concept_name, "", ind_value);
+        }
+    }
 }
 
 FormattedProjectionResult AnalysisGraph::format_projection_result() {
@@ -373,6 +460,22 @@ FormattedProjectionResult AnalysisGraph::format_projection_result() {
   return result;
 }
 
+void AnalysisGraph::sample_transition_matrix_collection_from_prior() {
+  this->transition_matrix_collection.clear();
+  this->transition_matrix_collection = vector<Eigen::MatrixXd>(this->res);
+
+  for (int sample = 0; sample < this->res; sample++) {
+    for (auto e : this->edges()) {
+      this->graph[e].theta = this->graph[e].kde.resample(
+          1, this->rand_num_generator, this->uni_dist, this->norm_dist)[0];
+    }
+
+    // Create this->A_original based on the sampled β and remember it
+    this->set_transition_matrix_from_betas();
+    this->transition_matrix_collection[sample] = this->A_original;
+  }
+}
+
 /*
 ============================================================================
 Public: Integration with Uncharted's CauseMos interface
@@ -380,7 +483,7 @@ Public: Integration with Uncharted's CauseMos interface
 */
 
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                            create-model
+                          create-model (public)
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data) {
@@ -545,107 +648,8 @@ string AnalysisGraph::generate_create_model_response() {
 }
 
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                          create-experiment
+                       create-experiment (public)
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-std::pair<int, int> AnalysisGraph::timestamp_to_year_month(long timestamp) {
-    // The HMI uses milliseconds. So they multiply time-stamps by 1000.
-    // Before converting them back to year and month, we have to divide
-    // by 1000.
-    timestamp /=  1000;
-
-    // Convert the time-step to year and month.
-    // We are converting it according to GMT.
-    struct tm *ptm = gmtime(&timestamp);
-    int year = 1900 + ptm->tm_year;
-    int month = 1 + ptm->tm_mon;
-
-    return make_pair(year, month);
-}
-
-std::pair<int, int> AnalysisGraph::calculate_end_year_month(int start_year,
-                                                            int start_month,
-                                                            int num_timesteps) {
-    int end_year = start_year + (start_month + num_timesteps -1) / 12;
-    int end_month = (start_month + num_timesteps -1) % 12;
-
-    if (end_month == 0) {
-        end_month = 12;
-        end_year--;
-    }
-
-    return make_pair(end_year, end_month);
-}
-
-double AnalysisGraph::calculate_prediction_timestep_length(int start_year,
-                                                           int start_month,
-                                                           int end_year,
-                                                           int end_month,
-                                                           int pred_timesteps) {
-
-    /*
-     * We calculate the number of training time steps that fits within the
-     * provided start time point and the end time point (both ends inclusive)
-     * and then divide that number by the number of requested prediction time
-     * steps.
-     *
-     * Example:
-     * pred_timesteps : 1 2  3 4  5 6  7 8  9 10  11 12  13 14  15 16
-     * train_timesteps:  1    2    3    4    5      6      7      8
-     *
-     *            (# of training time steps between  *  (training time step
-     *                 prediction start and end)             duration)
-     * Δt_pred  = -----------------------------------------------------------
-     *                             prediction time steps
-     *
-     *            (# of training time steps between  *  Δt_train
-     *                 prediction start and end)
-     * Δt_pred  = -----------------------------------------------------------
-     *                             prediction time steps
-     *
-     * Δt_train = 1 (we set it as this for convenience)
-     *
-     *            (# of training time steps between prediction start and end)
-     * Δt_pred  = -----------------------------------------------------------
-     *                             prediction time steps
-     *
-     * Δt_pred  = 8/16 = 0.5
-     *
-     * In effect for each training time step we produce two prediction points.
-     */
-    // Calculate the number of training time steps between start and end of the
-    // prediction time points (# training time steps)
-    int num_training_time_steps = this->calculate_num_timesteps(start_year,
-                                            start_month, end_year, end_month);
-
-    return (double)num_training_time_steps / (double)pred_timesteps;
-}
-
-void AnalysisGraph::extract_projection_constraints(
-                            const nlohmann::json &projection_constraints) {
-    for (auto constraint : projection_constraints) {
-        if (constraint["concept"].is_null()) {continue;}
-        string concept_name = constraint["concept"].get<string>();
-
-        for (auto values : constraint["values"]) {
-            // We need both the step and the value to proceed. Thus checking
-            // again to reduce bookkeeping.
-            if (values["step"].is_null()) {continue;}
-            if (values["value"].is_null()) {continue;}
-            int step     = values["step"].get<int>();
-            double ind_value = values["value"].get<double>();
-
-            // NOTE: Delphi is capable of attaching multiple indicators to a
-            //       single concept. Since we are constraining the latent state,
-            //       we can constrain (or intervene) based on only one of those
-            //       indicators. By passing an empty indicator name, we choose
-            //       to constrain the first indicator attached to a concept
-            //       which should be present irrespective of whether this
-            //       concept has one or more indicators attached to it.
-            this->add_constraint(step, concept_name, "", ind_value);
-        }
-    }
-}
 
 CausemosProjectionExperimentResult
 AnalysisGraph::run_causemos_projection_experiment(std::string json_string) {

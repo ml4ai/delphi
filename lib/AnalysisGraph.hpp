@@ -501,9 +501,21 @@ class AnalysisGraph {
                           create-experiment
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-  void sample_transition_matrix_collection_from_prior();
+  std::pair<int, int> timestamp_to_year_month(long timestamp);
+
+  std::pair<int, int> calculate_end_year_month(int start_year, int start_month,
+                                               int num_timesteps);
+
+  double calculate_prediction_timestep_length(int start_year, int start_month,
+                                              int end_year, int end_month,
+                                              int pred_timesteps);
+
+  void extract_projection_constraints(
+                                const nlohmann::json &projection_constraints);
 
   FormattedProjectionResult format_projection_result();
+
+  void sample_transition_matrix_collection_from_prior();
 
   /*
    ============================================================================
@@ -1015,20 +1027,8 @@ class AnalysisGraph {
                           create-experiment
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-  std::pair<int, int> timestamp_to_year_month(long timestamp);
-
-  std::pair<int, int> calculate_end_year_month(int start_year, int start_month,
-                                               int num_timesteps);
-
-  double calculate_prediction_timestep_length(int start_year, int start_month,
-                                              int end_year, int end_month,
-                                              int pred_timesteps);
-
   CausemosProjectionExperimentResult
   run_causemos_projection_experiment(std::string json_string);
-
-  void extract_projection_constraints(
-                                const nlohmann::json &projection_constraints);
 
   /*
    ============================================================================
