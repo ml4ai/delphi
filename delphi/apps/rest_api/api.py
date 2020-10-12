@@ -334,8 +334,9 @@ def createCausemosExperiment(modelID):
             )
 
         result = CauseMosAsyncExperimentResult(
-            id=experiment_id, baseType="CauseMosAsyncExperimentResult",
-            experimentType = "PROJECTION"
+            id=experiment_id,
+            baseType="CauseMosAsyncExperimentResult",
+            experimentType="PROJECTION",
         )
         startTime = causemos_experiment_result[0]
         endTime = causemos_experiment_result[1]
@@ -346,57 +347,59 @@ def createCausemosExperiment(modelID):
         # concept's time series.
         if len(list(causemos_experiment_result[3].values())[0]) < numTimesteps:
             result.status = "failed"
+            result.results = {}
         else:
             result.status = "complete"
 
-        timesteps_nparr = np.round(
-            np.linspace(startTime, endTime, numTimesteps)
-        )
+            timesteps_nparr = np.round(
+                np.linspace(startTime, endTime, numTimesteps)
+            )
 
-        # The calculation of the 95% confidence interval about the median is
-        # taken from:
-        # https://www.ucl.ac.uk/child-health/short-courses-events/ \
-        #     about-statistical-courses/research-methods-and-statistics/chapter-8-content-8
-        n = G.res
-        lower_rank = int((n - 1.96 * sqrt(n)) / 2)
-        upper_rank = int((2 + n + 1.96 * sqrt(n)) / 2)
+            # The calculation of the 95% confidence interval about the median is
+            # taken from:
+            # https://www.ucl.ac.uk/child-health/short-courses-events/ \
+            #     about-statistical-courses/research-methods-and-statistics/chapter-8-content-8
+            n = G.res
+            lower_rank = int((n - 1.96 * sqrt(n)) / 2)
+            upper_rank = int((2 + n + 1.96 * sqrt(n)) / 2)
 
-        lower_rank = 0 if lower_rank < 0 else lower_rank
-        upper_rank = n - 1 if upper_rank >= n else upper_rank
-        result.results = {"data": []}
-        for conceptname, timestamp_sample_matrix in causemos_experiment_result[
-            3
-        ].items():
-            data_dict = {}
-            data_dict["concept"] = conceptname
-            data_dict["values"] = []
-            data_dict["confidenceInterval"] = {"upper": [], "lower": []}
-            for i, time_step in enumerate(timestamp_sample_matrix):
-                time_step.sort()
-                l = len(time_step) // 2
-                median_value = (
-                    time_step[l]
-                    if len(time_step) % 2
-                    else (time_step[l] + time_step[l - 1]) / 2
-                )
-                lower_limit = time_step[lower_rank]
-                upper_limit = time_step[upper_rank]
+            lower_rank = 0 if lower_rank < 0 else lower_rank
+            upper_rank = n - 1 if upper_rank >= n else upper_rank
+            result.results = {"data": []}
+            for (
+                conceptname,
+                timestamp_sample_matrix,
+            ) in causemos_experiment_result[3].items():
+                data_dict = {}
+                data_dict["concept"] = conceptname
+                data_dict["values"] = []
+                data_dict["confidenceInterval"] = {"upper": [], "lower": []}
+                for i, time_step in enumerate(timestamp_sample_matrix):
+                    time_step.sort()
+                    l = len(time_step) // 2
+                    median_value = (
+                        time_step[l]
+                        if len(time_step) % 2
+                        else (time_step[l] + time_step[l - 1]) / 2
+                    )
+                    lower_limit = time_step[lower_rank]
+                    upper_limit = time_step[upper_rank]
 
-                value_dict = {
-                    "timestamp": timesteps_nparr[i],
-                    "value": median_value,
-                }
+                    value_dict = {
+                        "timestamp": timesteps_nparr[i],
+                        "value": median_value,
+                    }
 
-                data_dict["values"].append(value_dict.copy())
-                value_dict.update({"value": lower_limit})
-                data_dict["confidenceInterval"]["lower"].append(
-                    value_dict.copy()
-                )
-                value_dict.update({"value": upper_limit})
-                data_dict["confidenceInterval"]["upper"].append(
-                    value_dict.copy()
-                )
-            result.results["data"].append(data_dict)
+                    data_dict["values"].append(value_dict.copy())
+                    value_dict.update({"value": lower_limit})
+                    data_dict["confidenceInterval"]["lower"].append(
+                        value_dict.copy()
+                    )
+                    value_dict.update({"value": upper_limit})
+                    data_dict["confidenceInterval"]["upper"].append(
+                        value_dict.copy()
+                    )
+                result.results["data"].append(data_dict)
 
         db.session.add(result)
         db.session.commit()
