@@ -1008,18 +1008,8 @@ class AnalysisGraph {
    * visualizing AnalysisGraph models in CauseMos.
    * For now we always return success. We need to update this by conveying
    * errors into this response.
-   * TODO: This method replaces
-   * AnalysisGraph::get_edge_weights_for_causemos_viz() method. We can remove
-   * that after properly testing this new method.
    */
   std::string generate_create_model_response();
-
-  /**
-   * TODO: Remove this method
-   * generate_create_model_response would replace this method
-   * Calculate and return a JSON string with edge weight information for
-   * visualizing AnalysisGraph models in CauseMos. */
-  std::string get_edge_weights_for_causemos_viz();
 
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                           create-experiment
