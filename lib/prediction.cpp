@@ -2,6 +2,7 @@
 #include <range/v3/all.hpp>
 #include <unsupported/Eigen/MatrixFunctions>
 #include <boost/range/adaptors.hpp>
+#include <tqdm.hpp>
 
 using namespace std;
 using Eigen::VectorXd, Eigen::MatrixXd;
@@ -25,7 +26,7 @@ void AnalysisGraph::generate_latent_state_sequences(
       this->res,
       vector<VectorXd>(this->pred_timesteps, VectorXd(this->num_vertices() * 2)));
 
-  for (int samp = 0; samp < this->res; samp++) {
+  for (int samp : tq::trange(this->res)) {
       // The sampled transition matrices would be either of matrix exponential
       // (continuous) version or discretized version depending on whether the
       // matrix exponential (continuous) version or the discretized transition

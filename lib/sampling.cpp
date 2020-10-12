@@ -262,3 +262,11 @@ void AnalysisGraph::set_default_initial_state() {
     this->s0(i) = 1.0;
   }
 }
+
+void AnalysisGraph::set_res(size_t res) {
+    this->res = res;
+}
+
+size_t AnalysisGraph::get_res() {
+    return this->res;
+}

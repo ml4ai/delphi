@@ -17,8 +17,6 @@
 
 const double tuning_param = 1.0;
 
-const size_t DEFAULT_N_SAMPLES = 1000;
-
 enum InitialBeta { ZERO, ONE, HALF, MEAN, RANDOM };
 
 typedef std::unordered_map<std::string, std::vector<double>>
@@ -127,6 +125,7 @@ class AnalysisGraph {
 
   std::mt19937 rand_num_generator;
 
+
   // Uniform distribution used by the MCMC sampler
   std::uniform_real_distribution<double> uni_dist;
 
@@ -136,6 +135,9 @@ class AnalysisGraph {
   // Uniform discrete distribution used by the MCMC sampler
   // to perturb the initial latent state
   std::uniform_int_distribution<int> uni_disc_dist;
+
+  // Sampling resolution
+  size_t res;
 
   /*
    ============================================================================
@@ -941,8 +943,12 @@ class AnalysisGraph {
   std::string to_json_string(int indent = 0);
   bool data_heuristic = false;
 
-  // Sampling resolution. Default is 200
-  int res = DEFAULT_N_SAMPLES;
+  // Set the sampling resolution.
+  void set_res(size_t res);
+
+  // Get the sampling resolution.
+  size_t get_res();
+
 
   /*
    ============================================================================
@@ -1006,11 +1012,11 @@ class AnalysisGraph {
 
   /** Construct an AnalysisGraph object from a JSON string exported by CauseMos.
    */
-  static AnalysisGraph from_causemos_json_string(std::string json_string);
+  static AnalysisGraph from_causemos_json_string(std::string json_string, size_t res);
 
   /** Construct an AnalysisGraph object from a file containing JSON data from
    * CauseMos. */
-  static AnalysisGraph from_causemos_json_file(std::string filename);
+  static AnalysisGraph from_causemos_json_file(std::string filename, size_t res);
 
   /**
    * Generate the response for the create model request from the HMI.
