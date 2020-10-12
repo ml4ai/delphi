@@ -581,16 +581,18 @@ void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data) {
   this->construct_theta_pdfs();
 }
 
-AnalysisGraph AnalysisGraph::from_causemos_json_string(string json_string) {
+AnalysisGraph AnalysisGraph::from_causemos_json_string(string json_string, size_t res) {
   AnalysisGraph G;
+  G.set_res(res);
 
   auto json_data = nlohmann::json::parse(json_string);
   G.from_causemos_json_dict(json_data);
   return G;
 }
 
-AnalysisGraph AnalysisGraph::from_causemos_json_file(string filename) {
+AnalysisGraph AnalysisGraph::from_causemos_json_file(string filename, size_t res) {
   AnalysisGraph G;
+  G.set_res(res);
 
   auto json_data = load_json(filename);
   G.from_causemos_json_dict(json_data);
@@ -613,11 +615,10 @@ string AnalysisGraph::generate_create_model_response() {
     vector<double> all_weights = {};
 
     for (auto e : this->edges()) {
-        int n_samples = DEFAULT_N_SAMPLES;
 
         // TODO: This variable is not used
         vector<double> sampled_thetas = this->edge(e).kde.resample(
-                n_samples, this->rand_num_generator, this->uni_dist, this->norm_dist);
+                this->res, this->rand_num_generator, this->uni_dist, this->norm_dist);
         double weight = abs(median(this->edge(e).kde.dataset));
         all_weights.push_back(weight);
 

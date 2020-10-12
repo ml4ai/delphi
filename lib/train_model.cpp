@@ -39,10 +39,12 @@ void AnalysisGraph::train_model(int start_year,
 
       this->initialize_parameters(res, initial_beta, use_heuristic, use_continuous);
 
+      cout << "Burning in..." << endl;
       for (int i : trange(burn)) {
           this->sample_from_posterior();
       }
 
+      cout << "Sampling from posterior" << endl;
       for (int i : trange(this->res)) {
           this->sample_from_posterior();
           this->transition_matrix_collection[i] = this->A_original;

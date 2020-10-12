@@ -25,7 +25,6 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def("from_json_string", &AnalysisGraph::from_json_string)
       .def("generate_create_model_response", &AnalysisGraph::generate_create_model_response)
       .def_readwrite("data_heuristic", &AnalysisGraph::data_heuristic)
-      .def_readwrite("res", &AnalysisGraph::res)
       .def_property("s0",
                     &AnalysisGraph::get_initial_latent_state,
                     &AnalysisGraph::set_initial_latent_state)
@@ -46,6 +45,7 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def("__getitem__", [](AnalysisGraph& G, string name) { return G[name]; })
       .def("__getitem__",
            [](AnalysisGraph& G, int node_index) { return G[node_index]; })
+      .def("get_res", &AnalysisGraph::get_res)
       .def("get_subgraph_for_concept",
            &AnalysisGraph::get_subgraph_for_concept,
            "concept"_a,

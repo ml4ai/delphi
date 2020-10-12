@@ -47,7 +47,25 @@ def listAllModels():
 def createNewModel():
     """ Create a new Delphi model. """
     data = json.loads(request.data)
-    G = AnalysisGraph.from_causemos_json_string(request.data)
+
+    if os.environ.get("CI") == "true":
+        # When running in a continuous integration run, we set the sampling
+        # resolution to be small to prevent timeouts.
+        res = 5
+    elif os.environ.get("DELPHI_N_SAMPLES") is not None:
+        # We also enable setting the sampling resolution through the
+        # environment variable "DELPHI_N_SAMPLES", for development and testing
+        # purposes.
+        res = int(os.environ["DELPHI_N_SAMPLES"])
+    else:
+        # If neither "CI" or "DELPHI_N_SAMPLES" is set, we default to a
+        # sampling resolution of 1000.
+
+        # TODO - we might want to set the default sampling resolution with some
+        # kind of heuristic, based on the number of nodes and edges. - Adarsh
+        res = 1000
+
+    G = AnalysisGraph.from_causemos_json_string(request.data, res)
     model = DelphiModel(
         id=data["id"], model=G.serialize_to_json_string(verbose=False)
     )
@@ -368,7 +386,7 @@ def createCausemosExperiment(modelID):
             # taken from:
             # https://www.ucl.ac.uk/child-health/short-courses-events/ \
             #     about-statistical-courses/research-methods-and-statistics/chapter-8-content-8
-            n = G.res
+            n = G.get_res()
             lower_rank = int((n - 1.96 * sqrt(n)) / 2)
             upper_rank = int((2 + n + 1.96 * sqrt(n)) / 2)
 
