@@ -691,7 +691,7 @@ AnalysisGraph::run_causemos_projection_experiment(std::string json_string) {
     // prevent Delphi putting cycle to compute them again when we call
     // initialize_parameters() below, let us inform Delphi that this is a
     // CauseMos call.
-    // NOTE: In hind site, I might be able to prevent Delphi calling
+    // NOTE: In hindsight, I might be able to prevent Delphi calling
     //       initialize_parameters() within train_model() when we train due to
     //       a CauseMos call. I need to revise it to see whether anything is
     //       called out of order.

@@ -28,7 +28,7 @@ def app():
     with app.app_context():
         db.create_all()
         yield app
-        # db.drop_all()
+        db.drop_all()
 
 
 @pytest.fixture(scope="module")
@@ -37,16 +37,15 @@ def client(app):
     return app.test_client()
 
 
-def test_createModel(client):
+def test_createModel_and_createExperiment(client):
+    # test_createModel
     with open(
         "tests/data/delphi/causemos_create-model.json", encoding="utf-8"
     ) as f:
         data = json.load(f)
     rv = client.post(f"/delphi/create-model", json=data)
-    assert True
 
-
-def test_createExperiment(client):
+    # Test createExperiment
     with open(
         "tests/data/delphi/causemos_experiments_projection_input.json",
         encoding="utf-8",
@@ -55,7 +54,8 @@ def test_createExperiment(client):
     model_id = "XYZ"
     rv = client.post(f"/delphi/models/{model_id}/experiments", json=data)
     experiment_id = rv.get_json()["experimentId"]
-    status = rv.get_json()["status"]
+    status = "in progress"
+
     while status != "completed":
         time.sleep(1)
         rv = client.get(f"/delphi/models/{model_id}/experiments/{experiment_id}")

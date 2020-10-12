@@ -362,5 +362,7 @@ class CauseMosAsyncExperimentResult(ExperimentResult):
         primary_key=True,
         default=str(uuid4()),
     )
+    status = db.Column(db.String, nullable=True)
+    experimentType = db.Column(db.String, nullable=True)
     results = db.Column(JsonEncodedDict, nullable=True)
     __mapper_args__ = {"polymorphic_identity": "CauseMosAsyncExperimentResult"}

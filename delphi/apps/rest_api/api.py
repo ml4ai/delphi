@@ -335,10 +335,19 @@ def createCausemosExperiment(modelID):
 
         result = CauseMosAsyncExperimentResult(
             id=experiment_id, baseType="CauseMosAsyncExperimentResult",
+            experimentType = "PROJECTION"
         )
         startTime = causemos_experiment_result[0]
         endTime = causemos_experiment_result[1]
         numTimesteps = causemos_experiment_result[2]
+
+        # A rudimentary test to see if the projection failed. We check whether
+        # the number time steps is equal to the number of elements in the first
+        # concept's time series.
+        if len(list(causemos_experiment_result[3].values())[0]) < numTimesteps:
+            result.status = "failed"
+        else:
+            result.status = "complete"
 
         timesteps_nparr = np.round(
             np.linspace(startTime, endTime, numTimesteps)
@@ -406,7 +415,6 @@ def getExperimentResults(modelID: str, experimentID: str):
     response = {
         "modelId": modelID,
         "experimentId": experimentID,
-        "experimentType": "PROJECTION",
     }
     if not executor.futures.done(experimentID):
         response["status"] = "in progress"
