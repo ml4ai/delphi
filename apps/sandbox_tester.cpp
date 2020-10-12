@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
     using namespace boost::program_options;
     using fmt::print;
 
-    AnalysisGraph G = AnalysisGraph::from_causemos_json_file("../tests/data/delphi_create_model_payload.json");
+    AnalysisGraph G = AnalysisGraph::from_causemos_json_file("../tests/data/delphi_create_model_payload.json", 5);
 
     // Serialize the model
     string json_compact = G.serialize_to_json_string(false);
