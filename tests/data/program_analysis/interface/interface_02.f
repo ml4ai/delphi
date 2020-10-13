@@ -1,4 +1,4 @@
-      MODULE TestModule
+      MODULE TestModule02
 
       INTEGER, PARAMETER :: MaxFiles = 500
 
@@ -71,4 +71,4 @@
       Return
       End Subroutine GET_ISWITCH
 
-      END MODULE TestModule
+      END MODULE TestModule02

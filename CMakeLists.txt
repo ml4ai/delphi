@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.11)
 project(delphi)
 
+# Uncomment this line to generate debug code
+#set(CMAKE_BUILD_TYPE Debug)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -36,7 +39,7 @@ find_package(SQLite3 REQUIRED)
 
 add_library(Delphi
   lib/AnalysisGraph.hpp
-  lib/construct_beta_pdfs.cpp
+  lib/parameter_initialization.cpp
   lib/to_json.cpp
   lib/data.cpp
   lib/data.hpp
@@ -44,15 +47,15 @@ add_library(Delphi
   lib/graphviz_interface.cpp
   lib/graphviz_interface.hpp
   lib/graphviz.cpp
-  lib/kde.cpp
-  lib/kde.hpp
-  lib/random_variables.cpp
-  lib/random_variables.hpp
+  lib/KDE.cpp
+  lib/KDE.hpp
+  lib/Random_Variables.cpp
+  lib/Random_Variables.hpp
   lib/rng.cpp
   lib/rng.hpp
   lib/train_model.cpp
-  lib/tran_mat_cell.hpp
-  lib/tran_mat_cell.cpp
+  lib/Tran_Mat_Cell.hpp
+  lib/Tran_Mat_Cell.cpp
   lib/utils.cpp
   lib/utils.hpp
   lib/Node.hpp
@@ -63,13 +66,15 @@ add_library(Delphi
   lib/constructors.cpp
   lib/causemos_integration.cpp
   lib/sampling.cpp
-  lib/inference.cpp
+  lib/prediction.cpp
   lib/synthetic_data.cpp
   lib/graph_building.cpp
   lib/graph_modification.cpp
   lib/graph_utils.cpp
   lib/printing.cpp
   lib/indicator_manipulation.cpp
+  lib/sandbox.cpp
+  #lib/PybindTester.hpp
 )
 
 target_link_libraries(Delphi
@@ -81,5 +86,20 @@ target_link_libraries(Delphi
                               ${GRAPHVIZ_LIBS})
 target_link_libraries(Delphi INTERFACE range-v3)
 
-pybind11_add_module(DelphiPython MODULE lib/DelphiPython.cpp)
+pybind11_add_module(DelphiPython MODULE NO_EXTRAS lib/DelphiPython.cpp)
 target_link_libraries(DelphiPython PRIVATE Delphi Eigen3::Eigen)
+
+# Executables
+add_executable(create_model apps/create_model.cpp)
+target_link_libraries(create_model PRIVATE Delphi Eigen3::Eigen)
+
+#add_executable(pybind_tester_driver apps/pybind_tester_driver.cpp)
+
+add_custom_command(TARGET DelphiPython POST_BUILD
+    COMMAND echo ""
+    COMMAND echo "Copying..."
+    COMMAND ls DelphiPython*
+    COMMAND echo "to ${PROJECT_SOURCE_DIR}/delphi/cpp/"
+    COMMAND echo ""
+    COMMAND rm -rf ${PROJECT_SOURCE_DIR}/delphi/cpp/DelphiPython*
+    COMMAND cp DelphiPython* ${PROJECT_SOURCE_DIR}/delphi/cpp/)

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <fmt/core.h>
+#include <fmt/format.h>
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <unordered_map>
@@ -52,12 +52,22 @@ double sqr(double x);
 /**
  * Returns the sum of a vector of doubles.
  */
-double sum(std::vector<double> v);
+double sum(const std::vector<double> &v);
 
 /**
  * Returns the arithmetic mean of a vector of doubles.
  */
-double mean(std::vector<double> v);
+double mean(const std::vector<double> &v);
+
+/**
+ * Returns the sample standard deviation of a vector of doubles.
+ */
+double standard_deviation(const double mean, const std::vector<double> &v);
+
+/**
+ * Returns the median of a vector of doubles.
+ */
+double median(const std::vector<double> &xs);
 
 double log_normpdf(double x, double mean, double sd);
 

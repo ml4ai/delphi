@@ -12,20 +12,6 @@ from numbers import Real
 from random import random
 
 
-def foo (arg1=None, arg2=None):
-    num_passed_args = 0
-    if arg1 != None:
-        num_passed_args += 1
-    if arg2 != None:
-        num_passed_args += 1
-
-    if num_passed_args == 2:
-        if isinstance(arg1[0], int) and isinstance(arg2[0], int):
-            foo_int(arg1, arg2)
-        if isinstance(arg1[0], float) and isinstance(arg2[0], int):
-            foo_real(arg1, arg2)
-        if isinstance(arg1[0], bool) and isinstance(arg2[0], int):
-            foo_bool(arg1, arg2)
 
 def foo_int(x: List[int], result: List[int]):
     result[0] = int(((47 * x[0]) + 23))

@@ -1,7 +1,364 @@
 {
+  "variables": [
+    {
+      "name": "@variable::arrays-basic-06::main::a::0",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          -1,
+          6,
+          5
+        ],
+        "elem_type": "int",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main.loop$0.loop$1.loop$2::a_ijk::0",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          -1,
+          6,
+          5
+        ],
+        "elem_type": "int",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main.loop$0.loop$1.loop$2::a::-1",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          -1,
+          6,
+          5
+        ],
+        "elem_type": "int",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main.loop$0.loop$1.loop$2::i::-1",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main.loop$0.loop$1.loop$2::j::-1",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main.loop$0.loop$1::a::0",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          -1,
+          6,
+          5
+        ],
+        "elem_type": "int",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main.loop$0.loop$1.loop$2::k::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main.loop$0.loop$1.loop$2::IF_0::0",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main.loop$0.loop$1.loop$2::EXIT::0",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main.loop$0.loop$1.loop$2::k::1",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main.loop$0.loop$1::a::-1",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          -1,
+          6,
+          5
+        ],
+        "elem_type": "int",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main.loop$0.loop$1::i::-1",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main.loop$0::a::0",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          -1,
+          6,
+          5
+        ],
+        "elem_type": "int",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main.loop$0.loop$1::j::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main.loop$0.loop$1::IF_0::0",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main.loop$0.loop$1::EXIT::0",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main.loop$0.loop$1::j::1",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main.loop$0::a::-1",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          -1,
+          6,
+          5
+        ],
+        "elem_type": "int",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main::a::1",
+      "source_refs": [],
+      "domain": {
+        "index": 0,
+        "dimensions": [
+          -1,
+          6,
+          5
+        ],
+        "elem_type": "int",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main.loop$0::i::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main.loop$0::IF_0::0",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main.loop$0::EXIT::0",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main.loop$0::i::1",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main.loop$3.loop$4::j::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main.loop$3.loop$4::IF_0::0",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main.loop$3.loop$4::EXIT::0",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main.loop$3.loop$4::j::1",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main.loop$3::i::0",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main.loop$3::IF_0::0",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main.loop$3::EXIT::0",
+      "source_refs": [],
+      "domain": {
+        "name": "boolean",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    },
+    {
+      "name": "@variable::arrays-basic-06::main.loop$3::i::1",
+      "source_refs": [],
+      "domain": {
+        "name": "integer",
+        "type": "type",
+        "mutable": false
+      },
+      "domain_constraint": "(and (> v -infty) (< v infty)))"
+    }
+  ],
   "containers": [
     {
+      "name": "@container::arrays-basic-06::@global::main",
+      "source_refs": [],
+      "repeat": false,
       "arguments": [],
+      "updated": [],
+      "return_value": [],
       "body": [
         {
           "function": {
@@ -36,17 +393,19 @@
           "output": [],
           "updated": []
         }
-      ],
-      "name": "@container::arrays-basic-06::@global::main",
-      "repeat": false,
-      "return_value": [],
-      "source_refs": [],
-      "updated": []
+      ]
     },
     {
+      "name": "@container::arrays-basic-06::main::loop$0",
+      "source_refs": [],
+      "repeat": true,
       "arguments": [
         "@variable::a::-1"
       ],
+      "updated": [
+        "@variable::a::0"
+      ],
+      "return_value": [],
       "body": [
         {
           "function": {
@@ -112,20 +471,20 @@
           ],
           "updated": []
         }
-      ],
-      "name": "@container::arrays-basic-06::main::loop$0",
-      "repeat": true,
-      "return_value": [],
-      "source_refs": [],
-      "updated": [
-        "@variable::a::0"
       ]
     },
     {
+      "name": "@container::arrays-basic-06::main.loop$0::loop$1",
+      "source_refs": [],
+      "repeat": true,
       "arguments": [
         "@variable::a::-1",
         "@variable::i::-1"
       ],
+      "updated": [
+        "@variable::a::0"
+      ],
+      "return_value": [],
       "body": [
         {
           "function": {
@@ -192,21 +551,21 @@
           ],
           "updated": []
         }
-      ],
-      "name": "@container::arrays-basic-06::main.loop$0::loop$1",
-      "repeat": true,
-      "return_value": [],
-      "source_refs": [],
-      "updated": [
-        "@variable::a::0"
       ]
     },
     {
+      "name": "@container::arrays-basic-06::main.loop$0.loop$1::loop$2",
+      "source_refs": [],
+      "repeat": true,
       "arguments": [
         "@variable::a::-1",
         "@variable::i::-1",
         "@variable::j::-1"
       ],
+      "updated": [
+        "@variable::a::0"
+      ],
+      "return_value": [],
       "body": [
         {
           "function": {
@@ -274,17 +633,15 @@
           ],
           "updated": []
         }
-      ],
-      "name": "@container::arrays-basic-06::main.loop$0.loop$1::loop$2",
-      "repeat": true,
-      "return_value": [],
-      "source_refs": [],
-      "updated": [
-        "@variable::a::0"
       ]
     },
     {
+      "name": "@container::arrays-basic-06::main::loop$3",
+      "source_refs": [],
+      "repeat": true,
       "arguments": [],
+      "updated": [],
+      "return_value": [],
       "body": [
         {
           "function": {
@@ -345,15 +702,15 @@
           ],
           "updated": []
         }
-      ],
-      "name": "@container::arrays-basic-06::main::loop$3",
-      "repeat": true,
-      "return_value": [],
-      "source_refs": [],
-      "updated": []
+      ]
     },
     {
+      "name": "@container::arrays-basic-06::main.loop$3::loop$4",
+      "source_refs": [],
+      "repeat": true,
       "arguments": [],
+      "updated": [],
+      "return_value": [],
       "body": [
         {
           "function": {
@@ -405,376 +762,39 @@
           ],
           "updated": []
         }
-      ],
-      "name": "@container::arrays-basic-06::main.loop$3::loop$4",
-      "repeat": true,
-      "return_value": [],
-      "source_refs": [],
-      "updated": []
+      ]
     }
   ],
+  "start": [
+    "@container::arrays-basic-06::@global::main"
+  ],
   "grounding": [],
+  "types": [],
   "source": [
     "arrays-basic-06.f"
   ],
   "source_comments": {
-    "$file_foot": [],
-    "$file_head": []
+    "$file_head": [
+      "C File: arrays-basic-06.f\n",
+      "C This program has a 3-D array with mixed explicit and implicit lower bounds.\n",
+      "\n",
+      "\n",
+      "C     A is a 3-D array (5x5x5) of integers with mixed explicit and implicit\n",
+      "C     lower-bounds.\n",
+      "\n"
+    ],
+    "$file_foot": []
   },
-  "start": [
-    "@container::arrays-basic-06::@global::main"
-  ],
-  "types": [],
-  "variables": [
-    {
-      "domain": {
-        "dimensions": [
-          -1,
-          6,
-          5
+  "system": {
+    "name": "arrays-basic-06",
+    "components": [
+      {
+        "grfn_source": "./arrays-basic-06_GrFN.json",
+        "code_source": [
+          "tests/data/program_analysis/arrays/arrays-basic-06.f"
         ],
-        "elem_type": "int",
-        "index": 0,
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main::a::0",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "dimensions": [
-          -1,
-          6,
-          5
-        ],
-        "elem_type": "int",
-        "index": 0,
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main.loop$0.loop$1.loop$2::a_ijk::0",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "dimensions": [
-          -1,
-          6,
-          5
-        ],
-        "elem_type": "int",
-        "index": 0,
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main.loop$0.loop$1.loop$2::a::-1",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "mutable": false,
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main.loop$0.loop$1.loop$2::i::-1",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "mutable": false,
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main.loop$0.loop$1.loop$2::j::-1",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "dimensions": [
-          -1,
-          6,
-          5
-        ],
-        "elem_type": "int",
-        "index": 0,
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main.loop$0.loop$1::a::0",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "mutable": false,
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main.loop$0.loop$1.loop$2::k::0",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "mutable": false,
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main.loop$0.loop$1.loop$2::IF_0::0",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "mutable": false,
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main.loop$0.loop$1.loop$2::EXIT::0",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "mutable": false,
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main.loop$0.loop$1.loop$2::k::1",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "dimensions": [
-          -1,
-          6,
-          5
-        ],
-        "elem_type": "int",
-        "index": 0,
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main.loop$0.loop$1::a::-1",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "mutable": false,
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main.loop$0.loop$1::i::-1",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "dimensions": [
-          -1,
-          6,
-          5
-        ],
-        "elem_type": "int",
-        "index": 0,
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main.loop$0::a::0",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "mutable": false,
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main.loop$0.loop$1::j::0",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "mutable": false,
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main.loop$0.loop$1::IF_0::0",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "mutable": false,
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main.loop$0.loop$1::EXIT::0",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "mutable": false,
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main.loop$0.loop$1::j::1",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "dimensions": [
-          -1,
-          6,
-          5
-        ],
-        "elem_type": "int",
-        "index": 0,
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main.loop$0::a::-1",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "dimensions": [
-          -1,
-          6,
-          5
-        ],
-        "elem_type": "int",
-        "index": 0,
-        "mutable": false
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main::a::1",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "mutable": false,
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main.loop$0::i::0",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "mutable": false,
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main.loop$0::IF_0::0",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "mutable": false,
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main.loop$0::EXIT::0",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "mutable": false,
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main.loop$0::i::1",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "mutable": false,
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main.loop$3.loop$4::j::0",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "mutable": false,
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main.loop$3.loop$4::IF_0::0",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "mutable": false,
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main.loop$3.loop$4::EXIT::0",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "mutable": false,
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main.loop$3.loop$4::j::1",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "mutable": false,
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main.loop$3::i::0",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "mutable": false,
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main.loop$3::IF_0::0",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "mutable": false,
-        "name": "boolean",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main.loop$3::EXIT::0",
-      "source_refs": []
-    },
-    {
-      "domain": {
-        "mutable": false,
-        "name": "integer",
-        "type": "type"
-      },
-      "domain_constraint": "(and (> v -infty) (< v infty)))",
-      "name": "@variable::arrays-basic-06::main.loop$3::i::1",
-      "source_refs": []
-    }
-  ]
+        "imports": []
+      }
+    ]
+  }
 }

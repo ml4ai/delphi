@@ -1,23 +1,11 @@
 """
-
-The purpose of this program is to do all the clean up for translate.py.
-This (rectify.py) program will receive OFP generated XML file as an input.
-Then, it removes any unnecessary elements and refactor randomly structured
+The purpose of this module is to do all the clean up for translate.py.
+This (rectify.py) module contains functions that receive OFP generated XML as an input.
+Then, the functions removes any unnecessary elements and refactor randomly structured
 (nested) elements into a correct structure. The output file will be
 approximately 30%~40% lighter in terms of number of lines than the OFP XML.
 
-Example:
-    This script is executed by the autoTranslate script as one
-    of the steps in converted a Fortran source file to Python
-    file. For standalone execution:::
-
-        $python rectify.py <ast_file>
-
-ast_file: The XML representation of the AST of the Fortran file. This is
-produced by the OpenFortranParser.
-
 Author: Terrence J. Lim
-
 """
 
 import re
@@ -29,9 +17,14 @@ import xml.etree.ElementTree as ET
 import copy
 from delphi.translators.for2py import For2PyError, syntax, f2grfn
 from os.path import isfile, join
+from typing import List, Tuple
 
+TYPE_MAP = {
+    "int": "integer",
+    "bool": "logical",
+}
 
-class RectifyOFPXML:
+class RectifiedXMLGenerator:
     def __init__(self):
         # True if derived type declaration exist
         self.is_derived_type = False
@@ -220,6 +213,13 @@ class RectifyOFPXML:
         # Keep a track of interface XML object for later update
         self.interface_xml = {}
         self.dimensions_holder = None
+        # Keep a dictionary of declared variables {"var_name":"type"}
+        # by their scope
+        self.variables_by_scope = {}
+        # Keep a track of used module in the current program
+        self.used_modules = []
+        # Holds module summary imported from modFileLog.json file
+        self.module_summary = {}
 
     #################################################################
     #                                                               #
@@ -1014,6 +1014,21 @@ class RectifyOFPXML:
             parent.remove(current)
             self.dimensions_holder = None
 
+        # Keep a track of all declared variables by scope
+        if (
+                "type" in current.attrib
+                and current.attrib['type'] == "variable"
+        ):
+            if self.current_scope not in self.variables_by_scope:
+                self.variables_by_scope[self.current_scope] = {}
+            for elem in current:
+                if elem.tag == "type":
+                    var_type = elem.attrib['name']
+                elif elem.tag == "variables":
+                    for subElem in elem:
+                        if subElem.tag == "variable":
+                            self.variables_by_scope[self.current_scope][subElem.attrib['id']] = var_type
+
     def handle_tag_type(
             self, root, current, parent, _, traverse
     ):
@@ -1112,7 +1127,10 @@ class RectifyOFPXML:
             ):
                     child.attrib["dim-number"] = str(dim_number)
                     self.derived_type_array_dimensions[self.dim].append(child)
-            elif child.tag == "component-array-spec":
+            elif (
+                    child.tag == "component-array-spec"
+                    or child.tag == "operation"
+            ):
                 self.derived_type_var_holder_list.append(child)
             elif child.tag in self.dtype_var_declaration_tags:
                 self.derived_type_var_holder_list.append(child)
@@ -1206,6 +1224,11 @@ class RectifyOFPXML:
                         child, cur_elem, current, parent, traverse
                     )
                     if child.tag == "dimensions":
+                        current.attrib['is_array'] = "true"
+                        self.declared_array_vars.update(
+                            {current.attrib['name']: self.current_scope}
+                        )
+                        del self.declared_non_array_vars[current.attrib['name']]
                         current.remove(self.dimensions_holder)
                 else:
                     assert (
@@ -1741,7 +1764,7 @@ class RectifyOFPXML:
             # If current assignment is done with a function call,
             # then update function definition's arguments with array status
             if function_call:
-                self.update_arguments(current)
+                self.update_function_arguments(current)
 
             if (
                     child.tag == "name"
@@ -2529,8 +2552,16 @@ class RectifyOFPXML:
                         False
                     ), f'In handle_tag_call: Empty elements "{child.tag}"'
 
-        # Update function definition's arguments with array status
-        self.update_arguments(current)
+        # Update call function definition's arguments with array status
+        self.update_function_arguments(current)
+        # Update call function arguments with their types
+        update = False
+        arguments_info = []
+        self.update_call_argument_type(current, update, self.current_scope, arguments_info)
+        # If modules been used in the current program, check for interface functions
+        # and replace function names, if necessary.
+        if self.used_modules:
+            self.replace_interface_function_to_target(current, arguments_info)
 
     def handle_tag_subroutine(
             self, root, current, parent, _, traverse
@@ -2867,8 +2898,10 @@ class RectifyOFPXML:
 
         file_to_mod_mapper = module_logs["file_to_mod"]
         mod_to_file_mapper = module_logs["mod_to_file"]
+        self.module_summary = module_logs["mod_info"]
 
         use_module = root.attrib['name']
+        self.used_modules.append(use_module.lower())
         if use_module.lower() in mod_to_file_mapper:
             use_module_file_path = mod_to_file_mapper[use_module.lower()]
             if (
@@ -3023,7 +3056,7 @@ class RectifyOFPXML:
         </length>
         """
         for child in root:
-            if child.tag == "literal" or child.tag == "char-length":
+            if child.tag in ["literal", "char-length", "type-param-value"]:
                 cur_elem = ET.SubElement(
                     current, child.tag, child.attrib
                 )
@@ -4370,7 +4403,7 @@ class RectifyOFPXML:
 
     def generate_element(self, current_elem, parent_elem):
         """This function is to traverse the existing xml and generate
-        a new copy to the given parent element."""
+        a new copy to the given parent element - This is a recursive function."""
 
         for child in current_elem:
             if len(child) > 0 or child.text:
@@ -4875,7 +4908,7 @@ class RectifyOFPXML:
                 self.statements_to_reconstruct_after['stmts-follow-label']
         )
 
-    def update_arguments(self, current):
+    def update_function_arguments(self, current):
         """This function handles function definition's
         arguments with array status based on the information
         that was observed during the function call
@@ -4904,6 +4937,73 @@ class RectifyOFPXML:
                     arg.attrib['is_array'] = "false"
         # re-initialize back to initial values
         self.call_function = False
+
+    def update_call_argument_type(self, current, update, scope, arguments_info):
+        """This function updates call statement function argument xml
+        with variable type."""
+        if (
+                (current.tag == "name"
+                and update)
+                and (scope in self.variables_by_scope
+                and current.attrib['id'] in self.variables_by_scope[scope])
+        ):
+
+            current.attrib['type'] = self.variables_by_scope[scope][current.attrib['id']]
+            arguments_info.append(current.attrib['type'])
+        elif current.tag == "literal":
+            if current.attrib['type'] in TYPE_MAP:
+                type_info = TYPE_MAP[current.attrib['type']]
+            else:
+                type_info = current.attrib['type']
+            arguments_info.append(type_info)
+
+        for child in current:
+            if current.tag == "subscript":
+                update = True
+            self.update_call_argument_type(child, update, scope, arguments_info)
+                    
+    def replace_interface_function_to_target(self, current, arguments_info):
+        """This function will check whether replacing function name is needed
+        or not. That is if the Fortran source code has module with interface
+        and does dynamic dispatching to functions."""
+        cur_function = current.attrib['fname'].lower()
+        target_function = None
+        for module in self.used_modules:
+            if module in self.module_summary:
+                interface_funcs = self.module_summary[module]['interface_functions']
+                if cur_function in interface_funcs:
+                    interface_func_list = interface_funcs[cur_function]
+                    for func in interface_func_list:
+                        function_args = interface_func_list[func]
+                        found_target_function = False
+                        if len(arguments_info) == len(function_args):
+                            i = 0
+                            #  a: argument, t: type
+                            for a, t in function_args.items():
+                                if t == arguments_info[i].lower():
+                                    found_target_function = True
+                                else:
+                                    found_target_function = False
+                                    break
+                                i += 1
+                        # If target function was found in the interface function list,
+                        # modify the current <call> element name and its child <name>
+                        # element id with the target function name from the interface name.
+                        if found_target_function:
+                            # The order of modifying is important.
+                            # MUST modify child element <name> first before modifying
+                            # current <call>.
+                            for elem in current:
+                                if (
+                                        elem.tag == "name"
+                                        and elem.attrib['id'] == current.attrib['fname']
+                                ):
+                                    elem.attrib['id'] = func
+                                for subElem in elem:
+                                    if subElem.tag == "subscripts":
+                                        subElem.attrib['fname'] = func
+                            current.attrib['fname'] = func
+
 
     #################################################################
     #                                                               #
@@ -5357,22 +5457,23 @@ def buildNewASTfromXMLString(
         xmlString: str,
         original_fortran_file: str,
         module_log_file_path: str
-) -> ET.Element:
-    """This function process OFP generated XML and generates
-    a rectified version by recursively calling the appropriate
-    functions.
+) -> Tuple[ET.Element, List]:
+    """This function processes OFP generated XML and generates a rectified
+    version by recursively calling the appropriate functions.
 
     Args:
-        xmlString (str): XML in string type.
+        xmlString (str): XML as a string
+        original_fortran_file (str): Path to the original Fortran file
+        module_log_file_path (str): Path to the module_log_file
 
     Returns:
         ET object: A reconstructed element object.
     """
-    XMLCreator = RectifyOFPXML()
+    xml_generator = RectifiedXMLGenerator()
     # We need the absolute path of Fortran file to lookup in the modLogFile.json
-    XMLCreator.original_fortran_file_abs_path = \
+    xml_generator.original_fortran_file_abs_path = \
         os.path.abspath(original_fortran_file)
-    XMLCreator.module_log_file_path = module_log_file_path
+    xml_generator.module_log_file_path = module_log_file_path
     traverse = 1
 
     ofpAST = ET.XML(xmlString)
@@ -5383,33 +5484,33 @@ def buildNewASTfromXMLString(
         # Handle only non-empty elements
         if child.text:
             cur_elem = ET.SubElement(newRoot, child.tag, child.attrib)
-            XMLCreator.parseXMLTree(child, cur_elem, newRoot, newRoot, traverse)
+            xml_generator.parseXMLTree(child, cur_elem, newRoot, newRoot, traverse)
 
     # Indent and structure the tree properly
     tree = ET.ElementTree(newRoot)
     indent(newRoot)
 
     # Checks if the rectified AST requires goto elimination,
-    # if it does, it does a 2nd traverse to eliminate and
+    # if it does, it does a 2nd traversal to eliminate and
     # reconstruct the AST once more
-    while (XMLCreator.need_goto_elimination):
+    while (xml_generator.need_goto_elimination):
         oldRoot = newRoot
         traverse += 1
 
-        XMLCreator.boundary_identifier()
+        xml_generator.boundary_identifier()
 
         newRoot = ET.Element(oldRoot.tag, oldRoot.attrib)
         for child in oldRoot:
             if child.text:
                 cur_elem = ET.SubElement(newRoot, child.tag, child.attrib)
-                XMLCreator.parseXMLTree(child, cur_elem, newRoot, newRoot,
+                xml_generator.parseXMLTree(child, cur_elem, newRoot, newRoot,
                                         traverse)
         tree = ET.ElementTree(newRoot)
         indent(newRoot)
-        if not XMLCreator.continue_elimination:
-            XMLCreator.need_goto_elimination = False
+        if not xml_generator.continue_elimination:
+            xml_generator.need_goto_elimination = False
 
-    return newRoot, XMLCreator.module_files_to_process
+    return newRoot, xml_generator.module_files_to_process
 
 
 def parse_args():
@@ -5464,7 +5565,7 @@ def fileChecker(filename, mode):
     Args:
         filename (str): A file name that reconstructed XMl
         will be written to.
-        mode (str): Open more for a file.
+        mode (str): Mode to open the file in.
 
     Returns:
         None.

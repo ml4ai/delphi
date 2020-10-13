@@ -12,6 +12,10 @@ test: extensions
 	time pytest --cov-report term-missing:skip-covered --cov=delphi \
 	--ignore=tests/data tests
 
+test_wm: extensions
+	time pytest tests/wm
+
+
 pypi_upload:
 	rm -rf dist
 	python setup.py sdist bdist_wheel
@@ -19,4 +23,5 @@ pypi_upload:
 
 clean:
 	rm -rf build dist
-	rm *.json *.pkl *.csv
+	rm -f *.json *.pkl *.csv
+	mkdir build

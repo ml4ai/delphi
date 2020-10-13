@@ -2,7 +2,7 @@
 
 #include <string>
 #include <vector>
-#include "random_variables.hpp"
+#include "Random_Variables.hpp"
 
 /**
  * The Indicator class represents an abstraction of a concrete, tangible
@@ -29,10 +29,10 @@ public:
   std::string unit = "";
   double mean = 0;
   double value = 0;
-  double stdev = 0;
+  double stdev = 1;
   std::string time = ""; // TODO: Need a proper type. There is one in c++20
   std::vector<std::string> aggaxes = {};
-  std::string aggregation_method = "mean";
+  std::string aggregation_method = "first";
   double timeseries = 0;
   std::vector<double> samples = {};
 
@@ -44,10 +44,10 @@ public:
       std::string unit = "",
       double mean = 0,
       double value = 0,
-      double stdev = 0,
+      double stdev = 1,
       std::string time = "", // TODO: Need a proper type. There is one in c++20
       std::vector<std::string> aggaxes = {},
-      std::string aggregation_method = "mean",
+      std::string aggregation_method = "first",
       double timeseries = 0,
       std::vector<double> samples = {})
       : RV(name), source(source), unit(unit), mean(mean), value(value),

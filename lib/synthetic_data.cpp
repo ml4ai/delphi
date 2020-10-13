@@ -8,46 +8,9 @@ using fmt::print;
 
 /*
  ============================================================================
- Private: Syntheitc Data Experiment
+ Private: Synthetic Data Experiment
  ============================================================================
 */
-
-void AnalysisGraph::init_betas_to(InitialBeta ib) {
-  switch (ib) {
-  // Initialize the initial β for this edge
-  // Note: I am repeating the loop within each case for efficiency.
-  // If we embed the switch withn the for loop, there will be less code
-  // but we will evaluate the switch for each iteration through the loop
-  case InitialBeta::ZERO:
-    for (EdgeDescriptor e : this->edges()) {
-      graph[e].beta = 0;
-    }
-    break;
-  case InitialBeta::ONE:
-    for (EdgeDescriptor e : this->edges()) {
-      graph[e].beta = 1.0;
-    }
-    break;
-  case InitialBeta::HALF:
-    for (EdgeDescriptor e : this->edges()) {
-      graph[e].beta = 0.5;
-    }
-    break;
-  case InitialBeta::MEAN:
-    for (EdgeDescriptor e : this->edges()) {
-      graph[e].beta = graph[e].kde.mu;
-    }
-    break;
-  case InitialBeta::RANDOM:
-    for (EdgeDescriptor e : this->edges()) {
-      // this->uni_dist() gives a random number in range [0, 1]
-      // Multiplying by 2 scales the range to [0, 2]
-      // Sustracting 1 moves the range to [-1, 1]
-      graph[e].beta = this->uni_dist(this->rand_num_generator) * 2 - 1;
-    }
-    break;
-  }
-}
 
 void AnalysisGraph::set_random_initial_latent_state() {
   int num_verts = this->num_vertices();
@@ -127,7 +90,7 @@ AnalysisGraph::sample_observed_state(VectorXd latent_state) {
 
 /*
  ============================================================================
- Public: Syntheitc data experiment
+ Public: Synthetic data experiment
  ============================================================================
 */
 
@@ -142,15 +105,12 @@ AnalysisGraph::test_inference_with_synthetic_data(int start_year,
                                                   string state,
                                                   string county,
                                                   map<string, string> units,
-                                                  InitialBeta initial_beta) {
+                                                  InitialBeta initial_beta,
+                                                  bool use_continuous) {
   synthetic_data_experiment = true;
-  this->initialize_random_number_generator();
-
   this->n_timesteps = this->calculate_num_timesteps(
       start_year, start_month, end_year, end_month);
-  this->init_betas_to(initial_beta);
-  this->set_transition_matrix_from_betas();
-  this->parameterize(country, state, county, start_year, start_month, units);
+  this->initialize_parameters(res, initial_beta, false, use_continuous);
 
   // Initialize the latent state vector at time 0
   this->set_random_initial_latent_state();

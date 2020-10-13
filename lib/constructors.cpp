@@ -12,10 +12,8 @@ AnalysisGraph::from_indra_statements_json_dict(nlohmann::json json_data,
                                                double belief_score_cutoff,
                                                double grounding_score_cutoff,
                                                string ontology) {
-  print("Loading INDRA statements JSON file.");
   AnalysisGraph G;
 
-  print("Processing INDRA statements...");
   for (auto stmt : json_data) {
     if (stmt["type"] == "Influence") {
       auto subj_ground = stmt["subj"]["concept"]["db_refs"][ontology][0][1];
@@ -90,7 +88,6 @@ AnalysisGraph::from_indra_statements_json_file(string filename,
                                                double belief_score_cutoff,
                                                double grounding_score_cutoff,
                                                string ontology) {
-  print("Loading INDRA statements JSON file.");
   auto json_data = load_json(filename);
 
   return AnalysisGraph::from_indra_statements_json_dict(
@@ -139,4 +136,93 @@ AnalysisGraph AnalysisGraph::from_json_string(string json_string) {
         .set_mean(indicator["mean"].get<double>());
   }
   return G;
+}
+
+/**
+ * copy constructor
+ * TODO: Most probably the copy is sharing the same
+ * random number generation class RNG
+ * TODO: If at any point we make a copy of AnalysisGraph
+ * and find that the copy does not behave as intended,
+ * we might have not copied something or we might have
+ * copied something incorrectly. This is one place to
+ * look for bugs.
+ */
+AnalysisGraph::AnalysisGraph(const AnalysisGraph& rhs) {
+  // Copying private members
+  this->indicators_in_CAG = rhs.indicators_in_CAG;
+  // NOTE: Copying this gives a segmentation fault
+  //       Investigate
+  //this->name_to_vertex = rhs.name_to_vertex;
+  this->causemos_call = rhs.causemos_call;
+  this->trained = rhs.trained;
+  this->n_timesteps = rhs.n_timesteps;
+  this->pred_timesteps = rhs.pred_timesteps;
+  this->training_range = rhs.training_range;
+  this->pred_range = rhs.pred_range;
+  this->t = rhs.t;
+  this->delta_t = rhs.delta_t;
+  this->s0 = rhs.s0;
+  this->A_original = rhs.A_original;
+  this->continuous = rhs.continuous;
+
+  // NOTE: This assumes that node indices and indicator indices for each node
+  // does not change when copied. This data structure is indexed using those
+  // indices. If they gets changed while copying, assigned indicator data would
+  // be mixed up and hence training gets mixed up.
+  this->observed_state_sequence = rhs.observed_state_sequence;
+
+  this->predicted_latent_state_sequences = rhs.predicted_latent_state_sequences;
+  this->predicted_observed_state_sequences = rhs.predicted_observed_state_sequences;
+  this->test_observed_state_sequence = rhs.test_observed_state_sequence;
+  this->one_off_constraints = rhs.one_off_constraints;
+  this->perpetual_constraints = rhs.perpetual_constraints;
+  this->is_one_off_constraints = rhs.is_one_off_constraints;
+  this->transition_matrix_collection = rhs.transition_matrix_collection;
+  this->initial_latent_state_collection = rhs.initial_latent_state_collection;
+  this->synthetic_latent_state_sequence= rhs.synthetic_latent_state_sequence;
+  this->synthetic_data_experiment = rhs.synthetic_data_experiment;
+
+  // Copying public members
+  this->id = rhs.id;
+  this->data_heuristic = rhs.data_heuristic;
+  this->res = rhs.res;
+
+  for_each(rhs.node_indices(), [&](int v) {
+    Node node_rhs = rhs.graph[v];
+
+    // Add nodes in the same order as rhs so that indices does not chance
+    this->add_node(node_rhs.name);
+
+    // Copy all the data for node v in rhs graph to this graph.
+    // This data includes all the indicators.
+    (*this)[v] = rhs.graph[v];
+
+    /*
+    for(const Indicator& ind : node_rhs.indicators) {
+      this->set_indicator(node_rhs.name, ind.name, ind.source);
+    }
+    */
+  });
+  /*
+  for (auto [vert_name, vert_id] : rhs.name_to_vertex) {
+    this->add_node(vert_name);
+  }
+  */
+
+  // Add all the edges
+  for_each(rhs.edges(), [&](auto e_rhs) {
+    auto [e_lhs, exists] = this->add_edge(rhs.graph[boost::source(e_rhs, rhs.graph)].name,
+		                          rhs.graph[boost::target(e_rhs, rhs.graph)].name);
+
+    // Copy all the edge data structures
+    this->graph[e_lhs] = rhs.graph[e_rhs];
+    /*
+    this->graph[e_lhs].evidence = rhs.graph[e_rhs].evidence;
+    this->graph[e_lhs].kde = rhs.graph[e_rhs].kde;
+    this->graph[e_lhs].name = rhs.graph[e_rhs].name;
+    this->graph[e_lhs].theta = rhs.graph[e_rhs].theta;
+    */
+
+  });
 }

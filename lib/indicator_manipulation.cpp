@@ -1,6 +1,7 @@
 #include "AnalysisGraph.hpp"
 #include "data.hpp"
 #include <sqlite3.h>
+#include <range/v3/all.hpp>
 
 using namespace std;
 using namespace delphi::utils;
@@ -15,7 +16,7 @@ using namespace fmt::literals;
  ============================================================================
 */
 
-void AnalysisGraph::set_indicator(string concept,
+int AnalysisGraph::set_indicator(string concept,
                                   string indicator,
                                   string source) {
   if (in(this->indicators_in_CAG, indicator)) {
@@ -23,10 +24,11 @@ void AnalysisGraph::set_indicator(string concept,
           "not added to Concept {1}.",
           indicator,
           concept);
-    return;
+    return -1;
   }
-  (*this)[concept].add_indicator(indicator, source);
+  int ind_id = (*this)[concept].add_indicator(indicator, source);
   this->indicators_in_CAG.insert(indicator);
+  return ind_id;
 }
 
 void AnalysisGraph::delete_indicator(string concept, string indicator) {
@@ -107,7 +109,7 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
       if (!at_least_one_indicator_found) {
         print("No suitable indicators found for concept '{0}' for country "
               "'{1}', please select "
-              "one manually.",
+              "one manually.\n",
               node.name,
               country);
       }
@@ -117,37 +119,4 @@ void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
   rc = sqlite3_close(db);
   stmt = nullptr;
   db = nullptr;
-}
-
-void AnalysisGraph::parameterize(string country,
-                                 string state,
-                                 string county,
-                                 int year,
-                                 int month,
-                                 map<string, string> units) {
-  double stdev, mean;
-  for (Node& node : this->nodes()) {
-    for (Indicator& indicator : node.indicators) {
-      if (in(units, indicator.name)) {
-        indicator.set_unit(units[indicator.name]);
-      }
-      else {
-        indicator.set_default_unit();
-      }
-      vector<double> data = get_data_value(indicator.name,
-                                           country,
-                                           state,
-                                           county,
-                                           year,
-                                           month,
-                                           indicator.unit,
-                                           this->data_heuristic);
-
-      mean = data.empty() ? 0 : delphi::utils::mean(data);
-      indicator.set_mean(mean);
-      stdev = 0.1 * abs(indicator.get_mean());
-      stdev = stdev == 0 ? 1 : stdev;
-      indicator.set_stdev(stdev);
-    }
-  }
 }

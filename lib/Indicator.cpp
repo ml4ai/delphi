@@ -1,4 +1,4 @@
-#include <fmt/core.h>
+#include <fmt/format.h>
 #include <sqlite3.h>
 #include <string>
 #include <vector>

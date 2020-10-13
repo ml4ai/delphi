@@ -2,6 +2,7 @@
 import os
 import re
 import json
+import numpy as np
 from math import exp, sqrt
 from uuid import uuid4
 import pickle
@@ -46,13 +47,34 @@ def listAllModels():
 def createNewModel():
     """ Create a new Delphi model. """
     data = json.loads(request.data)
-    G = AnalysisGraph.from_causemos_json_string(request.data)
-    G.id = data["id"]
-    model = DelphiModel(id=data["id"], model=G.to_json_string())
+
+    if os.environ.get("CI") == "true":
+        # When running in a continuous integration run, we set the sampling
+        # resolution to be small to prevent timeouts.
+        res = 5
+    elif os.environ.get("DELPHI_N_SAMPLES") is not None:
+        # We also enable setting the sampling resolution through the
+        # environment variable "DELPHI_N_SAMPLES", for development and testing
+        # purposes.
+        res = int(os.environ["DELPHI_N_SAMPLES"])
+    else:
+        # If neither "CI" or "DELPHI_N_SAMPLES" is set, we default to a
+        # sampling resolution of 1000.
+
+        # TODO - we might want to set the default sampling resolution with some
+        # kind of heuristic, based on the number of nodes and edges. - Adarsh
+        res = 1000
+
+    G = AnalysisGraph.from_causemos_json_string(request.data, res)
+    model = DelphiModel(
+        id=data["id"], model=G.serialize_to_json_string(verbose=False)
+    )
     db.session.merge(model)
     db.session.commit()
-    edge_weights = G.get_edge_weights_for_causemos_viz()
-    return jsonify({"status": "success", "relations": edge_weights})
+    # edge_weights = G.get_edge_weights_for_causemos_viz()
+    # return jsonify({"status": "success", "relations": edge_weights})
+    response = G.generate_create_model_response()
+    return jsonify(response)
 
 
 @bp.route("/delphi/search-indicators", methods=["POST"])
@@ -315,109 +337,123 @@ def getIndicators():
     return jsonify(output_dict)
 
 
-@bp.route("/delphi/models/<string:modelID>/projection", methods=["POST"])
-def createProjection(modelID):
-
+@bp.route("/delphi/models/<string:modelID>/experiments", methods=["POST"])
+def createCausemosExperiment(modelID):
     model = DelphiModel.query.filter_by(id=modelID).first().model
-    G = AnalysisGraph.from_json_string(model)
-
-    projection_result = G.generate_causemos_projection(request.data)
-
+    G = AnalysisGraph.deserialize_from_json_string(model, verbose=False)
+    request_body = request.get_json()
+    experiment_type = request_body["experimentType"]
     experiment_id = str(uuid4())
 
+    result = CauseMosAsyncExperimentResult(
+        id=experiment_id,
+        baseType="CauseMosAsyncExperimentResult",
+        experimentType="PROJECTION",
+        status = "in progress",
+    )
+
+
+    db.session.add(result)
+    db.session.commit()
     def runExperiment():
-        experiment = ForwardProjection(
-            baseType="ForwardProjection", id=experiment_id
-        )
-        db.session.add(experiment)
-        db.session.commit()
+        if experiment_type == "PROJECTION":
+            causemos_experiment_result = G.run_causemos_projection_experiment(
+                request.data
+            )
 
-        result = CauseMosForwardProjectionResult(
-            id=experiment_id, baseType="CauseMosForwardProjectionResult"
-        )
-        result.results = {
-            G[n].name: {
-                "values": [],
-                "confidenceInterval": {"upper": [], "lower": []},
-            }
-            for n in G
-        }
-        db.session.add(result)
 
-        data = json.loads(request.data)
-        startTime = data["startTime"]
+        result = CauseMosAsyncExperimentResult.query.filter_by(
+            id=experiment_id
+        ).first()
+        startTime = causemos_experiment_result[0]
+        endTime = causemos_experiment_result[1]
+        numTimesteps = causemos_experiment_result[2]
 
-        # # From https://www.ucl.ac.uk/child-health/short-courses-events/
-        # #     about-statistical-courses/research-methods-and-statistics/chapter-8-content-8
-        n = G.res
-        lower_rank = int((n - 1.96 * sqrt(n)) / 2)
-        upper_rank = int((2 + n + 1.96 * sqrt(n)) / 2)
+        # A rudimentary test to see if the projection failed. We check whether
+        # the number time steps is equal to the number of elements in the first
+        # concept's time series.
+        if len(list(causemos_experiment_result[3].values())[0]) < numTimesteps:
+            result.status = "failed"
+            result.results = {}
+        else:
+            result.status = "completed"
 
-        lower_rank = 0 if lower_rank < 0 else lower_rank
-        upper_rank = n - 1 if upper_rank >= n else upper_rank
+            timesteps_nparr = np.round(
+                np.linspace(startTime, endTime, numTimesteps)
+            )
 
-        for concept, samples in projection_result.items():
-            d = parse(f"{startTime['year']} {startTime['month']}")
-            for ts in range(int(data["timeStepsInMonths"])):
-                d = d + relativedelta(months=1)
+            # The calculation of the 95% confidence interval about the median is
+            # taken from:
+            # https://www.ucl.ac.uk/child-health/short-courses-events/ \
+            #     about-statistical-courses/research-methods-and-statistics/chapter-8-content-8
+            n = G.get_res()
+            lower_rank = int((n - 1.96 * sqrt(n)) / 2)
+            upper_rank = int((2 + n + 1.96 * sqrt(n)) / 2)
 
-                median_value = median(samples[ts])
-                lower_limit = samples[ts][lower_rank]
-                upper_limit = samples[ts][upper_rank]
+            lower_rank = 0 if lower_rank < 0 else lower_rank
+            upper_rank = n - 1 if upper_rank >= n else upper_rank
+            result.results = {"data": []}
+            for (
+                conceptname,
+                timestamp_sample_matrix,
+            ) in causemos_experiment_result[3].items():
+                data_dict = {}
+                data_dict["concept"] = conceptname
+                data_dict["values"] = []
+                data_dict["confidenceInterval"] = {"upper": [], "lower": []}
+                for i, time_step in enumerate(timestamp_sample_matrix):
+                    time_step.sort()
+                    l = len(time_step) // 2
+                    median_value = (
+                        time_step[l]
+                        if len(time_step) % 2
+                        else (time_step[l] + time_step[l - 1]) / 2
+                    )
+                    lower_limit = time_step[lower_rank]
+                    upper_limit = time_step[upper_rank]
 
-                value_dict = {
-                    "year": d.year,
-                    "month": d.month,
-                    "value": median_value,
-                }
+                    value_dict = {
+                        "timestamp": timesteps_nparr[i],
+                        "value": median_value,
+                    }
 
-                result.results[concept]["values"].append(value_dict.copy())
-                value_dict.update({"value": lower_limit})
-                result.results[concept]["confidenceInterval"]["lower"].append(
-                    value_dict.copy()
-                )
-                value_dict.update({"value": upper_limit})
-                result.results[concept]["confidenceInterval"]["upper"].append(
-                    value_dict.copy()
-                )
+                    data_dict["values"].append(value_dict.copy())
+                    value_dict.update({"value": lower_limit})
+                    data_dict["confidenceInterval"]["lower"].append(
+                        value_dict.copy()
+                    )
+                    value_dict.update({"value": upper_limit})
+                    data_dict["confidenceInterval"]["upper"].append(
+                        value_dict.copy()
+                    )
+                result.results["data"].append(data_dict)
 
         db.session.add(result)
         db.session.commit()
 
     executor.submit_stored(experiment_id, runExperiment)
 
-    return jsonify(
-        {
-            "experimentId": experiment_id,
-            "results": executor.futures._state(experiment_id),
-        }
-    )
+    return jsonify({"experimentId": experiment_id})
 
 
 @bp.route(
-    "/delphi/models/<string:modelID>/experiment/<string:experimentID>",
+    "/delphi/models/<string:modelID>/experiments/<string:experimentID>",
     methods=["GET"],
 )
 def getExperimentResults(modelID: str, experimentID: str):
     """ Fetch experiment results"""
-    if not executor.futures.done(experimentID):
-        return jsonify(
-            {
-                "experimentId": experimentID,
-                "status": executor.futures._state(experimentID),
-            }
-        )
-    else:
-        experimentResult = CauseMosForwardProjectionResult.query.filter_by(
-            id=experimentID
-        ).first()
-        return jsonify(
-            {
-                "experimentId": experimentID,
-                "results": experimentResult.deserialize()["results"],
-                "status": "COMPLETE",
-            }
-        )
+    result = CauseMosAsyncExperimentResult.query.filter_by(
+        id=experimentID
+    ).first()
+
+    response = {
+        "modelId": modelID,
+        "experimentId": experimentID,
+        "experimentType": result.experimentType,
+        "status": result.status,
+        "results": result.results
+    }
+    return jsonify(response)
 
 
 # =======

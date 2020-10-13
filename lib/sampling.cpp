@@ -11,21 +11,33 @@ using Eigen::VectorXd;
  ============================================================================
 */
 
-// Sample elements of the stochastic transition matrix from the
+// Initialize elements of the stochastic transition matrix from the
 // prior distribution, based on gradable adjectives.
-// TODO: Fix the name and description of this function.
 void AnalysisGraph::set_transition_matrix_from_betas() {
   int num_verts = this->num_vertices();
 
   // A base transition matrix with the entries that does not change across
-  // samples.
+  // samples (A_c : continuous).
   /*
    *          0  1  2  3  4  5
-   *  var_1 | 1 Δt             | 0
+   *  var_1 | 0  1  0     0    | 0
+   *        | 0  0  0  0  0  0 | 1 ∂var_1 / ∂t
+   *  var_2 | 0     0  1  0    | 2
+   *        | 0  0  0  0  0  0 | 3
+   *  var_3 | 0     0     0  1 | 4
+   *        | 0  0  0  0  0  0 | 5
+   *
+   */
+
+  // A base transition matrix with the entries that does not change across
+  // samples (A_d : discretized).
+  /*
+   *          0  1  2  3  4  5
+   *  var_1 | 1 Δt  0     0    | 0
    *        | 0  1  0  0  0  0 | 1 ∂var_1 / ∂t
-   *  var_2 |       1 Δt       | 2
+   *  var_2 | 0     1 Δt  0    | 2
    *        | 0  0  0  1  0  0 | 3
-   *  var_3 |             1 Δt | 4
+   *  var_3 | 0     0     1 Δt | 4
    *        | 0  0  0  0  0  1 | 5
    *
    *  Based on the directed simple paths in the CAG, some of the remaining
@@ -34,138 +46,88 @@ void AnalysisGraph::set_transition_matrix_from_betas() {
    *  three rows for each variable and some of the off diagonal elements
    *  of rows with index % 3 = 1 would be non zero.
    */
-  this->A_original = Eigen::MatrixXd::Identity(num_verts * 2, num_verts * 2);
-
-  // Fill the Δts
-  for (int vert = 0; vert < 2 * num_verts; vert += 2) {
-    this->A_original(vert, vert + 1) = this->delta_t;
-  }
+  //this->A_original = Eigen::MatrixXd::Identity(num_verts * 2, num_verts * 2);
+  this->A_original = Eigen::MatrixXd::Zero(num_verts * 2, num_verts * 2);
 
   // Update the β factor dependent cells of this matrix
   for (auto& [row, col] : this->beta_dependent_cells) {
     this->A_original(row * 2, col * 2 + 1) =
         this->A_beta_factors[row][col]->compute_cell(this->graph);
   }
-}
 
-void AnalysisGraph::sample_transition_matrix_collection_from_prior() {
-  this->transition_matrix_collection.clear();
-  this->transition_matrix_collection = vector<Eigen::MatrixXd>(this->res);
-
-  for (int i = 0; i < this->res; i++) {
-    for (auto e : this->edges()) {
-      this->graph[e].beta = this->graph[e].kde.resample(
-          1, this->rand_num_generator, this->uni_dist, this->norm_dist)[0];
+  if (this->continuous) {
+    for (int vert = 0; vert < 2 * num_verts; vert += 2) {
+        this->A_original(vert, vert + 1) = 1;
     }
+  }
+  else {
+    // Discretized version
+    // A_d = I + A_c × Δt
+    // Fill the Δts
+    //for (int vert = 0; vert < 2 * num_verts; vert += 2) {
+    //    this->A_original(vert, vert + 1) = this->delta_t;
+    //}
+    for (int vert = 0; vert < 2 * num_verts; vert++) {
+        // Filling the diagonal (Adding I)
+        this->A_original(vert, vert) = 1;
 
-    // Create this->A_original based on the sampled β and remember it
-    this->set_transition_matrix_from_betas();
-    this->transition_matrix_collection[i] = this->A_original;
+        if (vert % 2 == 0) {
+            // Fill the Δts
+            this->A_original(vert, vert + 1) = this->delta_t;
+        }
+    }
   }
 }
 
-void AnalysisGraph::set_initial_latent_state_from_observed_state_sequence() {
-  for (int v = 0; v < this->num_vertices(); v++) {
-    vector<Indicator>& indicators = (*this)[v].indicators;
-    vector<double> next_state_values;
-    for (int i = 0; i < indicators.size(); i++) {
-      Indicator& ind = indicators[i];
+void AnalysisGraph::set_log_likelihood_helper(int ts) {
+    // Access (concept is a vertex in the CAG)
+    // observed_state[ concept ][ indicator ][ observation ]
+    const vector<vector<vector<double>>>& observed_state =
+        this->observed_state_sequence[ts];
 
-      double ind_mean = ind.get_mean();
+    for (int v : this->node_indices()) {
+        const int& num_inds_for_v = observed_state[v].size();
 
-      while (ind_mean == 0) {
-        ind_mean = this->norm_dist(this->rand_num_generator);
-      }
-      double next_ind_value;
-      if (this->observed_state_sequence[1][v][i].empty()) {
-        next_ind_value = 0;
-      }
-      else {
-        next_ind_value = mean(this->observed_state_sequence[1][v][i]);
-      }
-      next_state_values.push_back(next_ind_value / ind_mean);
+        for (int i = 0; i < observed_state[v].size(); i++) {
+            const Indicator& ind = this->graph[v].indicators[i];
+            for (int o = 0; o < observed_state[v][i].size(); o++) {
+                const double& obs = observed_state[v][i][o];
+                // Even indices of latent_state keeps track of the state of each
+                // vertex
+                double log_likelihood_component = log_normpdf(
+                        obs, this->current_latent_state[2 * v] * ind.mean, ind.stdev);
+                this->log_likelihood += log_likelihood_component;
+            }
+        }
     }
-    double diff = mean(next_state_values) - this->s0(2 * v);
-    this->s0(2 * v + 1) = diff;
-  }
-}
-
-void AnalysisGraph::set_initial_latent_from_end_of_training() {
-
-  this->set_default_initial_state();
-
-  for (int v = 0; v < this->num_vertices(); v++) {
-    vector<Indicator>& indicators = (*this)[v].indicators;
-    vector<double> state_values;
-    for (int i = 0; i < indicators.size(); i++) {
-      Indicator& ind = indicators[i];
-
-      double last_ind_value;
-      if (this->observed_state_sequence[this->observed_state_sequence.size() -
-                                        1][v][i]
-              .empty()) {
-        last_ind_value = 0.;
-      }
-      else {
-        last_ind_value = mean(
-            this->observed_state_sequence[this->observed_state_sequence.size() -
-                                          1][v][i]);
-      }
-      double prev_ind_value;
-      if (this->observed_state_sequence[this->observed_state_sequence.size() -
-                                        2][v][i]
-              .empty()) {
-        prev_ind_value = 0.;
-      }
-      else {
-        prev_ind_value = mean(
-            this->observed_state_sequence[this->observed_state_sequence.size() -
-                                          2][v][i]);
-      }
-      while (prev_ind_value == 0.) {
-        prev_ind_value = this->norm_dist(this->rand_num_generator);
-      }
-      state_values.push_back((last_ind_value - prev_ind_value) /
-                             prev_ind_value);
-    }
-    double diff = mean(state_values);
-    this->s0(2 * v + 1) = diff;
-  }
 }
 
 void AnalysisGraph::set_log_likelihood() {
   this->previous_log_likelihood = this->log_likelihood;
   this->log_likelihood = 0.0;
 
-  for (int ts = 0; ts < this->n_timesteps; ts++) {
-    this->set_current_latent_state(ts);
-
-    // Access
-    // observed_state[ vertex ][ indicator ]
-    const vector<vector<vector<double>>>& observed_state =
-        this->observed_state_sequence[ts];
-
-    for (int v : this->node_indices()) {
-      const int& num_inds_for_v = observed_state[v].size();
-
-      for (int i = 0; i < observed_state[v].size(); i++) {
-        const Indicator& ind = this->graph[v].indicators[i];
-        for (int j = 0; j < observed_state[v][i].size(); j++) {
-          const double& value = observed_state[v][i][j];
-          // Even indices of latent_state keeps track of the state of each
-          // vertex
-          double log_likelihood_component = log_normpdf(
-              value, this->current_latent_state[2 * v] * ind.mean, ind.stdev);
-          this->log_likelihood += log_likelihood_component;
-        }
+  if (this->continuous) {
+      for (int ts = 0; ts < this->n_timesteps; ts++) {
+          this->set_current_latent_state(ts);
+          set_log_likelihood_helper(ts);
       }
-    }
+  } else {
+      // Discretized version
+      this->current_latent_state = this->s0;
+
+      for (int ts = 0; ts < this->n_timesteps; ts++) {
+          set_log_likelihood_helper(ts);
+          this->current_latent_state = this->A_original * this->current_latent_state;
+      }
   }
 }
 
 void AnalysisGraph::set_current_latent_state(int ts) {
-  const Eigen::MatrixXd& A_t = this->A_original;
-  this->current_latent_state = A_t.pow(ts) * this->s0;
+  //const Eigen::MatrixXd& A_t = this->A_original;
+  //this->current_latent_state = A_t.pow(ts) * this->s0;
+  // Computing e^At
+  const Eigen::MatrixXd& e_A_t = (this->A_original * ts).exp();
+  this->current_latent_state = e_A_t * this->s0;
 }
 
 void AnalysisGraph::sample_from_posterior() {
@@ -189,34 +151,32 @@ void AnalysisGraph::sample_from_posterior() {
 }
 
 void AnalysisGraph::sample_from_proposal() {
-  // Flip a coin and decide whetehr the perturb a β or a derivative
+  // Flip a coin and decide whether to perturb a θ or a derivative
   this->coin_flip = this->uni_dist(this->rand_num_generator);
 
   if (this->coin_flip < this->coin_flip_thresh) {
-    // Randomly pick an edge ≡ β
+    // Randomly pick an edge ≡ θ
     boost::iterator_range edge_it = this->edges();
 
     vector<EdgeDescriptor> e(1);
     sample(
         edge_it.begin(), edge_it.end(), e.begin(), 1, this->rand_num_generator);
 
-    // Remember the previous β
-    this->previous_beta = make_pair(e[0], this->graph[e[0]].beta);
+    // Remember the previous θ
+    this->previous_theta = make_pair(e[0], this->graph[e[0]].theta);
 
-    // Perturb the β
+    // Perturb the θ
     // TODO: Check whether this perturbation is accurate
-    this->graph[e[0]].beta += this->norm_dist(this->rand_num_generator);
+    this->graph[e[0]].theta += this->norm_dist(this->rand_num_generator);
 
     this->update_transition_matrix_cells(e[0]);
   }
   else {
-    // this->s0_prev = s0;
-    // this->set_random_initial_latent_state();
     // Randomly select a concept to change the derivative
     this->changed_derivative =
         2 * this->uni_disc_dist(this->rand_num_generator) + 1;
-    this->previous_derivative = s0[this->changed_derivative];
-    s0[this->changed_derivative] += this->norm_dist(this->rand_num_generator);
+    this->previous_derivative = this->s0[this->changed_derivative];
+    this->s0[this->changed_derivative] += this->norm_dist(this->rand_num_generator);
   }
 }
 
@@ -238,7 +198,7 @@ void AnalysisGraph::update_transition_matrix_cells(EdgeDescriptor e) {
 
     // Note that I am remembering row and col instead of 2*row and 2*col+1
     // row and col resembles an edge in the CAG: row -> col
-    // ( 2*row, 2*col+1 ) is the transition mateix cell that got changed.
+    // ( 2*row, 2*col+1 ) is the transition matrix cell that got changed.
     // this->A_cells_changed.push_back( make_tuple( row, col, A( row * 2, col
     // * 2 + 1 )));
 
@@ -249,13 +209,16 @@ void AnalysisGraph::update_transition_matrix_cells(EdgeDescriptor e) {
 
 double AnalysisGraph::calculate_delta_log_prior() {
   if (this->coin_flip < this->coin_flip_thresh) {
-    KDE& kde = this->graph[this->previous_beta.first].kde;
+    // A θ has been sampled
+    KDE& kde = this->graph[this->previous_theta.first].kde;
 
-    // We have to return: log( p( β_new )) - log( p( β_old ))
-    return kde.logpdf(this->graph[this->previous_beta.first].beta) -
-           kde.logpdf(this->previous_beta.second);
+    // We have to return: log( p( θ_new )) - log( p( θ_old ))
+    return kde.logpdf(this->graph[this->previous_theta.first].theta) -
+           kde.logpdf(this->previous_theta.second);
   }
   else {
+    // A derivative  has been sampled
+    // At the moment we are using a uniform prior.
     return 0.0;
   }
 }
@@ -264,14 +227,16 @@ void AnalysisGraph::revert_back_to_previous_state() {
   this->log_likelihood = this->previous_log_likelihood;
 
   if (this->coin_flip < this->coin_flip_thresh) {
-    this->graph[this->previous_beta.first].beta = this->previous_beta.second;
+    // A θ has been sampled
+    this->graph[this->previous_theta.first].theta = this->previous_theta.second;
 
     // Reset the transition matrix cells that were changed
     // TODO: Can we change the transition matrix only when the sample is
     // accepted?
-    this->update_transition_matrix_cells(this->previous_beta.first);
+    this->update_transition_matrix_cells(this->previous_theta.first);
   }
   else {
+    // A derivative  has been sampled
     // this->s0 = this->s0_prev;
     s0[this->changed_derivative] = this->previous_derivative;
   }
@@ -296,4 +261,12 @@ void AnalysisGraph::set_default_initial_state() {
   for (int i = 0; i < num_els; i += 2) {
     this->s0(i) = 1.0;
   }
+}
+
+void AnalysisGraph::set_res(size_t res) {
+    this->res = res;
+}
+
+size_t AnalysisGraph::get_res() {
+    return this->res;
 }

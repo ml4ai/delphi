@@ -155,6 +155,20 @@
   "start": [
     "@container::SIR-Gillespie-SD_multi_module::@global::update_mean_var"
   ],
+  "system": {
+    "components": [
+      {
+        "code_source": [
+          "tests/data/program_analysis/SIR-Gillespie-SD_multi_module.f"
+        ],
+        "grfn_source": "./m_update_mvar_GrFN.json",
+        "imports": [
+          "./m_update_mvar_GrFN.json"
+        ]
+      }
+    ],
+    "name": "SIR-Gillespie-SD_multi_module"
+  },
   "types": [],
   "variables": [
     {

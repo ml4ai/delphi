@@ -84,7 +84,7 @@ def process_text_and_code():
     if os.path.isfile(norm_json_path):
         os.remove(norm_json_path)
 
-    GroundedFunctionNetwork.from_fortran_file(fortran_path, save_file=True)
+    GroundedFunctionNetwork.from_fortran_file(fortran_path)
     cur_dir = os.getcwd()
     os.chdir(os.path.join(os.environ["AUTOMATES_LOC"], "text_reading/"))
     sp.run([

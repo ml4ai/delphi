@@ -1,0 +1,59 @@
+*SOIL ORGANIC N BALANCE
+
+*DSSAT Cropping System Model Ver. 4.7.5.012   -develop    FEB 25, 2020; 18:10:47
+                                                                                
+*RUN   1        : 78 IRRIG, light rate,freq CRGRO047 UFGA7801    1              
+ MODEL          : CRGRO047 - Soybean                                            
+ EXPERIMENT     : UFGA7801 SB BRAGG, IRRIGATED & NON-IRRIGATED                  
+ DATA PATH      :                                                               
+ TREATMENT  1   : 78 IRRIG, light rate,freq CRGRO047                            
+  
+
+
+!                                        INITIAL Year/Doy      FINAL Year/Doy
+!                                                1978/166            1978/294
+!SOIL N BALANCE                                 -----------kg N/ha-----------
+
+!   Soil Humus N                                  3891.90             3872.61
+!   Soil Litter N                                    0.75               12.80
+!   N in Surface Residue                             0.00               51.34
+
+!   Added to / Removed from Soil:
+!   N in Harvest Residues from Previous Crop         0.00
+!   N from Organic Applications                      8.00
+!   N from senesced plant matter                    70.26
+!   N immobilized                                    0.55
+!   N mineralized                                                       34.06
+
+!   Total N balance                               3970.81             3970.81
+!   Balance                                                             0.000
+
+!===============================================================================
+
+*DSSAT Cropping System Model Ver. 4.7.5.012   -develop    FEB 25, 2020; 18:10:47
+                                                                                
+*RUN   2        : 78 RAINFED BRAGG          CRGRO047 UFGA7801    2              
+ MODEL          : CRGRO047 - Soybean                                            
+ EXPERIMENT     : UFGA7801 SB BRAGG, IRRIGATED & NON-IRRIGATED                  
+ DATA PATH      :                                                               
+ TREATMENT  2   : 78 RAINFED BRAGG          CRGRO047                            
+  
+
+
+!                                        INITIAL Year/Doy      FINAL Year/Doy
+!                                                1978/166            1978/284
+!SOIL N BALANCE                                 -----------kg N/ha-----------
+
+!   Soil Humus N                                  3891.90             3875.97
+!   Soil Litter N                                    0.75               17.40
+!   N in Surface Residue                             0.00               67.02
+
+!   Added to / Removed from Soil:
+!   N in Harvest Residues from Previous Crop         0.00
+!   N from Organic Applications                      8.00
+!   N from senesced plant matter                    88.24
+!   N immobilized                                    0.60
+!   N mineralized                                                       28.64
+
+!   Total N balance                               3989.04             3989.04
+!   Balance                                                            -0.000

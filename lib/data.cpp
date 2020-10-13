@@ -8,20 +8,20 @@
 
 using namespace std;
 
-vector<double> get_data_value(string indicator,
-                              string country,
-                              string state,
-                              string county,
-                              int year,
-                              int month,
-                              string unit,
-                              bool use_heuristic) {
+vector<double> get_observations_for(string indicator,
+                                    string country,
+                                    string state,
+                                    string county,
+                                    int year,
+                                    int month,
+                                    string unit,
+                                    bool use_heuristic) {
   using fmt::print;
   using namespace fmt::literals;
 
   sqlite3* db = nullptr;
 
-  vector<double> vals = {};
+  vector<double> observations = {};
 
   int rc;
   rc = sqlite3_open(getenv("DELPHI_DB"), &db);
@@ -48,7 +48,7 @@ vector<double> get_data_value(string indicator,
         query = check_q;
       }
       else {
-        print("Could not find data for country {}. Averaging data over all "
+        print("Could not find data for country {0}. Averaging data over all "
               "countries for given axes (Default Setting)\n",
               country);
       }
@@ -65,7 +65,7 @@ vector<double> get_data_value(string indicator,
       query = check_q;
     }
     else {
-      print("Could not find data for state {}. Only obtaining data "
+      print("Could not find data for state {0}. Only obtaining data "
             "of the country level (Default Setting)\n",
             state);
     }
@@ -81,7 +81,7 @@ vector<double> get_data_value(string indicator,
       query = check_q;
     }
     else {
-      print("Could not find data for county {}. Only obtaining data "
+      print("Could not find data for county {0}. Only obtaining data "
             "of the state level (Default Setting)\n",
             county);
     }
@@ -99,7 +99,7 @@ vector<double> get_data_value(string indicator,
     else {
       sqlite3_finalize(stmt);
       stmt = nullptr;
-      print("Could not find data for unit {}. Using first unit in "
+      print("Could not find data for unit {0}. Using first unit in "
             "alphabetical order (Default Setting)\n",
             unit);
 
@@ -118,7 +118,7 @@ vector<double> get_data_value(string indicator,
         query = "{0} and `Unit` is '{1}'"_format(query, units.front());
       }
       else {
-        print("No units found for indicator {}", indicator);
+        print("No units found for indicator {0}", indicator);
       }
     }
   }
@@ -133,49 +133,53 @@ vector<double> get_data_value(string indicator,
       query = check_q;
     }
     else {
-      print("Could not find data for year {}. Aggregating data "
+      print("Could not find data for year {0}. Aggregating data "
             "over all years (Default Setting)\n",
-            county);
+            year);
     }
     sqlite3_finalize(stmt);
     stmt = nullptr;
   }
 
-  if (!(month == 0)) {
-    check_q = "{0} and `Year` is '{1}'"_format(query, month);
+  if (month != 0) {
+    check_q = "{0} and `Month` is '{1}'"_format(query, month);
     rc = sqlite3_prepare_v2(db, check_q.c_str(), -1, &stmt, NULL);
     rc = sqlite3_step(stmt);
     if (rc == SQLITE_ROW) {
       query = check_q;
     }
     else {
-      print("Could not find data for month {}. Aggregating data "
+      print("Could not find data for month {0}. Aggregating data "
             "over all months (Default Setting)\n",
-            county);
+            month);
     }
     sqlite3_finalize(stmt);
     stmt = nullptr;
   }
 
-  double value;
+  double observation;
 
   rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
   while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-    value = sqlite3_column_double(stmt, 1);
-    vals.push_back(value);
+    observation = sqlite3_column_double(stmt, 1);
+    observations.push_back(observation);
   }
   sqlite3_finalize(stmt);
   stmt = nullptr;
 
-  if (vals.empty() and use_heuristic) {
+  if (observations.empty() and use_heuristic) {
     string final_query =
         "{0} and `Year` is '{1}' and `Month` is '0'"_format(query, year);
     sqlite3_prepare_v2(db, final_query.c_str(), -1, &stmt, NULL);
 
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-      value = sqlite3_column_double(stmt, 1);
-      value = value / 12;
-      vals.push_back(value);
+      observation = sqlite3_column_double(stmt, 1);
+      // TODO: This math is only valid if the observation we query is an annual
+      // aggregate. For example if it is an yearly sample or an yearly average
+      // this is not correct. We need a more intelligent way to handle this
+      // situation.
+      observation = observation / 12;
+      observations.push_back(observation);
     }
     sqlite3_finalize(stmt);
     stmt = nullptr;
@@ -185,5 +189,5 @@ vector<double> get_data_value(string indicator,
   rc = sqlite3_close(db);
   stmt = nullptr;
   db = nullptr;
-  return vals;
+  return observations;
 }

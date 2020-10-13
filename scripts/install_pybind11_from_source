@@ -1,0 +1,12 @@
+#!/bin/bash
+
+version=2.4.3
+wget https://github.com/pybind/pybind11/archive/v${version}.tar.gz
+tar -xf v${version}.tar.gz
+pushd pybind11-${version} > /dev/null
+  mkdir build
+  cd build
+  cmake ..
+  make -j install
+popd > /dev/null
+rm -rf pybind11-${version}

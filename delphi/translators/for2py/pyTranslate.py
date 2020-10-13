@@ -1,21 +1,6 @@
-"""
-Purpose:
-    Convert a Fortran AST representation into a Python
-    script having the same functionalities and performing
-    the same operations as the original Fortran file.
-
-Example:
-    This script is executed by the autoTranslate script as one
-    of the steps in converted a Fortran source file to Python
-    file. For standalone execution:
-
-        python pyTranslate.py -f <pickle_file> -g <python_file> -o
-        <outputFileList>
-
-pickle_file: Pickled file containing the ast representation of the Fortran
-file along with other non-source code information.
-python_file: The Python file on which to write the resulting Python script.
-"""
+""" This module contains code to convert a Fortran AST representation into a
+Python script having the same functionalities and performing the same
+operations as the original Fortran file.  """
 
 import sys
 import pickle
@@ -230,6 +215,8 @@ class PythonCodeGenerator(object):
         # This flag remains False until the first case statement is started
         # in every select block
         self.case_started = False
+        # This dictionary holds the defined arrays along with their data types
+        self.array_map = {}
 
         self.printFn = {
             "subroutine": self.printSubroutine,
@@ -288,7 +275,7 @@ class PythonCodeGenerator(object):
                            definedVars=args,
                            indexRef=False,
                        ),
-        )
+                       )
         self.pyStrings.append(f"\ndef {self.nameMapper[node['name']]}(")
         self.printAst(
             node["args"],
@@ -594,11 +581,12 @@ class PythonCodeGenerator(object):
 
         if node["tag"] == "literal":
             literal = self.proc_literal(node)
-
             # If the literal is an argument to a function (when proc_expr has
             # been called from proc_call), the literal needs to be sent using
             # a list wrapper (e.g. f([1]) instead of f(1)
             if wrapper and self.current_call != "print":
+                if node["type"] == "char":
+                    return f"String({len(literal[1:-1])}, {literal})"
                 return f"[{literal}]"
             else:
                 return literal
@@ -657,7 +645,7 @@ class PythonCodeGenerator(object):
             if node["type"].lower() in TYPE_MAP:
                 var_type = TYPE_MAP[node["type"].lower()]
             elif node["type"].lower() == "character":
-                var_type = "str"
+                var_type = "String"
             elif node["is_derived_type"] == "true":
                 var_type = node["type"].lower()
         except KeyError:
@@ -674,6 +662,8 @@ class PythonCodeGenerator(object):
         })
         if "is_array" in node and node["is_array"] == "true":
             self.pyStrings.append(f"{arg_name}: Array")
+        elif var_type == "String":
+            self.pyStrings.append(f"{arg_name}: String")
         else:
             if node["type"].lower() == "real":
                 var_type = "Real"
@@ -859,7 +849,20 @@ class PythonCodeGenerator(object):
             rhs_str = f"Float32({rhs_str})"
 
         if "set_" in assg_str:
-            assg_str += f"{rhs_str})"
+            # If the assignment is to an array and the value is a string,
+            # a String object has to be created
+            if "is_array" in lhs and lhs["is_array"] == "true":
+                check_further = False
+                if self.array_map and self.array_map.get(lhs['name']):
+                    check_further = True
+                if check_further and \
+                        "String" in self.array_map.get(lhs['name']):
+                    length = self.array_map[lhs['name']][7:-1]
+                    assg_str += f"String({length}, {rhs_str}))"
+                else:
+                    assg_str += f"{rhs_str})"
+            else:
+                assg_str += f"{rhs_str})"
         else:
             assg_str += f" = {rhs_str}"
 
@@ -1289,7 +1292,12 @@ class PythonCodeGenerator(object):
         ):
             printState.definedVars += [self.nameMapper[node["name"]]]
             var_type = self.get_type(node)
+            # If the array has string elements, then we need the length
+            # information as well
+            if var_type == "character":
+                var_type = f"String({node['length']})"
 
+            self.array_map[self.nameMapper[node["name"]]] = var_type
             array_range = self.get_array_dimension(node)
 
             # If the printArray function is being called from printSave,
@@ -1375,6 +1383,9 @@ class PythonCodeGenerator(object):
                 array_range = self.get_array_dimension(
                     derived_type_variables[var]
                 )
+                if var_type == "character":
+                    var_type = f"String(" \
+                               f"{derived_type_variables[var]['length']})"
                 self.pyStrings.append(
                     f"        self.{name} = Array({var_type}, [{array_range}])"
                 )
@@ -1590,58 +1601,11 @@ class PythonCodeGenerator(object):
         )
 
     def printInterface(self, node, printState: PrintState):
-        """This function prints out the Fortran interface to Python regular def
-        function with isinstance"""
-        # Print function declaration.
-        self.pyStrings.append(f"def {node['name']} (")
-        max_argument = int(node["max_argument"])
-        for i in range(0, max_argument):
-            arg_num = f"arg{i+1}"
-            # A Python function representing Fortran interface can receive
-            # n number of arguments that are not fixed. Thus, as a default,
-            # Python function will be declared with the maximum number of
-            # arguments with default value of None.
-            self.pyStrings.append(f"{arg_num}=None")
-            if i < max_argument - 1:
-                self.pyStrings.append(", ")
-        self.pyStrings.append("):\n")
-
-        # Print code to figure out how many arguments were passed to the function.
-        self.pyStrings.append("    num_passed_args = 0\n")
-        for i in range(0, max_argument):
-            self.pyStrings.append(f"    if arg{i+1} != None:\n")
-            self.pyStrings.append("        num_passed_args += 1\n")
-        self.pyStrings.append("\n")
-        
-        functions_sorted_by_arg_nums = {}
-        for i in range(1, max_argument+1):
-            for function in node["functions"]:
-                if i == len(node["functions"][function]):
-                    if i not in functions_sorted_by_arg_nums:
-                        functions_sorted_by_arg_nums[i] = [function]
-                    else:
-                        functions_sorted_by_arg_nums[i].append(function)
-
-        for num in functions_sorted_by_arg_nums:
-            self.pyStrings.append(f"    if num_passed_args == {num}:\n")
-            for function in functions_sorted_by_arg_nums[num]:
-                types = node["functions"][function]
-                self.pyStrings.append("        if")
-                for i in range(1, num+1):
-                    if types[i-1] in TYPE_MAP:
-                        arg_type = TYPE_MAP[types[i-1]]
-                    else:
-                        arg_type = types[i-1]
-                    self.pyStrings.append(f" isinstance(arg{i}[0], {arg_type})")
-                    if i < num:
-                        self.pyStrings.append(f" and")
-                self.pyStrings.append(f":\n")
-                self.pyStrings.append(f"            {function}(")
-                for i in range(1, num+1):
-                    self.pyStrings.append(f"arg{i}")
-                    if i < num:
-                        self.pyStrings.append(f", ")
-                self.pyStrings.append(")\n")
+        """This function definition is simply a place holder for INTERFACE
+        just in case of any possible usage in the future. For now, it does
+        nothing and pass. Since translate.py also passes interface, this
+        should not be encountered in any case."""
+        assert False, "In printInterface function, which should not be in any case."
 
     ###########################################################################
     #                                                                         #
@@ -1828,7 +1792,7 @@ def index_modules(root) -> Dict:
     return module_index_dict
 
 
-def create_python_source_list(outputDict: Dict):
+def get_python_sources_and_variable_map(outputDict: Dict):
     module_index_dict = index_modules(outputDict["ast"])
     py_sourcelist = []
     main_ast = []

@@ -2,6 +2,8 @@
 #include <cmath>
 #include <fstream>
 #include <boost/range/numeric.hpp>
+#include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/statistics/median.hpp>
 
 using namespace std;
 
@@ -15,12 +17,50 @@ double sqr(double x) { return x * x; }
 /**
  * Returns the sum of a vector of doubles.
  */
-double sum(std::vector<double> v) { return boost::accumulate(v, 0.0); }
+double sum(const std::vector<double> &v) { return boost::accumulate(v, 0.0); }
 
 /**
  * Returns the arithmetic mean of a vector of doubles.
+ * Updated based on:
+ * https://codereview.stackexchange.com/questions/185450/compute-mean-variance-and-standard-deviation-of-csv-number-file
  */
-double mean(std::vector<double> v) { return sum(v) / v.size(); }
+double mean(const std::vector<double> &v) {
+    if (v.empty()) {
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+
+    return sum(v) / v.size();
+}
+
+/**
+ * Returns the sample standard deviation of a vector of doubles.
+ * Based on:
+ * https://codereview.stackexchange.com/questions/185450/compute-mean-variance-and-standard-deviation-of-csv-number-file
+ */
+double standard_deviation(const double mean, const std::vector<double>& v)
+{
+    if (v.size() <= 1u)
+        return std::numeric_limits<double>::quiet_NaN();
+
+    auto const add_square = [mean](double sum, int i) {
+        auto d = i - mean;
+        return sum + d*d;
+    };
+    double total = std::accumulate(v.begin(), v.end(), 0.0, add_square);
+    return sqrt(total / (v.size() - 1));
+}
+
+/**
+ * Returns the median of a vector of doubles.
+ */
+double median(const std::vector<double> &xs) {
+  using namespace boost::accumulators;
+  accumulator_set<double, features<tag::median>> acc;
+  for (auto x : xs) {
+    acc(x);
+  }
+  return boost::accumulators::median(acc);
+}
 
 double log_normpdf(double x, double mean, double sd) {
   double var = pow(sd, 2);

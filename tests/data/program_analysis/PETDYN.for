@@ -9,15 +9,15 @@ C  Input : T (C)
 C  Output: VPSAT (Pa)
 C=======================================================================
 
-      REAL FUNCTION VPSAT(T)
-
-      IMPLICIT NONE
-      REAL T
-
-      VPSAT = 610.78 * EXP(17.269*T/(T+237.30))
-
-      RETURN
-      END FUNCTION VPSAT
+C      REAL FUNCTION VPSAT(T)
+C
+C      IMPLICIT NONE
+C      REAL T
+C
+C      VPSAT = 610.78 * EXP(17.269*T/(T+237.30))
+C
+C      RETURN
+C      END FUNCTION VPSAT
 C=======================================================================
 ! VPSAT Variables
 !-----------------------------------------------------------------------
@@ -39,18 +39,18 @@ C  Input : T (C)
 C  Output: VPSLOP
 C=======================================================================
 
-      REAL FUNCTION VPSLOP(T)
-
-      IMPLICIT NONE
-
-      REAL T,VPSAT
-
-C     dEsat/dTempKel = MolWeightH2O * LatHeatH2O * Esat / (Rgas * TempKel^2)
-
-      VPSLOP = 18.0 * (2501.0-2.373*T) * VPSAT(T) / (8.314*(T+273.0)**2)
-
-      RETURN
-      END FUNCTION VPSLOP
+C      REAL FUNCTION VPSLOP(T)
+C
+C      IMPLICIT NONE
+C
+C      REAL T,VPSAT
+C
+C      dEsat/dTempKel = MolWeightH2O * LatHeatH2O * Esat / (Rgas * TempKel^2)
+C
+C      VPSLOP = 18.0 * (2501.0-2.373*T) * VPSAT(T) / (8.314*(T+273.0)**2)
+C
+C      RETURN
+C      END FUNCTION VPSLOP
 C=======================================================================
 ! VPSLOP variables
 !-----------------------------------------------------------------------
@@ -72,7 +72,7 @@ C-----------------------------------------------------------------------
 C  REVISION HISTORY
 C  11/19/01 TO 1/15/02  Written By Boote, Sau, McNair
 C  01/15/03 Moved from V3.5 trial to V4.0  by K. J. Boote
-!  07/24/2006 CHP Use MSALB instead of SALB (includes mulch and soil 
+!  07/24/2006 CHP Use MSALB instead of SALB (includes mulch and soil
 !                 water effects on albedo)
 
 !  Called from:   PET
@@ -109,17 +109,27 @@ C     PARAMETER (SHAIR = 1005.0)
       PARAMETER (SBZCON=4.903E-9)   !(MJ/K4/m2/d) fixed constant 5/6/02
 !-----------------------------------------------------------------------
 !     FUNCTION SUBROUTINES:
-      REAL VPSLOP, VPSAT      !Found in file HMET.for
+      REAL VPSLOP_TMAX, VPSLOP_TMIN, VPSAT_TMAX, VPSAT_TMIN, VPSAT_TDEW
 
 C-----------------------------------------------------------------------
 C     Compute air properties.
       LHVAP = (2501.0-2.373*TAVG) * 1000.0                 ! J/kg
 C     PSYCON = SHAIR * PATM / (0.622*LHVAP)                ! Pa/K
       PSYCON = SHAIR * PATM / (0.622*LHVAP) * 1000000     ! Pa/K
-      ESAT = (VPSAT(TMAX)+VPSAT(TMIN)) / 2.0               ! Pa
-      EAIR = VPSAT(TDEW)                                   ! Pa
+
+      VPSAT_TMAX = 610.78 * EXP(17.269*TMAX/(TMAX+237.30))
+      VPSAT_TMIN = 610.78 * EXP(17.269*TMIN/(TMIN+237.30))
+      VPSAT_TDEW = 610.78 * EXP(17.269*TDEW/(TDEW+237.30))
+
+      ESAT = (VPSAT_TMAX+VPSAT_TMIN) / 2.0               ! Pa
+      EAIR = VPSAT_TDEW                                   ! Pa
+
       VPD = ESAT - EAIR                                    ! Pa
-      S = (VPSLOP(TMAX)+VPSLOP(TMIN)) / 2.0                ! Pa/K
+
+      VPSLOP_TMAX = 18.0 * (2501.0-2.373*TMAX) * VPSAT_TMAX / (8.314*(TMAX+273.0)**2)
+      VPSLOP_TMIN = 18.0 * (2501.0-2.373*TMIN) * VPSAT_TMIN / (8.314*(TMIN+273.0)**2)
+      
+      S = (VPSLOP_TMAX+VPSLOP_TMIN) / 2.0                ! Pa/K
       RT = 8.314 * (TAVG + 273.0)                             ! N.m/mol
       DAIR = 0.028966*(PATM-0.387*EAIR)/RT                    ! kg/m3
 C BAD DAIR = 0.1 * 18.0 / RT * ((PATM  -EAIR)/0.622 + EAIR)   ! kg/m3
@@ -238,7 +248,7 @@ C          rs = rl/(0.5*XHLAI)
       ELSE
         rs = rl/(0.5*0.1)
       ENDIF
-      
+
       rs = rs/86400           !converts (s m^-1 to d/m)
 
       RTOT = AC*rs + AS_MOD*rb
@@ -263,7 +273,7 @@ C     Compute EO using Penman-Montieth
 
       RNETMG = (RNET-G)
 C     !MJ/m2/d
-      EO=((S*RNETMG + (DAIR*SHAIR*VPD)/RAERO)/(S+PSYCON*(1+RTOT/RAERO))) 
+      EO=((S*RNETMG + (DAIR*SHAIR*VPD)/RAERO)/(S+PSYCON*(1+RTOT/RAERO)))
 C     !Converts MJ/m2/d to mm/d
         EO = EO/ (LHVAP / 1000000.)
 !###  EO = MAX(EO,0.0)   !gives error in DECRAT_C
