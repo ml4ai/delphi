@@ -71,6 +71,17 @@ class DelphiModel(db.Model, Serializable):
     )
     model = db.Column(db.String)
 
+class ExperimentResult(db.Model, Serializable):
+    """ Notional model of experiment results """
+
+    __tablename__ = "experimentresult"
+    baseType = db.Column(db.String)
+    id = db.Column(db.String, primary_key=True, default=str(uuid4()))
+    __mapper_args__ = {
+        "polymorphic_identity": "ExperimentResult",
+        "polymorphic_on": baseType,
+    }
+
 
 class CauseMosAsyncExperimentResult(ExperimentResult):
     """ Placeholder docstring for class CauseMosAsyncExperimentResult. """
