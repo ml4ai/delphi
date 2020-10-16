@@ -1,8 +1,6 @@
 import json
 import pytest
 import time
-from pprint import pprint
-from delphi.cpp.DelphiPython import AnalysisGraph
 
 from delphi.apps.rest_api import create_app, db
 from delphi.apps.rest_api.models import (
@@ -13,8 +11,6 @@ from delphi.apps.rest_api.models import (
     ForwardProjection,
     ICMMetadata,
 )
-from time import sleep
-from matplotlib import pyplot as plt
 
 
 @pytest.fixture(scope="module")
