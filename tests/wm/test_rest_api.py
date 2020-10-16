@@ -51,22 +51,3 @@ def test_createModel_and_createExperiment(client):
         status = rv.get_json()["status"]
 
     assert True
-
-
-@pytest.mark.skip
-def test_getIndicators(client):
-    with open("tests/data/causemos_cag.json", "r") as f:
-        data = json.load(f)
-
-    rv = client.post(f"/delphi/models", json=data)
-
-    indicator_get_request_params = {
-        "start": 2012,
-        "end": 2016,
-        "geolocation": None,
-        "func": "mean",
-    }
-    rv = client.get(
-        f"/delphi/models/{data['model_id']}/indicators?start=2012&end=2016&func=mean"
-    )
-    assert True

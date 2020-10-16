@@ -66,9 +66,6 @@ class DelphiModel(db.Model, Serializable):
     """ Delphi AnalysisGraph Model """
     __tablename__ = "delphimodel"
     id = db.Column(db.String, primary_key=True)
-    icm_metadata = db.relationship(
-        "ICMMetadata", backref="delphimodel", lazy=True, uselist=False
-    )
     model = db.Column(db.String)
 
 class ExperimentResult(db.Model, Serializable):
