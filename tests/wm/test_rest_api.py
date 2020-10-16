@@ -3,14 +3,7 @@ import pytest
 import time
 
 from delphi.apps.rest_api import create_app, db
-from delphi.apps.rest_api.models import (
-    CausalRelationship,
-    CausalVariable,
-    DelphiModel,
-    Evidence,
-    ForwardProjection,
-    ICMMetadata,
-)
+from delphi.apps.rest_api.models import DelphiModel
 
 
 @pytest.fixture(scope="module")
