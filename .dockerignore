@@ -6,6 +6,13 @@
 # Allow files and directories
 !/setup.py
 !/delphi/**
+!/lib/**
+!/CMakeLists.txt
+!/cmake/**
+!/tests/**
+!/apps
+!/external
+!/Makefile
 
 # Ignore unnecessary files inside allowed directories
 # This should go after the allowed directories
