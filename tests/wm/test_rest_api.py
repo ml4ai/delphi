@@ -1,20 +1,9 @@
 import json
 import pytest
 import time
-from pprint import pprint
-from delphi.cpp.DelphiPython import AnalysisGraph
 
 from delphi.apps.rest_api import create_app, db
-from delphi.apps.rest_api.models import (
-    CausalRelationship,
-    CausalVariable,
-    DelphiModel,
-    Evidence,
-    ForwardProjection,
-    ICMMetadata,
-)
-from time import sleep
-from matplotlib import pyplot as plt
+from delphi.apps.rest_api.models import DelphiModel
 
 
 @pytest.fixture(scope="module")
@@ -61,23 +50,4 @@ def test_createModel_and_createExperiment(client):
         rv = client.get(f"/delphi/models/{model_id}/experiments/{experiment_id}")
         status = rv.get_json()["status"]
 
-    assert True
-
-
-@pytest.mark.skip
-def test_getIndicators(client):
-    with open("tests/data/causemos_cag.json", "r") as f:
-        data = json.load(f)
-
-    rv = client.post(f"/delphi/models", json=data)
-
-    indicator_get_request_params = {
-        "start": 2012,
-        "end": 2016,
-        "geolocation": None,
-        "func": "mean",
-    }
-    rv = client.get(
-        f"/delphi/models/{data['model_id']}/indicators?start=2012&end=2016&func=mean"
-    )
     assert True
