@@ -179,28 +179,36 @@ string AnalysisGraph::serialize_to_json_string(bool verbose) {
     // ids mentioned above.
     j["observations"] = this->observed_state_sequence;
 
-    /*
-    //cout << j.dump(4) << endl;
-    //
-    // NOTE: Just to guide Aishwarya. Delete Later.
-    // How to access edges and evidence for deserialization.
-    nlohmann::json json_data = nlohmann::json::parse(j.dump());
-    auto edges = json_data["edges"];
-    for (auto edg : edges) {
-        int source = edg["source"].get<int>();
-        int target = edg["target"].get<int>();
-        print("{0} --> {1}\n", source, target);
+    if (this->trained) {
+        j["trained"] = this->trained;
+        j["res"] = this->res;
+        int num_verts = this->num_vertices();
+        int num_els_per_mat = num_verts * num_verts;
+        //int num_els = this->res * num_verts * num_verts;
 
-        for (CausalFragment cf: edg["evidence"]) {
-            //this->add_edge(cf);
-            //Let's print the values just to see things are working properly
-            print("subject: {0}, {1}, {2}\nobject: {3}, {4}, {5}\n\n", get<0>(cf.first), get<1>(cf.first), get<2>(cf.first), get<0>(cf.second), get<1>(cf.second), get<2>(cf.second));
+        //vector<vector<double>> mats = vector<vector<double>> (res);
+        //vector<vector<double>> derivs = vector<vector<double>> (res);
+        vector<double> mats = vector<double> (num_els_per_mat * this->res);
+        vector<double> derivs = vector<double> (num_verts * this->res);
+
+        for (int samp = 0; samp < this->res; samp++) {
+            //mats[samp] = vector<double> (num_verts * num_verts);
+            //derivs[samp] = vector<double> (num_verts * num_verts);
+            for (int row = 0; row < num_verts; row++) {
+                //derivs[samp][row] = this->initial_latent_state_collection[samp](row * 2 + 1);
+                derivs[samp * num_verts + row] = this->initial_latent_state_collection[samp](row * 2 + 1);
+
+                for (int col = 0; col < num_verts; col++) {
+                    //mats[samp][row * num_verts + col] = this->transition_matrix_collection[samp](row * 2, col * 2 + 1);
+                    mats[samp * num_els_per_mat + row * num_verts + col] = this->transition_matrix_collection[samp](row * 2, col * 2 + 1);
+                }
+            }
         }
-    }
-    // Accessing a single CausalFragment
-    CausalFragment cf = edges[0]["evidence"][0];
-    print("{0}, {1}, {2}\n", get<0>(cf.first), get<1>(cf.first), get<2>(cf.first));
-    */
 
+        j["matrices"] = mats;
+        j["S0s"] = derivs;
+    }
+
+    cout << j.dump(4) << endl;
     return j.dump(4);
 }

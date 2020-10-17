@@ -37,6 +37,12 @@ int main(int argc, char* argv[]) {
 };
 
 
+    AnalysisGraph G = AnalysisGraph::from_causemos_json_file("../tests/data/delphi/causemos_create-model.json", 4);
+
+    string result = G.serialize_to_json_string(false);
+
+    G.train_model(2020, 1, 2020, 12);
+    result = G.serialize_to_json_string(false);
 
     //for(int i = 0; i < 100; i++)
     {
