@@ -792,6 +792,8 @@ class AnalysisGraph {
    ============================================================================
   */
 
+  void set_base_transition_matrix();
+
   // Sample elements of the stochastic transition matrix from the
   // prior distribution, based on gradable adjectives.
   void set_transition_matrix_from_betas();

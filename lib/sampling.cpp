@@ -11,9 +11,7 @@ using Eigen::VectorXd;
  ============================================================================
 */
 
-// Initialize elements of the stochastic transition matrix from the
-// prior distribution, based on gradable adjectives.
-void AnalysisGraph::set_transition_matrix_from_betas() {
+void AnalysisGraph::set_base_transition_matrix() {
   int num_verts = this->num_vertices();
 
   // A base transition matrix with the entries that does not change across
@@ -46,14 +44,7 @@ void AnalysisGraph::set_transition_matrix_from_betas() {
    *  three rows for each variable and some of the off diagonal elements
    *  of rows with index % 3 = 1 would be non zero.
    */
-  //this->A_original = Eigen::MatrixXd::Identity(num_verts * 2, num_verts * 2);
   this->A_original = Eigen::MatrixXd::Zero(num_verts * 2, num_verts * 2);
-
-  // Update the β factor dependent cells of this matrix
-  for (auto& [row, col] : this->beta_dependent_cells) {
-    this->A_original(row * 2, col * 2 + 1) =
-        this->A_beta_factors[row][col]->compute_cell(this->graph);
-  }
 
   if (this->continuous) {
     for (int vert = 0; vert < 2 * num_verts; vert += 2) {
@@ -76,6 +67,19 @@ void AnalysisGraph::set_transition_matrix_from_betas() {
             this->A_original(vert, vert + 1) = this->delta_t;
         }
     }
+  }
+}
+
+// Initialize elements of the stochastic transition matrix from the
+// prior distribution, based on gradable adjectives.
+void AnalysisGraph::set_transition_matrix_from_betas() {
+
+  this->set_base_transition_matrix();
+
+  // Update the β factor dependent cells of this matrix
+  for (auto& [row, col] : this->beta_dependent_cells) {
+    this->A_original(row * 2, col * 2 + 1) =
+        this->A_beta_factors[row][col]->compute_cell(this->graph);
   }
 }
 
