@@ -92,6 +92,8 @@ target_link_libraries(DelphiPython PRIVATE Delphi Eigen3::Eigen)
 # Executables
 add_executable(create_model apps/create_model.cpp)
 target_link_libraries(create_model PRIVATE Delphi Eigen3::Eigen)
+add_executable(sandbox_tester apps/sandbox_tester.cpp)
+target_link_libraries(sandbox_tester PRIVATE Delphi Eigen3::Eigen)
 
 #add_executable(pybind_tester_driver apps/pybind_tester_driver.cpp)
 
