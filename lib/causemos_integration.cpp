@@ -652,15 +652,16 @@ string AnalysisGraph::generate_create_model_response() {
                        create-experiment (public)
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-CausemosProjectionExperimentResult
+FormattedProjectionResult
 AnalysisGraph::run_causemos_projection_experiment(std::string json_string) {
     using namespace fmt::literals;
     using nlohmann::json;
 
     // Just a dummy empty prediction to signal that there is an error in
     // projection parameters.
-    CausemosProjectionExperimentResult null_prediction =
-                                        CausemosProjectionExperimentResult();
+    FormattedProjectionResult null_prediction = FormattedProjectionResult();
+    //CausemosProjectionExperimentResult null_prediction =
+    //                                    CausemosProjectionExperimentResult();
 
     // During the create-model call we called construct_theta_pdfs() and
     // serialized them to json. When we recreate the model we load them. So to
@@ -752,5 +753,6 @@ AnalysisGraph::run_causemos_projection_experiment(std::string json_string) {
                                                          proj_end_timestamp,
                                                          proj_num_timesteps,
                                                          this->format_projection_result());
-    return result;
+    //return result;
+    return this->format_projection_result();
 }

@@ -110,7 +110,7 @@ def createCausemosExperiment(modelID):
         # A rudimentary test to see if the projection failed. We check whether
         # the number time steps is equal to the number of elements in the first
         # concept's time series.
-        if len(list(causemos_experiment_result[3].values())[0]) < numTimesteps:
+        if len(list(causemos_experiment_result.values())[0]) < numTimesteps:
             result.status = "failed"
             result.results = {}
         else:
@@ -134,7 +134,7 @@ def createCausemosExperiment(modelID):
             for (
                 conceptname,
                 timestamp_sample_matrix,
-            ) in causemos_experiment_result[3].items():
+            ) in causemos_experiment_result.items():
                 data_dict = {}
                 data_dict["concept"] = conceptname
                 data_dict["values"] = []

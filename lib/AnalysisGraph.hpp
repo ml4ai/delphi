@@ -1033,7 +1033,7 @@ class AnalysisGraph {
                           create-experiment
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-  CausemosProjectionExperimentResult
+  FormattedProjectionResult
   run_causemos_projection_experiment(std::string json_string);
 
   /*
