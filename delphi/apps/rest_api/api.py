@@ -185,11 +185,21 @@ def getExperimentResults(modelID: str, experimentID: str):
         id=experimentID
     ).first()
 
+    if result:
+        experimentType = result.experimentType
+        status = result.status
+        results = result.results
+    else:
+        # experimentID not in database. Should be an incorrect experimentID
+        experimentType = "UNKNOWN"
+        status = "invalid experiment id"
+        results = {}
+
     response = {
         "modelId": modelID,
         "experimentId": experimentID,
-        "experimentType": result.experimentType,
-        "status": result.status,
-        "results": result.results
+        "experimentType": experimentType,
+        "status": status,
+        "results": results
     }
     return jsonify(response)
