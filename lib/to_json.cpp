@@ -174,7 +174,7 @@ string AnalysisGraph::serialize_to_json_string(bool verbose) {
     }
 
     // This contains all the observations. Indexing goes by
-    // [ timestep ][ concept ][ indicator ][ observaton ]
+    // [ timestep ][ concept ][ indicator ][ observation ]
     // Concept and indicator indexes are according to the concept and indicator
     // ids mentioned above.
     j["observations"] = this->observed_state_sequence;
@@ -199,11 +199,11 @@ string AnalysisGraph::serialize_to_json_string(bool verbose) {
         int num_verts = this->num_vertices();
         int num_els_per_mat = num_verts * num_verts;
 
-        // Instead of serializing things as sequences of matrices and vectots
+        // Instead of serializing things as sequences of matrices and vectors
         // we flatten them into one single long vectors. Here we are setting
         // the last element of each vector to a dummy value just to make the
         // json library allocate all the memory required to store these
-        // vectors. These dummy values
+        // vectors. These dummy values get overwritten with actual data.
         j["matrices"][num_els_per_mat * this->res - 1] = 11111111111111;
         j["S0s"][num_verts * this->res - 1] = 11111111111111;
 
@@ -218,6 +218,5 @@ string AnalysisGraph::serialize_to_json_string(bool verbose) {
         }
     }
 
-    cout << j.dump(4) << endl;
     return j.dump(4);
 }
