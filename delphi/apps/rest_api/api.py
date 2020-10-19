@@ -54,8 +54,6 @@ def createNewModel():
     )
     db.session.merge(model)
     db.session.commit()
-    # edge_weights = G.get_edge_weights_for_causemos_viz()
-    # return jsonify({"status": "success", "relations": edge_weights})
     response = G.generate_create_model_response()
     return jsonify(response)
 
@@ -63,6 +61,7 @@ def createNewModel():
 @bp.route("/delphi/models/<string:modelID>/experiments", methods=["POST"])
 def createCausemosExperiment(modelID):
     model = DelphiModel.query.filter_by(id=modelID).first().model
+    trained = json.loads(model)["trained"]
     G = AnalysisGraph.deserialize_from_json_string(model, verbose=False)
     request_body = request.get_json()
     experiment_type = request_body["experimentType"]
@@ -71,10 +70,9 @@ def createCausemosExperiment(modelID):
     result = CauseMosAsyncExperimentResult(
         id=experiment_id,
         baseType="CauseMosAsyncExperimentResult",
-        experimentType="PROJECTION",
+        experimentType=experiment_type,
         status = "in progress",
     )
-
 
     db.session.add(result)
     db.session.commit()
@@ -84,6 +82,12 @@ def createCausemosExperiment(modelID):
                 request.data
             )
 
+            if(not trained):
+                model = DelphiModel(
+                    id=modelID, model=G.serialize_to_json_string(verbose=False)
+                )
+                db.session.merge(model)
+                db.session.commit()
 
         result = CauseMosAsyncExperimentResult.query.filter_by(
             id=experiment_id

@@ -50,4 +50,16 @@ def test_createModel_and_createExperiment(client):
         rv = client.get(f"/delphi/models/{model_id}/experiments/{experiment_id}")
         status = rv.get_json()["status"]
 
+    # Test createExperiment for a second time
+    # This time model should not get trained since the trained model should
+    # have been stored in the database the first time createExpetiment called
+    rv = client.post(f"/delphi/models/{model_id}/experiments", json=data)
+    experiment_id = rv.get_json()["experimentId"]
+    status = "in progress"
+
+    while status != "completed":
+        time.sleep(1)
+        rv = client.get(f"/delphi/models/{model_id}/experiments/{experiment_id}")
+        status = rv.get_json()["status"]
+
     assert True

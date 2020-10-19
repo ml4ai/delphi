@@ -726,8 +726,12 @@ AnalysisGraph::run_causemos_projection_experiment(std::string json_string) {
     int train_end_year = this->training_range.second.first;
     int train_end_month = this->training_range.second.second;
 
-    this->train_model(train_start_year, train_start_month,
-                            train_end_year, train_end_month);
+    if (!this->trained) {
+        this->train_model(train_start_year, train_start_month,
+                                train_end_year, train_end_month);
+    } else {
+        cout << "\n*********** Not training***************\n";
+    }
 
     // NOTE: At the moment we are assuming that delta_t for prediction is also
     // 1. This is an effort to do otherwise which might make things better in
