@@ -180,7 +180,17 @@ string AnalysisGraph::serialize_to_json_string(bool verbose) {
     j["observations"] = this->observed_state_sequence;
 
     j["trained"] = this->trained;
+
     if (this->trained) {
+        // Serialize the sampled transition matrices and initial latent states
+        // along with on the parameters related to training.
+        // For transition matrices, we only need to serialize odd column
+        // positions on even rows (even, odd) as all the other positions remain
+        // constant.
+        // For initial letter states, we only need to serialize odd positions
+        // as those are the sampled derivatives. All the even positions stay
+        // constant at 1.
+
         j["res"] = this->res;
         j["continuous"] = this->continuous;
         j["data_heuristic"] = this->data_heuristic;
@@ -188,33 +198,24 @@ string AnalysisGraph::serialize_to_json_string(bool verbose) {
 
         int num_verts = this->num_vertices();
         int num_els_per_mat = num_verts * num_verts;
-        //int num_els = this->res * num_verts * num_verts;
 
-        //vector<vector<double>> mats = vector<vector<double>> (res);
-        //vector<vector<double>> derivs = vector<vector<double>> (res);
-        //vector<double> mats = vector<double> (num_els_per_mat * this->res);
-        //vector<double> derivs = vector<double> (num_verts * this->res);
-
+        // Instead of serializing things as sequences of matrices and vectots
+        // we flatten them into one single long vectors. Here we are setting
+        // the last element of each vector to a dummy value just to make the
+        // json library allocate all the memory required to store these
+        // vectors. These dummy values
         j["matrices"][num_els_per_mat * this->res - 1] = 11111111111111;
         j["S0s"][num_verts * this->res - 1] = 11111111111111;
+
         for (int samp = 0; samp < this->res; samp++) {
-            //mats[samp] = vector<double> (num_verts * num_verts);
-            //derivs[samp] = vector<double> (num_verts * num_verts);
             for (int row = 0; row < num_verts; row++) {
-                //derivs[samp][row] = this->initial_latent_state_collection[samp](row * 2 + 1);
-                //derivs[samp * num_verts + row] = this->initial_latent_state_collection[samp](row * 2 + 1);
                 j["S0s"][samp * num_verts + row] = this->initial_latent_state_collection[samp](row * 2 + 1);
 
                 for (int col = 0; col < num_verts; col++) {
-                    //mats[samp][row * num_verts + col] = this->transition_matrix_collection[samp](row * 2, col * 2 + 1);
-                    //mats[samp * num_els_per_mat + row * num_verts + col] = this->transition_matrix_collection[samp](row * 2, col * 2 + 1);
                     j["matrices"][samp * num_els_per_mat + row * num_verts + col] = this->transition_matrix_collection[samp](row * 2, col * 2 + 1);
                 }
             }
         }
-
-        //j["matrices"] = mats;
-        // = derivs;
     }
 
     cout << j.dump(4) << endl;
