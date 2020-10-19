@@ -86,21 +86,6 @@ typedef std::tuple<std::pair<std::pair<int, int>, std::pair<int, int>>,
 typedef std::unordered_map<int, std::vector<std::tuple<std::string,
         std::string, double>>> ConstraintSchedule;
 
-// Access
-// get<0>:
-//      Prediction start time (startTime)
-// get<1>:
-//      prediction end time (endTime)
-// get<2>:
-//      Prediction time steps (numTimesteps)
-// get<3>:
-//      Prediction results
-//      [ sample ][ time_step ]{ vertex_name --> { indicator_name --> pred}}
-//      [ sample ][ time_step ][ vertex_name ][ indicator_name ]
-//typedef std::tuple<long, long, int, FormattedPredictionResult>
-typedef std::tuple<long, long, int, FormattedProjectionResult>
-    CausemosProjectionExperimentResult;
-
 typedef boost::graph_traits<DiGraph>::edge_descriptor EdgeDescriptor;
 typedef boost::graph_traits<DiGraph>::edge_iterator EdgeIterator;
 
