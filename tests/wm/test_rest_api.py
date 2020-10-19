@@ -45,10 +45,11 @@ def test_createModel_and_createExperiment(client):
     experiment_id = rv.get_json()["experimentId"]
     status = "in progress"
 
-    while status != "completed":
+    while status == "in progress":
         time.sleep(1)
         rv = client.get(f"/delphi/models/{model_id}/experiments/{experiment_id}")
         status = rv.get_json()["status"]
+        print(status)
 
     # Test createExperiment for a second time
     # This time model should not get trained since the trained model should
@@ -57,9 +58,10 @@ def test_createModel_and_createExperiment(client):
     experiment_id = rv.get_json()["experimentId"]
     status = "in progress"
 
-    while status != "completed":
+    while status == "in progress":
         time.sleep(1)
         rv = client.get(f"/delphi/models/{model_id}/experiments/{experiment_id}")
         status = rv.get_json()["status"]
+        print(status)
 
     assert True

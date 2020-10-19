@@ -60,22 +60,36 @@ def createNewModel():
 
 @bp.route("/delphi/models/<string:modelID>/experiments", methods=["POST"])
 def createCausemosExperiment(modelID):
-    model = DelphiModel.query.filter_by(id=modelID).first().model
-    trained = json.loads(model)["trained"]
-    G = AnalysisGraph.deserialize_from_json_string(model, verbose=False)
     request_body = request.get_json()
+
     experiment_type = request_body["experimentType"]
+    startTime = request_body["experimentParam"]["startTime"]
+    endTime = request_body["experimentParam"]["endTime"]
+    numTimesteps = request_body["experimentParam"]["numTimesteps"]
+
     experiment_id = str(uuid4())
+
+    query_result = DelphiModel.query.filter_by(id=modelID).first()
+
+    if query_result:
+        status = "in progress"
+        model = query_result.model
+        trained = json.loads(model)["trained"]
+        G = AnalysisGraph.deserialize_from_json_string(model, verbose=False)
+    else:
+        # Model ID not in database. Should be an incorrect model ID
+        status = "failed"
 
     result = CauseMosAsyncExperimentResult(
         id=experiment_id,
         baseType="CauseMosAsyncExperimentResult",
         experimentType=experiment_type,
-        status = "in progress",
+        status=status,
     )
 
     db.session.add(result)
     db.session.commit()
+
     def runExperiment():
         if experiment_type == "PROJECTION":
             causemos_experiment_result = G.run_causemos_projection_experiment(
@@ -92,9 +106,6 @@ def createCausemosExperiment(modelID):
         result = CauseMosAsyncExperimentResult.query.filter_by(
             id=experiment_id
         ).first()
-        startTime = causemos_experiment_result[0]
-        endTime = causemos_experiment_result[1]
-        numTimesteps = causemos_experiment_result[2]
 
         # A rudimentary test to see if the projection failed. We check whether
         # the number time steps is equal to the number of elements in the first
@@ -158,7 +169,8 @@ def createCausemosExperiment(modelID):
         db.session.add(result)
         db.session.commit()
 
-    executor.submit_stored(experiment_id, runExperiment)
+    if query_result:
+        executor.submit_stored(experiment_id, runExperiment)
 
     return jsonify({"experimentId": experiment_id})
 
