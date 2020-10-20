@@ -57,29 +57,23 @@ def createNewModel():
     response = G.generate_create_model_response()
     return jsonify(response)
 
-
-def runExperiment(request, model, modelID, experiment_id):
+def runProjectionExperiment(request, modelID, experiment_id, G, trained):
     request_body = request.get_json()
 
-    experiment_type = request_body["experimentType"]
     startTime = request_body["experimentParam"]["startTime"]
     endTime = request_body["experimentParam"]["endTime"]
     numTimesteps = request_body["experimentParam"]["numTimesteps"]
 
-    trained = json.loads(model)["trained"]
-    G = AnalysisGraph.deserialize_from_json_string(model, verbose=False)
+    causemos_experiment_result = G.run_causemos_projection_experiment(
+        request.data
+    )
 
-    if experiment_type == "PROJECTION":
-        causemos_experiment_result = G.run_causemos_projection_experiment(
-            request.data
+    if(not trained):
+        model = DelphiModel(
+            id=modelID, model=G.serialize_to_json_string(verbose=False)
         )
-
-        if(not trained):
-            model = DelphiModel(
-                id=modelID, model=G.serialize_to_json_string(verbose=False)
-            )
-            db.session.merge(model)
-            db.session.commit()
+        db.session.merge(model)
+        db.session.commit()
 
     result = CauseMosAsyncExperimentResult.query.filter_by(
         id=experiment_id
@@ -147,6 +141,32 @@ def runExperiment(request, model, modelID, experiment_id):
     db.session.add(result)
     db.session.commit()
 
+def runExperiment(request, model, modelID, experiment_id):
+    request_body = request.get_json()
+
+    experiment_type = request_body["experimentType"]
+
+    trained = json.loads(model)["trained"]
+    G = AnalysisGraph.deserialize_from_json_string(model, verbose=False)
+
+    if experiment_type == "PROJECTION":
+        runProjectionExperiment(request, modelID, experiment_id, G, trained)
+    elif experiment_type == "GOAL_OPTIMIZATION":
+        # Not yet implemented
+        pass
+    elif experiment_type == "SENSITIVITY_ANALYSIS":
+        # Not yet implemented
+        pass
+    elif experiment_type == "MODEL_VALIDATION":
+        # Not yet implemented
+        pass
+    elif experiment_type == "BACKCASTING":
+        # Not yet implemented
+        pass
+    else:
+        # Unknown experiment type
+        pass
+
 @bp.route("/delphi/models/<string:modelID>/experiments", methods=["POST"])
 def createCausemosExperiment(modelID):
     request_body = request.get_json()
@@ -184,6 +204,13 @@ def createCausemosExperiment(modelID):
 )
 def getExperimentResults(modelID: str, experimentID: str):
     """ Fetch experiment results"""
+    # NOTE: I saw some weird behavior when we request results for an invalid
+    # experiment ID just after running an experiment. The trained model seemed
+    # to be not saved to the database. The model got re-trained from scratch
+    # on a subsequent experiment after the initial experiment and the invalid
+    # experiment result request. When I added a sleep between the initial
+    # create experiment and the invalid result request this re-training did not
+    # occur.
     result = CauseMosAsyncExperimentResult.query.filter_by(
         id=experimentID
     ).first()
