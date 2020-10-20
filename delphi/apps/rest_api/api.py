@@ -84,7 +84,6 @@ def runProjectionExperiment(request, modelID, experiment_id, G, trained):
     # concept's time series.
     if len(list(causemos_experiment_result.values())[0]) < numTimesteps:
         result.status = "failed"
-        result.results = {}
     else:
         result.status = "completed"
 
@@ -141,11 +140,23 @@ def runProjectionExperiment(request, modelID, experiment_id, G, trained):
     db.session.merge(result)
     db.session.commit()
 
-def runExperiment(request, model, modelID, experiment_id):
+def runExperiment(request, modelID, experiment_id):
     request_body = request.get_json()
-
     experiment_type = request_body["experimentType"]
 
+    query_result = DelphiModel.query.filter_by(id=modelID).first()
+
+    if not query_result:
+        # Model ID not in database. Should be an incorrect model ID
+        result = CauseMosAsyncExperimentResult.query.filter_by(
+            id=experiment_id
+        ).first()
+        result.status = "failed"
+        db.session.merge(result)
+        db.session.commit()
+        return
+
+    model = query_result.model
     trained = json.loads(model)["trained"]
     G = AnalysisGraph.deserialize_from_json_string(model, verbose=False)
 
@@ -173,27 +184,18 @@ def createCausemosExperiment(modelID):
     experiment_type = request_body["experimentType"]
     experiment_id = str(uuid4())
 
-    query_result = DelphiModel.query.filter_by(id=modelID).first()
-
-    if query_result:
-        status = "in progress"
-        model = query_result.model
-    else:
-        # Model ID not in database. Should be an incorrect model ID
-        status = "failed"
-
     result = CauseMosAsyncExperimentResult(
         id=experiment_id,
         baseType="CauseMosAsyncExperimentResult",
         experimentType=experiment_type,
-        status=status,
+        status="in progress",
+        results = {}
     )
 
     db.session.add(result)
     db.session.commit()
 
-    if query_result:
-        executor.submit_stored(experiment_id, runExperiment, request, model, modelID, experiment_id)
+    executor.submit_stored(experiment_id, runExperiment, request, modelID, experiment_id)
 
     return jsonify({"experimentId": experiment_id})
 
