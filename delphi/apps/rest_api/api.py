@@ -138,7 +138,7 @@ def runProjectionExperiment(request, modelID, experiment_id, G, trained):
                 )
             result.results["data"].append(data_dict)
 
-    db.session.add(result)
+    db.session.merge(result)
     db.session.commit()
 
 def runExperiment(request, model, modelID, experiment_id):

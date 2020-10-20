@@ -42,13 +42,13 @@ def test_createModel_and_createExperiment(client):
         data = json.load(f)
     model_id = "XYZ"
     rv = client.post(f"/delphi/models/{model_id}/experiments", json=data)
-    experiment_id = rv.get_json()["experimentId"]
+    experiment_id1 = rv.get_json()["experimentId"]
     status = "in progress"
 
     while status == "in progress":
         time.sleep(1)
-        rv = client.get(f"/delphi/models/{model_id}/experiments/{experiment_id}")
-        status = rv.get_json()["status"]
+        rv11 = client.get(f"/delphi/models/{model_id}/experiments/{experiment_id1}")
+        status = rv11.get_json()["status"]
         print(status)
 
     time.sleep(1)
@@ -56,13 +56,21 @@ def test_createModel_and_createExperiment(client):
     # This time model should not get trained since the trained model should
     # have been stored in the database the first time createExpetiment called
     rv = client.post(f"/delphi/models/{model_id}/experiments", json=data)
-    experiment_id = rv.get_json()["experimentId"]
+    experiment_id2 = rv.get_json()["experimentId"]
     status = "in progress"
 
     while status == "in progress":
         time.sleep(1)
-        rv = client.get(f"/delphi/models/{model_id}/experiments/{experiment_id}")
+        rv = client.get(f"/delphi/models/{model_id}/experiments/{experiment_id2}")
         status = rv.get_json()["status"]
         print(status)
+
+    # Request results for a previous experiment. The results we got earlier and
+    # the results we are getting now must be identical.
+    rv12 = client.get(f"/delphi/models/{model_id}/experiments/{experiment_id1}")
+    status = rv12.get_json()["status"]
+    print(status)
+
+    assert rv11.get_json() == rv12.get_json()
 
     assert True
