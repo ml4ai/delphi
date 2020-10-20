@@ -51,6 +51,7 @@ def test_createModel_and_createExperiment(client):
         status = rv.get_json()["status"]
         print(status)
 
+    time.sleep(1)
     # Test createExperiment for a second time
     # This time model should not get trained since the trained model should
     # have been stored in the database the first time createExpetiment called
