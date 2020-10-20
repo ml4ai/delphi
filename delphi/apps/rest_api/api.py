@@ -18,6 +18,7 @@ from delphi.db import engine
 from delphi.apps.rest_api import db, executor
 from delphi.apps.rest_api.models import *
 from flask import current_app
+import time
 
 bp = Blueprint("rest_api", __name__)
 
@@ -56,7 +57,11 @@ def createNewModel():
     db.session.commit()
     # edge_weights = G.get_edge_weights_for_causemos_viz()
     # return jsonify({"status": "success", "relations": edge_weights})
+
+    start = time.time()
     response = G.generate_create_model_response()
+    end = time.time()
+    print('\t[api.py][createNewModel] Time generate_create_model_response : {} sec'.format(end - start) )
     return jsonify(response)
 
 
@@ -80,9 +85,12 @@ def createCausemosExperiment(modelID):
     db.session.commit()
     def runExperiment():
         if experiment_type == "PROJECTION":
+            start = time.time()
             causemos_experiment_result = G.run_causemos_projection_experiment(
                 request.data
             )
+            end = time.time()
+            print('\t[api.py][createCausemosExperiment] Time run_causemos_projection_experiment : {} sec'.format(end - start) )
 
 
         result = CauseMosAsyncExperimentResult.query.filter_by(

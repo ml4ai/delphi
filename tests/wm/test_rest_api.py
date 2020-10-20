@@ -28,13 +28,18 @@ def client(app):
 
 def test_createModel_and_createExperiment(client):
     # test_createModel
+    print('\n[test_rest_api.py] Benchmarking ')
+    start = time.time()
     with open(
         "tests/data/delphi/causemos_create-model.json", encoding="utf-8"
     ) as f:
         data = json.load(f)
     rv = client.post(f"/delphi/create-model", json=data)
+    end = time.time()
+    print('\t[test_rest_api.py] Time CreateModel : {} sec'.format(end - start) )
 
     # Test createExperiment
+    start = time.time()
     with open(
         "tests/data/delphi/causemos_experiments_projection_input.json",
         encoding="utf-8",
@@ -44,10 +49,17 @@ def test_createModel_and_createExperiment(client):
     rv = client.post(f"/delphi/models/{model_id}/experiments", json=data)
     experiment_id = rv.get_json()["experimentId"]
     status = "in progress"
+    end = time.time()
+    print('\t[test_rest_api.py] Time Create Experiment : {} sec'.format(end - start) )
 
+    start = time.time()
     while status != "completed":
         time.sleep(1)
         rv = client.get(f"/delphi/models/{model_id}/experiments/{experiment_id}")
         status = rv.get_json()["status"]
+    end = time.time()
+    print('\t[test_rest_api.py] Time Get Experiment : {} sec'.format(end - start) )
+
+
 
     assert True

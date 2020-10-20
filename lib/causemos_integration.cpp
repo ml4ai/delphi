@@ -726,8 +726,11 @@ AnalysisGraph::run_causemos_projection_experiment(std::string json_string) {
     int train_end_year = this->training_range.second.first;
     int train_end_month = this->training_range.second.second;
 
+    time_t start = time(0);
     this->train_model(train_start_year, train_start_month,
                             train_end_year, train_end_month);
+    time_t end = time(0);
+    cout << "\n\t[test_rest_api.py->causemos_integration.cpp][run_causemos_projection_experiment] Time train_model : " << end - start << " sec" << endl;
 
     // NOTE: At the moment we are assuming that delta_t for prediction is also
     // 1. This is an effort to do otherwise which might make things better in
@@ -738,13 +741,18 @@ AnalysisGraph::run_causemos_projection_experiment(std::string json_string) {
     //                                                     end_year_given,
     //                                                     end_month_given,
     //                                                     num_timesteps);
-
+    start = time(0);
     this->extract_projection_constraints(projection_parameters["constraints"]);
+    end = time(0);
+    cout << "\n\t[test_rest_api.py->causemos_integration.cpp][run_causemos_projection_experiment] Time extract_projection_constraints : " << end - start << " sec" << endl;
 
+    start = time(0);
     Prediction pred = this->generate_prediction(proj_start_year,
                                                 proj_start_month,
                                                 proj_end_year_calculated,
                                                 proj_end_month_calculated);
+    end = time(0);
+    cout << "\n\t[test_rest_api.py->causemos_integration.cpp][run_causemos_projection_experiment] Time generate_prediction : " << end - start << " sec" << endl;
 
     CausemosProjectionExperimentResult result = make_tuple(proj_start_timestamp,
                                                          proj_end_timestamp,

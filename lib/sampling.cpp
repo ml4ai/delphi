@@ -132,10 +132,20 @@ void AnalysisGraph::set_current_latent_state(int ts) {
 
 void AnalysisGraph::sample_from_posterior() {
   // Sample a new transition matrix from the proposal distribution
+  bool benchmark = FALSE;
+  time_t start, end;
+  if (benchmark) start = time(0);
   this->sample_from_proposal();
+  if (benchmark) end = time(0);
+  if (benchmark) cout << "\n\t[train_model.cpp->sampling.cpp][sample_from_posterior] Time sample_from_proposal : " << end - start << " sec" << endl;
 
+  if (benchmark) start = time(0);
   double delta_log_prior = this->calculate_delta_log_prior();
+  if (benchmark)end = time(0);
+  if (benchmark) cout << "\n\t[train_model.cpp->sampling.cpp][sample_from_posterior] Time calculate_delta_log_prior : " << end - start << " sec" << endl;
 
+
+  if (benchmark)start = time(0);
   this->set_log_likelihood();
   double delta_log_likelihood =
       this->log_likelihood - this->previous_log_likelihood;
@@ -148,6 +158,9 @@ void AnalysisGraph::sample_from_posterior() {
     // Reject the sample
     this->revert_back_to_previous_state();
   }
+  if (benchmark) end = time(0);
+  if (benchmark) cout << "\n\t[train_model.cpp->sampling.cpp][sample_from_posterior] Time rest function : " << end - start << " sec" << endl;
+
 }
 
 void AnalysisGraph::sample_from_proposal() {

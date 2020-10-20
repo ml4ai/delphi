@@ -36,21 +36,28 @@ void AnalysisGraph::train_model(int start_year,
           // defined in causemos_integration.cpp
           this->set_observed_state_sequence_from_data(country, state, county);
       }
-
+      time_t start = time(0);
       this->initialize_parameters(res, initial_beta, use_heuristic, use_continuous);
+      time_t end = time(0);
+      cout << "\n\t[causemos_integration.cpp->train_model.cpp][train_model] Time initialize_parameters : " << end - start << " sec" << endl;
 
       cout << "Burning in..." << endl;
+      start = time(0);
       for (int i : trange(burn)) {
           this->sample_from_posterior();
       }
+      end = time(0);
+      cout << "\n\t[causemos_integration.cpp->train_model.cpp][train_model] Time sample_from_posterior : " << end - start << " sec" << endl;
 
       cout << "Sampling from posterior" << endl;
+      start = time(0);
       for (int i : trange(this->res)) {
           this->sample_from_posterior();
           this->transition_matrix_collection[i] = this->A_original;
           this->initial_latent_state_collection[i] = this->s0;
       }
-
+      end = time(0);
+      cout << "\n\t[causemos_integration.cpp->train_model.cpp][train_model] Time sample_from_posterior : " << end - start << " sec" << endl;
       this->trained = true;
       RNG::release_instance();
   }
