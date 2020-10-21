@@ -652,15 +652,14 @@ string AnalysisGraph::generate_create_model_response() {
                        create-experiment (public)
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-CausemosProjectionExperimentResult
+FormattedProjectionResult
 AnalysisGraph::run_causemos_projection_experiment(std::string json_string) {
     using namespace fmt::literals;
     using nlohmann::json;
 
     // Just a dummy empty prediction to signal that there is an error in
     // projection parameters.
-    CausemosProjectionExperimentResult null_prediction =
-                                        CausemosProjectionExperimentResult();
+    FormattedProjectionResult null_prediction = FormattedProjectionResult();
 
     // During the create-model call we called construct_theta_pdfs() and
     // serialized them to json. When we recreate the model we load them. So to
@@ -726,8 +725,10 @@ AnalysisGraph::run_causemos_projection_experiment(std::string json_string) {
     int train_end_year = this->training_range.second.first;
     int train_end_month = this->training_range.second.second;
 
-    this->train_model(train_start_year, train_start_month,
-                            train_end_year, train_end_month);
+    if (!this->trained) {
+        this->train_model(train_start_year, train_start_month,
+                                train_end_year, train_end_month);
+    }
 
     // NOTE: At the moment we are assuming that delta_t for prediction is also
     // 1. This is an effort to do otherwise which might make things better in
@@ -746,9 +747,5 @@ AnalysisGraph::run_causemos_projection_experiment(std::string json_string) {
                                                 proj_end_year_calculated,
                                                 proj_end_month_calculated);
 
-    CausemosProjectionExperimentResult result = make_tuple(proj_start_timestamp,
-                                                         proj_end_timestamp,
-                                                         proj_num_timesteps,
-                                                         this->format_projection_result());
-    return result;
+    return this->format_projection_result();
 }

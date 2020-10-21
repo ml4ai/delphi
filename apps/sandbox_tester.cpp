@@ -15,7 +15,9 @@ int main(int argc, char* argv[]) {
     using namespace boost::program_options;
     using fmt::print;
 
-    AnalysisGraph G = AnalysisGraph::from_causemos_json_file("../tests/data/delphi_create_model_payload.json", 5);
+    //AnalysisGraph G = AnalysisGraph::from_causemos_json_file("../tests/data/delphi_create_model_payload.json", 4);
+    AnalysisGraph G = AnalysisGraph::from_causemos_json_file("../tests/data/delphi/causemos_create-model.json", 4);
+    G.train_model(2020, 1, 2020, 12);
 
     // Serialize the model
     string json_compact = G.serialize_to_json_string(false);
@@ -26,6 +28,7 @@ int main(int argc, char* argv[]) {
 
     // Serialize these models again.
     string json_compact_2 = G_from_compact.serialize_to_json_string(false);
+    G_from_compact.train_model(2020, 1, 2020, 12);
 
     // Let's check whether they agree.
     // NOTE: It seems they do not agree. This needs to be fixed

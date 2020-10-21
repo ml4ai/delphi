@@ -128,8 +128,47 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
 
   this->observed_state_sequence =
       json_data["observations"].get<ObservedStateSequence>();
-}
 
+    if(json_data["trained"].is_null()) {
+        this->trained = false;
+    } else {
+        this->trained = json_data["trained"];
+    }
+
+    if (this->trained) {
+        this->res = json_data["res"];
+        this->continuous = json_data["continuous"];
+        this->data_heuristic = json_data["data_heuristic"];
+        this->causemos_call = json_data["causemos_call"];
+
+        int num_verts = this->num_vertices();
+        int num_els_per_mat = num_verts * num_verts;
+
+        this->transition_matrix_collection.clear();
+        this->initial_latent_state_collection.clear();
+
+        this->transition_matrix_collection = vector<Eigen::MatrixXd>(this->res);
+        this->initial_latent_state_collection = vector<Eigen::VectorXd>(this->res);
+
+        for (int samp = 0; samp < this->res; samp++) {
+            this->set_default_initial_state();
+            this->set_base_transition_matrix();
+
+            for (int row = 0; row < num_verts; row++) {
+                this->s0(row * 2 + 1) = json_data["S0s"][samp * num_verts + row];
+                //json_data["S0s"][samp * num_verts + row] = this->initial_latent_state_collection[samp](row * 2 + 1);
+
+                for (int col = 0; col < num_verts; col++) {
+                    this->A_original(row * 2, col * 2 + 1) = json_data["matrices"][samp * num_els_per_mat + row * num_verts + col]; 
+                    //json_data["matrices"][samp * num_els_per_mat + row * num_verts + col] = this->transition_matrix_collection[samp](row * 2, col * 2 + 1);
+                }
+            }
+            this->initial_latent_state_collection[samp] = this->s0;
+            this->transition_matrix_collection[samp] = this->A_original;
+        }
+    }
+
+}
 /*
  ============================================================================
  Public: Model serialization

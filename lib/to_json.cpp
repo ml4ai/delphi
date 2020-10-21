@@ -174,33 +174,49 @@ string AnalysisGraph::serialize_to_json_string(bool verbose) {
     }
 
     // This contains all the observations. Indexing goes by
-    // [ timestep ][ concept ][ indicator ][ observaton ]
+    // [ timestep ][ concept ][ indicator ][ observation ]
     // Concept and indicator indexes are according to the concept and indicator
     // ids mentioned above.
     j["observations"] = this->observed_state_sequence;
 
-    /*
-    //cout << j.dump(4) << endl;
-    //
-    // NOTE: Just to guide Aishwarya. Delete Later.
-    // How to access edges and evidence for deserialization.
-    nlohmann::json json_data = nlohmann::json::parse(j.dump());
-    auto edges = json_data["edges"];
-    for (auto edg : edges) {
-        int source = edg["source"].get<int>();
-        int target = edg["target"].get<int>();
-        print("{0} --> {1}\n", source, target);
+    j["trained"] = this->trained;
 
-        for (CausalFragment cf: edg["evidence"]) {
-            //this->add_edge(cf);
-            //Let's print the values just to see things are working properly
-            print("subject: {0}, {1}, {2}\nobject: {3}, {4}, {5}\n\n", get<0>(cf.first), get<1>(cf.first), get<2>(cf.first), get<0>(cf.second), get<1>(cf.second), get<2>(cf.second));
+    if (this->trained) {
+        // Serialize the sampled transition matrices and initial latent states
+        // along with on the parameters related to training.
+        // For transition matrices, we only need to serialize odd column
+        // positions on even rows (even, odd) as all the other positions remain
+        // constant.
+        // For initial letter states, we only need to serialize odd positions
+        // as those are the sampled derivatives. All the even positions stay
+        // constant at 1.
+
+        j["res"] = this->res;
+        j["continuous"] = this->continuous;
+        j["data_heuristic"] = this->data_heuristic;
+        j["causemos_call"] = this->causemos_call;
+
+        int num_verts = this->num_vertices();
+        int num_els_per_mat = num_verts * num_verts;
+
+        // Instead of serializing things as sequences of matrices and vectors
+        // we flatten them into one single long vectors. Here we are setting
+        // the last element of each vector to a dummy value just to make the
+        // json library allocate all the memory required to store these
+        // vectors. These dummy values get overwritten with actual data.
+        j["matrices"][num_els_per_mat * this->res - 1] = 11111111111111;
+        j["S0s"][num_verts * this->res - 1] = 11111111111111;
+
+        for (int samp = 0; samp < this->res; samp++) {
+            for (int row = 0; row < num_verts; row++) {
+                j["S0s"][samp * num_verts + row] = this->initial_latent_state_collection[samp](row * 2 + 1);
+
+                for (int col = 0; col < num_verts; col++) {
+                    j["matrices"][samp * num_els_per_mat + row * num_verts + col] = this->transition_matrix_collection[samp](row * 2, col * 2 + 1);
+                }
+            }
         }
     }
-    // Accessing a single CausalFragment
-    CausalFragment cf = edges[0]["evidence"][0];
-    print("{0}, {1}, {2}\n", get<0>(cf.first), get<1>(cf.first), get<2>(cf.first));
-    */
 
     return j.dump(4);
 }

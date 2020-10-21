@@ -26,6 +26,7 @@ void AnalysisGraph::generate_latent_state_sequences(
       this->res,
       vector<VectorXd>(this->pred_timesteps, VectorXd(this->num_vertices() * 2)));
 
+  cout << "\nPredicting for " << this->pred_timesteps << " time steps..." << endl;
   for (int samp : tq::trange(this->res)) {
       // The sampled transition matrices would be either of matrix exponential
       // (continuous) version or discretized version depending on whether the
@@ -54,7 +55,6 @@ void AnalysisGraph::generate_latent_state_sequences(
           // By default we are using Δt = 1
           // A = e^{Ac * Δt)
           A = (this->transition_matrix_collection[samp] * this->delta_t).exp();
-
       } else {
           // Here A = Ad = this->transition_matrix_collection[samp] (discrete)
           // This is the discrete transition matrix to take a single step of
