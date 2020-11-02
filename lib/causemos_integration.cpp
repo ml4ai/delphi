@@ -611,40 +611,23 @@ string AnalysisGraph::generate_create_model_response() {
     j["status"] = "success";
     j["relations"] = {};
     j["conceptIndicators"] = {};
-
     vector<double> all_weights = {};
 
     for (auto e : this->edges()) {
-
-        // TODO: This variable is not used
-        vector<double> sampled_thetas = this->edge(e).kde.resample(
-                this->res, this->rand_num_generator, this->uni_dist, this->norm_dist);
-        double weight = abs(median(this->edge(e).kde.dataset));
-        all_weights.push_back(weight);
-
         json edge_json = {{"source", this->source(e).name},
                           {"target", this->target(e).name},
-                          {"weight", weight}};
+                          {"weight", 0.5}};
 
         j["relations"].push_back(edge_json);
     }
 
-    double max_weight = max(all_weights);
-
-    // Divide the weights by the max weight so they all lie between 0-1
-    for (auto& relation : j["relations"]) {
-        relation["weight"] = relation["weight"].get<double>() / max_weight;
-    }
-
     int num_verts = this->num_vertices();
-
     for (int v = 0; v < num_verts; v++) {
         Node& n = (*this)[v];
         j["conceptIndicators"][n.name] = {{"initialValue", nullptr},
                                           {"scalingFactor", nullptr},
                                           {"scalingBias", nullptr}};
     }
-
     return j.dump();
 }
 

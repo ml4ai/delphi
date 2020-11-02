@@ -47,14 +47,13 @@ def createNewModel():
         # TODO - we might want to set the default sampling resolution with some
         # kind of heuristic, based on the number of nodes and edges. - Adarsh
         res = 1000
-
     G = AnalysisGraph.from_causemos_json_string(request.data, res)
     model = DelphiModel(
         id=data["id"], model=G.serialize_to_json_string(verbose=False)
     )
     db.session.merge(model)
     db.session.commit()
-    response = G.generate_create_model_response()
+    response =  json.loads(G.generate_create_model_response())
     return jsonify(response)
 
 def runProjectionExperiment(request, modelID, experiment_id, G, trained):
