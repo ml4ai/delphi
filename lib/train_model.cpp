@@ -19,6 +19,7 @@ void AnalysisGraph::train_model(int start_year,
                                 InitialBeta initial_beta,
                                 bool use_heuristic,
                                 bool use_continuous) {
+  this->version += 1;
 
   this->training_range = make_pair(make_pair(start_year, start_month),
                                    make_pair(  end_year,   end_month));

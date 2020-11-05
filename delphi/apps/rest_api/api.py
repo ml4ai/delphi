@@ -81,7 +81,7 @@ def runProjectionExperiment(request, modelID, experiment_id, G, trained):
     # A rudimentary test to see if the projection failed. We check whether
     # the number time steps is equal to the number of elements in the first
     # concept's time series.
-    if len(list(causemos_experiment_result.values())[0]) < numTimesteps:
+    if causemos_experiment_result[3] == None or len(list(causemos_experiment_result.values())[0]) < numTimesteps:
         result.status = "failed"
     else:
         result.status = "completed"

@@ -927,6 +927,7 @@ class AnalysisGraph {
   ~AnalysisGraph() {}
 
   std::string id;
+  unsigned int version;
   std::string to_json_string(int indent = 0);
   bool data_heuristic = false;
 

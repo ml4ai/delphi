@@ -495,6 +495,7 @@ void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data) {
   // which could lead to future bugs that are hard to debug.
   if (json_data["id"].is_null()){return;}
   this->id = json_data["id"].get<string>();
+  this->version = 1;
 
   auto statements = json_data["statements"];
 
@@ -708,11 +709,16 @@ AnalysisGraph::run_causemos_projection_experiment(std::string json_string) {
     int train_end_year = this->training_range.second.first;
     int train_end_month = this->training_range.second.second;
 
+    unsigned int old_version = this-> version;
     if (!this->trained) {
         this->train_model(train_start_year, train_start_month,
                                 train_end_year, train_end_month);
     }
+    unsigned int new_version = this-> version;
 
+    if (old_version+1 != new_version){
+        return NULL;  
+    }
     // NOTE: At the moment we are assuming that delta_t for prediction is also
     // 1. This is an effort to do otherwise which might make things better in
     // the long run. This is commented because, we have to check whether this
@@ -722,13 +728,10 @@ AnalysisGraph::run_causemos_projection_experiment(std::string json_string) {
     //                                                     end_year_given,
     //                                                     end_month_given,
     //                                                     num_timesteps);
-
     this->extract_projection_constraints(projection_parameters["constraints"]);
-
     Prediction pred = this->generate_prediction(proj_start_year,
                                                 proj_start_month,
                                                 proj_end_year_calculated,
                                                 proj_end_month_calculated);
-
     return this->format_projection_result();
 }
