@@ -1,0 +1,853 @@
+{
+  "file_to_mod": {
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/ORIG-PETASCE.for": [
+      "osdefinitions",
+      "moduledefs",
+      "moduledata",
+      "procedure",
+      "procedure",
+      "headermod",
+      "floodmodule",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/SIR-Gillespie-SD_module.f": [
+      "update_mvar",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/SIR-Gillespie-SD_multi_module.f": [
+      "update_mvar",
+      "mod_gillespie",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/PETASCE_markedup.for": [
+      "petasce_init",
+      "mod_evapotransp",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/interface/interface_03.f": [
+      "interface03_mod",
+      "procedure",
+      "procedure",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/interface/interface_02.f": [
+      "testmodule02",
+      "procedure",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/interface/interface_01.f": [
+      "mymod",
+      "procedure",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/DSSAT/CSM/OPHEAD.for": [
+      "headermod",
+      1584459137
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/DSSAT/CSM/SC_CNG_mods.for": [
+      "cng_moduledefs",
+      1584459137
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/DSSAT/CSM/ModuleDefs.for": [
+      "moduledefs",
+      "floodmodule",
+      "moduledata",
+      "procedure",
+      "procedure",
+      1584459137
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/DSSAT/CSM/CSMVersion.for": [
+      "csmversion",
+      1584459137
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/DSSAT/CSM/N2O_mod.for": [
+      "n2o_mod",
+      1584459137
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/DSSAT/CSM/SoilPBalSum.for": [
+      "interface_soilpbalsum",
+      1584459137
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/DSSAT/CSM/IPSOIL.for": [
+      "interface_ipsoil",
+      1584459137
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/DSSAT/CSM/OPSUM.for": [
+      "summodule",
+      1584459137
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/DSSAT/CSM/SLigCeres.for": [
+      "interface_senlig_ceres",
+      1584459137
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/DSSAT/CSM/SoilNBalSum.for": [
+      "interface_soilnbalsum",
+      1584459137
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/DSSAT/CSM/SoilMixing.for": [
+      "modsoilmix",
+      "procedure",
+      1584459137
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/DSSAT/CSM/OSDefinitions.for": [
+      "osdefinitions",
+      1584459137
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/derived-types/interface-01.f": [
+      "mymod",
+      "procedure",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET-01/ModuleDefs.for": [
+      "moduledefs",
+      "floodmodule",
+      "moduledata",
+      "procedure",
+      "procedure",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET-01/CSMVersion.for": [
+      "csmversion",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET-01/OSDefinitions.for": [
+      "osdefinitions",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/mfmm_01/ModuleDefs.for": [
+      "moduledefs",
+      "floodmodule",
+      "moduledata",
+      "procedure",
+      "procedure",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/mfmm_01/CSMVersion.for": [
+      "csmversion",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/mfmm_01/OSDefinitions.for": [
+      "osdefinitions",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET/OPHEAD.for": [
+      "headermod",
+      1584463407
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET/DATA_STMT_HACK.for": [
+      "data_stmt_hack",
+      1584463407
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET/ModuleDefs.for": [
+      "moduledefs",
+      "floodmodule",
+      "moduledata",
+      "procedure",
+      "procedure",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET/CSMVersion.for": [
+      "csmversion",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET/N2O_mod.for": [
+      "n2o_mod",
+      1584463407
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET/IPSOIL.for": [
+      "interface_ipsoil",
+      1584463407
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET/OPSUM.for": [
+      "summodule",
+      1584463407
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET/SoilNBalSum.for": [
+      "interface_soilnbalsum",
+      1584463407
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET/SoilMixing.for": [
+      "modsoilmix",
+      "procedure",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET/save-ModuleDefs.for": [
+      "moduledefs",
+      "floodmodule",
+      "moduledata",
+      "procedure",
+      "procedure",
+      1585073924
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET/OSDefinitions.for": [
+      "osdefinitions",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET-02/OPHEAD.for": [
+      "headermod",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET-02/ModuleDefs.for": [
+      "moduledefs",
+      "floodmodule",
+      "moduledata",
+      "procedure",
+      "procedure",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET-02/CSMVersion.for": [
+      "csmversion",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET-02/OSDefinitions.for": [
+      "osdefinitions",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/nested_module.f": [
+      "mymod3a",
+      "mymod4a",
+      "mymod5a",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/test_module_04.f": [
+      "mymod3a",
+      "mymod4a",
+      "mymod5a",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/test_module_10.f": [
+      "mymod10",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/test_module_03.f": [
+      "mymod3",
+      "mymod4",
+      "mymod5",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/test_module_09.f": [
+      "mymod9",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/test_module_07.f": [
+      "mymod7",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/PETASCE_01.for": [
+      "petasce_init",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/PETASCE_02.for": [
+      "petasce_init",
+      "mod_evapotransp",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/test_module_08.f": [
+      "mymod8",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/test_module_02.f": [
+      "mymod2",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/test_module_06.f": [
+      "mymod6",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/test_module_12.f": [
+      "mymod10",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/test_module_01.f": [
+      "mymod1",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/test_module_05.f": [
+      "mymod6",
+      1584459138
+    ],
+    "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/test_module_11.f": [
+      "mymod11a",
+      "mymod11b",
+      "mymod11c",
+      1584459138
+    ]
+  },
+  "mod_to_file": {
+    "osdefinitions": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET-02/OSDefinitions.for"
+    ],
+    "moduledefs": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET-02/ModuleDefs.for"
+    ],
+    "moduledata": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET-02/ModuleDefs.for"
+    ],
+    "procedure": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET-02/ModuleDefs.for"
+    ],
+    "headermod": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET-02/OPHEAD.for"
+    ],
+    "floodmodule": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET-02/ModuleDefs.for"
+    ],
+    "update_mvar": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/SIR-Gillespie-SD_multi_module.f"
+    ],
+    "mod_gillespie": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/SIR-Gillespie-SD_multi_module.f"
+    ],
+    "petasce_init": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/PETASCE_02.for"
+    ],
+    "mod_evapotransp": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/PETASCE_02.for"
+    ],
+    "interface03_mod": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/interface/interface_03.f"
+    ],
+    "testmodule02": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/interface/interface_02.f"
+    ],
+    "mymod": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/derived-types/interface-01.f"
+    ],
+    "cng_moduledefs": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/DSSAT/CSM/SC_CNG_mods.for"
+    ],
+    "csmversion": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET-02/CSMVersion.for"
+    ],
+    "n2o_mod": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET/N2O_mod.for"
+    ],
+    "interface_soilpbalsum": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/DSSAT/CSM/SoilPBalSum.for"
+    ],
+    "interface_ipsoil": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET/IPSOIL.for"
+    ],
+    "summodule": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET/OPSUM.for"
+    ],
+    "interface_senlig_ceres": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/DSSAT/CSM/SLigCeres.for"
+    ],
+    "interface_soilnbalsum": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET/SoilNBalSum.for"
+    ],
+    "modsoilmix": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET/SoilMixing.for"
+    ],
+    "data_stmt_hack": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/multifile_multimod/dssat-PET/DATA_STMT_HACK.for"
+    ],
+    "mymod3a": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/test_module_04.f"
+    ],
+    "mymod4a": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/test_module_04.f"
+    ],
+    "mymod5a": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/test_module_04.f"
+    ],
+    "mymod10": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/test_module_12.f"
+    ],
+    "mymod3": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/test_module_03.f"
+    ],
+    "mymod4": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/test_module_03.f"
+    ],
+    "mymod5": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/test_module_03.f"
+    ],
+    "mymod9": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/test_module_09.f"
+    ],
+    "mymod7": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/test_module_07.f"
+    ],
+    "mymod8": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/test_module_08.f"
+    ],
+    "mymod2": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/test_module_02.f"
+    ],
+    "mymod6": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/test_module_05.f"
+    ],
+    "mymod1": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/test_module_01.f"
+    ],
+    "mymod11a": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/test_module_11.f"
+    ],
+    "mymod11b": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/test_module_11.f"
+    ],
+    "mymod11c": [
+      "/Users/aishwaya/Desktop/delphi/delphi/tests/data/program_analysis/modules/test_module_11.f"
+    ]
+  },
+  "mod_info": {
+    "osdefinitions": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": []
+    },
+    "moduledefs": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": [
+        "controltype",
+        "switchtype",
+        "weathertype",
+        "soiltype",
+        "mulchtype",
+        "tilltype",
+        "oxlayertype",
+        "ferttype",
+        "residuetype",
+        "orgmatapptype",
+        "plstrestype",
+        ""
+      ]
+    },
+    "moduledata": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {
+        "get": {
+          "get_control": {
+            "control_arg": "controltype"
+          },
+          "get_iswitch": {
+            "iswitch_arg": "switchtype"
+          },
+          "get_output": {
+            "output_arg": "outputtype"
+          },
+          "get_soilprop": {
+            "soil_arg": "soiltype"
+          },
+          "get_real": {
+            "modulename": "character",
+            "varname": "character",
+            "value": "real"
+          },
+          "get_real_array_nl": {
+            "modulename": "character",
+            "varname": "character",
+            "value": "Array"
+          },
+          "get_integer": {
+            "modulename": "character",
+            "varname": "character",
+            "value": "integer"
+          },
+          "get_char": {
+            "modulename": "character",
+            "varname": "character",
+            "value": "character"
+          }
+        },
+        "put": {
+          "put_control": {
+            "control_arg": "controltype"
+          },
+          "put_iswitch": {
+            "iswitch_arg": "switchtype"
+          },
+          "put_output": {
+            "output_arg": "outputtype"
+          },
+          "put_soilprop": {
+            "soil_arg": "soiltype"
+          },
+          "put_real": {
+            "modulename": "character",
+            "varname": "character",
+            "value": "real"
+          },
+          "put_real_array_nl": {
+            "modulename": "character",
+            "varname": "character",
+            "value": "Array"
+          },
+          "put_integer": {
+            "modulename": "character",
+            "varname": "character",
+            "value": "integer"
+          },
+          "put_char": {
+            "modulename": "character",
+            "varname": "character",
+            "value": "character"
+          }
+        }
+      },
+      "derived_type_list": [
+        "spamtype",
+        "planttype",
+        "mgmttype",
+        "wattype",
+        "nitype",
+        "orgctype",
+        "weathtype",
+        "",
+        "transfertype"
+      ]
+    },
+    "procedure": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": []
+    },
+    "headermod": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": [
+        ""
+      ]
+    },
+    "floodmodule": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": [
+        "floodwattype",
+        "floodntype"
+      ]
+    },
+    "update_mvar": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": []
+    },
+    "mod_gillespie": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": []
+    },
+    "petasce_init": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": []
+    },
+    "mod_evapotransp": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": []
+    },
+    "interface03_mod": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {
+        "get": {
+          "get_control": {
+            "control_arg": "controltype"
+          },
+          "get_iswitch": {
+            "iswitch_arg": "switchtype"
+          }
+        },
+        "put": {
+          "put_control": {
+            "control_arg": "controltype"
+          },
+          "put_iswitch": {
+            "iswitch_arg": "switchtype"
+          }
+        }
+      },
+      "derived_type_list": [
+        "controltype",
+        "switchtype",
+        "transfertype"
+      ]
+    },
+    "testmodule02": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {
+        "get": {
+          "get_control": {
+            "control_arg": "controltype"
+          },
+          "get_iswitch": {
+            "iswitch_arg": "switchtype"
+          }
+        }
+      },
+      "derived_type_list": [
+        "controltype",
+        "switchtype",
+        "transfertype"
+      ]
+    },
+    "mymod": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {
+        "foo": {
+          "foo_int": {
+            "x": "integer",
+            "result": "integer"
+          },
+          "foo_real": {
+            "x": "real",
+            "result": "integer"
+          },
+          "foo_bool": {
+            "x": "logical",
+            "result": "integer"
+          }
+        }
+      },
+      "derived_type_list": []
+    },
+    "cng_moduledefs": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": []
+    },
+    "csmversion": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": []
+    },
+    "n2o_mod": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": [
+        "n2o_type"
+      ]
+    },
+    "interface_soilpbalsum": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {
+        "": {}
+      },
+      "derived_type_list": []
+    },
+    "interface_ipsoil": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {
+        "": {}
+      },
+      "derived_type_list": []
+    },
+    "summodule": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": [
+        "summarytype",
+        "evaluatetype"
+      ]
+    },
+    "interface_senlig_ceres": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {
+        "": {}
+      },
+      "derived_type_list": []
+    },
+    "interface_soilnbalsum": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {
+        "": {}
+      },
+      "derived_type_list": []
+    },
+    "modsoilmix": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {
+        "soilmix": {
+          "soilmix_1d": {
+            "var": "Array",
+            "dltvar": "Array",
+            "lb": "integer",
+            "dlayr": "Array",
+            "mixpct": "real",
+            "nlayr": "integer",
+            "tilldepth": "real"
+          },
+          "soilmix_2d": {
+            "var": "Array",
+            "dltvar": "Array",
+            "lb": "integer",
+            "ielem": "integer",
+            "dlayr": "Array",
+            "mixpct": "real",
+            "nlayr": "integer",
+            "tilldepth": "real"
+          }
+        }
+      },
+      "derived_type_list": []
+    },
+    "data_stmt_hack": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": []
+    },
+    "mymod3a": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": []
+    },
+    "mymod4a": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": []
+    },
+    "mymod5a": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": []
+    },
+    "mymod10": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": [
+        "mytype"
+      ]
+    },
+    "mymod3": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": []
+    },
+    "mymod4": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": []
+    },
+    "mymod5": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": []
+    },
+    "mymod9": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": []
+    },
+    "mymod7": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": []
+    },
+    "mymod8": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": []
+    },
+    "mymod2": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": []
+    },
+    "mymod6": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": []
+    },
+    "mymod1": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": []
+    },
+    "mymod11a": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": []
+    },
+    "mymod11b": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": []
+    },
+    "mymod11c": {
+      "exports": {},
+      "symbol_types": {},
+      "imports": {},
+      "interface_functions": {},
+      "derived_type_list": []
+    }
+  }
+}
