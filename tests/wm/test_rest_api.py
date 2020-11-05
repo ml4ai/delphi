@@ -41,7 +41,10 @@ def test_createModel_and_createExperiment(client):
     ) as f:
         data = json.load(f)
     model_id = "XYZ"
+    start = time.time()
     rv = client.post(f"/delphi/models/{model_id}/experiments", json=data)
+    end = time.time()
+    print('\n\nTime take to create experiment and get asynchronous response: {}'.format(end-start))
     experiment_id1 = rv.get_json()["experimentId"]
     status = "in progress"
 
