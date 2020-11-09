@@ -46,11 +46,13 @@ def test_createModel_and_createExperiment(client):
     end = time.time()
     print('\n\nTime taken to get asynchronous response from create-experiment '
             'POST request: {}'.format(end-start))
+    start = time.time()
     experiment_id1 = rv.get_json()["experimentId"]
+    end = time.time()
+    print(f'\n\nTime taken to get asynchronous response from GET experiments/<experiment_id>: {end-start}')
     status = "in progress"
 
     while status == "in progress":
-        time.sleep(1)
         rv11 = client.get(f"/delphi/models/{model_id}/experiments/{experiment_id1}")
         status = rv11.get_json()["status"]
         print(status)
