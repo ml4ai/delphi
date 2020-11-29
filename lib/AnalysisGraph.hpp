@@ -856,6 +856,9 @@ class AnalysisGraph {
    */
   void generate_observed_state_sequences();
 
+  std::vector<std::vector<double>>
+  generate_observed_state(Eigen::VectorXd latent_state);
+
   /**
    * Format the prediction result into a format Python callers favor.
    *

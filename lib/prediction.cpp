@@ -281,10 +281,32 @@ void AnalysisGraph::generate_observed_state_sequences() {
 
     this->predicted_observed_state_sequences[samp] =
         sample | transform([this](VectorXd latent_state) {
-          return this->sample_observed_state(latent_state);
+          return this->generate_observed_state(latent_state);
         }) |
         to<vector>();
   }
+}
+
+vector<vector<double>>
+AnalysisGraph::generate_observed_state(VectorXd latent_state) {
+  using rs::to, rs::views::transform;
+
+  int num_verts = this->num_vertices();
+
+  vector<vector<double>> observed_state(num_verts);
+
+  for (int v = 0; v < num_verts; v++) {
+    vector<Indicator>& indicators = (*this)[v].indicators;
+
+    observed_state[v] = vector<double>(indicators.size());
+
+    observed_state[v] = indicators | transform([&](Indicator ind) {
+                          return ind.mean * latent_state[2 * v];
+                        }) |
+                        to<vector>();
+  }
+
+  return observed_state;
 }
 
 FormattedPredictionResult AnalysisGraph::format_prediction_result() {
