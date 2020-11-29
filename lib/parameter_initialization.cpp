@@ -224,7 +224,7 @@ AdjectiveResponseMap construct_adjective_response_map(
     string adjective =
         string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2)));
     double response = sqlite3_column_double(stmt, 6);
-    if (in(adjective_response_map, adjective)) {
+    if (!in(adjective_response_map, adjective)) {
       adjective_response_map[adjective] = {response};
     }
     else {
