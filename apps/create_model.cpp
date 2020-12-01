@@ -37,7 +37,9 @@ int main(int argc, char* argv[]) {
 };
 
 
-    AnalysisGraph G = AnalysisGraph::from_causemos_json_file("../tests/data/delphi/causemos_create-model.json", 4);
+    AnalysisGraph G = AnalysisGraph::from_causemos_json_file("../tests/data/delphi/causemos_create-model_nodata.json", 4);
+
+    return(0);
 
     string result = G.serialize_to_json_string(false);
 

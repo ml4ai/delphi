@@ -439,6 +439,9 @@ def mean_pred_to_df(
         # When I do a similar call at the Python command line, the warning does
         # not appear.
         # Could not figure out how to make this warning go away.
+        #
+        # Bug: When all the values are the same, stats.bayes_mvs returns NaN as
+        # the mean.
         pred_stats = np.apply_along_axis(stats.bayes_mvs, 1, pred_raw.T, ci)[
             :, 0
         ]

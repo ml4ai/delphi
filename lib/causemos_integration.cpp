@@ -286,14 +286,19 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
     int frequent_gap = 0;
     int highest_frequency = 0;
 
-    this->infer_modeling_frequency(concept_indicator_dates,
-                  shortest_gap, longest_gap, frequent_gap, highest_frequency);
+    this->n_timesteps = 0;
 
-    // Fill in observed state sequence
-    // NOTE: This code is very similar to the implementations in
-    // set_observed_state_sequence_from_data and get_observed_state_from_data
-    this->n_timesteps = this->calculate_num_timesteps(
-            start_year, start_month, end_year, end_month);
+    if (start_year <= end_year) {
+        // Some training data has been provided
+        this->infer_modeling_frequency(concept_indicator_dates,
+                    shortest_gap, longest_gap, frequent_gap, highest_frequency);
+
+        // Fill in observed state sequence
+        // NOTE: This code is very similar to the implementations in
+        // set_observed_state_sequence_from_data and get_observed_state_from_data
+        this->n_timesteps = this->calculate_num_timesteps(
+                start_year, start_month, end_year, end_month);
+    }
 
     this->observed_state_sequence.clear();
 
@@ -664,7 +669,7 @@ AnalysisGraph::run_causemos_projection_experiment(std::string json_string) {
     if (projection_parameters["startTime"].is_null()) {return null_prediction;}
     long proj_start_timestamp = projection_parameters["startTime"].get<long>();
 
-    year_month = this->timestamp_to_year_month(proj_start_timestamp );
+    year_month = this->timestamp_to_year_month(proj_start_timestamp);
     int proj_start_year = year_month.first;
     int proj_start_month = year_month.second;
 
@@ -707,6 +712,12 @@ AnalysisGraph::run_causemos_projection_experiment(std::string json_string) {
     int train_start_month = this->training_range.first.second;
     int train_end_year = this->training_range.second.first;
     int train_end_month = this->training_range.second.second;
+
+    if (train_start_year > train_end_year) {
+        // No training data has been provided => Cannot train
+        //                                    => Cannot project
+        return null_prediction;
+    }
 
     if (!this->trained) {
         this->train_model(train_start_year, train_start_month,

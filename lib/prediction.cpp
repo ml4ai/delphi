@@ -74,7 +74,7 @@ void AnalysisGraph::generate_latent_state_sequences(
       if (this->clamp_at_derivative) {
           // To clamp a latent state value to x_c at prediction step 1 via
           // clamping the derivative, we have to perturb the derivative at
-          // prediction step 0, before evolving it to time prediction step 1.
+          // prediction step 0, before evolving it to prediction time step 1.
           // So we have to look one time step ahead whether we have to clamp
           // at 1.
           //
@@ -281,10 +281,32 @@ void AnalysisGraph::generate_observed_state_sequences() {
 
     this->predicted_observed_state_sequences[samp] =
         sample | transform([this](VectorXd latent_state) {
-          return this->sample_observed_state(latent_state);
+          return this->generate_observed_state(latent_state);
         }) |
         to<vector>();
   }
+}
+
+vector<vector<double>>
+AnalysisGraph::generate_observed_state(VectorXd latent_state) {
+  using rs::to, rs::views::transform;
+
+  int num_verts = this->num_vertices();
+
+  vector<vector<double>> observed_state(num_verts);
+
+  for (int v = 0; v < num_verts; v++) {
+    vector<Indicator>& indicators = (*this)[v].indicators;
+
+    observed_state[v] = vector<double>(indicators.size());
+
+    observed_state[v] = indicators | transform([&](Indicator ind) {
+                          return ind.mean * latent_state[2 * v];
+                        }) |
+                        to<vector>();
+  }
+
+  return observed_state;
 }
 
 FormattedPredictionResult AnalysisGraph::format_prediction_result() {
@@ -339,7 +361,7 @@ void AnalysisGraph::run_model(int start_year,
        start_month <= this->training_range.first.second)) {
     print("The initial prediction date can't be before the "
          "initial training date. Defaulting initial prediction date "
-         "to initial training date.");
+         "to initial training date + 1 month.");
     start_month = this->training_range.first.second + 1;
     if (start_month == 13) {
         start_year = this->training_range.first.first + 1;
@@ -396,6 +418,11 @@ void AnalysisGraph::run_model(int start_year,
   //       returning results, we have to remove the predictions at the 0th
   //       index of each predicted observed state sequence.
   //       Adding that additional time step.
+  // t     = Requested prediction start time step
+  //       = pred_init_timestep
+  // t - 1 = Prediction start time step
+  //       = pred_init_timestep - 1
+  pred_init_timestep--;
   this->pred_timesteps++;
 
   this->generate_latent_state_sequences(pred_init_timestep);
