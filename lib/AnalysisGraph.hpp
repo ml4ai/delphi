@@ -498,9 +498,14 @@ class AnalysisGraph {
   void extract_projection_constraints(
                                 const nlohmann::json &projection_constraints);
 
+  Prediction run_causemos_projection_experiment_from_json_dict(const nlohmann::json &json_data,
+                                                               int burn = 10000,
+                                                               int res = 200);
+
   FormattedProjectionResult format_projection_result();
 
   void sample_transition_matrix_collection_from_prior();
+
 
   /*
    ============================================================================
@@ -1022,7 +1027,14 @@ class AnalysisGraph {
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
   FormattedProjectionResult
-  run_causemos_projection_experiment(std::string json_string);
+  run_causemos_projection_experiment(std::string json_string,
+                                     int burn = 10000,
+                                     int res = 200);
+
+  Prediction
+  run_causemos_projection_experiment_from_json_file(std::string filename,
+                                                    int burn = 10000,
+                                                    int res = 200);
 
   /*
    ============================================================================

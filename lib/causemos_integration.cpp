@@ -7,6 +7,7 @@
 #include <range/v3/all.hpp>
 #include <time.h>
 #include <limits.h>
+#include "dbg.h"
 
 using namespace std;
 using namespace delphi::utils;
@@ -445,6 +446,106 @@ void AnalysisGraph::extract_projection_constraints(
     }
 }
 
+Prediction
+AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann::json &json_data,
+                                                                 int burn,
+                                                                 int res) {
+
+    if (json_data["experimentParam"].is_null()) {
+        throw BadCausemosInputException("Experiment parameters null");
+    }
+
+    auto projection_parameters = json_data["experimentParam"];
+
+    pair<int, int> year_month;
+
+    if (projection_parameters["startTime"].is_null()) {
+        throw BadCausemosInputException("Projection start time null");
+    }
+
+    long proj_start_timestamp = projection_parameters["startTime"].get<long>();
+
+    year_month = this->timestamp_to_year_month(proj_start_timestamp);
+    int proj_start_year = year_month.first;
+    int proj_start_month = year_month.second;
+
+    if (projection_parameters["endTime"].is_null()) {
+        throw BadCausemosInputException("Projection end time null");
+    }
+
+    long proj_end_timestamp = projection_parameters["endTime"].get<long>();
+
+    year_month = this->timestamp_to_year_month(proj_end_timestamp);
+    int proj_end_year_given = year_month.first;
+    int proj_end_month_given = year_month.second;
+
+    if (projection_parameters["numTimesteps"].is_null()) {
+        throw BadCausemosInputException("Projection number of time steps null");
+    }
+
+    int proj_num_timesteps = projection_parameters["numTimesteps"].get<int>();
+
+    // Calculate end_year, end_month assuming that each time step is a month.
+    // In other words, we are calculating the end_year, end_month assuming that
+    // the duration of a prediction time step = the duration of a training time
+    // step.
+    // Yet another explanation is we are assuming that both training and
+    // prediction frequencies are the same.
+    // NOTE: We are calculating this because:
+    //       Earlier both CauseMos and Delphi used (year, month) as the time
+    //       stamp interval. So it is somewhat hard coded into Delphi.
+    //       Uncharted suddenly changed the protocol and stated to use Posix
+    //       time stamps to index data. So we are using a hack hear. For the
+    //       moment we are disregarding the CauseMos provided end_year and
+    //       end_month (end_year_given and end_month_given) above and compute
+    //       the end_year, end_month to match up with the number of prediction
+    //       time steps CauseMos is requesting for. Then we are feeding these
+    //       calculated end_year, end_month to Delphi prediction so that Delphi
+    //       generates the desired number of prediction points. One caveat is
+    //       that now Delphi is predicting on a monthly basis. We can do better
+    //       by making Delphi predict at a different frequency than the
+    //       training frequency by setting Δt appropriately.
+    year_month = calculate_end_year_month(proj_start_year, proj_start_month,
+                                          proj_num_timesteps);
+    int proj_end_year_calculated = year_month.first;
+    int proj_end_month_calculated = year_month.second;
+
+    int train_start_year = this->training_range.first.first;
+    int train_start_month = this->training_range.first.second;
+    int train_end_year = this->training_range.second.first;
+    int train_end_month = this->training_range.second.second;
+
+    if (train_start_year > train_end_year) {
+        // No training data has been provided => Cannot train
+        //                                    => Cannot project
+        throw BadCausemosInputException("No training data");
+    }
+
+    if (!this->trained) {
+        this->train_model(train_start_year, train_start_month,
+                                train_end_year, train_end_month, res, burn);
+    }
+
+    // NOTE: At the moment we are assuming that delta_t for prediction is also
+    // 1. This is an effort to do otherwise which might make things better in
+    // the long run. This is commented because, we have to check whether this
+    // is mathematically sound and this is the correct way to handle the
+    // situation.
+    //this->delta_t = calculate_prediction_timestep_length(start_year, start_month,
+    //                                                     end_year_given,
+    //                                                     end_month_given,
+    //                                                     num_timesteps);
+
+    this->extract_projection_constraints(projection_parameters["constraints"]);
+
+    Prediction pred = this->generate_prediction(proj_start_year,
+                                                proj_start_month,
+                                                proj_end_year_calculated,
+                                                proj_end_month_calculated);
+
+    return pred;
+}
+
 FormattedProjectionResult AnalysisGraph::format_projection_result() {
   // Access
   // [ vertex_name ][ timestep ][ sample ]
@@ -504,11 +605,13 @@ void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data) {
   auto statements = json_data["statements"];
 
   for (auto stmt : statements) {
+    /*
     auto evidence = stmt["evidence"];
 
     if (evidence.is_null()) {
       continue;
     }
+    */
 
     auto subj = stmt["subj"];
     auto obj = stmt["obj"];
@@ -641,13 +744,12 @@ string AnalysisGraph::generate_create_model_response() {
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 FormattedProjectionResult
-AnalysisGraph::run_causemos_projection_experiment(std::string json_string) {
+AnalysisGraph::run_causemos_projection_experiment(string json_string,
+                                                  int burn,
+                                                  int res) {
     using namespace fmt::literals;
     using nlohmann::json;
 
-    // Just a dummy empty prediction to signal that there is an error in
-    // projection parameters.
-    FormattedProjectionResult null_prediction = FormattedProjectionResult();
 
     // During the create-model call we called construct_theta_pdfs() and
     // serialized them to json. When we recreate the model we load them. So to
@@ -661,85 +763,47 @@ AnalysisGraph::run_causemos_projection_experiment(std::string json_string) {
     this->causemos_call = true;
 
     auto json_data = nlohmann::json::parse(json_string);
-    if (json_data["experimentParam"].is_null()) {return null_prediction;}
-    auto projection_parameters = json_data["experimentParam"];
 
-    pair<int, int> year_month;
-
-    if (projection_parameters["startTime"].is_null()) {return null_prediction;}
-    long proj_start_timestamp = projection_parameters["startTime"].get<long>();
-
-    year_month = this->timestamp_to_year_month(proj_start_timestamp);
-    int proj_start_year = year_month.first;
-    int proj_start_month = year_month.second;
-
-    if (projection_parameters["endTime"].is_null()) {return null_prediction;}
-    long proj_end_timestamp = projection_parameters["endTime"].get<long>();
-
-    year_month = this->timestamp_to_year_month(proj_end_timestamp );
-    int proj_end_year_given = year_month.first;
-    int proj_end_month_given = year_month.second;
-
-    if (projection_parameters["numTimesteps"].is_null()) {return null_prediction;}
-    int proj_num_timesteps = projection_parameters["numTimesteps"].get<int>();
-
-    // Calculate end_year, end_month assuming that each time step is a month.
-    // In other words, we are calculating the end_year, end_month assuming that
-    // the duration of a prediction time step = the duration of a training time
-    // step.
-    // Yet another explanation is we are assuming that both training and
-    // prediction frequencies are the same.
-    // NOTE: We are calculating this because:
-    //       Earlier both CauseMos and Delphi used (year, month) as the time
-    //       stamp interval. So it is somewhat hard coded into Delphi.
-    //       Uncharted suddenly changed the protocol and stated to use Posix
-    //       time stamps to index data. So we are using a hack hear. For the
-    //       moment we are disregarding the CauseMos provided end_year and
-    //       end_month (end_year_given and end_month_given) above and compute
-    //       the end_year, end_month to match up with the number of prediction
-    //       time steps CauseMos is requesting for. Then we are feeding these
-    //       calculated end_year, end_month to Delphi prediction so that Delphi
-    //       generates the desired number of prediction points. One caveat is
-    //       that now Delphi is predicting on a monthly basis. We can do better
-    //       by making Delphi predict at a different frequency than the
-    //       training frequency by setting Δt appropriately.
-    year_month = calculate_end_year_month(proj_start_year, proj_start_month,
-                                          proj_num_timesteps);
-    int proj_end_year_calculated = year_month.first;
-    int proj_end_month_calculated = year_month.second;
-
-    int train_start_year = this->training_range.first.first;
-    int train_start_month = this->training_range.first.second;
-    int train_end_year = this->training_range.second.first;
-    int train_end_month = this->training_range.second.second;
-
-    if (train_start_year > train_end_year) {
-        // No training data has been provided => Cannot train
-        //                                    => Cannot project
-        return null_prediction;
+    try {
+        Prediction pred = run_causemos_projection_experiment_from_json_dict(json_data, burn, res);
+        return this->format_projection_result();
     }
-
-    if (!this->trained) {
-        this->train_model(train_start_year, train_start_month,
-                                train_end_year, train_end_month);
+    catch (BadCausemosInputException& e) {
+        cout << e.what() << endl;
+        // Just a dummy empty prediction to signal that there is an error in
+        // projection parameters.
+        return FormattedProjectionResult();
     }
+}
 
-    // NOTE: At the moment we are assuming that delta_t for prediction is also
-    // 1. This is an effort to do otherwise which might make things better in
-    // the long run. This is commented because, we have to check whether this
-    // is mathematically sound and this is the correct way to handle the
-    // situation.
-    //this->delta_t = calculate_prediction_timestep_length(start_year, start_month,
-    //                                                     end_year_given,
-    //                                                     end_month_given,
-    //                                                     num_timesteps);
+Prediction
+AnalysisGraph::run_causemos_projection_experiment_from_json_file(string filename,
+                                                                 int burn,
+                                                                 int res) {
+    using namespace fmt::literals;
+    using nlohmann::json;
 
-    this->extract_projection_constraints(projection_parameters["constraints"]);
 
-    Prediction pred = this->generate_prediction(proj_start_year,
-                                                proj_start_month,
-                                                proj_end_year_calculated,
-                                                proj_end_month_calculated);
+    // During the create-model call we called construct_theta_pdfs() and
+    // serialized them to json. When we recreate the model we load them. So to
+    // prevent Delphi putting cycle to compute them again when we call
+    // initialize_parameters() below, let us inform Delphi that this is a
+    // CauseMos call.
+    // NOTE: In hindsight, I might be able to prevent Delphi calling
+    //       initialize_parameters() within train_model() when we train due to
+    //       a CauseMos call. I need to revise it to see whether anything is
+    //       called out of order.
+    this->causemos_call = true;
 
-    return this->format_projection_result();
+    auto json_data = load_json(filename);
+
+    try {
+        return run_causemos_projection_experiment_from_json_dict(json_data, burn, res);
+    }
+    catch (BadCausemosInputException& e) {
+        cout << e.what() << endl;
+        // Just a dummy empty prediction to signal that there is an error in
+        // projection parameters.
+        return Prediction();
+    }
 }

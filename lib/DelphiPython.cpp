@@ -5,6 +5,7 @@
 #include <pybind11/stl.h>
 
 #include "AnalysisGraph.hpp"
+#include "exceptions.hpp"
 //#include "PybindTester.hpp"
 
 namespace py = pybind11;
@@ -12,6 +13,8 @@ using namespace pybind11::literals;
 using namespace std;
 
 PYBIND11_MODULE(DelphiPython, m) {
+  py::register_exception<BadCausemosInputException>(m, "BadCausemosInputException");
+
   py::enum_<InitialBeta>(m, "InitialBeta")
       .value("ZERO", InitialBeta::ZERO)
       .value("ONE", InitialBeta::ONE)
@@ -164,7 +167,14 @@ PYBIND11_MODULE(DelphiPython, m) {
            "clamp_deri"_a = true)
       .def("run_causemos_projection_experiment",
            &AnalysisGraph::run_causemos_projection_experiment,
-           "json_string"_a)
+           "json_string"_a,
+           "burn"_a,
+           "res"_a)
+      .def("run_causemos_projection_experiment_from_json_file",
+           &AnalysisGraph::run_causemos_projection_experiment_from_json_file,
+           "filename"_a,
+           "burn"_a,
+           "res"_a)
       .def("prediction_to_array",
            &AnalysisGraph::prediction_to_array,
            "indicator"_a)
