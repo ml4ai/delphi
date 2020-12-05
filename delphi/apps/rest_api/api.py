@@ -63,7 +63,7 @@ def runProjectionExperiment(request, modelID, experiment_id, G, trained):
     endTime = request_body["experimentParam"]["endTime"]
     numTimesteps = request_body["experimentParam"]["numTimesteps"]
 
-    causemos_experiment_result = G.run_causemos_projection_experiment(
+    causemos_experiment_result = G.run_causemos_projection_experiment_from_json_string(
         request.data
     )
 

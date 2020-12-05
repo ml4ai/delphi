@@ -7,7 +7,6 @@
 #include <range/v3/all.hpp>
 #include <time.h>
 #include <limits.h>
-#include "dbg.h"
 
 using namespace std;
 using namespace delphi::utils;
@@ -744,9 +743,9 @@ string AnalysisGraph::generate_create_model_response() {
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 FormattedProjectionResult
-AnalysisGraph::run_causemos_projection_experiment(string json_string,
-                                                  int burn,
-                                                  int res) {
+AnalysisGraph::run_causemos_projection_experiment_from_json_string(string json_string,
+                                                                   int burn,
+                                                                   int res) {
     using namespace fmt::literals;
     using nlohmann::json;
 

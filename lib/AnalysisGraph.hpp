@@ -1027,9 +1027,9 @@ class AnalysisGraph {
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
   FormattedProjectionResult
-  run_causemos_projection_experiment(std::string json_string,
-                                     int burn = 10000,
-                                     int res = 200);
+  run_causemos_projection_experiment_from_json_string(std::string json_string,
+                                                      int burn = 10000,
+                                                      int res = 200);
 
   Prediction
   run_causemos_projection_experiment_from_json_file(std::string filename,
