@@ -5,6 +5,7 @@
 #include <pybind11/stl.h>
 
 #include "AnalysisGraph.hpp"
+#include "exceptions.hpp"
 //#include "PybindTester.hpp"
 
 namespace py = pybind11;
@@ -12,6 +13,8 @@ using namespace pybind11::literals;
 using namespace std;
 
 PYBIND11_MODULE(DelphiPython, m) {
+  py::register_exception<BadCausemosInputException>(m, "BadCausemosInputException");
+
   py::enum_<InitialBeta>(m, "InitialBeta")
       .value("ZERO", InitialBeta::ZERO)
       .value("ONE", InitialBeta::ONE)
@@ -162,9 +165,16 @@ PYBIND11_MODULE(DelphiPython, m) {
            "constraints"_a = ConstraintSchedule(),
            "one_off"_a = true,
            "clamp_deri"_a = true)
-      .def("run_causemos_projection_experiment",
-           &AnalysisGraph::run_causemos_projection_experiment,
-           "json_string"_a)
+      .def("run_causemos_projection_experiment_from_json_string",
+           &AnalysisGraph::run_causemos_projection_experiment_from_json_string,
+           "json_string"_a,
+           "burn"_a = 10000,
+           "res"_a = 200)
+      .def("run_causemos_projection_experiment_from_json_file",
+           &AnalysisGraph::run_causemos_projection_experiment_from_json_file,
+           "filename"_a,
+           "burn"_a = 10000,
+           "res"_a = 200)
       .def("prediction_to_array",
            &AnalysisGraph::prediction_to_array,
            "indicator"_a)
@@ -178,7 +188,9 @@ PYBIND11_MODULE(DelphiPython, m) {
                   "verbose"_a = false)
       .def("serialize_to_json_string",
            &AnalysisGraph::serialize_to_json_string,
-           "verbose"_a = true);
+           "verbose"_a = true)
+      .def("get_complete_state",
+           &AnalysisGraph::get_complete_state);
 
   py::class_<RV>(m, "RV")
       .def(py::init<std::string>())

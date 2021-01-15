@@ -22,7 +22,6 @@ using namespace fmt::literals;
 
 // Just for debugging. Remove later
 using fmt::print;
-#include "dbg.h" // To quickly print the value of a variable v do dbg(v)
 
 typedef vector<pair<tuple<string, int, string>, tuple<string, int, string>>>
     Evidence;
