@@ -49,12 +49,15 @@ void AnalysisGraph::train_model(int start_year,
           this->sample_from_posterior();
           this->transition_matrix_collection[i] = this->A_original;
           this->initial_latent_state_collection[i] = this->s0;
+
+          for (auto e : this->edges()) {
+            this->graph[e].sampled_thetas.push_back(this->graph[e].theta);
+          }
       }
 
       this->trained = true;
       RNG::release_instance();
   }
-  return;
 }
 
 
