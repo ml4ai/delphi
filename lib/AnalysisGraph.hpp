@@ -7,6 +7,7 @@
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/algorithm/for_each.hpp>
 #include <boost/range/iterator_range.hpp>
+#include <range/v3/all.hpp>
 
 #include "graphviz_interface.hpp"
 
@@ -74,6 +75,68 @@ typedef std::tuple<std::pair<std::pair<int, int>, std::pair<int, int>>,
                    std::vector<std::string>,
                    FormattedPredictionResult>
     Prediction;
+
+// Format AnalysisGraph state to output
+// [ concept name ] --> [ ind1, ind2, ... ]
+typedef std::unordered_map<std::string, std::vector<std::string>> ConceptIndicators;
+
+// List of edges [(source, target), ...]
+typedef std::vector<std::pair<std::string, std::string>> Edges;
+
+// List of adjectives [(source, target), ...]
+typedef std::vector<std::pair<std::string, std::string>> Adjectives;
+
+// List of polarities [(source, target), ...]
+typedef std::vector<std::pair<int, int>> Polarities;
+
+// Vector of theta priors and samples pairs for each edge
+// Ordering is according to order of edges in Edges data vector
+// For each edge, there is a tuple of vectors
+// first element of the tuple is a vector of theta priors KDEs
+// second element of the tuple is a vector of sampled thetas
+// [([p1, p1, ...], [s1, s2, ...]), ... ]
+typedef std::vector<std::pair<std::vector<double>, std::vector<double>>> Thetas;
+
+// Sampled Derivatives for each concept
+// Access
+// [ concept name ] --> [s_1, s_2, ..., s_res ]
+typedef std::unordered_map<std::string, std::vector<double>> Derivatives;
+
+// Data
+// Access
+// [ indicator name ] --> {
+//                           [ "Time Step" ] --> [ts1, ts2, ...]
+//                           [ "Data" ]      --> [ d1,  d2, ...]
+//                        }
+typedef std::unordered_map<std::string, std::unordered_map<std::string, std::vector<double>>> Data;
+
+// Predictions
+// Access
+// [ indicator name ] --> {
+//                           [ ts ] --> [p_1, p_2, p_3, ..., p_res]
+//                        }
+typedef std::unordered_map<std::string, std::unordered_map<int, std::vector<double>>> Predictions;
+
+typedef std::unordered_map<std::string, std::unordered_map<std::string, std::vector<double>>> ConfidenceIntervals;
+
+typedef std::tuple<
+    ConceptIndicators,
+    Edges, // List of edges [(source, target), ...]
+    Adjectives,
+    Polarities,
+    // Theta priors and samples for each edge
+    // [(priors, samples), ... ]
+    Thetas,
+    Derivatives,
+    // Data year month range
+    std::vector<std::string>,
+    // Data
+    Data,
+    // Prediction year month range
+    std::vector<std::string>,
+    Predictions,
+    ConfidenceIntervals
+            > CompleteState;
 
 // Access
 // [prediction time step] -->
@@ -1403,4 +1466,14 @@ class AnalysisGraph {
   void print_cells_affected_by_beta(int source, int target);
 
   void print_training_range();
+
+  /*
+   ============================================================================
+   Public: Formatting output (in format_output.cpp)
+   ============================================================================
+  */
+
+  ConfidenceIntervals get_confidence_interval(Predictions preds);
+
+  CompleteState get_complete_state();
 };

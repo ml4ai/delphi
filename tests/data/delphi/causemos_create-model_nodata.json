@@ -1,0 +1,118 @@
+{
+    "id": "DC",
+    "conceptIndicators": {
+        "rainfall": {
+            "func": "last",
+            "maxValue": 29,
+            "minValue": 1,
+            "name": "ind1",
+            "numLevels": 31,
+            "values": []
+        },
+        "storm": {
+            "func": "last",
+            "maxValue": 29,
+            "minValue": 1,
+            "name": "ind2",
+            "numLevels": 31,
+            "values": []
+        },
+        "weather": {
+            "func": "last",
+            "maxValue": 29,
+            "minValue": 1,
+            "name": "ind3",
+            "numLevels": 31,
+            "values": []
+        }
+    },
+    "statements": [
+        {
+            "belief": 0.9919689,
+            "evidence": [
+            ],
+            "id": "7b3a5671-7da9-43d5-b91c-3f7f530ff3fc",
+            "obj": {
+                "db_refs": {
+                    "TEXT": "heavy rainfall",
+                    "concept": "rainfall"
+                },
+                "name": "heavy rainfall"
+            },
+            "obj_delta": {
+                "adjectives": [],
+                "polarity": 1
+            },
+            "subj": {
+                "db_refs": {
+                    "TEXT": "Tropical Storm Amanda",
+                    "concept": "storm"
+                },
+                "name": "Tropical Storm Amanda"
+            },
+            "subj_delta": {
+                "adjectives": [],
+                "polarity": 1
+            },
+            "type": "Influence"
+        },
+        {
+            "belief": 0.923,
+            "evidence": [
+            ],
+            "id": "562a52e0-121c-48aa-b2d8-770dadacf496",
+            "obj": {
+                "db_refs": {
+                    "TEXT": "to heavy rainfall",
+                    "concept": "rainfall"
+                },
+                "name": "to heavy rainfall"
+            },
+            "obj_delta": {
+                "adjectives": [],
+                "polarity": 1
+            },
+            "subj": {
+                "db_refs": {
+                    "TEXT": "other extreme weather events that lead to heavy rainfall",
+                    "concept": "weather"
+                },
+                "name": "other extreme weather events that lead to heavy rainfall"
+            },
+            "subj_delta": {
+                "adjectives": [],
+                "polarity": 1
+            },
+            "type": "Influence"
+        },
+        {
+            "belief": 0.65,
+            "evidence": [
+            ],
+            "id": "f286d82c-7d51-473b-98d1-f3d7b214b2f5",
+            "obj": {
+                "db_refs": {
+                    "TEXT": "rainfall",
+                    "concept": "rainfall"
+                },
+                "name": "rainfall"
+            },
+            "obj_delta": {
+                "adjectives": [],
+                "polarity": 1
+            },
+            "subj": {
+                "db_refs": {
+                    "TEXT": "recent heavy rains",
+                    "concept": "weather"
+                },
+                "name": "recent heavy rains"
+            },
+            "subj_delta": {
+                "adjectives": [],
+                "polarity": 1
+            },
+            "type": "Influence"
+        }
+    ]
+}

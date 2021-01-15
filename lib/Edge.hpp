@@ -65,6 +65,8 @@ class Edge {
   // θ = atan(1) = Π/4
   // β = tan(atan(1)) = 1
   double theta = std::atan(1);
+  std::vector<double> sampled_thetas;
+
   void change_polarity(int subject_polarity, int object_polarity) {
     for (Statement stmt : evidence) {
       stmt.subject.polarity = subject_polarity;

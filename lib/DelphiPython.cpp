@@ -188,7 +188,9 @@ PYBIND11_MODULE(DelphiPython, m) {
                   "verbose"_a = false)
       .def("serialize_to_json_string",
            &AnalysisGraph::serialize_to_json_string,
-           "verbose"_a = true);
+           "verbose"_a = true)
+      .def("get_complete_state",
+           &AnalysisGraph::get_complete_state);
 
   py::class_<RV>(m, "RV")
       .def(py::init<std::string>())
