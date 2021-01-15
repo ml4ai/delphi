@@ -1,0 +1,13 @@
+.. _exhale_typedef_AnalysisGraph_8hpp_1a7422573d3053bcfbae599477856b48fb:
+
+Typedef Data
+============
+
+- Defined in :ref:`file_lib_AnalysisGraph.hpp`
+
+
+Typedef Documentation
+---------------------
+
+
+.. doxygentypedef:: Data

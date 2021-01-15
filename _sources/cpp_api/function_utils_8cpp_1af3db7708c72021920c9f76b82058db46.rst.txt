@@ -1,0 +1,13 @@
+.. _exhale_function_utils_8cpp_1af3db7708c72021920c9f76b82058db46:
+
+Function delphi::utils::load_json(string)
+=========================================
+
+- Defined in :ref:`file_lib_utils.cpp`
+
+
+Function Documentation
+----------------------
+
+
+.. doxygenfunction:: delphi::utils::load_json(string)

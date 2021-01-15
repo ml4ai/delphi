@@ -1,0 +1,391 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>delphi.apps.CodeExplorer.app &mdash; delphi  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+        <script src="../../../../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../../../../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> delphi
+          
+
+          
+            
+            <img src="../../../../_static/delphi_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html#change-log">Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cpp_api/library_root.html">C++ API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">delphi</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>delphi.apps.CodeExplorer.app</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for delphi.apps.CodeExplorer.app</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">uuid4</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">import</span> <span class="nn">subprocess</span> <span class="k">as</span> <span class="nn">sp</span>
+<span class="kn">from</span> <span class="nn">delphi.translators.for2py</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">preprocessor</span><span class="p">,</span>
+    <span class="n">translate</span><span class="p">,</span>
+    <span class="n">get_comments</span><span class="p">,</span>
+    <span class="n">pyTranslate</span><span class="p">,</span>
+    <span class="n">genPGM</span><span class="p">,</span>
+    <span class="n">For2PyError</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">delphi.GrFN.networks</span> <span class="kn">import</span> <span class="n">GroundedFunctionNetwork</span>
+<span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="k">as</span> <span class="nn">ET</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Flask</span><span class="p">,</span>
+    <span class="n">render_template</span><span class="p">,</span>
+    <span class="n">request</span><span class="p">,</span>
+    <span class="n">redirect</span><span class="p">,</span>
+    <span class="n">url_for</span><span class="p">,</span>
+    <span class="n">jsonify</span><span class="p">,</span>
+    <span class="n">flash</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">flask_wtf</span> <span class="kn">import</span> <span class="n">FlaskForm</span>
+<span class="kn">from</span> <span class="nn">flask_codemirror.fields</span> <span class="kn">import</span> <span class="n">CodeMirrorField</span>
+<span class="kn">from</span> <span class="nn">wtforms.fields</span> <span class="kn">import</span> <span class="n">SubmitField</span>
+<span class="kn">from</span> <span class="nn">flask_codemirror</span> <span class="kn">import</span> <span class="n">CodeMirror</span>
+<span class="kn">from</span> <span class="nn">pygments</span> <span class="kn">import</span> <span class="n">highlight</span>
+
+<span class="kn">from</span> <span class="nn">delphi.apps.CodeExplorer.surface_plots</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_grfn_surface_plot</span><span class="p">,</span>
+    <span class="n">get_fib_surface_plot</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">delphi.apps.CodeExplorer.cyjs</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">to_cyjs_grfn</span><span class="p">,</span>
+    <span class="n">to_cyjs_cag</span><span class="p">,</span>
+    <span class="n">to_cyjs_fib</span><span class="p">,</span>
+    <span class="n">PYTHON_LEXER</span><span class="p">,</span>
+    <span class="n">THIS_FOLDER</span><span class="p">,</span>
+    <span class="n">PYTHON_FORMATTER</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s2">&quot;/tmp/automates/&quot;</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s2">&quot;/tmp/automates/input_code/&quot;</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">TMPDIR</span> <span class="o">=</span> <span class="s2">&quot;/tmp/automates&quot;</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">TMPDIR</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="MyForm"><a class="viewcode-back" href="../../../../delphi.apps.CodeExplorer.html#delphi.apps.CodeExplorer.app.MyForm">[docs]</a><span class="k">class</span> <span class="nc">MyForm</span><span class="p">(</span><span class="n">FlaskForm</span><span class="p">):</span>
+    <span class="n">source_code</span> <span class="o">=</span> <span class="n">CodeMirrorField</span><span class="p">(</span>
+        <span class="n">language</span><span class="o">=</span><span class="s2">&quot;fortran&quot;</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;lineNumbers&quot;</span><span class="p">:</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="s2">&quot;viewportMargin&quot;</span><span class="p">:</span> <span class="mi">800</span><span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">submit</span> <span class="o">=</span> <span class="n">SubmitField</span><span class="p">(</span><span class="s2">&quot;Submit&quot;</span><span class="p">,</span> <span class="n">render_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;btn btn-primary&quot;</span><span class="p">})</span></div>
+
+
+<span class="n">SECRET_KEY</span> <span class="o">=</span> <span class="s2">&quot;secret!&quot;</span>
+<span class="c1"># mandatory</span>
+<span class="n">CODEMIRROR_LANGUAGES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;fortran&quot;</span><span class="p">]</span>
+<span class="c1"># optional</span>
+<span class="n">CODEMIRROR_ADDONS</span> <span class="o">=</span> <span class="p">((</span><span class="s2">&quot;display&quot;</span><span class="p">,</span> <span class="s2">&quot;placeholder&quot;</span><span class="p">),)</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">from_object</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">codemirror</span> <span class="o">=</span> <span class="n">CodeMirror</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="index"><a class="viewcode-back" href="../../../../delphi.apps.CodeExplorer.html#delphi.apps.CodeExplorer.app.index">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="n">form</span> <span class="o">=</span> <span class="n">MyForm</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">validate_on_submit</span><span class="p">():</span>
+        <span class="n">form</span><span class="o">.</span><span class="n">source_code</span><span class="o">.</span><span class="n">data</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s2">&quot;index.html&quot;</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="n">form</span><span class="p">,</span> <span class="n">code</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="handle_invalid_usage"><a class="viewcode-back" href="../../../../delphi.apps.CodeExplorer.html#delphi.apps.CodeExplorer.app.handle_invalid_usage">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">errorhandler</span><span class="p">(</span><span class="n">For2PyError</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">handle_invalid_usage</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">error</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">=</span> <span class="n">error</span><span class="o">.</span><span class="n">status_code</span>
+    <span class="n">flash</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s2">&quot;index.html&quot;</span><span class="p">,</span> <span class="n">code</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">code</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="processCode"><a class="viewcode-back" href="../../../../delphi.apps.CodeExplorer.html#delphi.apps.CodeExplorer.app.processCode">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/processCode&quot;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">processCode</span><span class="p">():</span>
+    <span class="n">form</span> <span class="o">=</span> <span class="n">MyForm</span><span class="p">()</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">source_code</span><span class="o">.</span><span class="n">data</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">code</span> <span class="o">=</span> <span class="n">code</span>
+    <span class="k">if</span> <span class="n">code</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s2">&quot;index.html&quot;</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="n">form</span><span class="p">)</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="p">[</span><span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">code</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">line</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span>
+    <span class="p">]</span>
+
+    <span class="c1"># dir_name = str(uuid4())</span>
+    <span class="c1"># os.mkdir(f&quot;/tmp/automates/input_code/{dir_name}&quot;)</span>
+    <span class="c1"># input_code_tmpfile = f&quot;/tmp/automates/input_code/{dir_name}/{orig_file}.f&quot;</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;input_code_{str(uuid4()).replace(&#39;-&#39;, &#39;_&#39;)}&quot;</span>
+    <span class="n">input_code_tmpfile</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;/tmp/automates/</span><span class="si">{filename}</span><span class="s2">.f&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">input_code_tmpfile</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">lines</span><span class="p">))</span>
+
+    <span class="n">lambdas</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{filename}</span><span class="s2">_lambdas&quot;</span>
+    <span class="n">lambdas_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;/tmp/automates/</span><span class="si">{lambdas}</span><span class="s2">.py&quot;</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">GroundedFunctionNetwork</span><span class="o">.</span><span class="n">from_fortran_file</span><span class="p">(</span><span class="n">input_code_tmpfile</span><span class="p">,</span>
+                                                  <span class="n">tmpdir</span><span class="o">=</span><span class="s2">&quot;/tmp/automates/&quot;</span><span class="p">)</span>
+
+    <span class="n">graphJSON</span><span class="p">,</span> <span class="n">layout</span> <span class="o">=</span> <span class="n">get_grfn_surface_plot</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+
+    <span class="n">scopeTree_elementsJSON</span> <span class="o">=</span> <span class="n">to_cyjs_grfn</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+    <span class="n">CAG</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">to_CAG</span><span class="p">()</span>
+    <span class="n">program_analysis_graph_elementsJSON</span> <span class="o">=</span> <span class="n">to_cyjs_cag</span><span class="p">(</span><span class="n">CAG</span><span class="p">)</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">input_code_tmpfile</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/tmp/automates/</span><span class="si">{lambdas}</span><span class="s2">.py&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span>
+        <span class="s2">&quot;index.html&quot;</span><span class="p">,</span>
+        <span class="n">form</span><span class="o">=</span><span class="n">form</span><span class="p">,</span>
+        <span class="n">code</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">code</span><span class="p">,</span>
+        <span class="n">scopeTree_elementsJSON</span><span class="o">=</span><span class="n">scopeTree_elementsJSON</span><span class="p">,</span>
+        <span class="n">graphJSON</span><span class="o">=</span><span class="n">graphJSON</span><span class="p">,</span>
+        <span class="n">layout</span><span class="o">=</span><span class="n">layout</span><span class="p">,</span>
+        <span class="n">program_analysis_graph_elementsJSON</span><span class="o">=</span><span class="n">program_analysis_graph_elementsJSON</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="modelAnalysis"><a class="viewcode-back" href="../../../../delphi.apps.CodeExplorer.html#delphi.apps.CodeExplorer.app.modelAnalysis">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/modelAnalysis&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">modelAnalysis</span><span class="p">():</span>
+    <span class="n">PETPT_GrFN</span> <span class="o">=</span> <span class="n">GroundedFunctionNetwork</span><span class="o">.</span><span class="n">from_fortran_file</span><span class="p">(</span>
+        <span class="n">THIS_FOLDER</span> <span class="o">+</span> <span class="s2">&quot;/static/example_programs/petPT.f&quot;</span><span class="p">,</span> <span class="n">tmpdir</span><span class="o">=</span><span class="n">TMPDIR</span>
+    <span class="p">)</span>
+    <span class="n">PETASCE_GrFN</span> <span class="o">=</span> <span class="n">GroundedFunctionNetwork</span><span class="o">.</span><span class="n">from_fortran_file</span><span class="p">(</span>
+        <span class="n">THIS_FOLDER</span> <span class="o">+</span> <span class="s2">&quot;/static/example_programs/petASCE.f&quot;</span><span class="p">,</span> <span class="n">tmpdir</span><span class="o">=</span><span class="n">TMPDIR</span>
+    <span class="p">)</span>
+
+    <span class="n">PETPT_FIB</span> <span class="o">=</span> <span class="n">PETPT_GrFN</span><span class="o">.</span><span class="n">to_FIB</span><span class="p">(</span><span class="n">PETASCE_GrFN</span><span class="p">)</span>
+    <span class="n">PETASCE_FIB</span> <span class="o">=</span> <span class="n">PETASCE_GrFN</span><span class="o">.</span><span class="n">to_FIB</span><span class="p">(</span><span class="n">PETPT_GrFN</span><span class="p">)</span>
+
+    <span class="n">asce_inputs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;petasce::msalb_-1&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+        <span class="s2">&quot;petasce::srad_-1&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+        <span class="s2">&quot;petasce::tmax_-1&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="s2">&quot;petasce::tmin_-1&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span>
+        <span class="s2">&quot;petasce::xhlai_-1&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="p">}</span>
+
+
+    <span class="n">asce_covers</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;petasce::canht_-1&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s2">&quot;petasce::meevp_-1&quot;</span><span class="p">:</span> <span class="s2">&quot;A&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;petasce::cht_0&quot;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>
+        <span class="s2">&quot;petasce::cn_4&quot;</span><span class="p">:</span> <span class="mf">1600.0</span><span class="p">,</span>
+        <span class="s2">&quot;petasce::cd_4&quot;</span><span class="p">:</span> <span class="mf">0.38</span><span class="p">,</span>
+        <span class="s2">&quot;petasce::rso_0&quot;</span><span class="p">:</span> <span class="mf">0.062320</span><span class="p">,</span>
+        <span class="s2">&quot;petasce::ea_0&quot;</span><span class="p">:</span> <span class="mf">7007.82</span><span class="p">,</span>
+        <span class="s2">&quot;petasce::wind2m_0&quot;</span><span class="p">:</span> <span class="mf">3.5</span><span class="p">,</span>
+        <span class="s2">&quot;petasce::psycon_0&quot;</span><span class="p">:</span> <span class="mf">0.0665</span><span class="p">,</span>
+        <span class="s2">&quot;petasce::wnd_0&quot;</span><span class="p">:</span> <span class="mf">3.5</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="c1"># graphJSON, layout = get_fib_surface_plot(PETASCE_FIB, asce_covers, 10)</span>
+
+
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span>
+        <span class="s2">&quot;modelAnalysis.html&quot;</span><span class="p">,</span>
+        <span class="n">petpt_elementsJSON</span><span class="o">=</span><span class="n">to_cyjs_cag</span><span class="p">(</span><span class="n">PETPT_GrFN</span><span class="o">.</span><span class="n">to_CAG</span><span class="p">()),</span>
+        <span class="n">petasce_elementsJSON</span><span class="o">=</span><span class="n">to_cyjs_cag</span><span class="p">(</span><span class="n">PETASCE_GrFN</span><span class="o">.</span><span class="n">to_CAG</span><span class="p">()),</span>
+        <span class="n">fib_elementsJSON</span><span class="o">=</span><span class="n">to_cyjs_fib</span><span class="p">(</span><span class="n">PETASCE_FIB</span><span class="o">.</span><span class="n">to_CAG</span><span class="p">()),</span>
+        <span class="c1"># layout=layout,</span>
+        <span class="c1"># graphJSON=graphJSON,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../../delphi.apps.CodeExplorer.html#delphi.apps.CodeExplorer.app.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s1">&#39;0.0.0.0&#39;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Adarsh
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

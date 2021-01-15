@@ -1,0 +1,1031 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>delphi.GrFN.networks &mdash; delphi  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script src="../../../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../../../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> delphi
+          
+
+          
+            
+            <img src="../../../_static/delphi_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../grfn_spec.html#change-log">Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cpp_api/library_root.html">C++ API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">delphi</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>delphi.GrFN.networks</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for delphi.GrFN.networks</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="k">as</span> <span class="nn">ET</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">import</span> <span class="nn">importlib</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+<span class="kn">from</span> <span class="nn">networkx.algorithms.simple_paths</span> <span class="kn">import</span> <span class="n">all_simple_paths</span>
+
+<span class="c1"># from delphi.GrFN.analysis import get_max_s2_sensitivity</span>
+<span class="kn">from</span> <span class="nn">delphi.GrFN.utils</span> <span class="kn">import</span> <span class="n">ScopeNode</span>
+<span class="kn">from</span> <span class="nn">delphi.utils.misc</span> <span class="kn">import</span> <span class="n">choose_font</span>
+<span class="kn">from</span> <span class="nn">delphi.translators.for2py</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">genPGM</span><span class="p">,</span>
+    <span class="n">f2grfn</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">FONT</span> <span class="o">=</span> <span class="n">choose_font</span><span class="p">()</span>
+
+<span class="n">dodgerblue3</span> <span class="o">=</span> <span class="s2">&quot;#1874CD&quot;</span>
+<span class="n">forestgreen</span> <span class="o">=</span> <span class="s2">&quot;#228b22&quot;</span>
+
+
+<div class="viewcode-block" id="ComputationalGraph"><a class="viewcode-back" href="../../../delphi.GrFN.html#delphi.GrFN.networks.ComputationalGraph">[docs]</a><span class="k">class</span> <span class="nc">ComputationalGraph</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">FCG</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_FCG</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">function_sets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_function_sets</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ComputationalGraph.var_shortname"><a class="viewcode-back" href="../../../delphi.GrFN.html#delphi.GrFN.networks.ComputationalGraph.var_shortname">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">var_shortname</span><span class="p">(</span><span class="n">long_var_name</span><span class="p">):</span>
+        <span class="p">(</span>
+            <span class="n">module</span><span class="p">,</span>
+            <span class="n">var_scope</span><span class="p">,</span>
+            <span class="n">container_name</span><span class="p">,</span>
+            <span class="n">container_index</span><span class="p">,</span>
+            <span class="n">var_name</span><span class="p">,</span>
+            <span class="n">var_index</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="n">long_var_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;::&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">var_name</span></div>
+
+<div class="viewcode-block" id="ComputationalGraph.get_input_nodes"><a class="viewcode-back" href="../../../delphi.GrFN.html#delphi.GrFN.networks.ComputationalGraph.get_input_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">get_input_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot; Get all input nodes from a network. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_degree</span><span class="p">()</span> <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="ComputationalGraph.get_output_nodes"><a class="viewcode-back" href="../../../delphi.GrFN.html#delphi.GrFN.networks.ComputationalGraph.get_output_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">get_output_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot; Get all output nodes from a network. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_degree</span><span class="p">()</span> <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="ComputationalGraph.to_FCG"><a class="viewcode-back" href="../../../delphi.GrFN.html#delphi.GrFN.networks.ComputationalGraph.to_FCG">[docs]</a>    <span class="k">def</span> <span class="nf">to_FCG</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">()</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">attrs</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;function&quot;</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">predecessor_variable</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">predecessors</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">predecessor_function</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">predecessors</span><span class="p">(</span>
+                        <span class="n">predecessor_variable</span>
+                    <span class="p">):</span>
+                        <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">predecessor_function</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">G</span></div>
+
+<div class="viewcode-block" id="ComputationalGraph.build_function_sets"><a class="viewcode-back" href="../../../delphi.GrFN.html#delphi.GrFN.networks.ComputationalGraph.build_function_sets">[docs]</a>    <span class="k">def</span> <span class="nf">build_function_sets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">initial_funcs</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FCG</span><span class="o">.</span><span class="n">in_degree</span><span class="p">()</span> <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">distances</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">find_distances</span><span class="p">(</span><span class="n">funcs</span><span class="p">,</span> <span class="n">dist</span><span class="p">):</span>
+            <span class="n">all_successors</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">funcs</span><span class="p">:</span>
+                <span class="n">distances</span><span class="p">[</span><span class="n">func</span><span class="p">]</span> <span class="o">=</span> <span class="n">dist</span>
+                <span class="n">all_successors</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">FCG</span><span class="o">.</span><span class="n">successors</span><span class="p">(</span><span class="n">func</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_successors</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">find_distances</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">all_successors</span><span class="p">)),</span> <span class="n">dist</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">find_distances</span><span class="p">(</span><span class="n">initial_funcs</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">call_sets</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">func_name</span><span class="p">,</span> <span class="n">call_dist</span> <span class="ow">in</span> <span class="n">distances</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">call_dist</span> <span class="ow">in</span> <span class="n">call_sets</span><span class="p">:</span>
+                <span class="n">call_sets</span><span class="p">[</span><span class="n">call_dist</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">func_name</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">call_sets</span><span class="p">[</span><span class="n">call_dist</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">func_name</span><span class="p">}</span>
+
+        <span class="n">function_set_dists</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="n">call_sets</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="p">)</span>
+        <span class="n">function_sets</span> <span class="o">=</span> <span class="p">[</span><span class="n">func_set</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">func_set</span> <span class="ow">in</span> <span class="n">function_set_dists</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">function_sets</span></div>
+
+<div class="viewcode-block" id="ComputationalGraph.run"><a class="viewcode-back" href="../../../delphi.GrFN.html#delphi.GrFN.networks.ComputationalGraph.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">]],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Executes the GrFN over a particular set of inputs and returns the</span>
+<span class="sd">        result.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            inputs: Input set where keys are the names of input nodes in the</span>
+<span class="sd">                GrFN and each key points to a set of input values (or just one).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A set of outputs from executing the GrFN, one for every set of</span>
+<span class="sd">            inputs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">full_inputs</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">input_name_map</span><span class="p">[</span><span class="n">n</span><span class="p">]:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">inputs</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="c1"># Set input values</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">full_inputs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">value</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">value</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">for</span> <span class="n">func_set</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">function_sets</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">func_name</span> <span class="ow">in</span> <span class="n">func_set</span><span class="p">:</span>
+                <span class="n">lambda_fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">func_name</span><span class="p">][</span><span class="s2">&quot;lambda_fn&quot;</span><span class="p">]</span>
+                <span class="n">output_node</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">successors</span><span class="p">(</span><span class="n">func_name</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+                <span class="n">signature</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">func_name</span><span class="p">][</span><span class="s2">&quot;func_inputs&quot;</span><span class="p">]</span>
+                <span class="n">input_values</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">signature</span><span class="p">]</span>
+                <span class="n">res</span> <span class="o">=</span> <span class="n">lambda_fn</span><span class="p">(</span><span class="o">*</span><span class="n">input_values</span><span class="p">)</span>
+
+                <span class="c1"># Convert output to a NumPy matrix if a constant was returned</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_values</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">output_node</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span>
+
+        <span class="c1"># Return the output</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">o</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="ComputationalGraph.to_CAG"><a class="viewcode-back" href="../../../delphi.GrFN.html#delphi.GrFN.networks.ComputationalGraph.to_CAG">[docs]</a>    <span class="k">def</span> <span class="nf">to_CAG</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Export to a Causal Analysis Graph (CAG) PyGraphviz AGraph object.</span>
+<span class="sd">        The CAG shows the influence relationships between the variables and</span>
+<span class="sd">        elides the function nodes.&quot;&quot;&quot;</span>
+
+        <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">()</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">attrs</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;variable&quot;</span><span class="p">:</span>
+                <span class="n">cag_name</span> <span class="o">=</span> <span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;cag_label&quot;</span><span class="p">]</span>
+                <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">cag_name</span><span class="p">,</span> <span class="o">**</span><span class="n">attrs</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">pred_fn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">predecessors</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">pred_var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">predecessors</span><span class="p">(</span><span class="n">pred_fn</span><span class="p">):</span>
+                        <span class="n">v_attrs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">pred_var</span><span class="p">]</span>
+                        <span class="n">v_name</span> <span class="o">=</span> <span class="n">v_attrs</span><span class="p">[</span><span class="s2">&quot;cag_label&quot;</span><span class="p">]</span>
+                        <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">v_name</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">pred_var</span><span class="p">])</span>
+                        <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">v_name</span><span class="p">,</span> <span class="n">cag_name</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">G</span></div></div>
+
+
+<div class="viewcode-block" id="GroundedFunctionNetwork"><a class="viewcode-back" href="../../../delphi.GrFN.html#delphi.GrFN.networks.GroundedFunctionNetwork">[docs]</a><span class="k">class</span> <span class="nc">GroundedFunctionNetwork</span><span class="p">(</span><span class="n">ComputationalGraph</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Representation of a GrFN model as a DiGraph with a set of input nodes and</span>
+<span class="sd">    currently a single output. The DiGraph is composed of variable nodes and</span>
+<span class="sd">    function nodes. Function nodes store an actual Python function with the</span>
+<span class="sd">    expected set of ordered input arguments that correspond to the variable</span>
+<span class="sd">    inputs of that node. Variable nodes store a value. This value can be any</span>
+<span class="sd">    data type found in Python. When no value exists for a variable the value</span>
+<span class="sd">    key will be set to None. Importantly only function nodes can be children or</span>
+<span class="sd">    parents of variable nodes, and the reverse is also true. Both variable and</span>
+<span class="sd">    function nodes can be inputs, but the output will always be a variable</span>
+<span class="sd">    node.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">scope_tree</span><span class="p">,</span> <span class="n">outputs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="n">outputs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">n</span>
+            <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_degree</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;variable&quot;</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_name_map</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">var_shortname</span><span class="p">(</span><span class="n">name</span><span class="p">):</span> <span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span>
+        <span class="p">}</span>
+        <span class="c1"># self.outputs = outputs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scope_tree</span> <span class="o">=</span> <span class="n">scope_tree</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">traverse_nodes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">))</span>
+
+<div class="viewcode-block" id="GroundedFunctionNetwork.traverse_nodes"><a class="viewcode-back" href="../../../delphi.GrFN.html#delphi.GrFN.networks.GroundedFunctionNetwork.traverse_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">traverse_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_set</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;BFS traversal of nodes that returns name traversal as large string.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node_set: Set of input nodes to begin traversal.</span>
+<span class="sd">            depth: Current traversal depth for child node viewing.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            type: String containing tabbed traversal view.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">tab</span> <span class="o">=</span> <span class="s2">&quot;  &quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">node_set</span><span class="p">:</span>
+            <span class="nb">repr</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">n</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;variable&quot;</span>
+                <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{n}</span><span class="s2">{inspect.signature(self.nodes[n][&#39;lambda_fn&#39;])}&quot;</span>
+            <span class="p">)</span>
+
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;{tab * depth}</span><span class="si">{repr}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">traverse_nodes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">successors</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">depth</span><span class="o">=</span><span class="n">depth</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="GroundedFunctionNetwork.from_json_and_lambdas"><a class="viewcode-back" href="../../../delphi.GrFN.html#delphi.GrFN.networks.GroundedFunctionNetwork.from_json_and_lambdas">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_json_and_lambdas</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">lambdas</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Builds a GrFN from a JSON object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cls: The class variable for object creation.</span>
+<span class="sd">            file: Filename of a GrFN JSON file.</span>
+<span class="sd">            lambdas: A lambdas module</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            type: A GroundedFunctionNetwork object.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">lambdas</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GroundedFunctionNetwork.from_dict"><a class="viewcode-back" href="../../../delphi.GrFN.html#delphi.GrFN.networks.GroundedFunctionNetwork.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">lambdas_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Builds a GrFN object from a set of extracted function data objects</span>
+<span class="sd">        and an associated file of lambda functions.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cls: The class variable for object creation.</span>
+<span class="sd">            data: A set of function data object that specify the wiring of a</span>
+<span class="sd">                  GrFN object.</span>
+<span class="sd">            lambdas_path: Path to a lambdas file containing functions to be</span>
+<span class="sd">                computed during GrFN execution.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A GroundedFunctionNetwork object.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lambdas</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">__import__</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">lambdas_path</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span><span class="p">))</span>
+        <span class="n">functions</span> <span class="o">=</span> <span class="p">{</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]:</span> <span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;containers&quot;</span><span class="p">]}</span>
+        <span class="n">occurrences</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">()</span>
+        <span class="n">scope_tree</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">identity</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">x</span>
+
+        <span class="k">def</span> <span class="nf">make_identifier</span><span class="p">(</span><span class="n">scope</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;::&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">make_variable_name</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">make_variable_name</span><span class="p">(</span><span class="n">parent</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">basename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{parent}</span><span class="s2">::</span><span class="si">{basename}</span><span class="s2">::</span><span class="si">{index}</span><span class="s2">&quot;</span>
+
+        <span class="k">def</span> <span class="nf">add_variable_node</span><span class="p">(</span>
+            <span class="n">parent</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">basename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">is_exit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="p">):</span>
+            <span class="n">full_var_name</span> <span class="o">=</span> <span class="n">make_variable_name</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+            <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+                <span class="n">full_var_name</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;variable&quot;</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="s2">&quot;crimson&quot;</span><span class="p">,</span>
+                <span class="n">fontcolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span> <span class="k">if</span> <span class="n">is_exit</span> <span class="k">else</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span>
+                <span class="n">fillcolor</span><span class="o">=</span><span class="s2">&quot;crimson&quot;</span> <span class="k">if</span> <span class="n">is_exit</span> <span class="k">else</span> <span class="s2">&quot;white&quot;</span><span class="p">,</span>
+                <span class="n">style</span><span class="o">=</span><span class="s2">&quot;filled&quot;</span> <span class="k">if</span> <span class="n">is_exit</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{basename}</span><span class="s2">::</span><span class="si">{index}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">cag_label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{basename}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">basename</span><span class="o">=</span><span class="n">basename</span><span class="p">,</span>
+                <span class="n">padding</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+                <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">full_var_name</span>
+
+        <span class="k">def</span> <span class="nf">process_wiring_statement</span><span class="p">(</span><span class="n">stmt</span><span class="p">,</span> <span class="n">scope</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">cname</span><span class="p">):</span>
+            <span class="n">lambda_name</span> <span class="o">=</span> <span class="n">stmt</span><span class="p">[</span><span class="s2">&quot;function&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+            <span class="n">lambda_node_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{scope.name}</span><span class="s2">::&quot;</span> <span class="o">+</span> <span class="n">lambda_name</span>
+
+            <span class="n">stmt_type</span> <span class="o">=</span> <span class="n">lambda_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">stmt_type</span> <span class="o">==</span> <span class="s2">&quot;assign&quot;</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">stmt</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">stmt_type</span> <span class="o">=</span> <span class="s2">&quot;literal&quot;</span>
+
+            <span class="k">for</span> <span class="n">output</span> <span class="ow">in</span> <span class="n">stmt</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]:</span>
+                <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;::&quot;</span><span class="p">)</span>
+                <span class="n">node_name</span> <span class="o">=</span> <span class="n">add_variable_node</span><span class="p">(</span>
+                    <span class="n">scope</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">is_exit</span><span class="o">=</span><span class="n">var_name</span> <span class="o">==</span> <span class="s2">&quot;EXIT&quot;</span>
+                <span class="p">)</span>
+                <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">lambda_node_name</span><span class="p">,</span> <span class="n">node_name</span><span class="p">)</span>
+
+            <span class="n">ordered_inputs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">inp</span> <span class="ow">in</span> <span class="n">stmt</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">inp</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;-1&quot;</span><span class="p">):</span>
+                    <span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="n">inp</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">parent</span> <span class="o">=</span> <span class="n">scope</span><span class="o">.</span><span class="n">name</span>
+                    <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span> <span class="o">=</span> <span class="n">inp</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;::&quot;</span><span class="p">)</span>
+
+                <span class="n">node_name</span> <span class="o">=</span> <span class="n">add_variable_node</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+                <span class="n">ordered_inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node_name</span><span class="p">)</span>
+                <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="n">lambda_node_name</span><span class="p">)</span>
+
+            <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+                <span class="n">lambda_node_name</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;function&quot;</span><span class="p">,</span>
+                <span class="n">lambda_fn</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">lambdas</span><span class="p">,</span> <span class="n">lambda_name</span><span class="p">),</span>
+                <span class="n">func_inputs</span><span class="o">=</span><span class="n">ordered_inputs</span><span class="p">,</span>
+                <span class="n">visited</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;rectangle&quot;</span><span class="p">,</span>
+                <span class="n">parent</span><span class="o">=</span><span class="n">scope</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="n">stmt_type</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span>
+                <span class="n">padding</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">process_call_statement</span><span class="p">(</span><span class="n">stmt</span><span class="p">,</span> <span class="n">scope</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">cname</span><span class="p">):</span>
+            <span class="n">container_name</span> <span class="o">=</span> <span class="n">stmt</span><span class="p">[</span><span class="s2">&quot;function&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">container_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">occurrences</span><span class="p">:</span>
+                <span class="n">occurrences</span><span class="p">[</span><span class="n">container_name</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="n">new_container</span> <span class="o">=</span> <span class="n">functions</span><span class="p">[</span><span class="n">container_name</span><span class="p">]</span>
+            <span class="n">container_color</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;navyblue&quot;</span> <span class="k">if</span> <span class="n">new_container</span><span class="p">[</span><span class="s2">&quot;repeat&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="s2">&quot;forestgreen&quot;</span>
+            <span class="p">)</span>
+            <span class="n">new_scope</span> <span class="o">=</span> <span class="n">ScopeNode</span><span class="p">(</span>
+                <span class="n">new_container</span><span class="p">,</span> <span class="n">occurrences</span><span class="p">[</span><span class="n">container_name</span><span class="p">],</span> <span class="n">parent</span><span class="o">=</span><span class="n">scope</span>
+            <span class="p">)</span>
+            <span class="n">scope_tree</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">new_scope</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">container_color</span><span class="p">)</span>
+            <span class="n">scope_tree</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">scope</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">new_scope</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+            <span class="n">input_values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">inp</span> <span class="ow">in</span> <span class="n">stmt</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">inp</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;-1&quot;</span><span class="p">):</span>
+                    <span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="n">inp</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">parent</span> <span class="o">=</span> <span class="n">scope</span><span class="o">.</span><span class="n">name</span>
+                    <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span> <span class="o">=</span> <span class="n">inp</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;::&quot;</span><span class="p">)</span>
+                <span class="n">input_values</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">parent</span><span class="p">,</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">idx</span><span class="p">))</span>
+
+            <span class="n">callee_ret</span><span class="p">,</span> <span class="n">callee_up</span> <span class="o">=</span> <span class="n">process_container</span><span class="p">(</span>
+                <span class="n">new_scope</span><span class="p">,</span> <span class="n">input_values</span><span class="p">,</span> <span class="n">container_name</span>
+            <span class="p">)</span>
+
+            <span class="n">caller_ret</span><span class="p">,</span> <span class="n">caller_up</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(),</span> <span class="nb">list</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">stmt</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]:</span>
+                <span class="n">parent</span> <span class="o">=</span> <span class="n">scope</span><span class="o">.</span><span class="n">name</span>
+                <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;::&quot;</span><span class="p">)</span>
+                <span class="n">node_name</span> <span class="o">=</span> <span class="n">add_variable_node</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+                <span class="n">caller_ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node_name</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">stmt</span><span class="p">[</span><span class="s2">&quot;updated&quot;</span><span class="p">]:</span>
+                <span class="n">parent</span> <span class="o">=</span> <span class="n">scope</span><span class="o">.</span><span class="n">name</span>
+                <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;::&quot;</span><span class="p">)</span>
+                <span class="n">node_name</span> <span class="o">=</span> <span class="n">add_variable_node</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+                <span class="n">caller_up</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node_name</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">callee_var</span><span class="p">,</span> <span class="n">caller_var</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">callee_ret</span><span class="p">,</span> <span class="n">caller_ret</span><span class="p">):</span>
+                <span class="n">lambda_node_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{callee_var}</span><span class="s2">--&gt;</span><span class="si">{caller_var}</span><span class="s2">&quot;</span>
+                <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+                    <span class="n">lambda_node_name</span><span class="p">,</span>
+                    <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;function&quot;</span><span class="p">,</span>
+                    <span class="n">lambda_fn</span><span class="o">=</span><span class="n">identity</span><span class="p">,</span>
+                    <span class="n">func_inputs</span><span class="o">=</span><span class="p">[</span><span class="n">callee_var</span><span class="p">],</span>
+                    <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;rectangle&quot;</span><span class="p">,</span>
+                    <span class="n">parent</span><span class="o">=</span><span class="n">scope</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;A&quot;</span><span class="p">,</span>
+                    <span class="n">padding</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">callee_var</span><span class="p">,</span> <span class="n">lambda_node_name</span><span class="p">)</span>
+                <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">lambda_node_name</span><span class="p">,</span> <span class="n">caller_var</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">callee_var</span><span class="p">,</span> <span class="n">caller_var</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">callee_up</span><span class="p">,</span> <span class="n">caller_up</span><span class="p">):</span>
+                <span class="n">lambda_node_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{callee_var}</span><span class="s2">--&gt;</span><span class="si">{caller_var}</span><span class="s2">&quot;</span>
+                <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+                    <span class="n">lambda_node_name</span><span class="p">,</span>
+                    <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;function&quot;</span><span class="p">,</span>
+                    <span class="n">lambda_fn</span><span class="o">=</span><span class="n">identity</span><span class="p">,</span>
+                    <span class="n">func_inputs</span><span class="o">=</span><span class="p">[</span><span class="n">callee_var</span><span class="p">],</span>
+                    <span class="n">shape</span><span class="o">=</span><span class="s2">&quot;rectangle&quot;</span><span class="p">,</span>
+                    <span class="n">parent</span><span class="o">=</span><span class="n">scope</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;A&quot;</span><span class="p">,</span>
+                    <span class="n">padding</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">callee_var</span><span class="p">,</span> <span class="n">lambda_node_name</span><span class="p">)</span>
+                <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">lambda_node_name</span><span class="p">,</span> <span class="n">caller_var</span><span class="p">)</span>
+            <span class="n">occurrences</span><span class="p">[</span><span class="n">container_name</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">def</span> <span class="nf">process_container</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span> <span class="n">input_vals</span><span class="p">,</span> <span class="n">cname</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">scope</span><span class="o">.</span><span class="n">arguments</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_vals</span><span class="p">):</span>
+                <span class="n">input_vars</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="n">a</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">scope</span><span class="o">.</span><span class="n">arguments</span><span class="p">,</span> <span class="n">input_vals</span><span class="p">)</span>
+                <span class="p">}</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">scope</span><span class="o">.</span><span class="n">arguments</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">input_vars</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="n">a</span><span class="p">:</span> <span class="p">(</span><span class="n">scope</span><span class="o">.</span><span class="n">name</span><span class="p">,)</span> <span class="o">+</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;::&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:])</span>
+                    <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">scope</span><span class="o">.</span><span class="n">arguments</span>
+                <span class="p">}</span>
+
+            <span class="k">for</span> <span class="n">stmt</span> <span class="ow">in</span> <span class="n">scope</span><span class="o">.</span><span class="n">body</span><span class="p">:</span>
+                <span class="n">func_def</span> <span class="o">=</span> <span class="n">stmt</span><span class="p">[</span><span class="s2">&quot;function&quot;</span><span class="p">]</span>
+                <span class="n">func_type</span> <span class="o">=</span> <span class="n">func_def</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">func_type</span> <span class="o">==</span> <span class="s2">&quot;lambda&quot;</span><span class="p">:</span>
+                    <span class="n">process_wiring_statement</span><span class="p">(</span><span class="n">stmt</span><span class="p">,</span> <span class="n">scope</span><span class="p">,</span> <span class="n">input_vars</span><span class="p">,</span> <span class="n">cname</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">func_type</span> <span class="o">==</span> <span class="s2">&quot;container&quot;</span><span class="p">:</span>
+                    <span class="n">process_call_statement</span><span class="p">(</span><span class="n">stmt</span><span class="p">,</span> <span class="n">scope</span><span class="p">,</span> <span class="n">input_vars</span><span class="p">,</span> <span class="n">cname</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Undefined function type: </span><span class="si">{func_type}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="n">return_list</span><span class="p">,</span> <span class="n">updated_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(),</span> <span class="nb">list</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">scope</span><span class="o">.</span><span class="n">returns</span><span class="p">:</span>
+                <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span> <span class="o">=</span> <span class="n">var_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;::&quot;</span><span class="p">)</span>
+                <span class="n">return_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">make_variable_name</span><span class="p">(</span><span class="n">scope</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+                <span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">scope</span><span class="o">.</span><span class="n">updated</span><span class="p">:</span>
+                <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span> <span class="o">=</span> <span class="n">var_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;::&quot;</span><span class="p">)</span>
+                <span class="n">updated_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">make_variable_name</span><span class="p">(</span><span class="n">scope</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="n">return_list</span><span class="p">,</span> <span class="n">updated_list</span>
+
+        <span class="n">root</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">occurrences</span><span class="p">[</span><span class="n">root</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">cur_scope</span> <span class="o">=</span> <span class="n">ScopeNode</span><span class="p">(</span><span class="n">functions</span><span class="p">[</span><span class="n">root</span><span class="p">],</span> <span class="n">occurrences</span><span class="p">[</span><span class="n">root</span><span class="p">])</span>
+        <span class="n">scope_tree</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">cur_scope</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;forestgreen&quot;</span><span class="p">)</span>
+        <span class="n">returns</span><span class="p">,</span> <span class="n">updates</span> <span class="o">=</span> <span class="n">process_container</span><span class="p">(</span><span class="n">cur_scope</span><span class="p">,</span> <span class="p">[],</span> <span class="n">root</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">scope_tree</span><span class="p">,</span> <span class="n">returns</span> <span class="o">+</span> <span class="n">updates</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GroundedFunctionNetwork.create_container_dict"><a class="viewcode-back" href="../../../delphi.GrFN.html#delphi.GrFN.networks.GroundedFunctionNetwork.create_container_dict">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">create_container_dict</span><span class="p">(</span><span class="n">G</span><span class="p">:</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">):</span>
+        <span class="n">containers</span> <span class="o">=</span> <span class="p">{</span><span class="n">node_name</span><span class="p">:</span> <span class="nb">dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">node_name</span> <span class="ow">in</span> <span class="n">scope_tree</span><span class="o">.</span><span class="n">nodes</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="GroundedFunctionNetwork.from_python_file"><a class="viewcode-back" href="../../../generated/delphi.GrFN.networks.GroundedFunctionNetwork.from_python_file.html#delphi.GrFN.networks.GroundedFunctionNetwork.from_python_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_python_file</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">python_file</span><span class="p">,</span> <span class="n">lambdas_path</span><span class="p">,</span> <span class="n">json_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">stem</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Builds GrFN object from Python file.&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">python_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">pySrc</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_python_src</span><span class="p">(</span><span class="n">pySrc</span><span class="p">,</span> <span class="n">lambdas_path</span><span class="p">,</span> <span class="n">json_filename</span><span class="p">,</span> <span class="n">stem</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GroundedFunctionNetwork.from_python_src"><a class="viewcode-back" href="../../../generated/delphi.GrFN.networks.GroundedFunctionNetwork.from_python_src.html#delphi.GrFN.networks.GroundedFunctionNetwork.from_python_src">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_python_src</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">pySrc</span><span class="p">,</span>
+        <span class="n">python_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">fortran_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">module_log_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">mod_mapper_dict</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+        <span class="n">processing_modules</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">lambdas_path</span> <span class="o">=</span> <span class="n">python_file</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.py&quot;</span><span class="p">,</span> <span class="s2">&quot;_lambdas.py&quot;</span><span class="p">)</span>
+        <span class="c1"># Builds GrFN object from Python source code.</span>
+        <span class="n">pgm_dict</span> <span class="o">=</span> <span class="n">f2grfn</span><span class="o">.</span><span class="n">generate_grfn</span><span class="p">(</span>
+            <span class="n">pySrc</span><span class="p">,</span>
+            <span class="n">python_file</span><span class="p">,</span>
+            <span class="n">lambdas_path</span><span class="p">,</span>
+            <span class="n">mod_mapper_dict</span><span class="p">,</span>
+            <span class="n">fortran_file</span><span class="p">,</span>
+            <span class="n">module_log_file_path</span><span class="p">,</span>
+            <span class="n">processing_modules</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">G</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">pgm_dict</span><span class="p">,</span> <span class="n">lambdas_path</span><span class="p">)</span>
+
+        <span class="c1"># Cleanup intermediate files.</span>
+        <span class="n">variable_map_filename</span> <span class="o">=</span> <span class="n">python_file</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.py&quot;</span><span class="p">,</span> <span class="s2">&quot;_variable_map.pkl&quot;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">variable_map_filename</span><span class="p">)</span>
+        <span class="n">rectified_xml_filename</span> <span class="o">=</span> <span class="s2">&quot;rectified_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">python_file</span><span class="p">))</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+            <span class="s2">&quot;.py&quot;</span><span class="p">,</span> <span class="s2">&quot;.xml&quot;</span>
+        <span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">rectified_xml_filename</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">G</span></div>
+
+<div class="viewcode-block" id="GroundedFunctionNetwork.from_fortran_file"><a class="viewcode-back" href="../../../generated/delphi.GrFN.networks.GroundedFunctionNetwork.from_fortran_file.html#delphi.GrFN.networks.GroundedFunctionNetwork.from_fortran_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_fortran_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">fortran_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tmpdir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Builds GrFN object from a Fortran program.&quot;&quot;&quot;</span>
+
+        <span class="n">root_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">)</span>
+
+        <span class="p">(</span>
+            <span class="n">python_sources</span><span class="p">,</span>
+            <span class="n">translated_python_files</span><span class="p">,</span>
+            <span class="n">mod_mapper_dict</span><span class="p">,</span>
+            <span class="n">fortran_filename</span><span class="p">,</span>
+            <span class="n">module_log_file_path</span><span class="p">,</span>
+            <span class="n">processing_modules</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="n">f2grfn</span><span class="o">.</span><span class="n">fortran_to_grfn</span><span class="p">(</span>
+            <span class="n">fortran_file</span><span class="p">,</span>
+            <span class="n">temp_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">),</span>
+            <span class="n">root_dir_path</span><span class="o">=</span><span class="n">root_dir</span><span class="p">,</span>
+            <span class="n">processing_modules</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># For now, just taking the first translated file.</span>
+        <span class="c1"># TODO - generalize this.</span>
+        <span class="n">python_file</span> <span class="o">=</span> <span class="n">translated_python_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">G</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_python_src</span><span class="p">(</span>
+            <span class="n">python_sources</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">python_file</span><span class="p">,</span>
+            <span class="n">fortran_file</span><span class="p">,</span>
+            <span class="n">module_log_file_path</span><span class="p">,</span>
+            <span class="n">mod_mapper_dict</span><span class="p">,</span>
+            <span class="n">processing_modules</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">G</span></div>
+
+<div class="viewcode-block" id="GroundedFunctionNetwork.from_fortran_src"><a class="viewcode-back" href="../../../generated/delphi.GrFN.networks.GroundedFunctionNetwork.from_fortran_src.html#delphi.GrFN.networks.GroundedFunctionNetwork.from_fortran_src">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_fortran_src</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">fortran_src</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Create a GroundedFunctionNetwork instance from a string with raw</span>
+<span class="sd">        Fortran code.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fortran_src: A string with Fortran source code.</span>
+<span class="sd">            dir: (Optional) - the directory in which the temporary Fortran file</span>
+<span class="sd">                will be created (make sure you have write permission!) Defaults to</span>
+<span class="sd">                the current directory.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            A GroundedFunctionNetwork instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">tempfile</span>
+
+        <span class="n">fp</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="s2">&quot;w+t&quot;</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="nb">dir</span><span class="p">)</span>
+        <span class="n">fp</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">fortran_src</span><span class="p">)</span>
+        <span class="n">fp</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">G</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_fortran_file</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">dir</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">G</span></div>
+
+<div class="viewcode-block" id="GroundedFunctionNetwork.to_json"><a class="viewcode-back" href="../../../delphi.GrFN.html#delphi.GrFN.networks.GroundedFunctionNetwork.to_json">[docs]</a>    <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Experimental outputting a GrFN to a JSON file.&quot;&quot;&quot;</span>
+        <span class="n">containers</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">name</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s2">&quot;parent&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;exit&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">()}</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">scope_tree</span><span class="o">.</span><span class="n">nodes</span>
+        <span class="p">}</span>
+
+        <span class="n">nodes_json</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="n">containers</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;parent&quot;</span><span class="p">]][</span><span class="s2">&quot;nodes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;variable&quot;</span><span class="p">:</span>
+                <span class="n">nodes_json</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;variable&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;reference&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="s2">&quot;data-type&quot;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;float32&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;domain&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="s2">&quot;-inf&quot;</span><span class="p">,</span> <span class="s2">&quot;inf&quot;</span><span class="p">)],</span>
+                        <span class="p">},</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;function&quot;</span><span class="p">:</span>
+                <span class="p">(</span><span class="n">source_list</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getsourcelines</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;lambda_fn&quot;</span><span class="p">])</span>
+                <span class="n">source_code</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">source_list</span><span class="p">)</span>
+                <span class="n">nodes_json</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;function&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;reference&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="s2">&quot;inputs&quot;</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;func_inputs&quot;</span><span class="p">],</span>
+                        <span class="s2">&quot;lambda&quot;</span><span class="p">:</span> <span class="n">source_code</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unrecognized node type: </span><span class="si">{data[&#39;type&#39;]}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;nodes&quot;</span><span class="p">:</span> <span class="n">nodes_json</span><span class="p">,</span>
+                <span class="s2">&quot;edges&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">),</span>
+                <span class="s2">&quot;containers&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">containers</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+            <span class="p">}</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="GroundedFunctionNetwork.to_json_file"><a class="viewcode-back" href="../../../delphi.GrFN.html#delphi.GrFN.networks.GroundedFunctionNetwork.to_json_file">[docs]</a>    <span class="k">def</span> <span class="nf">to_json_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="n">GrFN_json</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_json</span><span class="p">()</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">GrFN_json</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="GroundedFunctionNetwork.to_AGraph"><a class="viewcode-back" href="../../../delphi.GrFN.html#delphi.GrFN.networks.GroundedFunctionNetwork.to_AGraph">[docs]</a>    <span class="k">def</span> <span class="nf">to_AGraph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Export to a PyGraphviz AGraph object. &quot;&quot;&quot;</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">nx_agraph</span><span class="o">.</span><span class="n">to_agraph</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">A</span><span class="o">.</span><span class="n">graph_attr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;dpi&quot;</span><span class="p">:</span> <span class="mi">227</span><span class="p">,</span> <span class="s2">&quot;fontsize&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;fontname&quot;</span><span class="p">:</span> <span class="s2">&quot;Menlo&quot;</span><span class="p">,</span> <span class="s2">&quot;rankdir&quot;</span><span class="p">:</span> <span class="s2">&quot;LR&quot;</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">A</span><span class="o">.</span><span class="n">node_attr</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;fontname&quot;</span><span class="p">:</span> <span class="s2">&quot;Menlo&quot;</span><span class="p">})</span>
+
+        <span class="k">def</span> <span class="nf">build_tree</span><span class="p">(</span><span class="n">cluster_name</span><span class="p">,</span> <span class="n">node_attrs</span><span class="p">,</span> <span class="n">root_graph</span><span class="p">):</span>
+            <span class="n">subgraph_nodes</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">node_name</span>
+                <span class="k">for</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">node_data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">node_data</span><span class="p">[</span><span class="s2">&quot;parent&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">cluster_name</span>
+            <span class="p">]</span>
+            <span class="n">root_graph</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">(</span><span class="n">subgraph_nodes</span><span class="p">)</span>
+            <span class="n">subgraph</span> <span class="o">=</span> <span class="n">root_graph</span><span class="o">.</span><span class="n">add_subgraph</span><span class="p">(</span>
+                <span class="n">subgraph_nodes</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;cluster_</span><span class="si">{cluster_name}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="n">cluster_name</span><span class="p">,</span>
+                <span class="n">style</span><span class="o">=</span><span class="s2">&quot;bold, rounded&quot;</span><span class="p">,</span>
+                <span class="n">rankdir</span><span class="o">=</span><span class="s2">&quot;LR&quot;</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">node_attrs</span><span class="p">[</span><span class="n">cluster_name</span><span class="p">][</span><span class="s2">&quot;color&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">scope_tree</span><span class="o">.</span><span class="n">successors</span><span class="p">(</span><span class="n">cluster_name</span><span class="p">):</span>
+                <span class="n">build_tree</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">node_attrs</span><span class="p">,</span> <span class="n">subgraph</span><span class="p">)</span>
+
+        <span class="n">root</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">scope_tree</span><span class="o">.</span><span class="n">in_degree</span><span class="p">()</span> <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">node_data</span> <span class="o">=</span> <span class="p">{</span><span class="n">n</span><span class="p">:</span> <span class="n">d</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">scope_tree</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)}</span>
+        <span class="n">build_tree</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">node_data</span><span class="p">,</span> <span class="n">A</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">A</span></div>
+
+<div class="viewcode-block" id="GroundedFunctionNetwork.CAG_to_AGraph"><a class="viewcode-back" href="../../../delphi.GrFN.html#delphi.GrFN.networks.GroundedFunctionNetwork.CAG_to_AGraph">[docs]</a>    <span class="k">def</span> <span class="nf">CAG_to_AGraph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a variable-only view of the GrFN in the form of an AGraph.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            type: A CAG constructed via variable influence in the GrFN object.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">CAG</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_CAG</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">CAG</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="n">CAG</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;cag_label&quot;</span><span class="p">]</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">nx_agraph</span><span class="o">.</span><span class="n">to_agraph</span><span class="p">(</span><span class="n">CAG</span><span class="p">)</span>
+        <span class="n">A</span><span class="o">.</span><span class="n">graph_attr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;dpi&quot;</span><span class="p">:</span> <span class="mi">227</span><span class="p">,</span> <span class="s2">&quot;fontsize&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;fontname&quot;</span><span class="p">:</span> <span class="s2">&quot;Menlo&quot;</span><span class="p">,</span> <span class="s2">&quot;rankdir&quot;</span><span class="p">:</span> <span class="s2">&quot;LR&quot;</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">A</span><span class="o">.</span><span class="n">node_attr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;shape&quot;</span><span class="p">:</span> <span class="s2">&quot;rectangle&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;#650021&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;style&quot;</span><span class="p">:</span> <span class="s2">&quot;rounded&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fontname&quot;</span><span class="p">:</span> <span class="s2">&quot;Menlo&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">A</span><span class="o">.</span><span class="n">edge_attr</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;#650021&quot;</span><span class="p">,</span> <span class="s2">&quot;arrowsize&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">A</span></div>
+
+<div class="viewcode-block" id="GroundedFunctionNetwork.FCG_to_AGraph"><a class="viewcode-back" href="../../../delphi.GrFN.html#delphi.GrFN.networks.GroundedFunctionNetwork.FCG_to_AGraph">[docs]</a>    <span class="k">def</span> <span class="nf">FCG_to_AGraph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Build a PyGraphviz AGraph object corresponding to a call graph of</span>
+<span class="sd">        functions. &quot;&quot;&quot;</span>
+
+        <span class="n">A</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">nx_agraph</span><span class="o">.</span><span class="n">to_agraph</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">FCG</span><span class="p">)</span>
+        <span class="n">A</span><span class="o">.</span><span class="n">graph_attr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;dpi&quot;</span><span class="p">:</span> <span class="mi">227</span><span class="p">,</span> <span class="s2">&quot;fontsize&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;fontname&quot;</span><span class="p">:</span> <span class="s2">&quot;Menlo&quot;</span><span class="p">,</span> <span class="s2">&quot;rankdir&quot;</span><span class="p">:</span> <span class="s2">&quot;TB&quot;</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">A</span><span class="o">.</span><span class="n">node_attr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;shape&quot;</span><span class="p">:</span> <span class="s2">&quot;rectangle&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;#650021&quot;</span><span class="p">,</span> <span class="s2">&quot;style&quot;</span><span class="p">:</span> <span class="s2">&quot;rounded&quot;</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">A</span><span class="o">.</span><span class="n">edge_attr</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;#650021&quot;</span><span class="p">,</span> <span class="s2">&quot;arrowsize&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">A</span></div></div>
+
+
+<div class="viewcode-block" id="ForwardInfluenceBlanket"><a class="viewcode-back" href="../../../delphi.GrFN.html#delphi.GrFN.networks.ForwardInfluenceBlanket">[docs]</a><span class="k">class</span> <span class="nc">ForwardInfluenceBlanket</span><span class="p">(</span><span class="n">ComputationalGraph</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class takes a network and a list of a shared nodes between the input</span>
+<span class="sd">    network and a secondary network. From this list a shared nodes and blanket</span>
+<span class="sd">    network is created including all of the nodes between any input/output pair</span>
+<span class="sd">    in the shared nodes, as well as all nodes required to blanket the network</span>
+<span class="sd">    for forward influence. This class itself becomes the blanket and inherits</span>
+<span class="sd">    from the ComputationalGraph class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">G</span><span class="p">:</span> <span class="n">GroundedFunctionNetwork</span><span class="p">,</span> <span class="n">shared_nodes</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+        <span class="c1"># super().__init__()</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">outputs</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">inputs</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">shared_nodes</span><span class="p">)</span>
+
+        <span class="c1"># Get all paths from shared inputs to shared outputs</span>
+        <span class="n">path_inputs</span> <span class="o">=</span> <span class="n">shared_nodes</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
+        <span class="n">io_pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="n">inp</span><span class="p">,</span> <span class="n">G</span><span class="o">.</span><span class="n">output_node</span><span class="p">)</span> <span class="k">for</span> <span class="n">inp</span> <span class="ow">in</span> <span class="n">path_inputs</span><span class="p">]</span>
+        <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">o</span><span class="p">)</span> <span class="ow">in</span> <span class="n">io_pairs</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">all_simple_paths</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">o</span><span class="p">)]</span>
+
+        <span class="c1"># Get all edges needed to blanket the included nodes</span>
+        <span class="n">main_nodes</span> <span class="o">=</span> <span class="p">{</span><span class="n">node</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">path</span><span class="p">}</span>
+        <span class="n">main_edges</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">)</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span> <span class="k">for</span> <span class="n">n1</span><span class="p">,</span> <span class="n">n2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">path</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="p">}</span>
+        <span class="n">blanket_nodes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">add_nodes</span><span class="p">,</span> <span class="n">add_edges</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(),</span> <span class="nb">list</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">place_var_node</span><span class="p">(</span><span class="n">var_node</span><span class="p">):</span>
+            <span class="n">prev_funcs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">predecessors</span><span class="p">(</span><span class="n">var_node</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">prev_funcs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">prev_funcs</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;L&quot;</span><span class="p">:</span>
+                <span class="n">prev_func</span> <span class="o">=</span> <span class="n">prev_funcs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">add_nodes</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">var_node</span><span class="p">,</span> <span class="n">prev_func</span><span class="p">])</span>
+                <span class="n">add_edges</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">prev_func</span><span class="p">,</span> <span class="n">var_node</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">blanket_nodes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">var_node</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">main_nodes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;function&quot;</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">var_node</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">predecessors</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">var_node</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">main_nodes</span><span class="p">:</span>
+                        <span class="n">add_edges</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">var_node</span><span class="p">,</span> <span class="n">node</span><span class="p">))</span>
+                        <span class="k">if</span> <span class="s2">&quot;::IF_&quot;</span> <span class="ow">in</span> <span class="n">var_node</span><span class="p">:</span>
+                            <span class="n">if_func</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">predecessors</span><span class="p">(</span><span class="n">var_node</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+                            <span class="n">add_nodes</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">if_func</span><span class="p">,</span> <span class="n">var_node</span><span class="p">])</span>
+                            <span class="n">add_edges</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">if_func</span><span class="p">,</span> <span class="n">var_node</span><span class="p">))</span>
+                            <span class="k">for</span> <span class="n">new_var_node</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">predecessors</span><span class="p">(</span><span class="n">if_func</span><span class="p">):</span>
+                                <span class="n">add_edges</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">new_var_node</span><span class="p">,</span> <span class="n">if_func</span><span class="p">))</span>
+                                <span class="n">place_var_node</span><span class="p">(</span><span class="n">new_var_node</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">place_var_node</span><span class="p">(</span><span class="n">var_node</span><span class="p">)</span>
+
+        <span class="n">main_nodes</span> <span class="o">|=</span> <span class="nb">set</span><span class="p">(</span><span class="n">add_nodes</span><span class="p">)</span>
+        <span class="n">main_edges</span> <span class="o">|=</span> <span class="nb">set</span><span class="p">(</span><span class="n">add_edges</span><span class="p">)</span>
+        <span class="n">main_nodes</span> <span class="o">=</span> <span class="n">main_nodes</span> <span class="o">-</span> <span class="n">inputs</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">outputs</span><span class="p">)</span>
+
+        <span class="n">orig_nodes</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">F</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">()</span>
+
+        <span class="n">F</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">([(</span><span class="n">n</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">orig_nodes</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">:</span>
+            <span class="n">F</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s2">&quot;color&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dodgerblue3</span>
+            <span class="n">F</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s2">&quot;fontcolor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dodgerblue3</span>
+            <span class="n">F</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s2">&quot;penwidth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">3.0</span>
+            <span class="n">F</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s2">&quot;fontname&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">FONT</span>
+
+        <span class="n">F</span><span class="o">.</span><span class="n">inputs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">inputs</span><span class="p">)</span>
+
+        <span class="n">F</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">([(</span><span class="n">n</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">orig_nodes</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">blanket_nodes</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">blanket_nodes</span><span class="p">:</span>
+            <span class="n">F</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s2">&quot;fontname&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">FONT</span>
+            <span class="n">F</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s2">&quot;color&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">forestgreen</span>
+            <span class="n">F</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s2">&quot;fontcolor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">forestgreen</span>
+
+        <span class="n">F</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">([(</span><span class="n">n</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">orig_nodes</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">main_nodes</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">main_nodes</span><span class="p">:</span>
+            <span class="n">F</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s2">&quot;fontname&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">FONT</span>
+
+        <span class="k">for</span> <span class="n">out_var_node</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">:</span>
+            <span class="n">F</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">out_var_node</span><span class="p">,</span> <span class="o">**</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">out_var_node</span><span class="p">])</span>
+            <span class="n">F</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">out_var_node</span><span class="p">][</span><span class="s2">&quot;color&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dodgerblue3</span>
+            <span class="n">F</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">out_var_node</span><span class="p">][</span><span class="s2">&quot;fontcolor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dodgerblue3</span>
+
+        <span class="n">F</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">(</span><span class="n">main_edges</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">outputs</span><span class="p">)</span>
+
+        <span class="c1"># self.FCG = self.to_FCG()</span>
+        <span class="c1"># self.function_sets = self.build_function_sets()</span>
+
+<div class="viewcode-block" id="ForwardInfluenceBlanket.from_GrFN"><a class="viewcode-back" href="../../../delphi.GrFN.html#delphi.GrFN.networks.ForwardInfluenceBlanket.from_GrFN">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_GrFN</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">G1</span><span class="p">,</span> <span class="n">G2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Creates a ForwardInfluenceBlanket object representing the</span>
+<span class="sd">        intersection of this model with the other input model.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            G1: The GrFN model to use as the basis for this FIB</span>
+<span class="sd">            G2: The GroundedFunctionNetwork object to compare this model to.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A ForwardInfluenceBlanket object to use for model comparison.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">G1</span><span class="p">,</span> <span class="n">GroundedFunctionNetwork</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">G2</span><span class="p">,</span> <span class="n">GroundedFunctionNetwork</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Expected two GrFNs, but got ({type(G1)}, {type(G2)})&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">shortname</span><span class="p">(</span><span class="n">var</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">var</span><span class="p">[</span><span class="n">var</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;::&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span> <span class="p">:</span> <span class="n">var</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)]</span>
+
+        <span class="k">def</span> <span class="nf">shortname_vars</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">shortname</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">()</span> <span class="k">if</span> <span class="n">shortname</span> <span class="ow">in</span> <span class="n">v</span><span class="p">]</span>
+
+        <span class="n">g1_var_nodes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">shortname</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="ow">in</span> <span class="n">G1</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;variable&quot;</span>
+        <span class="p">}</span>
+        <span class="n">g2_var_nodes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">shortname</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="ow">in</span> <span class="n">G2</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;variable&quot;</span>
+        <span class="p">}</span>
+
+        <span class="n">shared_vars</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">full_var</span>
+            <span class="k">for</span> <span class="n">shared_var</span> <span class="ow">in</span> <span class="n">g1_var_nodes</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">g2_var_nodes</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">full_var</span> <span class="ow">in</span> <span class="n">shortname_vars</span><span class="p">(</span><span class="n">G1</span><span class="p">,</span> <span class="n">shared_var</span><span class="p">)</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">G1</span><span class="p">,</span> <span class="n">shared_vars</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ForwardInfluenceBlanket.run"><a class="viewcode-back" href="../../../generated/delphi.GrFN.networks.ForwardInfluenceBlanket.run.html#delphi.GrFN.networks.ForwardInfluenceBlanket.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">inputs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">]],</span>
+        <span class="n">covers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">]],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Executes the FIB over a particular set of inputs and returns the</span>
+<span class="sd">        result.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            inputs: Input set where keys are the names of input nodes in the</span>
+<span class="sd">              GrFN and each key points to a set of input values (or just one).</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            A set of outputs from executing the GrFN, one for every set of</span>
+<span class="sd">            inputs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Abort run if covers does not match our expected cover set</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">covers</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">blanket_nodes</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Incorrect number of cover values.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Set the cover node values</span>
+        <span class="k">for</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">covers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node_name</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ForwardInfluenceBlanket.to_AGraph"><a class="viewcode-back" href="../../../delphi.GrFN.html#delphi.GrFN.networks.ForwardInfluenceBlanket.to_AGraph">[docs]</a>    <span class="k">def</span> <span class="nf">to_AGraph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">nx_agraph</span><span class="o">.</span><span class="n">to_AGraph</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">A</span><span class="o">.</span><span class="n">graph_attr</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;dpi&quot;</span><span class="p">:</span> <span class="mi">227</span><span class="p">,</span> <span class="s2">&quot;fontsize&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">})</span>
+        <span class="n">A</span><span class="o">.</span><span class="n">node_attr</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;shape&quot;</span><span class="p">:</span> <span class="s2">&quot;rectangle&quot;</span><span class="p">,</span> <span class="s2">&quot;style&quot;</span><span class="p">:</span> <span class="s2">&quot;rounded&quot;</span><span class="p">})</span>
+        <span class="n">A</span><span class="o">.</span><span class="n">edge_attr</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;arrowsize&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">A</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Adarsh
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,13 @@
+.. _exhale_function_namespacedelphi_1_1gv_1ad168113ebae2b23a41c3a3baa5317b7f:
+
+Function delphi::gv::set_property(Agedge_t \*, std::string, std::string)
+========================================================================
+
+- Defined in :ref:`file_lib_graphviz_interface.cpp`
+
+
+Function Documentation
+----------------------
+
+
+.. doxygenfunction:: delphi::gv::set_property(Agedge_t *, std::string, std::string)

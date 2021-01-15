@@ -1,0 +1,73 @@
+
+.. _program_listing_file_lib_utils.hpp:
+
+Program Listing for File utils.hpp
+==================================
+
+|exhale_lsh| :ref:`Return to documentation for file <file_lib_utils.hpp>` (``lib/utils.hpp``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. code-block:: cpp
+
+   #pragma once
+   
+   #include <fmt/format.h>
+   #include <iostream>
+   #include <nlohmann/json.hpp>
+   #include <unordered_map>
+   #include <unordered_set>
+   #include <vector>
+   
+   namespace delphi::utils {
+   
+   using std::cout, std::endl, std::vector, std::string, std::unordered_map,
+       std::unordered_set;
+   
+   template <class T> void printVec(vector<T> xs) {
+     for (T x : xs) {
+       cout << x << ", " << endl;
+     }
+   }
+   
+   template <class AssociativeContainer, class Value>
+   bool in(AssociativeContainer container, Value value) {
+     return container.count(value) != 0;
+   }
+   
+   template <class AssociativeContainer, class Key, class Value>
+   Value get(AssociativeContainer container, Key key, Value default_value) {
+     return in(container, key) ? container[key] : default_value;
+   }
+   
+   template <class V, class Iterable> vector<V> list(Iterable xs) {
+     vector<V> xs_copy;
+     for (auto x : xs) {
+       xs_copy.push_back(x);
+     }
+     return xs_copy;
+   }
+   
+   template <class F, class V> vector<V> lmap(F f, vector<V> vec) {
+     vector<V> transformed_vector;
+     for (V x : vec) {
+       transformed_vector.push_back(f(x));
+     }
+     return transformed_vector;
+   }
+   
+   double sqr(double x);
+   
+   double sum(const std::vector<double> &v);
+   
+   double mean(const std::vector<double> &v);
+   
+   double standard_deviation(const double mean, const std::vector<double> &v);
+   
+   double median(const std::vector<double> &xs);
+   
+   double log_normpdf(double x, double mean, double sd);
+   
+   nlohmann::json load_json(std::string filename);
+   
+   } // namespace delphi::utils

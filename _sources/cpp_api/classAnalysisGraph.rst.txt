@@ -1,0 +1,16 @@
+.. _exhale_class_classAnalysisGraph:
+
+Class AnalysisGraph
+===================
+
+- Defined in :ref:`file_lib_AnalysisGraph.hpp`
+
+
+Class Documentation
+-------------------
+
+
+.. doxygenclass:: AnalysisGraph
+   :members:
+   :protected-members:
+   :undoc-members:

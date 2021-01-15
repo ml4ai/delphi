@@ -1,0 +1,58 @@
+
+.. _file_lib_Random_Variables.hpp:
+
+File Random_Variables.hpp
+=========================
+
+|exhale_lsh| :ref:`Parent directory <dir_lib>` (``lib``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. contents:: Contents
+   :local:
+   :backlinks: none
+
+Definition (``lib/Random_Variables.hpp``)
+-----------------------------------------
+
+
+.. toctree::
+   :maxdepth: 1
+
+   program_listing_file_lib_Random_Variables.hpp.rst
+
+
+
+
+
+Includes
+--------
+
+
+- ``algorithm``
+
+- ``string``
+
+- ``vector``
+
+
+
+Included By
+-----------
+
+
+- :ref:`file_lib_Indicator.hpp`
+
+- :ref:`file_lib_Random_Variables.cpp`
+
+
+
+
+Classes
+-------
+
+
+- :ref:`exhale_class_classLatentVar`
+
+- :ref:`exhale_class_classRV`
+

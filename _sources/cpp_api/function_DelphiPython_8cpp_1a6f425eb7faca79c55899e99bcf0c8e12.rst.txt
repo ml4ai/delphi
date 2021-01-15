@@ -1,0 +1,13 @@
+.. _exhale_function_DelphiPython_8cpp_1a6f425eb7faca79c55899e99bcf0c8e12:
+
+Function PYBIND11_MODULE
+========================
+
+- Defined in :ref:`file_lib_DelphiPython.cpp`
+
+
+Function Documentation
+----------------------
+
+
+.. doxygenfunction:: PYBIND11_MODULE(DelphiPython, m)

@@ -1,0 +1,13 @@
+.. _exhale_typedef_AnalysisGraph_8hpp_1ac5591582f1f07d7f132f1c901f2d6eca:
+
+Typedef EdgeDescriptor
+======================
+
+- Defined in :ref:`file_lib_AnalysisGraph.hpp`
+
+
+Typedef Documentation
+---------------------
+
+
+.. doxygentypedef:: EdgeDescriptor

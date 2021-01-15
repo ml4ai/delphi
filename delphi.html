@@ -1,0 +1,634 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>delphi package &mdash; delphi  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="_static/collapsible-lists/css/tree_view.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> delphi
+          
+
+          
+            
+            <img src="_static/delphi_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grfn_spec.html#change-log">Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_api/library_root.html">C++ API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">delphi</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>delphi package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/delphi.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="delphi-package">
+<h1>delphi package<a class="headerlink" href="#delphi-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="delphi.GrFN.html">delphi.GrFN package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="delphi.GrFN.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="delphi.GrFN.html#module-delphi.GrFN.linking">delphi.GrFN.linking module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="delphi.GrFN.html#module-delphi.GrFN.networks">delphi.GrFN.networks module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="delphi.GrFN.html#module-delphi.GrFN.sensitivity">delphi.GrFN.sensitivity module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="delphi.GrFN.html#module-delphi.GrFN.utils">delphi.GrFN.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="delphi.GrFN.html#module-delphi.GrFN.visualization">delphi.GrFN.visualization module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="delphi.GrFN.html#module-delphi.GrFN">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="delphi.apps.html">delphi.apps package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="delphi.apps.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="delphi.apps.CodeExplorer.html">delphi.apps.CodeExplorer package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="delphi.apps.CodeExplorer.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.apps.CodeExplorer.html#module-delphi.apps.CodeExplorer.app">delphi.apps.CodeExplorer.app module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.apps.CodeExplorer.html#module-delphi.apps.CodeExplorer.cyjs">delphi.apps.CodeExplorer.cyjs module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.apps.CodeExplorer.html#module-delphi.apps.CodeExplorer.surface_plots">delphi.apps.CodeExplorer.surface_plots module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.apps.CodeExplorer.html#module-delphi.apps.CodeExplorer">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="delphi.apps.rest_api.html">delphi.apps.rest_api package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="delphi.apps.rest_api.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.apps.rest_api.html#module-delphi.apps.rest_api.api">delphi.apps.rest_api.api module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.apps.rest_api.html#module-delphi.apps.rest_api.config">delphi.apps.rest_api.config module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.apps.rest_api.html#module-delphi.apps.rest_api.make_plots">delphi.apps.rest_api.make_plots module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.apps.rest_api.html#module-delphi.apps.rest_api.models">delphi.apps.rest_api.models module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.apps.rest_api.html#module-delphi.apps.rest_api.run">delphi.apps.rest_api.run module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.apps.rest_api.html#module-delphi.apps.rest_api">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="delphi.apps.html#module-delphi.apps">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="delphi.translators.html">delphi.translators package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="delphi.translators.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="delphi.translators.for2py.html">delphi.translators.for2py package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="delphi.translators.for2py.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.translators.for2py.html#module-delphi.translators.for2py.arrays">delphi.translators.for2py.arrays module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.translators.for2py.html#module-delphi.translators.for2py.f2grfn">delphi.translators.for2py.f2grfn module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.translators.for2py.html#module-delphi.translators.for2py.format">delphi.translators.for2py.format module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.translators.for2py.html#module-delphi.translators.for2py.genCode">delphi.translators.for2py.genCode module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.translators.for2py.html#module-delphi.translators.for2py.genModFileLog">delphi.translators.for2py.genModFileLog module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.translators.for2py.html#module-delphi.translators.for2py.genPGM">delphi.translators.for2py.genPGM module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.translators.for2py.html#module-delphi.translators.for2py.get_comments">delphi.translators.for2py.get_comments module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.translators.for2py.html#module-delphi.translators.for2py.loop_handle">delphi.translators.for2py.loop_handle module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.translators.for2py.html#module-delphi.translators.for2py.math_ext">delphi.translators.for2py.math_ext module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.translators.for2py.html#delphi-translators-for2py-measure-coverage-module">delphi.translators.for2py.measure-coverage module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.translators.for2py.html#module-delphi.translators.for2py.mod_index_generator">delphi.translators.for2py.mod_index_generator module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.translators.for2py.html#module-delphi.translators.for2py.preprocessor">delphi.translators.for2py.preprocessor module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.translators.for2py.html#module-delphi.translators.for2py.pyTranslate">delphi.translators.for2py.pyTranslate module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.translators.for2py.html#module-delphi.translators.for2py.rectify">delphi.translators.for2py.rectify module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.translators.for2py.html#module-delphi.translators.for2py.runner">delphi.translators.for2py.runner module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.translators.for2py.html#module-delphi.translators.for2py.static_save">delphi.translators.for2py.static_save module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.translators.for2py.html#module-delphi.translators.for2py.strings">delphi.translators.for2py.strings module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.translators.for2py.html#module-delphi.translators.for2py.syntax">delphi.translators.for2py.syntax module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.translators.for2py.html#module-delphi.translators.for2py.translate">delphi.translators.for2py.translate module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.translators.for2py.html#module-delphi.translators.for2py.types_ext">delphi.translators.for2py.types_ext module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="delphi.translators.for2py.html#module-delphi.translators.for2py">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="delphi.translators.html#module-delphi.translators">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="delphi.utils.html">delphi.utils package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="delphi.utils.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="delphi.utils.html#module-delphi.utils.fp">delphi.utils.fp module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="delphi.utils.html#delphi-utils-indra-module">delphi.utils.indra module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="delphi.utils.html#module-delphi.utils.misc">delphi.utils.misc module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="delphi.utils.html#module-delphi.utils.shell">delphi.utils.shell module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="delphi.utils.html#module-delphi.utils.web">delphi.utils.web module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="delphi.utils.html#module-delphi.utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-delphi.db">
+<span id="delphi-db-module"></span><h2>delphi.db module<a class="headerlink" href="#module-delphi.db" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-delphi.evaluation">
+<span id="delphi-evaluation-module"></span><h2>delphi.evaluation module<a class="headerlink" href="#module-delphi.evaluation" title="Permalink to this headline">¶</a></h2>
+<dl class="exception">
+<dt id="delphi.evaluation.Error">
+<em class="property">exception </em><code class="sig-name descname">Error</code><a class="reference internal" href="_modules/delphi/evaluation.html#Error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.evaluation.Error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<p>Base class for exceptions in this module.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="delphi.evaluation.InputError">
+<em class="property">exception </em><code class="sig-name descname">InputError</code><span class="sig-paren">(</span><em class="sig-param">expression</em>, <em class="sig-param">message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/evaluation.html#InputError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.evaluation.InputError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#delphi.evaluation.Error" title="delphi.evaluation.Error"><code class="xref py py-class docutils literal notranslate"><span class="pre">delphi.evaluation.Error</span></code></a></p>
+<p>Exception raised for errors in the input.</p>
+<dl class="attribute">
+<dt>
+<code class="sig-name descname">expression -- input expression in which the error occurred</code></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="sig-name descname">message -- explanation of the error</code></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.evaluation.calculate_timestep">
+<code class="sig-name descname">calculate_timestep</code><span class="sig-paren">(</span><em class="sig-param">start_year: int</em>, <em class="sig-param">start_month: int</em>, <em class="sig-param">end_year: int</em>, <em class="sig-param">end_month: int</em><span class="sig-paren">)</span> &#x2192; int<a class="reference internal" href="_modules/delphi/evaluation.html#calculate_timestep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.evaluation.calculate_timestep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility function that converts a time range given a start date and end
+date into a integer value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start_year</strong> – The starting year (ex: 2012)</p></li>
+<li><p><strong>start_month</strong> – Starting month (1-12)</p></li>
+<li><p><strong>end_year</strong> – Ending year</p></li>
+<li><p><strong>end_month</strong> – Ending month</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The computed time step.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.evaluation.get_data_value">
+<code class="sig-name descname">get_data_value</code><span class="sig-paren">(</span><em class="sig-param">indicator: str</em>, <em class="sig-param">country: Optional[str] = 'South Sudan'</em>, <em class="sig-param">state: Optional[str] = None</em>, <em class="sig-param">county: Optional[str] = None</em>, <em class="sig-param">year: int = 2015</em>, <em class="sig-param">month: int = 1</em>, <em class="sig-param">unit: Optional[str] = None</em>, <em class="sig-param">use_heuristic: bool = False</em><span class="sig-paren">)</span> &#x2192; List[float]<a class="reference internal" href="_modules/delphi/evaluation.html#get_data_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.evaluation.get_data_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a indicator value from the delphi database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>indicator</strong> – Name of the target indicator variable.</p></li>
+<li><p><strong>country</strong> – Specified Country to get a value for.</p></li>
+<li><p><strong>state</strong> – Specified State to get value for.</p></li>
+<li><p><strong>year</strong> – Specified Year to get a value for.</p></li>
+<li><p><strong>month</strong> – Specified Month to get a value for.</p></li>
+<li><p><strong>unit</strong> – Specified Units to get a value for.</p></li>
+<li><p><strong>use_heuristic</strong> – a boolean that indicates whether or not use a built-in</p></li>
+<li><p><strong>for partially missing data. In cases where data for a given</strong> (<em>heurstic</em>) – </p></li>
+<li><p><strong>exists but no monthly data</strong><strong>, </strong><strong>setting this to true divides the</strong> (<em>year</em>) – </p></li>
+<li><p><strong>value by 12 for any month.</strong> (<em>yearly</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Specified float value given the specified parameters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.evaluation.data_to_list">
+<code class="sig-name descname">data_to_list</code><span class="sig-paren">(</span><em class="sig-param">indicator: str</em>, <em class="sig-param">start_year: int</em>, <em class="sig-param">start_month: int</em>, <em class="sig-param">end_year: int</em>, <em class="sig-param">end_month: int</em>, <em class="sig-param">use_heuristic: bool = False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; Tuple[List[str], List[List[int]]]<a class="reference internal" href="_modules/delphi/evaluation.html#data_to_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.evaluation.data_to_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the true values of the indicator variable given a start date and
+end date. Allows for other specifications as well.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>variable</strong> – Name of target indicator variable.</p></li>
+<li><p><strong>start_year</strong> – An integer, designates the starting year (ex: 2012).</p></li>
+<li><p><strong>start_month</strong> – An integer, starting month (1-12).</p></li>
+<li><p><strong>end_year</strong> – An integer, ending year.</p></li>
+<li><p><strong>end_month</strong> – An integer, ending month.</p></li>
+<li><p><strong>use_heuristic</strong> – a boolean that indicates whether or not use a built-in</p></li>
+<li><p><strong>for partially missing data. In cases where data for a given</strong> (<em>heurstic</em>) – </p></li>
+<li><p><strong>exists but no monthly data</strong><strong>, </strong><strong>setting this to true divides the</strong> (<em>year</em>) – </p></li>
+<li><p><strong>value by 12 for any month.</strong> (<em>yearly</em>) – </p></li>
+<li><p><strong>**kwargs</strong> – These are options for which you can specify</p></li>
+<li><p><strong>state</strong><strong>, </strong><strong>units.</strong> (<em>country</em><em>,</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns a tuple where the first element is a list of the specified
+dates in year-month format and the second element is a
+list of lists of the true data for a given indicator.
+Each element of the outer list represents a time step and the inner
+lists contain the data for that time point.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.evaluation.mean_data_to_df">
+<code class="sig-name descname">mean_data_to_df</code><span class="sig-paren">(</span><em class="sig-param">indicator: str</em>, <em class="sig-param">start_year: int</em>, <em class="sig-param">start_month: int</em>, <em class="sig-param">end_year: int</em>, <em class="sig-param">end_month: int</em>, <em class="sig-param">use_heuristic: bool = False</em>, <em class="sig-param">ci: Optional[float] = None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="reference internal" href="_modules/delphi/evaluation.html#mean_data_to_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.evaluation.mean_data_to_df" title="Permalink to this definition">¶</a></dt>
+<dd><dl>
+<dt>Get the true values of the indicator variable given a start date and</dt><dd><p>end data. Allows for other specifications as well.
+variable: Name of target indicator variable.</p>
+<p>start_year: An integer, designates the starting year (ex: 2012).</p>
+<p>start_month: An integer, starting month (1-12).</p>
+<p>end_year: An integer, ending year.</p>
+<p>end_month: An integer, ending month.</p>
+<p>use_heuristic: a boolean that indicates whether or not use a built-in
+heurstic for partially missing data. In cases where data for a given
+year exists but no monthly data, setting this to true divides the
+yearly value by 12 for any month.</p>
+<p>ci: confidence level. Only the mean is reported if left as None.</p>
+<p><a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs: These are options for which you can specify
+country, state, units.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Pandas Dataframe containing true values for target node’s indicator
+variable. The values are indexed by date.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.evaluation.pred_to_array">
+<code class="sig-name descname">pred_to_array</code><span class="sig-paren">(</span><em class="sig-param">preds: Tuple[Tuple[Tuple[int, int], Tuple[int, int]], List[str], List[List[Dict[str, Dict[str, float]]]]], indicator: str</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="_modules/delphi/evaluation.html#pred_to_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.evaluation.pred_to_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Outputs raw predictions for a given indicator that were generated by
+generate_prediction(). Each column is a time step and the rows are the
+samples for that time step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>preds</strong> – This is the entire prediction set returned by the</p></li>
+<li><p><strong>method in AnalysisGraph.cpp.</strong> (<em>generate_prediction</em><em>(</em><em>)</em>) – </p></li>
+<li><p><strong>indicator</strong> – A string representing the indicator variable for which we</p></li>
+<li><p><strong>predictions printed.</strong> (<em>want</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.evaluation.mean_pred_to_df">
+<code class="sig-name descname">mean_pred_to_df</code><span class="sig-paren">(</span><em class="sig-param">preds: Tuple[Tuple[Tuple[int, int], Tuple[int, int]], List[str], List[List[Dict[str, Dict[str, float]]]]], indicator: str, ci: Optional[float] = 0.95, true_vals: bool = False, use_heuristic_for_true: bool = False, **kwargs</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="reference internal" href="_modules/delphi/evaluation.html#mean_pred_to_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.evaluation.mean_pred_to_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Outputs mean predictions for a given indicator that were generated by
+generate_prediction(). The rows are indexed by date. Other output includes
+the confidence intervals for the mean predictions and with true_vals =
+True, the true data values, residual error, and error bounds. Setting
+true_vals = True, assumes that real data exists for the given prediction
+range. A heuristic estimate is calculated for each missing data value in
+the true dateset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>preds</strong> – This is the entire prediction set returned by the</p></li>
+<li><p><strong>method in AnalysisGraph.cpp.</strong> (<em>generate_prediction</em><em>(</em><em>)</em>) – </p></li>
+<li><p><strong>indicator</strong> – A string representing the indicator variable for which we</p></li>
+<li><p><strong>mean predictions</strong><strong>,</strong><strong>etc printed.</strong> (<em>want</em>) – </p></li>
+<li><p><strong>ci</strong> – Confidence Level (as decimal). Default is 0.95 or 95%.</p></li>
+<li><p><strong>true_vals</strong> – A boolean, if set to True then the true data values,</p></li>
+<li><p><strong>errors</strong><strong>, </strong><strong>and error bounds are return in the dataframe. If set</strong> (<em>residual</em>) – </p></li>
+<li><p><strong>False</strong> (<em>to</em>) – </p></li>
+<li><p><strong>intervals</strong> (<em>for the mean predictions</em>) – </p></li>
+<li><p><strong>**kwargs</strong> – Here country, state, and units can be specified. The same</p></li>
+<li><p><strong>kwargs</strong> (<em>excluding k</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.evaluation.calculate_prediction_rmse">
+<code class="sig-name descname">calculate_prediction_rmse</code><span class="sig-paren">(</span><em class="sig-param">preds: Tuple[Tuple[Tuple[int, int], Tuple[int, int]], List[str], List[List[Dict[str, Dict[str, float]]]]], indicator: str, **kwargs</em><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="_modules/delphi/evaluation.html#calculate_prediction_rmse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.evaluation.calculate_prediction_rmse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="delphi.evaluation.pred_plot">
+<code class="sig-name descname">pred_plot</code><span class="sig-paren">(</span><em class="sig-param">preds: Tuple[Tuple[Tuple[int, int], Tuple[int, int]], List[str], List[List[Dict[str, Dict[str, float]]]]], indicator: str, ci: Optional[float] = 0.95, plot_type: str = 'Prediction', show_rmse: bool = False, show_training_data: bool = False, save_as: Optional[str] = None, use_heuristic_for_true: bool = False, **kwargs</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/delphi/evaluation.html#pred_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.evaluation.pred_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a line plot of the mean predictions for a given indicator that were generated by
+generate_prediction(). The y-axis are the indicator values(or errors) and the x-axis
+are the prediction dates. Certain settings assume that true data exists for
+the given prediction range.</p>
+<p>There are 3 plots types:</p>
+<blockquote>
+<div><p>-Prediction(Default): Plots just the mean prediction with confidence bounds</p>
+<p>-Comparison: Plots the same as Prediction, but includes a line
+representing the true data values for the given prediction range.</p>
+<p>-Error: Plots the residual errors between the mean prediction and true
+values along with error bounds. A reference line is included at 0.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>preds</strong> – This is the entire prediction set returned by the</p></li>
+<li><p><strong>method in AnalysisGraph.cpp.</strong> (<em>generate_prediction</em><em>(</em><em>)</em>) – </p></li>
+<li><p><strong>indicator</strong> – A string representing the indicator variable for which we</p></li>
+<li><p><strong>mean predictions</strong><strong>,</strong><strong>etc printed.</strong> (<em>want</em>) – </p></li>
+<li><p><strong>ci</strong> – Confidence Level (as decimal). Default is 0.95 or 95%.</p></li>
+<li><p><strong>plot_type</strong> – A string that specifies plot type. Set as ‘Prediction’(default),</p></li>
+<li><p><strong>or 'Error'.</strong> (<em>'Comparison'</em><em>,</em>) – </p></li>
+<li><p><strong>save_as</strong> – A string representing the path and file name in which to save</p></li>
+<li><p><strong>plot</strong><strong>, </strong><strong>must include extensions. If None</strong><strong>, </strong><strong>no figure is saved to file.</strong> (<em>the</em>) – </p></li>
+<li><p><strong>**kwargs</strong> – Here country, state, and units can be specified. The same</p></li>
+<li><p><strong>kwargs</strong> (<em>excluding k</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.evaluation.walk_forward_val">
+<code class="sig-name descname">walk_forward_val</code><span class="sig-paren">(</span><em class="sig-param">initial_training_window: Tuple[Tuple[int, int], Tuple[int, int]], end_prediction_date: Tuple[int, int], burn: int = 10000, res: int = 200, **kwargs</em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="reference internal" href="_modules/delphi/evaluation.html#walk_forward_val"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.evaluation.walk_forward_val" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="delphi.evaluation.estimate_deltas">
+<code class="sig-name descname">estimate_deltas</code><span class="sig-paren">(</span><em class="sig-param">G</em>, <em class="sig-param">intervened_node: str</em>, <em class="sig-param">n_timesteps: int</em>, <em class="sig-param">start_year: int</em>, <em class="sig-param">start_month: int</em>, <em class="sig-param">country: Optional[str] = 'South Sudan'</em>, <em class="sig-param">state: Optional[str] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/evaluation.html#estimate_deltas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.evaluation.estimate_deltas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility function that estimates Rate of Change (deltas) for the
+intervened node per timestep. This will use the units that the CAG
+was parameterized with. WARNING: The state and country should be same as what was
+passed to G.parameterize() or else you could get mismatched data.</p>
+<p>Deltas are estimated by percent change between each time step. (i.e,
+(current - next)/current). Heuristics are in place to handle NAN and INF
+values. If changed from 0 to 0 (NAN case), then delta = 0. If increasing
+from 0 (+INF case), then delta = positive absolute mean of all finite
+deltas. If decreasing from 0 (-INF case), then delta = negative absolute
+mean of all finite deltas.</p>
+<p>See function get_true_values to see how the data is aggregated to fill in
+values for missing time points which calculating the deltas.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>G</strong> – A completely parameterized and quantified CAG with indicators,</p></li>
+<li><p><strong>transition matrx</strong><strong>, </strong><strong>and indicator values.</strong> (<em>estimated</em>) – </p></li>
+<li><p><strong>intervened_node</strong> – A string of the full name of the node in which we</p></li>
+<li><p><strong>intervening on.</strong> (<em>are</em>) – </p></li>
+<li><p><strong>n_timesteps</strong> – Number of time steps.</p></li>
+<li><p><strong>start_year</strong> – The starting year (e.g, 2012).</p></li>
+<li><p><strong>start_month</strong> – The starting month (1-12).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>1D numpy array of deltas.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.evaluation.intervention">
+<code class="sig-name descname">intervention</code><span class="sig-paren">(</span><em class="sig-param">target_node: str</em>, <em class="sig-param">intervened_node: str</em>, <em class="sig-param">G=None</em>, <em class="sig-param">input=None</em>, <em class="sig-param">start_year=2012</em>, <em class="sig-param">start_month=None</em>, <em class="sig-param">end_year=2017</em>, <em class="sig-param">end_month=None</em>, <em class="sig-param">plot=False</em>, <em class="sig-param">plot_type='Compare'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/evaluation.html#intervention"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.evaluation.intervention" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the main function of this module. This parameterizes a given
+CAG (see requirements in Args) and calls other functions within this module
+to predict values for a specified target node’s indicator variable given a
+start date and end date. Returns pandas dataframe containing predicted
+values, true values, and error.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_node</strong> – A string of the full name of the node in which we</p></li>
+<li><p><strong>to predict values for its attached indicator variable.</strong> (<em>wish</em>) – </p></li>
+<li><p><strong>intervened_node</strong> – A string of the full name of the node upon which we</p></li>
+<li><p><strong>intervening.</strong> (<em>are</em>) – </p></li>
+<li><p><strong>G</strong> – A CAG. It must have mapped indicator values and estimated transition</p></li>
+<li><p><strong>matrix.</strong> – </p></li>
+<li><p><strong>input</strong> – This allows you to upload a CAG from a pickle file, instead of</p></li>
+<li><p><strong>it directly as an argument. The CAG must have mapped</strong> (<em>passing</em>) – </p></li>
+<li><p><strong>and an estimated transition matrix.</strong> (<em>indicators</em>) – </p></li>
+<li><p><strong>start_year</strong> – An integer, designates the starting year (ex: 2012).</p></li>
+<li><p><strong>start_month</strong> – An integer, starting month (1-12).</p></li>
+<li><p><strong>end_year</strong> – An integer, ending year.</p></li>
+<li><p><strong>end_month</strong> – An integer, ending month.</p></li>
+<li><p><strong>plot</strong> – Set to true to display a plot according to the plot type.</p></li>
+<li><p><strong>plot_type</strong> – By default setting plot to true displays the “Compare” type</p></li>
+<li><p><strong>which plots the predictions and true values of the target node's</strong> (<em>plot</em>) – </p></li>
+<li><p><strong>variable on one plot labeled by time steps</strong> (<em>indicator</em>) – </p></li>
+<li><p><strong>is also &quot;Error&quot; type</strong><strong>, </strong><strong>which plots the errors</strong><strong> or </strong><strong>residuals</strong><strong>, </strong><strong>with a</strong> (<em>There</em>) – </p></li>
+<li><p><strong>line at 0.</strong> (<em>reference</em>) – </p></li>
+<li><p><strong>**kwargs</strong> – These are options for parameterize() which specify</p></li>
+<li><p><strong>state</strong><strong>, </strong><strong>units</strong><strong>, </strong><strong>fallback aggregation axes</strong><strong>, </strong><strong>and aggregation</strong> (<em>country</em><em>,</em>) – </p></li>
+<li><p><strong>Country and State also get passed into estimate_deltas</strong><strong>(</strong><strong>)</strong> (<em>function.</em>) – </p></li>
+<li><p><strong>get_true_values</strong><strong>(</strong><strong>)</strong><strong> The appropriate arguments are country</strong><strong>, </strong><strong>state</strong><strong>,</strong> (<em>and</em>) – </p></li>
+<li><p><strong>fallback_aggaxes</strong><strong>, </strong><strong>and aggfunc.</strong> (<em>units</em><em>,</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns a pandas dataframe.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="delphi-jupyter-tools-module">
+<h2>delphi.jupyter_tools module<a class="headerlink" href="#delphi-jupyter-tools-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-delphi.paths">
+<span id="delphi-paths-module"></span><h2>delphi.paths module<a class="headerlink" href="#module-delphi.paths" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-delphi.plotter">
+<span id="delphi-plotter-module"></span><h2>delphi.plotter module<a class="headerlink" href="#module-delphi.plotter" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="delphi.plotter.LegendTitle">
+<em class="property">class </em><code class="sig-name descname">LegendTitle</code><span class="sig-paren">(</span><em class="sig-param">text_props=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/plotter.html#LegendTitle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.plotter.LegendTitle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="delphi.plotter.LegendTitle.legend_artist">
+<code class="sig-name descname">legend_artist</code><span class="sig-paren">(</span><em class="sig-param">legend</em>, <em class="sig-param">orig_handle</em>, <em class="sig-param">fontsize</em>, <em class="sig-param">handlebox</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/plotter.html#LegendTitle.legend_artist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.plotter.LegendTitle.legend_artist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="delphi.plotter.delphi_plotter">
+<code class="sig-name descname">delphi_plotter</code><span class="sig-paren">(</span><em class="sig-param">model_state</em>, <em class="sig-param">num_bins=400</em>, <em class="sig-param">rotation=45</em>, <em class="sig-param">out_dir='plots'</em>, <em class="sig-param">file_name_prefix=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/plotter.html#delphi_plotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.plotter.delphi_plotter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-delphi">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-delphi" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Adarsh
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,1321 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>delphi.evaluation &mdash; delphi  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script src="../../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> delphi
+          
+
+          
+            
+            <img src="../../_static/delphi_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../grfn_spec.html#change-log">Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cpp_api/library_root.html">C++ API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">delphi</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>delphi.evaluation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for delphi.evaluation</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Iterable</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span>
+<span class="kn">from</span> <span class="nn">.db</span> <span class="kn">import</span> <span class="n">engine</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">matplotlib.patches</span> <span class="k">as</span> <span class="nn">mpatches</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.dates</span> <span class="k">as</span> <span class="nn">mdates</span>
+
+
+<div class="viewcode-block" id="Error"><a class="viewcode-back" href="../../delphi.html#delphi.evaluation.Error">[docs]</a><span class="k">class</span> <span class="nc">Error</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for exceptions in this module.&quot;&quot;&quot;</span>
+
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="InputError"><a class="viewcode-back" href="../../delphi.html#delphi.evaluation.InputError">[docs]</a><span class="k">class</span> <span class="nc">InputError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception raised for errors in the input.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        expression -- input expression in which the error occurred</span>
+<span class="sd">        message -- explanation of the error</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expression</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expression</span> <span class="o">=</span> <span class="n">expression</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span></div>
+
+
+<span class="c1"># ==========================================================================</span>
+<span class="c1"># Utility functions</span>
+<span class="c1"># ==========================================================================</span>
+
+
+<div class="viewcode-block" id="calculate_timestep"><a class="viewcode-back" href="../../delphi.html#delphi.evaluation.calculate_timestep">[docs]</a><span class="k">def</span> <span class="nf">calculate_timestep</span><span class="p">(</span>
+    <span class="n">start_year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">start_month</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end_year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end_month</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; Utility function that converts a time range given a start date and end</span>
+<span class="sd">    date into a integer value.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        start_year: The starting year (ex: 2012)</span>
+
+<span class="sd">        start_month: Starting month (1-12)</span>
+
+<span class="sd">        end_year: Ending year</span>
+
+<span class="sd">        end_month: Ending month</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The computed time step.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">assert</span> <span class="n">start_year</span> <span class="o">&lt;=</span> <span class="n">end_year</span><span class="p">,</span> <span class="s2">&quot;Starting date cannot exceed ending date.&quot;</span>
+    <span class="k">if</span> <span class="n">start_year</span> <span class="o">==</span> <span class="n">end_year</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="n">start_month</span> <span class="o">&lt;=</span> <span class="n">end_month</span>
+        <span class="p">),</span> <span class="s2">&quot;Starting date cannot exceed ending date.&quot;</span>
+
+    <span class="n">diff_year</span> <span class="o">=</span> <span class="n">end_year</span> <span class="o">-</span> <span class="n">start_year</span>
+    <span class="n">year_to_month</span> <span class="o">=</span> <span class="n">diff_year</span> <span class="o">*</span> <span class="mi">12</span>
+    <span class="k">return</span> <span class="n">year_to_month</span> <span class="o">-</span> <span class="p">(</span><span class="n">start_month</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">end_month</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_data_value"><a class="viewcode-back" href="../../delphi.html#delphi.evaluation.get_data_value">[docs]</a><span class="k">def</span> <span class="nf">get_data_value</span><span class="p">(</span>
+    <span class="n">indicator</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">country</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;South Sudan&quot;</span><span class="p">,</span>
+    <span class="n">state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">county</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2015</span><span class="p">,</span>
+    <span class="n">month</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">unit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">use_heuristic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot; Get a indicator value from the delphi database.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        indicator: Name of the target indicator variable.</span>
+
+<span class="sd">        country: Specified Country to get a value for.</span>
+
+<span class="sd">        state: Specified State to get value for.</span>
+
+<span class="sd">        year: Specified Year to get a value for.</span>
+
+<span class="sd">        month: Specified Month to get a value for.</span>
+
+<span class="sd">        unit: Specified Units to get a value for.</span>
+
+<span class="sd">        use_heuristic: a boolean that indicates whether or not use a built-in</span>
+<span class="sd">        heurstic for partially missing data. In cases where data for a given</span>
+<span class="sd">        year exists but no monthly data, setting this to true divides the</span>
+<span class="sd">        yearly value by 12 for any month.</span>
+
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Specified float value given the specified parameters.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">query_base</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;select * from indicator&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;where `Variable` like &#39;</span><span class="si">{indicator}</span><span class="s2">&#39;&quot;</span><span class="p">]</span>
+        <span class="c1">#[f&quot;select Country, Year, Month, avg(Value) as Value, Unit from indicator&quot;, f&quot;where `Variable` like &#39;{indicator}&#39;&quot;]</span>
+    <span class="p">)</span>
+
+    <span class="n">query_parts</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;base&quot;</span><span class="p">:</span> <span class="n">query_base</span><span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">country</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">check_q</span> <span class="o">=</span> <span class="n">query_parts</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;and `Country` is &#39;</span><span class="si">{country}</span><span class="s2">&#39;&quot;</span>
+        <span class="n">check_r</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">check_q</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">check_r</span> <span class="o">==</span> <span class="p">[]:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Selected Country not found for </span><span class="si">{indicator}</span><span class="s2">! Using default settings (South Sudan)!&quot;</span>
+            <span class="p">)</span>
+            <span class="n">query_parts</span><span class="p">[</span><span class="s2">&quot;country&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;and `Country` is &#39;South Sudan&#39;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">query_parts</span><span class="p">[</span><span class="s2">&quot;country&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;and `Country` is &#39;</span><span class="si">{country}</span><span class="s2">&#39;&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">query_parts</span><span class="p">[</span><span class="s2">&quot;country&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;and `Country` is &#39;None&#39;&quot;</span>
+
+    <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">check_q</span> <span class="o">=</span> <span class="n">query_parts</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;and `State` is &#39;</span><span class="si">{state}</span><span class="s2">&#39;&quot;</span>
+        <span class="n">check_r</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">check_q</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">check_r</span> <span class="o">==</span> <span class="p">[]:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Selected State not found for </span><span class="si">{indicator}</span><span class="s2">! Using default &quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;settings (Getting data at Country level only instead of State &quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;level)!&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">query_parts</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;and `State` is &#39;None&#39;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">query_parts</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;and `State` is &#39;</span><span class="si">{state}</span><span class="s2">&#39;&quot;</span>
+    <span class="c1">#else:</span>
+    <span class="c1">#    query_parts[&quot;state&quot;] = f&quot;and `State` is &#39;None&#39;&quot;</span>
+
+    <span class="k">if</span> <span class="n">county</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">check_q</span> <span class="o">=</span> <span class="n">query_parts</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;and `County` is &#39;</span><span class="si">{county}</span><span class="s2">&#39;&quot;</span>
+        <span class="n">check_r</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">check_q</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">check_r</span> <span class="o">==</span> <span class="p">[]:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Selected County not found for </span><span class="si">{indicator}</span><span class="s2">! Using default &quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;settings (Attempting to get data at state level instead)!&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">query_parts</span><span class="p">[</span><span class="s2">&quot;county&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;and `County` is &#39;None&#39;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">query_parts</span><span class="p">[</span><span class="s2">&quot;county&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;and `County` is &#39;</span><span class="si">{county}</span><span class="s2">&#39;&quot;</span>
+    <span class="c1">#else:</span>
+    <span class="c1">#    query_parts[&quot;county&quot;] = f&quot;and `County` is &#39;None&#39;&quot;</span>
+
+    <span class="k">if</span> <span class="n">unit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">check_q</span> <span class="o">=</span> <span class="n">query_parts</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; and `Unit` is &#39;</span><span class="si">{unit}</span><span class="s2">&#39;&quot;</span>
+        <span class="n">check_r</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">check_q</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">check_r</span> <span class="o">==</span> <span class="p">[]:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Selected units not found for </span><span class="si">{indicator}</span><span class="s2">! Falling back to default units!&quot;</span>
+            <span class="p">)</span>
+            <span class="n">query_parts</span><span class="p">[</span><span class="s2">&quot;unit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">query_parts</span><span class="p">[</span><span class="s2">&quot;unit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;and `Unit` is &#39;</span><span class="si">{unit}</span><span class="s2">&#39;&quot;</span>
+
+    <span class="n">query_parts</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;and `Year` is &#39;</span><span class="si">{year}</span><span class="s2">&#39;&quot;</span>
+    <span class="n">query_parts</span><span class="p">[</span><span class="s2">&quot;month&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;and `Month` is &#39;</span><span class="si">{month}</span><span class="s2">&#39;&quot;</span>
+
+    <span class="c1">#query_parts[&quot;groupby&quot;] = f&quot;group by `Year`, `Month`&quot;</span>
+
+    <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">query_parts</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="c1">#print(query)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
+    <span class="c1">#print(results)</span>
+
+    <span class="k">if</span> <span class="n">results</span> <span class="o">!=</span> <span class="p">[]:</span>
+        <span class="n">unit</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">({</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;Unit&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">}))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;Value&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;Unit&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">unit</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">vals</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">use_heuristic</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="n">query_parts</span><span class="p">[</span><span class="s2">&quot;month&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;and `Month` is &#39;0&#39;&quot;</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">query_parts</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">results</span> <span class="o">!=</span> <span class="p">[]:</span>
+        <span class="n">unit</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">({</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;Unit&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">}))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;Value&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;Unit&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">unit</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">/</span> <span class="mi">12</span><span class="p">,</span> <span class="n">vals</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="p">[]</span></div>
+
+
+<span class="c1"># ==========================================================================</span>
+<span class="c1"># Inference Output functions</span>
+<span class="c1"># ==========================================================================</span>
+
+
+<div class="viewcode-block" id="data_to_list"><a class="viewcode-back" href="../../delphi.html#delphi.evaluation.data_to_list">[docs]</a><span class="k">def</span> <span class="nf">data_to_list</span><span class="p">(</span>
+    <span class="n">indicator</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">start_year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">start_month</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">end_year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">end_month</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">use_heuristic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]:</span>
+    <span class="sd">&quot;&quot;&quot; Get the true values of the indicator variable given a start date and</span>
+<span class="sd">    end date. Allows for other specifications as well.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        variable: Name of target indicator variable.</span>
+
+<span class="sd">        start_year: An integer, designates the starting year (ex: 2012).</span>
+
+<span class="sd">        start_month: An integer, starting month (1-12).</span>
+
+<span class="sd">        end_year: An integer, ending year.</span>
+
+<span class="sd">        end_month: An integer, ending month.</span>
+
+<span class="sd">        use_heuristic: a boolean that indicates whether or not use a built-in</span>
+<span class="sd">        heurstic for partially missing data. In cases where data for a given</span>
+<span class="sd">        year exists but no monthly data, setting this to true divides the</span>
+<span class="sd">        yearly value by 12 for any month.</span>
+
+<span class="sd">        **kwargs: These are options for which you can specify</span>
+<span class="sd">        country, state, units.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Returns a tuple where the first element is a list of the specified</span>
+<span class="sd">        dates in year-month format and the second element is a</span>
+<span class="sd">        list of lists of the true data for a given indicator.</span>
+<span class="sd">        Each element of the outer list represents a time step and the inner</span>
+<span class="sd">        lists contain the data for that time point.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">country</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;country&quot;</span><span class="p">,</span> <span class="s2">&quot;South Sudan&quot;</span><span class="p">)</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">)</span>
+    <span class="n">county</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;county&quot;</span><span class="p">)</span>
+    <span class="n">unit</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;unit&quot;</span><span class="p">)</span>
+
+    <span class="n">n_timesteps</span> <span class="o">=</span> <span class="n">calculate_timestep</span><span class="p">(</span>
+        <span class="n">start_year</span><span class="p">,</span> <span class="n">start_month</span><span class="p">,</span> <span class="n">end_year</span><span class="p">,</span> <span class="n">end_month</span>
+    <span class="p">)</span>
+    <span class="n">vals</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">year</span> <span class="o">=</span> <span class="n">start_year</span>
+    <span class="n">month</span> <span class="o">=</span> <span class="n">start_month</span>
+    <span class="n">date</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">get_data_value</span><span class="p">(</span>
+                <span class="n">indicator</span><span class="p">,</span>
+                <span class="n">country</span><span class="p">,</span>
+                <span class="n">state</span><span class="p">,</span>
+                <span class="n">county</span><span class="p">,</span>
+                <span class="n">year</span><span class="p">,</span>
+                <span class="n">month</span><span class="p">,</span>
+                <span class="n">unit</span><span class="p">,</span>
+                <span class="n">use_heuristic</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">date</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{year}</span><span class="s2">-</span><span class="si">{month}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">month</span> <span class="o">==</span> <span class="mi">12</span><span class="p">:</span>
+            <span class="n">year</span> <span class="o">=</span> <span class="n">year</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">month</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">month</span> <span class="o">=</span> <span class="n">month</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">date</span><span class="p">,</span> <span class="n">vals</span></div>
+
+
+<div class="viewcode-block" id="mean_data_to_df"><a class="viewcode-back" href="../../delphi.html#delphi.evaluation.mean_data_to_df">[docs]</a><span class="k">def</span> <span class="nf">mean_data_to_df</span><span class="p">(</span>
+    <span class="n">indicator</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">start_year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">start_month</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">end_year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">end_month</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">use_heuristic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">ci</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; Get the true values of the indicator variable given a start date and</span>
+<span class="sd">        end data. Allows for other specifications as well.</span>
+<span class="sd">        variable: Name of target indicator variable.</span>
+
+<span class="sd">        start_year: An integer, designates the starting year (ex: 2012).</span>
+
+<span class="sd">        start_month: An integer, starting month (1-12).</span>
+
+<span class="sd">        end_year: An integer, ending year.</span>
+
+<span class="sd">        end_month: An integer, ending month.</span>
+
+<span class="sd">        use_heuristic: a boolean that indicates whether or not use a built-in</span>
+<span class="sd">        heurstic for partially missing data. In cases where data for a given</span>
+<span class="sd">        year exists but no monthly data, setting this to true divides the</span>
+<span class="sd">        yearly value by 12 for any month.</span>
+
+<span class="sd">        ci: confidence level. Only the mean is reported if left as None.</span>
+
+<span class="sd">        **kwargs: These are options for which you can specify</span>
+<span class="sd">        country, state, units.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Pandas Dataframe containing true values for target node&#39;s indicator</span>
+<span class="sd">        variable. The values are indexed by date.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">date</span><span class="p">,</span> <span class="n">vals</span> <span class="o">=</span> <span class="n">data_to_list</span><span class="p">(</span>
+        <span class="n">indicator</span><span class="p">,</span>
+        <span class="n">start_year</span><span class="p">,</span>
+        <span class="n">start_month</span><span class="p">,</span>
+        <span class="n">end_year</span><span class="p">,</span>
+        <span class="n">end_month</span><span class="p">,</span>
+        <span class="n">use_heuristic</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">ci</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">data_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">date</span><span class="p">),</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obs</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">vals</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">mean</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">bayes_mvs</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">ci</span><span class="p">)</span>
+                <span class="n">data_mean</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">mean</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">data_mean</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">mean</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">data_mean</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">mean</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">data_mean</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">obs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">data_mean</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+                <span class="n">data_mean</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">data_mean</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+                <span class="n">data_mean</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+                <span class="n">data_mean</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="n">data_mean</span><span class="p">,</span>
+            <span class="n">date</span><span class="p">,</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{indicator}</span><span class="s2">(True)&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{indicator}</span><span class="s2">(True)(Lower Confidence Bound)&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{indicator}</span><span class="s2">(True)(Upper Confidence Bound)&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">data_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">date</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obs</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">vals</span><span class="p">):</span>
+            <span class="n">data_mean</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data_mean</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{indicator}</span><span class="s2">(True)&quot;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="pred_to_array"><a class="viewcode-back" href="../../delphi.html#delphi.evaluation.pred_to_array">[docs]</a><span class="k">def</span> <span class="nf">pred_to_array</span><span class="p">(</span>
+    <span class="n">preds</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span>
+        <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+        <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]],</span>
+    <span class="p">],</span>
+    <span class="n">indicator</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; Outputs raw predictions for a given indicator that were generated by</span>
+<span class="sd">    generate_prediction(). Each column is a time step and the rows are the</span>
+<span class="sd">    samples for that time step.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        preds: This is the entire prediction set returned by the</span>
+<span class="sd">        generate_prediction() method in AnalysisGraph.cpp.</span>
+
+<span class="sd">        indicator: A string representing the indicator variable for which we</span>
+<span class="sd">        want predictions printed.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">pred_range</span><span class="p">,</span> <span class="n">predictions</span> <span class="o">=</span> <span class="n">preds</span>
+    <span class="n">time_range</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pred_range</span><span class="p">)</span>
+    <span class="n">m_samples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">predictions</span><span class="p">)</span>
+    <span class="n">pred_raw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">m_samples</span><span class="p">,</span> <span class="n">time_range</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m_samples</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">time_range</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">inds</span> <span class="ow">in</span> <span class="n">predictions</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">indicator</span> <span class="ow">in</span> <span class="n">inds</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">pred_raw</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">inds</span><span class="p">[</span><span class="n">indicator</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">pred_raw</span></div>
+
+
+<div class="viewcode-block" id="mean_pred_to_df"><a class="viewcode-back" href="../../delphi.html#delphi.evaluation.mean_pred_to_df">[docs]</a><span class="k">def</span> <span class="nf">mean_pred_to_df</span><span class="p">(</span>
+    <span class="n">preds</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span>
+        <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+        <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]],</span>
+    <span class="p">],</span>
+    <span class="n">indicator</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">ci</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.95</span><span class="p">,</span>
+    <span class="n">true_vals</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">use_heuristic_for_true</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; Outputs mean predictions for a given indicator that were generated by</span>
+<span class="sd">    generate_prediction(). The rows are indexed by date. Other output includes</span>
+<span class="sd">    the confidence intervals for the mean predictions and with true_vals =</span>
+<span class="sd">    True, the true data values, residual error, and error bounds. Setting</span>
+<span class="sd">    true_vals = True, assumes that real data exists for the given prediction</span>
+<span class="sd">    range. A heuristic estimate is calculated for each missing data value in</span>
+<span class="sd">    the true dateset.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        preds: This is the entire prediction set returned by the</span>
+<span class="sd">        generate_prediction() method in AnalysisGraph.cpp.</span>
+
+<span class="sd">        indicator: A string representing the indicator variable for which we</span>
+<span class="sd">        want mean predictions,etc printed.</span>
+
+<span class="sd">        ci: Confidence Level (as decimal). Default is 0.95 or 95%.</span>
+
+<span class="sd">        true_vals: A boolean, if set to True then the true data values,</span>
+<span class="sd">        residual errors, and error bounds are return in the dataframe. If set</span>
+<span class="sd">        to False (default), then only the mean predictions and confidence</span>
+<span class="sd">        intervals (for the mean predictions) are returned.</span>
+
+<span class="sd">        **kwargs: Here country, state, and units can be specified. The same</span>
+<span class="sd">        kwargs (excluding k), should have been passed to train_model.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">ci</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">pred_raw</span> <span class="o">=</span> <span class="n">pred_to_array</span><span class="p">(</span><span class="n">preds</span><span class="p">,</span> <span class="n">indicator</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">pred_range</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">preds</span>
+
+        <span class="c1"># WARNING: This line generates a warning!</span>
+        <span class="c1"># VisibleDeprecationWarning: Creating an ndarray from ragged nested</span>
+        <span class="c1"># sequences (which is a list-or-tuple of lists-or-tuples-or ndarrays</span>
+        <span class="c1"># with different lengths or shapes) is deprecated. If you meant to do</span>
+        <span class="c1"># this, you must specify &#39;dtype=object&#39; when creating the ndarray</span>
+        <span class="c1">#   return array(a, dtype, copy=False, order=order, subok=True)</span>
+        <span class="c1"># When I do a similar call at the Python command line, the warning does</span>
+        <span class="c1"># not appear.</span>
+        <span class="c1"># Could not figure out how to make this warning go away.</span>
+        <span class="c1">#</span>
+        <span class="c1"># Bug: When all the values are the same, stats.bayes_mvs returns NaN as</span>
+        <span class="c1"># the mean.</span>
+        <span class="n">pred_stats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">apply_along_axis</span><span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">bayes_mvs</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">pred_raw</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">ci</span><span class="p">)[</span>
+            <span class="p">:,</span> <span class="mi">0</span>
+        <span class="p">]</span>
+        <span class="n">pred_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">pred_range</span><span class="p">),</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">interval</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pred_stats</span><span class="p">):</span>
+            <span class="n">pred_mean</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">mean</span>
+            <span class="n">pred_mean</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">interval</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">pred_mean</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">interval</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">mean_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="n">pred_mean</span><span class="p">,</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{indicator}</span><span class="s2"> (Mean Prediction)&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{indicator}</span><span class="s2"> (Lower Confidence Bound)&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{indicator}</span><span class="s2"> (Upper Confidence Bound)&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">true_vals</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;The selected output settings assume that real data exists &quot;</span>
+                <span class="s2">&quot;for the given prediction time range. Any missing data values are &quot;</span>
+                <span class="s2">&quot;filled with a heuristic estimate based on existing data.&quot;</span>
+            <span class="p">)</span>
+            <span class="n">start_date</span> <span class="o">=</span> <span class="n">pred_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">start_year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">start_date</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">])</span>
+            <span class="n">start_month</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">start_date</span><span class="p">[</span><span class="mi">5</span><span class="p">:</span><span class="mi">7</span><span class="p">])</span>
+            <span class="n">end_date</span> <span class="o">=</span> <span class="n">pred_range</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">end_year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">end_date</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">])</span>
+            <span class="n">end_month</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">end_date</span><span class="p">[</span><span class="mi">5</span><span class="p">:</span><span class="mi">7</span><span class="p">])</span>
+            <span class="n">true_data_df</span> <span class="o">=</span> <span class="n">mean_data_to_df</span><span class="p">(</span>
+                <span class="n">indicator</span><span class="p">,</span>
+                <span class="n">start_year</span><span class="p">,</span>
+                <span class="n">start_month</span><span class="p">,</span>
+                <span class="n">end_year</span><span class="p">,</span>
+                <span class="n">end_month</span><span class="p">,</span>
+                <span class="n">use_heuristic_for_true</span><span class="p">,</span>
+                <span class="n">ci</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">mean_df</span> <span class="o">=</span> <span class="n">mean_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">true_data_df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+            <span class="n">error</span> <span class="o">=</span> <span class="n">mean_df</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">true_data_df</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">error_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                <span class="n">error</span><span class="p">,</span>
+                <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Error&quot;</span><span class="p">,</span> <span class="s2">&quot;Lower Error Bound&quot;</span><span class="p">,</span> <span class="s2">&quot;Upper Error Bound&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="n">error_df</span> <span class="o">=</span> <span class="n">error_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">true_data_df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">mean_df</span><span class="p">,</span> <span class="n">true_data_df</span><span class="p">,</span> <span class="n">error_df</span><span class="p">],</span>
+                <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mean_df</span> <span class="o">=</span> <span class="n">mean_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">pred_range</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">mean_df</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pred_raw</span> <span class="o">=</span> <span class="n">pred_to_array</span><span class="p">(</span><span class="n">preds</span><span class="p">,</span> <span class="n">indicator</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">pred_range</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">preds</span>
+        <span class="n">pred_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">pred_raw</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">mean_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="n">pred_mean</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{indicator}</span><span class="s2">(Mean Prediction)&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">true_vals</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;The selected output settings assume that real data exists &quot;</span>
+                <span class="s2">&quot;for the given prediction time range. Any missing data values are &quot;</span>
+                <span class="s2">&quot;filled with a heuristic estimate based on existing data.&quot;</span>
+            <span class="p">)</span>
+            <span class="n">start_date</span> <span class="o">=</span> <span class="n">pred_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">start_year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">start_date</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">])</span>
+            <span class="n">start_month</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">start_date</span><span class="p">[</span><span class="mi">5</span><span class="p">:</span><span class="mi">7</span><span class="p">])</span>
+            <span class="n">end_date</span> <span class="o">=</span> <span class="n">pred_range</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">end_year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">end_date</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">])</span>
+            <span class="n">end_month</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">end_date</span><span class="p">[</span><span class="mi">5</span><span class="p">:</span><span class="mi">7</span><span class="p">])</span>
+            <span class="n">true_data_df</span> <span class="o">=</span> <span class="n">mean_data_to_df</span><span class="p">(</span>
+                <span class="n">indicator</span><span class="p">,</span>
+                <span class="n">start_year</span><span class="p">,</span>
+                <span class="n">start_month</span><span class="p">,</span>
+                <span class="n">end_year</span><span class="p">,</span>
+                <span class="n">end_month</span><span class="p">,</span>
+                <span class="n">use_heuristic_for_true</span><span class="p">,</span>
+                <span class="n">ci</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">mean_df</span> <span class="o">=</span> <span class="n">mean_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">pred_range</span><span class="p">))</span>
+
+            <span class="n">error</span> <span class="o">=</span> <span class="n">mean_df</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">true_data_df</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">error_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Error&quot;</span><span class="p">])</span>
+            <span class="n">error_df</span> <span class="o">=</span> <span class="n">error_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">true_data_df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">mean_df</span><span class="p">,</span> <span class="n">true_data_df</span><span class="p">,</span> <span class="n">error_df</span><span class="p">],</span>
+                <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mean_df</span> <span class="o">=</span> <span class="n">mean_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">pred_range</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">mean_df</span></div>
+
+
+<div class="viewcode-block" id="calculate_prediction_rmse"><a class="viewcode-back" href="../../delphi.html#delphi.evaluation.calculate_prediction_rmse">[docs]</a><span class="k">def</span> <span class="nf">calculate_prediction_rmse</span><span class="p">(</span>
+    <span class="n">preds</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span>
+        <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+        <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]],</span>
+    <span class="p">],</span>
+    <span class="n">indicator</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">mean_pred_to_df</span><span class="p">(</span><span class="n">preds</span><span class="p">,</span> <span class="n">indicator</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">sqr_residuals</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Error&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">sqr_residuals</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="pred_plot"><a class="viewcode-back" href="../../delphi.html#delphi.evaluation.pred_plot">[docs]</a><span class="k">def</span> <span class="nf">pred_plot</span><span class="p">(</span>
+    <span class="n">preds</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span>
+        <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+        <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]],</span>
+    <span class="p">],</span>
+    <span class="n">indicator</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">ci</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.95</span><span class="p">,</span>
+    <span class="n">plot_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Prediction&quot;</span><span class="p">,</span>
+    <span class="n">show_rmse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">show_training_data</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">save_as</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">use_heuristic_for_true</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; Creates a line plot of the mean predictions for a given indicator that were generated by</span>
+<span class="sd">    generate_prediction(). The y-axis are the indicator values(or errors) and the x-axis</span>
+<span class="sd">    are the prediction dates. Certain settings assume that true data exists for</span>
+<span class="sd">    the given prediction range.</span>
+
+<span class="sd">    There are 3 plots types:</span>
+
+<span class="sd">        -Prediction(Default): Plots just the mean prediction with confidence bounds</span>
+
+<span class="sd">        -Comparison: Plots the same as Prediction, but includes a line</span>
+<span class="sd">        representing the true data values for the given prediction range.</span>
+
+<span class="sd">        -Error: Plots the residual errors between the mean prediction and true</span>
+<span class="sd">        values along with error bounds. A reference line is included at 0.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        preds: This is the entire prediction set returned by the</span>
+<span class="sd">        generate_prediction() method in AnalysisGraph.cpp.</span>
+
+<span class="sd">        indicator: A string representing the indicator variable for which we</span>
+<span class="sd">        want mean predictions,etc printed.</span>
+
+<span class="sd">        ci: Confidence Level (as decimal). Default is 0.95 or 95%.</span>
+
+<span class="sd">        plot_type: A string that specifies plot type. Set as &#39;Prediction&#39;(default),</span>
+<span class="sd">        &#39;Comparison&#39;, or &#39;Error&#39;.</span>
+
+<span class="sd">        save_as: A string representing the path and file name in which to save</span>
+<span class="sd">        the plot, must include extensions. If None, no figure is saved to file.</span>
+
+<span class="sd">        **kwargs: Here country, state, and units can be specified. The same</span>
+<span class="sd">        kwargs (excluding k), should have been passed to train_model.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># TODO: Test option may not work properly</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">mean_pred_to_df</span><span class="p">(</span>
+        <span class="n">preds</span><span class="p">,</span>
+        <span class="n">indicator</span><span class="p">,</span>
+        <span class="n">ci</span><span class="p">,</span>
+        <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;Error&#39;</span><span class="p">,</span>
+        <span class="n">use_heuristic_for_true</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+    <span class="n">title</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Predictions for </span><span class="si">{indicator}</span><span class="s1">&#39;</span>
+    <span class="n">y_label</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{indicator}</span><span class="s1">&#39;</span>
+
+    <span class="k">if</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;Error&#39;</span><span class="p">:</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Prediction Error for </span><span class="si">{indicator}</span><span class="s2">&quot;</span>
+        <span class="n">y_label</span> <span class="o">=</span> <span class="s1">&#39;Error&#39;</span>
+
+        <span class="k">if</span> <span class="n">ci</span><span class="p">:</span>
+            <span class="n">ci_upper</span> <span class="o">=</span> <span class="s1">&#39;Upper Error Bound&#39;</span>
+            <span class="n">ci_lower</span> <span class="o">=</span> <span class="s1">&#39;Lower Error Bound&#39;</span>
+
+            <span class="n">df_plot</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">df_plot</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ci</span> <span class="ow">or</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;Test&#39;</span><span class="p">:</span>
+            <span class="n">ci_upper</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{indicator}</span><span class="s1"> (Upper Confidence Bound)&#39;</span>
+            <span class="n">ci_lower</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{indicator}</span><span class="s1"> (Lower Confidence Bound)&#39;</span>
+
+            <span class="n">df_plot</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;Test&#39;</span><span class="p">:</span>
+                <span class="c1"># TODO: Test option may not work properly</span>
+                <span class="n">title</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Predictions vs. True values (Synthetic) for </span><span class="si">{indicator}</span><span class="s2">&quot;</span>
+
+                <span class="n">synthetic_data</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;test_data&quot;</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="n">test_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="n">df_plot</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{indicator}</span><span class="s2"> (Synthetic)&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">synthetic_data</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">df_plot</span> <span class="o">=</span> <span class="n">df</span>
+
+    <span class="n">sns</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;figure.figsize&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">8</span><span class="p">)},</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;whitegrid&quot;</span><span class="p">)</span>
+
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">df_plot</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">markers</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;D&#39;</span><span class="p">])</span>
+
+    <span class="n">training_range</span><span class="p">,</span> <span class="n">pred_range</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">preds</span>
+
+    <span class="k">if</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;Comparison&#39;</span> <span class="ow">and</span> <span class="n">show_training_data</span><span class="p">:</span>
+        <span class="n">start_year</span> <span class="o">=</span> <span class="n">training_range</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">start_month</span> <span class="o">=</span> <span class="n">training_range</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">start_year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pred_range</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">])</span>
+        <span class="n">start_month</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pred_range</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">5</span><span class="p">:</span><span class="mi">7</span><span class="p">])</span>
+
+    <span class="n">end_year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pred_range</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">])</span>
+    <span class="n">end_month</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pred_range</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">5</span><span class="p">:</span><span class="mi">7</span><span class="p">])</span>
+
+    <span class="n">true_date</span><span class="p">,</span> <span class="n">true_data</span> <span class="o">=</span> <span class="n">data_to_list</span><span class="p">(</span>
+        <span class="n">indicator</span><span class="p">,</span>
+        <span class="n">start_year</span><span class="p">,</span>
+        <span class="n">start_month</span><span class="p">,</span>
+        <span class="n">end_year</span><span class="p">,</span>
+        <span class="n">end_month</span><span class="p">,</span>
+        <span class="n">use_heuristic_for_true</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;Comparison&#39;</span><span class="p">:</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Predictions vs. True values for </span><span class="si">{indicator}</span><span class="s2">&quot;</span>
+
+        <span class="n">true_data_x</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">true_data_y</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obs</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">true_data</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">obs</span><span class="p">:</span>
+                    <span class="n">true_data_y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+                    <span class="n">true_data_x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">true_date</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">true_data_y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                <span class="n">true_data_x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">true_date</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+        <span class="n">df_true</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{indicator}</span><span class="s1"> (True)&#39;</span><span class="p">:</span> <span class="n">true_data_y</span><span class="p">,</span> <span class="s1">&#39;Year-Month&#39;</span><span class="p">:</span>
+                <span class="n">true_data_x</span><span class="p">})</span>
+
+        <span class="c1"># Aggregate multiple coinciding data points</span>
+        <span class="n">df_true</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_true</span><span class="p">[</span><span class="s1">&#39;Year-Month&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">df_true_grp</span> <span class="o">=</span> <span class="n">df_true</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Year-Month&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{indicator}</span><span class="s1"> (True)&#39;</span><span class="p">],</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+        <span class="n">df_true_grp</span><span class="p">[</span><span class="s1">&#39;Year-Month&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df_true_grp</span><span class="p">[</span><span class="s1">&#39;Year-Month&#39;</span><span class="p">])</span>
+
+        <span class="n">sns</span><span class="o">.</span><span class="n">scatterplot</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">df_true_grp</span><span class="p">,</span>
+            <span class="n">y</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{indicator}</span><span class="s1"> (True)&#39;</span><span class="p">,</span>
+            <span class="n">x</span><span class="o">=</span><span class="s1">&#39;Year-Month&#39;</span><span class="p">,</span>
+            <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span>
+            <span class="n">size</span><span class="o">=</span><span class="n">df_true_grp</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="n">sizes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">250</span><span class="p">),</span>
+            <span class="n">hue</span><span class="o">=</span><span class="n">df_true_grp</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="n">palette</span><span class="o">=</span><span class="s1">&#39;ch:r=-.8, l=.75&#39;</span><span class="p">,</span>
+            <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{indicator}</span><span class="s1"> (True)&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">ci</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+            <span class="n">y1</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="n">ci_upper</span><span class="p">],</span>
+            <span class="n">y2</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="n">ci_lower</span><span class="p">],</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;Error&#39;</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Year-Month&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">y_label</span><span class="p">)</span>
+
+    <span class="c1"># Set x-axis tick marks</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">true_date</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">true_date</span><span class="p">),</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span>
+    <span class="p">)</span>
+    <span class="n">xfmt</span> <span class="o">=</span> <span class="n">mdates</span><span class="o">.</span><span class="n">DateFormatter</span><span class="p">(</span><span class="s1">&#39;%Y-%m&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">xfmt</span><span class="p">)</span>
+
+    <span class="n">handles</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_legend_handles_labels</span><span class="p">()</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">get_lines</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="s2">&quot;blue&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">get_lines</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_linestyle</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
+    <span class="n">handles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="s1">&#39;blue&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">show_rmse</span><span class="p">:</span>
+        <span class="n">rmse</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span>
+            <span class="n">calculate_prediction_rmse</span><span class="p">(</span><span class="n">preds</span><span class="p">,</span> <span class="n">indicator</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span>
+            <span class="mi">4</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">rmse_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Root Mean Squared Error: </span><span class="si">{rmse}</span><span class="s2">&quot;</span>
+
+        <span class="n">handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">mpatches</span><span class="o">.</span><span class="n">Patch</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">rmse_str</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">handles</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">save_as</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">save_as</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<span class="c1"># ==========================================================================</span>
+<span class="c1"># Evaluation and Validation functions</span>
+<span class="c1"># ==========================================================================</span>
+
+
+<div class="viewcode-block" id="walk_forward_val"><a class="viewcode-back" href="../../delphi.html#delphi.evaluation.walk_forward_val">[docs]</a><span class="k">def</span> <span class="nf">walk_forward_val</span><span class="p">(</span>
+    <span class="n">initial_training_window</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+    <span class="n">end_prediction_date</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">burn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
+    <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">training_year_start</span><span class="p">,</span> <span class="n">training_month_start</span><span class="p">,</span> <span class="n">training_year_end</span><span class="p">,</span> <span class="n">training_month_end</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">initial_training_window</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">training_month_start</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">12</span> <span class="ow">or</span> <span class="p">(</span><span class="n">training_month_start</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">temp_x</span> <span class="o">=</span> <span class="n">training_month_start</span>
+        <span class="n">training_month_start</span> <span class="o">=</span> <span class="n">training_year_start</span>
+        <span class="n">training_year_start</span> <span class="o">=</span> <span class="n">temp_x</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">training_month_end</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">12</span> <span class="ow">or</span> <span class="p">(</span><span class="n">training_month_end</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">temp_x</span> <span class="o">=</span> <span class="n">training_month_end</span>
+        <span class="n">training_month_end</span> <span class="o">=</span> <span class="n">training_year_end</span>
+        <span class="n">training_year_end</span> <span class="o">=</span> <span class="n">temp_x</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span></div>
+
+
+<span class="c1"># ==========================================================================</span>
+<span class="c1"># Interventions: This section is under construction</span>
+<span class="c1"># ==========================================================================</span>
+
+
+<div class="viewcode-block" id="estimate_deltas"><a class="viewcode-back" href="../../delphi.html#delphi.evaluation.estimate_deltas">[docs]</a><span class="k">def</span> <span class="nf">estimate_deltas</span><span class="p">(</span>
+    <span class="n">G</span><span class="p">,</span>
+    <span class="n">intervened_node</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">n_timesteps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">start_year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">start_month</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">country</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;South Sudan&quot;</span><span class="p">,</span>
+    <span class="n">state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Utility function that estimates Rate of Change (deltas) for the</span>
+<span class="sd">    intervened node per timestep. This will use the units that the CAG</span>
+<span class="sd">    was parameterized with. WARNING: The state and country should be same as what was</span>
+<span class="sd">    passed to G.parameterize() or else you could get mismatched data.</span>
+
+<span class="sd">    Deltas are estimated by percent change between each time step. (i.e,</span>
+<span class="sd">    (current - next)/current). Heuristics are in place to handle NAN and INF</span>
+<span class="sd">    values. If changed from 0 to 0 (NAN case), then delta = 0. If increasing</span>
+<span class="sd">    from 0 (+INF case), then delta = positive absolute mean of all finite</span>
+<span class="sd">    deltas. If decreasing from 0 (-INF case), then delta = negative absolute</span>
+<span class="sd">    mean of all finite deltas.</span>
+
+<span class="sd">    See function get_true_values to see how the data is aggregated to fill in</span>
+<span class="sd">    values for missing time points which calculating the deltas.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        G: A completely parameterized and quantified CAG with indicators,</span>
+<span class="sd">        estimated transition matrx, and indicator values.</span>
+
+<span class="sd">        intervened_node: A string of the full name of the node in which we</span>
+<span class="sd">        are intervening on.</span>
+
+<span class="sd">        n_timesteps: Number of time steps.</span>
+
+<span class="sd">        start_year: The starting year (e.g, 2012).</span>
+
+<span class="sd">        start_month: The starting month (1-12).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        1D numpy array of deltas.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">intervener_indicator</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="n">intervened_node</span><span class="p">][</span><span class="s2">&quot;indicators&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">query_base</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="sa">f</span><span class="s2">&quot;select * from indicator&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;where `Variable` like &#39;</span><span class="si">{intervener_indicator}</span><span class="s2">&#39;&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="n">query_parts</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;base&quot;</span><span class="p">:</span> <span class="n">query_base</span><span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">country</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">check_q</span> <span class="o">=</span> <span class="n">query_parts</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;and `Country` is &#39;</span><span class="si">{country}</span><span class="s2">&#39;&quot;</span>
+        <span class="n">check_r</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">check_q</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">check_r</span> <span class="o">==</span> <span class="p">[]:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Selected Country not found for </span><span class="si">{intervener_indicator}</span><span class="s2">! Using default settings (South Sudan)&quot;</span>
+            <span class="p">)</span>
+            <span class="n">query_parts</span><span class="p">[</span><span class="s2">&quot;country&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;and `Country` is &#39;South Sudan&#39;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">query_parts</span><span class="p">[</span><span class="s2">&quot;country&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;and `Country` is &#39;</span><span class="si">{country}</span><span class="s2">&#39;&quot;</span>
+    <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">check_q</span> <span class="o">=</span> <span class="n">query_parts</span><span class="p">[</span><span class="s2">&quot;base&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;and `State` is &#39;</span><span class="si">{state}</span><span class="s2">&#39;&quot;</span>
+        <span class="n">check_r</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">check_q</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">check_r</span> <span class="o">==</span> <span class="p">[]:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Selected State not found for </span><span class="si">{intervener_indicator}</span><span class="s2">! Using default settings (Aggregration over all States)&quot;</span>
+            <span class="p">)</span>
+            <span class="n">query_parts</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">query_parts</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;and `State` is &#39;</span><span class="si">{state}</span><span class="s2">&#39;&quot;</span>
+
+    <span class="n">unit</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="n">intervened_node</span><span class="p">][</span><span class="s2">&quot;indicators&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span>
+        <span class="mi">0</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">unit</span>
+
+    <span class="n">int_vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">int_vals</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="n">intervened_node</span><span class="p">][</span><span class="s2">&quot;indicators&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+    <span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span>
+    <span class="n">year</span> <span class="o">=</span> <span class="n">start_year</span>
+    <span class="n">month</span> <span class="o">=</span> <span class="n">start_month</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">query_parts</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;and `Year` is &#39;</span><span class="si">{year}</span><span class="s2">&#39;&quot;</span>
+        <span class="n">query_parts</span><span class="p">[</span><span class="s2">&quot;month&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;and `Month` is &#39;</span><span class="si">{month}</span><span class="s2">&#39;&quot;</span>
+
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">query_parts</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">results</span> <span class="o">!=</span> <span class="p">[]:</span>
+            <span class="n">int_vals</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+                <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;Value&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;Unit&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">unit</span><span class="p">]</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">month</span> <span class="o">==</span> <span class="mi">12</span><span class="p">:</span>
+                <span class="n">year</span> <span class="o">=</span> <span class="n">year</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">month</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">month</span> <span class="o">=</span> <span class="n">month</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">continue</span>
+
+        <span class="n">query_parts</span><span class="p">[</span><span class="s2">&quot;month&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">query_parts</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">results</span> <span class="o">!=</span> <span class="p">[]:</span>
+            <span class="n">int_vals</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+                <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;Value&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;Unit&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">unit</span><span class="p">]</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">month</span> <span class="o">==</span> <span class="mi">12</span><span class="p">:</span>
+                <span class="n">year</span> <span class="o">=</span> <span class="n">year</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">month</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">month</span> <span class="o">=</span> <span class="n">month</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">continue</span>
+
+        <span class="n">query_parts</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">query_parts</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">results</span> <span class="o">!=</span> <span class="p">[]:</span>
+            <span class="n">int_vals</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+                <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;Value&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;Unit&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">unit</span><span class="p">]</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">month</span> <span class="o">==</span> <span class="mi">12</span><span class="p">:</span>
+                <span class="n">year</span> <span class="o">=</span> <span class="n">year</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">month</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">month</span> <span class="o">=</span> <span class="n">month</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">continue</span>
+
+    <span class="n">per_ch</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">int_vals</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">int_vals</span>
+
+    <span class="n">per_ch</span> <span class="o">=</span> <span class="n">per_ch</span> <span class="o">/</span> <span class="n">int_vals</span>
+
+    <span class="n">per_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">per_ch</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">per_ch</span><span class="p">)]))</span>
+
+    <span class="n">per_ch</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">per_ch</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">per_ch</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isposinf</span><span class="p">(</span><span class="n">per_ch</span><span class="p">)]</span> <span class="o">=</span> <span class="n">per_mean</span>
+    <span class="n">per_ch</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isneginf</span><span class="p">(</span><span class="n">per_ch</span><span class="p">)]</span> <span class="o">=</span> <span class="o">-</span><span class="n">per_mean</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">per_ch</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="intervention"><a class="viewcode-back" href="../../delphi.html#delphi.evaluation.intervention">[docs]</a><span class="k">def</span> <span class="nf">intervention</span><span class="p">(</span>
+    <span class="n">target_node</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">intervened_node</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">G</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="nb">input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">start_year</span><span class="o">=</span><span class="mi">2012</span><span class="p">,</span>
+    <span class="n">start_month</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">end_year</span><span class="o">=</span><span class="mi">2017</span><span class="p">,</span>
+    <span class="n">end_month</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">plot_type</span><span class="o">=</span><span class="s2">&quot;Compare&quot;</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; This is the main function of this module. This parameterizes a given</span>
+<span class="sd">    CAG (see requirements in Args) and calls other functions within this module</span>
+<span class="sd">    to predict values for a specified target node&#39;s indicator variable given a</span>
+<span class="sd">    start date and end date. Returns pandas dataframe containing predicted</span>
+<span class="sd">    values, true values, and error.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        target_node: A string of the full name of the node in which we</span>
+<span class="sd">        wish to predict values for its attached indicator variable.</span>
+
+<span class="sd">        intervened_node: A string of the full name of the node upon which we</span>
+<span class="sd">        are intervening.</span>
+
+<span class="sd">        G: A CAG. It must have mapped indicator values and estimated transition</span>
+<span class="sd">        matrix.</span>
+
+<span class="sd">        input: This allows you to upload a CAG from a pickle file, instead of</span>
+<span class="sd">        passing it directly as an argument. The CAG must have mapped</span>
+<span class="sd">        indicators and an estimated transition matrix.</span>
+
+<span class="sd">        start_year: An integer, designates the starting year (ex: 2012).</span>
+
+<span class="sd">        start_month: An integer, starting month (1-12).</span>
+
+<span class="sd">        end_year: An integer, ending year.</span>
+
+<span class="sd">        end_month: An integer, ending month.</span>
+
+<span class="sd">        plot: Set to true to display a plot according to the plot type.</span>
+
+<span class="sd">        plot_type: By default setting plot to true displays the &quot;Compare&quot; type</span>
+<span class="sd">        plot which plots the predictions and true values of the target node&#39;s</span>
+<span class="sd">        indicator variable on one plot labeled by time steps (Year-Month).</span>
+<span class="sd">        There is also &quot;Error&quot; type, which plots the errors or residuals, with a</span>
+<span class="sd">        reference line at 0.</span>
+
+<span class="sd">        **kwargs: These are options for parameterize() which specify</span>
+<span class="sd">        country, state, units, fallback aggregation axes, and aggregation</span>
+<span class="sd">        function. Country and State also get passed into estimate_deltas()</span>
+<span class="sd">        and get_true_values(). The appropriate arguments are country, state,</span>
+<span class="sd">        units, fallback_aggaxes, and aggfunc.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Returns a pandas dataframe.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">input</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">G</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;The CAG passed to G will be suppressed by the CAG loaded from &quot;</span>
+                <span class="s2">&quot;the pickle file.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">G</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">G</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+        <span class="s2">&quot;A CAG must be passed to G or a pickle file containing a CAG must be &quot;</span>
+        <span class="s2">&quot;passed to input.&quot;</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">&quot;country&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="n">country</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;country&quot;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">country</span> <span class="o">=</span> <span class="s2">&quot;South Sudan&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;state&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="s2">&quot;units&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="n">units</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">units</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="s2">&quot;fallback_aggaxes&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="n">fallback_aggaxes</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;fallback_aggaxes&quot;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fallback_aggaxes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="s2">&quot;month&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s2">&quot;aggfunc&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="n">aggfunc</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;aggfunc&quot;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">aggfunc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">parameterize</span><span class="p">(</span>
+        <span class="n">country</span><span class="o">=</span><span class="n">country</span><span class="p">,</span>
+        <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>
+        <span class="n">year</span><span class="o">=</span><span class="n">start_year</span><span class="p">,</span>
+        <span class="n">month</span><span class="o">=</span><span class="n">start_month</span><span class="p">,</span>
+        <span class="n">units</span><span class="o">=</span><span class="n">units</span><span class="p">,</span>
+        <span class="n">fallback_aggaxes</span><span class="o">=</span><span class="n">fallback_aggaxes</span><span class="p">,</span>
+        <span class="n">aggfunc</span><span class="o">=</span><span class="n">aggfunc</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">get_timeseries_values_for_indicators</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">start_month</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">start_month</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="n">end_month</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">end_month</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="n">n_timesteps</span> <span class="o">=</span> <span class="n">calculate_timestep</span><span class="p">(</span>
+        <span class="n">start_year</span><span class="p">,</span> <span class="n">start_month</span><span class="p">,</span> <span class="n">end_year</span><span class="p">,</span> <span class="n">end_month</span>
+    <span class="p">)</span>
+
+    <span class="n">true_vals_df</span> <span class="o">=</span> <span class="n">get_true_values</span><span class="p">(</span>
+        <span class="n">G</span><span class="p">,</span> <span class="n">target_node</span><span class="p">,</span> <span class="n">n_timesteps</span><span class="p">,</span> <span class="n">start_year</span><span class="p">,</span> <span class="n">start_month</span><span class="p">,</span> <span class="n">country</span><span class="p">,</span> <span class="n">state</span>
+    <span class="p">)</span>
+
+    <span class="n">true_vals</span> <span class="o">=</span> <span class="n">true_vals_df</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="n">deltas</span> <span class="o">=</span> <span class="n">estimate_deltas</span><span class="p">(</span>
+        <span class="n">G</span><span class="p">,</span>
+        <span class="n">intervened_node</span><span class="p">,</span>
+        <span class="n">n_timesteps</span><span class="p">,</span>
+        <span class="n">start_year</span><span class="p">,</span>
+        <span class="n">start_month</span><span class="p">,</span>
+        <span class="n">country</span><span class="p">,</span>
+        <span class="n">state</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">preds_df</span> <span class="o">=</span> <span class="n">get_predictions</span><span class="p">(</span>
+        <span class="n">G</span><span class="p">,</span> <span class="n">target_node</span><span class="p">,</span> <span class="n">intervened_node</span><span class="p">,</span> <span class="n">deltas</span><span class="p">,</span> <span class="n">n_timesteps</span>
+    <span class="p">)</span>
+
+    <span class="n">preds_df</span> <span class="o">=</span> <span class="n">preds_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">true_vals_df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+    <span class="n">preds</span> <span class="o">=</span> <span class="n">preds_df</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="n">preds</span> <span class="o">-</span> <span class="n">true_vals</span>
+
+    <span class="n">error_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Errors&quot;</span><span class="p">])</span>
+
+    <span class="n">error_df</span> <span class="o">=</span> <span class="n">error_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">true_vals_df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+    <span class="n">compare_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">true_vals_df</span><span class="p">,</span> <span class="n">preds_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s2">&quot;Error&quot;</span><span class="p">:</span>
+            <span class="n">sns</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;figure.figsize&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">8</span><span class="p">)},</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;whitegrid&quot;</span><span class="p">)</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">error_df</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">error_df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span>
+                <span class="n">error_df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span>
+            <span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">c</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sns</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">rc</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;figure.figsize&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">8</span><span class="p">)},</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;whitegrid&quot;</span><span class="p">)</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">compare_df</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">compare_df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span>
+                <span class="n">compare_df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">compare_df</span><span class="p">,</span> <span class="n">error_df</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Adarsh
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

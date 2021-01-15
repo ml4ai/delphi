@@ -1,0 +1,776 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>delphi.translators.for2py.genModFileLog &mdash; delphi  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+        <script src="../../../../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../../../../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> delphi
+          
+
+          
+            
+            <img src="../../../../_static/delphi_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html#change-log">Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cpp_api/library_root.html">C++ API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">delphi</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../for2py.html">delphi.translators.for2py</a> &raquo;</li>
+        
+      <li>delphi.translators.for2py.genModFileLog</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for delphi.translators.for2py.genModFileLog</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This program will scan all Fortran files in the given path searching for files</span>
+<span class="sd">that hold modules. Then, it will create a log file in JSON format.</span>
+
+<span class="sd">Example:</span>
+<span class="sd">        This script can be executed as below:</span>
+<span class="sd">        $ python genModFileLog.py -d &lt;root_directory&gt; -f &lt;log_file_name&gt;</span>
+
+<span class="sd">fortran_file_path: Original input file that uses module file.</span>
+<span class="sd">log_file_name: User does not have to provide the name as it is default</span>
+<span class="sd">to &quot;modFileLog.json&quot;, but (s)he can specify it with -f option follow by</span>
+<span class="sd">the file name in string.</span>
+
+<span class="sd">Currently, this program assumes that module files reside in the same directory</span>
+<span class="sd">as use program file.</span>
+
+<span class="sd">Author: Terrence J. Lim</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">isfile</span>
+<span class="kn">from</span> <span class="nn">delphi.translators.for2py</span> <span class="kn">import</span> <span class="n">syntax</span><span class="p">,</span> <span class="n">preprocessor</span>
+
+
+<div class="viewcode-block" id="parse_args"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genModFileLog.parse_args">[docs]</a><span class="k">def</span> <span class="nf">parse_args</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;This function is for a safe command line</span>
+<span class="sd">    input. It should receive the fortran file</span>
+<span class="sd">    name and returns it back to the caller.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: A file name of original fortran script.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-d&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--directory&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Root directory to begin the module scan from.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-f&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--file&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;A user specified module log file name.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
+    <span class="n">root_dir_path</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">directory</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">user_specified_log_file_name</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">file</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">root_dir_path</span><span class="p">,</span> <span class="n">user_specified_log_file_name</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">default_module_file_name</span> <span class="o">=</span> <span class="s2">&quot;modFileLog.json&quot;</span>
+        <span class="k">return</span> <span class="n">root_dir_path</span><span class="p">,</span> <span class="n">default_module_file_name</span></div>
+
+
+<div class="viewcode-block" id="get_file_list_in_directory"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genModFileLog.get_file_list_in_directory">[docs]</a><span class="k">def</span> <span class="nf">get_file_list_in_directory</span><span class="p">(</span><span class="n">root_dir_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function lists all Fortran files (excluding directories) in the</span>
+<span class="sd">    specified directory.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dir_path (str): Directory path.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List: List of Fortran files.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">dir_path</span><span class="p">,</span> <span class="n">dir_names</span><span class="p">,</span> <span class="n">file_names</span><span class="p">)</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">root_dir_path</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">file_names</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;_preprocessed&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">f</span> <span class="ow">and</span> <span class="p">(</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.f&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">f</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.for&quot;</span><span class="p">)</span>
+            <span class="p">):</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_path</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+                <span class="n">files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">files</span></div>
+
+
+<div class="viewcode-block" id="modules_from_file"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genModFileLog.modules_from_file">[docs]</a><span class="k">def</span> <span class="nf">modules_from_file</span><span class="p">(</span>
+    <span class="n">file_path</span><span class="p">,</span> <span class="n">file_to_mod_mapper</span><span class="p">,</span> <span class="n">mod_to_file_mapper</span><span class="p">,</span> <span class="n">mod_info_dict</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function checks whether the module and file path already exist</span>
+<span class="sd">    int the log file. If they do, then it compares the last_modified_time</span>
+<span class="sd">    in the log file with the last modified time of file in disk. Then, it</span>
+<span class="sd">    will call &#39;populate_mapper&#39; function if file was not already looked</span>
+<span class="sd">    before or the file was modified since last analyzed.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        file_path (str): File path that is guaranteed to exist in the</span>
+<span class="sd">            directory.</span>
+<span class="sd">        file_to_mod_mapper (dict): Dictionary of lists that will hold</span>
+<span class="sd">            file-to-module_name mappings.</span>
+<span class="sd">        mod_to_file_mapper (dict): Dictionary that holds a module to its</span>
+<span class="sd">            residing file path.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="n">file_to_mod_mapper</span><span class="p">:</span>
+        <span class="n">last_modified_time</span> <span class="o">=</span> <span class="n">get_file_last_modified_time</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="n">last_modified_time_in_log</span> <span class="o">=</span> <span class="n">file_to_mod_mapper</span><span class="p">[</span><span class="n">file_path</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">last_modified_time</span> <span class="o">!=</span> <span class="n">last_modified_time_in_log</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">last_modified_time</span> <span class="o">&gt;</span> <span class="n">last_modified_time_in_log</span><span class="p">,</span> <span class="p">(</span>
+                <span class="s2">&quot;Last modified time in the log file cannot be later than on &quot;</span>
+                <span class="s2">&quot;disk file&#39;s time.&quot;</span>
+            <span class="p">)</span>
+            <span class="n">populate_mappers</span><span class="p">(</span>
+                <span class="n">file_path</span><span class="p">,</span>
+                <span class="n">file_to_mod_mapper</span><span class="p">,</span>
+                <span class="n">mod_to_file_mapper</span><span class="p">,</span>
+                <span class="n">mod_info_dict</span><span class="p">,</span>
+            <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">populate_mappers</span><span class="p">(</span>
+            <span class="n">file_path</span><span class="p">,</span> <span class="n">file_to_mod_mapper</span><span class="p">,</span> <span class="n">mod_to_file_mapper</span><span class="p">,</span> <span class="n">mod_info_dict</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="populate_mappers"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genModFileLog.populate_mappers">[docs]</a><span class="k">def</span> <span class="nf">populate_mappers</span><span class="p">(</span>
+    <span class="n">file_path</span><span class="p">,</span> <span class="n">file_to_mod_mapper</span><span class="p">,</span> <span class="n">mod_to_file_mapper</span><span class="p">,</span> <span class="n">mod_info_dict</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function populates two mappers by checking and extracting</span>
+<span class="sd">    module names, if exist, from the file, and map it to the file name.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        file_path (str): File of a path that will be scanned.</span>
+<span class="sd">        file_to_mod_mapper (dict): Dictionary of lists that will</span>
+<span class="sd">            hold file-to-module_name mappings.</span>
+<span class="sd">        mod_to_file_mapper (dict): Dictionary that holds a module</span>
+<span class="sd">            to its residing file path.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;ISO-8859-1&quot;</span><span class="p">)</span>
+    <span class="n">f_pos</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span>
+    <span class="n">file_content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="n">module_names</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">module_names_lowered</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">module_summary</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">procedure_functions</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">derived_types</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># Checks if file contains &quot;end module&quot; or &quot;endmodule&quot;,</span>
+    <span class="c1"># which only appears in case of module declaration.</span>
+    <span class="c1"># If not, there is no need to look into the file any further,</span>
+    <span class="c1"># so ignore it.</span>
+    <span class="k">if</span> <span class="n">syntax</span><span class="o">.</span><span class="n">has_module</span><span class="p">(</span><span class="n">file_content</span><span class="o">.</span><span class="n">lower</span><span class="p">()):</span>
+        <span class="c1"># Extract the module names by inspecting each line in the file.</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">f_pos</span><span class="p">)</span>
+        <span class="n">org_lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="n">preprocessed_lines</span> <span class="o">=</span> <span class="n">preprocessor</span><span class="o">.</span><span class="n">preprocess_lines</span><span class="p">(</span>
+            <span class="n">org_lines</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">preprocessed_lines</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">syntax</span><span class="o">.</span><span class="n">line_starts_pgm</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">match</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">match</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;module&quot;</span><span class="p">:</span>
+                <span class="n">module_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">match</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+        <span class="c1"># Map current file to modules that it uses.</span>
+        <span class="n">module_names_lowered</span> <span class="o">=</span> <span class="p">[</span><span class="n">mod</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">mod</span> <span class="ow">in</span> <span class="n">module_names</span><span class="p">]</span>
+        <span class="n">file_to_mod_mapper</span><span class="p">[</span><span class="n">file_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">module_names_lowered</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">file_to_mod_mapper</span><span class="p">[</span><span class="n">file_path</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">get_file_last_modified_time</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># If current file has subroutines, then extract subroutine information</span>
+        <span class="c1"># that are declared within the scope of any module and store in the module</span>
+        <span class="c1"># summary dictionary.</span>
+        <span class="k">if</span> <span class="n">syntax</span><span class="o">.</span><span class="n">has_subroutine</span><span class="p">(</span><span class="n">file_content</span><span class="o">.</span><span class="n">lower</span><span class="p">()):</span>
+            <span class="n">populate_module_summary</span><span class="p">(</span>
+                <span class="n">preprocessed_lines</span><span class="p">,</span>
+                <span class="n">module_summary</span><span class="p">,</span>
+                <span class="n">procedure_functions</span><span class="p">,</span>
+                <span class="n">derived_types</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Using collected function information, populate interface function information</span>
+    <span class="c1"># by each module.</span>
+    <span class="n">populate_procedure_functions</span><span class="p">(</span><span class="n">procedure_functions</span><span class="p">,</span> <span class="n">module_summary</span><span class="p">)</span>
+
+    <span class="c1"># Populate actual module information (summary)</span>
+    <span class="c1"># that will be written to thee JSONN file.</span>
+    <span class="k">for</span> <span class="n">mod</span> <span class="ow">in</span> <span class="n">module_names_lowered</span><span class="p">:</span>
+        <span class="n">mod_to_file_mapper</span><span class="p">[</span><span class="n">mod</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">file_path</span><span class="p">]</span>
+        <span class="n">mod_info_dict</span><span class="p">[</span><span class="n">mod</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;exports&quot;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="s2">&quot;symbol_types&quot;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="s2">&quot;imports&quot;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="s2">&quot;interface_functions&quot;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="s2">&quot;derived_type_list&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">mod</span> <span class="ow">in</span> <span class="n">module_summary</span><span class="p">:</span>
+            <span class="n">mod_info_dict</span><span class="p">[</span><span class="n">mod</span><span class="p">][</span><span class="s2">&quot;interface_functions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">procedure_functions</span><span class="p">[</span>
+                <span class="n">mod</span>
+            <span class="p">]</span>
+        <span class="k">if</span> <span class="n">mod</span> <span class="ow">in</span> <span class="n">derived_types</span><span class="p">:</span>
+            <span class="n">mod_info_dict</span><span class="p">[</span><span class="n">mod</span><span class="p">][</span><span class="s2">&quot;derived_type_list&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">derived_types</span><span class="p">[</span><span class="n">mod</span><span class="p">]</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="populate_procedure_functions"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genModFileLog.populate_procedure_functions">[docs]</a><span class="k">def</span> <span class="nf">populate_procedure_functions</span><span class="p">(</span><span class="n">procedure_functions</span><span class="p">,</span> <span class="n">module_summary</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function completes procedure_functions dictionary.</span>
+
+<span class="sd">    Params:</span>
+<span class="sd">        procedure_functions (dict): A dictionary to hold interface-to-procedure</span>
+<span class="sd">            function mappings.</span>
+<span class="sd">        module_summary (dict): A dictionary for holding module-to-subroutine-to-</span>
+<span class="sd">            arguments mappings.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">mod</span> <span class="ow">in</span> <span class="n">procedure_functions</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">mod</span> <span class="ow">in</span> <span class="n">module_summary</span><span class="p">:</span>
+            <span class="n">mod_functions</span> <span class="o">=</span> <span class="n">module_summary</span><span class="p">[</span><span class="n">mod</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">interface</span> <span class="ow">in</span> <span class="n">procedure_functions</span><span class="p">[</span><span class="n">mod</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">function</span> <span class="ow">in</span> <span class="n">procedure_functions</span><span class="p">[</span><span class="n">mod</span><span class="p">][</span><span class="n">interface</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">function</span> <span class="ow">in</span> <span class="n">mod_functions</span><span class="p">:</span>
+                        <span class="n">procedure_functions</span><span class="p">[</span><span class="n">mod</span><span class="p">][</span><span class="n">interface</span><span class="p">][</span>
+                            <span class="n">function</span>
+                        <span class="p">]</span> <span class="o">=</span> <span class="n">mod_functions</span><span class="p">[</span><span class="n">function</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="populate_module_summary"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genModFileLog.populate_module_summary">[docs]</a><span class="k">def</span> <span class="nf">populate_module_summary</span><span class="p">(</span>
+    <span class="n">f</span><span class="p">,</span> <span class="n">module_summary</span><span class="p">,</span> <span class="n">procedure_functions</span><span class="p">,</span> <span class="n">derived_types</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function extracts module, derived type, and interface information, and</span>
+<span class="sd">    populates module summary, procedure functions, and derived types dictionaries.</span>
+
+<span class="sd">    Params:</span>
+<span class="sd">        f (str): File content.</span>
+<span class="sd">        module_summary (dict): A dictionary for holding module-to-subroutine-to-</span>
+<span class="sd">            arguments mappings.</span>
+<span class="sd">        procedure_functions (dict): A dictionary to hold interface-to-procedure</span>
+<span class="sd">            function mappings.</span>
+<span class="sd">        derived_types (dict): Dictionary that will hold module-to-derived type</span>
+<span class="sd">            mapping.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">current_modu</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">current_subr</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">current_intr</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">current_func</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">isProcedure</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="c1">#  Removing any inline comments</span>
+        <span class="k">if</span> <span class="s2">&quot;!&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">&quot;!&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+        <span class="c1"># Detects module and interface entering line.</span>
+        <span class="n">pgm</span> <span class="o">=</span> <span class="n">syntax</span><span class="o">.</span><span class="n">line_starts_pgm</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="c1"># Detects subroutine entering line.</span>
+        <span class="n">subroutine</span> <span class="o">=</span> <span class="n">syntax</span><span class="o">.</span><span class="n">subroutine_definition</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+        <span class="n">end_pgm</span> <span class="o">=</span> <span class="n">syntax</span><span class="o">.</span><span class="n">pgm_end</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">pgm</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="ow">and</span> <span class="n">pgm</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;module&quot;</span>
+            <span class="ow">and</span> <span class="n">pgm</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;procedure&quot;</span>
+        <span class="p">):</span>
+            <span class="n">current_modu</span> <span class="o">=</span> <span class="n">pgm</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">module_summary</span><span class="p">[</span><span class="n">current_modu</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">procedure_functions</span><span class="p">[</span><span class="n">current_modu</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">elif</span> <span class="n">end_pgm</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">end_pgm</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;module&quot;</span><span class="p">:</span>
+            <span class="n">current_modu</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="c1"># If currently processing line of code is within the scope of module,</span>
+        <span class="c1"># we need to extract subroutine, interface, and derived type information.</span>
+        <span class="k">if</span> <span class="n">current_modu</span><span class="p">:</span>
+            <span class="n">current_subr</span> <span class="o">=</span> <span class="n">extract_subroutine_info</span><span class="p">(</span>
+                <span class="n">pgm</span><span class="p">,</span>
+                <span class="n">end_pgm</span><span class="p">,</span>
+                <span class="n">module_summary</span><span class="p">,</span>
+                <span class="n">current_modu</span><span class="p">,</span>
+                <span class="n">subroutine</span><span class="p">,</span>
+                <span class="n">current_subr</span><span class="p">,</span>
+                <span class="n">line</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">current_intr</span> <span class="o">=</span> <span class="n">extract_interface_info</span><span class="p">(</span>
+                <span class="n">pgm</span><span class="p">,</span>
+                <span class="n">end_pgm</span><span class="p">,</span>
+                <span class="n">procedure_functions</span><span class="p">,</span>
+                <span class="n">current_modu</span><span class="p">,</span>
+                <span class="n">current_intr</span><span class="p">,</span>
+                <span class="n">line</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">extract_derived_type_info</span><span class="p">(</span><span class="n">end_pgm</span><span class="p">,</span> <span class="n">current_modu</span><span class="p">,</span> <span class="n">derived_types</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="extract_subroutine_info"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genModFileLog.extract_subroutine_info">[docs]</a><span class="k">def</span> <span class="nf">extract_subroutine_info</span><span class="p">(</span>
+    <span class="n">pgm</span><span class="p">,</span> <span class="n">end_pgm</span><span class="p">,</span> <span class="n">module_summary</span><span class="p">,</span> <span class="n">current_modu</span><span class="p">,</span> <span class="n">subroutine</span><span class="p">,</span> <span class="n">current_subr</span><span class="p">,</span> <span class="n">line</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function extracts information of subroutine declared within</span>
+<span class="sd">    the module, and stores those information to module_summary dictionary.</span>
+
+<span class="sd">    Params:</span>
+<span class="sd">        pgm (tuple): Current program information.</span>
+<span class="sd">        end_pgm (typle): End of current program indicator.</span>
+<span class="sd">        module_summary (dict): A dictionary for holding module-to-subroutine-to-</span>
+<span class="sd">        arguments mappings.</span>
+<span class="sd">        current_modu (str): Module name that current interface is located under.</span>
+<span class="sd">        subroutine (tuple): Holds information of the subroutine.</span>
+<span class="sd">        current_subr (str): Current subroutine name.</span>
+<span class="sd">        line (str): A line from Fortran source code.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        (current_subr) Currently handling subroutine name.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># If subroutine encountered,</span>
+    <span class="k">if</span> <span class="n">subroutine</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="c1"># extract the name,</span>
+        <span class="n">current_subr</span> <span class="o">=</span> <span class="n">subroutine</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># extract any existing arguments,</span>
+        <span class="n">subroutine_args</span> <span class="o">=</span> <span class="n">subroutine</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># and populate thee module summary dictionary</span>
+        <span class="n">module_summary</span><span class="p">[</span><span class="n">current_modu</span><span class="p">][</span><span class="n">current_subr</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">subroutine_args</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">arg</span><span class="p">:</span>
+                <span class="c1"># Since we cannot find out about the argument types</span>
+                <span class="c1"># just looking at the argument, initialize the types</span>
+                <span class="c1"># to None as defualt.</span>
+                <span class="n">module_summary</span><span class="p">[</span><span class="n">current_modu</span><span class="p">][</span><span class="n">current_subr</span><span class="p">][</span><span class="n">arg</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">elif</span> <span class="n">end_pgm</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">end_pgm</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;subroutine&quot;</span><span class="p">:</span>
+        <span class="c1"># Indication of end of subroutine.</span>
+        <span class="n">current_subr</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">elif</span> <span class="n">current_subr</span><span class="p">:</span>
+        <span class="n">variable_dec</span> <span class="o">=</span> <span class="n">syntax</span><span class="o">.</span><span class="n">variable_declaration</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">variable_dec</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">syntax</span><span class="o">.</span><span class="n">line_is_func_start</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">variable_dec</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="n">var_type</span> <span class="o">=</span> <span class="n">variable_dec</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">variables</span> <span class="o">=</span> <span class="n">variable_dec</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+            <span class="c1"># Handle syntax like:</span>
+            <span class="c1">#   precision, dimension(0:tmax) :: means, vars</span>
+            <span class="c1">#   precision, parameter :: var = 1.234</span>
+            <span class="k">if</span> <span class="s2">&quot;precision&quot;</span> <span class="ow">in</span> <span class="n">variables</span> <span class="ow">or</span> <span class="s2">&quot;dimension&quot;</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+                <span class="c1"># Handle dimension (array)</span>
+                <span class="k">if</span> <span class="s2">&quot;dimension&quot;</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+                    <span class="n">var_type</span> <span class="o">=</span> <span class="s2">&quot;Array&quot;</span>
+                <span class="c1"># Extract only variable names follow by &#39;::&#39;</span>
+                <span class="n">variables</span> <span class="o">=</span> <span class="n">variables</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">&quot;::&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="k">if</span> <span class="s2">&quot;=&quot;</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+                    <span class="c1"># Remove assignment syntax and only extract variable names</span>
+                    <span class="n">variables</span> <span class="o">=</span> <span class="n">variables</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+            <span class="n">var_list</span> <span class="o">=</span> <span class="n">variables</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">var_list</span><span class="p">:</span>
+                <span class="c1"># Search for an implicit array variable declaration</span>
+                <span class="n">arrayVar</span> <span class="o">=</span> <span class="n">syntax</span><span class="o">.</span><span class="n">line_has_implicit_array</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">arrayVar</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">var</span> <span class="o">=</span> <span class="n">arrayVar</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">var_type</span> <span class="o">=</span> <span class="s2">&quot;Array&quot;</span>
+                <span class="c1"># Map each subroutine argument with its type</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">current_subr</span> <span class="ow">in</span> <span class="n">module_summary</span><span class="p">[</span><span class="n">current_modu</span><span class="p">]</span>
+                    <span class="ow">and</span> <span class="n">var</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                    <span class="ow">in</span> <span class="n">module_summary</span><span class="p">[</span><span class="n">current_modu</span><span class="p">][</span><span class="n">current_subr</span><span class="p">]</span>
+                <span class="p">):</span>
+                    <span class="n">module_summary</span><span class="p">[</span><span class="n">current_modu</span><span class="p">][</span><span class="n">current_subr</span><span class="p">][</span>
+                        <span class="n">var</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                    <span class="p">]</span> <span class="o">=</span> <span class="n">var_type</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">current_subr</span></div>
+
+
+<div class="viewcode-block" id="extract_interface_info"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genModFileLog.extract_interface_info">[docs]</a><span class="k">def</span> <span class="nf">extract_interface_info</span><span class="p">(</span>
+    <span class="n">pgm</span><span class="p">,</span> <span class="n">end_pgm</span><span class="p">,</span> <span class="n">procedure_functions</span><span class="p">,</span> <span class="n">current_modu</span><span class="p">,</span> <span class="n">current_intr</span><span class="p">,</span> <span class="n">line</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function extracts INTERFACE information, such as the name of</span>
+<span class="sd">    interface and procedure function names, and populates procedure_functions</span>
+<span class="sd">    dictionary.</span>
+
+<span class="sd">    Params:</span>
+<span class="sd">        pgm (tuple): Current program information.</span>
+<span class="sd">        end_pgm (typle): End of current program indicator.</span>
+<span class="sd">        procedure_functions (dict): A dictionary to hold interface-to-procedure</span>
+<span class="sd">        function mappings.</span>
+<span class="sd">        current_modu (str): Module name that current interface is located under.</span>
+<span class="sd">        current_intr (str): Current interface name.</span>
+<span class="sd">        line (str): A line from Fortran source code.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        (current_intr) Currently handling interface name.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">pgm</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">pgm</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;interface&quot;</span><span class="p">:</span>
+        <span class="n">current_intr</span> <span class="o">=</span> <span class="n">pgm</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">procedure_functions</span><span class="p">[</span><span class="n">current_modu</span><span class="p">][</span><span class="n">current_intr</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">elif</span> <span class="n">end_pgm</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">end_pgm</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;interface&quot;</span><span class="p">:</span>
+        <span class="n">current_intr</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">elif</span> <span class="n">current_intr</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;procedure&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="c1"># Partition the string, which should have one of syntaxes like:</span>
+            <span class="c1">#   module procedure __function_name__</span>
+            <span class="c1">#   module procedure , __function_name__</span>
+            <span class="c1">#   module procedure __function_name__ , __function_name__ , ...</span>
+            <span class="c1"># by keyword procedure. Then, only extract function names, which</span>
+            <span class="c1"># always will be located at [-1] after partitioning. Finally, split</span>
+            <span class="c1"># the string of function names by comma and store in the functions list.</span>
+            <span class="n">functions</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">&quot;procedure&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">functions</span><span class="p">:</span>
+                <span class="n">func</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="n">procedure_functions</span><span class="p">[</span><span class="n">current_modu</span><span class="p">][</span><span class="n">current_intr</span><span class="p">][</span><span class="n">func</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="k">return</span> <span class="n">current_intr</span></div>
+
+
+<div class="viewcode-block" id="extract_derived_type_info"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genModFileLog.extract_derived_type_info">[docs]</a><span class="k">def</span> <span class="nf">extract_derived_type_info</span><span class="p">(</span><span class="n">end_pgm</span><span class="p">,</span> <span class="n">current_modu</span><span class="p">,</span> <span class="n">derived_types</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function extracts derived types declared under current module.</span>
+
+<span class="sd">    Params:</span>
+<span class="sd">        end_pgm (tuple): End of current program indicator.</span>
+<span class="sd">        current_modu (str): Current module name.</span>
+<span class="sd">        derived_types (dict): Dictionary that will hold module-to-derived type</span>
+<span class="sd">        mapping.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">end_pgm</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">end_pgm</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">current_modu</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">derived_types</span><span class="p">:</span>
+            <span class="n">derived_types</span><span class="p">[</span><span class="n">current_modu</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">end_pgm</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">derived_types</span><span class="p">[</span><span class="n">current_modu</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">end_pgm</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="get_file_last_modified_time"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genModFileLog.get_file_last_modified_time">[docs]</a><span class="k">def</span> <span class="nf">get_file_last_modified_time</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function retrieves the file status and assigns the last modified</span>
+<span class="sd">    time of a file at the end of the file_to_mod_mapper[file_path] list.</span>
+
+<span class="sd">    Params:</span>
+<span class="sd">        file_path (str): File path that is assumed to exist in the</span>
+<span class="sd">            directory.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        int: Last modified time represented as an integer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">file_stat</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">file_stat</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="update_mod_info_json"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genModFileLog.update_mod_info_json">[docs]</a><span class="k">def</span> <span class="nf">update_mod_info_json</span><span class="p">(</span><span class="n">module_log_file_path</span><span class="p">,</span> <span class="n">mode_mapper_dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function updates each module&#39;s information, such as</span>
+<span class="sd">    the declared variables and their types, so that genPGM.py</span>
+<span class="sd">    can simply reference this dictionary rather than processing</span>
+<span class="sd">    the file again.</span>
+
+<span class="sd">    Params:</span>
+<span class="sd">        module_log_file_path (str): Path to module log file.</span>
+<span class="sd">        mode_mapper_dict (dict): A dictionary that holds all information</span>
+<span class="sd">        of a module(s).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mod_info</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;exports&quot;</span><span class="p">:</span> <span class="n">mode_mapper_dict</span><span class="p">[</span><span class="s2">&quot;exports&quot;</span><span class="p">]}</span>
+    <span class="n">symbol_types</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">mod_name</span><span class="p">,</span> <span class="n">mod_symbols</span> <span class="ow">in</span> <span class="n">mode_mapper_dict</span><span class="p">[</span><span class="s2">&quot;exports&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">sym_type</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">mod_symbols</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">mode_mapper_dict</span><span class="p">[</span><span class="s2">&quot;symbol_types&quot;</span><span class="p">]:</span>
+                <span class="n">m_type</span> <span class="o">=</span> <span class="n">mode_mapper_dict</span><span class="p">[</span><span class="s2">&quot;symbol_types&quot;</span><span class="p">][</span><span class="n">sym</span><span class="p">]</span>
+                <span class="n">sym_type</span><span class="p">[</span><span class="n">sym</span><span class="p">]</span> <span class="o">=</span> <span class="n">m_type</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="p">(</span>
+                <span class="n">mod_name</span> <span class="ow">in</span> <span class="n">mode_mapper_dict</span><span class="p">[</span><span class="s2">&quot;subprograms&quot;</span><span class="p">]</span>
+                <span class="ow">and</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">mode_mapper_dict</span><span class="p">[</span><span class="s2">&quot;subprograms&quot;</span><span class="p">][</span><span class="n">mod_name</span><span class="p">]</span>
+            <span class="p">):</span>
+                <span class="n">sym_type</span><span class="p">[</span><span class="n">sym</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;func&quot;</span>
+        <span class="n">symbol_types</span><span class="p">[</span><span class="n">mod_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">sym_type</span>
+    <span class="n">mod_info</span><span class="p">[</span><span class="s2">&quot;symbol_types&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">symbol_types</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">module_log_file_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_f</span><span class="p">:</span>
+        <span class="n">module_logs</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">json_f</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">mode_mapper_dict</span><span class="p">[</span><span class="s2">&quot;modules&quot;</span><span class="p">]:</span>
+        <span class="n">mod</span> <span class="o">=</span> <span class="n">module_logs</span><span class="p">[</span><span class="s2">&quot;mod_info&quot;</span><span class="p">][</span><span class="n">module</span><span class="p">]</span>
+        <span class="n">mod</span><span class="p">[</span><span class="s2">&quot;exports&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mod_info</span><span class="p">[</span><span class="s2">&quot;exports&quot;</span><span class="p">][</span><span class="n">module</span><span class="p">]</span>
+        <span class="n">mod</span><span class="p">[</span><span class="s2">&quot;symbol_types&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mod_info</span><span class="p">[</span><span class="s2">&quot;symbol_types&quot;</span><span class="p">][</span><span class="n">module</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">mode_mapper_dict</span><span class="p">[</span><span class="s2">&quot;imports&quot;</span><span class="p">]:</span>
+            <span class="n">imports</span> <span class="o">=</span> <span class="n">mode_mapper_dict</span><span class="p">[</span><span class="s2">&quot;imports&quot;</span><span class="p">][</span><span class="n">module</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">imports</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">mod</span><span class="p">[</span><span class="s2">&quot;imports&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">imports</span>
+        <span class="n">module_logs</span><span class="p">[</span><span class="s2">&quot;mod_info&quot;</span><span class="p">][</span><span class="n">module</span><span class="p">]</span> <span class="o">=</span> <span class="n">mod</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">module_log_file_path</span><span class="p">,</span> <span class="s2">&quot;w+&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_f</span><span class="p">:</span>
+        <span class="n">json_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">module_logs</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="mod_file_log_generator"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genModFileLog.mod_file_log_generator">[docs]</a><span class="k">def</span> <span class="nf">mod_file_log_generator</span><span class="p">(</span>
+    <span class="n">root_dir_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">module_log_file_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function is like a main function to invoke other functions</span>
+<span class="sd">    to perform all checks and population of mappers. Though, loading of</span>
+<span class="sd">    and writing to JSON file will happen in this function.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        root_dir_path: Directory to examine for Fortran files</span>
+<span class="sd">        module_log_file_name: Path to module log file.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">root_dir_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">root_dir_path</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span>
+    <span class="n">module_log_file_path</span> <span class="o">=</span> <span class="n">root_dir_path</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">module_log_file_name</span>
+
+    <span class="c1"># If module log file already exists, simply load data.</span>
+    <span class="k">if</span> <span class="n">isfile</span><span class="p">(</span><span class="n">module_log_file_path</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">module_log_file_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_f</span><span class="p">:</span>
+            <span class="n">module_logs</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">json_f</span><span class="p">)</span>
+        <span class="c1"># This will hold the file-to-module and file last modified date info.</span>
+        <span class="c1"># One thing to notice is that the last index will be a place for</span>
+        <span class="c1"># last modified time for file.</span>
+        <span class="c1"># Structure (One-to-Many):</span>
+        <span class="c1">#   {</span>
+        <span class="c1">#       &quot;__file_name__&quot; : [&quot;__module_name__&quot;,...,&quot;last_modified_time&quot;],</span>
+        <span class="c1">#       ...,</span>
+        <span class="c1">#   }</span>
+        <span class="n">file_to_mod_mapper</span> <span class="o">=</span> <span class="n">module_logs</span><span class="p">[</span><span class="s2">&quot;file_to_mod&quot;</span><span class="p">]</span>
+        <span class="c1"># This will hold the module-to-file mapping, so any program that</span>
+        <span class="c1"># accesses module log JSON file can directly access the file path</span>
+        <span class="c1"># with the module name specified with &quot;USE&quot; without looping through</span>
+        <span class="c1"># the file_to_mod mapper.</span>
+        <span class="c1"># Structure (One-to-One):</span>
+        <span class="c1">#   {</span>
+        <span class="c1">#       &quot;__module_name__&quot; : &quot;__file_path__&quot;,</span>
+        <span class="c1">#       ...,</span>
+        <span class="c1">#   }</span>
+        <span class="n">mod_to_file_mapper</span> <span class="o">=</span> <span class="n">module_logs</span><span class="p">[</span><span class="s2">&quot;mod_to_file&quot;</span><span class="p">]</span>
+        <span class="n">mod_info_dict</span> <span class="o">=</span> <span class="n">module_logs</span><span class="p">[</span><span class="s2">&quot;mod_info&quot;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">file_to_mod_mapper</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">mod_to_file_mapper</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">mod_info_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">files</span> <span class="o">=</span> <span class="n">get_file_list_in_directory</span><span class="p">(</span><span class="n">root_dir_path</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="n">modules_from_file</span><span class="p">(</span>
+            <span class="n">file_path</span><span class="p">,</span> <span class="n">file_to_mod_mapper</span><span class="p">,</span> <span class="n">mod_to_file_mapper</span><span class="p">,</span> <span class="n">mod_info_dict</span>
+        <span class="p">)</span>
+
+    <span class="n">module_log</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;file_to_mod&quot;</span><span class="p">:</span> <span class="n">file_to_mod_mapper</span><span class="p">,</span>
+        <span class="s2">&quot;mod_to_file&quot;</span><span class="p">:</span> <span class="n">mod_to_file_mapper</span><span class="p">,</span>
+        <span class="s2">&quot;mod_info&quot;</span><span class="p">:</span> <span class="n">mod_info_dict</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">module_log_file_path</span><span class="p">,</span> <span class="s2">&quot;w+&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">module_log</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">module_log_file_path</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">root_dir_path</span><span class="p">,</span> <span class="n">module_log_file</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">()</span>
+    <span class="n">log_file_path</span> <span class="o">=</span> <span class="n">mod_file_log_generator</span><span class="p">(</span><span class="n">root_dir_path</span><span class="p">,</span> <span class="n">module_log_file</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Adarsh
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

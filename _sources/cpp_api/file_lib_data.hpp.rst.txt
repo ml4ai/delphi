@@ -1,0 +1,56 @@
+
+.. _file_lib_data.hpp:
+
+File data.hpp
+=============
+
+|exhale_lsh| :ref:`Parent directory <dir_lib>` (``lib``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. contents:: Contents
+   :local:
+   :backlinks: none
+
+Definition (``lib/data.hpp``)
+-----------------------------
+
+
+.. toctree::
+   :maxdepth: 1
+
+   program_listing_file_lib_data.hpp.rst
+
+
+
+
+
+Includes
+--------
+
+
+- ``string``
+
+- ``vector``
+
+
+
+Included By
+-----------
+
+
+- :ref:`file_lib_data.cpp`
+
+- :ref:`file_lib_indicator_manipulation.cpp`
+
+- :ref:`file_lib_train_model.cpp`
+
+
+
+
+Functions
+---------
+
+
+- :ref:`exhale_function_data_8hpp_1a8e802c207acb5a031318c0a924d2dc6a`
+

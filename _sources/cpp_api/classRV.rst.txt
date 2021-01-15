@@ -1,0 +1,26 @@
+.. _exhale_class_classRV:
+
+Class RV
+========
+
+- Defined in :ref:`file_lib_Random_Variables.hpp`
+
+
+Inheritance Relationships
+-------------------------
+
+Derived Types
+*************
+
+- ``public Indicator`` (:ref:`exhale_class_classIndicator`)
+- ``public LatentVar`` (:ref:`exhale_class_classLatentVar`)
+
+
+Class Documentation
+-------------------
+
+
+.. doxygenclass:: RV
+   :members:
+   :protected-members:
+   :undoc-members:

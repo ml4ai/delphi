@@ -1,0 +1,376 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Home &mdash; delphi  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="_static/collapsible-lists/css/tree_view.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="#" class="icon icon-home"> delphi
+          
+
+          
+            
+            <img src="_static/delphi_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grfn_spec.html#change-log">Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_api/library_root.html">C++ API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">delphi</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#">Docs</a> &raquo;</li>
+        
+      <li>Home</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="home">
+<h1>Home<a class="headerlink" href="#home" title="Permalink to this headline">¶</a></h1>
+<p>Modeling complex phenomena such as food insecurity requires reasoning
+over multiple levels of abstraction and fully utilizing expert
+knowledge about multiple disparate domains, ranging from the
+environmental to the sociopolitical.</p>
+<p>Delphi is a C++/Python library for assembling causal, dynamic, probabilistic
+models from information extracted from two sources:</p>
+<ul class="simple">
+<li><p><em>Text</em>: Delphi utilizes causal relations extracted using machine
+reading from text sources such as UN agency reports, news articles,
+and technical papers.</p></li>
+<li><p><em>Software</em>: Delphi also incorporates functionality to extract
+abstracted representations of scientific models from code that
+implements them, and convert these into probabilistic models.</p></li>
+</ul>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Assembling a model from text: [UNDER CONSTRUCTION]</p></li>
+<li><p>Assembling a model from Fortran code:</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">delphi.GrFN.networks</span> <span class="kn">import</span> <span class="n">GroundedFunctionNetwork</span>
+
+<span class="n">G</span> <span class="o">=</span> <span class="n">GroundedFunctionNetwork</span><span class="o">.</span><span class="n">from_fortran_src</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">      subroutine relativistic_energy(e, m, c, p)</span>
+
+<span class="s2">      implicit none</span>
+
+<span class="s2">      real e, m, c, p</span>
+<span class="s2">      e = sqrt((p**2)*(c**2) + (m**2)*(c**4))</span>
+
+<span class="s2">      return</span>
+<span class="s2">      end subroutine relativistic_energy&quot;&quot;&quot;</span>
+<span class="p">)</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">to_agraph</span><span class="p">()</span>
+<span class="n">A</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="s2">&quot;relativistic_energy_grfn.png&quot;</span><span class="p">,</span> <span class="n">prog</span><span class="o">=</span><span class="s2">&quot;dot&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="figure align-default">
+<a class="reference internal image-reference" href="_images/relativistic_energy_grfn.png"><img alt="Executable Grounded Function Network constructed from Fortran source." src="_images/relativistic_energy_grfn.png" style="width: 100%;" /></a>
+</div>
+</div>
+<div class="section" id="citing">
+<h2>Citing<a class="headerlink" href="#citing" title="Permalink to this headline">¶</a></h2>
+<p>If you use Delphi, please cite the following:</p>
+<div class="highlight-bibtex notranslate"><div class="highlight"><pre><span></span><span class="nc">@InProceedings</span><span class="p">{</span><span class="nl">sharp-EtAl:2019:N19-4</span><span class="p">,</span>
+  <span class="na">author</span>    <span class="p">=</span> <span class="s">{Sharp, Rebecca  and  Pyarelal, Adarsh  and  Gyori, Benjamin</span>
+<span class="s">    and  Alcock, Keith  and  Laparra, Egoitz  and  Valenzuela-Esc\&#39;{a}rcega,</span>
+<span class="s">    Marco A.  and  Nagesh, Ajay  and  Yadav, Vikas  and  Bachman, John  and</span>
+<span class="s">    Tang, Zheng  and  Lent, Heather  and  Luo, Fan  and  Paul, Mithun  and</span>
+<span class="s">    Bethard, Steven  and  Barnard, Kobus  and  Morrison, Clayton  and</span>
+<span class="s">    Surdeanu, Mihai}</span><span class="p">,</span>
+  <span class="na">title</span>     <span class="p">=</span> <span class="s">{Eidos, INDRA, \&amp; Delphi: From Free Text to Executable Causal Models}</span><span class="p">,</span>
+  <span class="na">booktitle</span> <span class="p">=</span> <span class="s">{Proceedings of the 2019 Conference of the North American</span>
+<span class="s">  Chapter of the Association for Computational Linguistics (Demonstrations)}</span><span class="p">,</span>
+  <span class="na">month</span>     <span class="p">=</span> <span class="s">{6}</span><span class="p">,</span>
+  <span class="na">year</span>      <span class="p">=</span> <span class="s">{2019}</span><span class="p">,</span>
+  <span class="na">address</span>   <span class="p">=</span> <span class="s">{Minneapolis, Minnesota}</span><span class="p">,</span>
+  <span class="na">publisher</span> <span class="p">=</span> <span class="s">{Association for Computational Linguistics}</span><span class="p">,</span>
+  <span class="na">pages</span>     <span class="p">=</span> <span class="s">{42-47}</span><span class="p">,</span>
+  <span class="na">url</span>       <span class="p">=</span> <span class="s">{http://www.aclweb.org/anthology/N19-4008}</span><span class="p">,</span>
+  <span class="na">keywords</span> <span class="p">=</span> <span class="s">{demo paper, causal relations, timelines, locations, information extraction}</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="nc">@misc</span><span class="p">{</span><span class="nl">Delphi</span><span class="p">,</span>
+    <span class="na">Author</span> <span class="p">=</span> <span class="s">{Adarsh Pyarelal and Paul Hein and Jon Stephens and Pratik</span>
+<span class="s">              Bhandari and HeuiChan Lim and Saumya Debray and Clayton</span>
+<span class="s">              Morrison}</span><span class="p">,</span>
+    <span class="na">Title</span> <span class="p">=</span> <span class="s">{Delphi: A Framework for Assembling Causal Probabilistic</span>
+<span class="s">             Models from Text and Software.}</span><span class="p">,</span>
+    <span class="na">doi</span><span class="p">=</span><span class="s">{10.5281/zenodo.1436915}</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Delphi builds upon <a class="reference external" href="https://indra.bio">INDRA</a> and <a class="reference external" href="https://github.com/clulab/eidos">Eidos</a>.
+For a detailed description of our procedure to convert text to models,
+see <a class="reference external" href="http://vision.cs.arizona.edu/adarsh/export/Arizona_Text_to_Model_Procedure.pdf">this document</a>.
+Delphi is also part of the
+<a class="reference external" href="https://ml4ai.github.io/automates/">AutoMATES</a> project.</p>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#step-by-step-instructions">Step-by-step instructions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#jupyter-notebook-workflow">Jupyter notebook workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#command-line-usage">Command line usage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GrFN_API.html">GroundedFunctionNetwork API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="GrFN_API.html#constructors">Constructors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="GrFN_API.html#export">Export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="GrFN_API.html#execution">Execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="GrFN_API.html#model-analysis">Model Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="GrFN_API.html#sensitivity-analysis">Sensitivity Analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="grfn_spec.html">Grounded Function Network (GrFN) Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="grfn_spec.html#id1"><code class="docutils literal notranslate"><span class="pre">[0.2.8]</span></code> - 2019-09-01</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grfn_spec.html#grfn-spec-index">grfn_spec Index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grfn_spec.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grfn_spec.html#identifiers-grounding-scopes-namespaces-and-gensyms">Identifiers: grounding, scopes, namespaces and gensyms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grfn_spec.html#variable-and-function-identifiers-and-references">Variable and Function Identifiers and References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grfn_spec.html#top-level-grfn-specification">Top-level GrFN Specification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grfn_spec.html#variable-specification">Variable Specification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grfn_spec.html#function-specification">Function Specification</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="grfn_spec.html#change-log">Change Log</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="grfn_spec.html#m9-2019-07-01"><code class="docutils literal notranslate"><span class="pre">[0.1.m9]</span></code> - 2019-07-01:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grfn_spec.html#m5-2019-05-01"><code class="docutils literal notranslate"><span class="pre">[0.1.m5]</span></code> - 2019-05-01:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grfn_spec.html#m3-2019-03-01"><code class="docutils literal notranslate"><span class="pre">[0.1.m3]</span></code> - 2019-03-01:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="grfn_spec.html#releases">Releases</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="delphi_database.html">The Delphi Database</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="delphi_database.html#indicator-data-table">Indicator data table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="delphi_database.html#gradable-adjectives-data-table">Gradable Adjectives data table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="delphi_database.html#concept-to-indicator-mappings-table">Concept to indicator mappings table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="delphi_database.html#dssat-data-table">DSSAT data table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="delphi_database.html#raw-data">Raw Data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTING.html">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="CONTRIBUTING.html#suggested-git-workflow">Suggested Git Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CONTRIBUTING.html#running-tests-locally">Running tests locally</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_api/library_root.html">C++ API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cpp_api/library_root.html#class-hierarchy">Class Hierarchy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp_api/library_root.html#file-hierarchy">File Hierarchy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp_api/library_root.html#full-api">Full API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="license-and-funding">
+<h2>License and Funding<a class="headerlink" href="#license-and-funding" title="Permalink to this headline">¶</a></h2>
+<p>Delphi is licensed under the Apache License 2.0.</p>
+<p>The development of Delphi was supported by the Defense Advanced Research
+Projects Agency (DARPA) under the World Modelers (grant no. W911NF1810014) and
+Automated Scientific Knowledge Extraction (agreement no. HR00111990011)
+programs.</p>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Adarsh
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,1297 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Program Listing for File AnalysisGraph.hpp &mdash; delphi  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> delphi
+          
+
+          
+            
+            <img src="../_static/delphi_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html#change-log">Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library_root.html">C++ API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">delphi</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Program Listing for File AnalysisGraph.hpp</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/cpp_api/program_listing_file_lib_AnalysisGraph.hpp.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="program-listing-for-file-analysisgraph-hpp">
+<span id="program-listing-file-lib-analysisgraph-hpp"></span><h1>Program Listing for File AnalysisGraph.hpp<a class="headerlink" href="#program-listing-for-file-analysisgraph-hpp" title="Permalink to this headline">¶</a></h1>
+<p>↰ <a class="reference internal" href="file_lib_AnalysisGraph.hpp.html#file-lib-analysisgraph-hpp"><span class="std std-ref">Return to documentation for file</span></a> (<code class="docutils literal notranslate"><span class="pre">lib/AnalysisGraph.hpp</span></code>)</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma once</span>
+
+<span class="cp">#include</span> <span class="cpf">&lt;Eigen/Dense&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;unsupported/Eigen/MatrixFunctions&gt;</span><span class="cp"></span>
+
+<span class="cp">#include</span> <span class="cpf">&lt;boost/graph/graph_traits.hpp&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;boost/range/adaptor/transformed.hpp&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;boost/range/algorithm/for_each.hpp&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;boost/range/iterator_range.hpp&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;range/v3/all.hpp&gt;</span><span class="cp"></span>
+
+<span class="cp">#include</span> <span class="cpf">&quot;graphviz_interface.hpp&quot;</span><span class="cp"></span>
+
+<span class="cp">#include</span> <span class="cpf">&quot;DiGraph.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&quot;Tran_Mat_Cell.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;fmt/format.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;nlohmann/json.hpp&gt;</span><span class="cp"></span>
+
+<span class="k">const</span> <span class="kt">double</span> <span class="n">tuning_param</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">;</span>
+
+<span class="k">enum</span> <span class="n">InitialBeta</span> <span class="p">{</span> <span class="n">ZERO</span><span class="p">,</span> <span class="n">ONE</span><span class="p">,</span> <span class="n">HALF</span><span class="p">,</span> <span class="n">MEAN</span><span class="p">,</span> <span class="n">RANDOM</span> <span class="p">};</span>
+
+<span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span>
+    <span class="n">AdjectiveResponseMap</span><span class="p">;</span>
+
+<span class="c1">// This is a multimap to keep provision to have multiple observations per</span>
+<span class="c1">// time point per indicator.</span>
+<span class="c1">// Access (concept is a vertex in the CAG)</span>
+<span class="c1">// [ concept ][ indicator ][ &lt;year, month&gt; --→ observation ]</span>
+<span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">multimap</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span><span class="p">,</span> <span class="kt">double</span><span class="o">&gt;&gt;&gt;</span>
+    <span class="n">ConceptIndicatorData</span><span class="p">;</span>
+
+<span class="c1">// Keeps the sequence of dates for which data points are available</span>
+<span class="c1">// Data points are sorted according to dates</span>
+<span class="c1">// Access:</span>
+<span class="c1">// [ concept ][ indicator ][&lt;year, month&gt;]</span>
+<span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;&gt;&gt;</span> <span class="n">ConceptIndicatorDates</span><span class="p">;</span>
+
+<span class="c1">// Access</span>
+<span class="c1">// [ timestep ][ concept ][ indicator ][ observation ]</span>
+<span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&gt;&gt;</span>
+    <span class="n">ObservedStateSequence</span><span class="p">;</span>
+
+<span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&gt;</span>
+    <span class="n">PredictedObservedStateSequence</span><span class="p">;</span>
+
+<span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">tuple</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">,</span>
+                  <span class="n">std</span><span class="o">::</span><span class="n">tuple</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;&gt;</span>
+    <span class="n">CausalFragment</span><span class="p">;</span>
+
+<span class="c1">// Access</span>
+<span class="c1">// [ sample ][ time_step ]{ vertex_name --&gt; { indicator_name --&gt; pred}}</span>
+<span class="c1">// [ sample ][ time_step ][ vertex_name ][ indicator_name ]</span>
+<span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="kt">double</span><span class="o">&gt;&gt;&gt;&gt;</span>
+    <span class="n">FormattedPredictionResult</span><span class="p">;</span>
+
+<span class="c1">// Access</span>
+<span class="c1">// [ vertex_name ][ timestep ][ sample ]</span>
+<span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&gt;</span>
+    <span class="n">FormattedProjectionResult</span><span class="p">;</span>
+
+<span class="c1">// Access</span>
+<span class="c1">// get&lt;0&gt;:</span>
+<span class="c1">//      Training range</span>
+<span class="c1">//      &lt;&lt;start_year, start_month&gt;, &lt;end_year, end_month&gt;&gt;</span>
+<span class="c1">// get&lt;1&gt;:</span>
+<span class="c1">//      Sequence of prediction time steps</span>
+<span class="c1">//      [yyyy-mm₀, yyyy-mm₁, yyyy-mm₂, yyyy-mm₃, .....]</span>
+<span class="c1">// get&lt;2&gt;:</span>
+<span class="c1">//      Prediction results</span>
+<span class="c1">//      [ sample ][ time_step ]{ vertex_name --&gt; { indicator_name --&gt; pred}}</span>
+<span class="c1">//      [ sample ][ time_step ][ vertex_name ][ indicator_name ]</span>
+<span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">tuple</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+                   <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">,</span>
+                   <span class="n">FormattedPredictionResult</span><span class="o">&gt;</span>
+    <span class="n">Prediction</span><span class="p">;</span>
+
+<span class="c1">// Format AnalysisGraph state to output</span>
+<span class="c1">// [ concept name ] --&gt; [ ind1, ind2, ... ]</span>
+<span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;&gt;</span> <span class="n">ConceptIndicators</span><span class="p">;</span>
+
+<span class="c1">// List of edges [(source, target), ...]</span>
+<span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;&gt;</span> <span class="n">Edges</span><span class="p">;</span>
+
+<span class="c1">// List of adjectives [(source, target), ...]</span>
+<span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;&gt;</span> <span class="n">Adjectives</span><span class="p">;</span>
+
+<span class="c1">// List of polarities [(source, target), ...]</span>
+<span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">Polarities</span><span class="p">;</span>
+
+<span class="c1">// Vector of theta priors and samples pairs for each edge</span>
+<span class="c1">// Ordering is according to order of edges in Edges data vector</span>
+<span class="c1">// For each edge, there is a tuple of vectors</span>
+<span class="c1">// first element of the tuple is a vector of theta priors KDEs</span>
+<span class="c1">// second element of the tuple is a vector of sampled thetas</span>
+<span class="c1">// [([p1, p1, ...], [s1, s2, ...]), ... ]</span>
+<span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&gt;</span> <span class="n">Thetas</span><span class="p">;</span>
+
+<span class="c1">// Sampled Derivatives for each concept</span>
+<span class="c1">// Access</span>
+<span class="c1">// [ concept name ] --&gt; [s_1, s_2, ..., s_res ]</span>
+<span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span> <span class="n">Derivatives</span><span class="p">;</span>
+
+<span class="c1">// Data</span>
+<span class="c1">// Access</span>
+<span class="c1">// [ indicator name ] --&gt; {</span>
+<span class="c1">//                           [ &quot;Time Step&quot; ] --&gt; [ts1, ts2, ...]</span>
+<span class="c1">//                           [ &quot;Data&quot; ]      --&gt; [ d1,  d2, ...]</span>
+<span class="c1">//                        }</span>
+<span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&gt;</span> <span class="n">Data</span><span class="p">;</span>
+
+<span class="c1">// Predictions</span>
+<span class="c1">// Access</span>
+<span class="c1">// [ indicator name ] --&gt; {</span>
+<span class="c1">//                           [ ts ] --&gt; [p_1, p_2, p_3, ..., p_res]</span>
+<span class="c1">//                        }</span>
+<span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&gt;</span> <span class="n">Predictions</span><span class="p">;</span>
+
+<span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&gt;</span> <span class="n">ConfidenceIntervals</span><span class="p">;</span>
+
+<span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">tuple</span><span class="o">&lt;</span>
+    <span class="n">ConceptIndicators</span><span class="p">,</span>
+    <span class="n">Edges</span><span class="p">,</span> <span class="c1">// List of edges [(source, target), ...]</span>
+    <span class="n">Adjectives</span><span class="p">,</span>
+    <span class="n">Polarities</span><span class="p">,</span>
+    <span class="c1">// Theta priors and samples for each edge</span>
+    <span class="c1">// [(priors, samples), ... ]</span>
+    <span class="n">Thetas</span><span class="p">,</span>
+    <span class="n">Derivatives</span><span class="p">,</span>
+    <span class="c1">// Data year month range</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="c1">// Data</span>
+    <span class="n">Data</span><span class="p">,</span>
+    <span class="c1">// Prediction year month range</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="n">Predictions</span><span class="p">,</span>
+    <span class="n">ConfidenceIntervals</span>
+            <span class="o">&gt;</span> <span class="n">CompleteState</span><span class="p">;</span>
+
+<span class="c1">// Access</span>
+<span class="c1">// [prediction time step] --&gt;</span>
+<span class="c1">//      get&lt;0&gt;:</span>
+<span class="c1">//          concept name</span>
+<span class="c1">//      get&lt;1&gt;</span>
+<span class="c1">//          indicator name</span>
+<span class="c1">//      get&lt;2&gt;</span>
+<span class="c1">//          value</span>
+<span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">tuple</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="kt">double</span><span class="o">&gt;&gt;&gt;</span> <span class="n">ConstraintSchedule</span><span class="p">;</span>
+
+<span class="k">typedef</span> <span class="n">boost</span><span class="o">::</span><span class="n">graph_traits</span><span class="o">&lt;</span><span class="n">DiGraph</span><span class="o">&gt;::</span><span class="n">edge_descriptor</span> <span class="n">EdgeDescriptor</span><span class="p">;</span>
+<span class="k">typedef</span> <span class="n">boost</span><span class="o">::</span><span class="n">graph_traits</span><span class="o">&lt;</span><span class="n">DiGraph</span><span class="o">&gt;::</span><span class="n">edge_iterator</span> <span class="n">EdgeIterator</span><span class="p">;</span>
+
+<span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">multimap</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;&gt;::</span><span class="n">iterator</span>
+    <span class="n">MMapIterator</span><span class="p">;</span>
+
+<span class="n">AdjectiveResponseMap</span> <span class="nf">construct_adjective_response_map</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">n_kernels</span><span class="p">);</span>
+
+<span class="k">class</span> <span class="nc">AnalysisGraph</span> <span class="p">{</span>
+
+  <span class="k">private</span><span class="o">:</span>
+  <span class="c1">// True only when Delphi is run through the CauseMos HMI.</span>
+  <span class="kt">bool</span> <span class="n">causemos_call</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+
+  <span class="n">DiGraph</span> <span class="n">graph</span><span class="p">;</span>
+
+  <span class="c1">// Handle to the random number generator singleton object</span>
+  <span class="n">RNG</span><span class="o">*</span> <span class="n">rng_instance</span> <span class="o">=</span> <span class="k">nullptr</span><span class="p">;</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">mt19937</span> <span class="n">rand_num_generator</span><span class="p">;</span>
+
+
+  <span class="c1">// Uniform distribution used by the MCMC sampler</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">uniform_real_distribution</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">uni_dist</span><span class="p">;</span>
+
+  <span class="c1">// Normal distribution used to perturb β</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">normal_distribution</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">norm_dist</span><span class="p">;</span>
+
+  <span class="c1">// Uniform discrete distribution used by the MCMC sampler</span>
+  <span class="c1">// to perturb the initial latent state</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">uniform_int_distribution</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">uni_disc_dist</span><span class="p">;</span>
+
+  <span class="c1">// Sampling resolution</span>
+  <span class="kt">size_t</span> <span class="n">res</span><span class="p">;</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Meta Data Structures</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+  <span class="c1">// Maps each concept name to the vertex id of the</span>
+  <span class="c1">// vertex that concept is represented in the CAG</span>
+  <span class="c1">// concept name --&gt; CAG vertex id</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">name_to_vertex</span> <span class="o">=</span> <span class="p">{};</span>
+
+  <span class="c1">// Keeps track of indicators in CAG to ensure there are no duplicates.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">unordered_set</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">indicators_in_CAG</span><span class="p">;</span>
+
+  <span class="c1">// A_beta_factors is a 2D array (std::vector of std::vectors) that keeps track</span>
+  <span class="c1">// of the β factors involved with each cell of the transition matrix A.</span>
+  <span class="c1">//</span>
+  <span class="c1">// According to our current model, which uses variables and their partial</span>
+  <span class="c1">// derivatives with respect to each other ( x --&gt; y, βxy = ∂y/∂x ),</span>
+  <span class="c1">// at most half of the transition matrix cells can be affected by βs.</span>
+  <span class="c1">// According to the way we organize the transition matrix, the cells</span>
+  <span class="c1">// A[row][col] where row is an even index and col is an odd index</span>
+  <span class="c1">// are such cells.</span>
+  <span class="c1">//</span>
+  <span class="c1">// Each cell of matrix A_beta_factors represent all the directed paths</span>
+  <span class="c1">// starting at the vertex equal to the column index of the matrix and</span>
+  <span class="c1">// ending at the vertex equal to the row index of the matrix.</span>
+  <span class="c1">//</span>
+  <span class="c1">// Each cell of matrix A_beta_factors is an object of Tran_Mat_Cell class.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Tran_Mat_Cell</span><span class="o">&gt;&gt;&gt;</span> <span class="n">A_beta_factors</span><span class="p">;</span>
+
+  <span class="c1">// A set of (row, column) numbers of the 2D matrix A_beta_factors</span>
+  <span class="c1">// where the cell (row, column) depends on β factors.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">set</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">beta_dependent_cells</span><span class="p">;</span>
+
+  <span class="c1">// Maps each β to all the transition matrix cells that are dependent on it.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">multimap</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">beta2cell</span><span class="p">;</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Sampler Related Variables</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+  <span class="c1">// Keep track whether the model is trained.</span>
+  <span class="c1">// Used to check whether there is a trained model before calling</span>
+  <span class="c1">// generate_prediction()</span>
+  <span class="kt">bool</span> <span class="n">trained</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+
+  <span class="kt">int</span> <span class="n">n_timesteps</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">pred_timesteps</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">training_range</span><span class="p">;</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">pred_range</span><span class="p">;</span>
+
+  <span class="kt">double</span> <span class="n">t</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span>
+  <span class="kt">double</span> <span class="n">delta_t</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">;</span>
+
+  <span class="kt">double</span> <span class="n">log_likelihood</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span>
+  <span class="kt">double</span> <span class="n">previous_log_likelihood</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span>
+
+  <span class="c1">// To decide whether to perturb a θ or a derivative</span>
+  <span class="c1">// If coin_flip &lt; coin_flip_thresh perturb θ else perturb derivative</span>
+  <span class="kt">double</span> <span class="n">coin_flip</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="kt">double</span> <span class="n">coin_flip_thresh</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">;</span>
+
+  <span class="c1">// Remember the old θ and the edge where we perturbed the θ.</span>
+  <span class="c1">// We need this to revert the system to the previous state if the proposal</span>
+  <span class="c1">// gets rejected.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">EdgeDescriptor</span><span class="p">,</span> <span class="kt">double</span><span class="o">&gt;</span> <span class="n">previous_theta</span><span class="p">;</span>
+
+  <span class="c1">// Remember the old derivative and the concept we perturbed the derivative</span>
+  <span class="kt">int</span> <span class="n">changed_derivative</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="kt">double</span> <span class="n">previous_derivative</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+  <span class="c1">// Latent state that is evolved by sampling.</span>
+  <span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span> <span class="n">s0</span><span class="p">;</span>
+  <span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span> <span class="n">s0_prev</span><span class="p">;</span>
+
+  <span class="c1">// Transition matrix that is evolved by sampling.</span>
+  <span class="c1">// Since variable A has been already used locally in other methods,</span>
+  <span class="c1">// I chose to name this A_original. After refactoring the code, we could</span>
+  <span class="c1">// rename this to A.</span>
+  <span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span> <span class="n">A_original</span><span class="p">;</span>
+
+  <span class="c1">// Determines whether to use the continuous version or the discretized</span>
+  <span class="c1">// version of the solution for the system of differential equations.</span>
+  <span class="c1">//</span>
+  <span class="c1">// continuous = true:</span>
+  <span class="c1">//    Continuous version of the solution. We use the continuous form of the</span>
+  <span class="c1">//    transition matrix and matrix exponential.</span>
+  <span class="c1">//</span>
+  <span class="c1">// continuous = false:</span>
+  <span class="c1">//    Discretized version of the solution. We use the discretized version of</span>
+  <span class="c1">//    the transition matrix and repeated matrix multiplication.</span>
+  <span class="c1">//</span>
+  <span class="c1">// A_discretized = I + A_continuous * Δt</span>
+  <span class="kt">bool</span> <span class="n">continuous</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+
+  <span class="c1">// Access this as</span>
+  <span class="c1">// current_latent_state</span>
+  <span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span> <span class="n">current_latent_state</span><span class="p">;</span>
+
+  <span class="c1">// Access this as</span>
+  <span class="c1">// observed_state_sequence[ time step ][ vertex ][ indicator ]</span>
+  <span class="n">ObservedStateSequence</span> <span class="n">observed_state_sequence</span><span class="p">;</span>
+
+  <span class="c1">// Access this as</span>
+  <span class="c1">// prediction_latent_state_sequences[ sample ][ time step ]</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="o">&gt;&gt;</span> <span class="n">predicted_latent_state_sequences</span><span class="p">;</span>
+
+  <span class="c1">// Access this as</span>
+  <span class="c1">// predicted_observed_state_sequences</span>
+  <span class="c1">//                            [ sample ][ time step ][ vertex ][ indicator ]</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">PredictedObservedStateSequence</span><span class="o">&gt;</span>
+      <span class="n">predicted_observed_state_sequences</span><span class="p">;</span>
+
+  <span class="n">PredictedObservedStateSequence</span> <span class="n">test_observed_state_sequence</span><span class="p">;</span>
+
+  <span class="c1">// Implementing constraints or interventions.</span>
+  <span class="c1">// -------------------------------------------------------------------------</span>
+  <span class="c1">// We are implementing two ways to constrain the model.</span>
+  <span class="c1">//    1. One-off constraints.</span>
+  <span class="c1">//        A latent state is clamped to a constrained value just for the</span>
+  <span class="c1">//        specified time step and released to evolve from the subsequent time</span>
+  <span class="c1">//        step onward until the next constrained time step and so on.</span>
+  <span class="c1">//        E.g. Getting a one time grant.</span>
+  <span class="c1">//    2. Perpetual constraints</span>
+  <span class="c1">//        Once a latent state gets clamped at a value at a particular time</span>
+  <span class="c1">//        step, it stays clamped at that value in subsequent time steps until</span>
+  <span class="c1">//        another constrain overwrites the current constrain or the end of</span>
+  <span class="c1">//        the prediction time is reached.</span>
+  <span class="c1">//        NOTE: Currently we do not have a way to have a semi-perpetual</span>
+  <span class="c1">//        constraint: A constraint is applied perpetually for some number of</span>
+  <span class="c1">//        continuous time steps and then switched off. With a little bit of</span>
+  <span class="c1">//        work we can implement this. We just need a special constraint value</span>
+  <span class="c1">//        to signal end of a constraint. One suggestion is to use NaN.</span>
+  <span class="c1">//        E.g. Maintaining a water level of a reservoir at a certain amount.</span>
+  <span class="c1">//</span>
+  <span class="c1">// NOTE: WE either apply One-off or Perpetual constraints to all the</span>
+  <span class="c1">//       concepts. The current design does not permit applying mixed</span>
+  <span class="c1">//       constraints such that some concepts are constrained one-off while</span>
+  <span class="c1">//       some others are constrained perpetual. With a little bit more work,</span>
+  <span class="c1">//       we could also achieve this. Moving the constraint type into the</span>
+  <span class="c1">//       constraint information data structure would work for keeping track</span>
+  <span class="c1">//       of mixed constraint types:</span>
+  <span class="c1">//        std::unordered_map&lt;int, std::vector&lt;std::tuple&lt;int, double, bool&gt;&gt;&gt;</span>
+  <span class="c1">//       Then we would have to update the constraint processing logic</span>
+  <span class="c1">//       accordingly.</span>
+  <span class="c1">// -------------------------------------------------------------------------</span>
+  <span class="c1">//</span>
+  <span class="c1">// NOTE: This implementation of the constraints does not work at all with</span>
+  <span class="c1">// multiple indicators being attached to a single concept. Constraining the</span>
+  <span class="c1">// concept effects all the indicators and we cannot constrain targeted for a</span>
+  <span class="c1">// particular indicator. In the current model we might achieve this by</span>
+  <span class="c1">// constraining the scaling factor (which we incorrectly call as the</span>
+  <span class="c1">// indicator mean).</span>
+  <span class="c1">// Currently we are doing:</span>
+  <span class="c1">//    constrained latent state = constrained indicator value / scaling factor</span>
+  <span class="c1">// The constraining that might work with multiple indicators per concept:</span>
+  <span class="c1">//    constrained scaling factor = constrained indicator value / latent state</span>
+  <span class="c1">// -------------------------------------------------------------------------</span>
+  <span class="c1">//</span>
+  <span class="c1">// Implementing the One-off constraints:</span>
+  <span class="c1">// -------------------------------------------------------------------------</span>
+  <span class="c1">// To store constraints (or interventions)</span>
+  <span class="c1">// For some times steps of the prediction range, latent state values could be</span>
+  <span class="c1">// constrained to a value external from what the LDS predicts that value</span>
+  <span class="c1">// should be. When prediction happens, if constrains are present at a time</span>
+  <span class="c1">// step for some concepts, the predicted latent state values for those</span>
+  <span class="c1">// concepts are overwritten by the constraints supplied in this data</span>
+  <span class="c1">// structure.</span>
+  <span class="c1">// Access</span>
+  <span class="c1">// [ time step ] --&gt; [(concept id, constrained value), ... ]</span>
+  <span class="c1">// latent_state_constraints.at(time step)</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">double</span><span class="o">&gt;&gt;&gt;</span>
+      <span class="n">one_off_constraints</span><span class="p">;</span>
+  <span class="c1">//</span>
+  <span class="c1">// Implementing Perpetual constraints:</span>
+  <span class="c1">// -------------------------------------------------------------------------</span>
+  <span class="c1">// Access</span>
+  <span class="c1">// [ concept id ] --&gt; constrained value</span>
+  <span class="c1">// perpetual_constraints.at(concept id)</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">double</span><span class="o">&gt;</span> <span class="n">perpetual_constraints</span><span class="p">;</span>
+  <span class="c1">//</span>
+  <span class="c1">// Deciding which type of constraints to enforce</span>
+  <span class="c1">// one_off_constraints is empty =&gt; unconstrained prediction</span>
+  <span class="c1">// is_one_off_constraints = true =&gt; One-off constraints</span>
+  <span class="c1">// is_one_off_constraints = false =&gt; Perpetual constraints</span>
+  <span class="kt">bool</span> <span class="n">is_one_off_constraints</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+  <span class="c1">//</span>
+  <span class="c1">// Deciding whether to clamp the latent variable or the derivative</span>
+  <span class="c1">// true  =&gt; clamp at derivative</span>
+  <span class="c1">// false =&gt; clamp at latent variable</span>
+  <span class="kt">bool</span> <span class="n">clamp_at_derivative</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+  <span class="c1">//</span>
+  <span class="c1">// When we are clamping derivatives the clamp sticks since derivatives never</span>
+  <span class="c1">// chance in our current model. So for one-off clamping, we have to reset the</span>
+  <span class="c1">// derivative back to original after the clamping step. This variable</span>
+  <span class="c1">// remembers the time step to reset the clamped derivatives.</span>
+  <span class="kt">int</span> <span class="n">rest_derivative_clamp_ts</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="o">&gt;</span> <span class="n">transition_matrix_collection</span><span class="p">;</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="o">&gt;</span> <span class="n">initial_latent_state_collection</span><span class="p">;</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="o">&gt;</span> <span class="n">synthetic_latent_state_sequence</span><span class="p">;</span>
+  <span class="kt">bool</span> <span class="n">synthetic_data_experiment</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Private: Integration with Uncharted&#39;s CauseMos interface</span>
+<span class="cm">                                                  (in causemos_integration.cpp)</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+            <span class="cm">/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="cm">                            create-model</span>
+<span class="cm">            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/</span>
+
+  <span class="kt">void</span> <span class="nf">extract_concept_indicator_mapping_and_observations_from_json</span><span class="p">(</span>
+                        <span class="k">const</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="o">&amp;</span><span class="n">json_indicators</span><span class="p">,</span>
+                        <span class="n">ConceptIndicatorData</span> <span class="o">&amp;</span><span class="n">concept_indicator_data</span><span class="p">,</span>
+                        <span class="n">ConceptIndicatorDates</span> <span class="o">&amp;</span><span class="n">concept_indicator_dates</span><span class="p">,</span>
+                        <span class="kt">int</span> <span class="o">&amp;</span><span class="n">start_year</span><span class="p">,</span> <span class="kt">int</span> <span class="o">&amp;</span><span class="n">start_month</span><span class="p">,</span>
+                        <span class="kt">int</span> <span class="o">&amp;</span><span class="n">end_year</span><span class="p">,</span> <span class="kt">int</span> <span class="o">&amp;</span><span class="n">end_month</span><span class="p">);</span>
+
+  <span class="kt">void</span> <span class="nf">infer_modeling_frequency</span><span class="p">(</span>
+                        <span class="k">const</span> <span class="n">ConceptIndicatorDates</span> <span class="o">&amp;</span><span class="n">concept_indicator_dates</span><span class="p">,</span>
+                        <span class="kt">int</span> <span class="o">&amp;</span><span class="n">shortest_gap</span><span class="p">,</span>
+                        <span class="kt">int</span> <span class="o">&amp;</span><span class="n">longest_gap</span><span class="p">,</span>
+                        <span class="kt">int</span> <span class="o">&amp;</span><span class="n">frequent_gap</span><span class="p">,</span>
+                        <span class="kt">int</span> <span class="o">&amp;</span><span class="n">highest_frequency</span><span class="p">);</span>
+
+  <span class="kt">void</span>
+  <span class="nf">set_observed_state_sequence_from_json_dict</span><span class="p">(</span><span class="k">const</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="o">&amp;</span><span class="n">json_indicators</span><span class="p">);</span>
+
+            <span class="cm">/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="cm">                          create-experiment</span>
+<span class="cm">            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">timestamp_to_year_month</span><span class="p">(</span><span class="kt">long</span> <span class="n">timestamp</span><span class="p">);</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">calculate_end_year_month</span><span class="p">(</span><span class="kt">int</span> <span class="n">start_year</span><span class="p">,</span> <span class="kt">int</span> <span class="n">start_month</span><span class="p">,</span>
+                                               <span class="kt">int</span> <span class="n">num_timesteps</span><span class="p">);</span>
+
+  <span class="kt">double</span> <span class="nf">calculate_prediction_timestep_length</span><span class="p">(</span><span class="kt">int</span> <span class="n">start_year</span><span class="p">,</span> <span class="kt">int</span> <span class="n">start_month</span><span class="p">,</span>
+                                              <span class="kt">int</span> <span class="n">end_year</span><span class="p">,</span> <span class="kt">int</span> <span class="n">end_month</span><span class="p">,</span>
+                                              <span class="kt">int</span> <span class="n">pred_timesteps</span><span class="p">);</span>
+
+  <span class="kt">void</span> <span class="nf">extract_projection_constraints</span><span class="p">(</span>
+                                <span class="k">const</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="o">&amp;</span><span class="n">projection_constraints</span><span class="p">);</span>
+
+  <span class="n">Prediction</span> <span class="nf">run_causemos_projection_experiment_from_json_dict</span><span class="p">(</span><span class="k">const</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="o">&amp;</span><span class="n">json_data</span><span class="p">,</span>
+                                                               <span class="kt">int</span> <span class="n">burn</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
+                                                               <span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">200</span><span class="p">);</span>
+
+  <span class="n">FormattedProjectionResult</span> <span class="nf">format_projection_result</span><span class="p">();</span>
+
+  <span class="kt">void</span> <span class="nf">sample_transition_matrix_collection_from_prior</span><span class="p">();</span>
+
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Private: Model serialization (in serialize.cpp)</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+  <span class="kt">void</span> <span class="nf">from_delphi_json_dict</span><span class="p">(</span><span class="k">const</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="o">&amp;</span><span class="n">json_data</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">verbose</span><span class="p">);</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Private: Utilities (in graph_utils.cpp)</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+  <span class="kt">void</span> <span class="nf">clear_state</span><span class="p">();</span>
+
+  <span class="kt">void</span> <span class="nf">initialize_random_number_generator</span><span class="p">();</span>
+
+  <span class="kt">void</span> <span class="nf">remove_node</span><span class="p">(</span><span class="kt">int</span> <span class="n">node_id</span><span class="p">);</span>
+
+  <span class="c1">// Allocate a num_verts x num_verts 2D array (std::vector of std::vectors)</span>
+  <span class="kt">void</span> <span class="nf">allocate_A_beta_factors</span><span class="p">();</span>
+
+  <span class="kt">void</span> <span class="nf">find_all_paths_between</span><span class="p">(</span><span class="kt">int</span> <span class="n">start</span><span class="p">,</span> <span class="kt">int</span> <span class="n">end</span><span class="p">,</span> <span class="kt">int</span> <span class="n">cutoff</span><span class="p">);</span>
+
+  <span class="kt">void</span> <span class="nf">find_all_paths_between_util</span><span class="p">(</span><span class="kt">int</span> <span class="n">start</span><span class="p">,</span>
+                                   <span class="kt">int</span> <span class="n">end</span><span class="p">,</span>
+                                   <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">path</span><span class="p">,</span>
+                                   <span class="kt">int</span> <span class="n">cutoff</span><span class="p">);</span>
+
+  <span class="kt">int</span> <span class="nf">calculate_num_timesteps</span><span class="p">(</span><span class="kt">int</span> <span class="n">start_year</span><span class="p">,</span>
+                              <span class="kt">int</span> <span class="n">start_month</span><span class="p">,</span>
+                              <span class="kt">int</span> <span class="n">end_year</span><span class="p">,</span>
+                              <span class="kt">int</span> <span class="n">end_month</span><span class="p">);</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Private: Subgraphs (in subgraphs.cpp)</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+  <span class="kt">void</span> <span class="nf">get_subgraph</span><span class="p">(</span><span class="kt">int</span> <span class="n">vert</span><span class="p">,</span>
+                    <span class="n">std</span><span class="o">::</span><span class="n">unordered_set</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">vertices_to_keep</span><span class="p">,</span>
+                    <span class="kt">int</span> <span class="n">cutoff</span><span class="p">,</span>
+                    <span class="kt">bool</span> <span class="n">inward</span><span class="p">);</span>
+
+  <span class="kt">void</span> <span class="nf">get_subgraph_between</span><span class="p">(</span><span class="kt">int</span> <span class="n">start</span><span class="p">,</span>
+                            <span class="kt">int</span> <span class="n">end</span><span class="p">,</span>
+                            <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">path</span><span class="p">,</span>
+                            <span class="n">std</span><span class="o">::</span><span class="n">unordered_set</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">vertices_to_keep</span><span class="p">,</span>
+                            <span class="kt">int</span> <span class="n">cutoff</span><span class="p">);</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Private: Accessors</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+  <span class="kt">int</span> <span class="nf">num_nodes</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">boost</span><span class="o">::</span><span class="n">num_vertices</span><span class="p">(</span><span class="n">graph</span><span class="p">);</span> <span class="p">}</span>
+
+  <span class="kt">int</span> <span class="nf">get_vertex_id</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">concept</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">using</span> <span class="k">namespace</span> <span class="n">fmt</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
+    <span class="k">try</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">name_to_vertex</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">concept</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">catch</span> <span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">out_of_range</span><span class="o">&amp;</span> <span class="n">oor</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">out_of_range</span><span class="p">(</span><span class="s">&quot;Concept </span><span class="se">\&quot;</span><span class="s">{}</span><span class="se">\&quot;</span><span class="s"> not in CAG!&quot;</span><span class="n">_format</span><span class="p">(</span><span class="n">concept</span><span class="p">));</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="k">auto</span> <span class="nf">node_indices</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">boost</span><span class="o">::</span><span class="n">make_iterator_range</span><span class="p">(</span><span class="n">boost</span><span class="o">::</span><span class="n">vertices</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">));</span>
+  <span class="p">};</span>
+
+  <span class="k">auto</span> <span class="nf">nodes</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">using</span> <span class="n">boost</span><span class="o">::</span><span class="n">adaptors</span><span class="o">::</span><span class="n">transformed</span><span class="p">;</span>
+    <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">node_indices</span><span class="p">()</span> <span class="o">|</span>
+           <span class="n">transformed</span><span class="p">([</span><span class="o">&amp;</span><span class="p">](</span><span class="kt">int</span> <span class="n">v</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="o">&amp;</span> <span class="p">{</span> <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">v</span><span class="p">];</span> <span class="p">});</span>
+  <span class="p">};</span>
+
+  <span class="k">auto</span> <span class="nf">node_names</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">using</span> <span class="n">boost</span><span class="o">::</span><span class="n">adaptors</span><span class="o">::</span><span class="n">transformed</span><span class="p">;</span>
+    <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">nodes</span><span class="p">()</span> <span class="o">|</span>
+           <span class="n">transformed</span><span class="p">([</span><span class="o">&amp;</span><span class="p">](</span><span class="k">auto</span> <span class="n">node</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="p">{</span> <span class="k">return</span> <span class="n">node</span><span class="p">.</span><span class="n">name</span><span class="p">;</span> <span class="p">});</span>
+  <span class="p">};</span>
+
+  <span class="kt">int</span> <span class="nf">get_degree</span><span class="p">(</span><span class="kt">int</span> <span class="n">vertex_id</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">boost</span><span class="o">::</span><span class="n">in_degree</span><span class="p">(</span><span class="n">vertex_id</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">)</span> <span class="o">+</span>
+           <span class="n">boost</span><span class="o">::</span><span class="n">out_degree</span><span class="p">(</span><span class="n">vertex_id</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">);</span>
+  <span class="p">};</span>
+
+  <span class="k">auto</span> <span class="nf">out_edges</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">boost</span><span class="o">::</span><span class="n">make_iterator_range</span><span class="p">(</span><span class="n">boost</span><span class="o">::</span><span class="n">out_edges</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">graph</span><span class="p">));</span>
+  <span class="p">}</span>
+
+  <span class="n">Node</span><span class="o">&amp;</span> <span class="n">source</span><span class="p">(</span><span class="n">EdgeDescriptor</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">boost</span><span class="o">::</span><span class="n">source</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">)];</span>
+  <span class="p">};</span>
+
+  <span class="n">Node</span><span class="o">&amp;</span> <span class="n">target</span><span class="p">(</span><span class="n">EdgeDescriptor</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">boost</span><span class="o">::</span><span class="n">target</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">)];</span>
+  <span class="p">};</span>
+
+  <span class="k">auto</span> <span class="nf">successors</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">boost</span><span class="o">::</span><span class="n">make_iterator_range</span><span class="p">(</span><span class="n">boost</span><span class="o">::</span><span class="n">adjacent_vertices</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">));</span>
+  <span class="p">}</span>
+
+  <span class="k">auto</span> <span class="nf">successors</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">node_name</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">successors</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">name_to_vertex</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">node_name</span><span class="p">));</span>
+  <span class="p">}</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">&gt;</span> <span class="n">get_successor_list</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">node</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">&gt;</span> <span class="n">successors</span> <span class="o">=</span> <span class="p">{};</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="nl">successor</span> <span class="p">:</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">successors</span><span class="p">(</span><span class="n">node</span><span class="p">))</span> <span class="p">{</span>
+      <span class="n">successors</span><span class="p">.</span><span class="n">push_back</span><span class="p">((</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">successor</span><span class="p">]);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">successors</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">auto</span> <span class="n">predecessors</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">boost</span><span class="o">::</span><span class="n">make_iterator_range</span><span class="p">(</span>
+        <span class="n">boost</span><span class="o">::</span><span class="n">inv_adjacent_vertices</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">));</span>
+  <span class="p">}</span>
+
+  <span class="k">auto</span> <span class="n">predecessors</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">node_name</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">predecessors</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">name_to_vertex</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">node_name</span><span class="p">));</span>
+  <span class="p">}</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">&gt;</span> <span class="n">get_predecessor_list</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">node</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">&gt;</span> <span class="n">predecessors</span> <span class="o">=</span> <span class="p">{};</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="nl">predecessor</span> <span class="p">:</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">predecessors</span><span class="p">(</span><span class="n">node</span><span class="p">))</span> <span class="p">{</span>
+      <span class="n">predecessors</span><span class="p">.</span><span class="n">push_back</span><span class="p">((</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">predecessor</span><span class="p">]);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">predecessors</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="kt">double</span> <span class="n">get_beta</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">source_vertex_name</span><span class="p">,</span>
+                  <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">target_vertex_name</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="c1">// This is ∂target / ∂source</span>
+    <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">A_original</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">get_vertex_id</span><span class="p">(</span><span class="n">target_vertex_name</span><span class="p">),</span>
+                            <span class="mi">2</span> <span class="o">*</span> <span class="n">get_vertex_id</span><span class="p">(</span><span class="n">source_vertex_name</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Private: Get Training Data Sequence (in train_model.cpp)</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+  <span class="kt">void</span>
+  <span class="n">set_observed_state_sequence_from_data</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">country</span> <span class="o">=</span> <span class="s">&quot;South Sudan&quot;</span><span class="p">,</span>
+                                        <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">state</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="p">,</span>
+                                        <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">county</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="p">);</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&gt;</span>
+  <span class="n">get_observed_state_from_data</span><span class="p">(</span><span class="kt">int</span> <span class="n">year</span><span class="p">,</span>
+                               <span class="kt">int</span> <span class="n">month</span><span class="p">,</span>
+                               <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">country</span><span class="p">,</span>
+                               <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">state</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="p">,</span>
+                               <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">county</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="p">);</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Private: Initializing model parameters (in parameter_initialization.cpp)</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+  <span class="kt">void</span> <span class="nf">initialize_parameters</span><span class="p">(</span><span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+                             <span class="n">InitialBeta</span> <span class="n">initial_beta</span> <span class="o">=</span> <span class="n">InitialBeta</span><span class="o">::</span><span class="n">ZERO</span><span class="p">,</span>
+                             <span class="kt">bool</span> <span class="n">use_heuristic</span> <span class="o">=</span> <span class="nb">false</span><span class="p">,</span>
+                             <span class="kt">bool</span> <span class="n">use_continuous</span> <span class="o">=</span> <span class="nb">true</span><span class="p">);</span>
+
+  <span class="kt">void</span> <span class="nf">set_indicator_means_and_standard_deviations</span><span class="p">();</span>
+
+  <span class="kt">void</span> <span class="nf">init_betas_to</span><span class="p">(</span><span class="n">InitialBeta</span> <span class="n">ib</span> <span class="o">=</span> <span class="n">InitialBeta</span><span class="o">::</span><span class="n">MEAN</span><span class="p">);</span>
+
+  <span class="kt">void</span> <span class="nf">construct_theta_pdfs</span><span class="p">();</span>
+
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Private: Training by MCMC Sampling (in sampling.cpp)</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+  <span class="kt">void</span> <span class="nf">set_base_transition_matrix</span><span class="p">();</span>
+
+  <span class="c1">// Sample elements of the stochastic transition matrix from the</span>
+  <span class="c1">// prior distribution, based on gradable adjectives.</span>
+  <span class="kt">void</span> <span class="nf">set_transition_matrix_from_betas</span><span class="p">();</span>
+
+  <span class="kt">void</span> <span class="nf">set_log_likelihood_helper</span><span class="p">(</span><span class="kt">int</span> <span class="n">ts</span><span class="p">);</span>
+
+  <span class="kt">void</span> <span class="nf">set_log_likelihood</span><span class="p">();</span>
+
+  <span class="kt">void</span> <span class="nf">set_current_latent_state</span><span class="p">(</span><span class="kt">int</span> <span class="n">ts</span><span class="p">);</span>
+
+  <span class="kt">void</span> <span class="nf">sample_from_posterior</span><span class="p">();</span>
+
+  <span class="c1">// TODO: Need testng</span>
+  <span class="c1">// TODO: Before calling sample_from_proposal() we must call</span>
+  <span class="c1">// AnalysisGraph::find_all_paths()</span>
+  <span class="c1">// TODO: Before calling sample_from_proposal(), we mush assign initial βs and</span>
+  <span class="c1">// run Tran_Mat_Cell::compute_cell() to initialize the first transistion</span>
+  <span class="c1">// matrix.</span>
+  <span class="c1">// TODO: Update Tran_Mat_Cell::compute_cell() to calculate the proper value.</span>
+  <span class="c1">// At the moment it just computes sum of length of all the paths realted to</span>
+  <span class="c1">// this cell</span>
+  <span class="kt">void</span> <span class="nf">sample_from_proposal</span><span class="p">();</span>
+
+  <span class="kt">void</span> <span class="nf">update_transition_matrix_cells</span><span class="p">(</span><span class="n">EdgeDescriptor</span> <span class="n">e</span><span class="p">);</span>
+
+  <span class="kt">double</span> <span class="nf">calculate_delta_log_prior</span><span class="p">();</span>
+
+  <span class="kt">void</span> <span class="nf">revert_back_to_previous_state</span><span class="p">();</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Private: Prediction (in prediction.cpp)</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+  <span class="kt">void</span> <span class="nf">generate_latent_state_sequences</span><span class="p">(</span><span class="kt">int</span> <span class="n">initial_prediction_step</span><span class="p">);</span>
+
+  <span class="kt">void</span> <span class="nf">perturb_predicted_latent_state_at</span><span class="p">(</span><span class="kt">int</span> <span class="n">timestep</span><span class="p">,</span> <span class="kt">int</span> <span class="n">sample_number</span><span class="p">);</span>
+
+  <span class="kt">void</span> <span class="nf">generate_observed_state_sequences</span><span class="p">();</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span>
+  <span class="n">generate_observed_state</span><span class="p">(</span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span> <span class="n">latent_state</span><span class="p">);</span>
+
+  <span class="n">FormattedPredictionResult</span> <span class="nf">format_prediction_result</span><span class="p">();</span>
+
+  <span class="kt">void</span> <span class="nf">run_model</span><span class="p">(</span><span class="kt">int</span> <span class="n">start_year</span><span class="p">,</span>
+                 <span class="kt">int</span> <span class="n">start_month</span><span class="p">,</span>
+                 <span class="kt">int</span> <span class="n">end_year</span><span class="p">,</span>
+                 <span class="kt">int</span> <span class="n">end_month</span><span class="p">);</span>
+
+  <span class="kt">void</span> <span class="nf">add_constraint</span><span class="p">(</span><span class="kt">int</span> <span class="n">step</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">concept_name</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">indicator_name</span><span class="p">,</span>
+                                                <span class="kt">double</span> <span class="n">indicator_clamp_value</span><span class="p">);</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Private: Synthetic Data Experiment (in synthetic_data.cpp)</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+  <span class="kt">void</span> <span class="nf">set_random_initial_latent_state</span><span class="p">();</span>
+
+  <span class="kt">void</span> <span class="nf">generate_synthetic_latent_state_sequence</span><span class="p">();</span>
+
+  <span class="kt">void</span>
+  <span class="nf">generate_synthetic_observed_state_sequence_from_synthetic_latent_state_sequence</span><span class="p">();</span>
+
+  <span class="c1">// TODO: Need testing</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span>
+  <span class="n">sample_observed_state</span><span class="p">(</span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span> <span class="n">latent_state</span><span class="p">);</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Private: Graph Visualization (in graphviz.cpp)</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">Agraph_t</span><span class="o">*</span><span class="p">,</span> <span class="n">GVC_t</span><span class="o">*&gt;</span> <span class="n">to_agraph</span><span class="p">(</span>
+      <span class="kt">bool</span> <span class="n">simplified_labels</span> <span class="o">=</span>
+          <span class="nb">false</span><span class="p">,</span>
+      <span class="kt">int</span> <span class="n">label_depth</span> <span class="o">=</span>
+          <span class="mi">1</span><span class="p">,</span>
+      <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">node_to_highlight</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="p">,</span>
+      <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">rankdir</span> <span class="o">=</span> <span class="s">&quot;TB&quot;</span><span class="p">);</span>
+
+  <span class="k">public</span><span class="o">:</span>
+  <span class="n">AnalysisGraph</span><span class="p">()</span> <span class="p">{</span>
+     <span class="n">one_off_constraints</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+     <span class="n">perpetual_constraints</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+  <span class="p">}</span>
+
+  <span class="o">~</span><span class="n">AnalysisGraph</span><span class="p">()</span> <span class="p">{}</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">id</span><span class="p">;</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">to_json_string</span><span class="p">(</span><span class="kt">int</span> <span class="n">indent</span> <span class="o">=</span> <span class="mi">0</span><span class="p">);</span>
+  <span class="kt">bool</span> <span class="n">data_heuristic</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+
+  <span class="c1">// Set the sampling resolution.</span>
+  <span class="kt">void</span> <span class="nf">set_res</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="c1">// Get the sampling resolution.</span>
+  <span class="kt">size_t</span> <span class="nf">get_res</span><span class="p">();</span>
+
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Constructors from INDRA-exported JSON (in constructors.cpp)</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+  <span class="k">static</span> <span class="n">AnalysisGraph</span>
+  <span class="nf">from_indra_statements_json_dict</span><span class="p">(</span><span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="n">json_data</span><span class="p">,</span>
+                                  <span class="kt">double</span> <span class="n">belief_score_cutoff</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span>
+                                  <span class="kt">double</span> <span class="n">grounding_score_cutoff</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+                                  <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">ontology</span> <span class="o">=</span> <span class="s">&quot;WM&quot;</span><span class="p">);</span>
+
+  <span class="k">static</span> <span class="n">AnalysisGraph</span>
+  <span class="nf">from_indra_statements_json_string</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">json_string</span><span class="p">,</span>
+                                    <span class="kt">double</span> <span class="n">belief_score_cutoff</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span>
+                                    <span class="kt">double</span> <span class="n">grounding_score_cutoff</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+                                    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">ontology</span> <span class="o">=</span> <span class="s">&quot;WM&quot;</span><span class="p">);</span>
+
+  <span class="k">static</span> <span class="n">AnalysisGraph</span>
+  <span class="nf">from_indra_statements_json_file</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filename</span><span class="p">,</span>
+                                  <span class="kt">double</span> <span class="n">belief_score_cutoff</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span>
+                                  <span class="kt">double</span> <span class="n">grounding_score_cutoff</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+                                  <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">ontology</span> <span class="o">=</span> <span class="s">&quot;WM&quot;</span><span class="p">);</span>
+
+  <span class="k">static</span> <span class="n">AnalysisGraph</span>
+  <span class="nf">from_causal_fragments</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">CausalFragment</span><span class="o">&gt;</span> <span class="n">causal_fragments</span><span class="p">);</span>
+
+  <span class="k">static</span> <span class="n">AnalysisGraph</span> <span class="nf">from_json_string</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">);</span>
+
+  <span class="n">AnalysisGraph</span><span class="p">(</span><span class="k">const</span> <span class="n">AnalysisGraph</span><span class="o">&amp;</span> <span class="n">rhs</span><span class="p">);</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Public: Integration with Uncharted&#39;s CauseMos interface</span>
+<span class="cm">                                                  (in causemos_integration.cpp)</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+            <span class="cm">/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="cm">                            create-model</span>
+<span class="cm">            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/</span>
+
+  <span class="kt">void</span> <span class="nf">from_causemos_json_dict</span><span class="p">(</span><span class="k">const</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="o">&amp;</span><span class="n">json_data</span><span class="p">);</span>
+
+  <span class="k">static</span> <span class="n">AnalysisGraph</span> <span class="nf">from_causemos_json_string</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">json_string</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="k">static</span> <span class="n">AnalysisGraph</span> <span class="nf">from_causemos_json_file</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filename</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">res</span><span class="p">);</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">generate_create_model_response</span><span class="p">();</span>
+
+            <span class="cm">/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="cm">                          create-experiment</span>
+<span class="cm">            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/</span>
+
+  <span class="n">FormattedProjectionResult</span>
+  <span class="nf">run_causemos_projection_experiment_from_json_string</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">json_string</span><span class="p">,</span>
+                                                      <span class="kt">int</span> <span class="n">burn</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
+                                                      <span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">200</span><span class="p">);</span>
+
+  <span class="n">Prediction</span>
+  <span class="nf">run_causemos_projection_experiment_from_json_file</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filename</span><span class="p">,</span>
+                                                    <span class="kt">int</span> <span class="n">burn</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
+                                                    <span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">200</span><span class="p">);</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Private: Model serialization (in serialize.cpp)</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">serialize_to_json_string</span><span class="p">(</span><span class="kt">bool</span> <span class="n">verbose</span> <span class="o">=</span> <span class="nb">true</span><span class="p">);</span>
+
+  <span class="k">static</span> <span class="n">AnalysisGraph</span> <span class="nf">deserialize_from_json_string</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">json_string</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">verbose</span> <span class="o">=</span> <span class="nb">true</span><span class="p">);</span>
+
+  <span class="k">static</span> <span class="n">AnalysisGraph</span> <span class="nf">deserialize_from_json_file</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filename</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">verbose</span> <span class="o">=</span> <span class="nb">true</span><span class="p">);</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Public: Accessors</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+  <span class="kt">size_t</span> <span class="nf">num_vertices</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">boost</span><span class="o">::</span><span class="n">num_vertices</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">);</span> <span class="p">}</span>
+
+  <span class="n">Node</span><span class="o">&amp;</span> <span class="k">operator</span><span class="p">[](</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">node_name</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">node_name</span><span class="p">)];</span>
+  <span class="p">}</span>
+
+  <span class="n">Node</span><span class="o">&amp;</span> <span class="k">operator</span><span class="p">[](</span><span class="kt">int</span> <span class="n">v</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="n">v</span><span class="p">];</span> <span class="p">}</span>
+
+  <span class="kt">size_t</span> <span class="n">num_edges</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">boost</span><span class="o">::</span><span class="n">num_edges</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">);</span> <span class="p">}</span>
+
+  <span class="k">auto</span> <span class="n">edges</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">boost</span><span class="o">::</span><span class="n">make_iterator_range</span><span class="p">(</span><span class="n">boost</span><span class="o">::</span><span class="n">edges</span><span class="p">(</span><span class="n">graph</span><span class="p">));</span> <span class="p">}</span>
+
+  <span class="n">Edge</span><span class="o">&amp;</span> <span class="n">edge</span><span class="p">(</span><span class="n">EdgeDescriptor</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="n">e</span><span class="p">];</span> <span class="p">}</span>
+
+  <span class="n">Edge</span><span class="o">&amp;</span> <span class="n">edge</span><span class="p">(</span><span class="kt">int</span> <span class="n">source</span><span class="p">,</span> <span class="kt">int</span> <span class="n">target</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="n">boost</span><span class="o">::</span><span class="n">edge</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">).</span><span class="n">first</span><span class="p">];</span>
+  <span class="p">}</span>
+
+  <span class="n">Edge</span><span class="o">&amp;</span> <span class="n">edge</span><span class="p">(</span><span class="kt">int</span> <span class="n">source</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">target</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span>
+        <span class="p">[</span><span class="n">boost</span><span class="o">::</span><span class="n">edge</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">target</span><span class="p">),</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">).</span><span class="n">first</span><span class="p">];</span>
+  <span class="p">}</span>
+
+  <span class="n">Edge</span><span class="o">&amp;</span> <span class="n">edge</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">source</span><span class="p">,</span> <span class="kt">int</span> <span class="n">target</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span>
+        <span class="p">[</span><span class="n">boost</span><span class="o">::</span><span class="n">edge</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">source</span><span class="p">),</span> <span class="n">target</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">).</span><span class="n">first</span><span class="p">];</span>
+  <span class="p">}</span>
+
+  <span class="n">Edge</span><span class="o">&amp;</span> <span class="n">edge</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">source</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">target</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="n">boost</span><span class="o">::</span><span class="n">edge</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">source</span><span class="p">),</span>
+                                   <span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">target</span><span class="p">),</span>
+                                   <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">)</span>
+                           <span class="p">.</span><span class="n">first</span><span class="p">];</span>
+  <span class="p">}</span>
+
+  <span class="n">boost</span><span class="o">::</span><span class="n">range_detail</span><span class="o">::</span><span class="n">integer_iterator</span><span class="o">&lt;</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="o">&gt;</span> <span class="n">begin</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">boost</span><span class="o">::</span><span class="n">vertices</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">).</span><span class="n">first</span><span class="p">;</span>
+  <span class="p">};</span>
+
+  <span class="n">boost</span><span class="o">::</span><span class="n">range_detail</span><span class="o">::</span><span class="n">integer_iterator</span><span class="o">&lt;</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="o">&gt;</span> <span class="n">end</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">boost</span><span class="o">::</span><span class="n">vertices</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">).</span><span class="n">second</span><span class="p">;</span>
+  <span class="p">};</span>
+
+  <span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="o">&amp;</span> <span class="n">get_initial_latent_state</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">s0</span><span class="p">;</span> <span class="p">};</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Public: Graph Building (in graph_building.cpp)</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+  <span class="kt">void</span> <span class="nf">add_node</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">concept</span><span class="p">);</span>
+
+  <span class="kt">void</span> <span class="nf">add_edge</span><span class="p">(</span><span class="n">CausalFragment</span> <span class="n">causal_fragment</span><span class="p">);</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">EdgeDescriptor</span><span class="p">,</span> <span class="kt">bool</span><span class="o">&gt;</span> <span class="n">add_edge</span><span class="p">(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="p">);</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">EdgeDescriptor</span><span class="p">,</span> <span class="kt">bool</span><span class="o">&gt;</span> <span class="n">add_edge</span><span class="p">(</span><span class="kt">int</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">);</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">EdgeDescriptor</span><span class="p">,</span> <span class="kt">bool</span><span class="o">&gt;</span> <span class="n">add_edge</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="p">);</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">EdgeDescriptor</span><span class="p">,</span> <span class="kt">bool</span><span class="o">&gt;</span> <span class="n">add_edge</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">);</span>
+
+  <span class="kt">void</span> <span class="nf">remove_node</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">concept</span><span class="p">);</span>
+
+  <span class="c1">// Note:</span>
+  <span class="c1">//      Although just calling this-&gt;remove_node(concept) within the loop</span>
+  <span class="c1">//          for( std::string concept : concept_s )</span>
+  <span class="c1">//      is sufficient to implement this method, it is not very efficient.</span>
+  <span class="c1">//      It re-calculates directed simple paths for each vertex removed</span>
+  <span class="c1">//</span>
+  <span class="c1">//      Therefore, the code in this-&gt;remove_node() has been duplicated with</span>
+  <span class="c1">//      slightly different flow to achive a more efficient execution.</span>
+  <span class="kt">void</span> <span class="nf">remove_nodes</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">unordered_set</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">concepts</span><span class="p">);</span>
+
+  <span class="kt">void</span> <span class="nf">remove_edge</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">src</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">tgt</span><span class="p">);</span>
+
+  <span class="kt">void</span> <span class="nf">remove_edges</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;&gt;</span> <span class="n">edges</span><span class="p">);</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Public: Subgraphs (in subgraphs.cpp)</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+  <span class="c1">// TODO Change the name of this function to something better, like</span>
+  <span class="c1">// restrict_to_subgraph_for_concept, update docstring</span>
+
+  <span class="n">AnalysisGraph</span> <span class="nf">get_subgraph_for_concept</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">concept</span><span class="p">,</span>
+                                         <span class="kt">bool</span> <span class="n">inward</span> <span class="o">=</span> <span class="nb">false</span><span class="p">,</span>
+                                         <span class="kt">int</span> <span class="n">depth</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+
+  <span class="n">AnalysisGraph</span> <span class="nf">get_subgraph_for_concept_pair</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">source_concept</span><span class="p">,</span>
+                                              <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">target_concept</span><span class="p">,</span>
+                                              <span class="kt">int</span> <span class="n">cutoff</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Public: Graph Modification (in graph_modification.cpp)</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+  <span class="kt">void</span> <span class="nf">prune</span><span class="p">(</span><span class="kt">int</span> <span class="n">cutoff</span> <span class="o">=</span> <span class="mi">2</span><span class="p">);</span>
+
+  <span class="c1">// Merge node n1 into node n2, with the option to specify relative polarity.</span>
+  <span class="c1">// void</span>
+  <span class="c1">// merge_nodes_old(std::string n1, std::string n2, bool same_polarity = true);</span>
+
+  <span class="kt">void</span> <span class="nf">merge_nodes</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">concept_1</span><span class="p">,</span>
+                   <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">concept_2</span><span class="p">,</span>
+                   <span class="kt">bool</span> <span class="n">same_polarity</span> <span class="o">=</span> <span class="nb">true</span><span class="p">);</span>
+
+  <span class="kt">void</span> <span class="nf">change_polarity_of_edge</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">source_concept</span><span class="p">,</span>
+                               <span class="kt">int</span> <span class="n">source_polarity</span><span class="p">,</span>
+                               <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">target_concept</span><span class="p">,</span>
+                               <span class="kt">int</span> <span class="n">target_polarity</span><span class="p">);</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Public: Indicator Manipulation (in indicator_manipulation.cpp)</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+  <span class="kt">int</span>
+  <span class="nf">set_indicator</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">concept</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">indicator</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">source</span><span class="p">);</span>
+
+  <span class="kt">void</span> <span class="nf">delete_indicator</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">concept</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">indicator</span><span class="p">);</span>
+
+  <span class="kt">void</span> <span class="nf">delete_all_indicators</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">concept</span><span class="p">);</span>
+
+  <span class="kt">void</span> <span class="nf">map_concepts_to_indicators</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">country</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="p">);</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Public: Utilities (in graph_utils.cpp)</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   * Find all the simple paths between all the paris of nodes of the graph</span>
+<span class="cm">   */</span>
+  <span class="kt">void</span> <span class="nf">find_all_paths</span><span class="p">();</span>
+
+  <span class="kt">void</span> <span class="nf">set_random_seed</span><span class="p">(</span><span class="kt">int</span> <span class="n">seed</span><span class="p">);</span>
+
+  <span class="kt">void</span> <span class="nf">set_derivative</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="kt">double</span><span class="p">);</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Public: Training the Model (in train_model.cpp)</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+  <span class="kt">void</span> <span class="nf">train_model</span><span class="p">(</span><span class="kt">int</span> <span class="n">start_year</span> <span class="o">=</span> <span class="mi">2012</span><span class="p">,</span>
+                   <span class="kt">int</span> <span class="n">start_month</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+                   <span class="kt">int</span> <span class="n">end_year</span> <span class="o">=</span> <span class="mi">2017</span><span class="p">,</span>
+                   <span class="kt">int</span> <span class="n">end_month</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span>
+                   <span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+                   <span class="kt">int</span> <span class="n">burn</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
+                   <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">country</span> <span class="o">=</span> <span class="s">&quot;South Sudan&quot;</span><span class="p">,</span>
+                   <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">state</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="p">,</span>
+                   <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">county</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="p">,</span>
+                   <span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">units</span> <span class="o">=</span> <span class="p">{},</span>
+                   <span class="n">InitialBeta</span> <span class="n">initial_beta</span> <span class="o">=</span> <span class="n">InitialBeta</span><span class="o">::</span><span class="n">ZERO</span><span class="p">,</span>
+                   <span class="kt">bool</span> <span class="n">use_heuristic</span> <span class="o">=</span> <span class="nb">false</span><span class="p">,</span>
+                   <span class="kt">bool</span> <span class="n">use_continuous</span> <span class="o">=</span> <span class="nb">true</span><span class="p">);</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Public: Training by MCMC Sampling (in sampling.cpp)</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+  <span class="kt">void</span> <span class="nf">set_initial_latent_state</span><span class="p">(</span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span> <span class="n">vec</span><span class="p">)</span> <span class="p">{</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">s0</span> <span class="o">=</span> <span class="n">vec</span><span class="p">;</span> <span class="p">};</span>
+
+  <span class="kt">void</span> <span class="nf">set_default_initial_state</span><span class="p">();</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Public: Prediction (in prediction.cpp)</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+  <span class="n">Prediction</span> <span class="nf">generate_prediction</span><span class="p">(</span><span class="kt">int</span> <span class="n">start_year</span><span class="p">,</span>
+                                 <span class="kt">int</span> <span class="n">start_month</span><span class="p">,</span>
+                                 <span class="kt">int</span> <span class="n">end_year</span><span class="p">,</span>
+                                 <span class="kt">int</span> <span class="n">end_month</span><span class="p">,</span>
+                                 <span class="n">ConstraintSchedule</span> <span class="n">constraints</span> <span class="o">=</span>
+                                                        <span class="n">ConstraintSchedule</span><span class="p">(),</span>
+                                 <span class="kt">bool</span> <span class="n">one_off</span> <span class="o">=</span> <span class="nb">true</span><span class="p">,</span>
+                                 <span class="kt">bool</span> <span class="n">clamp_deri</span> <span class="o">=</span> <span class="nb">true</span><span class="p">);</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span> <span class="n">prediction_to_array</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">indicator</span><span class="p">);</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Public: Synthetic data experiment (in synthetic_data.cpp)</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">PredictedObservedStateSequence</span><span class="p">,</span> <span class="n">Prediction</span><span class="o">&gt;</span>
+  <span class="n">test_inference_with_synthetic_data</span><span class="p">(</span>
+      <span class="kt">int</span> <span class="n">start_year</span> <span class="o">=</span> <span class="mi">2015</span><span class="p">,</span>
+      <span class="kt">int</span> <span class="n">start_month</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="kt">int</span> <span class="n">end_year</span> <span class="o">=</span> <span class="mi">2015</span><span class="p">,</span>
+      <span class="kt">int</span> <span class="n">end_month</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span>
+      <span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+      <span class="kt">int</span> <span class="n">burn</span> <span class="o">=</span> <span class="mi">900</span><span class="p">,</span>
+      <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">country</span> <span class="o">=</span> <span class="s">&quot;South Sudan&quot;</span><span class="p">,</span>
+      <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">state</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="p">,</span>
+      <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">county</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="p">,</span>
+      <span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">units</span> <span class="o">=</span> <span class="p">{},</span>
+      <span class="n">InitialBeta</span> <span class="n">initial_beta</span> <span class="o">=</span> <span class="n">InitialBeta</span><span class="o">::</span><span class="n">HALF</span><span class="p">,</span>
+      <span class="kt">bool</span> <span class="n">use_continuous</span> <span class="o">=</span> <span class="nb">true</span><span class="p">);</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Public: Graph Visualization (in graphviz.cpp)</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">to_dot</span><span class="p">();</span>
+
+  <span class="kt">void</span>
+  <span class="nf">to_png</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filename</span> <span class="o">=</span> <span class="s">&quot;CAG.png&quot;</span><span class="p">,</span>
+         <span class="kt">bool</span> <span class="n">simplified_labels</span> <span class="o">=</span>
+             <span class="nb">false</span><span class="p">,</span>
+         <span class="kt">int</span> <span class="n">label_depth</span> <span class="o">=</span>
+             <span class="mi">1</span><span class="p">,</span>
+         <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">node_to_highlight</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="p">,</span>
+         <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">rankdir</span> <span class="o">=</span> <span class="s">&quot;TB&quot;</span><span class="p">);</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Public: Printing (in printing.cpp)</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+  <span class="kt">void</span> <span class="nf">print_nodes</span><span class="p">();</span>
+  <span class="kt">void</span> <span class="nf">print_edges</span><span class="p">();</span>
+  <span class="kt">void</span> <span class="nf">print_name_to_vertex</span><span class="p">();</span>
+  <span class="kt">void</span> <span class="nf">print_indicators</span><span class="p">();</span>
+  <span class="kt">void</span> <span class="nf">print_A_beta_factors</span><span class="p">();</span>
+  <span class="kt">void</span> <span class="nf">print_latent_state</span><span class="p">(</span><span class="k">const</span> <span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="o">&amp;</span><span class="p">);</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   * Prints the simple paths found between all pairs of nodes of the graph</span>
+<span class="cm">   * Groupd according to the starting and ending vertex.</span>
+<span class="cm">   * find_all_paths() should be called before this to populate the paths</span>
+<span class="cm">   */</span>
+  <span class="kt">void</span> <span class="nf">print_all_paths</span><span class="p">();</span>
+
+  <span class="c1">// Given an edge (source, target vertex ids - i.e. a β ≡ ∂target/∂source),</span>
+  <span class="c1">// print all the transition matrix cells that are dependent on it.</span>
+  <span class="kt">void</span> <span class="nf">print_cells_affected_by_beta</span><span class="p">(</span><span class="kt">int</span> <span class="n">source</span><span class="p">,</span> <span class="kt">int</span> <span class="n">target</span><span class="p">);</span>
+
+  <span class="kt">void</span> <span class="nf">print_training_range</span><span class="p">();</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Public: Formatting output (in format_output.cpp)</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+  <span class="n">ConfidenceIntervals</span> <span class="nf">get_confidence_interval</span><span class="p">(</span><span class="n">Predictions</span> <span class="n">preds</span><span class="p">);</span>
+
+  <span class="n">CompleteState</span> <span class="nf">get_complete_state</span><span class="p">();</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Adarsh
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

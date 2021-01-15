@@ -1,0 +1,362 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>GroundedFunctionNetwork API &mdash; delphi  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="_static/collapsible-lists/css/tree_view.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="delphi.GrFN.networks.GroundedFunctionNetwork.from_fortran_src" href="generated/delphi.GrFN.networks.GroundedFunctionNetwork.from_fortran_src.html" />
+    <link rel="prev" title="The Delphi model" href="model.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> delphi
+          
+
+          
+            
+            <img src="_static/delphi_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model.html">The Delphi model</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">GroundedFunctionNetwork API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#constructors">Constructors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/delphi.GrFN.networks.GroundedFunctionNetwork.from_fortran_src.html">delphi.GrFN.networks.GroundedFunctionNetwork.from_fortran_src</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/delphi.GrFN.networks.GroundedFunctionNetwork.from_fortran_file.html">delphi.GrFN.networks.GroundedFunctionNetwork.from_fortran_file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/delphi.GrFN.networks.GroundedFunctionNetwork.from_python_src.html">delphi.GrFN.networks.GroundedFunctionNetwork.from_python_src</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/delphi.GrFN.networks.GroundedFunctionNetwork.from_python_file.html">delphi.GrFN.networks.GroundedFunctionNetwork.from_python_file</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#export">Export</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/delphi.GrFN.networks.GroundedFunctionNetwork.to_CAG.html">delphi.GrFN.networks.GroundedFunctionNetwork.to_CAG</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#execution">Execution</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/delphi.GrFN.networks.GroundedFunctionNetwork.run.html">delphi.GrFN.networks.GroundedFunctionNetwork.run</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#model-analysis">Model Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sensitivity-analysis">Sensitivity Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/delphi.GrFN.networks.ForwardInfluenceBlanket.run.html">delphi.GrFN.networks.ForwardInfluenceBlanket.run</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grfn_spec.html#change-log">Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_api/library_root.html">C++ API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">delphi</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>GroundedFunctionNetwork API</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/GrFN_API.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="groundedfunctionnetwork-api">
+<span id="groundedfunctionnetwork"></span><h1>GroundedFunctionNetwork API<a class="headerlink" href="#groundedfunctionnetwork-api" title="Permalink to this headline">¶</a></h1>
+<p>The central class for the program analysis component of Delphi is the
+GroundedFunctionNetwork, which represents a bipartite graph that encodes
+information about computational relationships between variables in code.</p>
+<p>Additionally, the ForwardInfluenceBlanket class is provided to facilitate model
+comparison</p>
+<dl class="class">
+<dt id="delphi.GrFN.networks.GroundedFunctionNetwork">
+<em class="property">class </em><code class="sig-name descname">GroundedFunctionNetwork</code><span class="sig-paren">(</span><em class="sig-param">G</em>, <em class="sig-param">scope_tree</em>, <em class="sig-param">outputs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/GrFN/networks.html#GroundedFunctionNetwork"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.GrFN.networks.GroundedFunctionNetwork" title="Permalink to this definition">¶</a></dt>
+<dd><p>Representation of a GrFN model as a DiGraph with a set of input nodes and
+currently a single output. The DiGraph is composed of variable nodes and
+function nodes. Function nodes store an actual Python function with the
+expected set of ordered input arguments that correspond to the variable
+inputs of that node. Variable nodes store a value. This value can be any
+data type found in Python. When no value exists for a variable the value
+key will be set to None. Importantly only function nodes can be children or
+parents of variable nodes, and the reverse is also true. Both variable and
+function nodes can be inputs, but the output will always be a variable
+node.</p>
+</dd></dl>
+
+<div class="section" id="constructors">
+<h2>Constructors<a class="headerlink" href="#constructors" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/delphi.GrFN.networks.GroundedFunctionNetwork.from_fortran_src.html#delphi.GrFN.networks.GroundedFunctionNetwork.from_fortran_src" title="delphi.GrFN.networks.GroundedFunctionNetwork.from_fortran_src"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GroundedFunctionNetwork.from_fortran_src</span></code></a>(…)</p></td>
+<td><p>Create a GroundedFunctionNetwork instance from a string with raw Fortran code.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/delphi.GrFN.networks.GroundedFunctionNetwork.from_fortran_file.html#delphi.GrFN.networks.GroundedFunctionNetwork.from_fortran_file" title="delphi.GrFN.networks.GroundedFunctionNetwork.from_fortran_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GroundedFunctionNetwork.from_fortran_file</span></code></a>(…)</p></td>
+<td><p>Builds GrFN object from a Fortran program.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/delphi.GrFN.networks.GroundedFunctionNetwork.from_python_src.html#delphi.GrFN.networks.GroundedFunctionNetwork.from_python_src" title="delphi.GrFN.networks.GroundedFunctionNetwork.from_python_src"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GroundedFunctionNetwork.from_python_src</span></code></a>(…)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/delphi.GrFN.networks.GroundedFunctionNetwork.from_python_file.html#delphi.GrFN.networks.GroundedFunctionNetwork.from_python_file" title="delphi.GrFN.networks.GroundedFunctionNetwork.from_python_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GroundedFunctionNetwork.from_python_file</span></code></a>(…)</p></td>
+<td><p>Builds GrFN object from Python file.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="export">
+<h2>Export<a class="headerlink" href="#export" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GroundedFunctionNetwork.to_agraph</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/delphi.GrFN.networks.GroundedFunctionNetwork.to_CAG.html#delphi.GrFN.networks.GroundedFunctionNetwork.to_CAG" title="delphi.GrFN.networks.GroundedFunctionNetwork.to_CAG"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GroundedFunctionNetwork.to_CAG</span></code></a>()</p></td>
+<td><p>Export to a Causal Analysis Graph (CAG) PyGraphviz AGraph object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GroundedFunctionNetwork.to_call_agraph</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="execution">
+<h2>Execution<a class="headerlink" href="#execution" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/delphi.GrFN.networks.GroundedFunctionNetwork.run.html#delphi.GrFN.networks.GroundedFunctionNetwork.run" title="delphi.GrFN.networks.GroundedFunctionNetwork.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GroundedFunctionNetwork.run</span></code></a>(inputs)</p></td>
+<td><p>Executes the GrFN over a particular set of inputs and returns the result.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="model-analysis">
+<h2>Model Analysis<a class="headerlink" href="#model-analysis" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GroundedFunctionNetwork.to_FIB</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="sensitivity-analysis">
+<h2>Sensitivity Analysis<a class="headerlink" href="#sensitivity-analysis" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GroundedFunctionNetwork.S2_surface</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ForwardInfluenceBlanket.S2_surface</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/delphi.GrFN.networks.ForwardInfluenceBlanket.run.html#delphi.GrFN.networks.ForwardInfluenceBlanket.run" title="delphi.GrFN.networks.ForwardInfluenceBlanket.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ForwardInfluenceBlanket.run</span></code></a>(inputs, covers)</p></td>
+<td><p>Executes the FIB over a particular set of inputs and returns the result.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="generated/delphi.GrFN.networks.GroundedFunctionNetwork.from_fortran_src.html" class="btn btn-neutral float-right" title="delphi.GrFN.networks.GroundedFunctionNetwork.from_fortran_src" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="model.html" class="btn btn-neutral float-left" title="The Delphi model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Adarsh
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

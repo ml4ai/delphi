@@ -1,0 +1,434 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>delphi.translators.for2py.arrays &mdash; delphi  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+        <script src="../../../../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../../../../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> delphi
+          
+
+          
+            
+            <img src="../../../../_static/delphi_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html#change-log">Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cpp_api/library_root.html">C++ API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">delphi</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../for2py.html">delphi.translators.for2py</a> &raquo;</li>
+        
+      <li>delphi.translators.for2py.arrays</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for delphi.translators.for2py.arrays</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    File: for2py_arrays.py</span>
+<span class="sd">    Purpose: Code to handle array manipulation in the Python code generated</span>
+<span class="sd">    by for2py.</span>
+
+<span class="sd">    Usage: see the document &quot;for2py: Handling Fortran Arrays&quot;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">For2PyError</span>
+
+<span class="n">_GET_</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">_SET_</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="c1">################################################################################</span>
+<span class="c1">#                                                                              #</span>
+<span class="c1">#                                 Array objects                                #</span>
+<span class="c1">#                                                                              #</span>
+<span class="c1">################################################################################</span>
+
+
+<div class="viewcode-block" id="Array"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.arrays.Array">[docs]</a><span class="k">class</span> <span class="nc">Array</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; bounds is a list [(lo1,hi1), (lo2,hi2), ..., (loN, hiN)] of pairs of</span>
+<span class="sd">        lower and upper bounds for the dimensions of the array.  The length</span>
+<span class="sd">        of the list bounds gives the number of dimensions of the array.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">types</span><span class="p">,</span> <span class="n">bounds</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bounds</span> <span class="o">=</span> <span class="n">bounds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_types</span> <span class="o">=</span> <span class="n">types</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mk_uninit_array</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_mk_uninit_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bounds</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; given a list of bounds for the N dimensions of an array, </span>
+<span class="sd">            _mk_uninit_array() creates and returns an N-dimensional array of </span>
+<span class="sd">            the size specified by the bounds with each element set to the value</span>
+<span class="sd">            None.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">For2PyError</span><span class="p">(</span><span class="s2">&quot;Zero-length arrays current not handled!.&quot;</span><span class="p">)</span>
+
+        <span class="n">this_dim</span> <span class="o">=</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="n">this_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">this_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">sz</span> <span class="o">=</span> <span class="n">hi</span><span class="o">-</span><span class="n">lo</span><span class="o">+</span><span class="mi">1</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">sz</span>
+
+        <span class="n">sub_array</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mk_uninit_array</span><span class="p">(</span><span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="n">this_array</span> <span class="o">=</span> <span class="p">[</span><span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">sub_array</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sz</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="n">this_array</span>
+
+<div class="viewcode-block" id="Array.bounds"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.arrays.Array.bounds">[docs]</a>    <span class="k">def</span> <span class="nf">bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;bounds() returns a list of pairs (lo,hi) giving the lower and upper</span>
+<span class="sd">        bounds of the array.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bounds</span></div>
+
+<div class="viewcode-block" id="Array.lower_bd"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.arrays.Array.lower_bd">[docs]</a>    <span class="k">def</span> <span class="nf">lower_bd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;lower_bd(i) returns the lower bound of the array in dimension i.</span>
+<span class="sd">           Dimensions are numbered from 0 up.&quot;&quot;&quot;</span>
+        <span class="n">this_dim_bounds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bounds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">this_dim_bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Array.upper_bd"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.arrays.Array.upper_bd">[docs]</a>    <span class="k">def</span> <span class="nf">upper_bd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;upper_bd(i) returns the upper bound of the array in dimension i.</span>
+<span class="sd">           Dimensions are numbered from 0 up.&quot;&quot;&quot;</span>
+        <span class="n">this_dim_bounds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bounds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">this_dim_bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="nf">_posn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;given bounds = (lo,hi) and an index value idx, _posn(bounds, idx)</span>
+<span class="sd">           returns the position in a 0-based array corresponding to idx in </span>
+<span class="sd">           the (lo,hi)-based array.  It generates an error if idx &lt; lo or </span>
+<span class="sd">           idx &gt; hi.&quot;&quot;&quot;</span>
+        <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">lo</span> <span class="o">&lt;=</span> <span class="n">idx</span> <span class="o">&lt;=</span> <span class="n">hi</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Array index </span><span class="si">{idx}</span><span class="s2"> out of bounds: </span><span class="si">{bounds}</span><span class="se">\n</span><span class="s2">&quot;</span>
+   
+        <span class="k">return</span> <span class="n">idx</span><span class="o">-</span><span class="n">lo</span>
+
+    <span class="k">def</span> <span class="nf">_access</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subs</span><span class="p">,</span> <span class="n">acc_type</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;_access(subs, acc_type, val) accesses the array element specified by</span>
+<span class="sd">           the tuple of subscript values, subs.  If acc_type == _GET_ it </span>
+<span class="sd">           returns the value of this element; else it sets this element to the</span>
+<span class="sd">           value of the argument val.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">subs</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>  
+            <span class="c1"># if subs is just an integer, take it to be an index value.</span>
+            <span class="n">subs</span> <span class="o">=</span> <span class="p">(</span><span class="n">subs</span><span class="p">,)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">subs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">For2PyError</span><span class="p">(</span><span class="s2">&quot;Zero-length arrays currently not handled.&quot;</span><span class="p">)</span>
+
+        <span class="n">bounds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bounds</span>
+        <span class="n">sub_arr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_values</span>
+        <span class="n">ndims</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">subs</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ndims</span><span class="p">):</span>
+            <span class="n">this_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_posn</span><span class="p">(</span><span class="n">bounds</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">subs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">ndims</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">acc_type</span> <span class="o">==</span> <span class="n">_GET_</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">sub_arr</span><span class="p">[</span><span class="n">this_pos</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">sub_arr</span><span class="p">[</span><span class="n">this_pos</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sub_arr</span> <span class="o">=</span> <span class="n">sub_arr</span><span class="p">[</span><span class="n">this_pos</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Array.set_"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.arrays.Array.set_">[docs]</a>    <span class="k">def</span> <span class="nf">set_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subs</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;set_() sets the value of the array element specified by the given</span>
+<span class="sd">           tuple of array subscript values to the argument val.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_access</span><span class="p">(</span><span class="n">subs</span><span class="p">,</span> <span class="n">_SET_</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Array.get_"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.arrays.Array.get_">[docs]</a>    <span class="k">def</span> <span class="nf">get_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;get_() returns the value of the array element specified by the </span>
+<span class="sd">           given tuple of array subscript values.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_access</span><span class="p">(</span><span class="n">subs</span><span class="p">,</span> <span class="n">_GET_</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Array.get_elems"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.arrays.Array.get_elems">[docs]</a>    <span class="k">def</span> <span class="nf">get_elems</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subs_list</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;get_elems(subs_list) returns a list of values of the array elements</span>
+<span class="sd">           specified by the list of subscript values subs_list (each element of</span>
+<span class="sd">           subs_list is a tuple of subscripts identifying an array element).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_</span><span class="p">(</span><span class="n">subs</span><span class="p">)</span> <span class="k">for</span> <span class="n">subs</span> <span class="ow">in</span> <span class="n">subs_list</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Array.set_elems"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.arrays.Array.set_elems">[docs]</a>    <span class="k">def</span> <span class="nf">set_elems</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subs</span><span class="p">,</span> <span class="n">vals</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;set_elems(subs, vals) sets the array elements specified by the list</span>
+<span class="sd">           of subscript values subs (each element of subs is a tuple of </span>
+<span class="sd">           subscripts identifying an array element) to the corresponding value</span>
+<span class="sd">           in vals.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+            <span class="c1"># if vals is a scalar, extend it to a list of appropriate length</span>
+            <span class="n">vals</span> <span class="o">=</span> <span class="p">[</span><span class="n">vals</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">subs</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">subs</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_</span><span class="p">(</span><span class="n">subs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">vals</span><span class="p">[</span><span class="n">i</span><span class="p">])</span></div></div>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1">#                                                                              #</span>
+<span class="c1">#                    Functions for accessing parts of arrays                   #</span>
+<span class="c1">#                                                                              #</span>
+<span class="c1">################################################################################</span>
+
+<div class="viewcode-block" id="all_subs"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.arrays.all_subs">[docs]</a><span class="k">def</span> <span class="nf">all_subs</span><span class="p">(</span><span class="n">bounds</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;given a list of tuples specifying the bounds of an array, all_subs()</span>
+<span class="sd">       returns a list of all the tuples of subscripts for that array.&quot;&quot;&quot;</span>
+    <span class="n">idx_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bounds</span><span class="p">)):</span>
+        <span class="n">this_dim</span> <span class="o">=</span> <span class="n">bounds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="n">this_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">this_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>   <span class="c1"># bounds for this dimension</span>
+        <span class="n">this_dim_idxs</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>    <span class="c1"># indexes for this dimension</span>
+        <span class="n">idx_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_dim_idxs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">idx2subs</span><span class="p">(</span><span class="n">idx_list</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="idx2subs"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.arrays.idx2subs">[docs]</a><span class="k">def</span> <span class="nf">idx2subs</span><span class="p">(</span><span class="n">idx_list</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Given a list idx_list of index values for each dimension of an array, </span>
+<span class="sd">       idx2subs() returns a list of the tuples of subscripts for all of the </span>
+<span class="sd">       array elements specified by those index values.</span>
+
+<span class="sd">       Note: This code adapted from that posted by jfs at</span>
+<span class="sd">       https://stackoverflow.com/questions/533905/get-the-cartesian-product-</span>
+<span class="sd">       of-a-series-of-lists&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">idx_list</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[()]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">items</span> <span class="o">+</span> <span class="p">(</span><span class="n">item</span><span class="p">,)</span> 
+            <span class="k">for</span> <span class="n">items</span> <span class="ow">in</span> <span class="n">idx2subs</span><span class="p">(</span><span class="n">idx_list</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">idx_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span></div>
+
+
+<div class="viewcode-block" id="array_values"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.arrays.array_values">[docs]</a><span class="k">def</span> <span class="nf">array_values</span><span class="p">(</span><span class="n">expr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Given an expression expr denoting a list of values, array_values(expr) </span>
+<span class="sd">       returns a list of values for that expression.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">Array</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">expr</span><span class="o">.</span><span class="n">get_elems</span><span class="p">(</span><span class="n">all_subs</span><span class="p">(</span><span class="n">expr</span><span class="o">.</span><span class="n">_bounds</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="p">[</span><span class="n">array_values</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">expr</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">flatten</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">expr</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="array_subscripts"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.arrays.array_subscripts">[docs]</a><span class="k">def</span> <span class="nf">array_subscripts</span><span class="p">(</span><span class="n">expr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Given a subscript expression expr (i.e., an expression that denotes the</span>
+<span class="sd">       set of elements of some array that are to be accessed), </span>
+<span class="sd">       array_subscripts() returns a list of the elements denoted by expr.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">Array</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">all_subs</span><span class="p">(</span><span class="n">expr</span><span class="o">.</span><span class="n">_bounds</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">subs</span> <span class="o">=</span> <span class="p">[</span><span class="n">subscripts</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">expr</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">flatten</span><span class="p">(</span><span class="n">subs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">expr</span><span class="p">]</span></div>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1">#                                                                              #</span>
+<span class="c1">#                               Assorted utilities                             #</span>
+<span class="c1">#                                                                              #</span>
+<span class="c1">################################################################################</span>
+
+<div class="viewcode-block" id="flatten"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.arrays.flatten">[docs]</a><span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="n">in_list</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;given a list of values in_list, flatten returns the list obtained by </span>
+<span class="sd">       flattening the top-level elements of in_list.&quot;&quot;&quot;</span>
+    <span class="n">out_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">in_list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">out_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">out_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">out_list</span></div>
+
+
+<div class="viewcode-block" id="implied_loop_expr"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.arrays.implied_loop_expr">[docs]</a><span class="k">def</span> <span class="nf">implied_loop_expr</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">delta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;given the parameters of an implied loop -- namely, the start and end </span>
+<span class="sd">       values together with the delta per iteration -- implied_loop_expr() </span>
+<span class="sd">       returns a list of values of the lambda expression expr applied to </span>
+<span class="sd">       successive values of the implied loop.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">delta</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="n">end</span><span class="o">+</span><span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="n">end</span><span class="o">-</span><span class="mi">1</span>
+
+    <span class="n">result_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">expr</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">delta</span><span class="p">)]</span>
+
+    <span class="c1"># return the flattened list of results</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="n">result_list</span><span class="p">))</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Adarsh
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

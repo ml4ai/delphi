@@ -1,0 +1,259 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>The Delphi model &mdash; delphi  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="_static/collapsible-lists/css/tree_view.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="GroundedFunctionNetwork API" href="GrFN_API.html" />
+    <link rel="prev" title="Usage" href="usage.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> delphi
+          
+
+          
+            
+            <img src="_static/delphi_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grfn_spec.html#change-log">Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_api/library_root.html">C++ API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">delphi</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>The Delphi model</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/model.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="the-delphi-model">
+<span id="model"></span><h1>The Delphi model<a class="headerlink" href="#the-delphi-model" title="Permalink to this headline">¶</a></h1>
+<p>We model abstract concepts such as food security and conflict as real-valued
+<em>latent</em> variables, and indicators corresponding to these concepts as
+<em>observed</em> variables. An indicator is a measurable quantity that correlates
+with the intuitive, natural language interpretation of the abstract concept. For
+example, <em>average dietary energy supply adequacy</em> is one among many indicators
+for the concept of <em>food security</em>.</p>
+<p>We interpret sentences such as “A small increase in conflict causes a large
+decrease in food security.” as saying something about the functional relationship
+between two latent variables representing conflict and food security
+respectively - that is, the sentence is giving us a clue about the shape of
+<span class="math notranslate nohighlight">\(\frac{∂(\text{food security})}{∂(\text{conflict})}\)</span></p>
+<p>To convert a sentence like the one above to a dynamic Bayes network, we first
+construct latent states composed of the variables and their partial derivatives
+with respect to time. In our model, the transition function that tells us how to
+calculate the latent state at a time step given the latent state at the previous
+time step is itself a random variable, with a probability distribution
+constructed from Gaussian kernel density estimators of empirical, crowdsourced
+data about how humans quantitatively interpret gradable adjectives such as
+<em>small</em> and <em>large</em>. The reason for this is that there is a great deal of
+uncertainty in the model itself, since there is no precise model for many
+abstract concepts such as food security and conflict that we expect to encounter
+in machine reading. Finally, we use the following emission model - let
+<span class="math notranslate nohighlight">\(n_{ij}\)</span> be the value of the <span class="math notranslate nohighlight">\(j^{th}\)</span> indicator for the <span class="math notranslate nohighlight">\(i^{th}\)</span>
+component of a latent state vector <span class="math notranslate nohighlight">\(\mathbf{s}\)</span>. We then define
+probability distribution for the value of the indicator as</p>
+<div class="math notranslate nohighlight">
+\[n_{ij}\sim \mathcal{N}(s_i\mu_{ij}, \sigma_{ij}).\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mu_{ij}, \sigma_{ij}\)</span> are the mean and standard deviation of the
+indicator <span class="math notranslate nohighlight">\(n_{ij}\)</span>. The structure of the model is shown in the figure
+below.</p>
+<div class="figure align-default" id="id1">
+<a class="reference internal image-reference" href="_images/stochastic_lds.png"><img alt="Graphical model: Linear dynamical system with stochastic transition function" src="_images/stochastic_lds.png" style="width: 50%;" /></a>
+<p class="caption"><span class="caption-text">The figure depicts the model that underlies Delphi - a linear dynamical system
+with a stochastic transition function. The nodes <span class="math notranslate nohighlight">\(\mathbf{s}_n\)</span> are
+latent state vectors, <span class="math notranslate nohighlight">\(\mathbf{\theta}\)</span> is the transition model, and
+<span class="math notranslate nohighlight">\(D\)</span> represents evidence from machine reading.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
+<p>For more details on the model construction, see this <a class="reference external" href="http://vision.cs.arizona.edu/adarsh/Arizona_Text_to_Model_Procedure.pdf">document</a>.</p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="GrFN_API.html" class="btn btn-neutral float-right" title="GroundedFunctionNetwork API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="usage.html" class="btn btn-neutral float-left" title="Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Adarsh
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

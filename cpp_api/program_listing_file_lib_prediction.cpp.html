@@ -1,0 +1,789 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Program Listing for File prediction.cpp &mdash; delphi  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> delphi
+          
+
+          
+            
+            <img src="../_static/delphi_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html#change-log">Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library_root.html">C++ API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">delphi</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Program Listing for File prediction.cpp</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/cpp_api/program_listing_file_lib_prediction.cpp.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="program-listing-for-file-prediction-cpp">
+<span id="program-listing-file-lib-prediction-cpp"></span><h1>Program Listing for File prediction.cpp<a class="headerlink" href="#program-listing-for-file-prediction-cpp" title="Permalink to this headline">¶</a></h1>
+<p>↰ <a class="reference internal" href="file_lib_prediction.cpp.html#file-lib-prediction-cpp"><span class="std std-ref">Return to documentation for file</span></a> (<code class="docutils literal notranslate"><span class="pre">lib/prediction.cpp</span></code>)</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;AnalysisGraph.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;range/v3/all.hpp&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;unsupported/Eigen/MatrixFunctions&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;boost/range/adaptors.hpp&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;tqdm.hpp&gt;</span><span class="cp"></span>
+
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="k">using</span> <span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="p">,</span> <span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="p">;</span>
+<span class="k">using</span> <span class="n">fmt</span><span class="o">::</span><span class="n">print</span><span class="p">,</span> <span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">;</span>
+<span class="k">namespace</span> <span class="n">rs</span> <span class="o">=</span> <span class="n">ranges</span><span class="p">;</span>
+<span class="k">using</span> <span class="n">boost</span><span class="o">::</span><span class="n">adaptors</span><span class="o">::</span><span class="n">transformed</span><span class="p">;</span>
+
+<span class="k">using</span> <span class="n">fmt</span><span class="o">::</span><span class="n">print</span><span class="p">;</span>
+<span class="cm">/*</span>
+<span class="cm"> ============================================================================</span>
+<span class="cm"> Private: Prediction</span>
+<span class="cm"> ============================================================================</span>
+<span class="cm">*/</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">generate_latent_state_sequences</span><span class="p">(</span>
+    <span class="kt">int</span> <span class="n">initial_prediction_step</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="c1">// Allocate memory for prediction_latent_state_sequences</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">predicted_latent_state_sequences</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">predicted_latent_state_sequences</span> <span class="o">=</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">VectorXd</span><span class="o">&gt;&gt;</span><span class="p">(</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">res</span><span class="p">,</span>
+      <span class="n">vector</span><span class="o">&lt;</span><span class="n">VectorXd</span><span class="o">&gt;</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_timesteps</span><span class="p">,</span> <span class="n">VectorXd</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">num_vertices</span><span class="p">()</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)));</span>
+
+  <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">Predicting for &quot;</span> <span class="o">&lt;&lt;</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_timesteps</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; time steps...&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="nl">samp</span> <span class="p">:</span> <span class="n">tq</span><span class="o">::</span><span class="n">trange</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">res</span><span class="p">))</span> <span class="p">{</span>
+      <span class="c1">// The sampled transition matrices would be either of matrix exponential</span>
+      <span class="c1">// (continuous) version or discretized version depending on whether the</span>
+      <span class="c1">// matrix exponential (continuous) version or the discretized transition</span>
+      <span class="c1">// matrix version had been used to train the model. This allows us to</span>
+      <span class="c1">// make the prediction routine common for both the versions, except for</span>
+      <span class="c1">// the exponentiation of the matrix exponential (continuous) transition</span>
+      <span class="c1">// matrices.</span>
+      <span class="n">MatrixXd</span> <span class="n">A</span><span class="p">;</span>
+
+      <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">continuous</span><span class="p">)</span> <span class="p">{</span>
+          <span class="c1">// Here A = Ac = this-&gt;transition_matrix_collection[samp] (continuous)</span>
+
+          <span class="c1">// Evolving the system one time step before the</span>
+          <span class="c1">// initial_prediction_step</span>
+          <span class="n">A</span> <span class="o">=</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">transition_matrix_collection</span><span class="p">[</span><span class="n">samp</span><span class="p">]</span> <span class="o">*</span>
+                  <span class="k">this</span><span class="o">-&gt;</span><span class="n">delta_t</span> <span class="o">*</span> <span class="p">(</span><span class="n">initial_prediction_step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)).</span><span class="n">exp</span><span class="p">();</span>
+
+          <span class="k">this</span><span class="o">-&gt;</span><span class="n">predicted_latent_state_sequences</span><span class="p">[</span><span class="n">samp</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span>
+                               <span class="n">A</span> <span class="o">*</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">initial_latent_state_collection</span><span class="p">[</span><span class="n">samp</span><span class="p">];</span>
+
+          <span class="c1">// After jumping to time step ips - 1, we take one step of length Δt</span>
+          <span class="c1">// at a time.</span>
+          <span class="c1">// So compute the transition matrix for a single step.</span>
+          <span class="c1">// Computing the matrix exponential for a Δt time step.</span>
+          <span class="c1">// By default we are using Δt = 1</span>
+          <span class="c1">// A = e^{Ac * Δt)</span>
+          <span class="n">A</span> <span class="o">=</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">transition_matrix_collection</span><span class="p">[</span><span class="n">samp</span><span class="p">]</span> <span class="o">*</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">delta_t</span><span class="p">).</span><span class="n">exp</span><span class="p">();</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+          <span class="c1">// Here A = Ad = this-&gt;transition_matrix_collection[samp] (discrete)</span>
+          <span class="c1">// This is the discrete transition matrix to take a single step of</span>
+          <span class="c1">// length Δt</span>
+          <span class="n">A</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">transition_matrix_collection</span><span class="p">[</span><span class="n">samp</span><span class="p">];</span>
+
+          <span class="c1">// Evolving the system one time step before the</span>
+          <span class="c1">// initial_prediction_step</span>
+          <span class="k">this</span><span class="o">-&gt;</span><span class="n">predicted_latent_state_sequences</span><span class="p">[</span><span class="n">samp</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span>
+                              <span class="n">A</span><span class="p">.</span><span class="n">pow</span><span class="p">(</span><span class="n">initial_prediction_step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span>
+                                  <span class="k">this</span><span class="o">-&gt;</span><span class="n">initial_latent_state_collection</span><span class="p">[</span><span class="n">samp</span><span class="p">];</span>
+      <span class="p">}</span>
+
+      <span class="c1">// Clear out perpetual constraints residual from previous sample</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">perpetual_constraints</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+
+      <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">clamp_at_derivative</span><span class="p">)</span> <span class="p">{</span>
+          <span class="c1">// To clamp a latent state value to x_c at prediction step 1 via</span>
+          <span class="c1">// clamping the derivative, we have to perturb the derivative at</span>
+          <span class="c1">// prediction step 0, before evolving it to prediction time step 1.</span>
+          <span class="c1">// So we have to look one time step ahead whether we have to clamp</span>
+          <span class="c1">// at 1.</span>
+          <span class="c1">//</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">delphi</span><span class="o">::</span><span class="n">utils</span><span class="o">::</span><span class="n">in</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">one_off_constraints</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="p">{</span>
+              <span class="k">this</span><span class="o">-&gt;</span><span class="n">perturb_predicted_latent_state_at</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">samp</span><span class="p">);</span>
+          <span class="p">}</span>
+      <span class="p">}</span>
+
+      <span class="c1">// Since we used ts = 0 for the initial_prediction_step - 1, this loop is</span>
+      <span class="c1">// one ahead of the prediction time steps. That is, index 1 in the</span>
+      <span class="c1">// prediction data structures is the 0th index for the requested</span>
+      <span class="c1">// prediction sequence. Hence, when we are at time step ts, we should</span>
+      <span class="c1">// check whether there are any constconstraints</span>
+        <span class="c1">// time step index is 1</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">ts</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">ts</span> <span class="o">&lt;</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_timesteps</span><span class="p">;</span> <span class="n">ts</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+          <span class="c1">// When continuous: The standard matrix exponential equation is,</span>
+          <span class="c1">//                        s_{t+Δt} = e^{Ac * Δt } * s_t</span>
+          <span class="c1">//                  Since vector indices are integral values, and in</span>
+          <span class="c1">//                  the implementation s is the vector, to index into</span>
+          <span class="c1">//                  the vector we uses consecutive integers. Thus in</span>
+          <span class="c1">//                  the implementation, the matrix exponential</span>
+          <span class="c1">//                  equation becomes,</span>
+          <span class="c1">//                      s_{t+1} = e^{Ac * Δt } * s_t</span>
+          <span class="c1">//                  What this equation says is that although vector</span>
+          <span class="c1">//                  indices advance by 1, the duration between two</span>
+          <span class="c1">//                  predictions stored in two adjacent vector cells</span>
+          <span class="c1">//                  need not be 1. The time duration is actually Δt.</span>
+          <span class="c1">//                  The actual line of code represents,</span>
+          <span class="c1">//                        s_t = e^{Ac * Δt } * s_{t-1}</span>
+          <span class="c1">// When discrete  : s_t = Ad * s_{t-1}</span>
+          <span class="k">this</span><span class="o">-&gt;</span><span class="n">predicted_latent_state_sequences</span><span class="p">[</span><span class="n">samp</span><span class="p">][</span><span class="n">ts</span><span class="p">]</span> <span class="o">=</span>
+              <span class="n">A</span> <span class="o">*</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">predicted_latent_state_sequences</span><span class="p">[</span><span class="n">samp</span><span class="p">][</span><span class="n">ts</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span>
+
+          <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">clamp_at_derivative</span> <span class="p">)</span> <span class="p">{</span>
+              <span class="k">if</span> <span class="p">(</span><span class="n">ts</span> <span class="o">==</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">rest_derivative_clamp_ts</span><span class="p">)</span> <span class="p">{</span>
+                  <span class="c1">// We have perturbed the derivative at ts - 1. If we do not</span>
+                  <span class="c1">// take any action, that clamped derivative will be in effect</span>
+                  <span class="c1">// until another clamping or end of prediction. This is where</span>
+                  <span class="c1">// we take the necessary actions.</span>
+
+                  <span class="k">if</span> <span class="p">(</span><span class="n">is_one_off_constraints</span><span class="p">)</span> <span class="p">{</span>
+                      <span class="c1">// We should revert the derivative to its original value</span>
+                      <span class="c1">// at this time step so that clamping does not affect</span>
+                      <span class="c1">// time step ts + 1.</span>
+                      <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">constraint</span> <span class="p">:</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">one_off_constraints</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">ts</span><span class="p">))</span> <span class="p">{</span>
+                          <span class="kt">int</span> <span class="n">node_id</span> <span class="o">=</span> <span class="n">constraint</span><span class="p">.</span><span class="n">first</span><span class="p">;</span>
+
+                          <span class="k">this</span><span class="o">-&gt;</span><span class="n">predicted_latent_state_sequences</span><span class="p">[</span><span class="n">samp</span><span class="p">][</span><span class="n">ts</span><span class="p">]</span>
+                              <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">node_id</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">=</span>
+                              <span class="k">this</span><span class="o">-&gt;</span><span class="n">initial_latent_state_collection</span><span class="p">[</span><span class="n">samp</span><span class="p">]</span>
+                              <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">node_id</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+                  <span class="p">}</span>
+                  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                      <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="p">[</span><span class="n">node_id</span><span class="p">,</span> <span class="n">value</span><span class="p">]</span><span class="o">:</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">one_off_constraints</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">ts</span><span class="p">))</span> <span class="p">{</span>
+                          <span class="k">this</span><span class="o">-&gt;</span><span class="n">predicted_latent_state_sequences</span><span class="p">[</span><span class="n">samp</span><span class="p">][</span><span class="n">ts</span><span class="p">]</span>
+                                                        <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">node_id</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+                      <span class="p">}</span>
+                  <span class="p">}</span>
+              <span class="p">}</span>
+
+              <span class="c1">// To clamp a latent state value to x_c at prediction step ts + 1</span>
+              <span class="c1">// via clamping the derivative, we have to perturb the derivative</span>
+              <span class="c1">// at prediction step ts, before evolving it to prediction time</span>
+              <span class="c1">// step ts + 1. So we have to look one time step ahead whether we</span>
+              <span class="c1">// have to clamp at ts + 1 and clamp the derivative now.</span>
+              <span class="c1">//</span>
+              <span class="k">if</span> <span class="p">(</span><span class="n">delphi</span><span class="o">::</span><span class="n">utils</span><span class="o">::</span><span class="n">in</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">one_off_constraints</span><span class="p">,</span> <span class="n">ts</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">||</span>
+                      <span class="o">!</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">perpetual_constraints</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+                  <span class="k">this</span><span class="o">-&gt;</span><span class="n">perturb_predicted_latent_state_at</span><span class="p">(</span><span class="n">ts</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">samp</span><span class="p">);</span>
+              <span class="p">}</span>
+          <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+              <span class="c1">// Apply constraints to latent state if any</span>
+              <span class="c1">// Logic of this condition:</span>
+              <span class="c1">//    Initially perpetual_constraints = ∅</span>
+              <span class="c1">//</span>
+              <span class="c1">//    one_off_constraints.at(ts) = ∅ =&gt; Unconstrained ∀ ts</span>
+              <span class="c1">//</span>
+              <span class="c1">//    one_off_constraints.at(ts) ‡ ∅</span>
+              <span class="c1">//        =&gt; ∃ some constraints (But we do not know what kind)</span>
+              <span class="c1">//        =&gt; Perturb latent state</span>
+              <span class="c1">//           Call perturb_predicted_latent_state_at()</span>
+              <span class="c1">//           one_off_constraints == true</span>
+              <span class="c1">//                =&gt; We are applying One-off constraints</span>
+              <span class="c1">//           one_off_constraints == false</span>
+              <span class="c1">//                =&gt; We are applying perpetual constraints</span>
+              <span class="c1">//                =&gt; We add constraints to perpetual_constraints</span>
+              <span class="c1">//                =&gt; perpetual_constraints ‡ ∅</span>
+              <span class="c1">//                =&gt; The if condition is true ∀ subsequent time steps</span>
+              <span class="c1">//                   after ts (the first time step s.t.</span>
+              <span class="c1">//                   one_off_constraints.at(ts) ‡ ∅</span>
+              <span class="c1">//                =&gt; Constraints are perpetual</span>
+              <span class="c1">//</span>
+              <span class="k">if</span> <span class="p">(</span><span class="n">delphi</span><span class="o">::</span><span class="n">utils</span><span class="o">::</span><span class="n">in</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">one_off_constraints</span><span class="p">,</span> <span class="n">ts</span><span class="p">)</span> <span class="o">||</span>
+                      <span class="o">!</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">perpetual_constraints</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+                  <span class="k">this</span><span class="o">-&gt;</span><span class="n">perturb_predicted_latent_state_at</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">samp</span><span class="p">);</span>
+              <span class="p">}</span>
+          <span class="p">}</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="cm">/*</span>
+<span class="cm"> * Applying constraints (interventions) to latent states</span>
+<span class="cm"> * Check the data structure definition to get more descriptions</span>
+<span class="cm"> *</span>
+<span class="cm"> * Clamping at time step ts for value v</span>
+<span class="cm"> * Two methods work in tandem to achieve this. Let us label them as follows:</span>
+<span class="cm"> *      glss  : generate_latent_state_sequences()</span>
+<span class="cm"> *      ppls@ : perturb_predicted_latent_state_at()</span>
+<span class="cm"> *                                 ┍━━━━━━━━━━━━━━━━━━━━━━━━┑</span>
+<span class="cm"> *                                 │           How          ┃</span>
+<span class="cm"> *                                 ┝━━━━━━━━━━┳━━━━━━━━━━━━━┫</span>
+<span class="cm"> *                                 │ One-off  ┃  Perpetual  ┃</span>
+<span class="cm"> * ━━━━━━┳━━━━━━━━━━━━┯━━━━━━━━━━━━┿━━━━━━━━━━┻━━━━━━━━━━━━━┫</span>
+<span class="cm"> *       ┃            │ Clamp at   │           v - x_{ts-1} ┃</span>
+<span class="cm"> *       ┃            │ (by ppls@) │   ts-1 to ──────────── ┃</span>
+<span class="cm"> *       ┃            │            │               Δt       ┃</span>
+<span class="cm"> *       ┃ Derivative ├┈┈┈┈┈┈┈┈┈┈┈┈┼┈┈┈┈┈┈┈┈┈┈┰┈┈┈┈┈┈┈┈┈┈┈┈┈┨</span>
+<span class="cm"> * Where ┃            │ Reset at   │ ts to ẋ₀ ┃ ts to 0     ┃</span>
+<span class="cm"> *       ┃            │ (by glss)  │ from S₀  ┃             ┃</span>
+<span class="cm"> *       ┣━━━━━━━━━━━━┿━━━━━━━━━━━━┿━━━━━━━━━━╋━━━━━━━━━━━━━┫</span>
+<span class="cm"> *       ┃ Value      │ Clamp at   │ ts to v  ┃ ∀ t≥ts to v ┃</span>
+<span class="cm"> *       ┃            │ (by ppls@) │          ┃             ┃</span>
+<span class="cm"> * ━━━━━━┻━━━━━━━━━━━━┷━━━━━━━━━━━━┷━━━━━━━━━━┻━━━━━━━━━━━━━┛</span>
+<span class="cm"> */</span>
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">perturb_predicted_latent_state_at</span><span class="p">(</span><span class="kt">int</span> <span class="n">timestep</span><span class="p">,</span> <span class="kt">int</span> <span class="n">sample_number</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Let vertices of the CAG be v = 0, 1, 2, 3, ...</span>
+    <span class="c1">// Then,</span>
+    <span class="c1">//    indices 2*v keeps track of the state of each variable v</span>
+    <span class="c1">//    indices 2*v+1 keeps track of the state of ∂v/∂t</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">clamp_at_derivative</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="p">[</span><span class="n">node_id</span><span class="p">,</span> <span class="n">value</span><span class="p">]</span><span class="o">:</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">one_off_constraints</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">timestep</span><span class="p">))</span> <span class="p">{</span>
+            <span class="c1">// To clamp the latent state value to x_c at time step t via</span>
+            <span class="c1">// clamping the derivative, we have to clamp the derivative</span>
+            <span class="c1">// appropriately at time step t-1.</span>
+            <span class="c1">// Example:</span>
+            <span class="c1">//      Say we want to clamp the latent state at t=6 to value</span>
+            <span class="c1">//      x_c (i.e. we want x₆ = x_c. So we have to set the</span>
+            <span class="c1">//      derivative at t=6-1=5, ẋ₅, as follows:</span>
+            <span class="c1">//                  x_c - x₅</span>
+            <span class="c1">//             ẋ₅ = --------- ........... (1)</span>
+            <span class="c1">//                     Δt</span>
+            <span class="c1">//             x₆ = x₅ + (ẋ₅ × Δt)</span>
+            <span class="c1">//                = x_c</span>
+            <span class="c1">//      Thus clamping ẋ₅ (at t = 5) as described in (1) gives</span>
+            <span class="c1">//      us the desired clamping at t = 5 + 1 = 6</span>
+            <span class="kt">double</span> <span class="n">clamped_derivative</span> <span class="o">=</span> <span class="p">(</span><span class="n">value</span> <span class="o">-</span>
+                    <span class="k">this</span><span class="o">-&gt;</span><span class="n">predicted_latent_state_sequences</span><span class="p">[</span><span class="n">sample_number</span><span class="p">]</span>
+                    <span class="p">[</span><span class="n">timestep</span> <span class="o">-</span> <span class="mi">1</span><span class="p">](</span><span class="mi">2</span> <span class="o">*</span> <span class="n">node_id</span><span class="p">))</span> <span class="o">/</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">delta_t</span><span class="p">;</span>
+
+            <span class="k">this</span><span class="o">-&gt;</span><span class="n">predicted_latent_state_sequences</span><span class="p">[</span><span class="n">sample_number</span><span class="p">]</span>
+                <span class="p">[</span><span class="n">timestep</span> <span class="o">-</span> <span class="mi">1</span><span class="p">](</span><span class="mi">2</span> <span class="o">*</span> <span class="n">node_id</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="n">clamped_derivative</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="c1">// Clamping the derivative at t-1 changes the value at t.</span>
+        <span class="c1">// According to our model, derivatives never chance. So if we</span>
+        <span class="c1">// do not revert it, clamped derivative stays till another</span>
+        <span class="c1">// clamping or the end of prediction. Since this is a one-off</span>
+        <span class="c1">// clamping, we have to return the derivative back to its</span>
+        <span class="c1">// original value at time step t, before we use it to evolve</span>
+        <span class="c1">// time step t + 1. Thus we remember the time step at which we</span>
+        <span class="c1">// have to perform this.</span>
+        <span class="k">this</span><span class="o">-&gt;</span><span class="n">rest_derivative_clamp_ts</span> <span class="o">=</span> <span class="n">timestep</span><span class="p">;</span>
+
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">is_one_off_constraints</span><span class="p">)</span> <span class="p">{</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="p">[</span><span class="n">node_id</span><span class="p">,</span> <span class="n">value</span><span class="p">]</span><span class="o">:</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">one_off_constraints</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">timestep</span><span class="p">))</span> <span class="p">{</span>
+            <span class="k">this</span><span class="o">-&gt;</span><span class="n">predicted_latent_state_sequences</span><span class="p">[</span><span class="n">sample_number</span><span class="p">][</span><span class="n">timestep</span><span class="p">](</span><span class="mi">2</span> <span class="o">*</span> <span class="n">node_id</span><span class="p">)</span> <span class="o">=</span> <span class="n">value</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span> <span class="c1">// Perpetual constraints</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">delphi</span><span class="o">::</span><span class="n">utils</span><span class="o">::</span><span class="n">in</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">one_off_constraints</span><span class="p">,</span> <span class="n">timestep</span><span class="p">))</span> <span class="p">{</span>
+            <span class="c1">// Update any previous perpetual constraints</span>
+            <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="p">[</span><span class="n">node_id</span><span class="p">,</span> <span class="n">value</span><span class="p">]</span><span class="o">:</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">one_off_constraints</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">timestep</span><span class="p">))</span> <span class="p">{</span>
+
+                <span class="k">this</span><span class="o">-&gt;</span><span class="n">perpetual_constraints</span><span class="p">[</span><span class="n">node_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="c1">// Apply perpetual constraints</span>
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="p">[</span><span class="n">node_id</span><span class="p">,</span> <span class="n">value</span><span class="p">]</span><span class="o">:</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">perpetual_constraints</span><span class="p">)</span> <span class="p">{</span>
+
+            <span class="k">this</span><span class="o">-&gt;</span><span class="n">predicted_latent_state_sequences</span><span class="p">[</span><span class="n">sample_number</span><span class="p">][</span><span class="n">timestep</span><span class="p">](</span><span class="mi">2</span> <span class="o">*</span> <span class="n">node_id</span><span class="p">)</span> <span class="o">=</span> <span class="n">value</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">generate_observed_state_sequences</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">using</span> <span class="n">rs</span><span class="o">::</span><span class="n">to</span><span class="p">,</span> <span class="n">rs</span><span class="o">::</span><span class="n">views</span><span class="o">::</span><span class="n">transform</span><span class="p">;</span>
+
+  <span class="c1">// Allocate memory for observed_state_sequences</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">predicted_observed_state_sequences</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">predicted_observed_state_sequences</span> <span class="o">=</span>
+      <span class="n">vector</span><span class="o">&lt;</span><span class="n">PredictedObservedStateSequence</span><span class="o">&gt;</span><span class="p">(</span>
+          <span class="k">this</span><span class="o">-&gt;</span><span class="n">res</span><span class="p">,</span>
+          <span class="n">PredictedObservedStateSequence</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_timesteps</span><span class="p">,</span>
+                                         <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span><span class="p">()));</span>
+
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">samp</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">samp</span> <span class="o">&lt;</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">res</span><span class="p">;</span> <span class="n">samp</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">VectorXd</span><span class="o">&gt;&amp;</span> <span class="n">sample</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">predicted_latent_state_sequences</span><span class="p">[</span><span class="n">samp</span><span class="p">];</span>
+
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">predicted_observed_state_sequences</span><span class="p">[</span><span class="n">samp</span><span class="p">]</span> <span class="o">=</span>
+        <span class="n">sample</span> <span class="o">|</span> <span class="n">transform</span><span class="p">([</span><span class="k">this</span><span class="p">](</span><span class="n">VectorXd</span> <span class="n">latent_state</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">generate_observed_state</span><span class="p">(</span><span class="n">latent_state</span><span class="p">);</span>
+        <span class="p">})</span> <span class="o">|</span>
+        <span class="n">to</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&gt;</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span>
+<span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">generate_observed_state</span><span class="p">(</span><span class="n">VectorXd</span> <span class="n">latent_state</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">using</span> <span class="n">rs</span><span class="o">::</span><span class="n">to</span><span class="p">,</span> <span class="n">rs</span><span class="o">::</span><span class="n">views</span><span class="o">::</span><span class="n">transform</span><span class="p">;</span>
+
+  <span class="kt">int</span> <span class="n">num_verts</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">num_vertices</span><span class="p">();</span>
+
+  <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span> <span class="n">observed_state</span><span class="p">(</span><span class="n">num_verts</span><span class="p">);</span>
+
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">v</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="n">num_verts</span><span class="p">;</span> <span class="n">v</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">Indicator</span><span class="o">&gt;&amp;</span> <span class="n">indicators</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">v</span><span class="p">].</span><span class="n">indicators</span><span class="p">;</span>
+
+    <span class="n">observed_state</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="n">indicators</span><span class="p">.</span><span class="n">size</span><span class="p">());</span>
+
+    <span class="n">observed_state</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">indicators</span> <span class="o">|</span> <span class="n">transform</span><span class="p">([</span><span class="o">&amp;</span><span class="p">](</span><span class="n">Indicator</span> <span class="n">ind</span><span class="p">)</span> <span class="p">{</span>
+                          <span class="k">return</span> <span class="n">ind</span><span class="p">.</span><span class="n">mean</span> <span class="o">*</span> <span class="n">latent_state</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">v</span><span class="p">];</span>
+                        <span class="p">})</span> <span class="o">|</span>
+                        <span class="n">to</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&gt;</span><span class="p">();</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="n">observed_state</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">FormattedPredictionResult</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">format_prediction_result</span><span class="p">()</span> <span class="p">{</span>
+
+  <span class="c1">// NOTE: To facilitate clamping derivatives, we start prediction one time</span>
+  <span class="c1">//       step before the requested prediction start time. We are omitting</span>
+  <span class="c1">//       that additional time step from the results returned to the user.</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_timesteps</span><span class="o">--</span><span class="p">;</span>
+
+  <span class="c1">// Access</span>
+  <span class="c1">// [ sample ][ time_step ][ vertex_name ][ indicator_name ]</span>
+  <span class="k">auto</span> <span class="n">result</span> <span class="o">=</span> <span class="n">FormattedPredictionResult</span><span class="p">(</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">res</span><span class="p">,</span>
+      <span class="n">vector</span><span class="o">&lt;</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="kt">double</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span>
+          <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_timesteps</span><span class="p">));</span>
+
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">samp</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">samp</span> <span class="o">&lt;</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">res</span><span class="p">;</span> <span class="n">samp</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// NOTE: To facilitate clamping derivatives, we start prediction one time</span>
+    <span class="c1">//       step before the requested prediction start time. We are omitting</span>
+    <span class="c1">//       that additional time step from the results returned to the user.</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">ts</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">ts</span> <span class="o">&lt;=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_timesteps</span><span class="p">;</span> <span class="n">ts</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="p">[</span><span class="n">vert_name</span><span class="p">,</span> <span class="n">vert_id</span><span class="p">]</span> <span class="o">:</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">name_to_vertex</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="p">[</span><span class="n">ind_name</span><span class="p">,</span> <span class="n">ind_id</span><span class="p">]</span> <span class="o">:</span> <span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">vert_id</span><span class="p">].</span><span class="n">nameToIndexMap</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">result</span><span class="p">[</span><span class="n">samp</span><span class="p">][</span><span class="n">ts</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="n">vert_name</span><span class="p">][</span><span class="n">ind_name</span><span class="p">]</span> <span class="o">=</span>
+              <span class="k">this</span><span class="o">-&gt;</span><span class="n">predicted_observed_state_sequences</span><span class="p">[</span><span class="n">samp</span><span class="p">][</span><span class="n">ts</span><span class="p">][</span><span class="n">vert_id</span><span class="p">]</span>
+                                                      <span class="p">[</span><span class="n">ind_id</span><span class="p">];</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">run_model</span><span class="p">(</span><span class="kt">int</span> <span class="n">start_year</span><span class="p">,</span>
+                              <span class="kt">int</span> <span class="n">start_month</span><span class="p">,</span>
+                              <span class="kt">int</span> <span class="n">end_year</span><span class="p">,</span>
+                              <span class="kt">int</span> <span class="n">end_month</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">trained</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">print</span><span class="p">(</span><span class="s">&quot;Passed untrained Causal Analysis Graph (CAG) Model. </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span>
+          <span class="s">&quot;Try calling &lt;CAG&gt;.train_model(...) first!&quot;</span><span class="p">);</span>
+    <span class="k">throw</span> <span class="s">&quot;Model not yet trained&quot;</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="c1">// Check for sensible prediction time step ranges.</span>
+  <span class="c1">// NOTE: To facilitate clamping derivatives, we start prediction one time</span>
+  <span class="c1">//       step before the requested prediction start time. Therefor, the</span>
+  <span class="c1">//       possible valid earliest prediction time step is one time step after</span>
+  <span class="c1">//       the training start time.</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">start_year</span> <span class="o">&lt;</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">training_range</span><span class="p">.</span><span class="n">first</span><span class="p">.</span><span class="n">first</span> <span class="o">||</span>
+      <span class="p">(</span><span class="n">start_year</span> <span class="o">==</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">training_range</span><span class="p">.</span><span class="n">first</span><span class="p">.</span><span class="n">first</span> <span class="o">&amp;&amp;</span>
+       <span class="n">start_month</span> <span class="o">&lt;=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">training_range</span><span class="p">.</span><span class="n">first</span><span class="p">.</span><span class="n">second</span><span class="p">))</span> <span class="p">{</span>
+    <span class="n">print</span><span class="p">(</span><span class="s">&quot;The initial prediction date can&#39;t be before the &quot;</span>
+         <span class="s">&quot;initial training date. Defaulting initial prediction date &quot;</span>
+         <span class="s">&quot;to initial training date + 1 month.&quot;</span><span class="p">);</span>
+    <span class="n">start_month</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">training_range</span><span class="p">.</span><span class="n">first</span><span class="p">.</span><span class="n">second</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">start_month</span> <span class="o">==</span> <span class="mi">13</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">start_year</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">training_range</span><span class="p">.</span><span class="n">first</span><span class="p">.</span><span class="n">first</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="n">start_month</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">start_year</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">training_range</span><span class="p">.</span><span class="n">first</span><span class="p">.</span><span class="n">first</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   *              total_timesteps</span>
+<span class="cm">   *   ____________________________________________</span>
+<span class="cm">   *  |                                            |</span>
+<span class="cm">   *  v                                            v</span>
+<span class="cm">   * start training                          end prediction</span>
+<span class="cm">   *  |--------------------------------------------|</span>
+<span class="cm">   *  :           |--------------------------------|</span>
+<span class="cm">   *  :         start prediction                   :</span>
+<span class="cm">   *  ^           ^                                ^</span>
+<span class="cm">   *  |___________|________________________________|</span>
+<span class="cm">   *      diff              pred_timesteps</span>
+<span class="cm">   */</span>
+  <span class="kt">int</span> <span class="n">total_timesteps</span> <span class="o">=</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">calculate_num_timesteps</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">training_range</span><span class="p">.</span><span class="n">first</span><span class="p">.</span><span class="n">first</span><span class="p">,</span>
+                                    <span class="k">this</span><span class="o">-&gt;</span><span class="n">training_range</span><span class="p">.</span><span class="n">first</span><span class="p">.</span><span class="n">second</span><span class="p">,</span>
+                                    <span class="n">end_year</span><span class="p">,</span>
+                                    <span class="n">end_month</span><span class="p">);</span>
+
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_timesteps</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">calculate_num_timesteps</span><span class="p">(</span>
+      <span class="n">start_year</span><span class="p">,</span> <span class="n">start_month</span><span class="p">,</span> <span class="n">end_year</span><span class="p">,</span> <span class="n">end_month</span><span class="p">);</span>
+
+  <span class="kt">int</span> <span class="n">pred_init_timestep</span> <span class="o">=</span> <span class="n">total_timesteps</span> <span class="o">-</span> <span class="n">pred_timesteps</span><span class="p">;</span>
+
+  <span class="kt">int</span> <span class="n">year</span> <span class="o">=</span> <span class="n">start_year</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">month</span> <span class="o">=</span> <span class="n">start_month</span><span class="p">;</span>
+
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_range</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_range</span> <span class="o">=</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_timesteps</span><span class="p">);</span>
+
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">t</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_timesteps</span><span class="p">;</span> <span class="n">t</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_range</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_string</span><span class="p">(</span><span class="n">year</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;-&quot;</span> <span class="o">+</span> <span class="n">to_string</span><span class="p">(</span><span class="n">month</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">month</span> <span class="o">==</span> <span class="mi">12</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">year</span><span class="o">++</span><span class="p">;</span>
+      <span class="n">month</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span>
+      <span class="n">month</span><span class="o">++</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="c1">// NOTE: To facilitate clamping derivatives, we start prediction one time</span>
+  <span class="c1">//       step before the requested prediction start time. When we are</span>
+  <span class="c1">//       returning results, we have to remove the predictions at the 0th</span>
+  <span class="c1">//       index of each predicted observed state sequence.</span>
+  <span class="c1">//       Adding that additional time step.</span>
+  <span class="c1">// t     = Requested prediction start time step</span>
+  <span class="c1">//       = pred_init_timestep</span>
+  <span class="c1">// t - 1 = Prediction start time step</span>
+  <span class="c1">//       = pred_init_timestep - 1</span>
+  <span class="n">pred_init_timestep</span><span class="o">--</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_timesteps</span><span class="o">++</span><span class="p">;</span>
+
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">generate_latent_state_sequences</span><span class="p">(</span><span class="n">pred_init_timestep</span><span class="p">);</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">generate_observed_state_sequences</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">add_constraint</span><span class="p">(</span><span class="kt">int</span> <span class="n">step</span><span class="p">,</span> <span class="n">string</span> <span class="n">concept_name</span><span class="p">,</span> <span class="n">string</span> <span class="n">indicator_name</span><span class="p">,</span>
+                                                <span class="kt">double</span> <span class="n">indicator_clamp_value</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// When constraining latent state derivatives, to reach the</span>
+    <span class="c1">// prescribed value for an observation at projection step t, we have</span>
+    <span class="c1">// to  clamp the derivative at projection step t-1 appropriately.</span>
+    <span class="c1">// Therefor, to constrain at projection step 0, we have to clamp the</span>
+    <span class="c1">// derivative at projection step -1.</span>
+    <span class="c1">// To facilitate this, we start projection one time step before the</span>
+    <span class="c1">// requested projection start time.</span>
+    <span class="c1">// To correct for that and make internal vector indexing easier,</span>
+    <span class="c1">// nicer and less error prone, we shift all the constraints by one</span>
+    <span class="c1">// step up.</span>
+    <span class="n">step</span><span class="o">++</span><span class="p">;</span>
+
+    <span class="c1">// Check whether this concept is in the CAG</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">delphi</span><span class="o">::</span><span class="n">utils</span><span class="o">::</span><span class="n">in</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">name_to_vertex</span><span class="p">,</span> <span class="n">concept_name</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">print</span><span class="p">(</span><span class="s">&quot;Concept </span><span class="se">\&quot;</span><span class="s">{0}</span><span class="se">\&quot;</span><span class="s"> not in CAG!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">concept_name</span><span class="p">);</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kt">int</span> <span class="n">concept_id</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">name_to_vertex</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">concept_name</span><span class="p">);</span>
+    <span class="n">Node</span><span class="o">&amp;</span> <span class="n">n</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">concept_id</span><span class="p">];</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">n</span><span class="p">.</span><span class="n">indicators</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// This concept does not have any indicators attached.</span>
+        <span class="n">print</span><span class="p">(</span><span class="s">&quot;Concept </span><span class="se">\&quot;</span><span class="s">{0}</span><span class="se">\&quot;</span><span class="s"> does not have any indicators attached!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">concept_name</span><span class="p">);</span>
+        <span class="n">print</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Cannot set constraint</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// If the indicator name is empty we clamp the first indicator attached to</span>
+    <span class="c1">// this concept</span>
+    <span class="kt">int</span> <span class="n">ind_id</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">indicator_name</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">delphi</span><span class="o">::</span><span class="n">utils</span><span class="o">::</span><span class="n">in</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">indicators_in_CAG</span><span class="p">,</span> <span class="n">indicator_name</span><span class="p">))</span> <span class="p">{</span>
+            <span class="n">print</span><span class="p">(</span><span class="s">&quot;Indicator </span><span class="se">\&quot;</span><span class="s">{0}</span><span class="se">\&quot;</span><span class="s"> is not in CAG!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">indicator_name</span><span class="p">);</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">delphi</span><span class="o">::</span><span class="n">utils</span><span class="o">::</span><span class="n">in</span><span class="p">(</span><span class="n">n</span><span class="p">.</span><span class="n">nameToIndexMap</span><span class="p">,</span> <span class="n">indicator_name</span><span class="p">))</span> <span class="p">{</span>
+            <span class="n">print</span><span class="p">(</span><span class="s">&quot;Indicator </span><span class="se">\&quot;</span><span class="s">{0}</span><span class="se">\&quot;</span><span class="s"> is not attached to {1} in CAG!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span>
+                    <span class="n">indicator_name</span><span class="p">,</span>
+                    <span class="n">concept_name</span><span class="p">);</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="n">ind_id</span> <span class="o">=</span> <span class="n">n</span><span class="p">.</span><span class="n">nameToIndexMap</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">indicator_name</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">Indicator</span><span class="o">&amp;</span> <span class="n">ind</span> <span class="o">=</span> <span class="n">n</span><span class="p">.</span><span class="n">indicators</span><span class="p">[</span><span class="n">ind_id</span><span class="p">];</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">delphi</span><span class="o">::</span><span class="n">utils</span><span class="o">::</span><span class="n">in</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">one_off_constraints</span><span class="p">,</span> <span class="n">step</span><span class="p">))</span> <span class="p">{</span>
+        <span class="k">this</span><span class="o">-&gt;</span><span class="n">one_off_constraints</span><span class="p">[</span><span class="n">step</span><span class="p">]</span> <span class="o">=</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">double</span><span class="o">&gt;&gt;</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="c1">// We have to clamp the latent state value corresponding to this</span>
+    <span class="c1">// indicator such that the probability where the emission Gaussian</span>
+    <span class="c1">// emitting the requested indicator value is the highest. For a</span>
+    <span class="c1">// Gaussian emission function, the highest probable value is its</span>
+    <span class="c1">// mean. So we have to set:</span>
+    <span class="c1">//      μ = ind_value</span>
+    <span class="c1">//      latent_clamp_value * scaling_factor = ind_value</span>
+    <span class="c1">//      latent_clamp_value = ind_value / scaling_factor</span>
+    <span class="c1">// NOTE: In our code we incorrectly call scaling_factor as</span>
+    <span class="c1">//       indicator mean. To avoid confusion here, I am using the</span>
+    <span class="c1">//       correct terminology.</span>
+    <span class="c1">//       (Gosh, when we have incorrect terminology and we know it</span>
+    <span class="c1">//       and we have not fixed it, I have to type a lot of</span>
+    <span class="c1">//       comments)</span>
+    <span class="kt">double</span> <span class="n">latent_clamp_value</span> <span class="o">=</span> <span class="n">indicator_clamp_value</span> <span class="o">/</span> <span class="n">ind</span><span class="p">.</span><span class="n">get_mean</span><span class="p">();</span>
+
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">one_off_constraints</span><span class="p">[</span><span class="n">step</span><span class="p">].</span><span class="n">push_back</span><span class="p">(</span>
+                                    <span class="n">make_pair</span><span class="p">(</span><span class="n">concept_id</span><span class="p">,</span> <span class="n">latent_clamp_value</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="cm">/*</span>
+<span class="cm"> ============================================================================</span>
+<span class="cm"> Public: Prediction</span>
+<span class="cm"> ============================================================================</span>
+<span class="cm">*/</span>
+
+<span class="n">Prediction</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">generate_prediction</span><span class="p">(</span><span class="kt">int</span> <span class="n">start_year</span><span class="p">,</span>
+                                              <span class="kt">int</span> <span class="n">start_month</span><span class="p">,</span>
+                                              <span class="kt">int</span> <span class="n">end_year</span><span class="p">,</span>
+                                              <span class="kt">int</span> <span class="n">end_month</span><span class="p">,</span>
+                                              <span class="n">ConstraintSchedule</span> <span class="n">constraints</span><span class="p">,</span>
+                                              <span class="kt">bool</span> <span class="n">one_off</span><span class="p">,</span>
+                                              <span class="kt">bool</span> <span class="n">clamp_deri</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">is_one_off_constraints</span> <span class="o">=</span> <span class="n">one_off</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">clamp_at_derivative</span> <span class="o">=</span> <span class="n">clamp_deri</span><span class="p">;</span>
+
+  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="p">[</span><span class="n">step</span><span class="p">,</span> <span class="n">const_vec</span><span class="p">]</span> <span class="o">:</span> <span class="n">constraints</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">constraint</span> <span class="p">:</span> <span class="n">const_vec</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">string</span> <span class="n">concept_name</span> <span class="o">=</span> <span class="n">get</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">(</span><span class="n">constraint</span><span class="p">);</span>
+          <span class="n">string</span> <span class="n">indicator_name</span> <span class="o">=</span> <span class="n">get</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">(</span><span class="n">constraint</span><span class="p">);</span>
+          <span class="kt">double</span> <span class="n">value</span> <span class="o">=</span> <span class="n">get</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">(</span><span class="n">constraint</span><span class="p">);</span>
+
+          <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">concept_name</span><span class="p">,</span> <span class="n">indicator_name</span><span class="p">,</span> <span class="n">value</span><span class="p">);</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">run_model</span><span class="p">(</span><span class="n">start_year</span><span class="p">,</span> <span class="n">start_month</span><span class="p">,</span> <span class="n">end_year</span><span class="p">,</span> <span class="n">end_month</span><span class="p">);</span>
+
+  <span class="k">return</span> <span class="nf">make_tuple</span><span class="p">(</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">training_range</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_range</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">format_prediction_result</span><span class="p">());</span>
+<span class="p">}</span>
+
+<span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">prediction_to_array</span><span class="p">(</span><span class="n">string</span> <span class="n">indicator</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kt">int</span> <span class="n">vert_id</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">ind_id</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+
+  <span class="k">auto</span> <span class="n">result</span> <span class="o">=</span>
+      <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">res</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_timesteps</span><span class="p">));</span>
+
+  <span class="c1">// Find the vertex id the indicator is attached to and</span>
+  <span class="c1">// the indicator id of it.</span>
+  <span class="c1">// TODO: We can make this more efficient by making indicators_in_CAG</span>
+  <span class="c1">// a map from indicator names to vertices they are attached to.</span>
+  <span class="c1">// This is just a quick and dirty implementation</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="p">[</span><span class="n">v_name</span><span class="p">,</span> <span class="n">v_id</span><span class="p">]</span> <span class="o">:</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">name_to_vertex</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="p">[</span><span class="n">i_name</span><span class="p">,</span> <span class="n">i_id</span><span class="p">]</span> <span class="o">:</span> <span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">v_id</span><span class="p">].</span><span class="n">nameToIndexMap</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">indicator</span><span class="p">.</span><span class="n">compare</span><span class="p">(</span><span class="n">i_name</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">vert_id</span> <span class="o">=</span> <span class="n">v_id</span><span class="p">;</span>
+        <span class="n">ind_id</span> <span class="o">=</span> <span class="n">i_id</span><span class="p">;</span>
+        <span class="k">goto</span> <span class="n">indicator_found</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="c1">// Program will reach here only if the indicator is not found</span>
+  <span class="k">throw</span> <span class="n">IndicatorNotFoundException</span><span class="p">(</span><span class="n">format</span><span class="p">(</span>
+      <span class="s">&quot;AnalysisGraph::prediction_to_array - indicator </span><span class="se">\&quot;</span><span class="s">{}</span><span class="se">\&quot;</span><span class="s"> not found!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span>
+      <span class="n">indicator</span><span class="p">));</span>
+
+<span class="nl">indicator_found</span><span class="p">:</span>
+
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">samp</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">samp</span> <span class="o">&lt;</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">res</span><span class="p">;</span> <span class="n">samp</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">ts</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">ts</span> <span class="o">&lt;</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_timesteps</span><span class="p">;</span> <span class="n">ts</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">result</span><span class="p">[</span><span class="n">samp</span><span class="p">][</span><span class="n">ts</span><span class="p">]</span> <span class="o">=</span>
+          <span class="k">this</span><span class="o">-&gt;</span><span class="n">predicted_observed_state_sequences</span><span class="p">[</span><span class="n">samp</span><span class="p">][</span><span class="n">ts</span><span class="p">][</span><span class="n">vert_id</span><span class="p">][</span><span class="n">ind_id</span><span class="p">];</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Adarsh
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

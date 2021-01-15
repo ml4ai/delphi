@@ -1,0 +1,13 @@
+.. _exhale_function_utils_8cpp_1abfdecb988b94bbc23cbeaba6fe83bca3:
+
+Function delphi::utils::sqr
+===========================
+
+- Defined in :ref:`file_lib_utils.cpp`
+
+
+Function Documentation
+----------------------
+
+
+.. doxygenfunction:: delphi::utils::sqr(double)

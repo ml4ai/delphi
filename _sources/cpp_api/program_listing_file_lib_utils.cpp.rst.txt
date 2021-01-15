@@ -1,0 +1,72 @@
+
+.. _program_listing_file_lib_utils.cpp:
+
+Program Listing for File utils.cpp
+==================================
+
+|exhale_lsh| :ref:`Return to documentation for file <file_lib_utils.cpp>` (``lib/utils.cpp``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. code-block:: cpp
+
+   #include "utils.hpp"
+   #include <cmath>
+   #include <fstream>
+   #include <boost/range/numeric.hpp>
+   #include <boost/accumulators/accumulators.hpp>
+   #include <boost/accumulators/statistics/median.hpp>
+   
+   using namespace std;
+   
+   namespace delphi::utils {
+   
+   double sqr(double x) { return x * x; }
+   
+   double sum(const std::vector<double> &v) { return boost::accumulate(v, 0.0); }
+   
+   double mean(const std::vector<double> &v) {
+       if (v.empty()) {
+           return std::numeric_limits<double>::quiet_NaN();
+       }
+   
+       return sum(v) / v.size();
+   }
+   
+   double standard_deviation(const double mean, const std::vector<double>& v)
+   {
+       if (v.size() <= 1u)
+           return std::numeric_limits<double>::quiet_NaN();
+   
+       auto const add_square = [mean](double sum, int i) {
+           auto d = i - mean;
+           return sum + d*d;
+       };
+       double total = std::accumulate(v.begin(), v.end(), 0.0, add_square);
+       return sqrt(total / (v.size() - 1));
+   }
+   
+   double median(const std::vector<double> &xs) {
+     using namespace boost::accumulators;
+     accumulator_set<double, features<tag::median>> acc;
+     for (auto x : xs) {
+       acc(x);
+     }
+     return boost::accumulators::median(acc);
+   }
+   
+   double log_normpdf(double x, double mean, double sd) {
+     double var = pow(sd, 2);
+     double log_denom = -0.5 * log(2 * M_PI) - log(sd);
+     double log_nume = pow(x - mean, 2) / (2 * var);
+   
+     return log_denom - log_nume;
+   }
+   
+   nlohmann::json load_json(string filename) {
+     ifstream i(filename);
+     nlohmann::json j = nlohmann::json::parse(i);
+     return j;
+   }
+   
+   } // namespace delphi::utils

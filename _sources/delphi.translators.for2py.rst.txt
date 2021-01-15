@@ -1,0 +1,174 @@
+delphi.translators.for2py package
+=================================
+
+Submodules
+----------
+
+delphi.translators.for2py.arrays module
+---------------------------------------
+
+.. automodule:: delphi.translators.for2py.arrays
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delphi.translators.for2py.f2grfn module
+---------------------------------------
+
+.. automodule:: delphi.translators.for2py.f2grfn
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delphi.translators.for2py.format module
+---------------------------------------
+
+.. automodule:: delphi.translators.for2py.format
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delphi.translators.for2py.genCode module
+----------------------------------------
+
+.. automodule:: delphi.translators.for2py.genCode
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delphi.translators.for2py.genModFileLog module
+----------------------------------------------
+
+.. automodule:: delphi.translators.for2py.genModFileLog
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delphi.translators.for2py.genPGM module
+---------------------------------------
+
+.. automodule:: delphi.translators.for2py.genPGM
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delphi.translators.for2py.get\_comments module
+----------------------------------------------
+
+.. automodule:: delphi.translators.for2py.get_comments
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delphi.translators.for2py.loop\_handle module
+---------------------------------------------
+
+.. automodule:: delphi.translators.for2py.loop_handle
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delphi.translators.for2py.math\_ext module
+------------------------------------------
+
+.. automodule:: delphi.translators.for2py.math_ext
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delphi.translators.for2py.measure\-coverage module
+--------------------------------------------------
+
+.. automodule:: delphi.translators.for2py.measure-coverage
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delphi.translators.for2py.mod\_index\_generator module
+------------------------------------------------------
+
+.. automodule:: delphi.translators.for2py.mod_index_generator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delphi.translators.for2py.preprocessor module
+---------------------------------------------
+
+.. automodule:: delphi.translators.for2py.preprocessor
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delphi.translators.for2py.pyTranslate module
+--------------------------------------------
+
+.. automodule:: delphi.translators.for2py.pyTranslate
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delphi.translators.for2py.rectify module
+----------------------------------------
+
+.. automodule:: delphi.translators.for2py.rectify
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delphi.translators.for2py.runner module
+---------------------------------------
+
+.. automodule:: delphi.translators.for2py.runner
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delphi.translators.for2py.static\_save module
+---------------------------------------------
+
+.. automodule:: delphi.translators.for2py.static_save
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delphi.translators.for2py.strings module
+----------------------------------------
+
+.. automodule:: delphi.translators.for2py.strings
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delphi.translators.for2py.syntax module
+---------------------------------------
+
+.. automodule:: delphi.translators.for2py.syntax
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delphi.translators.for2py.translate module
+------------------------------------------
+
+.. automodule:: delphi.translators.for2py.translate
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delphi.translators.for2py.types\_ext module
+-------------------------------------------
+
+.. automodule:: delphi.translators.for2py.types_ext
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: delphi.translators.for2py
+   :members:
+   :undoc-members:
+   :show-inheritance:

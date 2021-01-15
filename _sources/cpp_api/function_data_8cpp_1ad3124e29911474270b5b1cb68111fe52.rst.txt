@@ -1,0 +1,13 @@
+.. _exhale_function_data_8cpp_1ad3124e29911474270b5b1cb68111fe52:
+
+Function get_observations_for(string, string, string, string, int, int, string, bool)
+=====================================================================================
+
+- Defined in :ref:`file_lib_data.cpp`
+
+
+Function Documentation
+----------------------
+
+
+.. doxygenfunction:: get_observations_for(string, string, string, string, int, int, string, bool)

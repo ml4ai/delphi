@@ -1,0 +1,6 @@
+delphi.GrFN.networks.GroundedFunctionNetwork.from\_python\_src
+==============================================================
+
+.. currentmodule:: delphi.GrFN.networks
+
+.. automethod:: GroundedFunctionNetwork.from_python_src

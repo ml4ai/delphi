@@ -1,0 +1,444 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>delphi.apps.rest_api.api &mdash; delphi  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+        <script src="../../../../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../../../../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> delphi
+          
+
+          
+            
+            <img src="../../../../_static/delphi_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html#change-log">Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cpp_api/library_root.html">C++ API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">delphi</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../rest_api.html">delphi.apps.rest_api</a> &raquo;</li>
+        
+      <li>delphi.apps.rest_api.api</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for delphi.apps.rest_api.api</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">exp</span><span class="p">,</span> <span class="n">sqrt</span>
+<span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">uuid4</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">datetime</span>
+<span class="kn">import</span> <span class="nn">dateutil</span>
+<span class="kn">from</span> <span class="nn">dateutil.relativedelta</span> <span class="kn">import</span> <span class="n">relativedelta</span>
+<span class="kn">from</span> <span class="nn">dateutil.parser</span> <span class="kn">import</span> <span class="n">parse</span>
+<span class="kn">from</span> <span class="nn">statistics</span> <span class="kn">import</span> <span class="n">median</span><span class="p">,</span> <span class="n">mean</span>
+<span class="kn">from</span> <span class="nn">delphi.cpp.DelphiPython</span> <span class="kn">import</span> <span class="n">AnalysisGraph</span>
+<span class="kn">from</span> <span class="nn">delphi.utils</span> <span class="kn">import</span> <span class="n">lmap</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">jsonify</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">Blueprint</span><span class="p">,</span> <span class="n">current_app</span>
+<span class="kn">from</span> <span class="nn">delphi.db</span> <span class="kn">import</span> <span class="n">engine</span>
+<span class="kn">from</span> <span class="nn">delphi.apps.rest_api</span> <span class="kn">import</span> <span class="n">db</span><span class="p">,</span> <span class="n">executor</span>
+<span class="kn">from</span> <span class="nn">delphi.apps.rest_api.models</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">current_app</span>
+
+<span class="n">bp</span> <span class="o">=</span> <span class="n">Blueprint</span><span class="p">(</span><span class="s2">&quot;rest_api&quot;</span><span class="p">,</span> <span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># ============</span>
+<span class="c1"># CauseMos API</span>
+<span class="c1"># ============</span>
+
+
+<div class="viewcode-block" id="createNewModel"><a class="viewcode-back" href="../../../../delphi.apps.rest_api.html#delphi.apps.rest_api.api.createNewModel">[docs]</a><span class="nd">@bp</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/delphi/create-model&quot;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">createNewModel</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot; Create a new Delphi model. &quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;CI&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
+        <span class="c1"># When running in a continuous integration run, we set the sampling</span>
+        <span class="c1"># resolution to be small to prevent timeouts.</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;DELPHI_N_SAMPLES&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># We also enable setting the sampling resolution through the</span>
+        <span class="c1"># environment variable &quot;DELPHI_N_SAMPLES&quot;, for development and testing</span>
+        <span class="c1"># purposes.</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;DELPHI_N_SAMPLES&quot;</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># If neither &quot;CI&quot; or &quot;DELPHI_N_SAMPLES&quot; is set, we default to a</span>
+        <span class="c1"># sampling resolution of 1000.</span>
+
+        <span class="c1"># TODO - we might want to set the default sampling resolution with some</span>
+        <span class="c1"># kind of heuristic, based on the number of nodes and edges. - Adarsh</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="mi">1000</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">AnalysisGraph</span><span class="o">.</span><span class="n">from_causemos_json_string</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">DelphiModel</span><span class="p">(</span>
+        <span class="nb">id</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">model</span><span class="o">=</span><span class="n">G</span><span class="o">.</span><span class="n">serialize_to_json_string</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+    <span class="n">response</span> <span class="o">=</span>  <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">generate_create_model_response</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="runProjectionExperiment"><a class="viewcode-back" href="../../../../delphi.apps.rest_api.html#delphi.apps.rest_api.api.runProjectionExperiment">[docs]</a><span class="k">def</span> <span class="nf">runProjectionExperiment</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">modelID</span><span class="p">,</span> <span class="n">experiment_id</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">trained</span><span class="p">):</span>
+    <span class="n">request_body</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">()</span>
+
+    <span class="n">startTime</span> <span class="o">=</span> <span class="n">request_body</span><span class="p">[</span><span class="s2">&quot;experimentParam&quot;</span><span class="p">][</span><span class="s2">&quot;startTime&quot;</span><span class="p">]</span>
+    <span class="n">endTime</span> <span class="o">=</span> <span class="n">request_body</span><span class="p">[</span><span class="s2">&quot;experimentParam&quot;</span><span class="p">][</span><span class="s2">&quot;endTime&quot;</span><span class="p">]</span>
+    <span class="n">numTimesteps</span> <span class="o">=</span> <span class="n">request_body</span><span class="p">[</span><span class="s2">&quot;experimentParam&quot;</span><span class="p">][</span><span class="s2">&quot;numTimesteps&quot;</span><span class="p">]</span>
+
+    <span class="n">causemos_experiment_result</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">run_causemos_projection_experiment_from_json_string</span><span class="p">(</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">data</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="ow">not</span> <span class="n">trained</span><span class="p">):</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">DelphiModel</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="n">modelID</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">G</span><span class="o">.</span><span class="n">serialize_to_json_string</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">CauseMosAsyncExperimentResult</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span>
+        <span class="nb">id</span><span class="o">=</span><span class="n">experiment_id</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+    <span class="c1"># A rudimentary test to see if the projection failed. We check whether</span>
+    <span class="c1"># the number time steps is equal to the number of elements in the first</span>
+    <span class="c1"># concept&#39;s time series.</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">causemos_experiment_result</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">numTimesteps</span><span class="p">:</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;failed&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;completed&quot;</span>
+
+        <span class="n">timesteps_nparr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">startTime</span><span class="p">,</span> <span class="n">endTime</span><span class="p">,</span> <span class="n">numTimesteps</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># The calculation of the 95% confidence interval about the median is</span>
+        <span class="c1"># taken from:</span>
+        <span class="c1"># https://www.ucl.ac.uk/child-health/short-courses-events/ \</span>
+        <span class="c1">#     about-statistical-courses/research-methods-and-statistics/chapter-8-content-8</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">get_res</span><span class="p">()</span>
+        <span class="n">lower_rank</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">n</span> <span class="o">-</span> <span class="mf">1.96</span> <span class="o">*</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">n</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">upper_rank</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="mi">2</span> <span class="o">+</span> <span class="n">n</span> <span class="o">+</span> <span class="mf">1.96</span> <span class="o">*</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">n</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">lower_rank</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">lower_rank</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">lower_rank</span>
+        <span class="n">upper_rank</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">upper_rank</span> <span class="o">&gt;=</span> <span class="n">n</span> <span class="k">else</span> <span class="n">upper_rank</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+        <span class="k">for</span> <span class="p">(</span>
+            <span class="n">conceptname</span><span class="p">,</span>
+            <span class="n">timestamp_sample_matrix</span><span class="p">,</span>
+        <span class="p">)</span> <span class="ow">in</span> <span class="n">causemos_experiment_result</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">data_dict</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">data_dict</span><span class="p">[</span><span class="s2">&quot;concept&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">conceptname</span>
+            <span class="n">data_dict</span><span class="p">[</span><span class="s2">&quot;values&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">data_dict</span><span class="p">[</span><span class="s2">&quot;confidenceInterval&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;upper&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;lower&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">time_step</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">timestamp_sample_matrix</span><span class="p">):</span>
+                <span class="n">time_step</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+                <span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_step</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+                <span class="n">median_value</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">time_step</span><span class="p">[</span><span class="n">l</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_step</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span>
+                    <span class="k">else</span> <span class="p">(</span><span class="n">time_step</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="o">+</span> <span class="n">time_step</span><span class="p">[</span><span class="n">l</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+                <span class="p">)</span>
+                <span class="n">lower_limit</span> <span class="o">=</span> <span class="n">time_step</span><span class="p">[</span><span class="n">lower_rank</span><span class="p">]</span>
+                <span class="n">upper_limit</span> <span class="o">=</span> <span class="n">time_step</span><span class="p">[</span><span class="n">upper_rank</span><span class="p">]</span>
+
+                <span class="n">value_dict</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">timesteps_nparr</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                    <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">median_value</span><span class="p">,</span>
+                <span class="p">}</span>
+
+                <span class="n">data_dict</span><span class="p">[</span><span class="s2">&quot;values&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value_dict</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+                <span class="n">value_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">lower_limit</span><span class="p">})</span>
+                <span class="n">data_dict</span><span class="p">[</span><span class="s2">&quot;confidenceInterval&quot;</span><span class="p">][</span><span class="s2">&quot;lower&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">value_dict</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="p">)</span>
+                <span class="n">value_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">upper_limit</span><span class="p">})</span>
+                <span class="n">data_dict</span><span class="p">[</span><span class="s2">&quot;confidenceInterval&quot;</span><span class="p">][</span><span class="s2">&quot;upper&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">value_dict</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="p">)</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_dict</span><span class="p">)</span>
+
+    <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="runExperiment"><a class="viewcode-back" href="../../../../delphi.apps.rest_api.html#delphi.apps.rest_api.api.runExperiment">[docs]</a><span class="k">def</span> <span class="nf">runExperiment</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">modelID</span><span class="p">,</span> <span class="n">experiment_id</span><span class="p">):</span>
+    <span class="n">request_body</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">()</span>
+    <span class="n">experiment_type</span> <span class="o">=</span> <span class="n">request_body</span><span class="p">[</span><span class="s2">&quot;experimentType&quot;</span><span class="p">]</span>
+
+    <span class="n">query_result</span> <span class="o">=</span> <span class="n">DelphiModel</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">modelID</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">query_result</span><span class="p">:</span>
+        <span class="c1"># Model ID not in database. Should be an incorrect model ID</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">CauseMosAsyncExperimentResult</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="n">experiment_id</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;failed&quot;</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">return</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="n">query_result</span><span class="o">.</span><span class="n">model</span>
+    <span class="n">trained</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">model</span><span class="p">)[</span><span class="s2">&quot;trained&quot;</span><span class="p">]</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">AnalysisGraph</span><span class="o">.</span><span class="n">deserialize_from_json_string</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">experiment_type</span> <span class="o">==</span> <span class="s2">&quot;PROJECTION&quot;</span><span class="p">:</span>
+        <span class="n">runProjectionExperiment</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">modelID</span><span class="p">,</span> <span class="n">experiment_id</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">trained</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">experiment_type</span> <span class="o">==</span> <span class="s2">&quot;GOAL_OPTIMIZATION&quot;</span><span class="p">:</span>
+        <span class="c1"># Not yet implemented</span>
+        <span class="k">pass</span>
+    <span class="k">elif</span> <span class="n">experiment_type</span> <span class="o">==</span> <span class="s2">&quot;SENSITIVITY_ANALYSIS&quot;</span><span class="p">:</span>
+        <span class="c1"># Not yet implemented</span>
+        <span class="k">pass</span>
+    <span class="k">elif</span> <span class="n">experiment_type</span> <span class="o">==</span> <span class="s2">&quot;MODEL_VALIDATION&quot;</span><span class="p">:</span>
+        <span class="c1"># Not yet implemented</span>
+        <span class="k">pass</span>
+    <span class="k">elif</span> <span class="n">experiment_type</span> <span class="o">==</span> <span class="s2">&quot;BACKCASTING&quot;</span><span class="p">:</span>
+        <span class="c1"># Not yet implemented</span>
+        <span class="k">pass</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Unknown experiment type</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="createCausemosExperiment"><a class="viewcode-back" href="../../../../delphi.apps.rest_api.html#delphi.apps.rest_api.api.createCausemosExperiment">[docs]</a><span class="nd">@bp</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/delphi/models/&lt;string:modelID&gt;/experiments&quot;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">createCausemosExperiment</span><span class="p">(</span><span class="n">modelID</span><span class="p">):</span>
+    <span class="n">request_body</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">()</span>
+    <span class="n">experiment_type</span> <span class="o">=</span> <span class="n">request_body</span><span class="p">[</span><span class="s2">&quot;experimentType&quot;</span><span class="p">]</span>
+    <span class="n">experiment_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">())</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">CauseMosAsyncExperimentResult</span><span class="p">(</span>
+        <span class="nb">id</span><span class="o">=</span><span class="n">experiment_id</span><span class="p">,</span>
+        <span class="n">baseType</span><span class="o">=</span><span class="s2">&quot;CauseMosAsyncExperimentResult&quot;</span><span class="p">,</span>
+        <span class="n">experimentType</span><span class="o">=</span><span class="n">experiment_type</span><span class="p">,</span>
+        <span class="n">status</span><span class="o">=</span><span class="s2">&quot;in progress&quot;</span><span class="p">,</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="p">)</span>
+
+    <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+    <span class="n">executor</span><span class="o">.</span><span class="n">submit_stored</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">,</span> <span class="n">runExperiment</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">modelID</span><span class="p">,</span> <span class="n">experiment_id</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;experimentId&quot;</span><span class="p">:</span> <span class="n">experiment_id</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="getExperimentResults"><a class="viewcode-back" href="../../../../delphi.apps.rest_api.html#delphi.apps.rest_api.api.getExperimentResults">[docs]</a><span class="nd">@bp</span><span class="o">.</span><span class="n">route</span><span class="p">(</span>
+    <span class="s2">&quot;/delphi/models/&lt;string:modelID&gt;/experiments/&lt;string:experimentID&gt;&quot;</span><span class="p">,</span>
+    <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">getExperimentResults</span><span class="p">(</span><span class="n">modelID</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">experimentID</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Fetch experiment results&quot;&quot;&quot;</span>
+    <span class="c1"># NOTE: I saw some weird behavior when we request results for an invalid</span>
+    <span class="c1"># experiment ID just after running an experiment. The trained model seemed</span>
+    <span class="c1"># to be not saved to the database. The model got re-trained from scratch</span>
+    <span class="c1"># on a subsequent experiment after the initial experiment and the invalid</span>
+    <span class="c1"># experiment result request. When I added a sleep between the initial</span>
+    <span class="c1"># create experiment and the invalid result request this re-training did not</span>
+    <span class="c1"># occur.</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">CauseMosAsyncExperimentResult</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span>
+        <span class="nb">id</span><span class="o">=</span><span class="n">experimentID</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
+        <span class="n">experimentType</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">experimentType</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">status</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">results</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># experimentID not in database. Should be an incorrect experimentID</span>
+        <span class="n">experimentType</span> <span class="o">=</span> <span class="s2">&quot;UNKNOWN&quot;</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;invalid experiment id&quot;</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;modelId&quot;</span><span class="p">:</span> <span class="n">modelID</span><span class="p">,</span>
+        <span class="s2">&quot;experimentId&quot;</span><span class="p">:</span> <span class="n">experimentID</span><span class="p">,</span>
+        <span class="s2">&quot;experimentType&quot;</span><span class="p">:</span> <span class="n">experimentType</span><span class="p">,</span>
+        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="n">status</span><span class="p">,</span>
+        <span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="n">results</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Adarsh
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

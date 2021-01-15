@@ -1,0 +1,13 @@
+.. _exhale_enum_Edge_8hpp_1a84a045fa4024e050ca8be6d33311a054:
+
+Enum Polarity
+=============
+
+- Defined in :ref:`file_lib_Edge.hpp`
+
+
+Enum Documentation
+------------------
+
+
+.. doxygenenum:: Polarity

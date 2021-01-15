@@ -1,0 +1,52 @@
+
+.. _file_lib_rng.hpp:
+
+File rng.hpp
+============
+
+|exhale_lsh| :ref:`Parent directory <dir_lib>` (``lib``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. contents:: Contents
+   :local:
+   :backlinks: none
+
+Definition (``lib/rng.hpp``)
+----------------------------
+
+
+.. toctree::
+   :maxdepth: 1
+
+   program_listing_file_lib_rng.hpp.rst
+
+
+
+
+
+Includes
+--------
+
+
+- ``random``
+
+
+
+Included By
+-----------
+
+
+- :ref:`file_lib_KDE.hpp`
+
+- :ref:`file_lib_rng.cpp`
+
+
+
+
+Classes
+-------
+
+
+- :ref:`exhale_class_classRNG`
+

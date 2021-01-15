@@ -1,0 +1,13 @@
+.. _exhale_function_utils_8hpp_1a9c267fceec97b3e1de1541325267a590:
+
+Template Function delphi::utils::lmap
+=====================================
+
+- Defined in :ref:`file_lib_utils.hpp`
+
+
+Function Documentation
+----------------------
+
+
+.. doxygenfunction:: delphi::utils::lmap(F, vector<V>)

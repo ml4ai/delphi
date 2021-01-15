@@ -1,0 +1,22 @@
+
+.. _namespace_delphi:
+
+Namespace delphi
+================
+
+
+.. contents:: Contents
+   :local:
+   :backlinks: none
+
+
+
+
+
+Namespaces
+----------
+
+
+- :ref:`namespace_delphi__gv`
+
+- :ref:`namespace_delphi__utils`

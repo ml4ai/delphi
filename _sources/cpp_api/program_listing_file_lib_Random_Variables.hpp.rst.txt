@@ -1,0 +1,34 @@
+
+.. _program_listing_file_lib_Random_Variables.hpp:
+
+Program Listing for File Random_Variables.hpp
+=============================================
+
+|exhale_lsh| :ref:`Return to documentation for file <file_lib_Random_Variables.hpp>` (``lib/Random_Variables.hpp``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. code-block:: cpp
+
+   #pragma once
+   
+   #include <algorithm>
+   #include <string>
+   #include <vector>
+   
+   class RV {
+   public:
+     std::string name;
+     double value;
+     std::vector<double> dataset;
+     RV(std::string name) : name(name) {}
+     double sample();
+   };
+   
+   class LatentVar : public RV {
+   public:
+     double partial_t;
+   
+     LatentVar() : RV("") {}
+     LatentVar(std::string name) : RV(name) {}
+   };

@@ -1,0 +1,16 @@
+.. _exhale_class_classStatement:
+
+Class Statement
+===============
+
+- Defined in :ref:`file_lib_Edge.hpp`
+
+
+Class Documentation
+-------------------
+
+
+.. doxygenclass:: Statement
+   :members:
+   :protected-members:
+   :undoc-members:

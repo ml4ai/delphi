@@ -1,0 +1,69 @@
+
+.. _program_listing_file_lib_KDE.hpp:
+
+Program Listing for File KDE.hpp
+================================
+
+|exhale_lsh| :ref:`Return to documentation for file <file_lib_KDE.hpp>` (``lib/KDE.hpp``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. code-block:: cpp
+
+   #pragma once
+   
+   #include "rng.hpp"
+   #include "utils.hpp"
+   #include <boost/range/numeric.hpp>
+   #include <random>
+   
+   template <class T>
+   T select_random_element(std::vector<T> v,
+                           std::mt19937& gen,
+                           std::uniform_real_distribution<double>& uni_dist) {
+     using namespace std;
+     T element;
+     if (v.size() == 0) {
+       throw runtime_error(
+           "Vector is empty, so we cannot select a random element from it. "
+           "(function: select_random_element)\n");
+     }
+     else if (v.size() == 1) {
+       element = v[0];
+     }
+     else {
+       // Sample a double between [0, 1]
+       double rand_val = uni_dist(gen);
+   
+       // Convert random double between [0, 1] into
+       // an integer between [0, v.size() - 1
+       int idx = trunc(rand_val * v.size());
+       idx = (idx == v.size() ? idx-- : idx);
+   
+       element = v[idx];
+     }
+     return element;
+   }
+   
+   double sample_from_normal(double mu, double sd);
+   
+   class KDE {
+     public:
+     KDE(){};
+     std::vector<double> dataset;
+     double bw; // bandwidth
+     KDE(std::vector<double>);
+   
+     // TODO: Made this public just to initialize β.
+     // Not sure this is the correct way to do it.
+     double mu;
+   
+     std::vector<double> resample(int n_samples,
+                                  std::mt19937& rng,
+                                  std::uniform_real_distribution<double>& uni_dist,
+                                  std::normal_distribution<double>& norm_dist);
+     std::vector<double> resample(int n_samples);
+     double pdf(double x);
+     std::vector<double> pdf(std::vector<double> v);
+     double logpdf(double x);
+   };

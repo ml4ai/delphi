@@ -1,0 +1,13 @@
+.. _exhale_function_utils_8hpp_1af175d4b6e57d4c5da386df3368820002:
+
+Template Function delphi::utils::list
+=====================================
+
+- Defined in :ref:`file_lib_utils.hpp`
+
+
+Function Documentation
+----------------------
+
+
+.. doxygenfunction:: delphi::utils::list(Iterable)

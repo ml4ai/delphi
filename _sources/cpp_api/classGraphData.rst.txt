@@ -1,0 +1,16 @@
+.. _exhale_class_classGraphData:
+
+Class GraphData
+===============
+
+- Defined in :ref:`file_lib_DiGraph.hpp`
+
+
+Class Documentation
+-------------------
+
+
+.. doxygenclass:: GraphData
+   :members:
+   :protected-members:
+   :undoc-members:

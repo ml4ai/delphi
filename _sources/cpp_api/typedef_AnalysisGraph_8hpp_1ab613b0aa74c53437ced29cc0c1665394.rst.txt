@@ -1,0 +1,13 @@
+.. _exhale_typedef_AnalysisGraph_8hpp_1ab613b0aa74c53437ced29cc0c1665394:
+
+Typedef Adjectives
+==================
+
+- Defined in :ref:`file_lib_AnalysisGraph.hpp`
+
+
+Typedef Documentation
+---------------------
+
+
+.. doxygentypedef:: Adjectives

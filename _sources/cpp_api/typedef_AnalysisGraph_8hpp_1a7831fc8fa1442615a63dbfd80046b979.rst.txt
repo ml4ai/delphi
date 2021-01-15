@@ -1,0 +1,13 @@
+.. _exhale_typedef_AnalysisGraph_8hpp_1a7831fc8fa1442615a63dbfd80046b979:
+
+Typedef PredictedObservedStateSequence
+======================================
+
+- Defined in :ref:`file_lib_AnalysisGraph.hpp`
+
+
+Typedef Documentation
+---------------------
+
+
+.. doxygentypedef:: PredictedObservedStateSequence

@@ -1,0 +1,71 @@
+
+.. _file_lib_Edge.hpp:
+
+File Edge.hpp
+=============
+
+|exhale_lsh| :ref:`Parent directory <dir_lib>` (``lib``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. contents:: Contents
+   :local:
+   :backlinks: none
+
+Definition (``lib/Edge.hpp``)
+-----------------------------
+
+
+.. toctree::
+   :maxdepth: 1
+
+   program_listing_file_lib_Edge.hpp.rst
+
+
+
+
+
+Includes
+--------
+
+
+- ``KDE.hpp`` (:ref:`file_lib_KDE.hpp`)
+
+- ``string``
+
+- ``utils.hpp`` (:ref:`file_lib_utils.hpp`)
+
+- ``vector``
+
+
+
+Included By
+-----------
+
+
+- :ref:`file_lib_DiGraph.hpp`
+
+
+
+
+Classes
+-------
+
+
+- :ref:`exhale_class_classConcept`
+
+- :ref:`exhale_class_classEdge`
+
+- :ref:`exhale_class_classEvent`
+
+- :ref:`exhale_class_classQualitativeDelta`
+
+- :ref:`exhale_class_classStatement`
+
+
+Enums
+-----
+
+
+- :ref:`exhale_enum_Edge_8hpp_1a84a045fa4024e050ca8be6d33311a054`
+

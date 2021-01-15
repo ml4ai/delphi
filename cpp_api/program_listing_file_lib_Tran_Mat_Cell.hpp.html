@@ -1,0 +1,292 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Program Listing for File Tran_Mat_Cell.hpp &mdash; delphi  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> delphi
+          
+
+          
+            
+            <img src="../_static/delphi_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html#change-log">Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library_root.html">C++ API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">delphi</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Program Listing for File Tran_Mat_Cell.hpp</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/cpp_api/program_listing_file_lib_Tran_Mat_Cell.hpp.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="program-listing-for-file-tran-mat-cell-hpp">
+<span id="program-listing-file-lib-tran-mat-cell-hpp"></span><h1>Program Listing for File Tran_Mat_Cell.hpp<a class="headerlink" href="#program-listing-for-file-tran-mat-cell-hpp" title="Permalink to this headline">¶</a></h1>
+<p>↰ <a class="reference internal" href="file_lib_Tran_Mat_Cell.hpp.html#file-lib-tran-mat-cell-hpp"><span class="std std-ref">Return to documentation for file</span></a> (<code class="docutils literal notranslate"><span class="pre">lib/Tran_Mat_Cell.hpp</span></code>)</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma once</span>
+
+<span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;numeric&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;map&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;vector&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&quot;DiGraph.hpp&quot;</span><span class="cp"></span>
+
+<span class="k">class</span> <span class="nc">Tran_Mat_Cell</span> <span class="p">{</span>
+  <span class="k">private</span><span class="o">:</span>
+  <span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">multimap</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span><span class="p">,</span> <span class="kt">double</span><span class="o">*&gt;::</span><span class="n">iterator</span> <span class="n">MMAPIterator</span><span class="p">;</span>
+
+  <span class="c1">// All the directed paths in the CAG that starts at source vertex and ends</span>
+  <span class="c1">// at target vertex decides the value of the transition matrix cell</span>
+  <span class="c1">// A[ 2 * source ][ 2 * target + 1 ]</span>
+  <span class="kt">int</span> <span class="n">source</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">target</span><span class="p">;</span>
+
+  <span class="c1">// Records all the directed paths in the CAG that</span>
+  <span class="c1">// starts at source vertex and ends at target vertex.</span>
+  <span class="c1">// Each path informs how to calculate one product in the calculation of the</span>
+  <span class="c1">// value of this transition matrix cell, which is a sum of products.</span>
+  <span class="c1">// We multiply all the βs along a path to compute a product. Then we add all</span>
+  <span class="c1">// the products to compute the value of the cell.</span>
+  <span class="c1">// TODO: βs can be very small numbers. Multiplying a bunch of them could</span>
+  <span class="c1">// run into floating point underflow. Can we store log( β )s instead of</span>
+  <span class="c1">// βs and add them and then take the exp of the addition?</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">paths</span><span class="p">;</span>
+
+  <span class="c1">// Keeps the value of each product. There is an entry for each path here.</span>
+  <span class="c1">// So, there is a 1-1 mapping between the two std::vectors paths and products.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">products</span><span class="p">;</span>
+
+  <span class="c1">// Maps each β to all the products where that β is a factor. This mapping</span>
+  <span class="c1">// is needed to quickly update the products and the cell value upon</span>
+  <span class="c1">// perturbing one β.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">multimap</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span><span class="p">,</span> <span class="kt">double</span><span class="o">*&gt;</span> <span class="n">beta2product</span><span class="p">;</span>
+
+  <span class="k">public</span><span class="o">:</span>
+  <span class="n">Tran_Mat_Cell</span><span class="p">(</span><span class="kt">int</span> <span class="n">source</span><span class="p">,</span> <span class="kt">int</span> <span class="n">target</span><span class="p">);</span>
+
+  <span class="c1">// Add a path that starts with the start vertex and ends with the end vertex.</span>
+  <span class="kt">bool</span> <span class="nf">add_path</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">path</span><span class="p">);</span>
+
+  <span class="c1">// Allocates the product std::vector with the same length as the paths</span>
+  <span class="c1">// std::vector Populates the beta2product multimap linking each β (edge - A</span>
+  <span class="c1">// pair) to all the products that depend on it. This **MUST** be called after</span>
+  <span class="c1">// adding all the paths using add_path(). After populating the beta2product</span>
+  <span class="c1">// multimap, the length of the products std::vector **MUST NOT** be changed.</span>
+  <span class="c1">// If it is changes, we run into the danger of OS moving the products</span>
+  <span class="c1">// std::vector into a different location in memory and pointers kept in</span>
+  <span class="c1">// beta2product multimap becoming dangling pointer.</span>
+  <span class="kt">void</span> <span class="nf">allocate_datastructures</span><span class="p">();</span>
+
+  <span class="c1">// Computes the value of this cell from scratch.</span>
+  <span class="c1">// Should be called after adding all the paths using add_path()</span>
+  <span class="c1">// and calling allocate_datastructures()</span>
+  <span class="kt">double</span> <span class="nf">compute_cell</span><span class="p">(</span><span class="k">const</span> <span class="n">DiGraph</span><span class="o">&amp;</span> <span class="n">CAG</span><span class="p">);</span>
+
+  <span class="kt">void</span> <span class="nf">print_products</span><span class="p">();</span>
+
+  <span class="kt">void</span> <span class="nf">print_beta2product</span><span class="p">();</span>
+
+  <span class="c1">// Given an edge (source, target vertex ids - a β=∂target/∂source),</span>
+  <span class="c1">// print all the products that are dependent on it.</span>
+  <span class="kt">void</span> <span class="nf">print</span><span class="p">(</span><span class="kt">int</span> <span class="n">source</span><span class="p">,</span> <span class="kt">int</span> <span class="n">target</span><span class="p">);</span>
+
+  <span class="kt">void</span> <span class="nf">print_paths</span><span class="p">();</span>
+
+  <span class="kt">void</span> <span class="nf">get_paths_shorter_than_or_equal_to</span><span class="p">(</span><span class="kt">int</span> <span class="n">length</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">from_beginning</span><span class="p">);</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">unordered_set</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">get_vertices_within_hops</span><span class="p">(</span><span class="kt">int</span> <span class="n">hops</span><span class="p">,</span>
+                                                   <span class="kt">bool</span> <span class="n">from_beginning</span><span class="p">);</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">unordered_set</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span>
+  <span class="n">get_vertices_on_paths_shorter_than_or_equal_to</span><span class="p">(</span><span class="kt">int</span> <span class="n">hops</span><span class="p">);</span>
+
+  <span class="kt">bool</span> <span class="nf">has_multiple_paths_longer_than_or_equal_to</span><span class="p">(</span><span class="kt">int</span> <span class="n">length</span><span class="p">);</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Adarsh
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

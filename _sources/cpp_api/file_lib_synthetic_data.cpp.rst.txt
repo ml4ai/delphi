@@ -1,0 +1,39 @@
+
+.. _file_lib_synthetic_data.cpp:
+
+File synthetic_data.cpp
+=======================
+
+|exhale_lsh| :ref:`Parent directory <dir_lib>` (``lib``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. contents:: Contents
+   :local:
+   :backlinks: none
+
+Definition (``lib/synthetic_data.cpp``)
+---------------------------------------
+
+
+.. toctree::
+   :maxdepth: 1
+
+   program_listing_file_lib_synthetic_data.cpp.rst
+
+
+
+
+
+Includes
+--------
+
+
+- ``AnalysisGraph.hpp`` (:ref:`file_lib_AnalysisGraph.hpp`)
+
+- ``range/v3/all.hpp``
+
+
+
+
+

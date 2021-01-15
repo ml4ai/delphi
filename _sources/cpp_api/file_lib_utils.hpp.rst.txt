@@ -1,0 +1,93 @@
+
+.. _file_lib_utils.hpp:
+
+File utils.hpp
+==============
+
+|exhale_lsh| :ref:`Parent directory <dir_lib>` (``lib``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. contents:: Contents
+   :local:
+   :backlinks: none
+
+Definition (``lib/utils.hpp``)
+------------------------------
+
+
+.. toctree::
+   :maxdepth: 1
+
+   program_listing_file_lib_utils.hpp.rst
+
+
+
+
+
+Includes
+--------
+
+
+- ``fmt/format.h``
+
+- ``iostream``
+
+- ``nlohmann/json.hpp``
+
+- ``unordered_map``
+
+- ``unordered_set``
+
+- ``vector``
+
+
+
+Included By
+-----------
+
+
+- :ref:`file_lib_Node.hpp`
+
+- :ref:`file_lib_KDE.hpp`
+
+- :ref:`file_lib_Edge.hpp`
+
+- :ref:`file_lib_causemos_integration.cpp`
+
+- :ref:`file_lib_constructors.cpp`
+
+- :ref:`file_lib_data.cpp`
+
+- :ref:`file_lib_sandbox.cpp`
+
+- :ref:`file_lib_subgraphs.cpp`
+
+- :ref:`file_lib_utils.cpp`
+
+
+
+
+Namespaces
+----------
+
+
+- :ref:`namespace_delphi__utils`
+
+
+Functions
+---------
+
+
+- :ref:`exhale_function_utils_8hpp_1a0a0aa5172fe4f4e88b93897f583d7876`
+
+- :ref:`exhale_function_utils_8hpp_1ae3b02c41d056ce293fe76375cc507300`
+
+- :ref:`exhale_function_utils_8hpp_1af175d4b6e57d4c5da386df3368820002`
+
+- :ref:`exhale_function_utils_8hpp_1a9c267fceec97b3e1de1541325267a590`
+
+- :ref:`exhale_function_utils_8hpp_1a20dedc59789fac7a584b05141573e609`
+
+- :ref:`exhale_function_utils_8hpp_1a87276512fe3002f663e6b24b77b4a711`
+

@@ -1,0 +1,26 @@
+
+.. _program_listing_file_lib_data.hpp:
+
+Program Listing for File data.hpp
+=================================
+
+|exhale_lsh| :ref:`Return to documentation for file <file_lib_data.hpp>` (``lib/data.hpp``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. code-block:: cpp
+
+   #pragma once
+   
+   #include <string>
+   #include <vector>
+   
+   std::vector<double> get_observations_for(std::string indicator,
+                                            std::string country = "",
+                                            std::string state = "",
+                                            std::string county = "",
+                                            int year = 2012,
+                                            int month = 1,
+                                            std::string unit = "",
+                                            bool use_heuristic = false);
+   

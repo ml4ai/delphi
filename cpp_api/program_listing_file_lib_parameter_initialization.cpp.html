@@ -1,0 +1,499 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Program Listing for File parameter_initialization.cpp &mdash; delphi  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> delphi
+          
+
+          
+            
+            <img src="../_static/delphi_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html#change-log">Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library_root.html">C++ API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">delphi</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Program Listing for File parameter_initialization.cpp</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/cpp_api/program_listing_file_lib_parameter_initialization.cpp.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="program-listing-for-file-parameter-initialization-cpp">
+<span id="program-listing-file-lib-parameter-initialization-cpp"></span><h1>Program Listing for File parameter_initialization.cpp<a class="headerlink" href="#program-listing-for-file-parameter-initialization-cpp" title="Permalink to this headline">¶</a></h1>
+<p>↰ <a class="reference internal" href="file_lib_parameter_initialization.cpp.html#file-lib-parameter-initialization-cpp"><span class="std std-ref">Return to documentation for file</span></a> (<code class="docutils literal notranslate"><span class="pre">lib/parameter_initialization.cpp</span></code>)</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;AnalysisGraph.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;range/v3/all.hpp&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;sqlite3.h&gt;</span><span class="cp"></span>
+
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">delphi</span><span class="o">::</span><span class="n">utils</span><span class="p">;</span>
+
+<span class="cm">/*</span>
+<span class="cm">============================================================================</span>
+<span class="cm">Private: Initializing model parameters</span>
+<span class="cm">============================================================================</span>
+<span class="cm">*/</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">initialize_parameters</span><span class="p">(</span><span class="kt">int</span> <span class="n">res</span><span class="p">,</span>
+                                          <span class="n">InitialBeta</span> <span class="n">initial_beta</span><span class="p">,</span>
+                                          <span class="kt">bool</span> <span class="n">use_heuristic</span><span class="p">,</span>
+                                          <span class="kt">bool</span> <span class="n">use_continuous</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">initialize_random_number_generator</span><span class="p">();</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">uni_disc_dist</span> <span class="o">=</span> <span class="n">uniform_int_distribution</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">num_nodes</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">res</span> <span class="o">=</span> <span class="n">res</span><span class="p">;</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">continuous</span> <span class="o">=</span> <span class="n">use_continuous</span><span class="p">;</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">data_heuristic</span> <span class="o">=</span> <span class="n">use_heuristic</span><span class="p">;</span>
+
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">find_all_paths</span><span class="p">();</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">causemos_call</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// θ pdfs are generated during the create-model call and they are</span>
+        <span class="c1">// serialized into json. So we do not need to re-generate them now,</span>
+        <span class="c1">// which is a bit time consuming task.</span>
+        <span class="c1">// We had to generate θ pdfs while create-model to generate the</span>
+        <span class="c1">// appropriate model-creation response, which requires edge weights.</span>
+        <span class="k">this</span><span class="o">-&gt;</span><span class="n">construct_theta_pdfs</span><span class="p">();</span>
+    <span class="p">}</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">init_betas_to</span><span class="p">(</span><span class="n">initial_beta</span><span class="p">);</span>
+
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">set_indicator_means_and_standard_deviations</span><span class="p">();</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">set_transition_matrix_from_betas</span><span class="p">();</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">set_default_initial_state</span><span class="p">();</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">set_log_likelihood</span><span class="p">();</span>
+
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">transition_matrix_collection</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">initial_latent_state_collection</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">transition_matrix_collection</span> <span class="o">=</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="o">&gt;</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">res</span><span class="p">);</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">initial_latent_state_collection</span> <span class="o">=</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="o">&gt;</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">res</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">init_betas_to</span><span class="p">(</span><span class="n">InitialBeta</span> <span class="n">ib</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">switch</span> <span class="p">(</span><span class="n">ib</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// Initialize the initial β for this edge</span>
+  <span class="c1">// Note: I am repeating the loop within each case for efficiency.</span>
+  <span class="c1">// If we embed the switch within the for loop, there will be less code</span>
+  <span class="c1">// but we will evaluate the switch for each iteration through the loop</span>
+  <span class="k">case</span> <span class="n">InitialBeta</span><span class="o">::</span><span class="nl">ZERO</span><span class="p">:</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">EdgeDescriptor</span> <span class="nl">e</span> <span class="p">:</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">edges</span><span class="p">())</span> <span class="p">{</span>
+      <span class="c1">// β = tan(0.0) = 0</span>
+      <span class="n">graph</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">theta</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">break</span><span class="p">;</span>
+  <span class="k">case</span> <span class="n">InitialBeta</span><span class="o">::</span><span class="nl">ONE</span><span class="p">:</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">EdgeDescriptor</span> <span class="nl">e</span> <span class="p">:</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">edges</span><span class="p">())</span> <span class="p">{</span>
+      <span class="c1">// θ = atan(1) = Π/4</span>
+      <span class="c1">// β = tan(atan(1)) = 1</span>
+      <span class="n">graph</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">theta</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">atan</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">break</span><span class="p">;</span>
+  <span class="k">case</span> <span class="n">InitialBeta</span><span class="o">::</span><span class="nl">HALF</span><span class="p">:</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">EdgeDescriptor</span> <span class="nl">e</span> <span class="p">:</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">edges</span><span class="p">())</span> <span class="p">{</span>
+      <span class="c1">// β = tan(atan(0.5)) = 0.5</span>
+      <span class="n">graph</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">theta</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">atan</span><span class="p">(</span><span class="mf">0.5</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">break</span><span class="p">;</span>
+  <span class="k">case</span> <span class="n">InitialBeta</span><span class="o">::</span><span class="nl">MEAN</span><span class="p">:</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">EdgeDescriptor</span> <span class="nl">e</span> <span class="p">:</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">edges</span><span class="p">())</span> <span class="p">{</span>
+      <span class="n">graph</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">theta</span> <span class="o">=</span> <span class="n">graph</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">kde</span><span class="p">.</span><span class="n">mu</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">break</span><span class="p">;</span>
+  <span class="k">case</span> <span class="n">InitialBeta</span><span class="o">::</span><span class="nl">RANDOM</span><span class="p">:</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">EdgeDescriptor</span> <span class="nl">e</span> <span class="p">:</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">edges</span><span class="p">())</span> <span class="p">{</span>
+      <span class="c1">// this-&gt;uni_dist() gives a random number in range [0, 1]</span>
+      <span class="c1">// Multiplying by 2 scales the range to [0, 2]</span>
+      <span class="c1">// Subtracting 1 moves the range to [-1, 1]</span>
+      <span class="n">graph</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">theta</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">uni_dist</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">rand_num_generator</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">break</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">set_indicator_means_and_standard_deviations</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kt">int</span> <span class="n">num_verts</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">num_vertices</span><span class="p">();</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">mean_sequence</span><span class="p">;</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">std_sequence</span><span class="p">;</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">ts_sequence</span><span class="p">;</span>
+
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">v</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="n">num_verts</span><span class="p">;</span> <span class="n">v</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">Node</span> <span class="o">&amp;</span><span class="n">n</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">v</span><span class="p">];</span>
+
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">.</span><span class="n">indicators</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">Indicator</span> <span class="o">&amp;</span><span class="n">ind</span> <span class="o">=</span> <span class="n">n</span><span class="p">.</span><span class="n">indicators</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+
+          <span class="c1">// The (v, i) pair uniquely identifies an indicator. It is the i th</span>
+          <span class="c1">// indicator of v th concept.</span>
+          <span class="c1">// For each indicator, there could be multiple observations per</span>
+          <span class="c1">// time step. Aggregate those observations to create a single</span>
+          <span class="c1">// observation time series for the indicator (v, i).</span>
+          <span class="c1">// We also ignore the missing values.</span>
+          <span class="n">mean_sequence</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+          <span class="n">std_sequence</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+          <span class="n">ts_sequence</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+          <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">ts</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">ts</span> <span class="o">&lt;</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">n_timesteps</span><span class="p">;</span> <span class="n">ts</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+              <span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">obs_at_ts</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">observed_state_sequence</span><span class="p">[</span><span class="n">ts</span><span class="p">][</span><span class="n">v</span><span class="p">][</span><span class="n">i</span><span class="p">];</span>
+
+              <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">obs_at_ts</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+                  <span class="c1">// There is an observation for indicator (v, i) at ts.</span>
+                  <span class="n">ts_sequence</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">ts</span><span class="p">);</span>
+                  <span class="n">mean_sequence</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">delphi</span><span class="o">::</span><span class="n">utils</span><span class="o">::</span><span class="n">mean</span><span class="p">(</span><span class="n">obs_at_ts</span><span class="p">));</span>
+                  <span class="n">std_sequence</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">delphi</span><span class="o">::</span><span class="n">utils</span><span class="o">::</span><span class="n">standard_deviation</span><span class="p">(</span><span class="n">mean_sequence</span><span class="p">.</span><span class="n">back</span><span class="p">(),</span> <span class="n">obs_at_ts</span><span class="p">));</span>
+              <span class="p">}</span> <span class="c1">//else {</span>
+                <span class="c1">// This is a missing observation</span>
+                <span class="c1">//}</span>
+          <span class="p">}</span>
+
+          <span class="c1">// Set the indicator standard deviation</span>
+          <span class="c1">// NOTE: This is what we have been doing earlier for delphi local</span>
+          <span class="c1">// run:</span>
+          <span class="c1">//stdev = 0.1 * abs(indicator.get_mean());</span>
+          <span class="c1">//stdev = stdev == 0 ? 1 : stdev;</span>
+          <span class="c1">//indicator.set_stdev(stdev);</span>
+          <span class="c1">// Surprisingly, I did not see indicator standard deviation being set</span>
+          <span class="c1">// when delphi is called from CauseMos HMI and in the Indicator class</span>
+          <span class="c1">// the default standard deviation was set to be 0. This could be an</span>
+          <span class="c1">// omission. I updated Indicator class so that the default indicator</span>
+          <span class="c1">// standard deviation is 1.</span>
+          <span class="kt">double</span> <span class="n">max_std</span> <span class="o">=</span> <span class="n">ranges</span><span class="o">::</span><span class="n">max</span><span class="p">(</span><span class="n">std_sequence</span><span class="p">);</span>
+          <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">isnan</span><span class="p">(</span><span class="n">max_std</span><span class="p">))</span> <span class="p">{</span>
+              <span class="c1">// For indicator (v, i), at least one time step had</span>
+              <span class="c1">// more than one observation.</span>
+              <span class="c1">// We can use that to assign the indicator standard deviation.</span>
+              <span class="c1">// TODO: Is that a good idea?</span>
+              <span class="n">ind</span><span class="p">.</span><span class="n">set_stdev</span><span class="p">(</span><span class="n">max_std</span><span class="p">);</span>
+          <span class="p">}</span>   <span class="c1">// else {</span>
+              <span class="c1">// All the time steps had either 0 or 1 observation.</span>
+              <span class="c1">// In this case, indicator standard deviation defaults to 1</span>
+              <span class="c1">// TODO: Is this a good idea?</span>
+              <span class="c1">//}</span>
+
+          <span class="c1">// Set the indicator mean</span>
+          <span class="n">string</span> <span class="n">aggregation_method</span> <span class="o">=</span> <span class="n">ind</span><span class="p">.</span><span class="n">get_aggregation_method</span><span class="p">();</span>
+
+          <span class="c1">// TODO: Instead of comparing text, it would be better to define an</span>
+          <span class="c1">// enumerated type say AggMethod and use it. Such an enumerated type</span>
+          <span class="c1">// needs to be shared between AnalysisGraph and Indicator classes.</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">aggregation_method</span><span class="p">.</span><span class="n">compare</span><span class="p">(</span><span class="s">&quot;first&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+              <span class="k">if</span> <span class="p">(</span><span class="n">ts_sequence</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+                  <span class="c1">// The first observation is not missing</span>
+                  <span class="n">ind</span><span class="p">.</span><span class="n">set_mean</span><span class="p">(</span><span class="n">mean_sequence</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+              <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                  <span class="c1">// First observation is missing</span>
+                  <span class="c1">// TODO: Decide what to do</span>
+                  <span class="c1">// I feel getting a decaying weighted average of existing</span>
+                  <span class="c1">// observations with earlier the observation, higher the</span>
+                  <span class="c1">// weight is a good idea. TODO: If so how to calculate</span>
+                  <span class="c1">// weights? We need i &lt; j =&gt; w_i &gt; w_j and sum of w&#39;s = 1.</span>
+                  <span class="c1">// For the moment as a placeholder, average of the earliest</span>
+                  <span class="c1">// available observation is used to set the indicator mean.</span>
+                  <span class="n">ind</span><span class="p">.</span><span class="n">set_mean</span><span class="p">(</span><span class="n">mean_sequence</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+              <span class="p">}</span>
+          <span class="p">}</span>
+          <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">aggregation_method</span><span class="p">.</span><span class="n">compare</span><span class="p">(</span><span class="s">&quot;last&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+              <span class="kt">int</span> <span class="n">last_obs_idx</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">n_timesteps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+              <span class="k">if</span> <span class="p">(</span><span class="n">ts_sequence</span><span class="p">.</span><span class="n">back</span><span class="p">()</span> <span class="o">==</span> <span class="n">last_obs_idx</span><span class="p">)</span> <span class="p">{</span>
+                  <span class="c1">// The first observation is not missing</span>
+                  <span class="n">ind</span><span class="p">.</span><span class="n">set_mean</span><span class="p">(</span><span class="n">mean_sequence</span><span class="p">.</span><span class="n">back</span><span class="p">());</span>
+              <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                  <span class="c1">// First observation is missing</span>
+                  <span class="c1">// TODO: Similar to &quot;first&quot; decide what to do.</span>
+                  <span class="c1">// For the moment the observation closest to the final</span>
+                  <span class="c1">// time step is used to set the indicator mean.</span>
+                  <span class="n">ind</span><span class="p">.</span><span class="n">set_mean</span><span class="p">(</span><span class="n">mean_sequence</span><span class="p">.</span><span class="n">back</span><span class="p">());</span>
+              <span class="p">}</span>
+          <span class="p">}</span>
+          <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">aggregation_method</span><span class="p">.</span><span class="n">compare</span><span class="p">(</span><span class="s">&quot;min&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+              <span class="n">ind</span><span class="p">.</span><span class="n">set_mean</span><span class="p">(</span><span class="n">ranges</span><span class="o">::</span><span class="n">min</span><span class="p">(</span><span class="n">mean_sequence</span><span class="p">));</span>
+          <span class="p">}</span>
+          <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">aggregation_method</span><span class="p">.</span><span class="n">compare</span><span class="p">(</span><span class="s">&quot;max&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+              <span class="n">ind</span><span class="p">.</span><span class="n">set_mean</span><span class="p">(</span><span class="n">ranges</span><span class="o">::</span><span class="n">max</span><span class="p">(</span><span class="n">mean_sequence</span><span class="p">));</span>
+          <span class="p">}</span>
+          <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">aggregation_method</span><span class="p">.</span><span class="n">compare</span><span class="p">(</span><span class="s">&quot;mean&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+              <span class="n">ind</span><span class="p">.</span><span class="n">set_mean</span><span class="p">(</span><span class="n">delphi</span><span class="o">::</span><span class="n">utils</span><span class="o">::</span><span class="n">mean</span><span class="p">(</span><span class="n">mean_sequence</span><span class="p">));</span>
+          <span class="p">}</span>
+          <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">aggregation_method</span><span class="p">.</span><span class="n">compare</span><span class="p">(</span><span class="s">&quot;median&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+              <span class="n">ind</span><span class="p">.</span><span class="n">set_mean</span><span class="p">(</span><span class="n">delphi</span><span class="o">::</span><span class="n">utils</span><span class="o">::</span><span class="n">median</span><span class="p">(</span><span class="n">mean_sequence</span><span class="p">));</span>
+          <span class="p">}</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">AdjectiveResponseMap</span> <span class="n">construct_adjective_response_map</span><span class="p">(</span>
+    <span class="n">mt19937</span> <span class="n">gen</span><span class="p">,</span>
+    <span class="n">uniform_real_distribution</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&amp;</span> <span class="n">uni_dist</span><span class="p">,</span>
+    <span class="n">normal_distribution</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&amp;</span> <span class="n">norm_dist</span><span class="p">,</span>
+    <span class="kt">size_t</span> <span class="n">n_kernels</span>
+    <span class="p">)</span> <span class="p">{</span>
+  <span class="n">sqlite3</span><span class="o">*</span> <span class="n">db</span> <span class="o">=</span> <span class="k">nullptr</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">rc</span> <span class="o">=</span> <span class="n">sqlite3_open</span><span class="p">(</span><span class="n">getenv</span><span class="p">(</span><span class="s">&quot;DELPHI_DB&quot;</span><span class="p">),</span> <span class="o">&amp;</span><span class="n">db</span><span class="p">);</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">rc</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">throw</span> <span class="s">&quot;Could not open db</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+
+  <span class="n">sqlite3_stmt</span><span class="o">*</span> <span class="n">stmt</span> <span class="o">=</span> <span class="k">nullptr</span><span class="p">;</span>
+  <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">query</span> <span class="o">=</span> <span class="s">&quot;select * from gradableAdjectiveData&quot;</span><span class="p">;</span>
+  <span class="n">rc</span> <span class="o">=</span> <span class="n">sqlite3_prepare_v2</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">stmt</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+
+  <span class="n">AdjectiveResponseMap</span> <span class="n">adjective_response_map</span><span class="p">;</span>
+
+  <span class="k">while</span> <span class="p">((</span><span class="n">rc</span> <span class="o">=</span> <span class="n">sqlite3_step</span><span class="p">(</span><span class="n">stmt</span><span class="p">))</span> <span class="o">==</span> <span class="n">SQLITE_ROW</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">string</span> <span class="n">adjective</span> <span class="o">=</span>
+        <span class="n">string</span><span class="p">(</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="k">const</span> <span class="kt">char</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">sqlite3_column_text</span><span class="p">(</span><span class="n">stmt</span><span class="p">,</span> <span class="mi">2</span><span class="p">)));</span>
+    <span class="kt">double</span> <span class="n">response</span> <span class="o">=</span> <span class="n">sqlite3_column_double</span><span class="p">(</span><span class="n">stmt</span><span class="p">,</span> <span class="mi">6</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">in</span><span class="p">(</span><span class="n">adjective_response_map</span><span class="p">,</span> <span class="n">adjective</span><span class="p">))</span> <span class="p">{</span>
+      <span class="n">adjective_response_map</span><span class="p">[</span><span class="n">adjective</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">response</span><span class="p">};</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span>
+      <span class="n">adjective_response_map</span><span class="p">[</span><span class="n">adjective</span><span class="p">].</span><span class="n">push_back</span><span class="p">(</span><span class="n">response</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">]</span> <span class="o">:</span> <span class="n">adjective_response_map</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">KDE</span><span class="p">(</span><span class="n">v</span><span class="p">).</span><span class="n">resample</span><span class="p">(</span><span class="n">n_kernels</span><span class="p">,</span> <span class="n">gen</span><span class="p">,</span> <span class="n">uni_dist</span><span class="p">,</span> <span class="n">norm_dist</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="n">sqlite3_finalize</span><span class="p">(</span><span class="n">stmt</span><span class="p">);</span>
+  <span class="n">sqlite3_close</span><span class="p">(</span><span class="n">db</span><span class="p">);</span>
+  <span class="n">stmt</span> <span class="o">=</span> <span class="k">nullptr</span><span class="p">;</span>
+  <span class="n">db</span> <span class="o">=</span> <span class="k">nullptr</span><span class="p">;</span>
+  <span class="k">return</span> <span class="n">adjective_response_map</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">construct_theta_pdfs</span><span class="p">()</span> <span class="p">{</span>
+
+  <span class="c1">// The choice of sigma_X and sigma_Y is somewhat arbitrary here - we need to</span>
+  <span class="c1">// come up with a principled way to select this value, or infer it from data.</span>
+  <span class="kt">double</span> <span class="n">sigma_X</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">;</span>
+  <span class="kt">double</span> <span class="n">sigma_Y</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">;</span>
+  <span class="n">AdjectiveResponseMap</span> <span class="n">adjective_response_map</span> <span class="o">=</span>
+      <span class="n">construct_adjective_response_map</span><span class="p">(</span>
+          <span class="k">this</span><span class="o">-&gt;</span><span class="n">rand_num_generator</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">uni_dist</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">norm_dist</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">res</span><span class="p">);</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">marginalized_responses</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="p">[</span><span class="n">adjective</span><span class="p">,</span> <span class="n">responses</span><span class="p">]</span> <span class="o">:</span> <span class="n">adjective_response_map</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">response</span> <span class="p">:</span> <span class="n">responses</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">marginalized_responses</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">response</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="n">marginalized_responses</span> <span class="o">=</span> <span class="n">KDE</span><span class="p">(</span><span class="n">marginalized_responses</span><span class="p">)</span>
+                               <span class="p">.</span><span class="n">resample</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">res</span><span class="p">,</span>
+                                         <span class="k">this</span><span class="o">-&gt;</span><span class="n">rand_num_generator</span><span class="p">,</span>
+                                         <span class="k">this</span><span class="o">-&gt;</span><span class="n">uni_dist</span><span class="p">,</span>
+                                         <span class="k">this</span><span class="o">-&gt;</span><span class="n">norm_dist</span><span class="p">);</span>
+
+  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">e</span> <span class="p">:</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">edges</span><span class="p">())</span> <span class="p">{</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">all_thetas</span> <span class="o">=</span> <span class="p">{};</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="n">Statement</span> <span class="nl">stmt</span> <span class="p">:</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">evidence</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">Event</span> <span class="n">subject</span> <span class="o">=</span> <span class="n">stmt</span><span class="p">.</span><span class="n">subject</span><span class="p">;</span>
+      <span class="n">Event</span> <span class="n">object</span> <span class="o">=</span> <span class="n">stmt</span><span class="p">.</span><span class="n">object</span><span class="p">;</span>
+
+      <span class="n">string</span> <span class="n">subj_adjective</span> <span class="o">=</span> <span class="n">subject</span><span class="p">.</span><span class="n">adjective</span><span class="p">;</span>
+      <span class="n">string</span> <span class="n">obj_adjective</span> <span class="o">=</span> <span class="n">object</span><span class="p">.</span><span class="n">adjective</span><span class="p">;</span>
+
+      <span class="k">auto</span> <span class="n">subj_responses</span> <span class="o">=</span> <span class="n">lmap</span><span class="p">(</span>
+          <span class="p">[</span><span class="o">&amp;</span><span class="p">](</span><span class="k">auto</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="n">subject</span><span class="p">.</span><span class="n">polarity</span><span class="p">;</span> <span class="p">},</span>
+          <span class="n">get</span><span class="p">(</span><span class="n">adjective_response_map</span><span class="p">,</span> <span class="n">subj_adjective</span><span class="p">,</span> <span class="n">marginalized_responses</span><span class="p">));</span>
+
+      <span class="k">auto</span> <span class="n">obj_responses</span> <span class="o">=</span> <span class="n">lmap</span><span class="p">(</span>
+          <span class="p">[</span><span class="o">&amp;</span><span class="p">](</span><span class="k">auto</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="n">object</span><span class="p">.</span><span class="n">polarity</span><span class="p">;</span> <span class="p">},</span>
+          <span class="n">get</span><span class="p">(</span><span class="n">adjective_response_map</span><span class="p">,</span> <span class="n">obj_adjective</span><span class="p">,</span> <span class="n">marginalized_responses</span><span class="p">));</span>
+
+      <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span> <span class="o">:</span> <span class="n">ranges</span><span class="o">::</span><span class="n">views</span><span class="o">::</span><span class="n">cartesian_product</span><span class="p">(</span><span class="n">subj_responses</span><span class="p">,</span> <span class="n">obj_responses</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">all_thetas</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">atan2</span><span class="p">(</span><span class="n">sigma_Y</span> <span class="o">*</span> <span class="n">y</span><span class="p">,</span> <span class="n">sigma_X</span> <span class="o">*</span> <span class="n">x</span><span class="p">));</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">kde</span> <span class="o">=</span> <span class="n">KDE</span><span class="p">(</span><span class="n">all_thetas</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Adarsh
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

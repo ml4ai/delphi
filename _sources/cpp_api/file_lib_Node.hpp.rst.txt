@@ -1,0 +1,62 @@
+
+.. _file_lib_Node.hpp:
+
+File Node.hpp
+=============
+
+|exhale_lsh| :ref:`Parent directory <dir_lib>` (``lib``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. contents:: Contents
+   :local:
+   :backlinks: none
+
+Definition (``lib/Node.hpp``)
+-----------------------------
+
+
+.. toctree::
+   :maxdepth: 1
+
+   program_listing_file_lib_Node.hpp.rst
+
+
+
+
+
+Includes
+--------
+
+
+- ``Indicator.hpp`` (:ref:`file_lib_Indicator.hpp`)
+
+- ``exceptions.hpp`` (:ref:`file_lib_exceptions.hpp`)
+
+- ``iostream``
+
+- ``map``
+
+- ``utils.hpp`` (:ref:`file_lib_utils.hpp`)
+
+
+
+Included By
+-----------
+
+
+- :ref:`file_lib_DiGraph.hpp`
+
+- :ref:`file_lib_graphviz.cpp`
+
+- :ref:`file_lib_subgraphs.cpp`
+
+
+
+
+Classes
+-------
+
+
+- :ref:`exhale_class_classNode`
+

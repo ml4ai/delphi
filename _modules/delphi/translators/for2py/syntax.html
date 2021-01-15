@@ -1,0 +1,791 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>delphi.translators.for2py.syntax &mdash; delphi  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+        <script src="../../../../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../../../../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> delphi
+          
+
+          
+            
+            <img src="../../../../_static/delphi_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html#change-log">Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cpp_api/library_root.html">C++ API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">delphi</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../for2py.html">delphi.translators.for2py</a> &raquo;</li>
+        
+      <li>delphi.translators.for2py.syntax</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for delphi.translators.for2py.syntax</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot; Various utility routines for processing Fortran syntax.  &quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="c1">################################################################################</span>
+<span class="c1">#                                                                              #</span>
+<span class="c1">#                                   COMMENTS                                   #</span>
+<span class="c1">#                                                                              #</span>
+<span class="c1">################################################################################</span>
+
+<div class="viewcode-block" id="line_is_comment"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.syntax.line_is_comment">[docs]</a><span class="k">def</span> <span class="nf">line_is_comment</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;From FORTRAN Language Reference</span>
+<span class="sd">    (https://docs.oracle.com/cd/E19957-01/805-4939/z40007332024/index.html)</span>
+
+<span class="sd">    A line with a c, C, &#39;*&#39;, d, D, or ! in column one is a comment line, except</span>
+<span class="sd">    that if the -xld option is set, then the lines starting with D or d are</span>
+<span class="sd">    compiled as debug lines. The d, D, and ! are nonstandard.</span>
+
+<span class="sd">    If you put an exclamation mark (!) in any column of the statement field,</span>
+<span class="sd">    except within character literals, then everything after the ! on that</span>
+<span class="sd">    line is a comment.</span>
+
+<span class="sd">    A totally blank line is a comment line (we ignore this here).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        line</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        True iff line is a comment, False otherwise.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s2">&quot;cCdD*!&quot;</span><span class="p">)</span></div>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1">#                                                                              #</span>
+<span class="c1">#                              CONTINUATION LINES                              #</span>
+<span class="c1">#                                                                              #</span>
+<span class="c1">################################################################################</span>
+
+<span class="n">FIXED_FORM_EXT</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;.f&#39;</span><span class="p">,</span> <span class="s1">&#39;.for&#39;</span><span class="p">,</span> <span class="s1">&#39;.blk&#39;</span><span class="p">,</span> <span class="s1">&#39;.inc&#39;</span><span class="p">,</span> <span class="s1">&#39;.gin&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="line_is_continuation"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.syntax.line_is_continuation">[docs]</a><span class="k">def</span> <span class="nf">line_is_continuation</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">f_ext</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; From FORTRAN 77  Language Reference</span>
+<span class="sd">        (https://docs.oracle.com/cd/E19957-01/805-4939/6j4m0vn6l/index.html)</span>
+
+<span class="sd">    A statement takes one or more lines; the first line is called the initial line; </span>
+<span class="sd">    the subsequent lines are called the continuation lines.  You can format a </span>
+<span class="sd">    source line in either of two ways: Standard fixed format, or Tab format.</span>
+
+<span class="sd">    In Standard Fixed Format, continuation lines are identified by a nonblank, </span>
+<span class="sd">    nonzero in column 6.</span>
+
+<span class="sd">    Tab-Format source lines are defined as follows: A tab in any of columns </span>
+<span class="sd">    1 through 6, or an ampersand in column 1, establishes the line as a </span>
+<span class="sd">    tab-format source line.  If the tab is the first nonblank character, the </span>
+<span class="sd">    text following the tab is scanned as if it started in column 7.</span>
+<span class="sd">    Continuation lines are identified by an ampersand (&amp;) in column 1, or a </span>
+<span class="sd">    nonzero digit after the first tab.    </span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        line</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        True iff line is a continuation line, else False.  Currently this</span>
+<span class="sd">        is used only for fixed-form input files, i.e., f_ext in (&#39;.f&#39;, &#39;.for&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">line_is_comment</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">if</span> <span class="n">f_ext</span> <span class="ow">in</span> <span class="n">FIXED_FORM_EXT</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="s2">&quot;123456789&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">5</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39; &#39;</span> <span class="ow">or</span> <span class="n">line</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;0&#39;</span><span class="p">))</span>
+ 
+    <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&amp;&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="line_is_continued"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.syntax.line_is_continued">[docs]</a><span class="k">def</span> <span class="nf">line_is_continued</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">        line</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        True iff line is continued on the next line.  This is a Fortran-90</span>
+<span class="sd">        feature and indicated by a &#39;&amp;&#39; at the end of the line.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">line_is_comment</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="n">llstr</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">llstr</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">llstr</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;&amp;&quot;</span></div>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1">#                                                                              #</span>
+<span class="c1">#                           FORTRAN LINE PROCESSING                            #</span>
+<span class="c1">#                                                                              #</span>
+<span class="c1">################################################################################</span>
+
+<span class="c1"># Regular expressions that specify patterns for various Fortran constructs.</span>
+
+<span class="n">SUB_START</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*subroutine\s+(\w+)\s*\(&quot;</span>
+<span class="n">RE_SUB_START</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">SUB_START</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="c1"># The start of a function can look like any of the following:</span>
+<span class="c1">#</span>
+<span class="c1">#       function myfunc(...</span>
+<span class="c1">#       integer function myfunc(...</span>
+<span class="c1">#       double precision myfunc(...</span>
+
+<span class="n">FN_START</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*(\w*\s*){0,2}function\s+(\w+)\s*\(&quot;</span>
+<span class="n">RE_FN_START</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">FN_START</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">PGM_UNIT</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*\w*\s*(program|module|subroutine|(\w*\s*){0,2}function)\s+(\w+)&quot;</span>
+<span class="n">RE_PGM_UNIT_START</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">PGM_UNIT</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">PGM_UNIT_SEP</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s+contains(\W+)&quot;</span>
+<span class="n">RE_PGM_UNIT_SEP</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">PGM_UNIT_SEP</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">PGM_UNIT_END</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*[a-z]*\s*end\s+(program|module|subroutine|function)\s+&quot;</span>
+<span class="n">RE_PGM_UNIT_END</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">PGM_UNIT_END</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">SUBPGM_END</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*end\s+&quot;</span>
+<span class="n">RE_SUBPGM_END</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">SUBPGM_END</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">ASSG_STMT</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*(\d+|&amp;)?\s*.*=\s*&quot;</span>
+<span class="n">RE_ASSG_STMT</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">ASSG_STMT</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">INCLUDE_STMT_1</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*(\d+)?\s*include\s+&#39;(\w+(\.\w*)?)&#39;&quot;</span>
+<span class="n">RE_INCLUDE_STMT_1</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">INCLUDE_STMT_1</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+<span class="n">INCLUDE_STMT_2</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;\s*(\d+)?\s*include\s+&quot;(\w+(\.\w*)?)&quot;&#39;</span>
+<span class="n">RE_INCLUDE_STMT_2</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">INCLUDE_STMT_2</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">CALL_STMT</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*(\d+|&amp;)?\s*call\s*&quot;</span>
+<span class="n">RE_CALL_STMT</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">CALL_STMT</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">IO_STMT</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*(\d+|&amp;)?\s*(open|close|read|write|print|format|rewind)\W*&quot;</span>
+<span class="n">RE_IO_STMT</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">IO_STMT</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">DO_STMT</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*(\d+|&amp;)?\s*do\s*&quot;</span>
+<span class="n">RE_DO_STMT</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">DO_STMT</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">ENDDO_STMT</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*(\d+|&amp;)?\s*end\s*do\s*&quot;</span>
+<span class="n">RE_ENDDO_STMT</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">ENDDO_STMT</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">ENDIF_STMT</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*(\d+|&amp;)?\s*end\s*if\s*&quot;</span>
+<span class="n">RE_ENDIF_STMT</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">ENDIF_STMT</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">GOTO_STMT</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*(\d+|&amp;)?\s*go\s*to\s*&quot;</span>
+<span class="n">RE_GOTO_STMT</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">GOTO_STMT</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">IF_STMT</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*(\d+|&amp;)?\s*(if|elseif|else)\s*&quot;</span>
+<span class="n">RE_IF_STMT</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">IF_STMT</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">PAUSE_STMT</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*(\d+|&amp;)?\s*pause\s*&quot;</span>
+<span class="n">RE_PAUSE_STMT</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">PAUSE_STMT</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">RETURN_STMT</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*(\d+|&amp;)?\s*return\s*&quot;</span>
+<span class="n">RE_RETURN_STMT</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">RETURN_STMT</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">CYCLE_STMT</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*(\d+|&amp;)?\s*cycle\s*&quot;</span>
+<span class="n">RE_CYCLE_STMT</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">CYCLE_STMT</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">EXIT_STMT</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*(\d+|&amp;)?\s*exit\s*&quot;</span>
+<span class="n">RE_EXIT_STMT</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">EXIT_STMT</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">SAVE_STMT</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*(\d+|&amp;)?\s*save\s*&quot;</span>
+<span class="n">RE_SAVE_STMT</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">SAVE_STMT</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">SELECT_STMT</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*(\d+|&amp;)?\s*select\s*case\s*&quot;</span>
+<span class="n">RE_SELECT_STMT</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">SELECT_STMT</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">ENDSELECT_STMT</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*(\d+|&amp;)?\s*end\s*select\s*&quot;</span>
+<span class="n">RE_ENDSELECT_STMT</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">ENDSELECT_STMT</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">CASE_STMT</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*(\d+|&amp;)?\s*case\s*&quot;</span>
+<span class="n">RE_CASE_STMT</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">CASE_STMT</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">STOP_STMT</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*(\d+|&amp;)?\s*stop\s*&quot;</span>
+<span class="n">RE_STOP_STMT</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">STOP_STMT</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">TYPE_NAMES</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^\s*(integer|real|double\s+precision|complex|character|logical&quot;</span> \
+             <span class="sa">r</span><span class="s2">&quot;|dimension|type|parameter)\W*&quot;</span>
+<span class="n">RE_TYPE_NAMES</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">TYPE_NAMES</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">SUB_DEF</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*subroutine\s+(?P&lt;subroutine&gt;(?P&lt;name&gt;.*?)\((?P&lt;args&gt;.*)\))&quot;</span>
+<span class="n">RE_SUB_DEF</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">SUB_DEF</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">END_SUB</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*end\s+subroutine\s+&quot;</span>
+<span class="n">END_MODULE</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*end\s+module\s+&quot;</span>
+
+<span class="n">PGM_START</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*(?P&lt;pgm&gt;(interface|module))\s+(?P&lt;name&gt;(\w*))&quot;</span>
+<span class="n">RE_PGM_START</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">PGM_START</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">PGM_END</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*[a-z]*\s*end\s+(?P&lt;pgm&gt;(module|subroutine|function|interface|type))\s*(?P&lt;name&gt;(\w*))&quot;</span>
+<span class="n">RE_PGM_END</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">PGM_END</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">VARIABLE_DEC</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*(?P&lt;type&gt;(double|float|int|integer|logical|real|str|string)),?\s(::)*(?P&lt;variables&gt;(.*))&quot;</span>
+<span class="n">RE_VARIABLE_DEC</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">VARIABLE_DEC</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">DERIVED_TYPE_DEF</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*type\s*(?P&lt;type&gt;(?P&lt;name&gt;(\w*)))&quot;</span>
+<span class="n">RE_DERIVED_TYPE_DEF</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">DERIVED_TYPE_DEF</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">DERIVED_TYPE_VAR</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*type\s*\((?P&lt;type&gt;.*)\)\s(?P&lt;variables&gt;(.*))&quot;</span>
+<span class="n">RE_DERIVED_TYPE_VAR</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">DERIVED_TYPE_VAR</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">CHARACTER</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\s*(character\*(\(\*\)|\d*))\s*(?P&lt;variables&gt;.*)&quot;</span>
+<span class="n">RE_CHARACTER</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">CHARACTER</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="n">IMP_ARRAY</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(?P&lt;var&gt;\w*)\s*\(&quot;</span>
+<span class="n">RE_IMP_ARRAY</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">IMP_ARRAY</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+
+<span class="c1"># EXECUTABLE_CODE_START is a list of regular expressions matching</span>
+<span class="c1"># lines that can start the executable code in a program or subroutine.</span>
+<span class="c1"># It is used to for handling comments internal to subroutine bodies.</span>
+<span class="n">EXECUTABLE_CODE_START</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">RE_ASSG_STMT</span><span class="p">,</span>
+    <span class="n">RE_CALL_STMT</span><span class="p">,</span>
+    <span class="n">RE_CASE_STMT</span><span class="p">,</span>
+    <span class="n">RE_CYCLE_STMT</span><span class="p">,</span>
+    <span class="n">RE_DO_STMT</span><span class="p">,</span>
+    <span class="n">RE_ENDDO_STMT</span><span class="p">,</span>
+    <span class="n">RE_ENDIF_STMT</span><span class="p">,</span>
+    <span class="n">RE_ENDSELECT_STMT</span><span class="p">,</span>
+    <span class="n">RE_EXIT_STMT</span><span class="p">,</span>
+    <span class="n">RE_GOTO_STMT</span><span class="p">,</span>
+    <span class="n">RE_IF_STMT</span><span class="p">,</span>
+    <span class="n">RE_IO_STMT</span><span class="p">,</span>
+    <span class="n">RE_PAUSE_STMT</span><span class="p">,</span>
+    <span class="n">RE_RETURN_STMT</span><span class="p">,</span>
+    <span class="n">RE_SELECT_STMT</span><span class="p">,</span>
+    <span class="n">RE_STOP_STMT</span>
+<span class="p">]</span>
+
+<div class="viewcode-block" id="line_starts_subpgm"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.syntax.line_starts_subpgm">[docs]</a><span class="k">def</span> <span class="nf">line_starts_subpgm</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Indicates whether a line in the program is the first line of a subprogram</span>
+<span class="sd">    definition.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        line</span>
+<span class="sd">    Returns:</span>
+<span class="sd">       (True, f_name) if line begins a definition for subprogram f_name;</span>
+<span class="sd">       (False, None) if line does not begin a subprogram definition.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">match</span> <span class="o">=</span> <span class="n">RE_SUB_START</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">match</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">f_name</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">f_name</span><span class="p">)</span>
+
+    <span class="n">match</span> <span class="o">=</span> <span class="n">RE_FN_START</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">f_name</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">f_name</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="line_is_pgm_unit_start"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.syntax.line_is_pgm_unit_start">[docs]</a><span class="k">def</span> <span class="nf">line_is_pgm_unit_start</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">RE_PGM_UNIT_START</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="line_is_pgm_unit_end"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.syntax.line_is_pgm_unit_end">[docs]</a><span class="k">def</span> <span class="nf">line_is_pgm_unit_end</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">RE_PGM_UNIT_END</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="line_is_pgm_unit_separator"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.syntax.line_is_pgm_unit_separator">[docs]</a><span class="k">def</span> <span class="nf">line_is_pgm_unit_separator</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">RE_PGM_UNIT_SEP</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="program_unit_name"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.syntax.program_unit_name">[docs]</a><span class="k">def</span> <span class="nf">program_unit_name</span><span class="p">(</span><span class="n">line</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+   <span class="sd">&quot;&quot;&quot;Given a line that starts a program unit, i.e., a program, module,</span>
+<span class="sd">      subprogram, or function, this function returns the name associated</span>
+<span class="sd">      with that program unit.&quot;&quot;&quot;</span>
+   <span class="n">match</span> <span class="o">=</span> <span class="n">RE_PGM_UNIT_START</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+   <span class="k">assert</span> <span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+   <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="line_ends_subpgm"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.syntax.line_ends_subpgm">[docs]</a><span class="k">def</span> <span class="nf">line_ends_subpgm</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">        line</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        True if line is the last line of a subprogram definition, else False.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">RE_SUBPGM_END</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="line_is_executable"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.syntax.line_is_executable">[docs]</a><span class="k">def</span> <span class="nf">line_is_executable</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;line_is_executable() returns True iff the line can start an</span>
+<span class="sd">       executable statement in a program.&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">line_is_comment</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">RE_TYPE_NAMES</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">for</span> <span class="n">exp</span> <span class="ow">in</span> <span class="n">EXECUTABLE_CODE_START</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">exp</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">return</span> <span class="kc">False</span></div>
+            
+
+<div class="viewcode-block" id="line_is_include"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.syntax.line_is_include">[docs]</a><span class="k">def</span> <span class="nf">line_is_include</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; line_is_include() : if the argument is an INCLUDE statement, returns</span>
+<span class="sd">        the argument to the INCLUDE statement (a file name); otherwise</span>
+<span class="sd">        returns None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">RE_INCLUDE_STMT_1</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">match</span> <span class="o">=</span> <span class="n">RE_INCLUDE_STMT_2</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="line_has_implicit_array"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.syntax.line_has_implicit_array">[docs]</a><span class="k">def</span> <span class="nf">line_has_implicit_array</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function checks for the implicit array declaration (i.e.</span>
+<span class="sd">    real myArray(10)) without DIMENSION keyword.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        line</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        (True, var) if the line holds implicit array declaration;</span>
+<span class="sd">        (False, None) if the line does not hold implicit array declaration</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">match</span> <span class="o">=</span> <span class="n">RE_IMP_ARRAY</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+        <span class="n">var</span> <span class="o">=</span> <span class="n">match</span><span class="p">[</span><span class="s1">&#39;var&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="has_subroutine"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.syntax.has_subroutine">[docs]</a><span class="k">def</span> <span class="nf">has_subroutine</span><span class="p">(</span><span class="n">lines</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function searches end of subroutine syntax</span>
+<span class="sd">    from the passed string of lines to find out whether</span>
+<span class="sd">    any subroutines are presented in lines or not.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        lines</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        (True) if subroutine end syntax presented in lines.</span>
+<span class="sd">        (False) if subroutine end syntax does not present in lines.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">END_SUB</span><span class="p">,</span> <span class="n">lines</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="has_module"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.syntax.has_module">[docs]</a><span class="k">def</span> <span class="nf">has_module</span><span class="p">(</span><span class="n">lines</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This function searches end of module syntax</span>
+<span class="sd">    from the passed string of lines to find out whether</span>
+<span class="sd">    any modules are presented in lines or not.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        lines</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        (True) if module end syntax presented in lines.</span>
+<span class="sd">        (False) if module end syntax does not present in lines.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">END_MODULE</span><span class="p">,</span> <span class="n">lines</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="line_is_func_start"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.syntax.line_is_func_start">[docs]</a><span class="k">def</span> <span class="nf">line_is_func_start</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function checks whether the line indicates a function entry or not.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        line.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        (True) if the line is beginning of function definition.</span>
+<span class="sd">        (False) if the line is not a beginning of function dedfinition.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">RE_FN_START</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="variable_declaration"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.syntax.variable_declaration">[docs]</a><span class="k">def</span> <span class="nf">variable_declaration</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Indicates whether a line in the program is a variable declaration or not.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        line</span>
+<span class="sd">    Returns:</span>
+<span class="sd">       (True, v_type, list) if line has one of variable declaration syntax;</span>
+<span class="sd">       (False, None, None) if line does not have any variable declaration syntax .</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">match_var</span> <span class="o">=</span> <span class="n">RE_VARIABLE_DEC</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">match_var</span><span class="p">:</span>
+        <span class="n">v_type</span> <span class="o">=</span> <span class="n">match_var</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
+        <span class="n">variable_list</span> <span class="o">=</span> <span class="n">match_var</span><span class="p">[</span><span class="s1">&#39;variables&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">v_type</span><span class="p">,</span> <span class="n">variable_list</span><span class="p">)</span>
+    
+    <span class="n">match_dtype</span> <span class="o">=</span> <span class="n">RE_DERIVED_TYPE_VAR</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">match_dtype</span><span class="p">:</span>
+        <span class="n">v_type</span> <span class="o">=</span> <span class="n">match_dtype</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
+        <span class="n">variable_list</span> <span class="o">=</span> <span class="n">match_dtype</span><span class="p">[</span><span class="s1">&#39;variables&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">v_type</span><span class="p">,</span> <span class="n">variable_list</span><span class="p">)</span>
+
+    <span class="n">match_char</span> <span class="o">=</span> <span class="n">RE_CHARACTER</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">match_char</span><span class="p">:</span>
+        <span class="n">variable_list</span> <span class="o">=</span> <span class="n">match_char</span><span class="p">[</span><span class="s1">&#39;variables&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;character&quot;</span><span class="p">,</span> <span class="n">variable_list</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="subroutine_definition"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.syntax.subroutine_definition">[docs]</a><span class="k">def</span> <span class="nf">subroutine_definition</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Indicates whether a line in the program is the first line of a subroutine</span>
+<span class="sd">    definition and extracts subroutine name and the arguments.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        line</span>
+<span class="sd">    Returns:</span>
+<span class="sd">       (True, list) if line begins a definition for subroutine;</span>
+<span class="sd">       (False, None) if line does not begin a subroutine definition.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">RE_SUB_DEF</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+        <span class="n">f_name</span> <span class="o">=</span> <span class="n">match</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">f_args</span> <span class="o">=</span> <span class="n">match</span><span class="p">[</span><span class="s1">&#39;args&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="p">[</span><span class="n">f_name</span><span class="p">,</span> <span class="n">f_args</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="pgm_end"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.syntax.pgm_end">[docs]</a><span class="k">def</span> <span class="nf">pgm_end</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Indicates whether a line is the last line of a program.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        line</span>
+<span class="sd">    Returns:</span>
+<span class="sd">       (True, pgm, name) if line is the last line of a definition</span>
+<span class="sd">       either for interface or module;</span>
+<span class="sd">       (False, None, None) if line is not the last line of either</span>
+<span class="sd">       interface or module.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">RE_PGM_END</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+        <span class="n">pgm</span> <span class="o">=</span> <span class="n">match</span><span class="p">[</span><span class="s1">&#39;pgm&#39;</span><span class="p">]</span>
+        <span class="n">pgm_name</span> <span class="o">=</span> <span class="n">match</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">pgm</span><span class="p">,</span> <span class="n">pgm_name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="line_starts_pgm"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.syntax.line_starts_pgm">[docs]</a><span class="k">def</span> <span class="nf">line_starts_pgm</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Indicates whether a line is the first line of either interface or module.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        line</span>
+<span class="sd">    Returns:</span>
+<span class="sd">       (True, pgm, namee) if line begins a definition either for interface or module;</span>
+<span class="sd">       (False, None, None) if line is not a beginning of either interface or module.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">match</span> <span class="o">=</span> <span class="n">RE_PGM_START</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+        <span class="n">pgm</span> <span class="o">=</span> <span class="n">match</span><span class="p">[</span><span class="s1">&#39;pgm&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">match</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">pgm</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1">#                                                                              #</span>
+<span class="c1">#                       FORTRAN KEYWORDS AND INTRINSICS                        #</span>
+<span class="c1">#                                                                              #</span>
+<span class="c1">################################################################################</span>
+
+<span class="c1"># F_KEYWDS : Fortran keywords</span>
+<span class="c1">#      SOURCE: Keywords in Fortran Wiki </span>
+<span class="c1">#              (http://fortranwiki.org/fortran/show/Keywords)</span>
+<span class="c1">#</span>
+<span class="c1">#              tutorialspoint.com</span>
+<span class="c1">#              (https://www.tutorialspoint.com/fortran/fortran_quick_guide.htm) </span>
+<span class="c1">#</span>
+<span class="c1"># NOTE1: Because of the way this code does tokenization, it currently does</span>
+<span class="c1">#       not handle keywords that consist of multiple space-separated words</span>
+<span class="c1">#       (e.g., &#39;do concurrent&#39;, &#39;sync all&#39;).</span>
+<span class="c1">#</span>
+<span class="c1"># NOTE2: This list of keywords is incomplete.</span>
+
+<span class="n">F_KEYWDS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">([</span><span class="s1">&#39;abstract&#39;</span><span class="p">,</span> <span class="s1">&#39;allocatable&#39;</span><span class="p">,</span> <span class="s1">&#39;allocate&#39;</span><span class="p">,</span> <span class="s1">&#39;assign&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;assignment&#39;</span><span class="p">,</span> <span class="s1">&#39;associate&#39;</span><span class="p">,</span> <span class="s1">&#39;asynchronous&#39;</span><span class="p">,</span> <span class="s1">&#39;backspace&#39;</span><span class="p">,</span> <span class="s1">&#39;bind&#39;</span><span class="p">,</span> <span class="s1">&#39;block&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;block data&#39;</span><span class="p">,</span> <span class="s1">&#39;call&#39;</span><span class="p">,</span> <span class="s1">&#39;case&#39;</span><span class="p">,</span> <span class="s1">&#39;character&#39;</span><span class="p">,</span> <span class="s1">&#39;class&#39;</span><span class="p">,</span> <span class="s1">&#39;close&#39;</span><span class="p">,</span> <span class="s1">&#39;codimension&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;common&#39;</span><span class="p">,</span> <span class="s1">&#39;complex&#39;</span><span class="p">,</span> <span class="s1">&#39;contains&#39;</span><span class="p">,</span> <span class="s1">&#39;contiguous&#39;</span><span class="p">,</span> <span class="s1">&#39;continue&#39;</span><span class="p">,</span> <span class="s1">&#39;critical&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;cycle&#39;</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;deallocate&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="s1">&#39;deferred&#39;</span><span class="p">,</span> <span class="s1">&#39;dimension&#39;</span><span class="p">,</span> <span class="s1">&#39;do&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;double precision&#39;</span><span class="p">,</span> <span class="s1">&#39;else&#39;</span><span class="p">,</span> <span class="s1">&#39;elseif&#39;</span><span class="p">,</span> <span class="s1">&#39;elsewhere&#39;</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="s1">&#39;endif&#39;</span><span class="p">,</span> <span class="s1">&#39;endfile&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;endif&#39;</span><span class="p">,</span> <span class="s1">&#39;entry&#39;</span><span class="p">,</span> <span class="s1">&#39;enum&#39;</span><span class="p">,</span> <span class="s1">&#39;enumerator&#39;</span><span class="p">,</span> <span class="s1">&#39;equivalence&#39;</span><span class="p">,</span> <span class="s1">&#39;error&#39;</span><span class="p">,</span> <span class="s1">&#39;exit&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;extends&#39;</span><span class="p">,</span> <span class="s1">&#39;external&#39;</span><span class="p">,</span> <span class="s1">&#39;final&#39;</span><span class="p">,</span> <span class="s1">&#39;flush&#39;</span><span class="p">,</span> <span class="s1">&#39;forall&#39;</span><span class="p">,</span> <span class="s1">&#39;format&#39;</span><span class="p">,</span> <span class="s1">&#39;function&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;generic&#39;</span><span class="p">,</span> <span class="s1">&#39;goto&#39;</span><span class="p">,</span> <span class="s1">&#39;if&#39;</span><span class="p">,</span> <span class="s1">&#39;implicit&#39;</span><span class="p">,</span> <span class="s1">&#39;import&#39;</span><span class="p">,</span> <span class="s1">&#39;in&#39;</span><span class="p">,</span> <span class="s1">&#39;include&#39;</span><span class="p">,</span> <span class="s1">&#39;inout&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;inquire&#39;</span><span class="p">,</span> <span class="s1">&#39;integer&#39;</span><span class="p">,</span> <span class="s1">&#39;intent&#39;</span><span class="p">,</span> <span class="s1">&#39;interface&#39;</span><span class="p">,</span> <span class="s1">&#39;intrinsic&#39;</span><span class="p">,</span> <span class="s1">&#39;kind&#39;</span><span class="p">,</span> <span class="s1">&#39;len&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;lock&#39;</span><span class="p">,</span> <span class="s1">&#39;logical&#39;</span><span class="p">,</span> <span class="s1">&#39;module&#39;</span><span class="p">,</span> <span class="s1">&#39;namelist&#39;</span><span class="p">,</span> <span class="s1">&#39;non_overridable&#39;</span><span class="p">,</span> <span class="s1">&#39;nopass&#39;</span><span class="p">,</span> <span class="s1">&#39;nullify&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;only&#39;</span><span class="p">,</span> <span class="s1">&#39;open&#39;</span><span class="p">,</span> <span class="s1">&#39;operator&#39;</span><span class="p">,</span> <span class="s1">&#39;optional&#39;</span><span class="p">,</span> <span class="s1">&#39;out&#39;</span><span class="p">,</span> <span class="s1">&#39;parameter&#39;</span><span class="p">,</span> <span class="s1">&#39;pass&#39;</span><span class="p">,</span> <span class="s1">&#39;pause&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;pointer&#39;</span><span class="p">,</span> <span class="s1">&#39;print&#39;</span><span class="p">,</span> <span class="s1">&#39;private&#39;</span><span class="p">,</span> <span class="s1">&#39;procedure&#39;</span><span class="p">,</span> <span class="s1">&#39;program&#39;</span><span class="p">,</span> <span class="s1">&#39;protected&#39;</span><span class="p">,</span> <span class="s1">&#39;public&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;pure&#39;</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">,</span> <span class="s1">&#39;real&#39;</span><span class="p">,</span> <span class="s1">&#39;recursive&#39;</span><span class="p">,</span> <span class="s1">&#39;result&#39;</span><span class="p">,</span> <span class="s1">&#39;return&#39;</span><span class="p">,</span> <span class="s1">&#39;rewind&#39;</span><span class="p">,</span> <span class="s1">&#39;rewrite&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;save&#39;</span><span class="p">,</span> <span class="s1">&#39;select&#39;</span><span class="p">,</span> <span class="s1">&#39;sequence&#39;</span><span class="p">,</span> <span class="s1">&#39;stop&#39;</span><span class="p">,</span> <span class="s1">&#39;submodule&#39;</span><span class="p">,</span> <span class="s1">&#39;subroutine&#39;</span><span class="p">,</span> <span class="s1">&#39;sync&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;target&#39;</span><span class="p">,</span> <span class="s1">&#39;then&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;unlock&#39;</span><span class="p">,</span> <span class="s1">&#39;use&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="s1">&#39;volatile&#39;</span><span class="p">,</span> <span class="s1">&#39;wait&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;where&#39;</span><span class="p">,</span> <span class="s1">&#39;while&#39;</span><span class="p">,</span> <span class="s1">&#39;write&#39;</span><span class="p">])</span>
+
+<span class="c1"># F_INTRINSICS : intrinsic functions</span>
+<span class="c1">#     SOURCE: GNU gfortran manual: </span>
+<span class="c1">#     https://gcc.gnu.org/onlinedocs/gfortran/Intrinsic-Procedures.html</span>
+
+<span class="n">F_INTRINSICS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">([</span><span class="s1">&#39;abs&#39;</span><span class="p">,</span> <span class="s1">&#39;abort&#39;</span><span class="p">,</span> <span class="s1">&#39;access&#39;</span><span class="p">,</span> <span class="s1">&#39;achar&#39;</span><span class="p">,</span> <span class="s1">&#39;acos&#39;</span><span class="p">,</span> <span class="s1">&#39;acosd&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;acosh&#39;</span><span class="p">,</span> <span class="s1">&#39;adjustl&#39;</span><span class="p">,</span> <span class="s1">&#39;adjustr&#39;</span><span class="p">,</span> <span class="s1">&#39;aimag&#39;</span><span class="p">,</span> <span class="s1">&#39;aint&#39;</span><span class="p">,</span> <span class="s1">&#39;alarm&#39;</span><span class="p">,</span> <span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="s1">&#39;allocated&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;and&#39;</span><span class="p">,</span> <span class="s1">&#39;anint&#39;</span><span class="p">,</span> <span class="s1">&#39;any&#39;</span><span class="p">,</span> <span class="s1">&#39;asin&#39;</span><span class="p">,</span> <span class="s1">&#39;asind&#39;</span><span class="p">,</span> <span class="s1">&#39;asinh&#39;</span><span class="p">,</span> <span class="s1">&#39;associated&#39;</span><span class="p">,</span> <span class="s1">&#39;atan&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;atand&#39;</span><span class="p">,</span> <span class="s1">&#39;atan2&#39;</span><span class="p">,</span> <span class="s1">&#39;atan2d&#39;</span><span class="p">,</span> <span class="s1">&#39;atanh&#39;</span><span class="p">,</span> <span class="s1">&#39;atomic_add&#39;</span><span class="p">,</span> <span class="s1">&#39;atomic_and&#39;</span><span class="p">,</span> <span class="s1">&#39;atomic_cas&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;atomic_define&#39;</span><span class="p">,</span> <span class="s1">&#39;atomic_fetch_add&#39;</span><span class="p">,</span> <span class="s1">&#39;atomic_fetch_and&#39;</span><span class="p">,</span> <span class="s1">&#39;atomic_fetch_or&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;atomic_fetch_xor&#39;</span><span class="p">,</span> <span class="s1">&#39;atomic_or&#39;</span><span class="p">,</span> <span class="s1">&#39;atomic_ref&#39;</span><span class="p">,</span> <span class="s1">&#39;atomic_xor&#39;</span><span class="p">,</span> <span class="s1">&#39;backtrace&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;bessel_j0&#39;</span><span class="p">,</span> <span class="s1">&#39;bessel_j1&#39;</span><span class="p">,</span> <span class="s1">&#39;bessel_jn&#39;</span><span class="p">,</span> <span class="s1">&#39;bessel_y0&#39;</span><span class="p">,</span> <span class="s1">&#39;bessel_y1&#39;</span><span class="p">,</span> <span class="s1">&#39;bessel_yn&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;bge&#39;</span><span class="p">,</span> <span class="s1">&#39;bgt&#39;</span><span class="p">,</span> <span class="s1">&#39;bit_size&#39;</span><span class="p">,</span> <span class="s1">&#39;ble&#39;</span><span class="p">,</span> <span class="s1">&#39;blt&#39;</span><span class="p">,</span> <span class="s1">&#39;btest&#39;</span><span class="p">,</span> <span class="s1">&#39;c_associated&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;c_f_pointer&#39;</span><span class="p">,</span> <span class="s1">&#39;c_f_procpointer&#39;</span><span class="p">,</span> <span class="s1">&#39;c_funloc&#39;</span><span class="p">,</span> <span class="s1">&#39;c_loc&#39;</span><span class="p">,</span> <span class="s1">&#39;c_sizeof&#39;</span><span class="p">,</span> <span class="s1">&#39;ceiling&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;char&#39;</span><span class="p">,</span> <span class="s1">&#39;chdir&#39;</span><span class="p">,</span> <span class="s1">&#39;chmod&#39;</span><span class="p">,</span> <span class="s1">&#39;cmplx&#39;</span><span class="p">,</span> <span class="s1">&#39;co_broadcast&#39;</span><span class="p">,</span> <span class="s1">&#39;co_max&#39;</span><span class="p">,</span> <span class="s1">&#39;co_min&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;co_reduce&#39;</span><span class="p">,</span> <span class="s1">&#39;co_sum&#39;</span><span class="p">,</span> <span class="s1">&#39;command_argument_count&#39;</span><span class="p">,</span> <span class="s1">&#39;compiler_options&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;compiler_version&#39;</span><span class="p">,</span> <span class="s1">&#39;complex&#39;</span><span class="p">,</span> <span class="s1">&#39;conjg&#39;</span><span class="p">,</span> <span class="s1">&#39;cos&#39;</span><span class="p">,</span> <span class="s1">&#39;cosd&#39;</span><span class="p">,</span> <span class="s1">&#39;cosh&#39;</span><span class="p">,</span> <span class="s1">&#39;cotan&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;cotand&#39;</span><span class="p">,</span> <span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="s1">&#39;cpu_time&#39;</span><span class="p">,</span> <span class="s1">&#39;cshift&#39;</span><span class="p">,</span> <span class="s1">&#39;ctime&#39;</span><span class="p">,</span> <span class="s1">&#39;date_and_time&#39;</span><span class="p">,</span> <span class="s1">&#39;dble&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;dcmplx&#39;</span><span class="p">,</span> <span class="s1">&#39;digits&#39;</span><span class="p">,</span> <span class="s1">&#39;dim&#39;</span><span class="p">,</span> <span class="s1">&#39;dot_product&#39;</span><span class="p">,</span> <span class="s1">&#39;dprod&#39;</span><span class="p">,</span> <span class="s1">&#39;dreal&#39;</span><span class="p">,</span> <span class="s1">&#39;dshiftl&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;dshiftr&#39;</span><span class="p">,</span> <span class="s1">&#39;dtime&#39;</span><span class="p">,</span> <span class="s1">&#39;eoshift&#39;</span><span class="p">,</span> <span class="s1">&#39;epsilon&#39;</span><span class="p">,</span> <span class="s1">&#39;erf&#39;</span><span class="p">,</span> <span class="s1">&#39;erfc&#39;</span><span class="p">,</span> <span class="s1">&#39;erfc_scaled&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;etime&#39;</span><span class="p">,</span> <span class="s1">&#39;event_query&#39;</span><span class="p">,</span> <span class="s1">&#39;execute_command_line&#39;</span><span class="p">,</span> <span class="s1">&#39;exit&#39;</span><span class="p">,</span> <span class="s1">&#39;exp&#39;</span><span class="p">,</span> <span class="s1">&#39;exponent&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;extends_type_of&#39;</span><span class="p">,</span> <span class="s1">&#39;fdate&#39;</span><span class="p">,</span> <span class="s1">&#39;fget&#39;</span><span class="p">,</span> <span class="s1">&#39;fgetc&#39;</span><span class="p">,</span> <span class="s1">&#39;floor&#39;</span><span class="p">,</span> <span class="s1">&#39;flush&#39;</span><span class="p">,</span> <span class="s1">&#39;fnum&#39;</span><span class="p">,</span> <span class="s1">&#39;fput&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;fputc&#39;</span><span class="p">,</span> <span class="s1">&#39;fraction&#39;</span><span class="p">,</span> <span class="s1">&#39;free&#39;</span><span class="p">,</span> <span class="s1">&#39;fseek&#39;</span><span class="p">,</span> <span class="s1">&#39;fstat&#39;</span><span class="p">,</span> <span class="s1">&#39;ftell&#39;</span><span class="p">,</span> <span class="s1">&#39;gamma&#39;</span><span class="p">,</span> <span class="s1">&#39;gerror&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;getarg&#39;</span><span class="p">,</span> <span class="s1">&#39;get_command&#39;</span><span class="p">,</span> <span class="s1">&#39;get_command_argument&#39;</span><span class="p">,</span> <span class="s1">&#39;getcwd&#39;</span><span class="p">,</span> <span class="s1">&#39;getenv&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;get_environment_variable&#39;</span><span class="p">,</span> <span class="s1">&#39;getgid&#39;</span><span class="p">,</span> <span class="s1">&#39;getlog&#39;</span><span class="p">,</span> <span class="s1">&#39;getpid&#39;</span><span class="p">,</span> <span class="s1">&#39;getuid&#39;</span><span class="p">,</span> <span class="s1">&#39;gmtime&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;hostnm&#39;</span><span class="p">,</span> <span class="s1">&#39;huge&#39;</span><span class="p">,</span> <span class="s1">&#39;hypot&#39;</span><span class="p">,</span> <span class="s1">&#39;iachar&#39;</span><span class="p">,</span> <span class="s1">&#39;iall&#39;</span><span class="p">,</span> <span class="s1">&#39;iand&#39;</span><span class="p">,</span> <span class="s1">&#39;iany&#39;</span><span class="p">,</span> <span class="s1">&#39;iargc&#39;</span><span class="p">,</span> <span class="s1">&#39;ibclr&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;ibits&#39;</span><span class="p">,</span> <span class="s1">&#39;ibset&#39;</span><span class="p">,</span> <span class="s1">&#39;ichar&#39;</span><span class="p">,</span> <span class="s1">&#39;idate&#39;</span><span class="p">,</span> <span class="s1">&#39;ieor&#39;</span><span class="p">,</span> <span class="s1">&#39;ierrno&#39;</span><span class="p">,</span> <span class="s1">&#39;image_index&#39;</span><span class="p">,</span> <span class="s1">&#39;index&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s1">&#39;int2&#39;</span><span class="p">,</span> <span class="s1">&#39;int8&#39;</span><span class="p">,</span> <span class="s1">&#39;ior&#39;</span><span class="p">,</span> <span class="s1">&#39;iparity&#39;</span><span class="p">,</span> <span class="s1">&#39;irand&#39;</span><span class="p">,</span> <span class="s1">&#39;is_iostat_end&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;is_iostat_eor&#39;</span><span class="p">,</span> <span class="s1">&#39;isatty&#39;</span><span class="p">,</span> <span class="s1">&#39;ishft&#39;</span><span class="p">,</span> <span class="s1">&#39;ishftc&#39;</span><span class="p">,</span> <span class="s1">&#39;isnan&#39;</span><span class="p">,</span> <span class="s1">&#39;itime&#39;</span><span class="p">,</span> <span class="s1">&#39;kill&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;kind&#39;</span><span class="p">,</span> <span class="s1">&#39;lbound&#39;</span><span class="p">,</span> <span class="s1">&#39;lcobound&#39;</span><span class="p">,</span> <span class="s1">&#39;leadz&#39;</span><span class="p">,</span> <span class="s1">&#39;len&#39;</span><span class="p">,</span> <span class="s1">&#39;len_trim&#39;</span><span class="p">,</span> <span class="s1">&#39;lge&#39;</span><span class="p">,</span> <span class="s1">&#39;lgt&#39;</span><span class="p">,</span> <span class="s1">&#39;link&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;lle&#39;</span><span class="p">,</span> <span class="s1">&#39;llt&#39;</span><span class="p">,</span> <span class="s1">&#39;lnblnk&#39;</span><span class="p">,</span> <span class="s1">&#39;loc&#39;</span><span class="p">,</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span> <span class="s1">&#39;log10&#39;</span><span class="p">,</span> <span class="s1">&#39;log_gamma&#39;</span><span class="p">,</span> <span class="s1">&#39;logical&#39;</span><span class="p">,</span> <span class="s1">&#39;long&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;lshift&#39;</span><span class="p">,</span> <span class="s1">&#39;lstat&#39;</span><span class="p">,</span> <span class="s1">&#39;ltime&#39;</span><span class="p">,</span> <span class="s1">&#39;malloc&#39;</span><span class="p">,</span> <span class="s1">&#39;maskl&#39;</span><span class="p">,</span> <span class="s1">&#39;maskr&#39;</span><span class="p">,</span> <span class="s1">&#39;matmul&#39;</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;maxexponent&#39;</span><span class="p">,</span> <span class="s1">&#39;maxloc&#39;</span><span class="p">,</span> <span class="s1">&#39;maxval&#39;</span><span class="p">,</span> <span class="s1">&#39;mclock&#39;</span><span class="p">,</span> <span class="s1">&#39;mclock8&#39;</span><span class="p">,</span> <span class="s1">&#39;merge&#39;</span><span class="p">,</span> <span class="s1">&#39;merge_bits&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;min&#39;</span><span class="p">,</span> <span class="s1">&#39;minexponent&#39;</span><span class="p">,</span> <span class="s1">&#39;minloc&#39;</span><span class="p">,</span> <span class="s1">&#39;minval&#39;</span><span class="p">,</span> <span class="s1">&#39;mod&#39;</span><span class="p">,</span> <span class="s1">&#39;modulo&#39;</span><span class="p">,</span> <span class="s1">&#39;move_alloc&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;mvbits&#39;</span><span class="p">,</span> <span class="s1">&#39;nearest&#39;</span><span class="p">,</span> <span class="s1">&#39;new_line&#39;</span><span class="p">,</span> <span class="s1">&#39;nint&#39;</span><span class="p">,</span> <span class="s1">&#39;norm2&#39;</span><span class="p">,</span> <span class="s1">&#39;not&#39;</span><span class="p">,</span> <span class="s1">&#39;null&#39;</span><span class="p">,</span> <span class="s1">&#39;num_images&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;or&#39;</span><span class="p">,</span> <span class="s1">&#39;pack&#39;</span><span class="p">,</span> <span class="s1">&#39;parity&#39;</span><span class="p">,</span> <span class="s1">&#39;perror&#39;</span><span class="p">,</span> <span class="s1">&#39;popcnt&#39;</span><span class="p">,</span> <span class="s1">&#39;poppar&#39;</span><span class="p">,</span> <span class="s1">&#39;precision&#39;</span><span class="p">,</span> <span class="s1">&#39;present&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;product&#39;</span><span class="p">,</span> <span class="s1">&#39;radix&#39;</span><span class="p">,</span> <span class="s1">&#39;ran&#39;</span><span class="p">,</span> <span class="s1">&#39;rand&#39;</span><span class="p">,</span> <span class="s1">&#39;random_number&#39;</span><span class="p">,</span> <span class="s1">&#39;random_seed&#39;</span><span class="p">,</span> <span class="s1">&#39;range&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;rank &#39;</span><span class="p">,</span> <span class="s1">&#39;real&#39;</span><span class="p">,</span> <span class="s1">&#39;rename&#39;</span><span class="p">,</span> <span class="s1">&#39;repeat&#39;</span><span class="p">,</span> <span class="s1">&#39;reshape&#39;</span><span class="p">,</span> <span class="s1">&#39;rrspacing&#39;</span><span class="p">,</span> <span class="s1">&#39;rshift&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;same_type_as&#39;</span><span class="p">,</span> <span class="s1">&#39;scale&#39;</span><span class="p">,</span> <span class="s1">&#39;scan&#39;</span><span class="p">,</span> <span class="s1">&#39;secnds&#39;</span><span class="p">,</span> <span class="s1">&#39;second&#39;</span><span class="p">,</span> <span class="s1">&#39;selected_char_kind&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;selected_int_kind&#39;</span><span class="p">,</span> <span class="s1">&#39;selected_real_kind&#39;</span><span class="p">,</span> <span class="s1">&#39;set_exponent&#39;</span><span class="p">,</span> <span class="s1">&#39;shape&#39;</span><span class="p">,</span> <span class="s1">&#39;shifta&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;shiftl&#39;</span><span class="p">,</span> <span class="s1">&#39;shiftr&#39;</span><span class="p">,</span> <span class="s1">&#39;sign&#39;</span><span class="p">,</span> <span class="s1">&#39;signal&#39;</span><span class="p">,</span> <span class="s1">&#39;sin&#39;</span><span class="p">,</span> <span class="s1">&#39;sind&#39;</span><span class="p">,</span> <span class="s1">&#39;sinh&#39;</span><span class="p">,</span> <span class="s1">&#39;size&#39;</span><span class="p">,</span> <span class="s1">&#39;sizeof&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;sleep&#39;</span><span class="p">,</span> <span class="s1">&#39;spacing&#39;</span><span class="p">,</span> <span class="s1">&#39;spread&#39;</span><span class="p">,</span> <span class="s1">&#39;sqrt&#39;</span><span class="p">,</span> <span class="s1">&#39;srand&#39;</span><span class="p">,</span> <span class="s1">&#39;stat&#39;</span><span class="p">,</span> <span class="s1">&#39;storage_size&#39;</span><span class="p">,</span> <span class="s1">&#39;sum&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;symlnk&#39;</span><span class="p">,</span> <span class="s1">&#39;system&#39;</span><span class="p">,</span> <span class="s1">&#39;system_clock&#39;</span><span class="p">,</span> <span class="s1">&#39;tan&#39;</span><span class="p">,</span> <span class="s1">&#39;tand&#39;</span><span class="p">,</span> <span class="s1">&#39;tanh&#39;</span><span class="p">,</span> <span class="s1">&#39;this_image&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;time8&#39;</span><span class="p">,</span> <span class="s1">&#39;tiny&#39;</span><span class="p">,</span> <span class="s1">&#39;trailz&#39;</span><span class="p">,</span> <span class="s1">&#39;transfer&#39;</span><span class="p">,</span> <span class="s1">&#39;transpose&#39;</span><span class="p">,</span> <span class="s1">&#39;trim&#39;</span><span class="p">,</span> <span class="s1">&#39;ttynam&#39;</span><span class="p">,</span> 
+    <span class="s1">&#39;ubound&#39;</span><span class="p">,</span> <span class="s1">&#39;ucobound&#39;</span><span class="p">,</span> <span class="s1">&#39;umask&#39;</span><span class="p">,</span> <span class="s1">&#39;unlink&#39;</span><span class="p">,</span> <span class="s1">&#39;unpack&#39;</span><span class="p">,</span> <span class="s1">&#39;verify&#39;</span><span class="p">,</span> <span class="s1">&#39;xor&#39;</span><span class="p">])</span>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1">#                                                                              #</span>
+<span class="c1">#                       NEGATED OPERATIONS MAPPING                             #</span>
+<span class="c1">#                                                                              #</span>
+<span class="c1">################################################################################</span>
+
+<span class="n">NEGATED_OP</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;.le.&quot;</span> <span class="p">:</span> <span class="s2">&quot;.gt.&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;.ge.&quot;</span> <span class="p">:</span> <span class="s2">&quot;.lt.&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;.lt.&quot;</span> <span class="p">:</span> <span class="s2">&quot;.ge.&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;.gt.&quot;</span> <span class="p">:</span> <span class="s2">&quot;.le.&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;.eq.&quot;</span> <span class="p">:</span> <span class="s2">&quot;.ne.&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;.ne.&quot;</span> <span class="p">:</span> <span class="s2">&quot;.eq.&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;&lt;=&quot;</span> <span class="p">:</span> <span class="s2">&quot;&gt;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;&gt;=&quot;</span> <span class="p">:</span> <span class="s2">&quot;&lt;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;==&quot;</span> <span class="p">:</span> <span class="s2">&quot;!=&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;&lt;&quot;</span> <span class="p">:</span> <span class="s2">&quot;&gt;=&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;&gt;&quot;</span> <span class="p">:</span> <span class="s2">&quot;&lt;=&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;!=&quot;</span> <span class="p">:</span> <span class="s2">&quot;==&quot;</span><span class="p">,</span>
+              <span class="p">}</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Adarsh
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,16 @@
+.. _exhale_class_classQualitativeDelta:
+
+Class QualitativeDelta
+======================
+
+- Defined in :ref:`file_lib_Edge.hpp`
+
+
+Class Documentation
+-------------------
+
+
+.. doxygenclass:: QualitativeDelta
+   :members:
+   :protected-members:
+   :undoc-members:

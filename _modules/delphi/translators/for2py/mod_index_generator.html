@@ -1,0 +1,454 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>delphi.translators.for2py.mod_index_generator &mdash; delphi  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+        <script src="../../../../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../../../../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> delphi
+          
+
+          
+            
+            <img src="../../../../_static/delphi_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html#change-log">Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cpp_api/library_root.html">C++ API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">delphi</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../for2py.html">delphi.translators.for2py</a> &raquo;</li>
+        
+      <li>delphi.translators.for2py.mod_index_generator</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for delphi.translators.for2py.mod_index_generator</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module contains code to generate a module index file for a set of Fortran</span>
+<span class="sd">files that the program analysis pipeline runs over. The file describes each</span>
+<span class="sd">module used in a program run. The information about each module is represented</span>
+<span class="sd">as a JSON dictionary and has the following fields:</span>
+
+<span class="sd">    name:              &lt;module_name&gt;</span>
+<span class="sd">    file:              &lt;file_containing_the_module&gt;</span>
+<span class="sd">    module:            &lt;list_of_used_modules&gt;</span>
+<span class="sd">    symbol_export:     &lt;list_of_symbols_exported_by_module&gt;</span>
+<span class="sd">    subprogram_list:   &lt;procedure_mapping_for_module&gt;</span>
+
+<span class="sd">The procedure mapping for each subprogram `p` defined in module `M` is a</span>
+<span class="sd">mapping from each possible tuple of argument types for p to the function to</span>
+<span class="sd">invoke for that argument type tuple.</span>
+
+<span class="sd">Author: Pratik Bhandari</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="k">as</span> <span class="nn">ET</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+
+<div class="viewcode-block" id="ModuleGenerator"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.mod_index_generator.ModuleGenerator">[docs]</a><span class="k">class</span> <span class="nc">ModuleGenerator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># This string holds the current context of the program being parsed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_context</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># This string holds the name of the original Fortran code which is</span>
+        <span class="c1"># being processed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fileName</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># This string holds the name of the main PROGRAM module</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">main</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># This string holds the path on which the XML file of the original</span>
+        <span class="c1"># Fortran code is located</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># Initialize all the dictionaries which we will be writing to our file</span>
+        <span class="c1"># This is a list of all modules inside a single Fortran file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modules</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># This dictionary holds the set of symbols exported by each module.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exports</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># This dictionary holds the modules used by each module/program.</span>
+        <span class="c1"># Additionally, variables from each module can be selectively USEd (</span>
+        <span class="c1"># imported). This is stored in the object below. If all variables of</span>
+        <span class="c1"># a module are USEd, an `*` symbol is used to denote this.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uses</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># This dictionary holds the set of symbols imported by each module.</span>
+        <span class="c1"># This is given by: IMPORTS(m) = U { EXPORTS(p) | p ∈ USES(m) }</span>
+        <span class="c1"># Since a module can use the ONLY keyword to import only some of the</span>
+        <span class="c1"># symbols exported by another module, in such cases, the set of</span>
+        <span class="c1"># imported symbols is be limited to those explicitly mentioned.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">imports</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># This dictionary holds all the private variables defined in each</span>
+        <span class="c1"># module</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">private</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># This dictionary holds all public variables for each module/context</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">public</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># This dictionary holds all subprograms (subroutines and functions) for</span>
+        <span class="c1"># each module</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subprograms</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># This dictionary stores the set of symbols declared in each module.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symbols</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># This dictionary stores a variable-type mapping.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">variable_types</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symbol_type</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="ModuleGenerator.populate_symbols"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.mod_index_generator.ModuleGenerator.populate_symbols">[docs]</a>    <span class="k">def</span> <span class="nf">populate_symbols</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; This function populates the dictionary `self.symbols` which stores</span>
+<span class="sd">        the set of symbols declared in each module. This is the union of all</span>
+<span class="sd">        public variables, private variables and subprograms for each module.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">symbols</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">public</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">[])</span> <span class="o">+</span> \
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">private</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">[])</span> <span class="o">+</span> \
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">subprograms</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">[])</span></div>
+
+<div class="viewcode-block" id="ModuleGenerator.populate_exports"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.mod_index_generator.ModuleGenerator.populate_exports">[docs]</a>    <span class="k">def</span> <span class="nf">populate_exports</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; This function populates the `self.exports` dictionary which holds</span>
+<span class="sd">        the set of symbols exported by each module. The set of exported symbols</span>
+<span class="sd">        is given by: (imports U symbols) - private &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">:</span>
+            <span class="n">interim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">imports</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">[])</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">symbols</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exports</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">interim</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span>
+                                  <span class="bp">self</span><span class="o">.</span><span class="n">private</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">[])]</span></div>
+
+<div class="viewcode-block" id="ModuleGenerator.populate_imports"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.mod_index_generator.ModuleGenerator.populate_imports">[docs]</a>    <span class="k">def</span> <span class="nf">populate_imports</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module_logs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; This function populates the `self.imports` dictionary which holds</span>
+<span class="sd">        all the private variables defined in each module.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">uses</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">use_item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">uses</span><span class="p">[</span><span class="n">module</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">use_item</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">use_item</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">use_item</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;*&#39;</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">exports</span><span class="p">:</span>
+                            <span class="n">symbols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exports</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">assert</span> <span class="p">(</span>
+                                <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">module_logs</span><span class="p">[</span><span class="s2">&quot;mod_info&quot;</span><span class="p">]</span>
+                            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;module name (key) </span><span class="si">{key}</span><span class="s2"> does not exist in the log file.&quot;</span>
+                            <span class="n">symbols</span> <span class="o">=</span> <span class="n">module_logs</span><span class="p">[</span><span class="s2">&quot;mod_info&quot;</span><span class="p">][</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;exports&quot;</span><span class="p">]</span>
+                            <span class="k">if</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">module_logs</span><span class="p">[</span><span class="s2">&quot;mod_info&quot;</span><span class="p">]:</span>
+                                <span class="n">module_logs</span><span class="p">[</span><span class="s2">&quot;mod_info&quot;</span><span class="p">][</span><span class="n">module</span><span class="p">][</span><span class="s2">&quot;imports&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">symbols</span>
+                        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">symbols</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">imports</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">symbols</span><span class="p">[</span><span class="n">key</span><span class="p">]}</span>
+                            <span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">imports</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">symbols</span><span class="p">}</span>
+                            <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">imports</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">use_item</span><span class="p">[</span><span class="n">key</span><span class="p">]}</span>
+                        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="ModuleGenerator.populate_symbol_types"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.mod_index_generator.ModuleGenerator.populate_symbol_types">[docs]</a>    <span class="k">def</span> <span class="nf">populate_symbol_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable_types</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">symbols</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">symbols</span><span class="p">[</span><span class="n">module</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">symbol_type</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">module</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable_types</span><span class="p">[</span><span class="n">var</span><span class="p">]]</span></div>
+
+<div class="viewcode-block" id="ModuleGenerator.parse_tree"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.mod_index_generator.ModuleGenerator.parse_tree">[docs]</a>    <span class="k">def</span> <span class="nf">parse_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">module_logs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot; This function parses the XML tree of a Fortran file and tracks and</span>
+<span class="sd">        maps relevant object relationships &quot;&quot;&quot;</span>
+
+        <span class="c1"># Find name of PROGRAM module</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">iter</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;program&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">main</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+        <span class="n">variable_type</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">iter</span><span class="p">():</span>
+            <span class="c1"># Get the name of the XML file being parsed</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;file&quot;</span><span class="p">:</span>
+                <span class="n">file_name</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">]</span>
+                <span class="n">file</span> <span class="o">=</span> <span class="n">file_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">file_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;^(.*)_processed(\..*)$&#39;</span>
+                <span class="n">path_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;^.*(delphi/[^delphi].*)/\w+&#39;</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">file_regex</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">fileName</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">path_regex</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">item</span><span class="o">.</span><span class="n">tag</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;module&quot;</span><span class="p">,</span> <span class="s2">&quot;program&quot;</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">current_context</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+
+            <span class="k">elif</span> <span class="p">(</span>
+                    <span class="n">item</span><span class="o">.</span><span class="n">tag</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;type&quot;</span>
+                    <span class="ow">and</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">attrib</span>
+            <span class="p">):</span>
+                <span class="n">variable_type</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">item</span><span class="o">.</span><span class="n">tag</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;variable&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_context</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">current_context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">public</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_context</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">item</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">variable_types</span><span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span> <span class="o">=</span> <span class="n">variable_type</span>
+
+            <span class="k">elif</span> <span class="n">item</span><span class="o">.</span><span class="n">tag</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;subroutine&quot;</span><span class="p">,</span> <span class="s2">&quot;function&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_context</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">current_context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">subprograms</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_context</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">item</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">current_context</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+            <span class="k">elif</span> <span class="n">item</span><span class="o">.</span><span class="n">tag</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;declaration&quot;</span><span class="p">:</span>
+                <span class="c1"># This function parses the &lt;declaration&gt; tag of the XML and</span>
+                <span class="c1"># checks if private variables are defined in the respective</span>
+                <span class="c1"># module/program. Private variables tend to be inside the</span>
+                <span class="c1"># declaration tag</span>
+                <span class="n">private_status</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">iter</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;access-spec&quot;</span> <span class="ow">and</span> <span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                            <span class="s2">&quot;keyword&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;private&quot;</span><span class="p">:</span>
+                        <span class="n">private_status</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;variable&quot;</span> <span class="ow">and</span> <span class="n">private_status</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_context</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">current_context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span>
+                        <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">):</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">private</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_context</span><span class="p">,</span>
+                                                    <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+
+            <span class="k">elif</span> <span class="n">item</span><span class="o">.</span><span class="n">tag</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;use&quot;</span><span class="p">:</span>
+                <span class="c1"># If a module, program or subroutine uses (imports) another</span>
+                <span class="c1"># module, a USE statement is used and we want to map the</span>
+                <span class="c1"># relationship between different program scopes that occur</span>
+                <span class="c1"># with the use of the USE statement</span>
+                <span class="n">only_symbols</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;only&quot;</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">innerChild</span> <span class="ow">in</span> <span class="n">child</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">innerChild</span><span class="o">.</span><span class="n">tag</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span>
+                                <span class="n">only_symbols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">innerChild</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span>
+                                                        <span class="s2">&quot;id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_context</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">current_context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">uses</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_context</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="n">item</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span> <span class="n">only_symbols</span><span class="p">}</span> <span class="k">if</span> <span class="n">only_symbols</span>
+                    <span class="k">else</span> <span class="p">{</span><span class="n">item</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span> <span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">]})</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">populate_symbols</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">populate_symbol_types</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">populate_exports</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">populate_imports</span><span class="p">(</span><span class="n">module_logs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="ModuleGenerator.analyze"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.mod_index_generator.ModuleGenerator.analyze">[docs]</a>    <span class="k">def</span> <span class="nf">analyze</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree</span><span class="p">:</span> <span class="n">ET</span><span class="o">.</span><span class="n">ElementTree</span><span class="p">,</span> <span class="n">mod_log_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot; Parse the XML file from the root and keep track of all important</span>
+<span class="sd">        data structures and object relationships between files. &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">mod_log_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_f</span><span class="p">:</span>
+            <span class="n">module_logs</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">json_f</span><span class="p">)</span>
+
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_tree</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">module_logs</span><span class="p">)</span>
+        <span class="n">output_dictionary</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="n">output_dictionary</span><span class="p">[</span><span class="s1">&#39;file_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">fileName</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">]</span>
+            <span class="n">output_dictionary</span><span class="p">[</span><span class="s1">&#39;modules&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modules</span>
+            <span class="n">output_dictionary</span><span class="p">[</span><span class="s1">&#39;exports&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exports</span>
+            <span class="n">output_dictionary</span><span class="p">[</span><span class="s1">&#39;use_mapping&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uses</span>
+            <span class="n">output_dictionary</span><span class="p">[</span><span class="s1">&#39;imports&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">imports</span>
+            <span class="n">output_dictionary</span><span class="p">[</span><span class="s1">&#39;private_objects&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">private</span>
+            <span class="n">output_dictionary</span><span class="p">[</span><span class="s1">&#39;public_objects&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">public</span>
+            <span class="n">output_dictionary</span><span class="p">[</span><span class="s1">&#39;subprograms&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subprograms</span>
+            <span class="n">output_dictionary</span><span class="p">[</span><span class="s1">&#39;symbols&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">symbols</span>
+            <span class="n">output_dictionary</span><span class="p">[</span><span class="s1">&#39;symbol_types&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">symbol_type</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">mod_log_path</span><span class="p">,</span> <span class="s1">&#39;w+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_f</span><span class="p">:</span>
+            <span class="n">json_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">module_logs</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">output_dictionary</span><span class="p">]</span></div></div>
+
+
+<div class="viewcode-block" id="get_index"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.mod_index_generator.get_index">[docs]</a><span class="k">def</span> <span class="nf">get_index</span><span class="p">(</span><span class="n">xml_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">module_log_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Get the root of the XML ast, instantiate the moduleGenerator and start</span>
+<span class="sd">    the analysis process.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">xml_file</span><span class="p">)</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+    <span class="n">generator</span> <span class="o">=</span> <span class="n">ModuleGenerator</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">generator</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">module_log_file_path</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Adarsh
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

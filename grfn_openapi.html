@@ -1,0 +1,266 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>GrFN OpenAPI Specification &mdash; delphi  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="_static/collapsible-lists/css/tree_view.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Typedef Thetas" href="cpp_api/typedef_AnalysisGraph_8hpp_1a1edc1451b1f58fcac963271eafb8e55e.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> delphi
+          
+
+          
+            
+            <img src="_static/delphi_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grfn_spec.html#change-log">Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp_api/library_root.html">C++ API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">GrFN OpenAPI Specification</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">delphi</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>GrFN OpenAPI Specification</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/grfn_openapi.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="grfn-openapi-specification">
+<h1>GrFN OpenAPI Specification<a class="headerlink" href="#grfn-openapi-specification" title="Permalink to this headline">¶</a></h1>
+
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro:300,600|Titillium+Web:400,600,700" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="_static/swagger-ui/swagger-ui.css" >
+  <style>
+    html
+    {
+      box-sizing: border-box;
+      overflow: -moz-scrollbars-vertical;
+      overflow-y: scroll;
+    }
+    *,
+    *:before,
+    *:after
+    {
+      box-sizing: inherit;
+    }
+
+    body {
+      margin:0;
+      background: #fafafa;
+    }
+  </style>
+
+<div id="swagger-ui"></div>
+<script src="_static/swagger-ui/swagger-ui-bundle.js"> </script>
+<script src="_static/swagger-ui/swagger-ui-standalone-preset.js"> </script>
+<script>
+    window.onload = function() {
+
+    // Build a system
+    var spec = {"openapi": "3.0.0", "info": {"title": "GrFN spec", "description": "Grounded Function Network (GrFN) schema specification", "contact": {"name": "Clayton T. Morrison", "email": "claytonm@email.arizona.edu"}, "license": {"name": "Apache 2.0", "url": "http://www.apache.org/licenses/LICENSE-2.0.html"}, "version": "0.2.17"}, "paths": {}, "components": {"schemas": {"system_def": {"title": "<system_def>", "description": "Specification of a GrFN system consisting of one or more GrFN files. With imports, the system must represent a DAG.\n", "required": ["date_created", "name", "components"], "properties": {"date_created": {"type": "string", "format": "date-time"}, "name": {"type": "string"}, "components": {"type": "array", "items": {"$ref": "#/components/schemas/grfn_ref"}}}}, "grfn_ref": {"title": "<grfn_ref>", "description": "Specifies a GrFN definition file (`grfn_source`) that is part of a GrFN system, along with it source code files (`code_sources`) and any <grfn_def> imports (`imports`).\n", "required": ["grfn_source", "code_sources"], "properties": {"grfn_source": {"$ref": "#/components/schemas/file_path", "description": "Path to <grfn_def> file for this reference.\n"}, "code_sources": {"type": "array", "items": {"$ref": "#/components/schemas/file_path"}, "description": "List of one or more source code file paths that contain the namespace for the current <grfn_def>.\n"}, "imports": {"type": "array", "items": {"$ref": "#/components/schemas/file_path"}, "description": "(optional) List of any <grfn_def> files representing namespaces that are imported to the current <grfn_def>.\n"}}}, "grfn_def": {"title": "<grfn_def>", "description": "The top-level structure of the GrFN definition derived from Program Analysis of source code. A <grfn_def> corresponds to a namespace.\n", "required": ["date_created", "source", "identifiers", "variables", "containers"], "properties": {"date_created": {"type": "string", "format": "date-time", "description": "Date and time that current GrFN was generated.\n"}, "source": {"description": "Path(s) to source code file(s) that were analyzed.", "type": "array", "items": {"$ref": "#/components/schemas/file_path"}}, "start": {"type": "array", "items": {"$ref": "#/components/schemas/container_identifier_name"}, "description": "(optional) Top-level entry-points into program"}, "types": {"type": "array", "items": {"$ref": "#/components/schemas/type_def"}}, "variables": {"type": "array", "items": {"$ref": "#/components/schemas/variable_def"}}, "containers": {"type": "array", "items": {"$ref": "#/components/schemas/container_def"}}, "source_comments": {"type": "array", "items": {"type": "string"}}, "grounding": {"type": "array", "items": {"$ref": "#/components/schemas/link_hypothesis"}}}}, "link_hypothesis": {"title": "<link_hypothesis>", "description": "A commutative binary relation representing a hypothesized link between two <semantic_element>s:\n  (elm1=A, elm2=B) == (elm1=B, elm2=A)\n", "required": ["element_1", "element_2", "score"], "properties": {"element_1": {"$ref": "#/components/schemas/link_element"}, "element_2": {"$ref": "#/components/schemas/link_element"}, "score": {"type": "number", "format": "float"}}}, "link_element": {"title": "<link_element>", "description": "A grounding hypothesis link element.<br> \"type\": identifier (<variable_identifier_name>, <function_identifier_name>, <type_identifier_name>), content_span, text_span, equation_term, or ontology_term\n", "required": ["type", "content"], "properties": {"type": {"type": "string", "enum": ["identifier", "comment_span", "text_span", "equation_term", "ontology_term"]}, "source": {"type": "string"}, "content": {"type": "string"}, "content_type": {"type": "string", "enum": ["definition", "units", "constraint"]}}}, "base_name": {"title": "<base_name>", "description": "The identifier name (when available) that was used in the original source code.\n", "type": "string"}, "scope_path": {"title": "<scope_path>", "description": "Array of names identifying a program scope.\n", "type": "array", "items": {"type": "string"}}, "scope_path_string": {"title": "<scope_path_string>", "description": "String representation of a `<scope_path>`. String names that make up components of the path are expressed in order, separated by periods.\n", "example": "\"foo.loop$1.loop$2\"", "type": "string"}, "namespace_path": {"title": "<namespace_path>", "description": "Array of names representing a namespace.\n", "type": "array", "items": {"type": "string"}}, "namespace_path_string": {"title": "<namespace_path_string>", "description": "Single string representation of a `<namespace_path>`. String names that make up components of the path are expressed in order, separated by periods.\n", "example": "\"foo.bar.baz\"", "type": "string"}, "gensym": {"title": "<gensym>", "description": "String representation of a unique gensym. Used as identifiers in lambdas and other source code generated from GrFN.\n", "type": "string"}, "variable_identifier_name": {"title": "<variable_identifier_name>", "description": "`\"@variable::<namespace_path_string>::<scope_path_string>::<variable_base_name>\"`\n", "type": "string"}, "variable_base_name": {"title": "<variable_base_name>", "description": "`\"@variable::<base_name>::<index>\"`\n", "type": "string"}, "container_identifier_name": {"title": "<container_identifier_name>", "description": "`\"@container::<namespace_path_string>::<scope_path_string>::<container_base_name>\"`\n", "type": "string"}, "container_base_name": {"title": "<container_base_name>", "description": "`\"@container::<container_type>[$[<var_affected>|<code_given_name>]]\"`\n", "type": "string"}, "type_identifier_name": {"title": "<type_identifier_name>", "description": "String denoting a non-primitive type; will have a corresponding unique `<type_spec>`:<br> `\"@type::<namespace_path_string>::<scope_path_string>::<base_name>\"`\n", "type": "string"}, "type_base_name": {"title": "<type_base_name>", "description": "`\"@type::<base_name>\"`\n", "type": "string"}, "literal_name": {"title": "<literal_name>", "description": "String representing a literal value:\n  `\"@literal::<type>::<value>\"`<br>\nwhere `<type>` is any primitive type:\n  \"integer\" | \"float\" | \"boolean\" | \"string\"<br>\nTODO: generalize to any <type> (requires move to structured object)\n", "type": "string"}, "type_def": {"title": "<type_def>", "description": "Define a non-primitive type.\n", "required": ["name", "source_ref", "gensym"], "properties": {"name": {"$ref": "#/components/schemas/type_identifier_name"}, "source_ref": {"$ref": "#/components/schemas/source_code_ref"}, "gensym": {"$ref": "#/components/schemas/gensym"}, "attributes": {"type": "array", "items": {"$ref": "#/components/schemas/attribute_def"}}}}, "attribute_def": {"title": "<attribute_def>", "description": "Define an attribute of a `<type>`.\n", "required": ["name", "value_type"], "properties": {"name": {"type": "string"}, "value_type": {"$ref": "#/components/schemas/type"}}}, "variable_def": {"title": "<variable_def>", "description": "The specification of a variable hosting a value.\n", "required": ["name", "index", "source_ref", "gensym", "domain"], "properties": {"name": {"$ref": "#/components/schemas/variable_identifier_name"}, "index": {"type": "integer"}, "source_ref": {"$ref": "#/components/schemas/source_code_ref"}, "gensym": {"$ref": "#/components/schemas/gensym"}, "domain": {"$ref": "#/components/schemas/type"}, "domain_constraints": {"type": "string", "description": "String representing a disjunctive normal form representation with v = variable value, for example:<br> `\"(or (and (< v infty) (>= v 5)) (and (> v -infty) (< v 0)))\"`\n"}}}, "container_def": {"title": "<container_def>", "description": "Define a container with a function subnetwork body. Execution through the container body depends on value of the boolean \"repeat\":<br> false = execute once<br> true = execute indefinitely (loop).\n", "required": ["name", "source_refs", "gensym", "repeat", "arguments", "return_value", "body"], "properties": {"name": {"$ref": "#/components/schemas/container_identifier_name"}, "source_ref": {"$ref": "#/components/schemas/source_code_ref"}, "gensym": {"$ref": "#/components/schemas/gensym"}, "repeat": {"type": "boolean"}, "arguments": {"type": "array", "items": {"$ref": "#/components/schemas/variable_base_name"}}, "updated": {"type": "array", "items": {"$ref": "#/components/schemas/variable_base_name"}}, "return_value": {"type": "array", "items": {"$ref": "#/components/schemas/variable_identifier_name"}}, "body": {"type": "array", "items": {"$ref": "#/components/schemas/container_wiring"}}}}, "container_wiring": {"title": "<container_wiring>", "description": "Defines the \"wiring\" of functions within a container, specifying associations of variables to function arguments (\"input\") and the function return_value (\"output\").\n", "required": ["function", "input", "output"], "properties": {"function": {"$ref": "#/components/schemas/function_ref"}, "input": {"type": "array", "items": {"oneOf": [{"$ref": "#/components/schemas/variable_base_name"}, {"$ref": "#/components/schemas/container_identifier_name"}, {"$ref": "#/components/schemas/literal_name"}]}}, "output": {"type": "array", "items": {"$ref": "#/components/schemas/variable_base_name"}}, "updated": {"type": "array", "items": {"$ref": "#/components/schemas/variable_base_name"}}}}, "function_ref": {"title": "<function_ref>", "description": "A `<function_ref>` is either<br> (1) `<container_identifier_name>` denoting a container specification<br> (2) `<lambda_function_source_ref>` denoting an executable lambda function.<br>\n", "required": ["name", "type"], "properties": {"name": {"oneOf": [{"$ref": "#/components/schemas/container_identifier_name"}, {"$ref": "#/components/schemas/lambda_function_source_ref"}]}, "type": {"description": "Indicate whether \"function\" is a `<container_identifier_name>` or `<lambda_function_source_ref>`.\n", "type": "string", "enum": ["container", "lambda"]}}}, "lambda_function_source_ref": {"title": "<lambda_function_source_ref>", "description": "String representation of a path/reference to a function in `lambda.py`.\n", "type": "string"}, "source_code_ref": {"title": "<source_code_ref>", "description": "Reference to the location within the a source code file.\n", "required": ["line_number", "file_path"], "properties": {"line_number": {"type": "integer"}, "column_start": {"type": "integer"}, "column_end": {"type": "integer"}, "file_path": {"$ref": "#/components/schemas/file_path"}}}, "file_path": {"title": "<file_path>", "description": "String representation of the path to a file.\n", "type": "string"}, "type": {"title": "<type>", "description": "Root type.", "oneOf": [{"$ref": "#/components/schemas/type_type_def"}, {"$ref": "#/components/schemas/type_integer"}, {"$ref": "#/components/schemas/type_float"}, {"$ref": "#/components/schemas/type_boolean"}, {"$ref": "#/components/schemas/type_string"}, {"$ref": "#/components/schemas/type_array"}, {"$ref": "#/components/schemas/type_list"}, {"$ref": "#/components/schemas/type_map"}, {"$ref": "#/components/schemas/type_hashmap"}, {"$ref": "#/components/schemas/type_tuple"}]}, "type_type_def": {"title": "<type_type_def>", "description": "Indicator of a user-defined `<type_def>`. \"name\" is a `<type_identifier_name>` that identifies the `<type_def>`.\n", "required": ["name", "type"], "properties": {"name": {"$ref": "#/components/schemas/type_identifier_name"}, "type": {"type": "string", "enum": ["type"]}}}, "type_integer": {"title": "<type_integer>", "description": "Primitive scalar integer\n", "required": ["name", "type"], "properties": {"name": {"type": "string", "enum": ["integer"]}, "type": {"type": "string", "enum": ["type"]}}}, "type_float": {"title": "<type_float>", "description": "Primitive scalar float\n", "required": ["name", "type"], "properties": {"name": {"type": "string", "enum": ["float"]}, "type": {"type": "string", "enum": ["type"]}}}, "type_boolean": {"title": "<type_boolean>", "description": "Primitive scalar boolean\n", "required": ["name", "type"], "properties": {"name": {"type": "string", "enum": ["boolean"]}, "type": {"type": "string", "enum": ["type"]}}}, "type_string": {"title": "<type_string>", "description": "Primitive scalar string\n", "required": ["name", "type"], "properties": {"name": {"type": "string", "enum": ["string"]}, "type": {"type": "string", "enum": ["type"]}}}, "type_array": {"title": "<type_array>", "description": "Array primitive type. Dimension integers can only be positive. The \"element_type\" specifies the `<type>` of the elements in the array.\n", "required": ["name", "type", "dimensions", "element_type"], "properties": {"name": {"type": "string", "enum": ["array"]}, "type": {"type": "string", "enum": ["type"]}, "dimensions": {"description": "Array of integer or variable (storing an integer) defining size of each array dimension.\n", "type": "array", "items": {"oneOf": [{"type": "integer", "minimum": 1}, {"$ref": "#/components/schemas/variable_identifier_name"}]}}, "index_start": {"description": "Array of integers defining start index of each dimension. This field is optional. If left out, assumption is each dimension has a start index of 0.\n", "type": "array", "items": {"type": "integer"}}, "element_type": {"$ref": "#/components/schemas/type"}}}, "type_list": {"title": "<type_list>", "description": "List primitive type.\n", "required": ["name", "type"], "properties": {"name": {"type": "string", "enum": ["list"]}, "type": {"type": "string", "enum": ["type"]}}}, "type_map": {"title": "<type_map>", "description": "Map primitive type.\n", "required": ["name", "type"], "properties": {"name": {"type": "string", "enum": ["map"]}, "type": {"type": "string", "enum": ["type"]}}}, "type_hashmap": {"title": "<type_hashmap>", "description": "A Map who's keys have a \"key_type\" `<type>`.\n", "required": ["name", "type", "key_type"], "properties": {"name": {"type": "string", "enum": ["hashmap"]}, "type": {"type": "string", "enum": ["type"]}, "key_type": {"$ref": "#/components/schemas/type"}}}, "type_tuple": {"title": "<type_tuple>", "description": "Tuple primitive type. \"element_types\" is an array of the `<types>` of each element of the tuple. The order of `<types>` in \"elemennt_types\" corresponds to the order of elements in the tuple.\n", "required": ["name", "type", "element_types"], "properties": {"name": {"type": "string", "enum": ["tuple"]}, "type": {"type": "string", "enum": ["type"]}, "element_types": {"type": "array", "items": {"$ref": "#/components/schemas/type"}}}}}}, "externalDocs": {"description": "Find more information here", "url": "https://ml4ai.github.io/delphi/grfn_spec.html"}};
+    const ui = SwaggerUIBundle({
+        spec: spec,
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        presets: [
+            SwaggerUIBundle.presets.apis,
+            SwaggerUIStandalonePreset
+        ],
+        plugins: [
+            SwaggerUIBundle.plugins.DownloadUrl
+        ],
+        layout: "StandaloneLayout"
+    })
+
+    window.ui = ui
+    }
+</script>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="cpp_api/typedef_AnalysisGraph_8hpp_1a1edc1451b1f58fcac963271eafb8e55e.html" class="btn btn-neutral float-left" title="Typedef Thetas" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Adarsh
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

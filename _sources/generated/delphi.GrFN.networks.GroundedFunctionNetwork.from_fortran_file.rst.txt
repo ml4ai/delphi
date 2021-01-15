@@ -1,0 +1,6 @@
+delphi.GrFN.networks.GroundedFunctionNetwork.from\_fortran\_file
+================================================================
+
+.. currentmodule:: delphi.GrFN.networks
+
+.. automethod:: GroundedFunctionNetwork.from_fortran_file

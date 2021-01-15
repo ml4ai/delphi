@@ -1,0 +1,63 @@
+
+.. _file_lib_DelphiPython.cpp:
+
+File DelphiPython.cpp
+=====================
+
+|exhale_lsh| :ref:`Parent directory <dir_lib>` (``lib``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. contents:: Contents
+   :local:
+   :backlinks: none
+
+Definition (``lib/DelphiPython.cpp``)
+-------------------------------------
+
+
+.. toctree::
+   :maxdepth: 1
+
+   program_listing_file_lib_DelphiPython.cpp.rst
+
+
+
+
+
+Includes
+--------
+
+
+- ``AnalysisGraph.hpp`` (:ref:`file_lib_AnalysisGraph.hpp`)
+
+- ``exceptions.hpp`` (:ref:`file_lib_exceptions.hpp`)
+
+- ``pybind11/eigen.h``
+
+- ``pybind11/numpy.h``
+
+- ``pybind11/operators.h``
+
+- ``pybind11/pybind11.h``
+
+- ``pybind11/stl.h``
+
+
+
+
+
+
+Namespaces
+----------
+
+
+- :ref:`namespace_pybind11__literals`
+
+
+Functions
+---------
+
+
+- :ref:`exhale_function_DelphiPython_8cpp_1a6f425eb7faca79c55899e99bcf0c8e12`
+

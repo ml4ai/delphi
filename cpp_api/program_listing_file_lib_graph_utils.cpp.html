@@ -1,0 +1,402 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Program Listing for File graph_utils.cpp &mdash; delphi  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> delphi
+          
+
+          
+            
+            <img src="../_static/delphi_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html#change-log">Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library_root.html">C++ API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">delphi</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Program Listing for File graph_utils.cpp</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/cpp_api/program_listing_file_lib_graph_utils.cpp.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="program-listing-for-file-graph-utils-cpp">
+<span id="program-listing-file-lib-graph-utils-cpp"></span><h1>Program Listing for File graph_utils.cpp<a class="headerlink" href="#program-listing-for-file-graph-utils-cpp" title="Permalink to this headline">¶</a></h1>
+<p>↰ <a class="reference internal" href="file_lib_graph_utils.cpp.html#file-lib-graph-utils-cpp"><span class="std std-ref">Return to documentation for file</span></a> (<code class="docutils literal notranslate"><span class="pre">lib/graph_utils.cpp</span></code>)</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;AnalysisGraph.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;boost/range/algorithm/for_each.hpp&gt;</span><span class="cp"></span>
+
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+
+<span class="cm">/*</span>
+<span class="cm"> ============================================================================</span>
+<span class="cm"> Private: Utilities</span>
+<span class="cm"> ============================================================================</span>
+<span class="cm">*/</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">clear_state</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">A_beta_factors</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+
+  <span class="c1">// Clear the multimap that keeps track of cells in the transition</span>
+  <span class="c1">// matrix that are dependent on each β.</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">beta2cell</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+
+  <span class="c1">// Clear the set of all the β dependent cells</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">beta_dependent_cells</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">initialize_random_number_generator</span><span class="p">()</span> <span class="p">{</span>
+  <span class="c1">// Define the random number generator</span>
+  <span class="c1">// All the places we need random numbers share this generator</span>
+
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">rand_num_generator</span> <span class="o">=</span> <span class="n">RNG</span><span class="o">::</span><span class="n">rng</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">get_RNG</span><span class="p">();</span>
+
+  <span class="c1">// Uniform distribution used by the MCMC sampler</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">uni_dist</span> <span class="o">=</span> <span class="n">uniform_real_distribution</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">);</span>
+
+  <span class="c1">// Normal distribution used to perturb β</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">norm_dist</span> <span class="o">=</span> <span class="n">normal_distribution</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">remove_node</span><span class="p">(</span><span class="kt">int</span> <span class="n">node_id</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// Delete all the edges incident to this node</span>
+  <span class="n">clear_vertex</span><span class="p">(</span><span class="n">node_id</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">);</span>
+
+  <span class="c1">// Remove the vertex</span>
+  <span class="n">remove_vertex</span><span class="p">(</span><span class="n">node_id</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">);</span>
+
+  <span class="c1">// Update the internal meta-data</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="nl">vert_id</span> <span class="p">:</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">node_indices</span><span class="p">())</span> <span class="p">{</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">name_to_vertex</span><span class="p">.</span><span class="n">at</span><span class="p">((</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">vert_id</span><span class="p">].</span><span class="n">name</span><span class="p">)</span> <span class="o">=</span> <span class="n">vert_id</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">allocate_A_beta_factors</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">A_beta_factors</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+
+  <span class="kt">int</span> <span class="n">num_verts</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">num_vertices</span><span class="p">();</span>
+
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">vert</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">vert</span> <span class="o">&lt;</span> <span class="n">num_verts</span><span class="p">;</span> <span class="o">++</span><span class="n">vert</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">A_beta_factors</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span>
+        <span class="n">vector</span><span class="o">&lt;</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Tran_Mat_Cell</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="n">num_verts</span><span class="p">));</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">find_all_paths_between</span><span class="p">(</span><span class="kt">int</span> <span class="n">start</span><span class="p">,</span>
+                                           <span class="kt">int</span> <span class="n">end</span><span class="p">,</span>
+                                           <span class="kt">int</span> <span class="n">cutoff</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// Mark all the vertices are not visited</span>
+  <span class="n">for_each</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">node_indices</span><span class="p">(),</span> <span class="p">[</span><span class="o">&amp;</span><span class="p">](</span><span class="kt">int</span> <span class="n">v</span><span class="p">)</span> <span class="p">{</span> <span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">v</span><span class="p">].</span><span class="n">visited</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span> <span class="p">});</span>
+
+  <span class="c1">// Create a vector of ints to store paths.</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">path</span><span class="p">;</span>
+
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">find_all_paths_between_util</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">find_all_paths_between_util</span><span class="p">(</span><span class="kt">int</span> <span class="n">start</span><span class="p">,</span>
+                                                <span class="kt">int</span> <span class="n">end</span><span class="p">,</span>
+                                                <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">path</span><span class="p">,</span>
+                                                <span class="kt">int</span> <span class="n">cutoff</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// Mark the current vertex visited</span>
+  <span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">start</span><span class="p">].</span><span class="n">visited</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+
+  <span class="c1">// Add this vertex to the path</span>
+  <span class="n">path</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">start</span><span class="p">);</span>
+
+  <span class="c1">// If current vertex is the destination vertex, then</span>
+  <span class="c1">//   we have found one path.</span>
+  <span class="c1">//   Add this cell to the Tran_Mat_Object that is tracking</span>
+  <span class="c1">//   this transition matrix cell.</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">start</span> <span class="o">==</span> <span class="n">end</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Add this path to the relevant transition matrix cell</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">A_beta_factors</span><span class="p">[</span><span class="n">path</span><span class="p">.</span><span class="n">back</span><span class="p">()][</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span> <span class="p">{</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">A_beta_factors</span><span class="p">[</span><span class="n">path</span><span class="p">.</span><span class="n">back</span><span class="p">()][</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]].</span><span class="n">reset</span><span class="p">(</span>
+          <span class="k">new</span> <span class="n">Tran_Mat_Cell</span><span class="p">(</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">path</span><span class="p">.</span><span class="n">back</span><span class="p">()));</span>
+    <span class="p">}</span>
+
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">A_beta_factors</span><span class="p">[</span><span class="n">path</span><span class="p">.</span><span class="n">back</span><span class="p">()][</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">-&gt;</span><span class="n">add_path</span><span class="p">(</span><span class="n">path</span><span class="p">);</span>
+
+    <span class="c1">// This transition matrix cell is dependent upon Each β along this path.</span>
+    <span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">this_cell</span> <span class="o">=</span> <span class="n">make_pair</span><span class="p">(</span><span class="n">path</span><span class="p">.</span><span class="n">back</span><span class="p">(),</span> <span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">beta_dependent_cells</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">this_cell</span><span class="p">);</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">v</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="n">path</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="n">v</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">beta2cell</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span>
+          <span class="n">make_pair</span><span class="p">(</span><span class="n">make_pair</span><span class="p">(</span><span class="n">path</span><span class="p">[</span><span class="n">v</span><span class="p">],</span> <span class="n">path</span><span class="p">[</span><span class="n">v</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]),</span> <span class="n">this_cell</span><span class="p">));</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">cutoff</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">cutoff</span><span class="o">--</span><span class="p">;</span>
+    <span class="c1">// Current vertex is not the destination</span>
+    <span class="c1">// Recursively process all the vertices adjacent to the current vertex</span>
+    <span class="n">for_each</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">successors</span><span class="p">(</span><span class="n">start</span><span class="p">),</span> <span class="p">[</span><span class="o">&amp;</span><span class="p">](</span><span class="kt">int</span> <span class="n">v</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">v</span><span class="p">].</span><span class="n">visited</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="o">-&gt;</span><span class="n">find_all_paths_between_util</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">);</span>
+      <span class="p">}</span>
+    <span class="p">});</span>
+  <span class="p">}</span>
+
+  <span class="c1">// Remove current vertex from the path and make it unvisited</span>
+  <span class="n">path</span><span class="p">.</span><span class="n">pop_back</span><span class="p">();</span>
+  <span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">start</span><span class="p">].</span><span class="n">visited</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">calculate_num_timesteps</span><span class="p">(</span><span class="kt">int</span> <span class="n">start_year</span><span class="p">,</span>
+                                           <span class="kt">int</span> <span class="n">start_month</span><span class="p">,</span>
+                                           <span class="kt">int</span> <span class="n">end_year</span><span class="p">,</span>
+                                           <span class="kt">int</span> <span class="n">end_month</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">assert</span><span class="p">(</span><span class="n">start_year</span> <span class="o">&lt;=</span> <span class="n">end_year</span><span class="p">);</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">start_year</span> <span class="o">==</span> <span class="n">end_year</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">assert</span><span class="p">(</span><span class="n">start_month</span> <span class="o">&lt;=</span> <span class="n">end_month</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="kt">int</span> <span class="n">diff_year</span> <span class="o">=</span> <span class="n">end_year</span> <span class="o">-</span> <span class="n">start_year</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">year_to_month</span> <span class="o">=</span> <span class="n">diff_year</span> <span class="o">*</span> <span class="mi">12</span><span class="p">;</span>
+
+  <span class="c1">// NOTE: I am adding 1 here itself so that I do not have to add it outside</span>
+  <span class="k">return</span> <span class="n">year_to_month</span> <span class="o">-</span> <span class="p">(</span><span class="n">start_month</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">end_month</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+<span class="cm">/*</span>
+<span class="cm"> ============================================================================</span>
+<span class="cm"> Public: Utilities</span>
+<span class="cm"> ============================================================================</span>
+<span class="cm">*/</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">find_all_paths</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">auto</span> <span class="n">verts</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">node_indices</span><span class="p">();</span>
+
+  <span class="c1">// Allocate the 2D array that keeps track of the cells of the transition</span>
+  <span class="c1">// matrix (A_original) that are dependent on βs.</span>
+  <span class="c1">// This function can be called anytime after creating the CAG.</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">allocate_A_beta_factors</span><span class="p">();</span>
+
+  <span class="c1">// Clear the multimap that keeps track of cells in the transition</span>
+  <span class="c1">// matrix that are dependent on each β.</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">beta2cell</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+
+  <span class="c1">// Clear the set of all the β dependent cells</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">beta_dependent_cells</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+
+  <span class="n">for_each</span><span class="p">(</span><span class="n">verts</span><span class="p">,</span> <span class="p">[</span><span class="o">&amp;</span><span class="p">](</span><span class="kt">int</span> <span class="n">start</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">for_each</span><span class="p">(</span><span class="n">verts</span><span class="p">,</span> <span class="p">[</span><span class="o">&amp;</span><span class="p">](</span><span class="kt">int</span> <span class="n">end</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">start</span> <span class="o">!=</span> <span class="n">end</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="o">-&gt;</span><span class="n">find_all_paths_between</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">);</span>
+      <span class="p">}</span>
+    <span class="p">});</span>
+  <span class="p">});</span>
+
+  <span class="c1">// Allocate the cell value calculation data structures</span>
+  <span class="kt">int</span> <span class="n">num_verts</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">num_vertices</span><span class="p">();</span>
+
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">row</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">row</span> <span class="o">&lt;</span> <span class="n">num_verts</span><span class="p">;</span> <span class="o">++</span><span class="n">row</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">col</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">col</span> <span class="o">&lt;</span> <span class="n">num_verts</span><span class="p">;</span> <span class="o">++</span><span class="n">col</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">A_beta_factors</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span><span class="p">])</span> <span class="p">{</span>
+        <span class="k">this</span><span class="o">-&gt;</span><span class="n">A_beta_factors</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">allocate_datastructures</span><span class="p">();</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">set_random_seed</span><span class="p">(</span><span class="kt">int</span> <span class="n">seed</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">rng_instance</span> <span class="o">=</span> <span class="n">RNG</span><span class="o">::</span><span class="n">rng</span><span class="p">();</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">rng_instance</span><span class="o">-&gt;</span><span class="n">set_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">set_derivative</span><span class="p">(</span><span class="n">string</span> <span class="n">concept</span><span class="p">,</span> <span class="kt">double</span> <span class="n">derivative</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kt">int</span> <span class="n">v</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">concept</span><span class="p">);</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">s0</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">v</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">derivative</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Adarsh
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

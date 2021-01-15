@@ -1,0 +1,67 @@
+
+.. _file_lib_KDE.hpp:
+
+File KDE.hpp
+============
+
+|exhale_lsh| :ref:`Parent directory <dir_lib>` (``lib``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. contents:: Contents
+   :local:
+   :backlinks: none
+
+Definition (``lib/KDE.hpp``)
+----------------------------
+
+
+.. toctree::
+   :maxdepth: 1
+
+   program_listing_file_lib_KDE.hpp.rst
+
+
+
+
+
+Includes
+--------
+
+
+- ``boost/range/numeric.hpp``
+
+- ``random``
+
+- ``rng.hpp`` (:ref:`file_lib_rng.hpp`)
+
+- ``utils.hpp`` (:ref:`file_lib_utils.hpp`)
+
+
+
+Included By
+-----------
+
+
+- :ref:`file_lib_Edge.hpp`
+
+- :ref:`file_lib_KDE.cpp`
+
+
+
+
+Classes
+-------
+
+
+- :ref:`exhale_class_classKDE`
+
+
+Functions
+---------
+
+
+- :ref:`exhale_function_KDE_8hpp_1a5d22bed79cc5665f2c77d95fc1b412d2`
+
+- :ref:`exhale_function_KDE_8hpp_1a1e0f694a2e3339c73cdda2a170838b4e`
+

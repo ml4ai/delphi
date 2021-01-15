@@ -1,0 +1,16 @@
+.. _exhale_class_classConcept:
+
+Class Concept
+=============
+
+- Defined in :ref:`file_lib_Edge.hpp`
+
+
+Class Documentation
+-------------------
+
+
+.. doxygenclass:: Concept
+   :members:
+   :protected-members:
+   :undoc-members:

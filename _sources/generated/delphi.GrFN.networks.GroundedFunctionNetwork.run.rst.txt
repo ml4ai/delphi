@@ -1,0 +1,6 @@
+delphi.GrFN.networks.GroundedFunctionNetwork.run
+================================================
+
+.. currentmodule:: delphi.GrFN.networks
+
+.. automethod:: GroundedFunctionNetwork.run

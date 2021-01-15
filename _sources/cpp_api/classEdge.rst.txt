@@ -1,0 +1,16 @@
+.. _exhale_class_classEdge:
+
+Class Edge
+==========
+
+- Defined in :ref:`file_lib_Edge.hpp`
+
+
+Class Documentation
+-------------------
+
+
+.. doxygenclass:: Edge
+   :members:
+   :protected-members:
+   :undoc-members:

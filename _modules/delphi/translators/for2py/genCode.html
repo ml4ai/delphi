@@ -1,0 +1,759 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>delphi.translators.for2py.genCode &mdash; delphi  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+        <script src="../../../../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../../../../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> delphi
+          
+
+          
+            
+            <img src="../../../../_static/delphi_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html#change-log">Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cpp_api/library_root.html">C++ API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">delphi</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../for2py.html">delphi.translators.for2py</a> &raquo;</li>
+        
+      <li>delphi.translators.for2py.genCode</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for delphi.translators.for2py.genCode</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">ast</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">For2PyError</span>
+
+
+<div class="viewcode-block" id="PrintState"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genCode.PrintState">[docs]</a><span class="k">class</span> <span class="nc">PrintState</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sep</span> <span class="o">=</span> <span class="n">sep</span> <span class="k">if</span> <span class="n">sep</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add</span> <span class="o">=</span> <span class="n">add</span> <span class="k">if</span> <span class="n">add</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;    &quot;</span>
+
+<div class="viewcode-block" id="PrintState.copy"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genCode.PrintState.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">PrintState</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sep</span> <span class="k">if</span> <span class="n">sep</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">sep</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">add</span> <span class="k">if</span> <span class="n">add</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">add</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="genCode"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genCode.genCode">[docs]</a><span class="k">class</span> <span class="nc">genCode</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">use_numpy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">string_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">lambda_string</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lambda_string</span> <span class="o">=</span> <span class="n">lambda_string</span>
+        <span class="c1"># Setting the flag below creates the lambda file using numpy</span>
+        <span class="c1"># functions instead of the previous Python approach</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_numpy</span> <span class="o">=</span> <span class="n">use_numpy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numpy_math_map</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;acos&quot;</span><span class="p">:</span> <span class="s2">&quot;arccos&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;acosh&quot;</span><span class="p">:</span> <span class="s2">&quot;arccosh&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;asin&quot;</span><span class="p">:</span> <span class="s2">&quot;arcsin&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;asinh&quot;</span><span class="p">:</span> <span class="s2">&quot;arcsinh&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;atan&quot;</span><span class="p">:</span> <span class="s2">&quot;arctan&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;atanh&quot;</span><span class="p">:</span> <span class="s2">&quot;arctanh&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ceil&quot;</span><span class="p">:</span> <span class="s2">&quot;ceil&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cos&quot;</span><span class="p">:</span> <span class="s2">&quot;cos&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cosh&quot;</span><span class="p">:</span> <span class="s2">&quot;cosh&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;exp&quot;</span><span class="p">:</span> <span class="s2">&quot;exp&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;floor&quot;</span><span class="p">:</span> <span class="s2">&quot;floor&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;hypot&quot;</span><span class="p">:</span> <span class="s2">&quot;hypot&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;isnan&quot;</span><span class="p">:</span> <span class="s2">&quot;isnan&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;log&quot;</span><span class="p">:</span> <span class="s2">&quot;log&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;log10&quot;</span><span class="p">:</span> <span class="s2">&quot;log10&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sin&quot;</span><span class="p">:</span> <span class="s2">&quot;sin&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sinh&quot;</span><span class="p">:</span> <span class="s2">&quot;sinh&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sqrt&quot;</span><span class="p">:</span> <span class="s2">&quot;sqrt&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tan&quot;</span><span class="p">:</span> <span class="s2">&quot;tan&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tanh&quot;</span><span class="p">:</span> <span class="s2">&quot;tanh&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_function</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_arr</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">string_length</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">string_length</span> <span class="o">=</span> <span class="n">string_length</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">string_length</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">process_lambda_node</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;ast.FunctionDef&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_function_definition</span><span class="p">,</span>
+            <span class="s2">&quot;ast.arguments&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_arguments</span><span class="p">,</span>
+            <span class="s2">&quot;ast.arg&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_arg</span><span class="p">,</span>
+            <span class="s2">&quot;ast.Load&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_load</span><span class="p">,</span>
+            <span class="s2">&quot;ast.Store&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_store</span><span class="p">,</span>
+            <span class="s2">&quot;ast.Index&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_index</span><span class="p">,</span>
+            <span class="s2">&quot;ast.Num&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_num</span><span class="p">,</span>
+            <span class="s2">&quot;ast.List&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_list_ast</span><span class="p">,</span>
+            <span class="s2">&quot;ast.Str&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_str</span><span class="p">,</span>
+            <span class="s2">&quot;ast.For&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_for</span><span class="p">,</span>
+            <span class="s2">&quot;ast.If&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_if</span><span class="p">,</span>
+            <span class="s2">&quot;ast.UnaryOp&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_unary_operation</span><span class="p">,</span>
+            <span class="s2">&quot;ast.BinOp&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_binary_operation</span><span class="p">,</span>
+            <span class="s2">&quot;ast.Add&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_add</span><span class="p">,</span>
+            <span class="s2">&quot;ast.Sub&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_subtract</span><span class="p">,</span>
+            <span class="s2">&quot;ast.Mult&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_multiply</span><span class="p">,</span>
+            <span class="s2">&quot;ast.Pow&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_power</span><span class="p">,</span>
+            <span class="s2">&quot;ast.Div&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_divide</span><span class="p">,</span>
+            <span class="s2">&quot;ast.USub&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_unary_subtract</span><span class="p">,</span>
+            <span class="s2">&quot;ast.Eq&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_equals_to</span><span class="p">,</span>
+            <span class="s2">&quot;ast.NotEq&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_not_equal_to</span><span class="p">,</span>
+            <span class="s2">&quot;ast.Not&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_not</span><span class="p">,</span>
+            <span class="s2">&quot;ast.LtE&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_less_than_or_equal_to</span><span class="p">,</span>
+            <span class="s2">&quot;ast.Lt&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_less_than</span><span class="p">,</span>
+            <span class="s2">&quot;ast.Gt&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_greater_than</span><span class="p">,</span>
+            <span class="s2">&quot;ast.GtE&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_greater_than_or_equal_to</span><span class="p">,</span>
+            <span class="s2">&quot;ast.And&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_and</span><span class="p">,</span>
+            <span class="s2">&quot;ast.Or&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_or</span><span class="p">,</span>
+            <span class="s2">&quot;ast.Expr&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_expression</span><span class="p">,</span>
+            <span class="s2">&quot;ast.Compare&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_compare</span><span class="p">,</span>
+            <span class="s2">&quot;ast.Subscript&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_subscript</span><span class="p">,</span>
+            <span class="s2">&quot;ast.Name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_name</span><span class="p">,</span>
+            <span class="s2">&quot;ast.AnnAssign&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_annotated_assign</span><span class="p">,</span>
+            <span class="s2">&quot;ast.Assign&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_assign</span><span class="p">,</span>
+            <span class="s2">&quot;ast.Call&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_call</span><span class="p">,</span>
+            <span class="s2">&quot;ast.Import&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_import</span><span class="p">,</span>
+            <span class="s2">&quot;ast.alias&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_alias</span><span class="p">,</span>
+            <span class="s2">&quot;ast.Module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_module</span><span class="p">,</span>
+            <span class="s2">&quot;ast.BoolOp&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_boolean_operation</span><span class="p">,</span>
+            <span class="s2">&quot;ast.Attribute&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_attribute</span><span class="p">,</span>
+            <span class="s2">&quot;ast.AST&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_ast</span><span class="p">,</span>
+            <span class="s2">&quot;ast.Tuple&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_tuple</span><span class="p">,</span>
+            <span class="s2">&quot;ast.NameConstant&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_name_constant</span><span class="p">,</span>
+        <span class="p">}</span>
+
+<div class="viewcode-block" id="genCode.generate_code"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genCode.genCode.generate_code">[docs]</a>    <span class="k">def</span> <span class="nf">generate_code</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            This function parses the ast node of the python file and generates</span>
+<span class="sd">            python code relevant to the information in the ast. This is used as</span>
+<span class="sd">            the statements inside the lambda functions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">node_name</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">:]</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">cur</span> <span class="ow">in</span> <span class="n">node</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lambda_string</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;{self.generate_code(cur,state)}&quot;</span> \
+                                      <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{state.sep}</span><span class="s2">&quot;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_lambda_node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">node_name</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lambda_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_lambda_node</span><span class="p">[</span><span class="n">node_name</span><span class="p">](</span><span class="n">node</span><span class="p">,</span>
+                                                                     <span class="n">state</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                <span class="s2">&quot;No handler for </span><span class="si">{0}</span><span class="s2"> in genCode, value: </span><span class="si">{1}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">node</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambda_string</span></div>
+
+<div class="viewcode-block" id="genCode.process_function_definition"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genCode.genCode.process_function_definition">[docs]</a>    <span class="k">def</span> <span class="nf">process_function_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="s2">&quot;def </span><span class="si">{0}</span><span class="s2">(</span><span class="si">{1}</span><span class="s2">):</span><span class="si">{2}{3}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="n">state</span><span class="p">),</span>
+            <span class="n">state</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="n">state</span><span class="o">.</span><span class="n">add</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="n">state</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="n">state</span><span class="o">.</span><span class="n">add</span><span class="p">)),</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">code_string</span></div>
+
+<div class="viewcode-block" id="genCode.process_arguments"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genCode.genCode.process_arguments">[docs]</a>    <span class="k">def</span> <span class="nf">process_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span>
+                                 <span class="n">node</span><span class="o">.</span><span class="n">args</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">code_string</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_process_arg</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">arg</span>
+        <span class="k">return</span> <span class="n">code_string</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_process_load</span><span class="p">(</span><span class="o">*</span><span class="n">_</span><span class="p">):</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;genCode found ast.Load, is there a bug?</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_process_store</span><span class="p">(</span><span class="o">*</span><span class="n">_</span><span class="p">):</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;genCode found ast.Store, is there a bug?</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="genCode.process_index"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genCode.genCode.process_index">[docs]</a>    <span class="k">def</span> <span class="nf">process_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="s2">&quot;[</span><span class="si">{0}</span><span class="s2">]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">state</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">code_string</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_process_name_constant</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">_</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">code_string</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_process_num</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">code_string</span>
+
+<div class="viewcode-block" id="genCode.process_list_ast"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genCode.genCode.process_list_ast">[docs]</a>    <span class="k">def</span> <span class="nf">process_list_ast</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="n">elements</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">elmt</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span> <span class="k">for</span> <span class="n">elmt</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">elts</span><span class="p">]</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">elements</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+            <span class="k">else</span> <span class="s2">&quot;[</span><span class="si">{0}</span><span class="s2">]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">elements</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">code_string</span></div>
+
+<div class="viewcode-block" id="genCode.process_tuple"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genCode.genCode.process_tuple">[docs]</a>    <span class="k">def</span> <span class="nf">process_tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="n">elements</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">elmt</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span> <span class="k">for</span> <span class="n">elmt</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">elts</span><span class="p">]</span>
+        <span class="c1"># This tuple handler is a very specific method</span>
+        <span class="c1"># for handling an array declaration lambda.</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="s2">&quot;[0] * (&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">code_string</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">elements</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">low_bound</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="c1"># Calculate the size of each dimension</span>
+            <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">low_bound</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">low_bound</span> <span class="o">=</span> <span class="n">elem</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">code_string</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{elem}</span><span class="s2"> - </span><span class="si">{low_bound}</span><span class="s2">&quot;</span>
+                    <span class="n">low_bound</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">code_string</span> <span class="o">+=</span> <span class="s2">&quot;)&quot;</span>
+        <span class="k">return</span> <span class="n">code_string</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_process_str</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="s1">&#39;&quot;</span><span class="si">{0}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">code_string</span>
+
+<div class="viewcode-block" id="genCode.process_for"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genCode.genCode.process_for">[docs]</a>    <span class="k">def</span> <span class="nf">process_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="s2">&quot;for </span><span class="si">{0}</span><span class="s2"> in </span><span class="si">{1}</span><span class="s2">:</span><span class="si">{2}{3}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">state</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">iter</span><span class="p">,</span> <span class="n">state</span><span class="p">),</span>
+            <span class="n">state</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="n">state</span><span class="o">.</span><span class="n">add</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="n">state</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="n">state</span><span class="o">.</span><span class="n">add</span><span class="p">)),</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">code_string</span></div>
+
+<div class="viewcode-block" id="genCode.process_if"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genCode.genCode.process_if">[docs]</a>    <span class="k">def</span> <span class="nf">process_if</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="s2">&quot;if (</span><span class="si">{0}</span><span class="s2">):</span><span class="si">{1}{2}{3}</span><span class="s2">else:</span><span class="si">{4}{5}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">test</span><span class="p">,</span> <span class="n">state</span><span class="p">),</span>
+            <span class="n">state</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="n">state</span><span class="o">.</span><span class="n">add</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="n">state</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="n">state</span><span class="o">.</span><span class="n">add</span><span class="p">)),</span>
+            <span class="n">state</span><span class="o">.</span><span class="n">sep</span><span class="p">,</span>
+            <span class="n">state</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="n">state</span><span class="o">.</span><span class="n">add</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">orelse</span><span class="p">,</span> <span class="n">state</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="n">state</span><span class="o">.</span><span class="n">add</span><span class="p">)),</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">code_string</span></div>
+
+<div class="viewcode-block" id="genCode.process_unary_operation"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genCode.genCode.process_unary_operation">[docs]</a>    <span class="k">def</span> <span class="nf">process_unary_operation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">(</span><span class="si">{1}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">op</span><span class="p">,</span> <span class="n">state</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">operand</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">code_string</span></div>
+
+<div class="viewcode-block" id="genCode.process_binary_operation"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genCode.genCode.process_binary_operation">[docs]</a>    <span class="k">def</span> <span class="nf">process_binary_operation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="s2">&quot;(</span><span class="si">{0}{1}{2}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">state</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">op</span><span class="p">,</span> <span class="n">state</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">right</span><span class="p">,</span> <span class="n">state</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">code_string</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_process_add</span><span class="p">(</span><span class="o">*</span><span class="n">_</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="s2">&quot;+&quot;</span>
+        <span class="k">return</span> <span class="n">code_string</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_process_subtract</span><span class="p">(</span><span class="o">*</span><span class="n">_</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="s2">&quot;-&quot;</span>
+        <span class="k">return</span> <span class="n">code_string</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_process_multiply</span><span class="p">(</span><span class="o">*</span><span class="n">_</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="s2">&quot;*&quot;</span>
+        <span class="k">return</span> <span class="n">code_string</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_process_power</span><span class="p">(</span><span class="o">*</span><span class="n">_</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="s2">&quot;**&quot;</span>
+        <span class="k">return</span> <span class="n">code_string</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_process_divide</span><span class="p">(</span><span class="o">*</span><span class="n">_</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span>
+        <span class="k">return</span> <span class="n">code_string</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_process_unary_subtract</span><span class="p">(</span><span class="o">*</span><span class="n">_</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="s2">&quot;-&quot;</span>
+        <span class="k">return</span> <span class="n">code_string</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_process_equals_to</span><span class="p">(</span><span class="o">*</span><span class="n">_</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="s2">&quot;==&quot;</span>
+        <span class="k">return</span> <span class="n">code_string</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_process_not_equal_to</span><span class="p">(</span><span class="o">*</span><span class="n">_</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="s2">&quot;!=&quot;</span>
+        <span class="k">return</span> <span class="n">code_string</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_process_not</span><span class="p">(</span><span class="o">*</span><span class="n">_</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="s2">&quot;not&quot;</span>
+        <span class="k">return</span> <span class="n">code_string</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_process_less_than_or_equal_to</span><span class="p">(</span><span class="o">*</span><span class="n">_</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="s2">&quot;&lt;=&quot;</span>
+        <span class="k">return</span> <span class="n">code_string</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_process_less_than</span><span class="p">(</span><span class="o">*</span><span class="n">_</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="s2">&quot;&lt;&quot;</span>
+        <span class="k">return</span> <span class="n">code_string</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_process_greater_than</span><span class="p">(</span><span class="o">*</span><span class="n">_</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="s2">&quot;&gt;&quot;</span>
+        <span class="k">return</span> <span class="n">code_string</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_process_greater_than_or_equal_to</span><span class="p">(</span><span class="o">*</span><span class="n">_</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="s2">&quot;&gt;=&quot;</span>
+        <span class="k">return</span> <span class="n">code_string</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_process_and</span><span class="p">(</span><span class="o">*</span><span class="n">_</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="s2">&quot;and&quot;</span>
+        <span class="k">return</span> <span class="n">code_string</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_process_or</span><span class="p">(</span><span class="o">*</span><span class="n">_</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="s2">&quot;or&quot;</span>
+        <span class="k">return</span> <span class="n">code_string</span>
+
+<div class="viewcode-block" id="genCode.process_expression"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genCode.genCode.process_expression">[docs]</a>    <span class="k">def</span> <span class="nf">process_expression</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">code_string</span></div>
+
+<div class="viewcode-block" id="genCode.process_compare"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genCode.genCode.process_compare">[docs]</a>    <span class="k">def</span> <span class="nf">process_compare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">ops</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                <span class="s2">&quot;Fix Compare in genCode! Don&#39;t have an example of what this &quot;</span>
+                <span class="s2">&quot;will look like</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">code_string</span> <span class="o">=</span> <span class="s2">&quot;(</span><span class="si">{0}</span><span class="s2"> </span><span class="si">{1}</span><span class="s2"> </span><span class="si">{2}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">state</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">ops</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">state</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">comparators</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">state</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">code_string</span></div>
+
+<div class="viewcode-block" id="genCode.process_subscript"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genCode.genCode.process_subscript">[docs]</a>    <span class="k">def</span> <span class="nf">process_subscript</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="c1"># typical:</span>
+        <span class="c1"># lambda_string = &#39;{0}{1}&#39;.format(genCode(node.value, state), genCode(</span>
+        <span class="c1"># node.slice,</span>
+        <span class="c1"># state))</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">code_string</span></div>
+
+<div class="viewcode-block" id="genCode.process_name"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genCode.genCode.process_name">[docs]</a>    <span class="k">def</span> <span class="nf">process_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">id</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_numpy</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_function</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;np.maximum&quot;</span><span class="p">,</span> <span class="s2">&quot;np.minimum&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">target_arr</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">target_arr</span> <span class="o">=</span> <span class="n">code_string</span>
+
+        <span class="k">return</span> <span class="n">code_string</span></div>
+
+<div class="viewcode-block" id="genCode.process_annotated_assign"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genCode.genCode.process_annotated_assign">[docs]</a>    <span class="k">def</span> <span class="nf">process_annotated_assign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">code_string</span></div>
+
+<div class="viewcode-block" id="genCode.process_assign"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genCode.genCode.process_assign">[docs]</a>    <span class="k">def</span> <span class="nf">process_assign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">code_string</span></div>
+
+<div class="viewcode-block" id="genCode.process_call"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genCode.genCode.process_call">[docs]</a>    <span class="k">def</span> <span class="nf">process_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Attribute</span><span class="p">):</span>
+            <span class="n">function_node</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">func</span>
+
+            <span class="c1"># If the python code has a strip function, call it&#39;s inner call</span>
+            <span class="c1"># function</span>
+            <span class="k">if</span> <span class="n">function_node</span><span class="o">.</span><span class="n">attr</span> <span class="o">==</span> <span class="s2">&quot;strip&quot;</span><span class="p">:</span>
+                <span class="c1"># TODO Add code to handle possible arguments to strip as</span>
+                <span class="c1">#  well. Look at select_case/select04.f for reference</span>
+                <span class="n">string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">function_node</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{string}</span><span class="s2">.strip()&quot;</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">function_node</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Attribute</span><span class="p">):</span>
+                <span class="n">module</span> <span class="o">=</span> <span class="n">function_node</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">id</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">function_node</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">):</span>
+                <span class="n">module</span> <span class="o">=</span> <span class="n">function_node</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">id</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">function_node</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Call</span><span class="p">):</span>
+                <span class="n">call</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">value</span>
+                <span class="n">module</span> <span class="o">=</span> <span class="n">call</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">id</span>
+
+            <span class="n">function_name</span> <span class="o">=</span> <span class="n">function_node</span><span class="o">.</span><span class="n">attr</span>
+            <span class="k">if</span> <span class="n">module</span> <span class="o">==</span> <span class="s2">&quot;math&quot;</span> <span class="ow">and</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">use_numpy</span> <span class="ow">and</span> \
+                    <span class="n">function_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">numpy_math_map</span><span class="p">:</span>
+                <span class="n">module</span> <span class="o">=</span> <span class="s2">&quot;np&quot;</span>
+                <span class="n">function_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">numpy_math_map</span><span class="p">[</span><span class="n">function_name</span><span class="p">]</span>
+            <span class="n">function_name</span> <span class="o">=</span> <span class="n">module</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">function_name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">function_name</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">id</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_numpy</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span>
+                    <span class="n">function_name</span> <span class="o">=</span> <span class="s2">&quot;np.maximum&quot;</span>
+                <span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">&quot;min&quot;</span><span class="p">:</span>
+                    <span class="n">function_name</span> <span class="o">=</span> <span class="s2">&quot;np.minimum&quot;</span>
+
+        <span class="k">if</span> <span class="n">function_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="s2">&quot;Array&quot;</span><span class="p">:</span>
+            <span class="c1"># Check for setter and getter functions to differentiate between</span>
+            <span class="c1"># array and string operations</span>
+            <span class="k">if</span> <span class="s2">&quot;.set_&quot;</span> <span class="ow">in</span> <span class="n">function_name</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> \
+                    <span class="n">function_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;set_substr&quot;</span><span class="p">:</span>
+                <span class="c1"># This is an Array operation</span>
+                <span class="c1"># Remove the first argument of &lt;.set_&gt;</span>
+                <span class="c1"># function of array as it is not needed</span>
+                <span class="k">del</span> <span class="n">node</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">code_string</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
+                    <span class="n">code_string</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="s2">&quot;.get_&quot;</span> <span class="ow">in</span> <span class="n">function_name</span> <span class="ow">and</span> \
+                    <span class="n">function_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;get_substr&quot;</span><span class="p">:</span>
+                <span class="c1"># This is an Array operation</span>
+                <span class="n">code_string</span> <span class="o">=</span> <span class="n">function_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.get_&quot;</span><span class="p">,</span> <span class="s2">&quot;[&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
+                    <span class="n">code_string</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+                <span class="n">code_string</span> <span class="o">+=</span> <span class="s2">&quot;]&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># This is a String operation</span>
+                <span class="n">module_parts</span> <span class="o">=</span> <span class="n">function_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+                <span class="n">module</span> <span class="o">=</span> <span class="n">module_parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">function</span> <span class="o">=</span> <span class="n">module_parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="n">module</span> <span class="o">==</span> <span class="s2">&quot;__str__&quot;</span><span class="p">:</span>
+                    <span class="n">code_string</span> <span class="o">=</span> <span class="n">function</span>
+                    <span class="k">return</span> <span class="n">code_string</span>
+
+                <span class="n">code_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{function_name}</span><span class="s2">(&quot;</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">arg_list</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">arg_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">arg_count</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> \
+                       <span class="n">module</span> <span class="o">==</span> <span class="s2">&quot;set_&quot;</span><span class="p">:</span>
+                        <span class="c1"># This is a setter function for the string</span>
+                        <span class="n">arg_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                                        <span class="n">state</span><span class="p">)</span>
+                        <span class="n">arg_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{arg_string}</span><span class="s2">[0:</span><span class="si">{self.string_length}</span><span class="s2">]&quot;</span>
+                        <span class="n">code_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{arg_string}</span><span class="s1">.&#39;</span> \
+                                      <span class="sa">f</span><span class="s1">&#39;ljust(</span><span class="si">{self.string_length}</span><span class="s1">, &quot; &quot;)&#39;</span>
+                        <span class="k">return</span> <span class="n">code_string</span>
+                    <span class="k">elif</span> <span class="n">function_name</span> <span class="o">==</span> <span class="s2">&quot;String&quot;</span><span class="p">:</span>
+                        <span class="c1"># This is a String annotated assignment i.e.</span>
+                        <span class="c1"># String(10, &quot;abcdef&quot;)</span>
+                        <span class="n">arg_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                                        <span class="n">state</span><span class="p">)</span>
+                        <span class="n">arg_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{arg_string}</span><span class="s2">[0:</span><span class="si">{self.string_length}</span><span class="s2">]&quot;</span>
+                        <span class="n">code_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{arg_string}</span><span class="s1">.&#39;</span> \
+                                      <span class="sa">f</span><span class="s1">&#39;ljust(</span><span class="si">{self.string_length}</span><span class="s1">, &quot; &quot;)&#39;</span>
+                        <span class="k">return</span> <span class="n">code_string</span>
+                    <span class="k">elif</span> <span class="n">module</span> <span class="o">==</span> <span class="s2">&quot;f_index&quot;</span><span class="p">:</span>
+                        <span class="c1"># This is the f_index function</span>
+                        <span class="n">find_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                                         <span class="n">state</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">arg_count</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                            <span class="n">code_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{function}</span><span class="s2">.find(</span><span class="si">{find_string}</span><span class="s2">)+1&quot;</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">code_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{function}</span><span class="s2">.rfind(</span><span class="si">{find_string}</span><span class="s2">)+1&quot;</span>
+                        <span class="k">return</span> <span class="n">code_string</span>
+                    <span class="k">elif</span> <span class="n">module</span> <span class="o">==</span> <span class="s2">&quot;get_substr&quot;</span><span class="p">:</span>
+                        <span class="n">start_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                                      <span class="n">state</span><span class="p">)</span>
+                        <span class="n">end_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                                    <span class="n">state</span><span class="p">)</span>
+                        <span class="n">code_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{function}</span><span class="s2">[</span><span class="si">{start_id}</span><span class="s2">-1:</span><span class="si">{end_id}</span><span class="s2">]&quot;</span>
+                        <span class="k">return</span> <span class="n">code_string</span>
+                    <span class="k">elif</span> <span class="n">module</span> <span class="o">==</span> <span class="s2">&quot;set_substr&quot;</span><span class="p">:</span>
+                        <span class="n">start_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                                      <span class="n">state</span><span class="p">)</span>
+                        <span class="n">end_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                                    <span class="n">state</span><span class="p">)</span>
+                        <span class="n">source_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                                                           <span class="n">state</span><span class="p">)</span>
+                        <span class="n">new_index</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{end_id}</span><span class="s2">-</span><span class="si">{start_id}</span><span class="s2">+1&quot;</span>
+                        <span class="n">prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{function_name}</span><span class="s2">[:</span><span class="si">{start_id}</span><span class="s2">-1]&quot;</span>
+                        <span class="n">suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{function_name}</span><span class="s2">[</span><span class="si">{end_id}</span><span class="s2">:]&quot;</span>
+                        <span class="n">new_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{source_string}</span><span class="s2">[:</span><span class="si">{new_index}</span><span class="s2">]&quot;</span>
+
+                        <span class="n">code_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{prefix}</span><span class="s2">+</span><span class="si">{new_string}</span><span class="s2">+</span><span class="si">{suffix}</span><span class="s2">&quot;</span>
+                        <span class="k">return</span> <span class="n">code_string</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">current_function</span> <span class="o">=</span> <span class="n">function_name</span>
+                    <span class="k">for</span> <span class="n">arg_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">arg_count</span><span class="p">):</span>
+                        <span class="n">arg_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="n">arg_index</span><span class="p">],</span>
+                                                        <span class="n">state</span><span class="p">)</span>
+                        <span class="n">arg_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg_string</span><span class="p">)</span>
+
+                    <span class="c1"># Change the max() and min() functions for numpy</span>
+                    <span class="c1"># implementation</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_numpy</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_arr</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">arg_string</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">arg_list</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_number</span><span class="p">(</span><span class="n">arg_string</span><span class="p">):</span>
+                                <span class="n">arg_list</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;np.full_like(&quot;</span> \
+                                             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{self.target_arr}</span><span class="s2">, </span><span class="si">{arg_string}</span><span class="s2">)&quot;</span>
+
+                    <span class="n">code_string</span> <span class="o">+=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">arg_list</span><span class="p">)</span>
+                <span class="n">code_string</span> <span class="o">+=</span> <span class="s2">&quot;)&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">current_function</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">code_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">state</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">code_string</span></div>
+
+<div class="viewcode-block" id="genCode.process_import"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genCode.genCode.process_import">[docs]</a>    <span class="k">def</span> <span class="nf">process_import</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="s2">&quot;import </span><span class="si">{0}{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span>
+                       <span class="n">node</span><span class="o">.</span><span class="n">names</span><span class="p">]),</span> <span class="n">state</span><span class="o">.</span><span class="n">sep</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">code_string</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_process_alias</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">asname</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">code_string</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">code_string</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> as </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">asname</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">code_string</span>
+
+<div class="viewcode-block" id="genCode.process_module"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genCode.genCode.process_module">[docs]</a>    <span class="k">def</span> <span class="nf">process_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">code_string</span></div>
+
+<div class="viewcode-block" id="genCode.process_boolean_operation"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genCode.genCode.process_boolean_operation">[docs]</a>    <span class="k">def</span> <span class="nf">process_boolean_operation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="n">bool_tests</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">state</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">values</span><span class="p">))]</span>
+        <span class="n">bool_operation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_code</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">op</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{bool_operation}</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bool_tests</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{code_string}</span><span class="s2">)&quot;</span></div>
+
+<div class="viewcode-block" id="genCode.process_attribute"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genCode.genCode.process_attribute">[docs]</a>    <span class="k">def</span> <span class="nf">process_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">):</span>
+        <span class="c1"># Code below will be kept until all tests pass and removed if they do</span>
+        <span class="c1"># lambda_string = genCode(node.value, state)</span>
+
+        <span class="c1"># This is a fix on `feature_save` branch to bypass the SAVE statement</span>
+        <span class="c1"># feature where a SAVEd variable is referenced as</span>
+        <span class="c1"># &lt;function_name&gt;.&lt;variable_name&gt;. So the code below only returns the</span>
+        <span class="c1"># &lt;variable_name&gt; which is stored under `node.attr`.</span>
+        <span class="n">code_string</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">attr</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_numpy</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_function</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;np.maximum&quot;</span><span class="p">,</span> <span class="s2">&quot;np.minimum&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">target_arr</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">target_arr</span> <span class="o">=</span> <span class="n">code_string</span>
+
+        <span class="k">return</span> <span class="n">code_string</span></div>
+
+<div class="viewcode-block" id="genCode.process_ast"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.genCode.genCode.process_ast">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">process_ast</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">):</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+            <span class="s2">&quot;No handler for AST.</span><span class="si">{0}</span><span class="s2"> in genCode, fields: </span><span class="si">{1}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">node</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">_fields</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_is_number</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Adarsh
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

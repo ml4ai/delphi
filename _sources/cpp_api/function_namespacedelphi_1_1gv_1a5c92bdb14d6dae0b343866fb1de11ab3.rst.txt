@@ -1,0 +1,13 @@
+.. _exhale_function_namespacedelphi_1_1gv_1a5c92bdb14d6dae0b343866fb1de11ab3:
+
+Function delphi::gv::add_node
+=============================
+
+- Defined in :ref:`file_lib_graphviz_interface.cpp`
+
+
+Function Documentation
+----------------------
+
+
+.. doxygenfunction:: delphi::gv::add_node(Agraph_t *, std::string)

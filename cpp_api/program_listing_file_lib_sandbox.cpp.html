@@ -1,0 +1,396 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Program Listing for File sandbox.cpp &mdash; delphi  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> delphi
+          
+
+          
+            
+            <img src="../_static/delphi_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html#change-log">Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library_root.html">C++ API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">delphi</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Program Listing for File sandbox.cpp</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/cpp_api/program_listing_file_lib_sandbox.cpp.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="program-listing-for-file-sandbox-cpp">
+<span id="program-listing-file-lib-sandbox-cpp"></span><h1>Program Listing for File sandbox.cpp<a class="headerlink" href="#program-listing-for-file-sandbox-cpp" title="Permalink to this headline">¶</a></h1>
+<p>↰ <a class="reference internal" href="file_lib_sandbox.cpp.html#file-lib-sandbox-cpp"><span class="std std-ref">Return to documentation for file</span></a> (<code class="docutils literal notranslate"><span class="pre">lib/sandbox.cpp</span></code>)</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;AnalysisGraph.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&quot;utils.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;fmt/format.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;fstream&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;limits.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;range/v3/all.hpp&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp"></span>
+
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">delphi</span><span class="o">::</span><span class="n">utils</span><span class="p">;</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">fmt</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
+
+<span class="c1">// Just for debugging. Remove later</span>
+<span class="k">using</span> <span class="n">fmt</span><span class="o">::</span><span class="n">print</span><span class="p">;</span>
+
+<span class="k">typedef</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">tuple</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="p">,</span> <span class="n">string</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">tuple</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="p">,</span> <span class="n">string</span><span class="o">&gt;&gt;&gt;</span>
+    <span class="n">Evidence</span><span class="p">;</span>
+<span class="k">typedef</span> <span class="n">pair</span><span class="o">&lt;</span><span class="n">tuple</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="p">,</span> <span class="n">string</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">tuple</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="p">,</span> <span class="n">string</span><span class="o">&gt;&gt;</span>
+    <span class="n">Evidence_Pair</span><span class="p">;</span>
+<span class="k">typedef</span> <span class="n">tuple</span><span class="o">&lt;</span>
+    <span class="kt">int</span><span class="p">,</span>
+    <span class="kt">int</span><span class="p">,</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">tuple</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="p">,</span> <span class="n">string</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">tuple</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="p">,</span> <span class="n">string</span><span class="o">&gt;&gt;&gt;&gt;</span>
+    <span class="n">Edge_tuple</span><span class="p">;</span>
+
+<span class="cm">/*</span>
+<span class="cm"> ============================================================================</span>
+<span class="cm"> Private: Model serialization</span>
+<span class="cm"> ============================================================================</span>
+<span class="cm">*/</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">from_delphi_json_dict</span><span class="p">(</span><span class="k">const</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="o">&amp;</span> <span class="n">json_data</span><span class="p">,</span>
+                                          <span class="kt">bool</span> <span class="n">verbose</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">id</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">];</span>
+
+  <span class="c1">// int conceptIndicators_arrSize = 0;</span>
+  <span class="c1">// if (sizeof(json_data[&quot;conceptIndicators&quot;])){ int conceptIndicators_arrSize</span>
+  <span class="c1">// =</span>
+  <span class="c1">// sizeof(json_data[&quot;conceptIndicators&quot;])/sizeof(json_data[&quot;conceptIndicators&quot;][0]);}</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">verbose</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="c1">// for (vector&lt;tuple&lt;string, string&gt;, tuple&lt;string, int&gt;&gt; concept_arr :</span>
+    <span class="c1">// json_data[&quot;concepts&quot;])</span>
+    <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="nl">concept_arr</span> <span class="p">:</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;concepts&quot;</span><span class="p">])</span> <span class="p">{</span>
+      <span class="c1">// print(&quot;{0} \n&quot;, concept_arr.value()[0]);</span>
+      <span class="c1">// this-&gt;add_node(get&lt;1&gt;(concept_arr[0]).get&lt;int&gt;());</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_node</span><span class="p">(</span><span class="n">concept_arr</span><span class="p">[</span><span class="s">&quot;concept&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">());</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">v</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">num_vertices</span><span class="p">();</span> <span class="n">v</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">Node</span><span class="o">&amp;</span> <span class="n">n</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">v</span><span class="p">];</span>
+      <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="nl">indicator_arr</span> <span class="p">:</span>
+           <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;conceptIndicators&quot;</span><span class="p">][</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">name_to_vertex</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">n</span><span class="p">.</span><span class="n">name</span><span class="p">)])</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">indicator_index</span> <span class="o">=</span>
+            <span class="n">n</span><span class="p">.</span><span class="n">add_indicator</span><span class="p">(</span><span class="n">indicator_arr</span><span class="p">[</span><span class="s">&quot;indicator&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">(),</span>
+                            <span class="n">indicator_arr</span><span class="p">[</span><span class="s">&quot;source&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">());</span>
+        <span class="n">n</span><span class="p">.</span><span class="n">indicators</span><span class="p">[</span><span class="n">indicator_index</span><span class="p">].</span><span class="n">aggregation_method</span> <span class="o">=</span>
+            <span class="n">indicator_arr</span><span class="p">[</span><span class="s">&quot;func&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">();</span>
+        <span class="n">n</span><span class="p">.</span><span class="n">indicators</span><span class="p">[</span><span class="n">indicator_index</span><span class="p">].</span><span class="n">unit</span> <span class="o">=</span> <span class="n">indicator_arr</span><span class="p">[</span><span class="s">&quot;unit&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="nl">edge_element</span> <span class="p">:</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;edges&quot;</span><span class="p">])</span> <span class="p">{</span>
+      <span class="k">for</span> <span class="p">(</span><span class="n">Evidence</span> <span class="nl">evidence</span> <span class="p">:</span> <span class="n">edge_element</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&quot;evidence&quot;</span><span class="p">])</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">Evidence_Pair</span> <span class="nl">evidence_pair</span> <span class="p">:</span> <span class="n">evidence</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">tuple</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="p">,</span> <span class="n">string</span><span class="o">&gt;</span> <span class="n">subject</span> <span class="o">=</span> <span class="n">evidence_pair</span><span class="p">.</span><span class="n">first</span><span class="p">;</span>
+          <span class="n">tuple</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="p">,</span> <span class="n">string</span><span class="o">&gt;</span> <span class="n">object</span> <span class="o">=</span> <span class="n">evidence_pair</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
+          <span class="n">CausalFragment</span> <span class="n">causal_fragment</span> <span class="o">=</span> <span class="n">CausalFragment</span><span class="p">(</span>
+              <span class="p">{</span><span class="n">get</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">(</span><span class="n">subject</span><span class="p">),</span> <span class="n">get</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">(</span><span class="n">subject</span><span class="p">),</span> <span class="n">get</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">(</span><span class="n">subject</span><span class="p">)},</span>
+              <span class="p">{</span><span class="n">get</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">(</span><span class="n">object</span><span class="p">),</span> <span class="n">get</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">(</span><span class="n">object</span><span class="p">),</span> <span class="n">get</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">(</span><span class="n">object</span><span class="p">)});</span>
+          <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_edge</span><span class="p">(</span><span class="n">causal_fragment</span><span class="p">);</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+      <span class="n">string</span> <span class="n">source</span> <span class="o">=</span> <span class="n">edge_element</span><span class="p">[</span><span class="s">&quot;source&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">();</span>
+      <span class="n">string</span> <span class="n">target</span> <span class="o">=</span> <span class="n">edge_element</span><span class="p">[</span><span class="s">&quot;target&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">();</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">edge</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">).</span><span class="n">kde</span><span class="p">.</span><span class="n">dataset</span> <span class="o">=</span>
+          <span class="n">edge_element</span><span class="p">[</span><span class="s">&quot;kernels&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">training_range</span><span class="p">.</span><span class="n">first</span><span class="p">.</span><span class="n">first</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;start_year&quot;</span><span class="p">];</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">training_range</span><span class="p">.</span><span class="n">first</span><span class="p">.</span><span class="n">second</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;start_month&quot;</span><span class="p">];</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">training_range</span><span class="p">.</span><span class="n">second</span><span class="p">.</span><span class="n">first</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;end_year&quot;</span><span class="p">];</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">training_range</span><span class="p">.</span><span class="n">second</span><span class="p">.</span><span class="n">second</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;end_month&quot;</span><span class="p">];</span>
+  <span class="p">}</span>
+  <span class="k">else</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="nl">concept_name</span> <span class="p">:</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;concepts&quot;</span><span class="p">])</span> <span class="p">{</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_node</span><span class="p">(</span><span class="n">concept_name</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">v</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">num_vertices</span><span class="p">();</span> <span class="n">v</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">Node</span><span class="o">&amp;</span> <span class="n">n</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">v</span><span class="p">];</span>
+      <span class="k">auto</span> <span class="n">ind_data</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;conceptIndicators&quot;</span><span class="p">][</span><span class="n">v</span><span class="p">];</span>
+      <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">ind</span> <span class="p">:</span> <span class="n">ind_data</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">string</span> <span class="n">ind_name</span> <span class="o">=</span> <span class="n">ind</span><span class="p">[</span><span class="s">&quot;indicator&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">();</span>
+        <span class="n">string</span> <span class="n">ind_source</span> <span class="o">=</span> <span class="n">ind</span><span class="p">[</span><span class="s">&quot;source&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">();</span>
+        <span class="k">this</span><span class="o">-&gt;</span><span class="n">set_indicator</span><span class="p">(</span><span class="n">n</span><span class="p">.</span><span class="n">name</span><span class="p">,</span> <span class="n">ind_name</span><span class="p">,</span> <span class="n">ind_source</span><span class="p">);</span>
+        <span class="n">n</span><span class="p">.</span><span class="n">get_indicator</span><span class="p">(</span><span class="n">ind_name</span><span class="p">).</span><span class="n">set_aggregation_method</span><span class="p">(</span>
+            <span class="n">ind</span><span class="p">[</span><span class="s">&quot;func&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">());</span>
+        <span class="n">n</span><span class="p">.</span><span class="n">get_indicator</span><span class="p">(</span><span class="n">ind_name</span><span class="p">).</span><span class="n">set_unit</span><span class="p">(</span><span class="n">ind</span><span class="p">[</span><span class="s">&quot;unit&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">());</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="n">Edge_tuple</span> <span class="nl">edge_element</span> <span class="p">:</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;edges&quot;</span><span class="p">])</span> <span class="p">{</span>
+      <span class="k">for</span> <span class="p">(</span><span class="n">Evidence_Pair</span> <span class="nl">evidence</span> <span class="p">:</span> <span class="n">get</span><span class="o">&lt;</span><span class="mi">3</span><span class="o">&gt;</span><span class="p">(</span><span class="n">edge_element</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">tuple</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="p">,</span> <span class="n">string</span><span class="o">&gt;</span> <span class="n">subject</span> <span class="o">=</span> <span class="n">evidence</span><span class="p">.</span><span class="n">first</span><span class="p">;</span>
+        <span class="n">tuple</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="p">,</span> <span class="n">string</span><span class="o">&gt;</span> <span class="n">object</span> <span class="o">=</span> <span class="n">evidence</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
+        <span class="n">CausalFragment</span> <span class="n">causal_fragment</span> <span class="o">=</span>
+            <span class="n">CausalFragment</span><span class="p">({</span><span class="n">get</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">(</span><span class="n">subject</span><span class="p">),</span> <span class="n">get</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">(</span><span class="n">subject</span><span class="p">),</span> <span class="n">get</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">(</span><span class="n">subject</span><span class="p">)},</span>
+                           <span class="p">{</span><span class="n">get</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">(</span><span class="n">object</span><span class="p">),</span> <span class="n">get</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">(</span><span class="n">object</span><span class="p">),</span> <span class="n">get</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">(</span><span class="n">object</span><span class="p">)});</span>
+        <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_edge</span><span class="p">(</span><span class="n">causal_fragment</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">edge</span><span class="p">(</span><span class="n">get</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">(</span><span class="n">edge_element</span><span class="p">),</span> <span class="n">get</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">(</span><span class="n">edge_element</span><span class="p">)).</span><span class="n">kde</span><span class="p">.</span><span class="n">dataset</span> <span class="o">=</span>
+          <span class="n">get</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">(</span><span class="n">edge_element</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">training_range</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;training_range&quot;</span><span class="p">];</span>
+  <span class="p">}</span>
+
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">observed_state_sequence</span> <span class="o">=</span>
+      <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;observations&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="n">ObservedStateSequence</span><span class="o">&gt;</span><span class="p">();</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="n">json_data</span><span class="p">[</span><span class="s">&quot;trained&quot;</span><span class="p">].</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
+        <span class="k">this</span><span class="o">-&gt;</span><span class="n">trained</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="k">this</span><span class="o">-&gt;</span><span class="n">trained</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;trained&quot;</span><span class="p">];</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">trained</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="o">-&gt;</span><span class="n">res</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;res&quot;</span><span class="p">];</span>
+        <span class="k">this</span><span class="o">-&gt;</span><span class="n">continuous</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;continuous&quot;</span><span class="p">];</span>
+        <span class="k">this</span><span class="o">-&gt;</span><span class="n">data_heuristic</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;data_heuristic&quot;</span><span class="p">];</span>
+        <span class="k">this</span><span class="o">-&gt;</span><span class="n">causemos_call</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;causemos_call&quot;</span><span class="p">];</span>
+
+        <span class="kt">int</span> <span class="n">num_verts</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">num_vertices</span><span class="p">();</span>
+        <span class="kt">int</span> <span class="n">num_els_per_mat</span> <span class="o">=</span> <span class="n">num_verts</span> <span class="o">*</span> <span class="n">num_verts</span><span class="p">;</span>
+
+        <span class="k">this</span><span class="o">-&gt;</span><span class="n">transition_matrix_collection</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+        <span class="k">this</span><span class="o">-&gt;</span><span class="n">initial_latent_state_collection</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+
+        <span class="k">this</span><span class="o">-&gt;</span><span class="n">transition_matrix_collection</span> <span class="o">=</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="o">&gt;</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">res</span><span class="p">);</span>
+        <span class="k">this</span><span class="o">-&gt;</span><span class="n">initial_latent_state_collection</span> <span class="o">=</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="o">&gt;</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">res</span><span class="p">);</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">samp</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">samp</span> <span class="o">&lt;</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">res</span><span class="p">;</span> <span class="n">samp</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">this</span><span class="o">-&gt;</span><span class="n">set_default_initial_state</span><span class="p">();</span>
+            <span class="k">this</span><span class="o">-&gt;</span><span class="n">set_base_transition_matrix</span><span class="p">();</span>
+
+            <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">row</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">row</span> <span class="o">&lt;</span> <span class="n">num_verts</span><span class="p">;</span> <span class="n">row</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">this</span><span class="o">-&gt;</span><span class="n">s0</span><span class="p">(</span><span class="n">row</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;S0s&quot;</span><span class="p">][</span><span class="n">samp</span> <span class="o">*</span> <span class="n">num_verts</span> <span class="o">+</span> <span class="n">row</span><span class="p">];</span>
+                <span class="c1">//json_data[&quot;S0s&quot;][samp * num_verts + row] = this-&gt;initial_latent_state_collection[samp](row * 2 + 1);</span>
+
+                <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">col</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">col</span> <span class="o">&lt;</span> <span class="n">num_verts</span><span class="p">;</span> <span class="n">col</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="k">this</span><span class="o">-&gt;</span><span class="n">A_original</span><span class="p">(</span><span class="n">row</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">col</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;matrices&quot;</span><span class="p">][</span><span class="n">samp</span> <span class="o">*</span> <span class="n">num_els_per_mat</span> <span class="o">+</span> <span class="n">row</span> <span class="o">*</span> <span class="n">num_verts</span> <span class="o">+</span> <span class="n">col</span><span class="p">];</span>
+                    <span class="c1">//json_data[&quot;matrices&quot;][samp * num_els_per_mat + row * num_verts + col] = this-&gt;transition_matrix_collection[samp](row * 2, col * 2 + 1);</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="k">this</span><span class="o">-&gt;</span><span class="n">initial_latent_state_collection</span><span class="p">[</span><span class="n">samp</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">s0</span><span class="p">;</span>
+            <span class="k">this</span><span class="o">-&gt;</span><span class="n">transition_matrix_collection</span><span class="p">[</span><span class="n">samp</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">A_original</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+<span class="cm">/*</span>
+<span class="cm"> ============================================================================</span>
+<span class="cm"> Public: Model serialization</span>
+<span class="cm"> ============================================================================</span>
+<span class="cm">*/</span>
+
+<span class="n">AnalysisGraph</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">deserialize_from_json_string</span><span class="p">(</span><span class="n">string</span> <span class="n">json_string</span><span class="p">,</span>
+                                                          <span class="kt">bool</span> <span class="n">verbose</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">AnalysisGraph</span> <span class="n">G</span><span class="p">;</span>
+
+  <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="n">json_data</span> <span class="o">=</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span><span class="n">json_string</span><span class="p">);</span>
+  <span class="n">G</span><span class="p">.</span><span class="n">from_delphi_json_dict</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="n">verbose</span><span class="p">);</span>
+  <span class="k">return</span> <span class="n">G</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">AnalysisGraph</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">deserialize_from_json_file</span><span class="p">(</span><span class="n">string</span> <span class="n">filename</span><span class="p">,</span>
+                                                        <span class="kt">bool</span> <span class="n">verbose</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">AnalysisGraph</span> <span class="n">G</span><span class="p">;</span>
+
+  <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="n">json_data</span> <span class="o">=</span> <span class="n">load_json</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span>
+  <span class="n">G</span><span class="p">.</span><span class="n">from_delphi_json_dict</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="n">verbose</span><span class="p">);</span>
+  <span class="k">return</span> <span class="n">G</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Adarsh
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

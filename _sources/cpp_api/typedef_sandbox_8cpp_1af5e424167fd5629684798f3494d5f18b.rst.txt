@@ -1,0 +1,13 @@
+.. _exhale_typedef_sandbox_8cpp_1af5e424167fd5629684798f3494d5f18b:
+
+Typedef Evidence_Pair
+=====================
+
+- Defined in :ref:`file_lib_sandbox.cpp`
+
+
+Typedef Documentation
+---------------------
+
+
+.. doxygentypedef:: Evidence_Pair

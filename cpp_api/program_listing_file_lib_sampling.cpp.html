@@ -1,0 +1,489 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Program Listing for File sampling.cpp &mdash; delphi  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> delphi
+          
+
+          
+            
+            <img src="../_static/delphi_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html#change-log">Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library_root.html">C++ API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">delphi</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Program Listing for File sampling.cpp</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/cpp_api/program_listing_file_lib_sampling.cpp.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="program-listing-for-file-sampling-cpp">
+<span id="program-listing-file-lib-sampling-cpp"></span><h1>Program Listing for File sampling.cpp<a class="headerlink" href="#program-listing-for-file-sampling-cpp" title="Permalink to this headline">¶</a></h1>
+<p>↰ <a class="reference internal" href="file_lib_sampling.cpp.html#file-lib-sampling-cpp"><span class="std std-ref">Return to documentation for file</span></a> (<code class="docutils literal notranslate"><span class="pre">lib/sampling.cpp</span></code>)</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;AnalysisGraph.hpp&quot;</span><span class="cp"></span>
+
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">delphi</span><span class="o">::</span><span class="n">utils</span><span class="p">;</span>
+<span class="k">using</span> <span class="n">delphi</span><span class="o">::</span><span class="n">utils</span><span class="o">::</span><span class="n">mean</span><span class="p">;</span>
+<span class="k">using</span> <span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="p">;</span>
+
+<span class="cm">/*</span>
+<span class="cm"> ============================================================================</span>
+<span class="cm"> Private: Training by MCMC Sampling</span>
+<span class="cm"> ============================================================================</span>
+<span class="cm">*/</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">set_base_transition_matrix</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kt">int</span> <span class="n">num_verts</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">num_vertices</span><span class="p">();</span>
+
+  <span class="c1">// A base transition matrix with the entries that does not change across</span>
+  <span class="c1">// samples (A_c : continuous).</span>
+  <span class="cm">/*</span>
+<span class="cm">   *          0  1  2  3  4  5</span>
+<span class="cm">   *  var_1 | 0  1  0     0    | 0</span>
+<span class="cm">   *        | 0  0  0  0  0  0 | 1 ∂var_1 / ∂t</span>
+<span class="cm">   *  var_2 | 0     0  1  0    | 2</span>
+<span class="cm">   *        | 0  0  0  0  0  0 | 3</span>
+<span class="cm">   *  var_3 | 0     0     0  1 | 4</span>
+<span class="cm">   *        | 0  0  0  0  0  0 | 5</span>
+<span class="cm">   *</span>
+<span class="cm">   */</span>
+
+  <span class="c1">// A base transition matrix with the entries that does not change across</span>
+  <span class="c1">// samples (A_d : discretized).</span>
+  <span class="cm">/*</span>
+<span class="cm">   *          0  1  2  3  4  5</span>
+<span class="cm">   *  var_1 | 1 Δt  0     0    | 0</span>
+<span class="cm">   *        | 0  1  0  0  0  0 | 1 ∂var_1 / ∂t</span>
+<span class="cm">   *  var_2 | 0     1 Δt  0    | 2</span>
+<span class="cm">   *        | 0  0  0  1  0  0 | 3</span>
+<span class="cm">   *  var_3 | 0     0     1 Δt | 4</span>
+<span class="cm">   *        | 0  0  0  0  0  1 | 5</span>
+<span class="cm">   *</span>
+<span class="cm">   *  Based on the directed simple paths in the CAG, some of the remaining</span>
+<span class="cm">   *  blank cells would be filled with β related values</span>
+<span class="cm">   *  If we include second order derivatives to the model, there would be</span>
+<span class="cm">   *  three rows for each variable and some of the off diagonal elements</span>
+<span class="cm">   *  of rows with index % 3 = 1 would be non zero.</span>
+<span class="cm">   */</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">A_original</span> <span class="o">=</span> <span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="o">::</span><span class="n">Zero</span><span class="p">(</span><span class="n">num_verts</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">num_verts</span> <span class="o">*</span> <span class="mi">2</span><span class="p">);</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">continuous</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">vert</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">vert</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">num_verts</span><span class="p">;</span> <span class="n">vert</span> <span class="o">+=</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="o">-&gt;</span><span class="n">A_original</span><span class="p">(</span><span class="n">vert</span><span class="p">,</span> <span class="n">vert</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">else</span> <span class="p">{</span>
+    <span class="c1">// Discretized version</span>
+    <span class="c1">// A_d = I + A_c × Δt</span>
+    <span class="c1">// Fill the Δts</span>
+    <span class="c1">//for (int vert = 0; vert &lt; 2 * num_verts; vert += 2) {</span>
+    <span class="c1">//    this-&gt;A_original(vert, vert + 1) = this-&gt;delta_t;</span>
+    <span class="c1">//}</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">vert</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">vert</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">num_verts</span><span class="p">;</span> <span class="n">vert</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// Filling the diagonal (Adding I)</span>
+        <span class="k">this</span><span class="o">-&gt;</span><span class="n">A_original</span><span class="p">(</span><span class="n">vert</span><span class="p">,</span> <span class="n">vert</span><span class="p">)</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">vert</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">// Fill the Δts</span>
+            <span class="k">this</span><span class="o">-&gt;</span><span class="n">A_original</span><span class="p">(</span><span class="n">vert</span><span class="p">,</span> <span class="n">vert</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">delta_t</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// Initialize elements of the stochastic transition matrix from the</span>
+<span class="c1">// prior distribution, based on gradable adjectives.</span>
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">set_transition_matrix_from_betas</span><span class="p">()</span> <span class="p">{</span>
+
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">set_base_transition_matrix</span><span class="p">();</span>
+
+  <span class="c1">// Update the β factor dependent cells of this matrix</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">:</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">beta_dependent_cells</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">A_original</span><span class="p">(</span><span class="n">row</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">col</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">=</span>
+        <span class="k">this</span><span class="o">-&gt;</span><span class="n">A_beta_factors</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">compute_cell</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">set_log_likelihood_helper</span><span class="p">(</span><span class="kt">int</span> <span class="n">ts</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Access (concept is a vertex in the CAG)</span>
+    <span class="c1">// observed_state[ concept ][ indicator ][ observation ]</span>
+    <span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&gt;&amp;</span> <span class="n">observed_state</span> <span class="o">=</span>
+        <span class="k">this</span><span class="o">-&gt;</span><span class="n">observed_state_sequence</span><span class="p">[</span><span class="n">ts</span><span class="p">];</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="nl">v</span> <span class="p">:</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">node_indices</span><span class="p">())</span> <span class="p">{</span>
+        <span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span> <span class="n">num_inds_for_v</span> <span class="o">=</span> <span class="n">observed_state</span><span class="p">[</span><span class="n">v</span><span class="p">].</span><span class="n">size</span><span class="p">();</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">observed_state</span><span class="p">[</span><span class="n">v</span><span class="p">].</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">const</span> <span class="n">Indicator</span><span class="o">&amp;</span> <span class="n">ind</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="n">v</span><span class="p">].</span><span class="n">indicators</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+            <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">o</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">o</span> <span class="o">&lt;</span> <span class="n">observed_state</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="n">i</span><span class="p">].</span><span class="n">size</span><span class="p">();</span> <span class="n">o</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">const</span> <span class="kt">double</span><span class="o">&amp;</span> <span class="n">obs</span> <span class="o">=</span> <span class="n">observed_state</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">o</span><span class="p">];</span>
+                <span class="c1">// Even indices of latent_state keeps track of the state of each</span>
+                <span class="c1">// vertex</span>
+                <span class="kt">double</span> <span class="n">log_likelihood_component</span> <span class="o">=</span> <span class="n">log_normpdf</span><span class="p">(</span>
+                        <span class="n">obs</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">current_latent_state</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">v</span><span class="p">]</span> <span class="o">*</span> <span class="n">ind</span><span class="p">.</span><span class="n">mean</span><span class="p">,</span> <span class="n">ind</span><span class="p">.</span><span class="n">stdev</span><span class="p">);</span>
+                <span class="k">this</span><span class="o">-&gt;</span><span class="n">log_likelihood</span> <span class="o">+=</span> <span class="n">log_likelihood_component</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">set_log_likelihood</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">previous_log_likelihood</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">log_likelihood</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">log_likelihood</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">continuous</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">ts</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">ts</span> <span class="o">&lt;</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">n_timesteps</span><span class="p">;</span> <span class="n">ts</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">this</span><span class="o">-&gt;</span><span class="n">set_current_latent_state</span><span class="p">(</span><span class="n">ts</span><span class="p">);</span>
+          <span class="n">set_log_likelihood_helper</span><span class="p">(</span><span class="n">ts</span><span class="p">);</span>
+      <span class="p">}</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="c1">// Discretized version</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">current_latent_state</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">s0</span><span class="p">;</span>
+
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">ts</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">ts</span> <span class="o">&lt;</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">n_timesteps</span><span class="p">;</span> <span class="n">ts</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">set_log_likelihood_helper</span><span class="p">(</span><span class="n">ts</span><span class="p">);</span>
+          <span class="k">this</span><span class="o">-&gt;</span><span class="n">current_latent_state</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">A_original</span> <span class="o">*</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">current_latent_state</span><span class="p">;</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">set_current_latent_state</span><span class="p">(</span><span class="kt">int</span> <span class="n">ts</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">//const Eigen::MatrixXd&amp; A_t = this-&gt;A_original;</span>
+  <span class="c1">//this-&gt;current_latent_state = A_t.pow(ts) * this-&gt;s0;</span>
+  <span class="c1">// Computing e^At</span>
+  <span class="k">const</span> <span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="o">&amp;</span> <span class="n">e_A_t</span> <span class="o">=</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">A_original</span> <span class="o">*</span> <span class="n">ts</span><span class="p">).</span><span class="n">exp</span><span class="p">();</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">current_latent_state</span> <span class="o">=</span> <span class="n">e_A_t</span> <span class="o">*</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">s0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">sample_from_posterior</span><span class="p">()</span> <span class="p">{</span>
+  <span class="c1">// Sample a new transition matrix from the proposal distribution</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">sample_from_proposal</span><span class="p">();</span>
+
+  <span class="kt">double</span> <span class="n">delta_log_prior</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">calculate_delta_log_prior</span><span class="p">();</span>
+
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">set_log_likelihood</span><span class="p">();</span>
+  <span class="kt">double</span> <span class="n">delta_log_likelihood</span> <span class="o">=</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">log_likelihood</span> <span class="o">-</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">previous_log_likelihood</span><span class="p">;</span>
+
+  <span class="kt">double</span> <span class="n">delta_log_joint_probability</span> <span class="o">=</span> <span class="n">delta_log_prior</span> <span class="o">+</span> <span class="n">delta_log_likelihood</span><span class="p">;</span>
+
+  <span class="kt">double</span> <span class="n">acceptance_probability</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">exp</span><span class="p">(</span><span class="n">delta_log_joint_probability</span><span class="p">));</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">acceptance_probability</span> <span class="o">&lt;</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">uni_dist</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">rand_num_generator</span><span class="p">))</span> <span class="p">{</span>
+    <span class="c1">// Reject the sample</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">revert_back_to_previous_state</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">sample_from_proposal</span><span class="p">()</span> <span class="p">{</span>
+  <span class="c1">// Flip a coin and decide whether to perturb a θ or a derivative</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">coin_flip</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">uni_dist</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">rand_num_generator</span><span class="p">);</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">coin_flip</span> <span class="o">&lt;</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">coin_flip_thresh</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Randomly pick an edge ≡ θ</span>
+    <span class="n">boost</span><span class="o">::</span><span class="n">iterator_range</span> <span class="n">edge_it</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">edges</span><span class="p">();</span>
+
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">EdgeDescriptor</span><span class="o">&gt;</span> <span class="n">e</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="n">sample</span><span class="p">(</span>
+        <span class="n">edge_it</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">edge_it</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">e</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="mi">1</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">rand_num_generator</span><span class="p">);</span>
+
+    <span class="c1">// Remember the previous θ</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">previous_theta</span> <span class="o">=</span> <span class="n">make_pair</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]].</span><span class="n">theta</span><span class="p">);</span>
+
+    <span class="c1">// Perturb the θ</span>
+    <span class="c1">// TODO: Check whether this perturbation is accurate</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]].</span><span class="n">theta</span> <span class="o">+=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">norm_dist</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">rand_num_generator</span><span class="p">);</span>
+
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">update_transition_matrix_cells</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+  <span class="p">}</span>
+  <span class="k">else</span> <span class="p">{</span>
+    <span class="c1">// Randomly select a concept to change the derivative</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">changed_derivative</span> <span class="o">=</span>
+        <span class="mi">2</span> <span class="o">*</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">uni_disc_dist</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">rand_num_generator</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">previous_derivative</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">s0</span><span class="p">[</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">changed_derivative</span><span class="p">];</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">s0</span><span class="p">[</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">changed_derivative</span><span class="p">]</span> <span class="o">+=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">norm_dist</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">rand_num_generator</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">update_transition_matrix_cells</span><span class="p">(</span><span class="n">EdgeDescriptor</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">beta</span> <span class="o">=</span>
+      <span class="n">make_pair</span><span class="p">(</span><span class="n">boost</span><span class="o">::</span><span class="n">source</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">),</span> <span class="n">boost</span><span class="o">::</span><span class="n">target</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">));</span>
+
+  <span class="n">pair</span><span class="o">&lt;</span><span class="n">MMapIterator</span><span class="p">,</span> <span class="n">MMapIterator</span><span class="o">&gt;</span> <span class="n">beta_dept_cells</span> <span class="o">=</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">beta2cell</span><span class="p">.</span><span class="n">equal_range</span><span class="p">(</span><span class="n">beta</span><span class="p">);</span>
+
+  <span class="c1">// TODO: I am introducing this to implement calculate_Δ_log_prior</span>
+  <span class="c1">// Remember the cells of A that got changed and their previous values</span>
+  <span class="c1">// this-&gt;A_cells_changed.clear();</span>
+
+  <span class="k">for</span> <span class="p">(</span><span class="n">MMapIterator</span> <span class="n">it</span> <span class="o">=</span> <span class="n">beta_dept_cells</span><span class="p">.</span><span class="n">first</span><span class="p">;</span> <span class="n">it</span> <span class="o">!=</span> <span class="n">beta_dept_cells</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
+       <span class="n">it</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span><span class="o">&amp;</span> <span class="n">row</span> <span class="o">=</span> <span class="n">it</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">.</span><span class="n">first</span><span class="p">;</span>
+    <span class="kt">int</span><span class="o">&amp;</span> <span class="n">col</span> <span class="o">=</span> <span class="n">it</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
+
+    <span class="c1">// Note that I am remembering row and col instead of 2*row and 2*col+1</span>
+    <span class="c1">// row and col resembles an edge in the CAG: row -&gt; col</span>
+    <span class="c1">// ( 2*row, 2*col+1 ) is the transition matrix cell that got changed.</span>
+    <span class="c1">// this-&gt;A_cells_changed.push_back( make_tuple( row, col, A( row * 2, col</span>
+    <span class="c1">// * 2 + 1 )));</span>
+
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">A_original</span><span class="p">(</span><span class="n">row</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">col</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">=</span>
+        <span class="k">this</span><span class="o">-&gt;</span><span class="n">A_beta_factors</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">compute_cell</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">double</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">calculate_delta_log_prior</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">coin_flip</span> <span class="o">&lt;</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">coin_flip_thresh</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// A θ has been sampled</span>
+    <span class="n">KDE</span><span class="o">&amp;</span> <span class="n">kde</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">previous_theta</span><span class="p">.</span><span class="n">first</span><span class="p">].</span><span class="n">kde</span><span class="p">;</span>
+
+    <span class="c1">// We have to return: log( p( θ_new )) - log( p( θ_old ))</span>
+    <span class="k">return</span> <span class="n">kde</span><span class="p">.</span><span class="n">logpdf</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">previous_theta</span><span class="p">.</span><span class="n">first</span><span class="p">].</span><span class="n">theta</span><span class="p">)</span> <span class="o">-</span>
+           <span class="n">kde</span><span class="p">.</span><span class="n">logpdf</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">previous_theta</span><span class="p">.</span><span class="n">second</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">else</span> <span class="p">{</span>
+    <span class="c1">// A derivative  has been sampled</span>
+    <span class="c1">// At the moment we are using a uniform prior.</span>
+    <span class="k">return</span> <span class="mf">0.0</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">revert_back_to_previous_state</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">log_likelihood</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">previous_log_likelihood</span><span class="p">;</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">coin_flip</span> <span class="o">&lt;</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">coin_flip_thresh</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// A θ has been sampled</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">previous_theta</span><span class="p">.</span><span class="n">first</span><span class="p">].</span><span class="n">theta</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">previous_theta</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
+
+    <span class="c1">// Reset the transition matrix cells that were changed</span>
+    <span class="c1">// TODO: Can we change the transition matrix only when the sample is</span>
+    <span class="c1">// accepted?</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">update_transition_matrix_cells</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">previous_theta</span><span class="p">.</span><span class="n">first</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">else</span> <span class="p">{</span>
+    <span class="c1">// A derivative  has been sampled</span>
+    <span class="c1">// this-&gt;s0 = this-&gt;s0_prev;</span>
+    <span class="n">s0</span><span class="p">[</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">changed_derivative</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">previous_derivative</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="cm">/*</span>
+<span class="cm"> ============================================================================</span>
+<span class="cm"> Public: Training by MCMC Sampling</span>
+<span class="cm"> ============================================================================</span>
+<span class="cm">*/</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">set_default_initial_state</span><span class="p">()</span> <span class="p">{</span>
+  <span class="c1">// Let vertices of the CAG be v = 0, 1, 2, 3, ...</span>
+  <span class="c1">// Then,</span>
+  <span class="c1">//    indexes 2*v keeps track of the state of each variable v</span>
+  <span class="c1">//    indexes 2*v+1 keeps track of the state of ∂v/∂t</span>
+  <span class="kt">int</span> <span class="n">num_els</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">num_vertices</span><span class="p">()</span> <span class="o">*</span> <span class="mi">2</span><span class="p">;</span>
+
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">s0</span> <span class="o">=</span> <span class="n">VectorXd</span><span class="p">(</span><span class="n">num_els</span><span class="p">);</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">s0</span><span class="p">.</span><span class="n">setZero</span><span class="p">();</span>
+
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">num_els</span><span class="p">;</span> <span class="n">i</span> <span class="o">+=</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">s0</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">set_res</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">res</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">res</span> <span class="o">=</span> <span class="n">res</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">size_t</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">get_res</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">res</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Adarsh
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,13 @@
+.. _exhale_typedef_DiGraph_8hpp_1aa8dbb5b324583306fe4e135a42c380c7:
+
+Typedef DiGraph
+===============
+
+- Defined in :ref:`file_lib_DiGraph.hpp`
+
+
+Typedef Documentation
+---------------------
+
+
+.. doxygentypedef:: DiGraph

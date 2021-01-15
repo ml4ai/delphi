@@ -1,0 +1,13 @@
+.. _exhale_function_namespacedelphi_1_1gv_1ad46d9752afa0f4b4b46a7ad97d4f7787:
+
+Function delphi::gv::set_property(Agraph_t \*, int, std::string, std::string)
+=============================================================================
+
+- Defined in :ref:`file_lib_graphviz_interface.cpp`
+
+
+Function Documentation
+----------------------
+
+
+.. doxygenfunction:: delphi::gv::set_property(Agraph_t *, int, std::string, std::string)

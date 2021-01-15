@@ -1,0 +1,56 @@
+
+.. _file_lib_data.cpp:
+
+File data.cpp
+=============
+
+|exhale_lsh| :ref:`Parent directory <dir_lib>` (``lib``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. contents:: Contents
+   :local:
+   :backlinks: none
+
+Definition (``lib/data.cpp``)
+-----------------------------
+
+
+.. toctree::
+   :maxdepth: 1
+
+   program_listing_file_lib_data.cpp.rst
+
+
+
+
+
+Includes
+--------
+
+
+- ``chrono``
+
+- ``data.hpp`` (:ref:`file_lib_data.hpp`)
+
+- ``fmt/format.h``
+
+- ``range/v3/all.hpp``
+
+- ``sqlite3.h``
+
+- ``thread``
+
+- ``utils.hpp`` (:ref:`file_lib_utils.hpp`)
+
+
+
+
+
+
+Functions
+---------
+
+
+- :ref:`exhale_function_data_8cpp_1ad3124e29911474270b5b1cb68111fe52`
+

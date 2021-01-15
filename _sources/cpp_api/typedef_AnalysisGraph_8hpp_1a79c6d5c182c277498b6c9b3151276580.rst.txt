@@ -1,0 +1,13 @@
+.. _exhale_typedef_AnalysisGraph_8hpp_1a79c6d5c182c277498b6c9b3151276580:
+
+Typedef FormattedPredictionResult
+=================================
+
+- Defined in :ref:`file_lib_AnalysisGraph.hpp`
+
+
+Typedef Documentation
+---------------------
+
+
+.. doxygentypedef:: FormattedPredictionResult

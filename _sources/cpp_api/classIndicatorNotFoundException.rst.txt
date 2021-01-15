@@ -1,0 +1,25 @@
+.. _exhale_class_classIndicatorNotFoundException:
+
+Class IndicatorNotFoundException
+================================
+
+- Defined in :ref:`file_lib_exceptions.hpp`
+
+
+Inheritance Relationships
+-------------------------
+
+Base Type
+*********
+
+- ``public exception``
+
+
+Class Documentation
+-------------------
+
+
+.. doxygenclass:: IndicatorNotFoundException
+   :members:
+   :protected-members:
+   :undoc-members:

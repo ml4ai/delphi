@@ -1,0 +1,431 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Program Listing for File constructors.cpp &mdash; delphi  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> delphi
+          
+
+          
+            
+            <img src="../_static/delphi_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html#change-log">Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library_root.html">C++ API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">delphi</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Program Listing for File constructors.cpp</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/cpp_api/program_listing_file_lib_constructors.cpp.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="program-listing-for-file-constructors-cpp">
+<span id="program-listing-file-lib-constructors-cpp"></span><h1>Program Listing for File constructors.cpp<a class="headerlink" href="#program-listing-for-file-constructors-cpp" title="Permalink to this headline">¶</a></h1>
+<p>↰ <a class="reference internal" href="file_lib_constructors.cpp.html#file-lib-constructors-cpp"><span class="std std-ref">Return to documentation for file</span></a> (<code class="docutils literal notranslate"><span class="pre">lib/constructors.cpp</span></code>)</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;AnalysisGraph.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&quot;utils.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;fstream&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;range/v3/all.hpp&gt;</span><span class="cp"></span>
+
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">delphi</span><span class="o">::</span><span class="n">utils</span><span class="p">;</span>
+<span class="k">using</span> <span class="n">fmt</span><span class="o">::</span><span class="n">print</span><span class="p">;</span>
+
+<span class="n">AnalysisGraph</span>
+<span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">from_indra_statements_json_dict</span><span class="p">(</span><span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="n">json_data</span><span class="p">,</span>
+                                               <span class="kt">double</span> <span class="n">belief_score_cutoff</span><span class="p">,</span>
+                                               <span class="kt">double</span> <span class="n">grounding_score_cutoff</span><span class="p">,</span>
+                                               <span class="n">string</span> <span class="n">ontology</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">AnalysisGraph</span> <span class="n">G</span><span class="p">;</span>
+
+  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">stmt</span> <span class="p">:</span> <span class="n">json_data</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">stmt</span><span class="p">[</span><span class="s">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;Influence&quot;</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">auto</span> <span class="n">subj_ground</span> <span class="o">=</span> <span class="n">stmt</span><span class="p">[</span><span class="s">&quot;subj&quot;</span><span class="p">][</span><span class="s">&quot;concept&quot;</span><span class="p">][</span><span class="s">&quot;db_refs&quot;</span><span class="p">][</span><span class="n">ontology</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">];</span>
+      <span class="k">auto</span> <span class="n">obj_ground</span> <span class="o">=</span> <span class="n">stmt</span><span class="p">[</span><span class="s">&quot;obj&quot;</span><span class="p">][</span><span class="s">&quot;concept&quot;</span><span class="p">][</span><span class="s">&quot;db_refs&quot;</span><span class="p">][</span><span class="n">ontology</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">];</span>
+      <span class="kt">bool</span> <span class="n">grounding_check</span> <span class="o">=</span> <span class="p">(</span><span class="n">subj_ground</span> <span class="o">&gt;=</span> <span class="n">grounding_score_cutoff</span><span class="p">)</span> <span class="n">and</span>
+                             <span class="p">(</span><span class="n">obj_ground</span> <span class="o">&gt;=</span> <span class="n">grounding_score_cutoff</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">grounding_check</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">auto</span> <span class="n">subj</span> <span class="o">=</span> <span class="n">stmt</span><span class="p">[</span><span class="s">&quot;subj&quot;</span><span class="p">][</span><span class="s">&quot;concept&quot;</span><span class="p">][</span><span class="s">&quot;db_refs&quot;</span><span class="p">][</span><span class="s">&quot;WM&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">];</span>
+        <span class="k">auto</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">stmt</span><span class="p">[</span><span class="s">&quot;obj&quot;</span><span class="p">][</span><span class="s">&quot;concept&quot;</span><span class="p">][</span><span class="s">&quot;db_refs&quot;</span><span class="p">][</span><span class="s">&quot;WM&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">];</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">subj</span><span class="p">.</span><span class="n">is_null</span><span class="p">()</span> <span class="n">and</span> <span class="o">!</span><span class="n">obj</span><span class="p">.</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">stmt</span><span class="p">[</span><span class="s">&quot;belief&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">belief_score_cutoff</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">continue</span><span class="p">;</span>
+          <span class="p">}</span>
+
+          <span class="n">string</span> <span class="n">subj_str</span> <span class="o">=</span> <span class="n">subj</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">();</span>
+          <span class="n">string</span> <span class="n">obj_str</span> <span class="o">=</span> <span class="n">obj</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">();</span>
+
+          <span class="k">if</span> <span class="p">(</span><span class="n">subj_str</span><span class="p">.</span><span class="n">compare</span><span class="p">(</span><span class="n">obj_str</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// Guard against self loops</span>
+            <span class="c1">// Add the nodes to the graph if they are not in it already</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">string</span> <span class="nl">name</span> <span class="p">:</span> <span class="p">{</span><span class="n">subj_str</span><span class="p">,</span> <span class="n">obj_str</span><span class="p">})</span> <span class="p">{</span>
+              <span class="n">G</span><span class="p">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">name</span><span class="p">);</span>
+            <span class="p">}</span>
+
+            <span class="c1">// Add the edge to the graph if it is not in it already</span>
+            <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">evidence</span> <span class="p">:</span> <span class="n">stmt</span><span class="p">[</span><span class="s">&quot;evidence&quot;</span><span class="p">])</span> <span class="p">{</span>
+              <span class="k">auto</span> <span class="n">annotations</span> <span class="o">=</span> <span class="n">evidence</span><span class="p">[</span><span class="s">&quot;annotations&quot;</span><span class="p">];</span>
+              <span class="k">auto</span> <span class="n">subj_adjectives</span> <span class="o">=</span> <span class="n">annotations</span><span class="p">[</span><span class="s">&quot;subj_adjectives&quot;</span><span class="p">];</span>
+              <span class="k">auto</span> <span class="n">obj_adjectives</span> <span class="o">=</span> <span class="n">annotations</span><span class="p">[</span><span class="s">&quot;obj_adjectives&quot;</span><span class="p">];</span>
+              <span class="k">auto</span> <span class="n">subj_adjective</span> <span class="o">=</span>
+                  <span class="p">(</span><span class="o">!</span><span class="n">subj_adjectives</span><span class="p">.</span><span class="n">is_null</span><span class="p">()</span> <span class="n">and</span> <span class="n">subj_adjectives</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+                      <span class="o">?</span> <span class="n">subj_adjectives</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                      <span class="o">:</span> <span class="s">&quot;None&quot;</span><span class="p">;</span>
+              <span class="k">auto</span> <span class="n">obj_adjective</span> <span class="o">=</span>
+                  <span class="p">(</span><span class="n">obj_adjectives</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">?</span> <span class="n">obj_adjectives</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">:</span> <span class="s">&quot;None&quot;</span><span class="p">;</span>
+              <span class="k">auto</span> <span class="n">subj_polarity</span> <span class="o">=</span> <span class="n">annotations</span><span class="p">[</span><span class="s">&quot;subj_polarity&quot;</span><span class="p">];</span>
+              <span class="k">auto</span> <span class="n">obj_polarity</span> <span class="o">=</span> <span class="n">annotations</span><span class="p">[</span><span class="s">&quot;obj_polarity&quot;</span><span class="p">];</span>
+
+              <span class="k">if</span> <span class="p">(</span><span class="n">subj_polarity</span><span class="p">.</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
+                <span class="n">subj_polarity</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+              <span class="p">}</span>
+              <span class="k">if</span> <span class="p">(</span><span class="n">obj_polarity</span><span class="p">.</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
+                <span class="n">obj_polarity</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+              <span class="p">}</span>
+              <span class="n">string</span> <span class="n">subj_adj_str</span> <span class="o">=</span> <span class="n">subj_adjective</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">();</span>
+              <span class="n">string</span> <span class="n">obj_adj_str</span> <span class="o">=</span> <span class="n">subj_adjective</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">();</span>
+              <span class="k">auto</span> <span class="n">causal_fragment</span> <span class="o">=</span>
+                  <span class="n">CausalFragment</span><span class="p">({</span><span class="n">subj_adj_str</span><span class="p">,</span> <span class="n">subj_polarity</span><span class="p">,</span> <span class="n">subj_str</span><span class="p">},</span>
+                                 <span class="p">{</span><span class="n">obj_adj_str</span><span class="p">,</span> <span class="n">obj_polarity</span><span class="p">,</span> <span class="n">obj_str</span><span class="p">});</span>
+
+              <span class="n">G</span><span class="p">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">causal_fragment</span><span class="p">);</span>
+            <span class="p">}</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">G</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">AnalysisGraph</span>
+<span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">from_indra_statements_json_string</span><span class="p">(</span><span class="n">string</span> <span class="n">json_string</span><span class="p">,</span>
+                                                 <span class="kt">double</span> <span class="n">belief_score_cutoff</span><span class="p">,</span>
+                                                 <span class="kt">double</span> <span class="n">grounding_score_cutoff</span><span class="p">,</span>
+                                                 <span class="n">string</span> <span class="n">ontology</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">auto</span> <span class="n">json_data</span> <span class="o">=</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span><span class="n">json_string</span><span class="p">);</span>
+  <span class="k">return</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">from_indra_statements_json_dict</span><span class="p">(</span>
+      <span class="n">json_data</span><span class="p">,</span> <span class="n">belief_score_cutoff</span><span class="p">,</span> <span class="n">grounding_score_cutoff</span><span class="p">,</span> <span class="n">ontology</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">AnalysisGraph</span>
+<span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">from_indra_statements_json_file</span><span class="p">(</span><span class="n">string</span> <span class="n">filename</span><span class="p">,</span>
+                                               <span class="kt">double</span> <span class="n">belief_score_cutoff</span><span class="p">,</span>
+                                               <span class="kt">double</span> <span class="n">grounding_score_cutoff</span><span class="p">,</span>
+                                               <span class="n">string</span> <span class="n">ontology</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">auto</span> <span class="n">json_data</span> <span class="o">=</span> <span class="n">load_json</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span>
+
+  <span class="k">return</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">from_indra_statements_json_dict</span><span class="p">(</span>
+      <span class="n">json_data</span><span class="p">,</span> <span class="n">belief_score_cutoff</span><span class="p">,</span> <span class="n">grounding_score_cutoff</span><span class="p">,</span> <span class="n">ontology</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">AnalysisGraph</span>
+<span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">from_causal_fragments</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">CausalFragment</span><span class="o">&gt;</span> <span class="n">causal_fragments</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">AnalysisGraph</span> <span class="n">G</span><span class="p">;</span>
+
+  <span class="k">for</span> <span class="p">(</span><span class="n">CausalFragment</span> <span class="nl">cf</span> <span class="p">:</span> <span class="n">causal_fragments</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">Event</span> <span class="n">subject</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="n">cf</span><span class="p">.</span><span class="n">first</span><span class="p">);</span>
+    <span class="n">Event</span> <span class="n">object</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="n">cf</span><span class="p">.</span><span class="n">second</span><span class="p">);</span>
+
+    <span class="n">string</span> <span class="n">subj_name</span> <span class="o">=</span> <span class="n">subject</span><span class="p">.</span><span class="n">concept_name</span><span class="p">;</span>
+    <span class="n">string</span> <span class="n">obj_name</span> <span class="o">=</span> <span class="n">object</span><span class="p">.</span><span class="n">concept_name</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">subj_name</span><span class="p">.</span><span class="n">compare</span><span class="p">(</span><span class="n">obj_name</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// Guard against self loops</span>
+      <span class="c1">// Add the nodes to the graph if they are not in it already</span>
+      <span class="k">for</span> <span class="p">(</span><span class="n">string</span> <span class="nl">name</span> <span class="p">:</span> <span class="p">{</span><span class="n">subj_name</span><span class="p">,</span> <span class="n">obj_name</span><span class="p">})</span> <span class="p">{</span>
+        <span class="n">G</span><span class="p">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">name</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="n">G</span><span class="p">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">cf</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">G</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">AnalysisGraph</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">from_json_string</span><span class="p">(</span><span class="n">string</span> <span class="n">json_string</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">auto</span> <span class="n">data</span> <span class="o">=</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span><span class="n">json_string</span><span class="p">);</span>
+  <span class="n">AnalysisGraph</span> <span class="n">G</span><span class="p">;</span>
+  <span class="n">G</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">];</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">e</span> <span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s">&quot;edges&quot;</span><span class="p">])</span> <span class="p">{</span>
+    <span class="n">string</span> <span class="n">source</span> <span class="o">=</span> <span class="n">e</span><span class="p">[</span><span class="s">&quot;source&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">();</span>
+    <span class="n">string</span> <span class="n">target</span> <span class="o">=</span> <span class="n">e</span><span class="p">[</span><span class="s">&quot;target&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">();</span>
+    <span class="n">G</span><span class="p">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">source</span><span class="p">);</span>
+    <span class="n">G</span><span class="p">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">target</span><span class="p">);</span>
+    <span class="n">G</span><span class="p">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">);</span>
+    <span class="n">G</span><span class="p">.</span><span class="n">edge</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">).</span><span class="n">kde</span><span class="p">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">e</span><span class="p">[</span><span class="s">&quot;kernels&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span><span class="p">();</span>
+  <span class="p">}</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="p">[</span><span class="n">concept</span><span class="p">,</span> <span class="n">indicator</span><span class="p">]</span> <span class="o">:</span> <span class="n">data</span><span class="p">[</span><span class="s">&quot;indicatorData&quot;</span><span class="p">].</span><span class="n">items</span><span class="p">())</span> <span class="p">{</span>
+    <span class="n">string</span> <span class="n">indicator_name</span> <span class="o">=</span> <span class="n">indicator</span><span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">();</span>
+    <span class="n">G</span><span class="p">[</span><span class="n">concept</span><span class="p">].</span><span class="n">add_indicator</span><span class="p">(</span><span class="n">indicator_name</span><span class="p">,</span> <span class="n">indicator</span><span class="p">[</span><span class="s">&quot;source&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">());</span>
+    <span class="n">G</span><span class="p">[</span><span class="n">concept</span><span class="p">]</span>
+        <span class="p">.</span><span class="n">get_indicator</span><span class="p">(</span><span class="n">indicator_name</span><span class="p">)</span>
+        <span class="p">.</span><span class="n">set_mean</span><span class="p">(</span><span class="n">indicator</span><span class="p">[</span><span class="s">&quot;mean&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">());</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">G</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">AnalysisGraph</span><span class="p">(</span><span class="k">const</span> <span class="n">AnalysisGraph</span><span class="o">&amp;</span> <span class="n">rhs</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// Copying private members</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">indicators_in_CAG</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">indicators_in_CAG</span><span class="p">;</span>
+  <span class="c1">// NOTE: Copying this gives a segmentation fault</span>
+  <span class="c1">//       Investigate</span>
+  <span class="c1">//this-&gt;name_to_vertex = rhs.name_to_vertex;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">causemos_call</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">causemos_call</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">trained</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">trained</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">n_timesteps</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">n_timesteps</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_timesteps</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">pred_timesteps</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">training_range</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">training_range</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_range</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">pred_range</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">t</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">t</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">delta_t</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">delta_t</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">s0</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">s0</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">A_original</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">A_original</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">continuous</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">continuous</span><span class="p">;</span>
+
+  <span class="c1">// NOTE: This assumes that node indices and indicator indices for each node</span>
+  <span class="c1">// does not change when copied. This data structure is indexed using those</span>
+  <span class="c1">// indices. If they gets changed while copying, assigned indicator data would</span>
+  <span class="c1">// be mixed up and hence training gets mixed up.</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">observed_state_sequence</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">observed_state_sequence</span><span class="p">;</span>
+
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">predicted_latent_state_sequences</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">predicted_latent_state_sequences</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">predicted_observed_state_sequences</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">predicted_observed_state_sequences</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">test_observed_state_sequence</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">test_observed_state_sequence</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">one_off_constraints</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">one_off_constraints</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">perpetual_constraints</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">perpetual_constraints</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">is_one_off_constraints</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">is_one_off_constraints</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">transition_matrix_collection</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">transition_matrix_collection</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">initial_latent_state_collection</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">initial_latent_state_collection</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">synthetic_latent_state_sequence</span><span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">synthetic_latent_state_sequence</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">synthetic_data_experiment</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">synthetic_data_experiment</span><span class="p">;</span>
+
+  <span class="c1">// Copying public members</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">id</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">id</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">data_heuristic</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">data_heuristic</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">res</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">res</span><span class="p">;</span>
+
+  <span class="n">for_each</span><span class="p">(</span><span class="n">rhs</span><span class="p">.</span><span class="n">node_indices</span><span class="p">(),</span> <span class="p">[</span><span class="o">&amp;</span><span class="p">](</span><span class="kt">int</span> <span class="n">v</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">Node</span> <span class="n">node_rhs</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">graph</span><span class="p">[</span><span class="n">v</span><span class="p">];</span>
+
+    <span class="c1">// Add nodes in the same order as rhs so that indices does not chance</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_node</span><span class="p">(</span><span class="n">node_rhs</span><span class="p">.</span><span class="n">name</span><span class="p">);</span>
+
+    <span class="c1">// Copy all the data for node v in rhs graph to this graph.</span>
+    <span class="c1">// This data includes all the indicators.</span>
+    <span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">graph</span><span class="p">[</span><span class="n">v</span><span class="p">];</span>
+
+    <span class="cm">/*</span>
+<span class="cm">    for(const Indicator&amp; ind : node_rhs.indicators) {</span>
+<span class="cm">      this-&gt;set_indicator(node_rhs.name, ind.name, ind.source);</span>
+<span class="cm">    }</span>
+<span class="cm">    */</span>
+  <span class="p">});</span>
+  <span class="cm">/*</span>
+<span class="cm">  for (auto [vert_name, vert_id] : rhs.name_to_vertex) {</span>
+<span class="cm">    this-&gt;add_node(vert_name);</span>
+<span class="cm">  }</span>
+<span class="cm">  */</span>
+
+  <span class="c1">// Add all the edges</span>
+  <span class="n">for_each</span><span class="p">(</span><span class="n">rhs</span><span class="p">.</span><span class="n">edges</span><span class="p">(),</span> <span class="p">[</span><span class="o">&amp;</span><span class="p">](</span><span class="k">auto</span> <span class="n">e_rhs</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">auto</span> <span class="p">[</span><span class="n">e_lhs</span><span class="p">,</span> <span class="n">exists</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_edge</span><span class="p">(</span><span class="n">rhs</span><span class="p">.</span><span class="n">graph</span><span class="p">[</span><span class="n">boost</span><span class="o">::</span><span class="n">source</span><span class="p">(</span><span class="n">e_rhs</span><span class="p">,</span> <span class="n">rhs</span><span class="p">.</span><span class="n">graph</span><span class="p">)].</span><span class="n">name</span><span class="p">,</span>
+                                  <span class="n">rhs</span><span class="p">.</span><span class="n">graph</span><span class="p">[</span><span class="n">boost</span><span class="o">::</span><span class="n">target</span><span class="p">(</span><span class="n">e_rhs</span><span class="p">,</span> <span class="n">rhs</span><span class="p">.</span><span class="n">graph</span><span class="p">)].</span><span class="n">name</span><span class="p">);</span>
+
+    <span class="c1">// Copy all the edge data structures</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="n">e_lhs</span><span class="p">]</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">graph</span><span class="p">[</span><span class="n">e_rhs</span><span class="p">];</span>
+    <span class="cm">/*</span>
+<span class="cm">    this-&gt;graph[e_lhs].evidence = rhs.graph[e_rhs].evidence;</span>
+<span class="cm">    this-&gt;graph[e_lhs].kde = rhs.graph[e_rhs].kde;</span>
+<span class="cm">    this-&gt;graph[e_lhs].name = rhs.graph[e_rhs].name;</span>
+<span class="cm">    this-&gt;graph[e_lhs].theta = rhs.graph[e_rhs].theta;</span>
+<span class="cm">    */</span>
+
+  <span class="p">});</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Adarsh
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

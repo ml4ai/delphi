@@ -1,0 +1,16 @@
+.. _exhale_class_classRNG:
+
+Class RNG
+=========
+
+- Defined in :ref:`file_lib_rng.hpp`
+
+
+Class Documentation
+-------------------
+
+
+.. doxygenclass:: RNG
+   :members:
+   :protected-members:
+   :undoc-members:

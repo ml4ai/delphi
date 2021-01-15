@@ -1,0 +1,736 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>delphi.translators.for2py.f2grfn &mdash; delphi  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+        <script src="../../../../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../../../../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> delphi
+          
+
+          
+            
+            <img src="../../../../_static/delphi_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html#change-log">Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cpp_api/library_root.html">C++ API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">delphi</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../for2py.html">delphi.translators.for2py</a> &raquo;</li>
+        
+      <li>delphi.translators.for2py.f2grfn</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for delphi.translators.for2py.f2grfn</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This program exists to replacement the autoTranslate bash script.</span>
+<span class="sd">Instead of creating and using each file for next operation like in the</span>
+<span class="sd">autoTranslate bash script, it creates Python object and passes it to the</span>
+<span class="sd">next function. Thus, it works as calling a multiple functions in a</span>
+<span class="sd">single program. This new f2grfn.py does not invoke main functions in</span>
+<span class="sd">each program.</span>
+
+<span class="sd">In simplicity, it&#39;s a single program that integrates the</span>
+<span class="sd">functionality of test_program_analysis.py and autoTranslate.</span>
+
+<span class="sd">fortran_file: An original input file to a program that is to be</span>
+<span class="sd">    translated to GrFN.</span>
+<span class="sd">root_dir: A root directory where module log file should be created or</span>
+<span class="sd">    found.</span>
+
+<span class="sd">Author: Terrence J. Lim</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">ast</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">delphi.paths</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">subprocess</span> <span class="k">as</span> <span class="nn">sp</span>
+<span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="k">as</span> <span class="nn">ET</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">isfile</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span> <span class="nn">delphi.translators.for2py</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">preprocessor</span><span class="p">,</span>
+    <span class="n">translate</span><span class="p">,</span>
+    <span class="n">get_comments</span><span class="p">,</span>
+    <span class="n">pyTranslate</span><span class="p">,</span>
+    <span class="n">genPGM</span><span class="p">,</span>
+    <span class="n">mod_index_generator</span><span class="p">,</span>
+    <span class="n">rectify</span><span class="p">,</span>
+    <span class="n">genModFileLog</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">OFP_JAR_FILES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;antlr-3.3-complete.jar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;commons-cli-1.4.jar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;OpenFortranParser-0.8.4-3.jar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;OpenFortranParserXML-0.4.1.jar&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="sd">&quot;&quot;&quot;OFP_JAR_FILES is a list of JAR files used by the Open Fortran Parser (OFP).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">MODULE_FILE_PREFIX</span> <span class="o">=</span> <span class="s2">&quot;m_&quot;</span>
+<span class="sd">&quot;&quot;&quot;Module file prefix that all generated Python module files will be specified</span>
+<span class="sd">with.&quot;&quot;&quot;</span>
+
+<span class="n">MODULE_FILE_NAME</span> <span class="o">=</span> <span class="s2">&quot;modFileLog.json&quot;</span>
+<span class="sd">&quot;&quot;&quot;A file that holds log of all files with module(s)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="generate_ofp_xml"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.f2grfn.generate_ofp_xml">[docs]</a><span class="k">def</span> <span class="nf">generate_ofp_xml</span><span class="p">(</span>
+    <span class="n">preprocessed_fortran_file</span><span class="p">,</span> <span class="n">temp_dir</span><span class="p">,</span> <span class="n">save_intermediate_files</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; This function runs Open Fortran Parser to generate initial AST XML from</span>
+<span class="sd">    the preprocessed Fortran file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        preprocessed_fortran_file (str): A preprocessed fortran file name.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: OFP-generated XML as a string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Execute Java command to generate XML string from fortran file</span>
+    <span class="n">ofp_xml_string</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;java&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fortran.ofp.FrontEnd&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--class&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fortran.ofp.XMLPrinter&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--verbosity&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;0&quot;</span><span class="p">,</span>
+            <span class="n">preprocessed_fortran_file</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">stdout</span><span class="o">=</span><span class="n">sp</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">stdout</span>
+
+    <span class="k">if</span> <span class="n">save_intermediate_files</span><span class="p">:</span>
+        <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">ElementTree</span><span class="p">(</span><span class="n">ET</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">ofp_xml_string</span><span class="p">))</span>
+        <span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{temp_dir}</span><span class="s2">/{Path(preprocessed_fortran_file).stem}.xml&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ofp_xml_string</span></div>
+
+<div class="viewcode-block" id="generate_preprocessed_fortran"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.f2grfn.generate_preprocessed_fortran">[docs]</a><span class="k">def</span> <span class="nf">generate_preprocessed_fortran</span><span class="p">(</span><span class="n">original_fortran_file</span><span class="p">,</span> <span class="n">temp_dir</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function generates preprocessed fortran file.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        original_fortran_file(str): Original fortran file path.</span>
+<span class="sd">        temp_dir(str): Target directory where temporary files will be</span>
+<span class="sd">        stored.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: Preprocessed file path.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">original_fortran_file</span><span class="p">)</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c1"># TODO Add some code using Pathlib to check the file extension and make</span>
+    <span class="c1"># sure it&#39;s either .f or .for.</span>
+    <span class="n">preprocessed_fortran_file_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{temp_dir}</span><span class="s2">/{str(base)}_preprocessed.f&quot;</span>
+    <span class="n">preprocessed_fortran</span> <span class="o">=</span> <span class="n">preprocessor</span><span class="o">.</span><span class="n">get_preprocessed_lines_from_file</span><span class="p">(</span>
+        <span class="n">original_fortran_file</span>
+    <span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">preprocessed_fortran_file_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">preprocessed_fortran</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">preprocessed_fortran_file_path</span></div>
+
+
+
+<div class="viewcode-block" id="generate_rectified_xml"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.f2grfn.generate_rectified_xml">[docs]</a><span class="k">def</span> <span class="nf">generate_rectified_xml</span><span class="p">(</span>
+    <span class="n">ofp_xml_string</span><span class="p">,</span> <span class="n">original_fortran_file</span><span class="p">,</span> <span class="n">module_log_file_path</span><span class="p">,</span> <span class="n">temp_dir</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function rectifies XML that was generated by OFP. Then, it will</span>
+<span class="sd">    generate an output file, but also returns rectified element tree object</span>
+<span class="sd">    back to the caller.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ofp_xml (str): A string of XML that was generated by OFP.</span>
+<span class="sd">        rectified_file (str): A file name that rectified XML</span>
+<span class="sd">        will be written to.</span>
+<span class="sd">        original_fortran_file (str): Original fortran file path.</span>
+<span class="sd">        module_log_file_path (str): Path to module log file.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A two-tuple with the following elements:</span>
+<span class="sd">        Element Tree (ET) Object: An object of generated rectified XML.</span>
+<span class="sd">        module_files_to_process: a list of module files to process.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">rectified_xml</span><span class="p">,</span> <span class="n">module_files_to_process</span> <span class="o">=</span> <span class="n">rectify</span><span class="o">.</span><span class="n">buildNewASTfromXMLString</span><span class="p">(</span>
+        <span class="n">ofp_xml_string</span><span class="p">,</span> <span class="n">original_fortran_file</span><span class="p">,</span> <span class="n">module_log_file_path</span>
+    <span class="p">)</span>
+
+    <span class="n">rectified_tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">ElementTree</span><span class="p">(</span><span class="n">rectified_xml</span><span class="p">)</span>
+    <span class="n">rectified_tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{temp_dir}</span><span class="s2">/rectified_{str(Path(original_fortran_file).stem)}.xml&quot;</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">rectified_xml</span><span class="p">,</span> <span class="n">module_files_to_process</span></div>
+
+
+<div class="viewcode-block" id="generate_outputdict"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.f2grfn.generate_outputdict">[docs]</a><span class="k">def</span> <span class="nf">generate_outputdict</span><span class="p">(</span><span class="n">rectified_tree</span><span class="p">,</span> <span class="n">preprocessed_fortran_file</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This function generates a dictionary of ast and generates a dict</span>
+<span class="sd">    with XML generated by translate.py and comments obtained with</span>
+<span class="sd">    get_comments.py.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        rectified_tree (:obj: &#39;ET&#39;): An object of rectified XML.</span>
+<span class="sd">        preprocessed_fortran_file (str): Path to preprocessed fortran file</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: A dictionary of XML generated by translate.py</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">output_dictionary</span> <span class="o">=</span> <span class="n">translate</span><span class="o">.</span><span class="n">xml_to_py</span><span class="p">([</span><span class="n">rectified_tree</span><span class="p">])</span>
+    <span class="n">output_dictionary</span><span class="p">[</span><span class="s2">&quot;comments&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_comments</span><span class="o">.</span><span class="n">get_comments</span><span class="p">(</span>
+        <span class="n">preprocessed_fortran_file</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">output_dictionary</span></div>
+
+
+<div class="viewcode-block" id="generate_python_sources"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.f2grfn.generate_python_sources">[docs]</a><span class="k">def</span> <span class="nf">generate_python_sources</span><span class="p">(</span>
+    <span class="n">output_dictionary</span><span class="p">,</span>
+    <span class="n">python_files</span><span class="p">,</span>
+    <span class="n">main_python_file</span><span class="p">,</span>
+    <span class="n">temp_dir</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;This function generates Python source file from generated Python source</span>
+<span class="sd">    list. This function will return this list back to the caller for GrFN</span>
+<span class="sd">    generation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        output_dictionary (dict): A dictionary of XML generated</span>
+<span class="sd">        by translate.py.</span>
+<span class="sd">        python_files: A list of python file names.</span>
+<span class="sd">        python_file_name (str): A file name where translated python strings</span>
+<span class="sd">        will be written to.</span>
+<span class="sd">        temp_dir (str): Temporary directory to store the translated files.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: A string of generated Python code.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="p">(</span>
+        <span class="n">python_sources</span><span class="p">,</span>
+        <span class="n">variable_map</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">=</span> <span class="n">pyTranslate</span><span class="o">.</span><span class="n">get_python_sources_and_variable_map</span><span class="p">(</span><span class="n">output_dictionary</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">main_python_file</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.py&quot;</span><span class="p">,</span> <span class="s2">&quot;_variable_map.pkl&quot;</span><span class="p">),</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">variable_map</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">python_src_tuple</span> <span class="ow">in</span> <span class="n">python_sources</span><span class="p">:</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{temp_dir}</span><span class="s2">/</span><span class="si">{MODULE_FILE_PREFIX}</span><span class="s2">{python_src_tuple[1].lower()}.py&quot;</span>
+            <span class="k">if</span> <span class="n">python_src_tuple</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;module&quot;</span>
+            <span class="k">else</span> <span class="n">main_python_file</span>
+        <span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">python_src_tuple</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">python_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">python_sources</span></div>
+
+
+<div class="viewcode-block" id="generate_grfn"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.f2grfn.generate_grfn">[docs]</a><span class="k">def</span> <span class="nf">generate_grfn</span><span class="p">(</span>
+    <span class="n">python_source_string</span><span class="p">,</span>
+    <span class="n">python_file_path</span><span class="p">,</span>
+    <span class="n">lambdas_file_path</span><span class="p">,</span>
+    <span class="n">mode_mapper_dictionary</span><span class="p">,</span>
+    <span class="n">original_fortran_file</span><span class="p">,</span>
+    <span class="n">mod_log_file_path</span><span class="p">,</span>
+    <span class="n">processing_modules</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This function generates GrFN dictionary object and file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        python_source_string (str): A string of Python code.</span>
+<span class="sd">        python_file_path (str): A generated Python file path.</span>
+<span class="sd">        lambdas_file_path (str): A lambdas file path.</span>
+<span class="sd">        mode_mapper_dictionary (list): A mapper of file info (i.e. filename,</span>
+<span class="sd">        module, and exports, etc).</span>
+<span class="sd">        original_fortran_file (str): The path to the original</span>
+<span class="sd">        Fortran file being analyzed.</span>
+<span class="sd">        mod_log_file_path (str): A path to module log file.</span>
+<span class="sd">        processing_modules (bool): A boolean condition marker to indicate</span>
+<span class="sd">        whether current GrFN generation is for a module.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: A dictionary of generated GrFN.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">grfn_filepath_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Regular expression to identify the path and name of all Python files</span>
+    <span class="n">filename_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(?P&lt;path&gt;.*/)(?P&lt;filename&gt;.*).py&quot;</span><span class="p">)</span>
+
+    <span class="c1"># First, find the main Python file in order to populate the module</span>
+    <span class="c1"># mapper</span>
+    <span class="n">file_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">filename_regex</span><span class="p">,</span> <span class="n">python_file_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">file_match</span><span class="p">,</span> <span class="s2">&quot;Invalid filename.&quot;</span>
+
+    <span class="n">path</span> <span class="o">=</span> <span class="n">file_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">)</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">file_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;filename&quot;</span><span class="p">)</span>
+
+    <span class="n">module_file_exists</span> <span class="o">=</span> <span class="n">is_module_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="c1"># Ignore all Python files of modules created by `pyTranslate.py`</span>
+    <span class="c1"># since these module files do not contain a corresponding XML file.</span>
+    <span class="k">if</span> <span class="n">module_file_exists</span><span class="p">:</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="n">genPGM</span><span class="o">.</span><span class="n">get_original_file_name</span><span class="p">(</span><span class="n">original_fortran_file</span><span class="p">)</span>
+        <span class="n">xml_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{path}</span><span class="s2">rectified_</span><span class="si">{file_name}</span><span class="s2">.xml&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">xml_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{path}</span><span class="s2">rectified_</span><span class="si">{filename}</span><span class="s2">.xml&quot;</span>
+
+    <span class="c1"># Mapping all variables and objects in the various files</span>
+
+    <span class="n">module_mapper</span> <span class="o">=</span> <span class="n">mod_index_generator</span><span class="o">.</span><span class="n">get_index</span><span class="p">(</span><span class="n">xml_file</span><span class="p">,</span> <span class="n">mod_log_file_path</span><span class="p">)</span>
+    <span class="n">module_import_paths</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># Build GrFN and lambdas</span>
+    <span class="n">asts</span> <span class="o">=</span> <span class="p">[</span><span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">python_source_string</span><span class="p">)]</span>
+
+    <span class="n">grfn_dict</span> <span class="o">=</span> <span class="n">genPGM</span><span class="o">.</span><span class="n">create_grfn_dict</span><span class="p">(</span>
+        <span class="n">lambdas_file_path</span><span class="p">,</span>
+        <span class="n">asts</span><span class="p">,</span>
+        <span class="n">python_file_path</span><span class="p">,</span>
+        <span class="n">module_mapper</span><span class="p">,</span>
+        <span class="n">original_fortran_file</span><span class="p">,</span>
+        <span class="n">mod_log_file_path</span><span class="p">,</span>
+        <span class="n">module_file_exists</span><span class="p">,</span>
+        <span class="n">module_import_paths</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">grfn_file</span> <span class="o">=</span> <span class="n">python_file_path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.py&quot;</span><span class="p">,</span> <span class="s2">&quot;_GrFN.json&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">module_file_exists</span><span class="p">:</span>
+        <span class="n">python_file_path</span> <span class="o">=</span> <span class="n">path</span> <span class="o">+</span> <span class="n">file_name</span> <span class="o">+</span> <span class="s2">&quot;.py&quot;</span>
+    <span class="n">grfn_filepath_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grfn_file</span><span class="p">)</span>
+
+    <span class="c1"># Cleanup GrFN.</span>
+    <span class="k">del</span> <span class="n">grfn_dict</span><span class="p">[</span><span class="s2">&quot;date_created&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">grfn_dict</span><span class="p">[</span><span class="s2">&quot;variables&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="s2">&quot;gensym&quot;</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;gensym&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">grfn_dict</span><span class="p">[</span><span class="s2">&quot;containers&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="s2">&quot;gensym&quot;</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;gensym&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Load logs from the module log file.</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">mod_log_file_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_f</span><span class="p">:</span>
+        <span class="n">module_logs</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">json_f</span><span class="p">)</span>
+
+    <span class="c1"># Generate systems.json linking file.</span>
+    <span class="n">system_def</span> <span class="o">=</span> <span class="n">genPGM</span><span class="o">.</span><span class="n">generate_system_def</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">python_file_path</span><span class="p">],</span>
+        <span class="n">grfn_filepath_list</span><span class="p">,</span>
+        <span class="n">module_import_paths</span><span class="p">,</span>
+        <span class="n">module_logs</span><span class="p">,</span>
+        <span class="n">original_fortran_file</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">grfn_dict</span><span class="p">[</span><span class="s2">&quot;system&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">system_def</span>
+
+    <span class="k">return</span> <span class="n">grfn_dict</span></div>
+
+
+<div class="viewcode-block" id="is_module_file"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.f2grfn.is_module_file">[docs]</a><span class="k">def</span> <span class="nf">is_module_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function is to check whether the handling</span>
+<span class="sd">    file is a module file or not.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        filename (str): Name of a file.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        (bool) True if it is a module file.</span>
+<span class="sd">        (bool) False, if it is not a module file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">MODULE_FILE_PREFIX</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="check_classpath"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.f2grfn.check_classpath">[docs]</a><span class="k">def</span> <span class="nf">check_classpath</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;check_classpath() checks whether the files in OFP_JAR_FILES can all be</span>
+<span class="sd">    found in via the environment variable CLASSPATH.&quot;&quot;&quot;</span>
+
+    <span class="n">not_found</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">classpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;CLASSPATH&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">jar_file</span> <span class="ow">in</span> <span class="n">OFP_JAR_FILES</span><span class="p">:</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">classpath</span><span class="p">:</span>
+            <span class="n">dir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">jar_file</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+                <span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">jar_file</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">dir_path</span><span class="p">)</span>
+            <span class="p">):</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">break</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+                <span class="n">not_found</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">jar_file</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">not_found</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;ERROR: JAR files not found via CLASSPATH:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; {&#39;,&#39;.join(not_found)}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="indent"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.f2grfn.indent">[docs]</a><span class="k">def</span> <span class="nf">indent</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; This function indents each level of XML.</span>
+
+<span class="sd">    Source: https://stackoverflow.com/questions/3095434/inserting-newlines</span>
+<span class="sd">    -in-xml-file-generated-via-xml-etree-elementstree-in-python</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        elem (:obj: &#39;ET&#39;): An element tree XML object.</span>
+<span class="sd">        level (int): A root level of XML.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">level</span> <span class="o">*</span> <span class="s2">&quot;  &quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">elem</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">text</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="n">elem</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="s2">&quot;  &quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">tail</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">tail</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="n">elem</span><span class="o">.</span><span class="n">tail</span> <span class="o">=</span> <span class="n">i</span>
+        <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">elem</span><span class="p">:</span>
+            <span class="n">indent</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">tail</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">tail</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="n">elem</span><span class="o">.</span><span class="n">tail</span> <span class="o">=</span> <span class="n">i</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">level</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">tail</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">elem</span><span class="o">.</span><span class="n">tail</span><span class="o">.</span><span class="n">strip</span><span class="p">()):</span>
+            <span class="n">elem</span><span class="o">.</span><span class="n">tail</span> <span class="o">=</span> <span class="n">i</span></div>
+
+
+<div class="viewcode-block" id="fortran_to_grfn"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.f2grfn.fortran_to_grfn">[docs]</a><span class="k">def</span> <span class="nf">fortran_to_grfn</span><span class="p">(</span>
+    <span class="n">original_fortran</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">temp_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">root_dir_path</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
+    <span class="n">module_file_name</span><span class="o">=</span><span class="n">MODULE_FILE_NAME</span><span class="p">,</span>
+    <span class="n">processing_modules</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">save_intermediate_files</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function invokes other appropriate functions</span>
+<span class="sd">    to process and generate objects to translate fortran</span>
+<span class="sd">    to python IR. This function will either be invoked by</span>
+<span class="sd">    local main function or the outer tester functions,</span>
+<span class="sd">    such as test_program_analysis.py or network.py.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        original_fortran (str): A file name of original fortran script.</span>
+<span class="sd">        temp_dir (str): A default temporary directory where output</span>
+<span class="sd">        files will be stored.</span>
+<span class="sd">        root_dir_path (str): A root directory of the program.</span>
+<span class="sd">        module_file_name (str): A module log file name.</span>
+<span class="sd">        processing_modules (bool): A boolean condition marker to indicate</span>
+<span class="sd">        whether current fortran_to_grfn execution is for processing a module.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        {</span>
+<span class="sd">            &#39;python_src&#39;: A string of Python code,</span>
+<span class="sd">            &#39;python_file&#39;: A file name of generated python script,</span>
+<span class="sd">            &#39;lambdas_file&#39;: A file name where lambdas will be,</span>
+<span class="sd">            &#39;mode_mapper_dict&#39;: mapper of file info (i.e. filename, module, and exports, etc).</span>
+<span class="sd">        }</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">current_dir</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span>
+    <span class="n">check_classpath</span><span class="p">()</span>
+
+    <span class="c1"># Else, for2py function gets invoked by the test</span>
+    <span class="c1"># programs, it will be passed with an argument</span>
+    <span class="c1"># of original Fortran file path.</span>
+    <span class="n">original_fortran_file</span> <span class="o">=</span> <span class="n">original_fortran</span>
+    <span class="n">root_dir</span> <span class="o">=</span> <span class="n">root_dir_path</span>
+    <span class="n">module_file</span> <span class="o">=</span> <span class="n">module_file_name</span>
+
+    <span class="c1"># Generate or update module log file.</span>
+    <span class="n">module_log_file_path</span> <span class="o">=</span> <span class="n">genModFileLog</span><span class="o">.</span><span class="n">mod_file_log_generator</span><span class="p">(</span>
+        <span class="n">root_dir</span><span class="p">,</span> <span class="n">module_file</span>
+    <span class="p">)</span>
+
+    <span class="n">base</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">original_fortran_file</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span><span class="p">)</span>
+
+    <span class="c1"># temp_dir is None means that the output file was</span>
+    <span class="c1"># not set by the program that calls this function.</span>
+    <span class="c1"># Thus, generate the output temporary file based</span>
+    <span class="c1"># on the user input or the default path &quot;tmp&quot;.</span>
+    <span class="n">temp_out_dir</span> <span class="o">=</span> <span class="s2">&quot;tmp&quot;</span>
+    <span class="k">if</span> <span class="n">temp_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">temp_dir</span> <span class="o">=</span> <span class="n">current_dir</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">temp_out_dir</span>
+
+    <span class="c1"># If &quot;tmp&quot; directory does not exist already, simply create one.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span>
+            <span class="n">temp_dir</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">W_OK</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Directory </span><span class="si">{temp_dir}</span><span class="s2"> is not writable.</span><span class="se">\n\</span>
+<span class="s2">            Please, provide the directory name to hold files.&quot;</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;*** ALL OUTPUT FILES LIVE IN [</span><span class="si">{temp_dir}</span><span class="s2">]&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Output files</span>
+    <span class="n">python_file</span> <span class="o">=</span> <span class="n">temp_dir</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">base</span> <span class="o">+</span> <span class="s2">&quot;.py&quot;</span>
+
+    <span class="n">preprocessed_fortran_file</span> <span class="o">=</span> <span class="n">generate_preprocessed_fortran</span><span class="p">(</span>
+            <span class="n">original_fortran_file</span><span class="p">,</span> <span class="n">temp_dir</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Generate OFP XML from preprocessed fortran</span>
+    <span class="n">ofp_xml_string</span> <span class="o">=</span> <span class="n">generate_ofp_xml</span><span class="p">(</span>
+        <span class="n">preprocessed_fortran_file</span><span class="p">,</span>
+        <span class="n">temp_dir</span><span class="p">,</span>
+        <span class="n">save_intermediate_files</span><span class="o">=</span><span class="n">save_intermediate_files</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Rectify and generate a new XML from OFP XML</span>
+    <span class="n">rectified_tree</span><span class="p">,</span> <span class="n">module_files_to_process</span> <span class="o">=</span> <span class="n">generate_rectified_xml</span><span class="p">(</span>
+        <span class="n">ofp_xml_string</span><span class="p">,</span> <span class="n">original_fortran_file</span><span class="p">,</span> <span class="n">module_log_file_path</span><span class="p">,</span> <span class="n">temp_dir</span>
+    <span class="p">)</span>
+
+    <span class="c1"># If a program uses module(s) that does not reside within the same file,</span>
+    <span class="c1"># we need to find out where they live and process those files first. Thus,</span>
+    <span class="c1"># the program should know the list of modules that require advance</span>
+    <span class="c1"># processing that was collected by rectify.py, below code will recursively</span>
+    <span class="c1"># call fortran_to_grfn function to process module files end-to-end</span>
+    <span class="c1"># (Fortran-to-GrFN).</span>
+    <span class="k">if</span> <span class="n">module_files_to_process</span><span class="p">:</span>
+        <span class="n">processing_modules</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">for</span> <span class="n">target_module_file</span> <span class="ow">in</span> <span class="n">module_files_to_process</span><span class="p">:</span>
+            <span class="n">fortran_to_grfn</span><span class="p">(</span>
+                <span class="n">target_module_file</span><span class="p">,</span>
+                <span class="n">temp_dir</span><span class="p">,</span>
+                <span class="n">root_dir</span><span class="p">,</span>
+                <span class="n">module_file</span><span class="p">,</span>
+                <span class="n">processing_modules</span><span class="p">,</span>
+                <span class="n">save_intermediate_files</span><span class="o">=</span><span class="n">save_intermediate_files</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">processing_modules</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1"># Generate separate list of modules file.</span>
+    <span class="n">generator</span> <span class="o">=</span> <span class="n">mod_index_generator</span><span class="o">.</span><span class="n">ModuleGenerator</span><span class="p">()</span>
+    <span class="n">mode_mapper_dict</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span><span class="n">rectified_tree</span><span class="p">,</span> <span class="n">module_log_file_path</span><span class="p">)</span>
+
+    <span class="c1"># This will update the log file with more information about the module,</span>
+    <span class="c1"># such as the declared symbols and types that is needed for generating GrFN.</span>
+    <span class="k">if</span> <span class="n">processing_modules</span><span class="p">:</span>
+        <span class="n">genModFileLog</span><span class="o">.</span><span class="n">update_mod_info_json</span><span class="p">(</span>
+            <span class="n">module_log_file_path</span><span class="p">,</span> <span class="n">mode_mapper_dict</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="n">output_dict</span> <span class="o">=</span> <span class="n">generate_outputdict</span><span class="p">(</span>
+        <span class="n">rectified_tree</span><span class="p">,</span> <span class="n">preprocessed_fortran_file</span>
+    <span class="p">)</span>
+
+    <span class="n">translated_python_files</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># Create a list of tuples with information about the Python source files.</span>
+    <span class="n">python_sources</span> <span class="o">=</span> <span class="n">generate_python_sources</span><span class="p">(</span>
+        <span class="n">output_dict</span><span class="p">,</span>
+        <span class="n">translated_python_files</span><span class="p">,</span>
+        <span class="n">python_file</span><span class="p">,</span>
+        <span class="n">temp_dir</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">save_intermediate_files</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">preprocessed_fortran_file</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">translated_python_file</span> <span class="ow">in</span> <span class="n">translated_python_files</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">translated_python_file</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">python_sources</span><span class="p">,</span>
+        <span class="n">translated_python_files</span><span class="p">,</span>
+        <span class="n">mode_mapper_dict</span><span class="p">,</span>
+        <span class="n">original_fortran_file</span><span class="p">,</span>
+        <span class="n">module_log_file_path</span><span class="p">,</span>
+        <span class="n">processing_modules</span><span class="p">,</span>
+    <span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Adarsh
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

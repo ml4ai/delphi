@@ -1,0 +1,36 @@
+
+.. _program_listing_file_lib_rng.hpp:
+
+Program Listing for File rng.hpp
+================================
+
+|exhale_lsh| :ref:`Return to documentation for file <file_lib_rng.hpp>` (``lib/rng.hpp``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. code-block:: cpp
+
+   #pragma once
+   
+   #include <random>
+   
+   class RNG {
+   public:
+     static RNG *rng();
+     void set_seed(int seed);
+     int get_seed();
+     std::mt19937 get_RNG();
+     static void release_instance();
+   
+   private:
+     RNG();
+     ~RNG(){};
+     RNG(RNG const &);
+     RNG &operator=(RNG const &);
+     static RNG *m_pInstance;
+     int random_seed;
+     std::mt19937 gen;
+     static void add_ref();
+     static void release_ref();
+     static int counter;
+   };

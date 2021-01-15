@@ -1,0 +1,13 @@
+.. _exhale_typedef_sandbox_8cpp_1af4a53a8754213c9236b8051673625ded:
+
+Typedef Evidence
+================
+
+- Defined in :ref:`file_lib_sandbox.cpp`
+
+
+Typedef Documentation
+---------------------
+
+
+.. doxygentypedef:: Evidence

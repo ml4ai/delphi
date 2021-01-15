@@ -1,0 +1,13 @@
+.. _exhale_function_utils_8cpp_1a5d1afe8edbb69bc5c25fb26fae559b77:
+
+Function delphi::utils::standard_deviation
+==========================================
+
+- Defined in :ref:`file_lib_utils.cpp`
+
+
+Function Documentation
+----------------------
+
+
+.. doxygenfunction:: delphi::utils::standard_deviation(const double, const std::vector<double>&)

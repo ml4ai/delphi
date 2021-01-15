@@ -1,0 +1,749 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>delphi.translators.for2py.format &mdash; delphi  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+        <script src="../../../../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../../../../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> delphi
+          
+
+          
+            
+            <img src="../../../../_static/delphi_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html#change-log">Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cpp_api/library_root.html">C++ API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">delphi</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../for2py.html">delphi.translators.for2py</a> &raquo;</li>
+        
+      <li>delphi.translators.for2py.format</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for delphi.translators.for2py.format</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="sd">&quot;&quot;&quot;File: format.py</span>
+
+<span class="sd">Purpose: Process a string (obtained from a data file) according to</span>
+<span class="sd">         a Fortran FORMAT.</span>
+
+<span class="sd">         NOTE: Not all format specifiers are supported at this time.</span>
+<span class="sd">         The input formats supported are shown in the method</span>
+<span class="sd">         match_input_fmt_1(), while the output formats supported are</span>
+<span class="sd">         shown in the method gen_output_fmt_1().</span>
+
+<span class="sd">Usage:</span>
+<span class="sd">        I. FORMATTED I/O</span>
+
+<span class="sd">        Given a Fortran READ or WRITE statement that should be processed</span>
+<span class="sd">        according to a format list fmt_list (where fmt_list is a Python</span>
+<span class="sd">        list of Fortran FORMAT descriptors), do the following:</span>
+
+<span class="sd">        (1) Create a Format object as follows:</span>
+
+<span class="sd">                my_fmt_obj = Format(fmt_list)</span>
+
+<span class="sd">        (2) INPUT: To process a line of input inp_ln according to this</span>
+<span class="sd">            format and assign values to a tuple of variables var_list:</span>
+
+<span class="sd">                var_list = my_fmt_obj.read_line(inp_ln)</span>
+
+<span class="sd">            OUTPUT: To construct a line to be printed out given a set</span>
+<span class="sd">            of values val1, ..., valN:</span>
+
+<span class="sd">                out_string = my_fmt_obj.write_line([val1, ..., valN])</span>
+
+<span class="sd">        II. LIST_DIRECTED I/O</span>
+
+<span class="sd">        At this time only list-directed output has been implemented.</span>
+
+<span class="sd">        For list-directed output, e.g.: WRITE (*,*) X, Y, Z do the following:</span>
+
+<span class="sd">        (1) Construct a list of the types of the values to be written.</span>
+<span class="sd">            Let this list be denoted by out_type_list.</span>
+
+<span class="sd">        (2) Construct a list of format specifiers for these types using:</span>
+
+<span class="sd">                fmt_list = list_output_format(out_type_list)</span>
+
+<span class="sd">        (3) Use fmt_list as described above.</span>
+
+<span class="sd">        There are some examples towards the end of this file.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">For2PyError</span>
+
+
+<div class="viewcode-block" id="Format"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.format.Format">[docs]</a><span class="k">class</span> <span class="nc">Format</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">format_list</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_format_list</span> <span class="o">=</span> <span class="n">format_list</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_read_line_init</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_line_init</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_re_cvt</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_regexp_str</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_re</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_match_exps</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_divisors</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_cvt_fns</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_output_fmt</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_out_gen_fmt</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_out_widths</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Format.init_read_line"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.format.Format.init_read_line">[docs]</a>    <span class="k">def</span> <span class="nf">init_read_line</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;init_read_line() initializes fields relevant to input matching&quot;&quot;&quot;</span>
+        <span class="n">format_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_re_cvt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">match_input_fmt</span><span class="p">(</span><span class="n">format_list</span><span class="p">)</span>
+        <span class="n">regexp0_str</span> <span class="o">=</span> <span class="s1">&#39;r&quot;&#39;</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">subs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">subs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_re_cvt</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_regexp_str</span> <span class="o">=</span> <span class="n">regexp0_str</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">regexp0_str</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_match_exps</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">subs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">subs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_re_cvt</span> <span class="k">if</span> <span class="n">subs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_divisors</span> <span class="o">=</span> <span class="p">[</span><span class="n">subs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">subs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_re_cvt</span> <span class="k">if</span> <span class="n">subs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span>
+                          <span class="kc">None</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_cvt_fns</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">subs</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">subs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_re_cvt</span> <span class="k">if</span> <span class="n">subs</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_read_line_init</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Format.init_write_line"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.format.Format.init_write_line">[docs]</a>    <span class="k">def</span> <span class="nf">init_write_line</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;init_write_line() initializes fields relevant to output generation&quot;&quot;&quot;</span>
+        <span class="n">format_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_list</span>
+        <span class="n">output_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_output_fmt</span><span class="p">(</span><span class="n">format_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_output_fmt</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">sub</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">output_info</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_out_gen_fmt</span> <span class="o">=</span> <span class="p">[</span><span class="n">sub</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">output_info</span> <span class="k">if</span> <span class="n">sub</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span>
+                             <span class="kc">None</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_out_widths</span> <span class="o">=</span> <span class="p">[</span><span class="n">sub</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">output_info</span> <span class="k">if</span> <span class="n">sub</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_write_line_init</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Format.read_line"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.format.Format.read_line">[docs]</a>    <span class="k">def</span> <span class="nf">read_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Match a line of input according to the format specified and return a</span>
+<span class="sd">        tuple of the resulting values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_line_init</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">init_read_line</span><span class="p">()</span>
+
+        <span class="n">match</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Format mismatch (line = </span><span class="si">{line}</span><span class="s2">)&quot;</span>
+
+        <span class="n">matched_values</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_re</span><span class="o">.</span><span class="n">groups</span><span class="p">):</span>
+            <span class="n">cvt_re</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_exps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">cvt_div</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_divisors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">cvt_fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_in_cvt_fns</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">match_str</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">match0</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">cvt_re</span><span class="p">,</span> <span class="n">match_str</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">match0</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">cvt_fn</span> <span class="o">==</span> <span class="s2">&quot;float&quot;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="s2">&quot;.&quot;</span> <span class="ow">in</span> <span class="n">match_str</span><span class="p">:</span>
+                        <span class="n">val</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">match_str</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match_str</span><span class="p">)</span> <span class="o">/</span> <span class="n">cvt_div</span>
+                <span class="k">elif</span> <span class="n">cvt_fn</span> <span class="o">==</span> <span class="s2">&quot;int&quot;</span><span class="p">:</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match_str</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Unrecognized conversion function: </span><span class="si">{cvt_fn}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Format conversion failed: </span><span class="si">{match_str}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+            <span class="n">matched_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">matched_values</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Format.write_line"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.format.Format.write_line">[docs]</a>    <span class="k">def</span> <span class="nf">write_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process a list of values according to the format specified to generate</span>
+<span class="sd">        a line of output.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write_line_init</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">init_write_line</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_out_widths</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">For2PyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ERROR: too few values for format&quot;</span>
+                              <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{self._format_list}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">out_strs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_out_widths</span><span class="p">)):</span>
+            <span class="n">out_fmt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_out_gen_fmt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">out_width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_out_widths</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">out_strs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">out_val</span> <span class="o">=</span> <span class="n">out_fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="c1"># out_width == &quot;*&quot; indicates that the field can be</span>
+                <span class="c1"># arbitrarily wide</span>
+                <span class="k">if</span> <span class="n">out_width</span> <span class="o">!=</span> <span class="s2">&quot;*&quot;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">out_val</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">out_width</span><span class="p">:</span>  <span class="c1"># value too big for field</span>
+                        <span class="n">out_val</span> <span class="o">=</span> <span class="s2">&quot;*&quot;</span> <span class="o">*</span> <span class="n">out_width</span>
+                <span class="n">out_strs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out_val</span><span class="p">)</span>
+
+        <span class="n">out_str_exp</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">&#39;&quot;&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_fmt</span> <span class="o">+</span> <span class="s1">&#39;&quot;.format&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">out_strs</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="n">out_str</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">out_str_exp</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out_str</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_list</span><span class="p">)</span>
+
+    <span class="c1">###########################################################################</span>
+    <span class="c1">#                                                                         #</span>
+    <span class="c1">#                              INPUT MATCHING                             #</span>
+    <span class="c1">#                                                                         #</span>
+    <span class="c1">###########################################################################</span>
+
+<div class="viewcode-block" id="Format.match_input_fmt"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.format.Format.match_input_fmt">[docs]</a>    <span class="k">def</span> <span class="nf">match_input_fmt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt_list</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Given a list of Fortran format specifiers, e.g., [&#39;I5&#39;, &#39;2X&#39;,</span>
+<span class="sd">        &#39;F4.1&#39;], this function constructs a list of tuples for matching an input</span>
+<span class="sd">        string against those format specifiers.&quot;&quot;&quot;</span>
+
+        <span class="n">rexp_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="n">fmt_list</span><span class="p">:</span>
+            <span class="n">rexp_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">match_input_fmt_1</span><span class="p">(</span><span class="n">fmt</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">rexp_list</span></div>
+
+<div class="viewcode-block" id="Format.match_input_fmt_1"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.format.Format.match_input_fmt_1">[docs]</a>    <span class="k">def</span> <span class="nf">match_input_fmt_1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a single format specifier, e.g., &#39;2X&#39;, &#39;I5&#39;, etc., this function</span>
+<span class="sd">        constructs a list of tuples for matching against that specifier. Each</span>
+<span class="sd">        element of this list is a tuple</span>
+
+<span class="sd">               (xtract_re, cvt_re, divisor, cvt_fn)</span>
+
+<span class="sd">        where:</span>
+
+<span class="sd">           xtract_re is a regular expression that extracts an input field of</span>
+<span class="sd">                   the requisite width;</span>
+<span class="sd">           cvt_re is a regular expression that matches the character sequence</span>
+<span class="sd">                   extracted by xtract_re against the specified format;</span>
+<span class="sd">           divisor is the value to divide by in order to get the appropriate</span>
+<span class="sd">                   number of decimal places if a decimal point is not given</span>
+<span class="sd">                   in the input value (meaningful only for floats); and</span>
+<span class="sd">           cvt_fn is a string denoting the function to be used to convert the</span>
+<span class="sd">                   matched string to a value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># first, remove any surrounding space</span>
+        <span class="n">fmt</span> <span class="o">=</span> <span class="n">fmt</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+        <span class="c1"># get any leading digits indicating repetition</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\d+)(.+)&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">reps</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">reps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">fmt</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">fmt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;(&quot;</span><span class="p">:</span>  <span class="c1"># process parenthesized format list recursively</span>
+            <span class="n">fmt</span> <span class="o">=</span> <span class="n">fmt</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">fmt_list</span> <span class="o">=</span> <span class="n">fmt</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+            <span class="n">rexp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">match_input_fmt</span><span class="p">(</span><span class="n">fmt_list</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">fmt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s2">&quot;iI&quot;</span><span class="p">:</span>  <span class="c1"># integer</span>
+                <span class="n">sz</span> <span class="o">=</span> <span class="n">fmt</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+                <span class="n">xtract_rexp</span> <span class="o">=</span> <span class="s1">&#39;r&quot;(.{&#39;</span> <span class="o">+</span> <span class="n">sz</span> <span class="o">+</span> <span class="s1">&#39;})&quot;&#39;</span>  <span class="c1"># r.e. for extraction</span>
+                <span class="n">rexp1</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot; *-?\d+&quot;</span>  <span class="c1"># r.e. for matching</span>
+                <span class="n">divisor</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">rexp</span> <span class="o">=</span> <span class="p">[(</span><span class="n">xtract_rexp</span><span class="p">,</span> <span class="n">rexp1</span><span class="p">,</span> <span class="n">divisor</span><span class="p">,</span> <span class="s2">&quot;int&quot;</span><span class="p">)]</span>
+
+            <span class="k">elif</span> <span class="n">fmt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s2">&quot;xX&quot;</span><span class="p">:</span>  <span class="c1"># skip</span>
+                <span class="n">xtract_rexp</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span>  <span class="c1"># r.e. for extraction</span>
+                <span class="n">rexp</span> <span class="o">=</span> <span class="p">[(</span><span class="n">xtract_rexp</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)]</span>
+
+            <span class="k">elif</span> <span class="n">fmt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s2">&quot;fF&quot;</span><span class="p">:</span>  <span class="c1"># floating point</span>
+                <span class="n">idx0</span> <span class="o">=</span> <span class="n">fmt</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+                <span class="n">sz</span> <span class="o">=</span> <span class="n">fmt</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">idx0</span><span class="p">]</span>
+                <span class="n">divisor</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">fmt</span><span class="p">[</span><span class="n">idx0</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]))</span>
+                <span class="n">xtract_rexp</span> <span class="o">=</span> <span class="s1">&#39;r&quot;(.{,&#39;</span> <span class="o">+</span> <span class="n">sz</span> <span class="o">+</span> <span class="s1">&#39;})&quot;&#39;</span>  <span class="c1"># r.e. for extraction</span>
+                <span class="n">rexp1</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot; *-?\d+(\.\d+)?&quot;</span>  <span class="c1"># r.e. for matching</span>
+                <span class="n">rexp</span> <span class="o">=</span> <span class="p">[(</span><span class="n">xtract_rexp</span><span class="p">,</span> <span class="n">rexp1</span><span class="p">,</span> <span class="n">divisor</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">)]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">For2PyError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;ERROR: Unrecognized format specifier </span><span class="si">{fmt}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+        <span class="c1"># replicate the regular expression by the repetition factor in the</span>
+        <span class="c1"># format</span>
+        <span class="n">rexp</span> <span class="o">*=</span> <span class="n">reps</span>
+
+        <span class="k">return</span> <span class="n">rexp</span></div>
+
+    <span class="c1">###########################################################################</span>
+    <span class="c1">#                                                                         #</span>
+    <span class="c1">#                             OUTPUT GENERATION                           #</span>
+    <span class="c1">#                                                                         #</span>
+    <span class="c1">###########################################################################</span>
+
+<div class="viewcode-block" id="Format.gen_output_fmt"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.format.Format.gen_output_fmt">[docs]</a>    <span class="k">def</span> <span class="nf">gen_output_fmt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt_list</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;given a list of Fortran format specifiers, e.g., [&#39;I5&#39;, &#39;2X&#39;,</span>
+<span class="sd">        &#39;F4.1&#39;], this function constructs a list of tuples for constructing</span>
+<span class="sd">        an output</span>
+<span class="sd">        string based on those format specifiers.&quot;&quot;&quot;</span>
+
+        <span class="n">rexp_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="n">fmt_list</span><span class="p">:</span>
+            <span class="n">rexp_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gen_output_fmt_1</span><span class="p">(</span><span class="n">fmt</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">rexp_list</span></div>
+
+<div class="viewcode-block" id="Format.gen_output_fmt_1"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.format.Format.gen_output_fmt_1">[docs]</a>    <span class="k">def</span> <span class="nf">gen_output_fmt_1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;given a single format specifier, get_output_fmt_1() constructs and</span>
+<span class="sd">        returns a list of tuples for matching against that specifier.</span>
+
+<span class="sd">        Each element of this list is a tuple</span>
+<span class="sd">            (gen_fmt, cvt_fmt, sz)</span>
+
+<span class="sd">        where:</span>
+<span class="sd">           gen_fmt is the Python format specifier for assembling this value into</span>
+<span class="sd">           the string constructed for output;</span>
+<span class="sd">           cvt_fmt is the Python format specifier for converting this value into</span>
+<span class="sd">           a string that will be assembled into the output string; and</span>
+<span class="sd">           sz is the width of this field.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># first, remove any surrounding space</span>
+        <span class="n">fmt</span> <span class="o">=</span> <span class="n">fmt</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+        <span class="c1"># get any leading digits indicating repetition</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\d+)(.+)&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">reps</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">reps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">fmt</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">fmt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;(&quot;</span><span class="p">:</span>  <span class="c1"># process parenthesized format list recursively</span>
+            <span class="n">fmt</span> <span class="o">=</span> <span class="n">fmt</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">fmt_list</span> <span class="o">=</span> <span class="n">fmt</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+            <span class="n">rexp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_output_fmt</span><span class="p">(</span><span class="n">fmt_list</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">fmt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s2">&quot;iI&quot;</span><span class="p">:</span>  <span class="c1"># integer</span>
+                <span class="n">sz</span> <span class="o">=</span> <span class="n">fmt</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+                <span class="n">gen_fmt</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span>
+                <span class="n">cvt_fmt</span> <span class="o">=</span> <span class="s2">&quot;{:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">sz</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;d}&quot;</span>
+                <span class="n">rexp</span> <span class="o">=</span> <span class="p">[(</span><span class="n">gen_fmt</span><span class="p">,</span> <span class="n">cvt_fmt</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">sz</span><span class="p">))]</span>
+
+            <span class="k">elif</span> <span class="n">fmt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s2">&quot;xX&quot;</span><span class="p">:</span>
+                <span class="n">gen_fmt</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span>
+                <span class="n">rexp</span> <span class="o">=</span> <span class="p">[(</span><span class="n">gen_fmt</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)]</span>
+
+            <span class="k">elif</span> <span class="n">fmt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s2">&quot;aA&quot;</span><span class="p">:</span>
+                <span class="n">gen_fmt</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span>
+                <span class="c1"># the &#39;*&#39; in the third position of the tuple (corresponding to</span>
+                <span class="c1"># field width) indicates that the field can be arbitrarily wide</span>
+                <span class="n">rexp</span> <span class="o">=</span> <span class="p">[(</span><span class="n">gen_fmt</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">)]</span>
+
+            <span class="k">elif</span> <span class="n">fmt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s2">&quot;eEfFgG&quot;</span><span class="p">:</span>  <span class="c1"># various floating point formats</span>
+                <span class="n">idx0</span> <span class="o">=</span> <span class="n">fmt</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+                <span class="n">sz</span> <span class="o">=</span> <span class="n">fmt</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">idx0</span><span class="p">]</span>
+                <span class="n">suffix</span> <span class="o">=</span> <span class="n">fmt</span><span class="p">[</span><span class="n">idx0</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
+                <span class="c1"># The &#39;E&#39; and G formats can optionally specify the width of</span>
+                <span class="c1"># the exponent, e.g.: &#39;E15.3E2&#39;.  For now we ignore any such</span>
+                <span class="c1"># the exponent width -- but if it&#39;s there, we need to extract</span>
+                <span class="c1"># the sequence of digits before it.</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\d+).*&quot;</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="n">m</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Improper format? &#39;</span><span class="si">{fmt}</span><span class="s2">&#39;&quot;</span>
+                <span class="n">prec</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">gen_fmt</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span>
+                <span class="n">cvt_fmt</span> <span class="o">=</span> <span class="s2">&quot;{:&quot;</span> <span class="o">+</span> <span class="n">sz</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">prec</span> <span class="o">+</span> <span class="n">fmt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;}&quot;</span>
+                <span class="n">rexp</span> <span class="o">=</span> <span class="p">[(</span><span class="n">gen_fmt</span><span class="p">,</span> <span class="n">cvt_fmt</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">sz</span><span class="p">))]</span>
+
+            <span class="k">elif</span> <span class="n">fmt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s2">&quot;pP&quot;</span><span class="p">:</span>  <span class="c1"># scaling factor</span>
+                <span class="c1"># For now we ignore scaling: there are lots of other things we</span>
+                <span class="c1"># need to spend time on. To fix later if necessary.</span>
+                <span class="n">rest_of_fmt</span> <span class="o">=</span> <span class="n">fmt</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+                <span class="n">rexp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gen_output_fmt_1</span><span class="p">(</span><span class="n">rest_of_fmt</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">fmt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s2">&quot;&#39;</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">:</span>  <span class="c1"># character string</span>
+                <span class="n">sz</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span>  <span class="c1"># -2 for the quote at either end</span>
+                <span class="c1"># escape any double-quotes in the string</span>
+                <span class="n">gen_fmt</span> <span class="o">=</span> <span class="n">fmt</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\\\&quot;</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">rexp</span> <span class="o">=</span> <span class="p">[(</span><span class="n">gen_fmt</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)]</span>
+
+            <span class="k">elif</span> <span class="n">fmt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;/&quot;</span><span class="p">:</span>  <span class="c1"># newlines</span>
+                <span class="n">gen_fmt</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">n&quot;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span>
+                <span class="n">rexp</span> <span class="o">=</span> <span class="p">[(</span><span class="n">gen_fmt</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)]</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">For2PyError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;ERROR: Unrecognized format specifier </span><span class="si">{fmt[0]}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+        <span class="c1"># replicate the regular expression by the repetition factor in the</span>
+        <span class="c1"># format</span>
+        <span class="n">rexp</span> <span class="o">*=</span> <span class="n">reps</span>
+
+        <span class="k">return</span> <span class="n">rexp</span></div></div>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1">#                                                                              #</span>
+<span class="c1">#                     DEFAULT FORMATS FOR LIST-DIRECTED I/O                    #</span>
+<span class="c1">#                                                                              #</span>
+<span class="c1">################################################################################</span>
+
+<span class="c1"># LIST_WRITE_DEFAULTS specifies the default formats for list-directed output.</span>
+<span class="c1"># Source: https://software.intel.com/en-us/fortran-compiler-developer-guide-\</span>
+<span class="c1">#           and-reference-rules-for-list-directed-sequential-write-statements</span>
+
+<span class="n">LIST_WRITE_DEFAULTS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;BYTE&quot;</span><span class="p">:</span> <span class="s2">&quot;I5&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LOGICAL(1)&quot;</span><span class="p">:</span> <span class="s2">&quot;L2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LOGICAL(2)&quot;</span><span class="p">:</span> <span class="s2">&quot;L2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LOGICAL(4)&quot;</span><span class="p">:</span> <span class="s2">&quot;L2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LOGICAL(8)&quot;</span><span class="p">:</span> <span class="s2">&quot;L2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;INTEGER&quot;</span><span class="p">:</span> <span class="s2">&quot;I12&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;INTEGER(1)&quot;</span><span class="p">:</span> <span class="s2">&quot;I5&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;INTEGER(2)&quot;</span><span class="p">:</span> <span class="s2">&quot;I7&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;INTEGER(4)&quot;</span><span class="p">:</span> <span class="s2">&quot;I12&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;INTEGER(8)&quot;</span><span class="p">:</span> <span class="s2">&quot;I22&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;REAL&quot;</span><span class="p">:</span> <span class="s2">&quot;1PE14.5E2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;REAL(4)&quot;</span><span class="p">:</span> <span class="s2">&quot;1PG15.7E2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;REAL(8)&quot;</span><span class="p">:</span> <span class="s2">&quot;1PG24.15E3&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;REAL(16)&quot;</span><span class="p">:</span> <span class="s2">&quot;1PG43.33E4&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="c1"># default_output_format() takes a type name and returns the default format</span>
+<span class="c1"># specifier for list-directed output of a value of that type.</span>
+<div class="viewcode-block" id="default_output_format"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.format.default_output_format">[docs]</a><span class="k">def</span> <span class="nf">default_output_format</span><span class="p">(</span><span class="n">type_item</span><span class="p">):</span>
+    <span class="n">type_item</span> <span class="o">=</span> <span class="n">type_item</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">type_item</span> <span class="ow">in</span> <span class="n">LIST_WRITE_DEFAULTS</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">LIST_WRITE_DEFAULTS</span><span class="p">[</span><span class="n">type_item</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">type_item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&#39;&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">type_item</span>
+
+    <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;WARNING: No output format found for type </span><span class="si">{type_item}</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="list_output_formats"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.format.list_output_formats">[docs]</a><span class="k">def</span> <span class="nf">list_output_formats</span><span class="p">(</span><span class="n">type_list</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function takes a list of type names and returns a list of</span>
+<span class="sd">    format specifiers for list-directed output of values of those types.&quot;&quot;&quot;</span>
+    <span class="n">out_format_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">type_item</span> <span class="ow">in</span> <span class="n">type_list</span><span class="p">:</span>
+        <span class="n">item_format</span> <span class="o">=</span> <span class="n">default_output_format</span><span class="p">(</span><span class="n">type_item</span><span class="p">)</span>
+        <span class="n">out_format_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item_format</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">out_format_list</span></div>
+
+
+<div class="viewcode-block" id="list_input_formats"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.format.list_input_formats">[docs]</a><span class="k">def</span> <span class="nf">list_input_formats</span><span class="p">(</span><span class="n">type_list</span><span class="p">):</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;*** List-directed input not yet implemented</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[]</span></div>
+
+
+<div class="viewcode-block" id="list_data_type"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.format.list_data_type">[docs]</a><span class="k">def</span> <span class="nf">list_data_type</span><span class="p">(</span><span class="n">type_list</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function takes a list of format specifiers and returns a list of</span>
+<span class="sd">    data types represented by the format specifiers.&quot;&quot;&quot;</span>
+    <span class="n">data_type</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">type_list</span><span class="p">:</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\d+)(.+)&quot;</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+            <span class="n">reps</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s2">&quot;FfEegG&quot;</span><span class="p">:</span>
+                <span class="n">data_type</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;REAL&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s2">&quot;Ii&quot;</span><span class="p">:</span>
+                <span class="n">data_type</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;INTEGER&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">reps</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">fmt</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;(&quot;</span> <span class="ow">in</span> <span class="n">fmt</span> <span class="ow">and</span> <span class="s2">&quot;,&quot;</span> <span class="ow">in</span> <span class="n">fmt</span><span class="p">:</span>
+                <span class="n">fmt</span> <span class="o">=</span> <span class="n">fmt</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="s2">&quot;(&quot;</span> <span class="ow">in</span> <span class="n">fmt</span><span class="p">:</span>
+                <span class="n">fmt</span> <span class="o">=</span> <span class="p">[</span><span class="n">fmt</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">fmt</span> <span class="o">=</span> <span class="p">[</span><span class="n">fmt</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">reps</span><span class="p">)):</span>
+                <span class="k">for</span> <span class="n">ft</span> <span class="ow">in</span> <span class="n">fmt</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">ft</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s2">&quot;FfEegG&quot;</span><span class="p">:</span>
+                        <span class="n">data_type</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;REAL&quot;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">ft</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s2">&quot;Ii&quot;</span><span class="p">:</span>
+                        <span class="n">data_type</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;INTEGER&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data_type</span></div>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1">#                                                                              #</span>
+<span class="c1">#                                 EXAMPLE USAGE                                #</span>
+<span class="c1">#                                                                              #</span>
+<span class="c1">################################################################################</span>
+
+
+<div class="viewcode-block" id="example_1"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.format.example_1">[docs]</a><span class="k">def</span> <span class="nf">example_1</span><span class="p">():</span>
+
+    <span class="c1">################################# EXAMPLE 1 ###############################</span>
+    <span class="c1"># Format from read statement in the file Weather.for</span>
+    <span class="c1"># The relevant Fortran code is:</span>
+    <span class="c1">#</span>
+    <span class="c1">#         OPEN (4,FILE=&#39;WEATHER.INP&#39;,STATUS=&#39;UNKNOWN&#39;)</span>
+    <span class="c1">#         ...s</span>
+    <span class="c1">#         READ(4,20) DATE,SRAD,TMAX,TMIN,RAIN,PAR</span>
+    <span class="c1">#   20   FORMAT(I5,2X,F4.1,2X,F4.1,2X,F4.1,F6.1,14X,F4.1)</span>
+    <span class="c1">#</span>
+    <span class="c1"># The line of data shown (input1) is taken from the file WEATHER.INP</span>
+
+    <span class="n">format1</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;I5&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;2X&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;F4.1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;2X&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;F4.1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;2X&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;F4.1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;F6.1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;14X&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;F4.1&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">input1</span> <span class="o">=</span> <span class="s2">&quot;87001  -5.1  20.0   4.4 -23.9              10.7 &quot;</span>
+
+    <span class="n">rexp1</span> <span class="o">=</span> <span class="n">Format</span><span class="p">(</span><span class="n">format1</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">DATE</span><span class="p">,</span> <span class="n">SRAD</span><span class="p">,</span> <span class="n">TMAX</span><span class="p">,</span> <span class="n">TMIN</span><span class="p">,</span> <span class="n">RAIN</span><span class="p">,</span> <span class="n">PAR</span><span class="p">)</span> <span class="o">=</span> <span class="n">rexp1</span><span class="o">.</span><span class="n">read_line</span><span class="p">(</span><span class="n">input1</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FORMAT: </span><span class="si">{format1}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;regexp_str = &#39;</span><span class="si">{rexp1}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+    <span class="n">vars1</span> <span class="o">=</span> <span class="p">(</span><span class="n">DATE</span><span class="p">,</span> <span class="n">SRAD</span><span class="p">,</span> <span class="n">TMAX</span><span class="p">,</span> <span class="n">TMIN</span><span class="p">,</span> <span class="n">RAIN</span><span class="p">,</span> <span class="n">PAR</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;vars1 = </span><span class="si">{vars1}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="example_2"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.format.example_2">[docs]</a><span class="k">def</span> <span class="nf">example_2</span><span class="p">():</span>
+    <span class="c1">################################# EXAMPLE 2 ################################</span>
+    <span class="c1"># Format based on a read statement in the file Plant.for</span>
+    <span class="c1"># The relevant Fortran code is:</span>
+    <span class="c1">#        OPEN (2,FILE=&#39;PLANT.INP&#39;,STATUS=&#39;UNKNOWN&#39;)</span>
+    <span class="c1">#        ...</span>
+    <span class="c1">#        READ(2,10) Lfmax, EMP2,EMP1,PD,nb,rm,fc,tb,intot,n,lai,w,wr,wc</span>
+    <span class="c1">#     &amp;     ,p1,sla</span>
+    <span class="c1">#   10   FORMAT(17(1X,F7.4))</span>
+    <span class="c1">#</span>
+    <span class="c1"># The line of data shown (input2) is taken from the file PLANT.INP</span>
+
+    <span class="n">format2</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;3(1X,F7.4)&quot;</span><span class="p">]</span>
+    <span class="n">input2</span> <span class="o">=</span> <span class="s2">&quot;    12.0    0.64   0.104&quot;</span>
+
+    <span class="n">rexp2</span> <span class="o">=</span> <span class="n">Format</span><span class="p">(</span><span class="n">format2</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">Lfmax</span><span class="p">,</span> <span class="n">EMP2</span><span class="p">,</span> <span class="n">EMP1</span><span class="p">)</span> <span class="o">=</span> <span class="n">rexp2</span><span class="o">.</span><span class="n">read_line</span><span class="p">(</span><span class="n">input2</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;FORMAT: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">format2</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;regexp_str = &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rexp2</span><span class="p">))</span>
+
+    <span class="n">vars2</span> <span class="o">=</span> <span class="p">(</span><span class="n">Lfmax</span><span class="p">,</span> <span class="n">EMP2</span><span class="p">,</span> <span class="n">EMP1</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;vars2 = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">vars2</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="example_3"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.format.example_3">[docs]</a><span class="k">def</span> <span class="nf">example_3</span><span class="p">():</span>
+
+    <span class="n">format3</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;3(I5,2X,F5.2)&quot;</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">list_data_type</span><span class="p">(</span><span class="n">format3</span><span class="p">))</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">example_1</span><span class="p">()</span>
+    <span class="n">example_2</span><span class="p">()</span>
+    <span class="n">example_3</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Adarsh
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

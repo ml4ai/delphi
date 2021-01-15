@@ -1,0 +1,13 @@
+.. _exhale_typedef_sandbox_8cpp_1aa6eff4668db1032bdb38d084d9078486:
+
+Typedef Edge_tuple
+==================
+
+- Defined in :ref:`file_lib_sandbox.cpp`
+
+
+Typedef Documentation
+---------------------
+
+
+.. doxygentypedef:: Edge_tuple

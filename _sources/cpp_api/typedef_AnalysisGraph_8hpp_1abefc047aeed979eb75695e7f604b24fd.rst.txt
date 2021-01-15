@@ -1,0 +1,13 @@
+.. _exhale_typedef_AnalysisGraph_8hpp_1abefc047aeed979eb75695e7f604b24fd:
+
+Typedef EdgeIterator
+====================
+
+- Defined in :ref:`file_lib_AnalysisGraph.hpp`
+
+
+Typedef Documentation
+---------------------
+
+
+.. doxygentypedef:: EdgeIterator

@@ -1,0 +1,13 @@
+.. _exhale_function_KDE_8cpp_1a4a402bedd34e9d590ef0695140d496ba:
+
+Function sample_from_normal(std::mt19937, double, double)
+=========================================================
+
+- Defined in :ref:`file_lib_KDE.cpp`
+
+
+Function Documentation
+----------------------
+
+
+.. doxygenfunction:: sample_from_normal(std::mt19937, double, double)

@@ -1,0 +1,250 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>delphi.GrFN.networks.ForwardInfluenceBlanket.run &mdash; delphi  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Grounded Function Network (GrFN) Documentation" href="../grfn_spec.html" />
+    <link rel="prev" title="delphi.GrFN.networks.GroundedFunctionNetwork.run" href="delphi.GrFN.networks.GroundedFunctionNetwork.run.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> delphi
+          
+
+          
+            
+            <img src="../_static/delphi_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">The Delphi model</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../GrFN_API.html">GroundedFunctionNetwork API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../GrFN_API.html#constructors">Constructors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../GrFN_API.html#export">Export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../GrFN_API.html#execution">Execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../GrFN_API.html#model-analysis">Model Analysis</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../GrFN_API.html#sensitivity-analysis">Sensitivity Analysis</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">delphi.GrFN.networks.ForwardInfluenceBlanket.run</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html#change-log">Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp_api/library_root.html">C++ API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">delphi</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../GrFN_API.html">GroundedFunctionNetwork API</a> &raquo;</li>
+        
+      <li>delphi.GrFN.networks.ForwardInfluenceBlanket.run</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/generated/delphi.GrFN.networks.ForwardInfluenceBlanket.run.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="delphi-grfn-networks-forwardinfluenceblanket-run">
+<h1>delphi.GrFN.networks.ForwardInfluenceBlanket.run<a class="headerlink" href="#delphi-grfn-networks-forwardinfluenceblanket-run" title="Permalink to this headline">¶</a></h1>
+<dl class="method">
+<dt id="delphi.GrFN.networks.ForwardInfluenceBlanket.run">
+<code class="sig-prename descclassname">ForwardInfluenceBlanket.</code><code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param">inputs: Dict[str, Union[float, Iterable]], covers: Dict[str, Union[float, Iterable]]</em><span class="sig-paren">)</span> &#x2192; Union[float, Iterable]<a class="reference internal" href="../_modules/delphi/GrFN/networks.html#ForwardInfluenceBlanket.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.GrFN.networks.ForwardInfluenceBlanket.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Executes the FIB over a particular set of inputs and returns the
+result.
+:param inputs: Input set where keys are the names of input nodes in the</p>
+<blockquote>
+<div><p>GrFN and each key points to a set of input values (or just one).</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A set of outputs from executing the GrFN, one for every set of
+inputs.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../grfn_spec.html" class="btn btn-neutral float-right" title="Grounded Function Network (GrFN) Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="delphi.GrFN.networks.GroundedFunctionNetwork.run.html" class="btn btn-neutral float-left" title="delphi.GrFN.networks.GroundedFunctionNetwork.run" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Adarsh
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

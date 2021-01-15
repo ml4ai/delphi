@@ -1,0 +1,13 @@
+.. _exhale_function_utils_8cpp_1ae428d52963e445053bb7c74e5f736d7f:
+
+Function delphi::utils::median
+==============================
+
+- Defined in :ref:`file_lib_utils.cpp`
+
+
+Function Documentation
+----------------------
+
+
+.. doxygenfunction:: delphi::utils::median(const std::vector<double>&)

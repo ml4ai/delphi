@@ -1,0 +1,338 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Program Listing for File train_model.cpp &mdash; delphi  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> delphi
+          
+
+          
+            
+            <img src="../_static/delphi_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html#change-log">Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library_root.html">C++ API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">delphi</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Program Listing for File train_model.cpp</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/cpp_api/program_listing_file_lib_train_model.cpp.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="program-listing-for-file-train-model-cpp">
+<span id="program-listing-file-lib-train-model-cpp"></span><h1>Program Listing for File train_model.cpp<a class="headerlink" href="#program-listing-for-file-train-model-cpp" title="Permalink to this headline">¶</a></h1>
+<p>↰ <a class="reference internal" href="file_lib_train_model.cpp.html#file-lib-train-model-cpp"><span class="std std-ref">Return to documentation for file</span></a> (<code class="docutils literal notranslate"><span class="pre">lib/train_model.cpp</span></code>)</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;AnalysisGraph.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&quot;data.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;tqdm.hpp&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;range/v3/all.hpp&gt;</span><span class="cp"></span>
+
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="k">using</span> <span class="n">tq</span><span class="o">::</span><span class="n">trange</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">train_model</span><span class="p">(</span><span class="kt">int</span> <span class="n">start_year</span><span class="p">,</span>
+                                <span class="kt">int</span> <span class="n">start_month</span><span class="p">,</span>
+                                <span class="kt">int</span> <span class="n">end_year</span><span class="p">,</span>
+                                <span class="kt">int</span> <span class="n">end_month</span><span class="p">,</span>
+                                <span class="kt">int</span> <span class="n">res</span><span class="p">,</span>
+                                <span class="kt">int</span> <span class="n">burn</span><span class="p">,</span>
+                                <span class="n">string</span> <span class="n">country</span><span class="p">,</span>
+                                <span class="n">string</span> <span class="n">state</span><span class="p">,</span>
+                                <span class="n">string</span> <span class="n">county</span><span class="p">,</span>
+                                <span class="n">map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="n">string</span><span class="o">&gt;</span> <span class="n">units</span><span class="p">,</span>
+                                <span class="n">InitialBeta</span> <span class="n">initial_beta</span><span class="p">,</span>
+                                <span class="kt">bool</span> <span class="n">use_heuristic</span><span class="p">,</span>
+                                <span class="kt">bool</span> <span class="n">use_continuous</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">training_range</span> <span class="o">=</span> <span class="n">make_pair</span><span class="p">(</span><span class="n">make_pair</span><span class="p">(</span><span class="n">start_year</span><span class="p">,</span> <span class="n">start_month</span><span class="p">),</span>
+                                   <span class="n">make_pair</span><span class="p">(</span>  <span class="n">end_year</span><span class="p">,</span>   <span class="n">end_month</span><span class="p">));</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">n_timesteps</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">calculate_num_timesteps</span><span class="p">(</span><span class="n">start_year</span><span class="p">,</span> <span class="n">start_month</span><span class="p">,</span>
+                                                      <span class="n">end_year</span><span class="p">,</span>   <span class="n">end_month</span><span class="p">);</span>
+
+  <span class="k">if</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">n_timesteps</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">synthetic_data_experiment</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">causemos_call</span><span class="p">)</span> <span class="p">{</span>
+          <span class="c1">// Delphi is run locally using observation data from delphi.db</span>
+          <span class="c1">// For a synthetic data experiment, the observed state sequence is</span>
+          <span class="c1">// generated.</span>
+          <span class="c1">// For a CauseMos call, the observation sequences are provided in the create</span>
+          <span class="c1">// model JSON call and the observed state sequence is set in the method</span>
+          <span class="c1">// AnalysisGraph::set_observed_state_sequence_from_json_data(), which is</span>
+          <span class="c1">// defined in causemos_integration.cpp</span>
+          <span class="k">this</span><span class="o">-&gt;</span><span class="n">set_observed_state_sequence_from_data</span><span class="p">(</span><span class="n">country</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">county</span><span class="p">);</span>
+      <span class="p">}</span>
+
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">initialize_parameters</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">initial_beta</span><span class="p">,</span> <span class="n">use_heuristic</span><span class="p">,</span> <span class="n">use_continuous</span><span class="p">);</span>
+
+      <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">Burning &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">burn</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; samples out...&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="nl">i</span> <span class="p">:</span> <span class="n">trange</span><span class="p">(</span><span class="n">burn</span><span class="p">))</span> <span class="p">{</span>
+          <span class="k">this</span><span class="o">-&gt;</span><span class="n">sample_from_posterior</span><span class="p">();</span>
+      <span class="p">}</span>
+
+      <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">Sampling &quot;</span> <span class="o">&lt;&lt;</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">res</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; samples from posterior...&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="nl">i</span> <span class="p">:</span> <span class="n">trange</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">res</span><span class="p">))</span> <span class="p">{</span>
+          <span class="k">this</span><span class="o">-&gt;</span><span class="n">sample_from_posterior</span><span class="p">();</span>
+          <span class="k">this</span><span class="o">-&gt;</span><span class="n">transition_matrix_collection</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">A_original</span><span class="p">;</span>
+          <span class="k">this</span><span class="o">-&gt;</span><span class="n">initial_latent_state_collection</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">s0</span><span class="p">;</span>
+
+          <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">e</span> <span class="p">:</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">edges</span><span class="p">())</span> <span class="p">{</span>
+            <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">sampled_thetas</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">theta</span><span class="p">);</span>
+          <span class="p">}</span>
+      <span class="p">}</span>
+
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">trained</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+      <span class="n">RNG</span><span class="o">::</span><span class="n">release_instance</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+
+<span class="cm">/*</span>
+<span class="cm"> ============================================================================</span>
+<span class="cm"> Private: Get Training Data Sequence</span>
+<span class="cm"> ============================================================================</span>
+<span class="cm">*/</span>
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">set_observed_state_sequence_from_data</span><span class="p">(</span><span class="n">string</span> <span class="n">country</span><span class="p">,</span>
+                                                          <span class="n">string</span> <span class="n">state</span><span class="p">,</span>
+                                                          <span class="n">string</span> <span class="n">county</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">observed_state_sequence</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+
+  <span class="c1">// Access (concept is a vertex in the CAG)</span>
+  <span class="c1">// [ timestep ][ concept ][ indicator ][ observation ]</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">observed_state_sequence</span> <span class="o">=</span> <span class="n">ObservedStateSequence</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">n_timesteps</span><span class="p">);</span>
+
+  <span class="kt">int</span> <span class="n">year</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">training_range</span><span class="p">.</span><span class="n">first</span><span class="p">.</span><span class="n">first</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">month</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">training_range</span><span class="p">.</span><span class="n">first</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
+
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">ts</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">ts</span> <span class="o">&lt;</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">n_timesteps</span><span class="p">;</span> <span class="n">ts</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">observed_state_sequence</span><span class="p">[</span><span class="n">ts</span><span class="p">]</span> <span class="o">=</span>
+        <span class="n">get_observed_state_from_data</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="n">country</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">county</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">month</span> <span class="o">==</span> <span class="mi">12</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">year</span><span class="o">++</span><span class="p">;</span>
+      <span class="n">month</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span>
+      <span class="n">month</span><span class="o">++</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&gt;</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">get_observed_state_from_data</span><span class="p">(</span>
+    <span class="kt">int</span> <span class="n">year</span><span class="p">,</span> <span class="kt">int</span> <span class="n">month</span><span class="p">,</span> <span class="n">string</span> <span class="n">country</span><span class="p">,</span> <span class="n">string</span> <span class="n">state</span><span class="p">,</span> <span class="n">string</span> <span class="n">county</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">using</span> <span class="n">ranges</span><span class="o">::</span><span class="n">to</span><span class="p">;</span>
+  <span class="k">using</span> <span class="n">ranges</span><span class="o">::</span><span class="n">views</span><span class="o">::</span><span class="n">transform</span><span class="p">;</span>
+
+  <span class="kt">int</span> <span class="n">num_verts</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">num_vertices</span><span class="p">();</span>
+
+  <span class="c1">// Access (concept is a vertex in the CAG)</span>
+  <span class="c1">// [ concept ][ indicator ][ observation ]</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&gt;</span> <span class="n">observed_state</span><span class="p">(</span><span class="n">num_verts</span><span class="p">);</span>
+
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">v</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="n">num_verts</span><span class="p">;</span> <span class="n">v</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">Indicator</span><span class="o">&gt;&amp;</span> <span class="n">indicators</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">v</span><span class="p">].</span><span class="n">indicators</span><span class="p">;</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="nl">ind</span> <span class="p">:</span> <span class="n">indicators</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">vals</span> <span class="o">=</span> <span class="n">get_observations_for</span><span class="p">(</span><span class="n">ind</span><span class="p">.</span><span class="n">get_name</span><span class="p">(),</span>
+                                                 <span class="n">country</span><span class="p">,</span>
+                                                 <span class="n">state</span><span class="p">,</span>
+                                                 <span class="n">county</span><span class="p">,</span>
+                                                 <span class="n">year</span><span class="p">,</span>
+                                                 <span class="n">month</span><span class="p">,</span>
+                                                 <span class="n">ind</span><span class="p">.</span><span class="n">get_unit</span><span class="p">(),</span>
+                                                 <span class="k">this</span><span class="o">-&gt;</span><span class="n">data_heuristic</span><span class="p">);</span>
+
+      <span class="n">observed_state</span><span class="p">[</span><span class="n">v</span><span class="p">].</span><span class="n">push_back</span><span class="p">(</span><span class="n">vals</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="n">observed_state</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Adarsh
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

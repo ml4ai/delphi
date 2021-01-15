@@ -1,0 +1,1014 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>C++ API &mdash; delphi  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Namespace delphi" href="namespace_delphi.html" />
+    <link rel="prev" title="Contributing" href="../CONTRIBUTING.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> delphi
+          
+
+          
+            
+            <img src="../_static/delphi_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html#change-log">Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">C++ API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#class-hierarchy">Class Hierarchy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#file-hierarchy">File Hierarchy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#full-api">Full API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#namespaces">Namespaces</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="namespace_delphi.html">Namespace delphi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="namespace_delphi__gv.html">Namespace delphi::gv</a></li>
+<li class="toctree-l4"><a class="reference internal" href="namespace_delphi__utils.html">Namespace delphi::utils</a></li>
+<li class="toctree-l4"><a class="reference internal" href="namespace_fmt__literals.html">Namespace fmt::literals</a></li>
+<li class="toctree-l4"><a class="reference internal" href="namespace_nlohmann.html">Namespace nlohmann</a></li>
+<li class="toctree-l4"><a class="reference internal" href="namespace_pybind11__literals.html">Namespace pybind11::literals</a></li>
+<li class="toctree-l4"><a class="reference internal" href="namespace_std.html">Namespace std</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#classes-and-structs">Classes and Structs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="classAnalysisGraph.html">Class AnalysisGraph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classBadCausemosInputException.html">Class BadCausemosInputException</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classConcept.html">Class Concept</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classEdge.html">Class Edge</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classEvent.html">Class Event</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classGraphData.html">Class GraphData</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classIndicator.html">Class Indicator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classIndicatorNotFoundException.html">Class IndicatorNotFoundException</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classKDE.html">Class KDE</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classLatentVar.html">Class LatentVar</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classNode.html">Class Node</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classPybindTester.html">Class PybindTester</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classQualitativeDelta.html">Class QualitativeDelta</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classRNG.html">Class RNG</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classRV.html">Class RV</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classStatement.html">Class Statement</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classTran__Mat__Cell.html">Class Tran_Mat_Cell</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#enums">Enums</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="enum_AnalysisGraph_8hpp_1aa4ec7a08bda020624a88080a11bb9fc9.html">Enum InitialBeta</a></li>
+<li class="toctree-l4"><a class="reference internal" href="enum_Edge_8hpp_1a84a045fa4024e050ca8be6d33311a054.html">Enum Polarity</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#functions">Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="function_AnalysisGraph_8hpp_1ace16d595b9131cdc3064439ffc89f1bb.html">Function construct_adjective_response_map(size_t)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="function_parameter__initialization_8cpp_1aeffb8079c6943251b4a6ca2fdb2008e9.html">Function construct_adjective_response_map(mt19937, uniform_real_distribution&lt;double&gt;&amp;, normal_distribution&lt;double&gt;&amp;, size_t)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="function_namespacedelphi_1_1gv_1a5c92bdb14d6dae0b343866fb1de11ab3.html">Function delphi::gv::add_node</a></li>
+<li class="toctree-l4"><a class="reference internal" href="function_namespacedelphi_1_1gv_1ad168113ebae2b23a41c3a3baa5317b7f.html">Function delphi::gv::set_property(Agedge_t *, std::string, std::string)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="function_namespacedelphi_1_1gv_1afb796639cb31d11c61d0093a0c3b742e.html">Function delphi::gv::set_property(Agnode_t *, std::string, std::string)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="function_namespacedelphi_1_1gv_1ad46d9752afa0f4b4b46a7ad97d4f7787.html">Function delphi::gv::set_property(Agraph_t *, int, std::string, std::string)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="function_utils_8hpp_1a0a0aa5172fe4f4e88b93897f583d7876.html">Template Function delphi::utils::get</a></li>
+<li class="toctree-l4"><a class="reference internal" href="function_utils_8hpp_1ae3b02c41d056ce293fe76375cc507300.html">Template Function delphi::utils::in</a></li>
+<li class="toctree-l4"><a class="reference internal" href="function_utils_8hpp_1af175d4b6e57d4c5da386df3368820002.html">Template Function delphi::utils::list</a></li>
+<li class="toctree-l4"><a class="reference internal" href="function_utils_8hpp_1a9c267fceec97b3e1de1541325267a590.html">Template Function delphi::utils::lmap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="function_utils_8cpp_1af3db7708c72021920c9f76b82058db46.html">Function delphi::utils::load_json(string)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="function_utils_8hpp_1a20dedc59789fac7a584b05141573e609.html">Function delphi::utils::load_json(std::string)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="function_utils_8cpp_1aa96442924e4380d2588414804ec9bb1d.html">Function delphi::utils::log_normpdf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="function_utils_8cpp_1a51aa680dfa9e531651beb5abeec6a687.html">Function delphi::utils::mean</a></li>
+<li class="toctree-l4"><a class="reference internal" href="function_utils_8cpp_1ae428d52963e445053bb7c74e5f736d7f.html">Function delphi::utils::median</a></li>
+<li class="toctree-l4"><a class="reference internal" href="function_utils_8hpp_1a87276512fe3002f663e6b24b77b4a711.html">Template Function delphi::utils::printVec</a></li>
+<li class="toctree-l4"><a class="reference internal" href="function_utils_8cpp_1abfdecb988b94bbc23cbeaba6fe83bca3.html">Function delphi::utils::sqr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="function_utils_8cpp_1a5d1afe8edbb69bc5c25fb26fae559b77.html">Function delphi::utils::standard_deviation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="function_utils_8cpp_1a3ad53a55422d1f249a669af8f0757eda.html">Function delphi::utils::sum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="function_data_8cpp_1ad3124e29911474270b5b1cb68111fe52.html">Function get_observations_for(string, string, string, string, int, int, string, bool)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="function_data_8hpp_1a8e802c207acb5a031318c0a924d2dc6a.html">Function get_observations_for(std::string, std::string, std::string, std::string, int, int, std::string, bool)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="function_DelphiPython_8cpp_1a6f425eb7faca79c55899e99bcf0c8e12.html">Function PYBIND11_MODULE</a></li>
+<li class="toctree-l4"><a class="reference internal" href="function_KDE_8cpp_1a4a402bedd34e9d590ef0695140d496ba.html">Function sample_from_normal(std::mt19937, double, double)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="function_KDE_8hpp_1a5d22bed79cc5665f2c77d95fc1b412d2.html">Function sample_from_normal(double, double)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="function_KDE_8hpp_1a1e0f694a2e3339c73cdda2a170838b4e.html">Template Function select_random_element</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#variables">Variables</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="variable_AnalysisGraph_8hpp_1a662e2c8507dc4c84dfe07655993f0013.html">Variable tuning_param</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#typedefs">Typedefs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a4d66e345ecd8798ad681c934d4e5e786.html">Typedef AdjectiveResponseMap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ab613b0aa74c53437ced29cc0c1665394.html">Typedef Adjectives</a></li>
+<li class="toctree-l4"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ae4708e8d7ab72d366215bd1758e95d30.html">Typedef CausalFragment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1af007983fd492cfaedabba8775b0d0dd3.html">Typedef CompleteState</a></li>
+<li class="toctree-l4"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ac0056af77c80eea9d6bf759eb26c26a6.html">Typedef ConceptIndicatorData</a></li>
+<li class="toctree-l4"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a20379c4a3ba5b97c790bd0cef2e95b57.html">Typedef ConceptIndicatorDates</a></li>
+<li class="toctree-l4"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ad6b074d1e96ea56521e730ff060345c3.html">Typedef ConceptIndicators</a></li>
+<li class="toctree-l4"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1aa2adfec66e9dbcc25d188b76b512ebb0.html">Typedef ConfidenceIntervals</a></li>
+<li class="toctree-l4"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ad475b246ca409a6fc2b24b6ebfad5db8.html">Typedef ConstraintSchedule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a7422573d3053bcfbae599477856b48fb.html">Typedef Data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1afb1385d851f03a90d97a7cf5cecf5d40.html">Typedef Derivatives</a></li>
+<li class="toctree-l4"><a class="reference internal" href="typedef_DiGraph_8hpp_1aa8dbb5b324583306fe4e135a42c380c7.html">Typedef DiGraph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="typedef_sandbox_8cpp_1aa6eff4668db1032bdb38d084d9078486.html">Typedef Edge_tuple</a></li>
+<li class="toctree-l4"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ac5591582f1f07d7f132f1c901f2d6eca.html">Typedef EdgeDescriptor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1abefc047aeed979eb75695e7f604b24fd.html">Typedef EdgeIterator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ac3e83aa9f00904eae1d442fe20caa090.html">Typedef Edges</a></li>
+<li class="toctree-l4"><a class="reference internal" href="typedef_sandbox_8cpp_1af4a53a8754213c9236b8051673625ded.html">Typedef Evidence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="typedef_to__json_8cpp_1af4a53a8754213c9236b8051673625ded.html">Typedef Evidence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="typedef_sandbox_8cpp_1af5e424167fd5629684798f3494d5f18b.html">Typedef Evidence_Pair</a></li>
+<li class="toctree-l4"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a79c6d5c182c277498b6c9b3151276580.html">Typedef FormattedPredictionResult</a></li>
+<li class="toctree-l4"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a5a14f2b593dcb692730ad2c3f18ec3fd.html">Typedef FormattedProjectionResult</a></li>
+<li class="toctree-l4"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ab282154bf04905f0936f3533d5db35e8.html">Typedef MMapIterator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a2fd82a9e08069ca73d52e4087a74afcc.html">Typedef ObservedStateSequence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a7f6e34a276344238ebc98aef2299a735.html">Typedef Polarities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a7831fc8fa1442615a63dbfd80046b979.html">Typedef PredictedObservedStateSequence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ad53d6ceb41e62dda55bf3e1cdbdc0f25.html">Typedef Prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a00179ade6124924791133959845df913.html">Typedef Predictions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a1edc1451b1f58fcac963271eafb8e55e.html">Typedef Thetas</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">delphi</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>C++ API</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/cpp_api/library_root.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="c-api">
+<h1>C++ API<a class="headerlink" href="#c-api" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="class-hierarchy">
+<h2>Class Hierarchy<a class="headerlink" href="#class-hierarchy" title="Permalink to this headline">¶</a></h2>
+<ul class="treeView" id="class-treeView">
+  <li>
+    <ul class="collapsibleList">
+      <li>Class <a href="classAnalysisGraph.html#exhale-class-classAnalysisGraph">AnalysisGraph</a></li><li>Class <a href="classBadCausemosInputException.html#exhale-class-classBadCausemosInputException">BadCausemosInputException</a></li><li>Class <a href="classConcept.html#exhale-class-classConcept">Concept</a></li><li>Class <a href="classEdge.html#exhale-class-classEdge">Edge</a></li><li>Class <a href="classEvent.html#exhale-class-classEvent">Event</a></li><li>Class <a href="classGraphData.html#exhale-class-classGraphData">GraphData</a></li><li>Class <a href="classIndicator.html#exhale-class-classIndicator">Indicator</a></li><li>Class <a href="classIndicatorNotFoundException.html#exhale-class-classIndicatorNotFoundException">IndicatorNotFoundException</a></li><li>Class <a href="classKDE.html#exhale-class-classKDE">KDE</a></li><li>Class <a href="classLatentVar.html#exhale-class-classLatentVar">LatentVar</a></li><li>Class <a href="classNode.html#exhale-class-classNode">Node</a></li><li>Class <a href="classPybindTester.html#exhale-class-classPybindTester">PybindTester</a></li><li>Class <a href="classQualitativeDelta.html#exhale-class-classQualitativeDelta">QualitativeDelta</a></li><li>Class <a href="classRNG.html#exhale-class-classRNG">RNG</a></li><li>Class <a href="classRV.html#exhale-class-classRV">RV</a></li><li>Class <a href="classStatement.html#exhale-class-classStatement">Statement</a></li><li>Class <a href="classTran__Mat__Cell.html#exhale-class-classTran-Mat-Cell">Tran_Mat_Cell</a></li><li>Enum <a href="enum_AnalysisGraph_8hpp_1aa4ec7a08bda020624a88080a11bb9fc9.html#exhale-enum-AnalysisGraph-8hpp-1aa4ec7a08bda020624a88080a11bb9fc9">InitialBeta</a></li><li class="lastChild">Enum <a href="enum_Edge_8hpp_1a84a045fa4024e050ca8be6d33311a054.html#exhale-enum-Edge-8hpp-1a84a045fa4024e050ca8be6d33311a054">Polarity</a></li>
+    </ul>
+  </li><!-- only tree view element -->
+</ul><!-- /treeView class-treeView --></div>
+<div class="section" id="file-hierarchy">
+<h2>File Hierarchy<a class="headerlink" href="#file-hierarchy" title="Permalink to this headline">¶</a></h2>
+<ul class="treeView" id="file-treeView">
+  <li>
+    <ul class="collapsibleList">
+      <li class="lastChild">Directory <a href="dir_lib.html#dir-lib">lib</a><ul><li>File <a href="file_lib_AnalysisGraph.hpp.html#file-lib-AnalysisGraph.hpp">AnalysisGraph.hpp</a></li><li>File <a href="file_lib_causemos_integration.cpp.html#file-lib-causemos-integration.cpp">causemos_integration.cpp</a></li><li>File <a href="file_lib_constructors.cpp.html#file-lib-constructors.cpp">constructors.cpp</a></li><li>File <a href="file_lib_data.cpp.html#file-lib-data.cpp">data.cpp</a></li><li>File <a href="file_lib_data.hpp.html#file-lib-data.hpp">data.hpp</a></li><li>File <a href="file_lib_DelphiPython.cpp.html#file-lib-DelphiPython.cpp">DelphiPython.cpp</a></li><li>File <a href="file_lib_DiGraph.hpp.html#file-lib-DiGraph.hpp">DiGraph.hpp</a></li><li>File <a href="file_lib_Edge.hpp.html#file-lib-Edge.hpp">Edge.hpp</a></li><li>File <a href="file_lib_exceptions.hpp.html#file-lib-exceptions.hpp">exceptions.hpp</a></li><li>File <a href="file_lib_format_output.cpp.html#file-lib-format-output.cpp">format_output.cpp</a></li><li>File <a href="file_lib_graph_building.cpp.html#file-lib-graph-building.cpp">graph_building.cpp</a></li><li>File <a href="file_lib_graph_modification.cpp.html#file-lib-graph-modification.cpp">graph_modification.cpp</a></li><li>File <a href="file_lib_graph_utils.cpp.html#file-lib-graph-utils.cpp">graph_utils.cpp</a></li><li>File <a href="file_lib_graphviz.cpp.html#file-lib-graphviz.cpp">graphviz.cpp</a></li><li>File <a href="file_lib_graphviz_interface.cpp.html#file-lib-graphviz-interface.cpp">graphviz_interface.cpp</a></li><li>File <a href="file_lib_graphviz_interface.hpp.html#file-lib-graphviz-interface.hpp">graphviz_interface.hpp</a></li><li>File <a href="file_lib_Indicator.cpp.html#file-lib-Indicator.cpp">Indicator.cpp</a></li><li>File <a href="file_lib_Indicator.hpp.html#file-lib-Indicator.hpp">Indicator.hpp</a></li><li>File <a href="file_lib_indicator_manipulation.cpp.html#file-lib-indicator-manipulation.cpp">indicator_manipulation.cpp</a></li><li>File <a href="file_lib_KDE.cpp.html#file-lib-KDE.cpp">KDE.cpp</a></li><li>File <a href="file_lib_KDE.hpp.html#file-lib-KDE.hpp">KDE.hpp</a></li><li>File <a href="file_lib_Node.hpp.html#file-lib-Node.hpp">Node.hpp</a></li><li>File <a href="file_lib_parameter_initialization.cpp.html#file-lib-parameter-initialization.cpp">parameter_initialization.cpp</a></li><li>File <a href="file_lib_prediction.cpp.html#file-lib-prediction.cpp">prediction.cpp</a></li><li>File <a href="file_lib_printing.cpp.html#file-lib-printing.cpp">printing.cpp</a></li><li>File <a href="file_lib_PybindTester.hpp.html#file-lib-PybindTester.hpp">PybindTester.hpp</a></li><li>File <a href="file_lib_Random_Variables.cpp.html#file-lib-Random-Variables.cpp">Random_Variables.cpp</a></li><li>File <a href="file_lib_Random_Variables.hpp.html#file-lib-Random-Variables.hpp">Random_Variables.hpp</a></li><li>File <a href="file_lib_rng.cpp.html#file-lib-rng.cpp">rng.cpp</a></li><li>File <a href="file_lib_rng.hpp.html#file-lib-rng.hpp">rng.hpp</a></li><li>File <a href="file_lib_sampling.cpp.html#file-lib-sampling.cpp">sampling.cpp</a></li><li>File <a href="file_lib_sandbox.cpp.html#file-lib-sandbox.cpp">sandbox.cpp</a></li><li>File <a href="file_lib_subgraphs.cpp.html#file-lib-subgraphs.cpp">subgraphs.cpp</a></li><li>File <a href="file_lib_synthetic_data.cpp.html#file-lib-synthetic-data.cpp">synthetic_data.cpp</a></li><li>File <a href="file_lib_to_json.cpp.html#file-lib-to-json.cpp">to_json.cpp</a></li><li>File <a href="file_lib_train_model.cpp.html#file-lib-train-model.cpp">train_model.cpp</a></li><li>File <a href="file_lib_Tran_Mat_Cell.cpp.html#file-lib-Tran-Mat-Cell.cpp">Tran_Mat_Cell.cpp</a></li><li>File <a href="file_lib_Tran_Mat_Cell.hpp.html#file-lib-Tran-Mat-Cell.hpp">Tran_Mat_Cell.hpp</a></li><li>File <a href="file_lib_utils.cpp.html#file-lib-utils.cpp">utils.cpp</a></li><li class="lastChild">File <a href="file_lib_utils.hpp.html#file-lib-utils.hpp">utils.hpp</a></li></ul></li>
+    </ul>
+  </li><!-- only tree view element -->
+</ul><!-- /treeView file-treeView --></div>
+<div class="section" id="full-api">
+<h2>Full API<a class="headerlink" href="#full-api" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="namespaces">
+<h3>Namespaces<a class="headerlink" href="#namespaces" title="Permalink to this headline">¶</a></h3>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="namespace_delphi.html">Namespace delphi</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="namespace_delphi.html#namespaces">Namespaces</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="namespace_delphi__gv.html">Namespace delphi::gv</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="namespace_delphi__gv.html#detailed-description">Detailed Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="namespace_delphi__gv.html#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="namespace_delphi__utils.html">Namespace delphi::utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="namespace_delphi__utils.html#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="namespace_fmt__literals.html">Namespace fmt::literals</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="namespace_nlohmann.html">Namespace nlohmann</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="namespace_pybind11__literals.html">Namespace pybind11::literals</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="namespace_std.html">Namespace std</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="classes-and-structs">
+<h3>Classes and Structs<a class="headerlink" href="#classes-and-structs" title="Permalink to this headline">¶</a></h3>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="classAnalysisGraph.html">Class AnalysisGraph</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classAnalysisGraph.html#class-documentation">Class Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="classBadCausemosInputException.html">Class BadCausemosInputException</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classBadCausemosInputException.html#inheritance-relationships">Inheritance Relationships</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="classBadCausemosInputException.html#base-type">Base Type</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="classBadCausemosInputException.html#class-documentation">Class Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="classConcept.html">Class Concept</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classConcept.html#class-documentation">Class Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="classEdge.html">Class Edge</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classEdge.html#class-documentation">Class Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="classEvent.html">Class Event</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classEvent.html#class-documentation">Class Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="classGraphData.html">Class GraphData</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classGraphData.html#class-documentation">Class Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="classIndicator.html">Class Indicator</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classIndicator.html#inheritance-relationships">Inheritance Relationships</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="classIndicator.html#base-type">Base Type</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="classIndicator.html#class-documentation">Class Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="classIndicatorNotFoundException.html">Class IndicatorNotFoundException</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classIndicatorNotFoundException.html#inheritance-relationships">Inheritance Relationships</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="classIndicatorNotFoundException.html#base-type">Base Type</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="classIndicatorNotFoundException.html#class-documentation">Class Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="classKDE.html">Class KDE</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classKDE.html#class-documentation">Class Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="classLatentVar.html">Class LatentVar</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classLatentVar.html#inheritance-relationships">Inheritance Relationships</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="classLatentVar.html#base-type">Base Type</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="classLatentVar.html#class-documentation">Class Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="classNode.html">Class Node</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classNode.html#class-documentation">Class Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="classPybindTester.html">Class PybindTester</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classPybindTester.html#class-documentation">Class Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="classQualitativeDelta.html">Class QualitativeDelta</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classQualitativeDelta.html#class-documentation">Class Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="classRNG.html">Class RNG</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classRNG.html#class-documentation">Class Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="classRV.html">Class RV</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classRV.html#inheritance-relationships">Inheritance Relationships</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="classRV.html#derived-types">Derived Types</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="classRV.html#class-documentation">Class Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="classStatement.html">Class Statement</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classStatement.html#class-documentation">Class Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="classTran__Mat__Cell.html">Class Tran_Mat_Cell</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classTran__Mat__Cell.html#class-documentation">Class Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="enums">
+<h3>Enums<a class="headerlink" href="#enums" title="Permalink to this headline">¶</a></h3>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="enum_AnalysisGraph_8hpp_1aa4ec7a08bda020624a88080a11bb9fc9.html">Enum InitialBeta</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="enum_AnalysisGraph_8hpp_1aa4ec7a08bda020624a88080a11bb9fc9.html#enum-documentation">Enum Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="enum_Edge_8hpp_1a84a045fa4024e050ca8be6d33311a054.html">Enum Polarity</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="enum_Edge_8hpp_1a84a045fa4024e050ca8be6d33311a054.html#enum-documentation">Enum Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h3>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_AnalysisGraph_8hpp_1ace16d595b9131cdc3064439ffc89f1bb.html">Function construct_adjective_response_map(size_t)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_AnalysisGraph_8hpp_1ace16d595b9131cdc3064439ffc89f1bb.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_parameter__initialization_8cpp_1aeffb8079c6943251b4a6ca2fdb2008e9.html">Function construct_adjective_response_map(mt19937, uniform_real_distribution&lt;double&gt;&amp;, normal_distribution&lt;double&gt;&amp;, size_t)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_parameter__initialization_8cpp_1aeffb8079c6943251b4a6ca2fdb2008e9.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_namespacedelphi_1_1gv_1a5c92bdb14d6dae0b343866fb1de11ab3.html">Function delphi::gv::add_node</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_namespacedelphi_1_1gv_1a5c92bdb14d6dae0b343866fb1de11ab3.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_namespacedelphi_1_1gv_1ad168113ebae2b23a41c3a3baa5317b7f.html">Function delphi::gv::set_property(Agedge_t *, std::string, std::string)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_namespacedelphi_1_1gv_1ad168113ebae2b23a41c3a3baa5317b7f.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_namespacedelphi_1_1gv_1afb796639cb31d11c61d0093a0c3b742e.html">Function delphi::gv::set_property(Agnode_t *, std::string, std::string)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_namespacedelphi_1_1gv_1afb796639cb31d11c61d0093a0c3b742e.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_namespacedelphi_1_1gv_1ad46d9752afa0f4b4b46a7ad97d4f7787.html">Function delphi::gv::set_property(Agraph_t *, int, std::string, std::string)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_namespacedelphi_1_1gv_1ad46d9752afa0f4b4b46a7ad97d4f7787.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_utils_8hpp_1a0a0aa5172fe4f4e88b93897f583d7876.html">Template Function delphi::utils::get</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_utils_8hpp_1a0a0aa5172fe4f4e88b93897f583d7876.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_utils_8hpp_1ae3b02c41d056ce293fe76375cc507300.html">Template Function delphi::utils::in</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_utils_8hpp_1ae3b02c41d056ce293fe76375cc507300.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_utils_8hpp_1af175d4b6e57d4c5da386df3368820002.html">Template Function delphi::utils::list</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_utils_8hpp_1af175d4b6e57d4c5da386df3368820002.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_utils_8hpp_1a9c267fceec97b3e1de1541325267a590.html">Template Function delphi::utils::lmap</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_utils_8hpp_1a9c267fceec97b3e1de1541325267a590.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_utils_8cpp_1af3db7708c72021920c9f76b82058db46.html">Function delphi::utils::load_json(string)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_utils_8cpp_1af3db7708c72021920c9f76b82058db46.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_utils_8hpp_1a20dedc59789fac7a584b05141573e609.html">Function delphi::utils::load_json(std::string)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_utils_8hpp_1a20dedc59789fac7a584b05141573e609.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_utils_8cpp_1aa96442924e4380d2588414804ec9bb1d.html">Function delphi::utils::log_normpdf</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_utils_8cpp_1aa96442924e4380d2588414804ec9bb1d.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_utils_8cpp_1a51aa680dfa9e531651beb5abeec6a687.html">Function delphi::utils::mean</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_utils_8cpp_1a51aa680dfa9e531651beb5abeec6a687.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_utils_8cpp_1ae428d52963e445053bb7c74e5f736d7f.html">Function delphi::utils::median</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_utils_8cpp_1ae428d52963e445053bb7c74e5f736d7f.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_utils_8hpp_1a87276512fe3002f663e6b24b77b4a711.html">Template Function delphi::utils::printVec</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_utils_8hpp_1a87276512fe3002f663e6b24b77b4a711.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_utils_8cpp_1abfdecb988b94bbc23cbeaba6fe83bca3.html">Function delphi::utils::sqr</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_utils_8cpp_1abfdecb988b94bbc23cbeaba6fe83bca3.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_utils_8cpp_1a5d1afe8edbb69bc5c25fb26fae559b77.html">Function delphi::utils::standard_deviation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_utils_8cpp_1a5d1afe8edbb69bc5c25fb26fae559b77.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_utils_8cpp_1a3ad53a55422d1f249a669af8f0757eda.html">Function delphi::utils::sum</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_utils_8cpp_1a3ad53a55422d1f249a669af8f0757eda.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_data_8cpp_1ad3124e29911474270b5b1cb68111fe52.html">Function get_observations_for(string, string, string, string, int, int, string, bool)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_data_8cpp_1ad3124e29911474270b5b1cb68111fe52.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_data_8hpp_1a8e802c207acb5a031318c0a924d2dc6a.html">Function get_observations_for(std::string, std::string, std::string, std::string, int, int, std::string, bool)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_data_8hpp_1a8e802c207acb5a031318c0a924d2dc6a.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_DelphiPython_8cpp_1a6f425eb7faca79c55899e99bcf0c8e12.html">Function PYBIND11_MODULE</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_DelphiPython_8cpp_1a6f425eb7faca79c55899e99bcf0c8e12.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_KDE_8cpp_1a4a402bedd34e9d590ef0695140d496ba.html">Function sample_from_normal(std::mt19937, double, double)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_KDE_8cpp_1a4a402bedd34e9d590ef0695140d496ba.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_KDE_8hpp_1a5d22bed79cc5665f2c77d95fc1b412d2.html">Function sample_from_normal(double, double)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_KDE_8hpp_1a5d22bed79cc5665f2c77d95fc1b412d2.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_KDE_8hpp_1a1e0f694a2e3339c73cdda2a170838b4e.html">Template Function select_random_element</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_KDE_8hpp_1a1e0f694a2e3339c73cdda2a170838b4e.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="variables">
+<h3>Variables<a class="headerlink" href="#variables" title="Permalink to this headline">¶</a></h3>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="variable_AnalysisGraph_8hpp_1a662e2c8507dc4c84dfe07655993f0013.html">Variable tuning_param</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="variable_AnalysisGraph_8hpp_1a662e2c8507dc4c84dfe07655993f0013.html#variable-documentation">Variable Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="typedefs">
+<h3>Typedefs<a class="headerlink" href="#typedefs" title="Permalink to this headline">¶</a></h3>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a4d66e345ecd8798ad681c934d4e5e786.html">Typedef AdjectiveResponseMap</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a4d66e345ecd8798ad681c934d4e5e786.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ab613b0aa74c53437ced29cc0c1665394.html">Typedef Adjectives</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ab613b0aa74c53437ced29cc0c1665394.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ae4708e8d7ab72d366215bd1758e95d30.html">Typedef CausalFragment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ae4708e8d7ab72d366215bd1758e95d30.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1af007983fd492cfaedabba8775b0d0dd3.html">Typedef CompleteState</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1af007983fd492cfaedabba8775b0d0dd3.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ac0056af77c80eea9d6bf759eb26c26a6.html">Typedef ConceptIndicatorData</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ac0056af77c80eea9d6bf759eb26c26a6.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a20379c4a3ba5b97c790bd0cef2e95b57.html">Typedef ConceptIndicatorDates</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a20379c4a3ba5b97c790bd0cef2e95b57.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ad6b074d1e96ea56521e730ff060345c3.html">Typedef ConceptIndicators</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ad6b074d1e96ea56521e730ff060345c3.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1aa2adfec66e9dbcc25d188b76b512ebb0.html">Typedef ConfidenceIntervals</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1aa2adfec66e9dbcc25d188b76b512ebb0.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ad475b246ca409a6fc2b24b6ebfad5db8.html">Typedef ConstraintSchedule</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ad475b246ca409a6fc2b24b6ebfad5db8.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a7422573d3053bcfbae599477856b48fb.html">Typedef Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a7422573d3053bcfbae599477856b48fb.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1afb1385d851f03a90d97a7cf5cecf5d40.html">Typedef Derivatives</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1afb1385d851f03a90d97a7cf5cecf5d40.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_DiGraph_8hpp_1aa8dbb5b324583306fe4e135a42c380c7.html">Typedef DiGraph</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_DiGraph_8hpp_1aa8dbb5b324583306fe4e135a42c380c7.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_sandbox_8cpp_1aa6eff4668db1032bdb38d084d9078486.html">Typedef Edge_tuple</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_sandbox_8cpp_1aa6eff4668db1032bdb38d084d9078486.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ac5591582f1f07d7f132f1c901f2d6eca.html">Typedef EdgeDescriptor</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ac5591582f1f07d7f132f1c901f2d6eca.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1abefc047aeed979eb75695e7f604b24fd.html">Typedef EdgeIterator</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1abefc047aeed979eb75695e7f604b24fd.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ac3e83aa9f00904eae1d442fe20caa090.html">Typedef Edges</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ac3e83aa9f00904eae1d442fe20caa090.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_sandbox_8cpp_1af4a53a8754213c9236b8051673625ded.html">Typedef Evidence</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_sandbox_8cpp_1af4a53a8754213c9236b8051673625ded.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_to__json_8cpp_1af4a53a8754213c9236b8051673625ded.html">Typedef Evidence</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_to__json_8cpp_1af4a53a8754213c9236b8051673625ded.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_sandbox_8cpp_1af5e424167fd5629684798f3494d5f18b.html">Typedef Evidence_Pair</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_sandbox_8cpp_1af5e424167fd5629684798f3494d5f18b.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a79c6d5c182c277498b6c9b3151276580.html">Typedef FormattedPredictionResult</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a79c6d5c182c277498b6c9b3151276580.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a5a14f2b593dcb692730ad2c3f18ec3fd.html">Typedef FormattedProjectionResult</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a5a14f2b593dcb692730ad2c3f18ec3fd.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ab282154bf04905f0936f3533d5db35e8.html">Typedef MMapIterator</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ab282154bf04905f0936f3533d5db35e8.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a2fd82a9e08069ca73d52e4087a74afcc.html">Typedef ObservedStateSequence</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a2fd82a9e08069ca73d52e4087a74afcc.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a7f6e34a276344238ebc98aef2299a735.html">Typedef Polarities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a7f6e34a276344238ebc98aef2299a735.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a7831fc8fa1442615a63dbfd80046b979.html">Typedef PredictedObservedStateSequence</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a7831fc8fa1442615a63dbfd80046b979.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ad53d6ceb41e62dda55bf3e1cdbdc0f25.html">Typedef Prediction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ad53d6ceb41e62dda55bf3e1cdbdc0f25.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a00179ade6124924791133959845df913.html">Typedef Predictions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a00179ade6124924791133959845df913.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a1edc1451b1f58fcac963271eafb8e55e.html">Typedef Thetas</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1a1edc1451b1f58fcac963271eafb8e55e.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="namespace_delphi.html" class="btn btn-neutral float-right" title="Namespace delphi" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../CONTRIBUTING.html" class="btn btn-neutral float-left" title="Contributing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Adarsh
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

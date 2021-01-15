@@ -1,0 +1,45 @@
+
+.. _file_lib_subgraphs.cpp:
+
+File subgraphs.cpp
+==================
+
+|exhale_lsh| :ref:`Parent directory <dir_lib>` (``lib``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. contents:: Contents
+   :local:
+   :backlinks: none
+
+Definition (``lib/subgraphs.cpp``)
+----------------------------------
+
+
+.. toctree::
+   :maxdepth: 1
+
+   program_listing_file_lib_subgraphs.cpp.rst
+
+
+
+
+
+Includes
+--------
+
+
+- ``AnalysisGraph.hpp`` (:ref:`file_lib_AnalysisGraph.hpp`)
+
+- ``Node.hpp`` (:ref:`file_lib_Node.hpp`)
+
+- ``boost/range/algorithm/for_each.hpp``
+
+- ``range/v3/all.hpp``
+
+- ``utils.hpp`` (:ref:`file_lib_utils.hpp`)
+
+
+
+
+

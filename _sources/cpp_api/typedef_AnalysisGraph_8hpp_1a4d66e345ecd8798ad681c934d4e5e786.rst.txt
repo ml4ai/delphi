@@ -1,0 +1,13 @@
+.. _exhale_typedef_AnalysisGraph_8hpp_1a4d66e345ecd8798ad681c934d4e5e786:
+
+Typedef AdjectiveResponseMap
+============================
+
+- Defined in :ref:`file_lib_AnalysisGraph.hpp`
+
+
+Typedef Documentation
+---------------------
+
+
+.. doxygentypedef:: AdjectiveResponseMap

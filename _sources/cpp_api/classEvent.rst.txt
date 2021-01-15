@@ -1,0 +1,16 @@
+.. _exhale_class_classEvent:
+
+Class Event
+===========
+
+- Defined in :ref:`file_lib_Edge.hpp`
+
+
+Class Documentation
+-------------------
+
+
+.. doxygenclass:: Event
+   :members:
+   :protected-members:
+   :undoc-members:

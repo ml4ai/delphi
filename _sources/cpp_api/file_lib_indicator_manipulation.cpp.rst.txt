@@ -1,0 +1,43 @@
+
+.. _file_lib_indicator_manipulation.cpp:
+
+File indicator_manipulation.cpp
+===============================
+
+|exhale_lsh| :ref:`Parent directory <dir_lib>` (``lib``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. contents:: Contents
+   :local:
+   :backlinks: none
+
+Definition (``lib/indicator_manipulation.cpp``)
+-----------------------------------------------
+
+
+.. toctree::
+   :maxdepth: 1
+
+   program_listing_file_lib_indicator_manipulation.cpp.rst
+
+
+
+
+
+Includes
+--------
+
+
+- ``AnalysisGraph.hpp`` (:ref:`file_lib_AnalysisGraph.hpp`)
+
+- ``data.hpp`` (:ref:`file_lib_data.hpp`)
+
+- ``range/v3/all.hpp``
+
+- ``sqlite3.h``
+
+
+
+
+

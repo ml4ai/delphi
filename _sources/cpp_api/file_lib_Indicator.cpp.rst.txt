@@ -1,0 +1,49 @@
+
+.. _file_lib_Indicator.cpp:
+
+File Indicator.cpp
+==================
+
+|exhale_lsh| :ref:`Parent directory <dir_lib>` (``lib``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. contents:: Contents
+   :local:
+   :backlinks: none
+
+Definition (``lib/Indicator.cpp``)
+----------------------------------
+
+
+.. toctree::
+   :maxdepth: 1
+
+   program_listing_file_lib_Indicator.cpp.rst
+
+
+
+
+
+Includes
+--------
+
+
+- ``Indicator.hpp`` (:ref:`file_lib_Indicator.hpp`)
+
+- ``fmt/format.h``
+
+- ``iostream``
+
+- ``range/v3/all.hpp``
+
+- ``sqlite3.h``
+
+- ``string``
+
+- ``vector``
+
+
+
+
+

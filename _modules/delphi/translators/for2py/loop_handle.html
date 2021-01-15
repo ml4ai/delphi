@@ -1,0 +1,647 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>delphi.translators.for2py.loop_handle &mdash; delphi  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+        <script src="../../../../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../../../../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> delphi
+          
+
+          
+            
+            <img src="../../../../_static/delphi_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html#change-log">Change Log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../cpp_api/library_root.html">C++ API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">delphi</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../for2py.html">delphi.translators.for2py</a> &raquo;</li>
+        
+      <li>delphi.translators.for2py.loop_handle</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for delphi.translators.for2py.loop_handle</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="sd">&quot;&quot;&quot;File: loop_handle.py</span>
+
+<span class="sd">Purpose: Read the Fortran AST (obtained from rectify.py) and refactor it</span>
+<span class="sd">         to remove the breaks, returns and continues from within loop</span>
+<span class="sd">         statements.</span>
+
+<span class="sd">Called from: translate.py</span>
+<span class="sd">Calls: None</span>
+
+<span class="sd">Author: Pratik Bhandari</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">delphi.translators.for2py</span> <span class="kn">import</span> <span class="n">For2PyError</span><span class="p">,</span> <span class="n">syntax</span>
+
+
+<div class="viewcode-block" id="ContinueState"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.loop_handle.ContinueState">[docs]</a><span class="k">class</span> <span class="nc">ContinueState</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cycle_index</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_cycle</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cycle_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">continue_here</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">else_present</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="BreakState"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.loop_handle.BreakState">[docs]</a><span class="k">class</span> <span class="nc">BreakState</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">break_index</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_break</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">break_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">break_depth</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">break_here</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">else_present</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="RefactorConstructs"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.loop_handle.RefactorConstructs">[docs]</a><span class="k">class</span> <span class="nc">RefactorConstructs</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This class defines the refactor state of the intermediate AST while</span>
+<span class="sd">    removing the breaks and returns inside while loops</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">return_found</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">potential_if</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shifted_body</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">new_while_body</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">after_return</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">new_outer</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tag_level</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shifted_items</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shifted_level</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># A list of all the three constructs present in the program</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loop_constructs</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="RefactorConstructs.refactor"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.loop_handle.RefactorConstructs.refactor">[docs]</a>    <span class="k">def</span> <span class="nf">refactor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ast</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">loop_constructs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loop_constructs</span> <span class="o">=</span> <span class="n">loop_constructs</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="n">ast</span><span class="p">[</span><span class="s2">&quot;ast&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;body&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Parse the loop_construct dictionary for each loop backwards. We</span>
+        <span class="c1"># will process each construct bottom-up</span>
+
+        <span class="c1"># loop_index = 1</span>
+
+        <span class="c1"># For every loop in the body</span>
+        <span class="c1"># TODO: Currently only for un-nested loops without returns. Does not</span>
+        <span class="c1">#  work for nested loops with/without returns as well</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">body</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;do&quot;</span><span class="p">,</span> <span class="s2">&quot;do-while&quot;</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">construct</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">loop_constructs</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;loop&quot;</span><span class="p">][</span>
+                                 <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="s1">&#39;return&#39;</span> <span class="ow">in</span> <span class="n">construct</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">search_while</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="s1">&#39;break&#39;</span> <span class="ow">in</span> <span class="n">construct</span><span class="p">:</span>
+                        <span class="n">break_worker</span> <span class="o">=</span> <span class="n">BreakState</span><span class="p">()</span>
+                        <span class="n">break_worker</span><span class="o">.</span><span class="n">break_index</span> <span class="o">=</span> <span class="n">construct</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">search_breaks</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">],</span> <span class="n">break_worker</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="s1">&#39;cycle&#39;</span> <span class="ow">in</span> <span class="n">construct</span><span class="p">:</span>
+                        <span class="n">cycle_worker</span> <span class="o">=</span> <span class="n">ContinueState</span><span class="p">()</span>
+                        <span class="n">cycle_worker</span><span class="o">.</span><span class="n">cycle_index</span> <span class="o">=</span> <span class="n">construct</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">search_cycles</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">],</span> <span class="n">cycle_worker</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ast</span></div>
+
+    <span class="c1">#####################################################################</span>
+    <span class="c1">#                                                                   #</span>
+    <span class="c1">#                             CONTINUE                              #</span>
+    <span class="c1">#                                                                   #</span>
+    <span class="c1">#####################################################################</span>
+
+<div class="viewcode-block" id="RefactorConstructs.search_cycles"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.loop_handle.RefactorConstructs.search_cycles">[docs]</a>    <span class="k">def</span> <span class="nf">search_cycles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">cycle_state</span><span class="p">):</span>
+        <span class="c1"># TODO Continues handling does not currently work for nested `continues`</span>
+        <span class="c1">#  Need to handle this</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tag_cycle</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="n">cycle_state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">append_cycle</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="n">cycle_state</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RefactorConstructs.tag_cycle"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.loop_handle.RefactorConstructs.tag_cycle">[docs]</a>    <span class="k">def</span> <span class="nf">tag_cycle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">body</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">is_cycle</span><span class="p">:</span>
+                <span class="n">state</span><span class="o">.</span><span class="n">cycle_dict</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">cycle_index</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                <span class="n">body</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;if&quot;</span><span class="p">:</span>
+                <span class="c1"># Count to check if the `if` body contains only one element</span>
+                <span class="c1"># or more</span>
+                <span class="n">body_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tag_cycle</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">],</span> <span class="n">state</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">continue_here</span><span class="p">:</span>
+                    <span class="n">item</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;if_with_continue&quot;</span>
+                    <span class="k">if</span> <span class="n">body_count</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">item</span><span class="p">[</span><span class="s2">&quot;header&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;operator&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                            <span class="n">syntax</span><span class="o">.</span><span class="n">NEGATED_OP</span><span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;header&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;operator&#39;</span><span class="p">]]</span>
+                    <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;else&quot;</span><span class="p">):</span>
+                        <span class="n">state</span><span class="o">.</span><span class="n">else_present</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">state</span><span class="o">.</span><span class="n">continue_here</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;else&quot;</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">tag_cycle</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;else&quot;</span><span class="p">],</span> <span class="n">state</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">continue_here</span><span class="p">:</span>
+                        <span class="n">item</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;else_with_continue&quot;</span>
+                        <span class="n">state</span><span class="o">.</span><span class="n">continue_here</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">elif</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;cycle&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">cycle_index</span> <span class="o">==</span> <span class="sa">f</span><span class="s2">&quot;cycle_</span><span class="si">{item[&#39;index&#39;]}</span><span class="s2">&quot;</span><span class="p">:</span>
+                    <span class="n">state</span><span class="o">.</span><span class="n">is_cycle</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">state</span><span class="o">.</span><span class="n">continue_here</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">body</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">item</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RefactorConstructs.append_cycle"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.loop_handle.RefactorConstructs.append_cycle">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">append_cycle</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">body</span><span class="p">:</span>
+            <span class="c1"># Find the `if` block which had the continue statement</span>
+            <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;if_with_continue&quot;</span><span class="p">:</span>
+                <span class="c1"># Start checking which of the 4 cases you had</span>
+                <span class="n">item</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;if&quot;</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">else_present</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                        <span class="n">item</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">item</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;else&quot;</span><span class="p">)</span>
+                    <span class="n">item</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">state</span><span class="o">.</span><span class="n">cycle_dict</span><span class="p">[</span><span class="n">state</span><span class="o">.</span><span class="n">cycle_index</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">else_present</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                        <span class="n">item</span><span class="p">[</span><span class="s2">&quot;else&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">item</span><span class="p">[</span><span class="s2">&quot;else&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">state</span><span class="o">.</span><span class="n">cycle_dict</span><span class="p">[</span><span class="n">state</span><span class="o">.</span><span class="n">cycle_index</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;else_with_continue&quot;</span><span class="p">:</span>
+                <span class="n">item</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;if&quot;</span>
+                <span class="c1"># Check for the 2 cases you had</span>
+                <span class="n">item</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">state</span><span class="o">.</span><span class="n">cycle_dict</span><span class="p">[</span><span class="n">state</span><span class="o">.</span><span class="n">cycle_index</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;else&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">del</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;else&quot;</span><span class="p">]</span></div>
+
+<span class="c1">#########################################################################</span>
+<span class="c1">#                                                                       #</span>
+<span class="c1">#                                BREAKS                                 #</span>
+<span class="c1">#                                                                       #</span>
+<span class="c1">#########################################################################</span>
+
+<div class="viewcode-block" id="RefactorConstructs.search_breaks"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.loop_handle.RefactorConstructs.search_breaks">[docs]</a>    <span class="k">def</span> <span class="nf">search_breaks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">break_state</span><span class="p">):</span>
+        <span class="n">body_tmp</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tag_break</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">break_state</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">break_state</span><span class="o">.</span><span class="n">break_dict</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">body</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">body_tmp</span><span class="p">[:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">append_break</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">break_state</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RefactorConstructs.tag_break"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.loop_handle.RefactorConstructs.tag_break">[docs]</a>    <span class="k">def</span> <span class="nf">tag_break</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">if_depth</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">body</span><span class="p">[:]:</span>
+            <span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">is_break</span><span class="p">:</span>
+                <span class="n">state</span><span class="o">.</span><span class="n">break_dict</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">if_depth</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;item&quot;</span><span class="p">:</span> <span class="n">item</span><span class="p">,</span>
+                        <span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="n">state</span><span class="o">.</span><span class="n">break_index</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+                <span class="n">body</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;if&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tag_break</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">],</span> <span class="n">if_depth</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">break_here</span><span class="p">:</span>
+                    <span class="n">item</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;if_with_break&quot;</span>
+                    <span class="n">item</span><span class="p">[</span><span class="s2">&quot;header&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;operator&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="n">syntax</span><span class="o">.</span><span class="n">NEGATED_OP</span><span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;header&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;operator&#39;</span><span class="p">]]</span>
+                    <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;else&quot;</span><span class="p">):</span>
+                        <span class="n">state</span><span class="o">.</span><span class="n">else_present</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">state</span><span class="o">.</span><span class="n">break_here</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;else&quot;</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">tag_break</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;else&quot;</span><span class="p">],</span> <span class="n">if_depth</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">break_here</span><span class="p">:</span>
+                        <span class="n">item</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;else_with_break&quot;</span>
+                        <span class="n">state</span><span class="o">.</span><span class="n">break_here</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">elif</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;exit&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">break_index</span> <span class="o">==</span> <span class="sa">f</span><span class="s2">&quot;break_</span><span class="si">{item[&#39;index&#39;]}</span><span class="s2">&quot;</span><span class="p">:</span>
+                    <span class="n">state</span><span class="o">.</span><span class="n">is_break</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">state</span><span class="o">.</span><span class="n">break_here</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">state</span><span class="o">.</span><span class="n">break_depth</span> <span class="o">=</span> <span class="n">if_depth</span>
+                    <span class="n">body</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">item</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RefactorConstructs.append_break"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.loop_handle.RefactorConstructs.append_break">[docs]</a>    <span class="k">def</span> <span class="nf">append_break</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">if_depth</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">body</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;if&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">])</span> <span class="ow">and</span> \
+                        <span class="n">item</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;cycle&quot;</span><span class="p">,</span> <span class="s2">&quot;exit&quot;</span><span class="p">,</span> <span class="s2">&quot;return&quot;</span><span class="p">]):</span>
+                    <span class="n">inc</span> <span class="o">=</span> <span class="n">if_depth</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">inc</span> <span class="o">=</span> <span class="n">if_depth</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">break_dict</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">inc</span> <span class="o">&gt;</span> <span class="n">key</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">elmt</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">break_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]:</span>
+                            <span class="n">item</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="n">elmt</span><span class="p">[</span><span class="s2">&quot;item&quot;</span><span class="p">]]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">append_break</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">],</span> <span class="n">if_depth</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;else&quot;</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;else&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> \
+                            <span class="n">item</span><span class="p">[</span><span class="s2">&quot;else&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;if&quot;</span><span class="p">,</span> <span class="s2">&quot;if_with_break&quot;</span><span class="p">,</span>
+                                                       <span class="s2">&quot;else_with_break&quot;</span><span class="p">]:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">append_break</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;else&quot;</span><span class="p">],</span> <span class="n">if_depth</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">break_dict</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">if_depth</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&gt;</span> <span class="n">key</span><span class="p">:</span>
+                                <span class="k">for</span> <span class="n">elmt</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">break_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]:</span>
+                                    <span class="n">item</span><span class="p">[</span><span class="s2">&quot;else&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="n">elmt</span><span class="p">[</span><span class="s2">&quot;item&quot;</span><span class="p">]]</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">append_break</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;else&quot;</span><span class="p">],</span> <span class="n">if_depth</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;if_with_break&quot;</span><span class="p">:</span>
+                <span class="n">item</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;if&quot;</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">state</span><span class="o">.</span><span class="n">else_present</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">break_dict</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">if_depth</span><span class="o">+</span><span class="mi">1</span> <span class="o">&gt;</span> <span class="n">key</span><span class="p">:</span>
+                            <span class="k">for</span> <span class="n">elmt</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">break_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]:</span>
+                                <span class="n">item</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="n">elmt</span><span class="p">[</span><span class="s2">&quot;item&quot;</span><span class="p">]]</span>
+                    <span class="n">item</span><span class="p">[</span><span class="s2">&quot;else&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="s2">&quot;exit&quot;</span><span class="p">}]</span>
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">state</span><span class="o">.</span><span class="n">else_present</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="n">item</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;else&quot;</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">break_dict</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">if_depth</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&gt;</span> <span class="n">key</span><span class="p">:</span>
+                            <span class="k">for</span> <span class="n">elmt</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">break_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]:</span>
+                                <span class="n">item</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="n">elmt</span><span class="p">[</span><span class="s2">&quot;item&quot;</span><span class="p">]]</span>
+                    <span class="n">item</span><span class="p">[</span><span class="s2">&quot;else&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="s2">&quot;exit&quot;</span><span class="p">}]</span>
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">state</span><span class="o">.</span><span class="n">else_present</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                    <span class="n">item</span><span class="p">[</span><span class="s2">&quot;else&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]</span>
+                    <span class="n">item</span><span class="p">[</span><span class="s2">&quot;else&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[{</span><span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="s2">&quot;exit&quot;</span><span class="p">}]</span>
+                    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">break_dict</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">if_depth</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&gt;</span> <span class="n">key</span><span class="p">:</span>
+                            <span class="k">for</span> <span class="n">elmt</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">break_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]:</span>
+                                <span class="n">item</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="n">elmt</span><span class="p">[</span><span class="s2">&quot;item&quot;</span><span class="p">]]</span>
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">state</span><span class="o">.</span><span class="n">else_present</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="n">else_tmp</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;else&quot;</span><span class="p">]</span>
+                    <span class="n">item</span><span class="p">[</span><span class="s2">&quot;else&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]</span>
+                    <span class="n">item</span><span class="p">[</span><span class="s2">&quot;else&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[{</span><span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="s2">&quot;exit&quot;</span><span class="p">}]</span>
+                    <span class="n">item</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">else_tmp</span>
+                    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">break_dict</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">if_depth</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&gt;</span> <span class="n">key</span><span class="p">:</span>
+                            <span class="k">for</span> <span class="n">elmt</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">break_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]:</span>
+                                <span class="n">item</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="n">elmt</span><span class="p">[</span><span class="s2">&quot;item&quot;</span><span class="p">]]</span>
+            <span class="k">elif</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;else_with_break&quot;</span><span class="p">:</span>
+                <span class="n">item</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;if&quot;</span>
+                <span class="n">item</span><span class="p">[</span><span class="s2">&quot;else&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[{</span><span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="s2">&quot;exit&quot;</span><span class="p">}]</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">break_dict</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">if_depth</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&gt;</span> <span class="n">key</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">elmt</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">break_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]:</span>
+                            <span class="n">item</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="n">elmt</span><span class="p">[</span><span class="s2">&quot;item&quot;</span><span class="p">]]</span></div>
+
+    <span class="c1">#####################################################################</span>
+    <span class="c1">#                                                                   #</span>
+    <span class="c1">#                              RETURNS                              #</span>
+    <span class="c1">#                                                                   #</span>
+    <span class="c1">#####################################################################</span>
+
+<div class="viewcode-block" id="RefactorConstructs.search_while"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.loop_handle.RefactorConstructs.search_while">[docs]</a>    <span class="k">def</span> <span class="nf">search_while</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">body</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">body</span><span class="p">[:]:</span>
+            <span class="c1"># Currently, breaks and returns are only inside the bodies of</span>
+            <span class="c1"># `while` functions</span>
+            <span class="c1"># TODO They can be anywhere</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_found</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;tag&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;format&quot;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">new_outer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                    <span class="n">body</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tag&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;do-while&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">search_tags</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_found</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">start_while</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                    <span class="k">continue</span>
+                <span class="k">elif</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;body&quot;</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">search_while</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;body&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">search_while</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_outer</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">modify_shifted</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">shifted_body</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;body&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_outer</span>
+            <span class="n">body</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shifted_body</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">new_outer</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+<div class="viewcode-block" id="RefactorConstructs.modify_shifted"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.loop_handle.RefactorConstructs.modify_shifted">[docs]</a>    <span class="k">def</span> <span class="nf">modify_shifted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">var_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">op_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">right_header</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shifted_body</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;header&#39;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">right_header</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;left&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">ref</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;tag&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;ref&#39;</span><span class="p">:</span>
+                    <span class="n">op_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="p">[{</span>
+                            <span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="s2">&quot;op&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;operator&quot;</span><span class="p">:</span> <span class="s2">&quot;.not.&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;left&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">ref</span><span class="p">]</span>
+                        <span class="p">}]</span>
+                    <span class="p">)</span>
+                    <span class="n">var_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;right&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">ref</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;tag&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;ref&#39;</span><span class="p">:</span>
+                    <span class="n">op_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="p">[{</span>
+                            <span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="s2">&quot;op&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;operator&quot;</span><span class="p">:</span> <span class="s2">&quot;.not.&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;left&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">ref</span><span class="p">]</span>
+                        <span class="p">}]</span>
+                    <span class="p">)</span>
+                    <span class="n">var_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
+        <span class="n">left_header</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="s2">&quot;op&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;left&quot;</span><span class="p">:</span> <span class="n">op_list</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="s2">&quot;right&quot;</span><span class="p">:</span> <span class="n">op_list</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="s2">&quot;operator&quot;</span><span class="p">:</span> <span class="s2">&quot;.and.&quot;</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shifted_body</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;header&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;left&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">left_header</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shifted_body</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;header&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;right&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">right_header</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shifted_body</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;header&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;operator&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;.or.&quot;</span></div>
+
+<div class="viewcode-block" id="RefactorConstructs.search_tags"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.loop_handle.RefactorConstructs.search_tags">[docs]</a>    <span class="k">def</span> <span class="nf">search_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">items</span> <span class="ow">in</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">items</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;if&#39;</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">if_body</span> <span class="ow">in</span> <span class="n">items</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">if_body</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;stop&#39;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">return_found</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">break</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_found</span><span class="p">:</span>
+                <span class="k">break</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_found</span></div>
+
+<div class="viewcode-block" id="RefactorConstructs.start_while"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.loop_handle.RefactorConstructs.start_while">[docs]</a>    <span class="k">def</span> <span class="nf">start_while</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">while_body</span><span class="p">):</span>
+        <span class="n">end_point</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1"># Start going through the body of the while loop</span>
+        <span class="k">for</span> <span class="n">body</span> <span class="ow">in</span> <span class="n">while_body</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]:</span>
+            <span class="c1"># The breaks and returns we are looking for are only inside the `if`</span>
+            <span class="c1"># statements</span>
+            <span class="k">if</span> <span class="n">body</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;if&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">potential_if</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">if_body</span> <span class="ow">in</span> <span class="n">body</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">if_body</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;stop&#39;</span><span class="p">:</span>
+                        <span class="n">body</span><span class="p">[</span><span class="s1">&#39;header&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;operator&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                            <span class="n">syntax</span><span class="o">.</span><span class="n">NEGATED_OP</span><span class="p">[</span><span class="n">body</span><span class="p">[</span><span class="s1">&#39;header&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;operator&#39;</span><span class="p">]]</span>
+                        <span class="n">body</span><span class="p">[</span><span class="s2">&quot;else&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                            <span class="p">{</span><span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="s2">&quot;exit&quot;</span><span class="p">}</span>
+                        <span class="p">]</span>
+                        <span class="n">end_point</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">new_while_body</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">shifted_body</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">body</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">end_point</span><span class="p">:</span>
+                    <span class="k">continue</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">end_point</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">new_while_body</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">after_return</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+
+        <span class="n">while_body</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_while_body</span>
+
+        <span class="k">for</span> <span class="n">body</span> <span class="ow">in</span> <span class="n">while_body</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">body</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;if&#39;</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">if_body</span> <span class="ow">in</span> <span class="n">body</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">if_body</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;stop&quot;</span><span class="p">:</span>
+                        <span class="n">body</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">after_return</span></div></div>
+
+
+<div class="viewcode-block" id="parse_args"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.loop_handle.parse_args">[docs]</a><span class="k">def</span> <span class="nf">parse_args</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-f&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--file&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;AST dictionary which is to be refactored&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--output&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Target output file to store refactored AST&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-w&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--write&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Flag whether to write the refactored AST or not&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-p&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--print&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Flag whether to print the refactored AST or not&quot;</span>
+    <span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
+    <span class="n">input_f</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">file</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">is_write</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">write</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">is_print</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">print</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">input_f</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">is_write</span><span class="p">,</span> <span class="n">is_print</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="c1"># Read in the arguments to the file</span>
+    <span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">target_file</span><span class="p">,</span> <span class="n">write_flag</span><span class="p">,</span> <span class="n">print_flag</span><span class="p">)</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="c1"># Read the input AST</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">infile</span><span class="p">:</span>
+            <span class="n">input_ast</span> <span class="o">=</span> <span class="n">infile</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">For2PyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to read from </span><span class="si">{input_file}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Refactor the AST</span>
+    <span class="n">refactor_ast</span> <span class="o">=</span> <span class="n">RefactorConstructs</span><span class="p">()</span>
+    <span class="n">refactored_ast</span> <span class="o">=</span> <span class="n">refactor_ast</span><span class="o">.</span><span class="n">refactor</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">input_ast</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">write_flag</span> <span class="o">==</span> <span class="s2">&quot;True&quot;</span><span class="p">:</span>
+        <span class="c1"># Write the refactored AST</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">target_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">op_file</span><span class="p">:</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">refactored_ast</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">For2PyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to write to </span><span class="si">{target_file}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># If the print flag is set, print the AST to console</span>
+    <span class="k">if</span> <span class="n">print_flag</span> <span class="o">==</span> <span class="s2">&quot;True&quot;</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">refactored_ast</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Adarsh
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

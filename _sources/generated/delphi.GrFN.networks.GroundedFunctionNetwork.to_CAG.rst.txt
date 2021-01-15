@@ -1,0 +1,6 @@
+delphi.GrFN.networks.GroundedFunctionNetwork.to\_CAG
+====================================================
+
+.. currentmodule:: delphi.GrFN.networks
+
+.. automethod:: GroundedFunctionNetwork.to_CAG

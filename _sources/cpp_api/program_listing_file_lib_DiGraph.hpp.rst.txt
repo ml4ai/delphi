@@ -1,0 +1,31 @@
+
+.. _program_listing_file_lib_DiGraph.hpp:
+
+Program Listing for File DiGraph.hpp
+====================================
+
+|exhale_lsh| :ref:`Return to documentation for file <file_lib_DiGraph.hpp>` (``lib/DiGraph.hpp``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. code-block:: cpp
+
+   #pragma once
+   
+   #include <string>
+   #include <boost/graph/adjacency_list.hpp>
+   #include "Node.hpp"
+   #include "Edge.hpp"
+   
+   class GraphData {
+     public:
+     std::string name;
+   };
+   
+   typedef boost::adjacency_list<boost::setS,
+                                 boost::vecS,
+                                 boost::bidirectionalS,
+                                 Node,
+                                 Edge,
+                                 GraphData>
+       DiGraph;

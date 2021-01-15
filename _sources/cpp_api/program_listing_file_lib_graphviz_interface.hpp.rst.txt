@@ -1,0 +1,35 @@
+
+.. _program_listing_file_lib_graphviz_interface.hpp:
+
+Program Listing for File graphviz_interface.hpp
+===============================================
+
+|exhale_lsh| :ref:`Return to documentation for file <file_lib_graphviz_interface.hpp>` (``lib/graphviz_interface.hpp``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. code-block:: cpp
+
+   #pragma once
+   
+   #include <gvc.h>
+   #include <string>
+   
+   namespace delphi::gv {
+   
+   
+   void set_property(Agnode_t *node,
+                     std::string property_name,
+                     std::string property_value);
+   
+   void set_property(Agedge_t *edge,
+                     std::string property_name,
+                     std::string property_value);
+   
+   void set_property(Agraph_t *g,
+                     int kind,
+                     std::string property_name,
+                     std::string property_value);
+   
+   Agnode_t *add_node(Agraph_t *g, std::string node_name);
+   } // namespace delphi::gv
