@@ -48,6 +48,12 @@ typedef std::pair<std::tuple<std::string, int, std::string>,
                   std::tuple<std::string, int, std::string>>
     CausalFragment;
 
+typedef std::tuple<std::vector<std::string>, std::vector<int>, std::string>
+    EventCollection;
+
+typedef std::pair<EventCollection, EventCollection>
+    CausalFragmentCollection;
+
 // Access
 // [ sample ][ time_step ]{ vertex_name --> { indicator_name --> pred}}
 // [ sample ][ time_step ][ vertex_name ][ indicator_name ]
@@ -1172,10 +1178,12 @@ class AnalysisGraph {
   void add_node(std::string concept);
 
   void add_edge(CausalFragment causal_fragment);
+  void add_edge(CausalFragmentCollection causal_fragments);
   std::pair<EdgeDescriptor, bool> add_edge(int, int);
   std::pair<EdgeDescriptor, bool> add_edge(int, std::string);
   std::pair<EdgeDescriptor, bool> add_edge(std::string, int);
   std::pair<EdgeDescriptor, bool> add_edge(std::string, std::string);
+
 
   void remove_node(std::string concept);
 
