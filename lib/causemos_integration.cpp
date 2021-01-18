@@ -643,34 +643,43 @@ void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data) {
     auto obj_polarity_json = obj_delta["polarity"];
 
     // We set polarities to 1 (positive) by default if they are not specified.
-    int subj_polarity = 1;
-    int obj_polarity = 1;
+    int subj_polarity_val = 1;
+    int obj_polarity_val = 1;
     if (!subj_polarity_json.is_null()) {
-      subj_polarity = subj_polarity_json.get<int>();
+      subj_polarity_val = subj_polarity_json.get<int>();
     }
 
     if (!obj_polarity_json.is_null()) {
-      obj_polarity = obj_polarity_json.get<int>();
+      obj_polarity_val = obj_polarity_json.get<int>();
     }
 
     auto subj_adjectives = subj_delta["adjectives"];
     auto obj_adjectives = obj_delta["adjectives"];
-    auto subj_adjective =
-        (!subj_adjectives.is_null() and subj_adjectives.size() > 0)
-            ? subj_adjectives[0]
-            : "None";
-    auto obj_adjective =
-        (!obj_adjectives.is_null() and obj_adjectives.size() > 0)
-            ? obj_adjectives[0]
-            : "None";
 
-    string subj_adj_str = subj_adjective.get<string>();
-    string obj_adj_str = obj_adjective.get<string>();
+    vector<int> subj_polarity = vector<int>{subj_polarity_val};
+    vector<int> obj_polarity = vector<int>{obj_polarity_val};
 
-    auto causal_fragment =
-        CausalFragment({subj_adj_str, subj_polarity, subj_name},
-                       {obj_adj_str, obj_polarity, obj_name});
-    this->add_edge(causal_fragment);
+    vector<string> subj_adjective = vector<string>{"None"};
+    vector<string> obj_adjective = vector<string>{"None"};
+
+    if(!subj_adjectives.is_null()){
+        if(subj_adjectives.size() > 0){
+            subj_adjective = subj_adjectives.get<vector<string>>();
+            subj_polarity = vector<int>(subj_adjective.size(), subj_polarity_val);
+        }
+    }
+
+    if(!obj_adjectives.is_null()){
+        if(obj_adjectives.size() > 0){
+            obj_adjective = obj_adjectives.get<vector<string>>();
+            obj_polarity = vector<int>(obj_adjectives.size(), obj_polarity_val);
+        }
+    }
+
+    auto causal_fragments =
+        CausalFragmentCollection({subj_adjective, subj_polarity, subj_name},
+                       {obj_adjective, obj_polarity, obj_name});
+    this->add_edge(causal_fragments);
   }
 
   if (json_data["conceptIndicators"].is_null()) {
