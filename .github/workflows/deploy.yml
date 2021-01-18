@@ -1,0 +1,44 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Deploy website to Github Pages
+
+on:
+  push:
+    branches: 
+      - master
+
+jobs:
+  deploy_docs:
+    runs-on: [ ubuntu-latest ]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build docs
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y\
+            libboost-all-dev\
+            pkg-config\
+            cmake\
+            curl\
+            tar\
+            wget\
+            python3-dev
+            python3-venv
+            graphviz\
+            libgraphviz-dev\
+            doxygen
+
+        python3 -m venv delphi_venv
+        source delphi_venv/bin/activate
+        pip install wheel
+        pip install -e .[docs]
+        make apidocs
+        make html
+
+    - name: Deploy docs to ml4ai.github.io/delphi
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+        publish_dir: ./docs/_build/html
