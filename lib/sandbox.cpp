@@ -110,16 +110,19 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
     }
 
     for (Edge_tuple edge_element : json_data["edges"]) {
+      bool edge_added = false;
       for (Evidence_Pair evidence : get<3>(edge_element)) {
         tuple<string, int, string> subject = evidence.first;
         tuple<string, int, string> object = evidence.second;
         CausalFragment causal_fragment =
             CausalFragment({get<0>(subject), get<1>(subject), get<2>(subject)},
                            {get<0>(object), get<1>(object), get<2>(object)});
-        this->add_edge(causal_fragment);
+        edge_added = this->add_edge(causal_fragment) || edge_added;
       }
-      this->edge(get<0>(edge_element), get<1>(edge_element)).kde.dataset =
-          get<2>(edge_element);
+      if (edge_added) {
+          this->edge(get<0>(edge_element), get<1>(edge_element)).kde.dataset =
+              get<2>(edge_element);
+      }
     }
 
     this->training_range = json_data["training_range"];
@@ -166,7 +169,6 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
             this->transition_matrix_collection[samp] = this->A_original;
         }
     }
-
 }
 /*
  ============================================================================
