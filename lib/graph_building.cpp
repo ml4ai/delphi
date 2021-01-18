@@ -20,7 +20,7 @@ void AnalysisGraph::add_node(string concept) {
   }
 }
 
-void AnalysisGraph::add_edge(CausalFragment causal_fragment) {
+bool AnalysisGraph::add_edge(CausalFragment causal_fragment) {
   Event subject = Event(causal_fragment.first);
   Event object = Event(causal_fragment.second);
 
@@ -36,13 +36,15 @@ void AnalysisGraph::add_edge(CausalFragment causal_fragment) {
     auto [e, exists] = boost::add_edge(this->name_to_vertex[subj_name],
                                        this->name_to_vertex[obj_name],
                                        this->graph);
-
     this->graph[e].evidence.push_back(Statement{subject, object});
+
+    return true;
   }
   else {
     print("AnalysisGraph::add_edge\n"
-          "\tWARNING: Prevented adding a self loop for the concept {}",
+          "\tWARNING: Prevented adding a self loop for the concept {}\n",
           subj_name);
+    return false;
   }
 }
 
@@ -73,25 +75,24 @@ void AnalysisGraph::add_edge(CausalFragmentCollection causal_fragments) {
         subject_pol = get<1>(subjects)[stmt];
       } else {
         subject_adj = "None";
-        subject_pol = 0;
+        subject_pol = 1;
       }
       if(stmt < num_obj){
         object_adj = get<0>(objects)[stmt] ;
         object_pol = get<1>(objects)[stmt];
       } else {
         object_adj = "None";
-        object_pol = 0;
+        object_pol = 1;
       }
 
       Event subject = Event(subject_adj, subject_pol, subj_name);
-      Event object  = Event(object_adj, object_pol, subj_name);
+      Event object  = Event(object_adj, object_pol, obj_name);
 
       this->graph[e].evidence.push_back(Statement{subject, object});
     }
-
-  }else {
+  } else {
     print("AnalysisGraph::add_edge\n"
-    "\tWARNING: Prevented adding a self loop for the concept {}",
+    "\tWARNING: Prevented adding a self loop for the concept {}\n",
     subj_name);
   }
 }

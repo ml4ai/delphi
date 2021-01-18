@@ -1177,13 +1177,12 @@ class AnalysisGraph {
 
   void add_node(std::string concept);
 
-  void add_edge(CausalFragment causal_fragment);
+  bool add_edge(CausalFragment causal_fragment);
   void add_edge(CausalFragmentCollection causal_fragments);
   std::pair<EdgeDescriptor, bool> add_edge(int, int);
   std::pair<EdgeDescriptor, bool> add_edge(int, std::string);
   std::pair<EdgeDescriptor, bool> add_edge(std::string, int);
   std::pair<EdgeDescriptor, bool> add_edge(std::string, std::string);
-
 
   void remove_node(std::string concept);
 
