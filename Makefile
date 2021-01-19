@@ -5,7 +5,7 @@ docs:
 
 extensions: 
 	mkdir -p build && \
-	cd build  && cmake .. &&  cmake --build . -- -j8 DelphiPython && \
+	cd build  && cmake .. &&  cmake --build . -- -j2 DelphiPython && \
 	cp *.so ../delphi/cpp
 
 test: extensions
