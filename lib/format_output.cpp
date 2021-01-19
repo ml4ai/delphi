@@ -44,7 +44,7 @@ CompleteState AnalysisGraph::get_complete_state() {
     Derivatives derivatives;
     Predictions predictions;
     Data data_set;
-
+    /*
     for (int v : this->node_indices()) {
         for (auto [ind_name, vert] : (*this)[v].nameToIndexMap) {
             concept_indicators[(*this)[v].name].push_back(ind_name);
@@ -103,12 +103,12 @@ CompleteState AnalysisGraph::get_complete_state() {
             month++;
         }
     }
-
+    */
     for (auto [vert_name, vert_id] : this->name_to_vertex) {
         for (auto [ind_name, ind_id] : (*this)[vert_id].nameToIndexMap) {
             std::unordered_map<int, std::vector<double>> preds;
             std::unordered_map<std::string, std::vector<double>> data;
-
+/*
             for (int ts = 0; ts < this->pred_timesteps; ts++) {
                 for (int samp = 0; samp < this->res; samp++) {
                     preds[ts].push_back(this-> 
@@ -117,8 +117,9 @@ CompleteState AnalysisGraph::get_complete_state() {
                 }
             }
             predictions[ind_name] = preds;
-
-            for (int ts = 0; ts < num_data_points; ts++) {
+*/
+            //for (int ts = 0; ts < num_data_points; ts++) {
+            for (int ts = 0; ts < this->n_timesteps; ts++) {
                 for (double obs : this->observed_state_sequence[ts][vert_id][ind_id]) {
                     data["Time Step"].push_back(ts);
                     data["Data"].push_back(obs);
@@ -128,7 +129,9 @@ CompleteState AnalysisGraph::get_complete_state() {
         }
     }
 
-    ConfidenceIntervals cis = get_confidence_interval(predictions);
+    ConfidenceIntervals cis ;
+    std::vector<std::string> data_range;
+    //ConfidenceIntervals cis = get_confidence_interval(predictions);
 
     return std::make_tuple(concept_indicators, edges, adjectives, polarities, thetas, derivatives, data_range, data_set, this->pred_range, predictions, cis);
 

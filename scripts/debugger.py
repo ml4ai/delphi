@@ -1,5 +1,6 @@
 import delphi.plotter as dp
 from delphi.cpp.DelphiPython import AnalysisGraph
+import pandas as pd
 
 
 def set_indicator(G, concept, indicator_new, source):
@@ -96,6 +97,7 @@ if __name__ == "__main__":
 
     draw_CAG(G, 'plot_testing_CAG.png')
 
+    '''
     print('\nTraining Model')
     try:
         preds = G.run_causemos_projection_experiment_from_json_file(
@@ -105,8 +107,33 @@ if __name__ == "__main__":
     except G.BadCausemosInputException as e:
         print(e)
         exit()
-
+    '''
     print('\n\nPlotting \n')
     model_state = G.get_complete_state()
+
+    concept_indicators, edges, adjectives, polarities, edge_data, derivatives, data_range, data_set, pred_range, predictions, cis  = model_state
+    df_data = pd.DataFrame.from_dict(data_set["a_ind"])
+    thelist1 = list(df_data["Time Step"])
+    df_data = pd.DataFrame.from_dict(data_set["b_ind"])
+    thelist2 = list(df_data["Time Step"])
+    #print(list(df_data["Time Step"]))
+    df_data = pd.DataFrame.from_dict(data_set["c_ind"])
+    #print(list(df_data["Time Step"]))
+    thelist3 = list(df_data["Time Step"])
+    print(len(thelist3))
+
+    
+    for i in range(1, len(thelist1)):
+        print(thelist1[i] - thelist1[i-1], end = ', ')
+    print()
+    for i in range(1, len(thelist2)):
+        print(thelist2[i] - thelist2[i-1], end = ', ')
+    print()
+    for i in range(1, len(thelist3)):
+        print(thelist3[i] - thelist3[i-1], end = ', ')
+    print()
+    
+
+    exit()
     dp.delphi_plotter(model_state, num_bins=400, rotation=45,
             out_dir='plots', file_name_prefix='')
