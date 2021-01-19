@@ -26,15 +26,15 @@ typedef std::unordered_map<std::string, std::vector<double>>
 // This is a multimap to keep provision to have multiple observations per
 // time point per indicator.
 // Access (concept is a vertex in the CAG)
-// [ concept ][ indicator ][ <year, month> --→ observation ]
-typedef std::vector<std::vector<std::multimap<std::pair<int, int>, double>>>
+// [ concept ][ indicator ][ epoch --→ observation ]
+typedef std::vector<std::vector<std::multimap<long, double>>>
     ConceptIndicatorData;
 
 // Keeps the sequence of dates for which data points are available
 // Data points are sorted according to dates
 // Access:
-// [ concept ][ indicator ][<year, month>]
-typedef std::vector<std::vector<std::pair<int, int>>> ConceptIndicatorDates;
+// [ concept ][ indicator ][epoch]
+typedef std::vector<std::vector<long>> ConceptIndicatorEpochs;
 
 // Access
 // [ timestep ][ concept ][ indicator ][ observation ]
@@ -246,6 +246,9 @@ class AnalysisGraph {
   int pred_timesteps = 0;
   std::pair<std::pair<int, int>, std::pair<int, int>> training_range;
   std::vector<std::string> pred_range;
+  long modeling_frequency = 1;
+  long train_start_epoch;
+  long train_end_epoch;
 
   double t = 0.0;
   double delta_t = 1.0;
@@ -470,9 +473,8 @@ class AnalysisGraph {
   void extract_concept_indicator_mapping_and_observations_from_json(
                         const nlohmann::json &json_indicators,
                         ConceptIndicatorData &concept_indicator_data,
-                        ConceptIndicatorDates &concept_indicator_dates,
-                        int &start_year, int &start_month,
-                        int &end_year, int &end_month);
+                        ConceptIndicatorEpochs &concept_indicator_epochs);
+
 
   /** Infer the least common observation frequency for all the
    * observation sequences so that they are time aligned starting from the
@@ -525,7 +527,7 @@ class AnalysisGraph {
    * @returns void
    */
   void infer_modeling_frequency(
-                        const ConceptIndicatorDates &concept_indicator_dates,
+                        const ConceptIndicatorEpochs &concept_indicator_epochs,
                         int &shortest_gap,
                         int &longest_gap,
                         int &frequent_gap,

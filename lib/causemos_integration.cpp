@@ -7,6 +7,7 @@
 #include <range/v3/all.hpp>
 #include <time.h>
 #include <limits.h>
+#include "dbg.h"
 
 using namespace std;
 using namespace delphi::utils;
@@ -31,21 +32,17 @@ Private: Integration with Uncharted's CauseMos interface
 void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json(
         const nlohmann::json &json_indicators,
         ConceptIndicatorData &concept_indicator_data,
-        ConceptIndicatorDates &concept_indicator_dates,
-        int &start_year, int &start_month,
-        int &end_year, int &end_month) {
+        ConceptIndicatorEpochs &concept_indicator_epochs) {
 
     int num_verts = this->num_vertices();
 
-    start_year = INT_MAX;
-    start_month = 13;
-    end_year = 0;
-    end_month = 0;
+    this->train_start_epoch = LONG_MAX;
+    this->train_end_epoch = 0;
 
-    time_t timestamp;
-    int year;
-    int month;
-    struct tm *ptm;
+    long epoch;
+    //int year;
+    //int month;
+    //struct tm *ptm;
 
     for (int v = 0; v < num_verts; v++) {
         Node& n = (*this)[v];
@@ -92,13 +89,13 @@ void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json
             continue;
         }
 
-        // [ <year, month> --→ observation ]
-        multimap<pair<int, int>, double> indicator_data;
+        // [ epoch --→ observation ]
+        multimap<long, double> indicator_data;
 
         // Accumulate which dates data points are available for
         // The idea is to use this to assess the frequency of the data. Either
         // yearly or monthly.
-        set<pair<int, int>> dates;
+        set<long> epochs;
 
         for (auto& data_point : indicator["values"]) {
             if (data_point["value"].is_null()) {
@@ -113,49 +110,49 @@ void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json
             // The HMI uses milliseconds. So they multiply time-stamps by 1000.
             // Before converting them back to year and month, we have to divide
             // by 1000.
-            timestamp = data_point["timestamp"].get<long>() / 1000;
+            epoch = data_point["timestamp"].get<long>();
 
-            // Convert the time-step to year and month.
-            // We are converting it according to GMT.
-            ptm = gmtime(&timestamp);
-            year = 1900 + ptm->tm_year;
-            month = 1 + ptm->tm_mon;
-
-            pair<int, int> year_month = make_pair(year, month);
+            //// Convert the time-step to year and month.
+            //// We are converting it according to GMT.
+            //ptm = gmtime(&epoch);
+            //year = 1900 + ptm->tm_year;
+            //month = 1 + ptm->tm_mon;
+//
+            //pair<int, int> year_month = make_pair(year, month);
 
             // Keep track of multiple observations for each year-month
-            indicator_data.insert(make_pair(year_month, observation));
+            indicator_data.insert(make_pair(epoch, observation));
 
-            // Record the dates where observations are available for this
+            // Record the epochs where observations are available for this
             // indicator. This data is used to assess the observation
             // frequency.
-            // At the moment Delphi assumes a monthly observation frequency.
-            // This part is added thinking that we might be able to relax that
-            // constrain in the future. At the moment, this information is not
-            // used in the modeling process.
-            dates.insert(year_month);
+            ////// At the moment Delphi assumes a monthly observation frequency.
+            ////// This part is added thinking that we might be able to relax that
+            ////// constrain in the future. At the moment, this information is not
+            ////// used in the modeling process.
+            epochs.insert(epoch);
 
             // Find the start year and month of observations. When observation
             // sequences are not aligned:
             // start year month => earliest observation among all the
             // observation sequences.
-            if (start_year > year) {
-                start_year = year;
-                start_month = month;
-            } else if (start_year == year && start_month > month) {
-                start_month = month;
-            }
+            if (this->train_start_epoch > epoch) {
+                this->train_start_epoch = epoch;
+                //start_month = month;
+            } //else if (start_year == year && start_month > month) {
+            //    start_month = month;
+            //}
 
             // Find the end year and month of observations. When observation
             // sequences are not aligned:
             // end year month => latest observation among all the observation
             // sequences.
-            if (end_year < year) {
-                end_year = year;
-                end_month = month;
-            } else if (end_year == year && end_month < month) {
-                end_month = month;
-            }
+            if (this->train_end_epoch < epoch) {
+                this->train_end_epoch = epoch;
+                //end_month = month;
+            } //else if (end_year == year && end_month < month) {
+            //    end_month = month;
+            //}
         }
 
         // Add this indicator observations to the concept. The data structure
@@ -164,12 +161,12 @@ void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json
         concept_indicator_data[v].push_back(indicator_data);
 
         // To assess the frequency of the data
-        vector<pair<int, int>> date_sorted;
-        for (auto ym : dates) {
-            date_sorted.push_back(ym);
+        vector<long> epoch_sorted;
+        for (long epo : epochs) {
+            epoch_sorted.push_back(epo);
         }
-        sort(date_sorted.begin(), date_sorted.end());
-        concept_indicator_dates[v] = date_sorted;
+        sort(epoch_sorted.begin(), epoch_sorted.end());
+        concept_indicator_epochs[v] = epoch_sorted;
     }
 }
 
@@ -184,28 +181,31 @@ void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json
  * Check method declaration in AnalysisGraph.hpp for a detailed comment.
  */
 void AnalysisGraph::infer_modeling_frequency(
-                        const ConceptIndicatorDates &concept_indicator_dates,
+                        const ConceptIndicatorEpochs &concept_indicator_epochs,
                         int &shortest_gap,
                         int &longest_gap,
                         int &frequent_gap,
                         int &highest_frequency) {
 
-    unordered_map<int, int> gap_frequencies;
-    unordered_map<int, int>::iterator itr;
+    unordered_map<long, int> gap_frequencies;
+    unordered_map<long, int>::iterator itr;
 
-    for (vector<pair<int, int>> ind_dates : concept_indicator_dates) {
+    for (vector<long> ind_epochs : concept_indicator_epochs) {
+        vector<long> gaps = vector<long>(ind_epochs.size());
+        adjacent_difference (ind_epochs.begin(), ind_epochs.end(), gaps.begin());
+
         // Compute number of months between data points
-        for (int i = 0; i < ind_dates.size() - 1;  i++) {
-            int y1 = ind_dates[i].first;
-            int m1 = ind_dates[i].second;
-            int y2 = ind_dates[i+1].first;
-            int m2 = ind_dates[i+1].second;
-
-            int months_between = (y2 - y1) * 12 + (m2 - m1);
+        for (int i = 1; i < gaps.size();  i++) {
+            //int y1 = ind_epochs[i].first;
+            //int m1 = ind_epochs[i].second;
+            //int y2 = ind_epochs[i+1].first;
+            //int m2 = ind_epochs[i+1].second;
+//
+            //int months_between = (y2 - y1) * 12 + (m2 - m1);
 
             // Check whether two adjacent data points with months_between
             // months in between is already found.
-            itr = gap_frequencies.find(months_between);
+            itr = gap_frequencies.find(gaps[i]);
 
             if (itr != gap_frequencies.end()) {
                 // There were previous adjacent pairs of data points with
@@ -216,7 +216,7 @@ void AnalysisGraph::infer_modeling_frequency(
                 // This is the first data point that is months_between months
                 // away from its previous data point. Start recording this new
                 // frequency.
-                gap_frequencies.insert(make_pair(months_between, 1));
+                gap_frequencies.insert(make_pair(gaps[i], 1));
             }
         }
     }
@@ -227,20 +227,26 @@ void AnalysisGraph::infer_modeling_frequency(
     frequent_gap = 0;
     highest_frequency = 0;
 
-    for (itr = gap_frequencies.begin(); itr != gap_frequencies.end(); itr++) {
-        if (shortest_gap > itr->first) {
-            shortest_gap = itr->first;
+    itr = gap_frequencies.begin();
+    this->modeling_frequency = itr->first;
+
+    for(auto const& [gap, freq] : gap_frequencies){
+        if (shortest_gap > gap) {
+            shortest_gap = gap;
         }
 
-        if (longest_gap < itr->first) {
-            longest_gap = itr->first;
+        if (longest_gap < gap) {
+            longest_gap = gap;
         }
 
-        if (highest_frequency < itr->second) {
-            highest_frequency = itr->second;
-            frequent_gap = itr->first;
+        if (highest_frequency < freq) {
+            highest_frequency = freq;
+            frequent_gap = gap;
         }
+
+        this->modeling_frequency = gcd(this->modeling_frequency, gap);
     }
+
 }
 
 /**
@@ -259,26 +265,23 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
     // This is a multimap to keep provision to have multiple observations per
     // time point per indicator.
     // Access (concept is a vertex in the CAG)
-    // [ concept ][ indicator ][ <year, month> --→ observation ]
+    // [ concept ][ indicator ][ epoch --→ observation ]
     ConceptIndicatorData concept_indicator_data(num_verts);
 
     // Keeps the sequence of dates for which data points are available
     // Data points are sorted according to dates
     // Access:
-    // [ concept ][ indicator ][<year, month>]
-    ConceptIndicatorDates concept_indicator_dates(num_verts);
+    // [ concept ][ indicator ][epoch]
+    ConceptIndicatorEpochs concept_indicator_epochs(num_verts);
 
-    int start_year = INT_MAX;
-    int start_month = 13;
-    int end_year = 0;
-    int end_month = 0;
+    //long start_epoch = INT_MAX;
+    //long end_epoch = 0;
 
     this->extract_concept_indicator_mapping_and_observations_from_json(
-            json_indicators, concept_indicator_data, concept_indicator_dates,
-                                start_year, start_month, end_year, end_month);
+            json_indicators, concept_indicator_data, concept_indicator_epochs);
 
-    this->training_range = make_pair(make_pair(start_year, start_month),
-                                            make_pair(end_year, end_month));
+    //this->training_range = make_pair(make_pair(start_year, start_month),
+    //                                        make_pair(end_year, end_month));
 
     // Decide the data frequency.
     int shortest_gap = INT_MAX;
@@ -288,17 +291,30 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
 
     this->n_timesteps = 0;
 
-    if (start_year <= end_year) {
+    if (this->train_start_epoch <= this->train_end_epoch) {
         // Some training data has been provided
-        this->infer_modeling_frequency(concept_indicator_dates,
+        this->infer_modeling_frequency(concept_indicator_epochs,
                     shortest_gap, longest_gap, frequent_gap, highest_frequency);
 
         // Fill in observed state sequence
         // NOTE: This code is very similar to the implementations in
         // set_observed_state_sequence_from_data and get_observed_state_from_data
-        this->n_timesteps = this->calculate_num_timesteps(
-                start_year, start_month, end_year, end_month);
+        this->n_timesteps = (this->train_end_epoch - this->train_start_epoch) / this->modeling_frequency + 1 ;
+        dbg(this->train_start_epoch);
+        dbg(this->train_end_epoch);
+        dbg(this->modeling_frequency);
+        dbg(this->n_timesteps);
     }
+
+    dbg(this->train_start_epoch);
+    dbg(this->train_end_epoch);
+    dbg(this->modeling_frequency);
+    dbg(this->n_timesteps);
+
+    dbg(shortest_gap);
+    dbg(longest_gap);
+    dbg(frequent_gap);
+    dbg(highest_frequency);
 
     this->observed_state_sequence.clear();
 
@@ -306,8 +322,8 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
     // [ timestep ][ concept ][ indicator ][ observation ]
     this->observed_state_sequence = ObservedStateSequence(this->n_timesteps);
 
-    int year = start_year;
-    int month = start_month;
+    //int year = start_year;
+    //int month = start_month;
 
     for (int ts = 0; ts < this->n_timesteps; ts++) {
         this->observed_state_sequence[ts] = vector<vector<vector<double>>>(num_verts);
@@ -319,10 +335,10 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
             for (int i = 0; i < n.indicators.size(); i++) {
                 this->observed_state_sequence[ts][v][i] = vector<double>();
 
-                pair<int, int> year_month = make_pair(year, month);
-                pair<multimap<pair<int, int>, double>::iterator,
-                     multimap<pair<int, int>, double>::iterator> obs =
-                    concept_indicator_data[v][i].equal_range(year_month);
+                long epoch = this->train_start_epoch + (ts - 1) * this->modeling_frequency;
+                pair<multimap<long, double>::iterator,
+                     multimap<long, double>::iterator> obs =
+                    concept_indicator_data[v][i].equal_range(epoch);
 
                 for(auto it = obs.first; it != obs.second; it++) {
                     this->observed_state_sequence[ts][v][i].push_back(it->second);
@@ -330,13 +346,13 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
             }
         }
 
-        if (month == 12) {
-            year++;
-            month = 1;
-        }
-        else {
-            month++;
-        }
+        //if (month == 12) {
+        //    year++;
+        //    month = 1;
+        //}
+        //else {
+        //    month++;
+        //}
     }
 
     this->to_png("CAG_from_json.png");
