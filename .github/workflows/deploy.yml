@@ -29,6 +29,8 @@ jobs:
             python3-venv\
             graphviz\
             librange-v3-dev\
+            libeigen3-dev\
+            nlohmann-json3-dev\
             libgraphviz-dev\
             doxygen
 
