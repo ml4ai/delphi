@@ -1,0 +1,13 @@
+.. _exhale_typedef_AnalysisGraph_8hpp_1a35c0c33dd4ed7eef4ebe007037451383:
+
+Typedef EventCollection
+=======================
+
+- Defined in :ref:`file_lib_AnalysisGraph.hpp`
+
+
+Typedef Documentation
+---------------------
+
+
+.. doxygentypedef:: EventCollection

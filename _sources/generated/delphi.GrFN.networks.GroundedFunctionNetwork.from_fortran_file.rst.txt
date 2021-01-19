@@ -1,4 +1,4 @@
-delphi.GrFN.networks.GroundedFunctionNetwork.from\_fortran\_file
+﻿delphi.GrFN.networks.GroundedFunctionNetwork.from\_fortran\_file
 ================================================================
 
 .. currentmodule:: delphi.GrFN.networks

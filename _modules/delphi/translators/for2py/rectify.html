@@ -1,43 +1,46 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>delphi.translators.for2py.rectify &mdash; delphi  documentation</title>
   
-
-  
-  
-  
-  
-
-  
-  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/jquery.js"></script>
-        <script src="../../../../_static/underscore.js"></script>
-        <script src="../../../../_static/doctools.js"></script>
-        <script src="../../../../_static/language_data.js"></script>
-        <script src="../../../../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
-        <script src="../../../../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
-
-    
 
   
   <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css" />
   <link rel="stylesheet" href="../../../../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../../../../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
 </head>
@@ -79,6 +82,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -89,13 +93,9 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../index.html">Home</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../model.html">The Delphi model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../GrFN_API.html">GroundedFunctionNetwork API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html#change-log">Change Log</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html">}</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../CONTRIBUTING.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../cpp_api/library_root.html">C++ API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
@@ -104,6 +104,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -138,11 +139,13 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="../../../index.html">Module code</a> &raquo;</li>
         
@@ -694,7 +697,7 @@
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="p">(</span>
                     <span class="kc">False</span>
-                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_file: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span>
+                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_file: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span>
 
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">child</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">child</span><span class="o">.</span><span class="n">text</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">parseXMLTree</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">cur_elem</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">traverse</span><span class="p">)</span></div>
@@ -726,7 +729,7 @@
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_program: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span></div>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_program: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_header"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_header">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_header</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">traverse</span>
@@ -831,7 +834,7 @@
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_header: Empty elements &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot;&#39;</span>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_header: Empty elements &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
 
         <span class="c1"># Revert the argument list back to its empty state to accommodate for</span>
         <span class="c1"># new functions</span>
@@ -995,7 +998,7 @@
                                 <span class="p">):</span>
                                     <span class="bp">self</span><span class="o">.</span><span class="n">continue_elimination</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_body: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; &#39;</span> \
+                    <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_body: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; &#39;</span> \
                                   <span class="sa">f</span><span class="s1">&#39;not handled&#39;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="p">(</span>
@@ -1016,7 +1019,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_body: Empty elements &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot;&#39;</span> \
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_body: Empty elements &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot;&#39;</span> \
                        <span class="sa">f</span><span class="s1">&#39; not handled&#39;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_format</span><span class="p">:</span>
@@ -1044,7 +1047,7 @@
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_specification: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_specification: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">parseXMLTree</span><span class="p">(</span>
                     <span class="n">child</span><span class="p">,</span> <span class="n">cur_elem</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">traverse</span>
@@ -1054,7 +1057,7 @@
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
                     <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_specification: Empty elements &#39;</span> \
-                       <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{child.tag}</span><span class="s1">&quot;&#39;</span></div>
+                       <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot;&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_declaration"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_declaration">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_declaration</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">traverse</span>
@@ -1116,7 +1119,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_declaration: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_declaration: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">declaration_child_tags</span><span class="p">:</span>
                     <span class="n">cur_elem</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span>
@@ -1156,7 +1159,7 @@
                         <span class="k">assert</span> <span class="p">(</span>
                             <span class="kc">False</span>
                         <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;self.In handle_tag_declaration: Empty elements &quot;&#39;</span> \
-                            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span>
+                            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_array</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">is_array</span> <span class="o">=</span> <span class="kc">False</span>
 
@@ -1307,7 +1310,7 @@
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unnecessary_tags</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                    <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_type: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not &#39;</span> \
+                    <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_type: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not &#39;</span> \
                                   <span class="sa">f</span><span class="s1">&#39;handled&#39;</span>
         <span class="c1"># This will mark whether this type declaration is for a derived type</span>
         <span class="c1"># declaration or not</span>
@@ -1356,7 +1359,7 @@
                     <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                         <span class="k">assert</span> <span class="p">(</span>
                             <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;variable&quot;</span>
-                        <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_variables: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span></div>
+                        <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_variables: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_variable"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_variable">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_variable</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">traverse</span>
@@ -1399,14 +1402,14 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_variable: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_variable: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;entity-decl&quot;</span><span class="p">:</span>
                     <span class="n">current</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_variable: Empty elements &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot;&#39;</span> \
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_variable: Empty elements &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot;&#39;</span> \
                        <span class="sa">f</span><span class="s1">&#39; not handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_constants"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_constants">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_constants</span><span class="p">(</span>
@@ -1433,7 +1436,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="p">(</span>
                         <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;constant&quot;</span>
-                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_constant: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span></div>
+                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_constant: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_constant"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_constant">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_constant</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">traverse</span>
@@ -1466,7 +1469,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="p">(</span>
                     <span class="kc">False</span>
-                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_constant: Empty elements &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; &#39;</span> \
+                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_constant: Empty elements &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; &#39;</span> \
                    <span class="sa">f</span><span class="s1">&#39;not handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_statement"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_statement">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_statement</span><span class="p">(</span>
@@ -1626,7 +1629,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="p">(</span>
                     <span class="kc">False</span>
-                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_statement: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span>
+                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_statement: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span>
 
         <span class="c1"># Statement collector (1st traverse)</span>
         <span class="k">if</span> <span class="n">traverse</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -1698,7 +1701,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="p">(</span>
                     <span class="kc">False</span>
-                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_assignment: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span></div>
+                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_assignment: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_target"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_target">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_target</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">traverse</span>
@@ -1723,7 +1726,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="p">(</span>
                     <span class="kc">False</span>
-                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_target: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span></div>
+                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_target: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_names"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_names">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_names</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">grandparent</span><span class="p">,</span> <span class="n">traverse</span>
@@ -1769,7 +1772,7 @@
                         <span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;is_arg&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;false&quot;</span>
                     <span class="n">cur_elem</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">attributes</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_names: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span></div>
+                <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_names: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_name"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_name">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">traverse</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;This function handles cleaning up the XML elements between</span>
@@ -1870,7 +1873,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In self.handle_tag_name: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In self.handle_tag_name: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;generic_spec&quot;</span><span class="p">:</span>
                     <span class="n">_</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span>
@@ -1885,7 +1888,7 @@
                         <span class="k">assert</span> <span class="p">(</span>
                             <span class="kc">False</span>
                         <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In self.handle_tag_name: Empty elements &#39;</span> \
-                           <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span>
+                           <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span>
 
         <span class="c1"># If the name element is for handling</span>
         <span class="c1"># derived type references, reconstruct it</span>
@@ -1921,7 +1924,7 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value_child_tags</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_value: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span>
+                <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_value: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">parseXMLTree</span><span class="p">(</span>
                 <span class="n">child</span><span class="p">,</span> <span class="n">cur_elem</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">traverse</span>
@@ -1973,7 +1976,7 @@
                     <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                         <span class="k">assert</span> <span class="p">(</span>
                             <span class="kc">False</span>
-                        <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_literal: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span>
+                        <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_literal: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;data-stmt-constant&quot;</span><span class="p">:</span>
                     <span class="n">cur_elem</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span>
@@ -1984,7 +1987,7 @@
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_literal: Empty &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span></div>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_literal: Empty &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_dimensions"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_dimensions">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_dimensions</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">traverse</span>
@@ -2011,7 +2014,7 @@
                     <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                         <span class="k">assert</span> <span class="p">(</span>
                             <span class="kc">False</span>
-                        <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_dimensions: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not &#39;</span> \
+                        <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_dimensions: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not &#39;</span> \
                            <span class="sa">f</span><span class="s1">&#39;handled&#39;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
@@ -2019,7 +2022,7 @@
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_dimensions: Empty &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not &#39;</span> \
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_dimensions: Empty &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not &#39;</span> \
                        <span class="sa">f</span><span class="s1">&#39;handled&#39;</span>
 
         <span class="k">if</span> <span class="n">parent</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;variable&quot;</span><span class="p">:</span>
@@ -2053,7 +2056,7 @@
                     <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                         <span class="k">assert</span> <span class="p">(</span>
                             <span class="kc">False</span>
-                        <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_dimension: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span>
+                        <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_dimension: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span>
             <span class="k">elif</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;literal&quot;</span><span class="p">:</span>
                 <span class="n">cur_elem</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span>
                     <span class="n">current</span><span class="p">,</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">child</span><span class="o">.</span><span class="n">attrib</span>
@@ -2064,7 +2067,7 @@
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_dimension: Empty &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not &#39;</span> \
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_dimension: Empty &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not &#39;</span> \
                        <span class="sa">f</span><span class="s1">&#39;handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_loop"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_loop">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_loop</span><span class="p">(</span>
@@ -2093,7 +2096,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                             <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">unnecessary_tags</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In self.handle_tag_loop: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span></div>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In self.handle_tag_loop: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_index_variable_or_range"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_index_variable_or_range">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_index_variable_or_range</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">traverse</span>
@@ -2118,7 +2121,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                             <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">unnecessary_tags</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_index_variable_or_range: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot;&#39;</span> \
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_index_variable_or_range: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot;&#39;</span> \
                        <span class="sa">f</span><span class="s1">&#39; not handled&#39;</span>
 
             <span class="k">else</span><span class="p">:</span>
@@ -2130,7 +2133,7 @@
                     <span class="k">assert</span> <span class="p">(</span>
                             <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">unnecessary_tags</span>
                     <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_index_variable_or_range: Empty &#39;</span> \
-                       <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span></div>
+                       <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_bound"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_bound">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_bound</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">traverse</span>
@@ -2159,7 +2162,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                             <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">unnecessary_tags</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_upper_bound: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_upper_bound: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">traverse</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="n">_</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span>
@@ -2168,7 +2171,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                             <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">unnecessary_tags</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_upper_bound: Empty &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not &#39;</span> \
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_upper_bound: Empty &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not &#39;</span> \
                        <span class="sa">f</span><span class="s1">&#39;handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_subscripts"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_subscripts">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_subscripts</span><span class="p">(</span>
@@ -2193,7 +2196,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In self.handle_tag_subscripts: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not &#39;</span> \
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In self.handle_tag_subscripts: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not &#39;</span> \
                        <span class="sa">f</span><span class="s1">&#39;handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_subscript"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_subscript">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_subscript</span><span class="p">(</span>
@@ -2216,7 +2219,7 @@
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In self.handle_tag_subscript: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not &#39;</span> \
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In self.handle_tag_subscript: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not &#39;</span> \
                        <span class="sa">f</span><span class="s1">&#39;handled&#39;</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">parseXMLTree</span><span class="p">(</span>
@@ -2271,7 +2274,7 @@
                 <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">!=</span> <span class="s2">&quot;operator&quot;</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_operation: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span></div>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_operation: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_operand"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_operand">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_operand</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">traverse</span>
@@ -2293,7 +2296,7 @@
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="p">(</span>
                     <span class="kc">False</span>
-                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_operand: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span>
+                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_operand: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">parseXMLTree</span><span class="p">(</span>
                 <span class="n">child</span><span class="p">,</span> <span class="n">cur_elem</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">traverse</span>
@@ -2329,7 +2332,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_write: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span></div>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_write: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_io_controls"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_io_controls">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_io_controls</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">traverse</span>
@@ -2353,7 +2356,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_io_controls: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span></div>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_io_controls: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_io_control"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_io_control">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_io_control</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">traverse</span>
@@ -2379,7 +2382,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">parseXMLTree</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">cur_elem</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span>
                                       <span class="n">traverse</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_io_control: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; &#39;</span> \
+                    <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_io_control: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; &#39;</span> \
                                   <span class="sa">f</span><span class="s1">&#39;not handled&#39;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;literal&quot;</span><span class="p">:</span>
@@ -2389,7 +2392,7 @@
                         <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unnecessary_tags</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span>
                     <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                         <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_io_control: Empty &quot;&#39;</span> \
-                                      <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span></div>
+                                      <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_outputs"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_outputs">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_outputs</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">traverse</span>
@@ -2410,7 +2413,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="p">(</span>
                     <span class="kc">False</span>
-                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_outputs: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span></div>
+                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_outputs: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_output"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_output">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_output</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">traverse</span>
@@ -2435,7 +2438,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="p">(</span>
                     <span class="kc">False</span>
-                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_outputs: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span></div>
+                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_outputs: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_format"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_format">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_format</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">traverse</span>
@@ -2459,7 +2462,7 @@
                 <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">!=</span> <span class="s2">&quot;label&quot;</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_format: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span></div>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_format: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_format_items"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_format_items">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_format_items</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">traverse</span>
@@ -2484,7 +2487,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="p">(</span>
                     <span class="kc">False</span>
-                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_format_items: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span></div>
+                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_format_items: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_print"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_print">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_print</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">traverse</span>
@@ -2511,7 +2514,7 @@
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_print: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span></div>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_print: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_open"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_open">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_open</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">traverse</span>
@@ -2535,14 +2538,14 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_open: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_open: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;open-stmt&quot;</span><span class="p">:</span>
                     <span class="n">current</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_open: Empty elements &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; &#39;</span> \
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_open: Empty elements &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; &#39;</span> \
                        <span class="sa">f</span><span class="s1">&#39;ot handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_keyword_arguments"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_keyword_arguments">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_keyword_arguments</span><span class="p">(</span>
@@ -2572,7 +2575,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_keyword_arguments: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not &#39;</span> \
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_keyword_arguments: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not &#39;</span> \
                        <span class="sa">f</span><span class="s1">&#39;handled&#39;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
@@ -2581,7 +2584,7 @@
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
                     <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_keyword_arguments: Empty elements &#39;</span> \
-                       <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span></div>
+                       <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_read"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_read">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_read</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">traverse</span>
@@ -2608,14 +2611,14 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_read: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_read: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;read-stmt&quot;</span><span class="p">:</span>
                     <span class="n">current</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_read: Empty elements &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; &#39;</span> \
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_read: Empty elements &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; &#39;</span> \
                        <span class="sa">f</span><span class="s1">&#39;not handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_inputs"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_inputs">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_inputs</span><span class="p">(</span>
@@ -2645,13 +2648,13 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_input - </span><span class="si">{root.tag}</span><span class="s1">: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not &#39;</span> \
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_input - </span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not &#39;</span> \
                        <span class="sa">f</span><span class="s1">&#39;handled&#39;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="p">(</span>
                     <span class="kc">False</span>
-                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_input - </span><span class="si">{root.tag}</span><span class="s1">: Empty elements &#39;</span> \
-                   <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span></div>
+                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_input - </span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">: Empty elements &#39;</span> \
+                   <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_close"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_close">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_close</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">traverse</span>
@@ -2675,14 +2678,14 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_close: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_close: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;close-stmt&quot;</span><span class="p">:</span>
                     <span class="n">current</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_close: Empty elements &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot;&#39;</span></div>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_close: Empty elements &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot;&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_call"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_call">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_call</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">traverse</span>
@@ -2709,14 +2712,14 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_call: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_call: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;call-stmt&quot;</span><span class="p">:</span>
                     <span class="n">current</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_call: Empty elements &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot;&#39;</span>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_call: Empty elements &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
 
         <span class="c1"># Update call function definition&#39;s arguments with array status</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update_function_arguments</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
@@ -2755,14 +2758,14 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_subroutine: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_subroutine: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unnecessary_tags</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_subroutine: Empty elements &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot;&#39;</span>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_subroutine: Empty elements &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
         <span class="c1"># Updating the argument attribute to hold the type.</span>
         <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">arguments_list</span><span class="p">[</span><span class="n">current</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]]:</span>
             <span class="k">if</span> <span class="n">arg</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">argument_types</span><span class="p">[</span><span class="n">current</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]]:</span>
@@ -2813,7 +2816,7 @@
                     <span class="k">else</span><span class="p">:</span>
                         <span class="k">pass</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Currently, </span><span class="si">{grandparent.tag}</span><span class="s2"> not handled for interface.&quot;</span>
+                <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Currently, </span><span class="si">{</span><span class="n">grandparent</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2"> not handled for interface.&quot;</span>
                             
         <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">root</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">clean_attrib</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
@@ -2830,7 +2833,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="p">(</span>
                     <span class="kc">False</span>
-                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_variable: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span></div>
+                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_variable: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_argument"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_argument">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_argument</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">traverse</span>
@@ -2895,7 +2898,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_if: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_if: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;if-stmt&quot;</span><span class="p">:</span>
                     <span class="n">current</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">)</span>
@@ -2904,7 +2907,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_if: Empty elements &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; &#39;</span> \
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_if: Empty elements &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; &#39;</span> \
                        <span class="sa">f</span><span class="s1">&#39;not handled&#39;</span>
 
         <span class="c1"># If label appears before &lt;goto&gt;, mark &lt;if&gt;</span>
@@ -2948,7 +2951,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="p">(</span>
                     <span class="kc">False</span>
-                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_stop: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span></div>
+                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_stop: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_step"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_step">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_step</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">traverse</span>
@@ -2975,11 +2978,11 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_step: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_step: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="p">(</span>
                     <span class="kc">False</span>
-                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_step: Empty elements &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; &#39;</span> \
+                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_step: Empty elements &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; &#39;</span> \
                    <span class="sa">f</span><span class="s1">&#39;not handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_return"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_return">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_return</span><span class="p">(</span>
@@ -3002,7 +3005,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="p">(</span>
                     <span class="kc">False</span>
-                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_return: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span></div>
+                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_return: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_function"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_function">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_function</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">traverse</span>
@@ -3031,7 +3034,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_function: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_function: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="p">(</span>
                         <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;function-stmt&quot;</span>
@@ -3044,7 +3047,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_function: Empty elements &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot;&#39;</span></div>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_function: Empty elements &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot;&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_use"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_use">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_use</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">traverse</span>
@@ -3097,7 +3100,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="p">(</span>
                     <span class="kc">False</span>
-                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_use: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span></div>
+                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_use: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_module"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_module">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_module</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">traverse</span>
@@ -3114,7 +3117,7 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module_child_tags</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_module: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span>
+                <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_module: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span>
 
             <span class="n">cur_elem</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span>
                 <span class="n">current</span><span class="p">,</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">child</span><span class="o">.</span><span class="n">attrib</span>
@@ -3147,7 +3150,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_initial_value: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_initial_value: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;initialization&quot;</span><span class="p">:</span>
                     <span class="n">current</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">)</span>
@@ -3155,7 +3158,7 @@
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
                     <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_initial_value: Empty elements &#39;</span> \
-                       <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{child.tag}</span><span class="s1">&quot;&#39;</span></div>
+                       <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot;&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_members"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_members">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_members</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">grandparnet</span><span class="p">,</span> <span class="n">traverse</span>
@@ -3175,7 +3178,7 @@
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="p">(</span>
                     <span class="kc">False</span>
-                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_members: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span>
+                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_members: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span>
 
             <span class="n">cur_elem</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span>
                 <span class="n">current</span><span class="p">,</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">child</span><span class="o">.</span><span class="n">attrib</span>
@@ -3202,7 +3205,7 @@
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="p">(</span>
                     <span class="kc">False</span>
-                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_only: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span>
+                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_only: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span>
 
             <span class="n">cur_elem</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span>
                 <span class="n">current</span><span class="p">,</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="n">child</span><span class="o">.</span><span class="n">attrib</span>
@@ -3233,7 +3236,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="p">(</span>
                     <span class="kc">False</span>
-                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_length: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span></div>
+                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_length: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_interface"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_interface">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_interface</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">grandparent</span><span class="p">,</span> <span class="n">traverse</span>
@@ -3257,7 +3260,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="p">(</span>
                     <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">unnecessary_tags</span>
-                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_length: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span>
+                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_length: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">interface_xml</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_interface_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">current</span>
         <span class="c1"># Re-initializing for next interface use</span>
@@ -3287,14 +3290,14 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="p">(</span>
                     <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">unnecessary_tags</span>
-                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_length: &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot; not handled&#39;</span>
+                <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_length: &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot; not handled&#39;</span>
 
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unnecessary_tags</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_select: Empty elements &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot;&#39;</span></div>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_select: Empty elements &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot;&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_case"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_case">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_case</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">grandparent</span><span class="p">,</span> <span class="n">traverse</span>
@@ -3322,7 +3325,7 @@
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_case: Empty elements &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot;&#39;</span></div>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_case: Empty elements &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot;&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_value_ranges"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_value_ranges">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_value_ranges</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">grandparent</span><span class="p">,</span> <span class="n">traverse</span>
@@ -3351,7 +3354,7 @@
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
                     <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_value_ranges: Empty eleme&#39;</span> \
-                       <span class="sa">f</span><span class="s1">&#39;nts &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot;&#39;</span></div>
+                       <span class="sa">f</span><span class="s1">&#39;nts &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot;&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_value_range"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_value_range">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_value_range</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">grandparent</span><span class="p">,</span> <span class="n">traverse</span>
@@ -3384,7 +3387,7 @@
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
                     <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_value_range: Empty elements &#39;</span> \
-                       <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{child.tag}</span><span class="s1">&quot;&#39;</span></div>
+                       <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot;&#39;</span></div>
 
 <div class="viewcode-block" id="RectifiedXMLGenerator.handle_tag_values"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.rectify.RectifiedXMLGenerator.handle_tag_values">[docs]</a>    <span class="k">def</span> <span class="nf">handle_tag_values</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">grandparent</span><span class="p">,</span> <span class="n">traverse</span>
@@ -3412,7 +3415,7 @@
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_values: Empty elements &quot;</span><span class="si">{child.tag}</span><span class="s1">&quot;&#39;</span>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s1">&#39;In handle_tag_values: Empty elements &quot;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
 
         <span class="c1"># For DATA statements, further indentation might be required</span>
         <span class="n">target_child</span> <span class="o">=</span> <span class="kc">None</span>
@@ -3619,7 +3622,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">assert</span> <span class="p">(</span>
                 <span class="kc">False</span>
-            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;In parseXMLTree: &lt;</span><span class="si">{root.tag}</span><span class="s2">&gt; passed from &lt;</span><span class="si">{parent.tag}</span><span class="s2">&gt; &quot;</span> \
+            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;In parseXMLTree: &lt;</span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2">&gt; passed from &lt;</span><span class="si">{</span><span class="n">parent</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2">&gt; &quot;</span> \
                <span class="sa">f</span><span class="s2">&quot;not supported&quot;</span></div>
 
     <span class="c1">#################################################################</span>
@@ -3857,7 +3860,7 @@
         <span class="k">assert</span> <span class="p">(</span>
                 <span class="n">current</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;name&quot;</span>
         <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The tag &lt;name&gt; must be passed to reconstruct_derived_type_ref.</span><span class="se">\</span>
-<span class="s2">             Currently, it&#39;s </span><span class="si">{current.tag}</span><span class="s2">.&quot;</span>
+<span class="s2">             Currently, it&#39;s </span><span class="si">{</span><span class="n">current</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2">.&quot;</span>
         <span class="c1"># First the root &lt;name&gt; id gets the very first</span>
         <span class="c1"># variable reference i.e. x in x.y.k (or x%y%k in Fortran syntax)</span>
         <span class="n">current</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">derived_type_var_holder_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -4079,7 +4082,7 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditional_goto</span><span class="p">:</span>
                 <span class="n">statement</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="s2">&quot;statement&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">generate_assignment_element</span><span class="p">(</span><span class="n">statement</span><span class="p">,</span> \
-                        <span class="sa">f</span><span class="s2">&quot;goto_flag_{i+1}&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;literal&quot;</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">,</span> <span class="n">traverse</span><span class="p">)</span>
+                        <span class="sa">f</span><span class="s2">&quot;goto_flag_</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;literal&quot;</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">,</span> <span class="n">traverse</span><span class="p">)</span>
                 <span class="n">reconstructed_goto_elem</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">statement</span><span class="p">)</span>
                 <span class="n">parent</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">statement</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
@@ -4214,7 +4217,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="p">(</span>
                         <span class="n">elem</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;equiv-operand__equiv-op&quot;</span>
-                <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Tag must be &#39;equiv-operand__equiv-op&#39;. Current: </span><span class="si">{elem.tag}</span><span class="s2">.&quot;</span>
+                <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Tag must be &#39;equiv-operand__equiv-op&#39;. Current: </span><span class="si">{</span><span class="n">elem</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2">.&quot;</span>
                 <span class="n">operator</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span>
                         <span class="n">operation</span><span class="p">,</span> <span class="s2">&quot;operator&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;operator&quot;</span><span class="p">:</span><span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;equivOp&#39;</span><span class="p">]}</span>
                 <span class="p">)</span>
@@ -4328,7 +4331,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">generate_if_element</span><span class="p">(</span>
                 <span class="kc">None</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">stmts_follow_goto</span><span class="p">,</span> <span class="n">next_goto</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;unary&quot;</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;goto_flag_{index + 1}&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;.not.&quot;</span><span class="p">,</span> <span class="n">traverse</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;goto_flag_</span><span class="si">{</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;.not.&quot;</span><span class="p">,</span> <span class="n">traverse</span><span class="p">,</span>
                 <span class="n">reconstructed_goto_elem</span>
             <span class="p">)</span>
 
@@ -4533,7 +4536,7 @@
                             <span class="p">)</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">generate_if_element</span><span class="p">(</span>
                                 <span class="kc">None</span><span class="p">,</span> <span class="n">label_body_level</span><span class="p">,</span> <span class="n">stmts_follow_label</span><span class="p">,</span> <span class="n">next_goto</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span>
-                                <span class="sa">f</span><span class="s2">&quot;goto_flag_{index + 1}&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">traverse</span><span class="p">,</span>
+                                <span class="sa">f</span><span class="s2">&quot;goto_flag_</span><span class="si">{</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">traverse</span><span class="p">,</span>
                                 <span class="n">reconstructed_goto_elem</span>
                             <span class="p">)</span>
                         <span class="k">else</span><span class="p">:</span>
@@ -4659,8 +4662,8 @@
                     <span class="n">flag_num</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">declared_goto_flags</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">declared_label_flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">flag_num</span><span class="p">)</span>
             <span class="n">declared_flag_num</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">flag_num</span><span class="p">)</span>
-            <span class="n">variable_attribs</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{default_name}</span><span class="s2">_</span><span class="si">{flag_num}</span><span class="s2">&quot;</span>
-            <span class="n">variable_attribs</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{default_name}</span><span class="s2">_</span><span class="si">{flag_num}</span><span class="s2">&quot;</span>
+            <span class="n">variable_attribs</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">default_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">flag_num</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">variable_attribs</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">default_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">flag_num</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="n">variable_elem</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span>
                 <span class="n">variables_elem</span><span class="p">,</span> <span class="s2">&quot;variable&quot;</span><span class="p">,</span> <span class="n">variable_attribs</span>
             <span class="p">)</span>
@@ -4671,7 +4674,7 @@
             <span class="n">declared_flag_num</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">flag_num</span><span class="p">)</span>
             <span class="n">statement_elem</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="s2">&quot;statement&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">generate_assignment_element</span><span class="p">(</span>
-                <span class="n">statement_elem</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{default_name}</span><span class="s2">_</span><span class="si">{flag_num}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;literal&quot;</span><span class="p">,</span>
+                <span class="n">statement_elem</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">default_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">flag_num</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;literal&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="n">traverse</span>
             <span class="p">)</span></div>
 
@@ -4903,7 +4906,7 @@
                             <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">stmt</span><span class="p">:</span>
                                 <span class="k">assert</span> <span class="p">(</span>
                                         <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;goto-stmt&quot;</span>
-                                <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Must only store &lt;goto-stmt&gt; in next_goto[&#39;goto-stmt&#39;]. Current: &lt;</span><span class="si">{child.tag}</span><span class="s2">&gt;.&quot;</span>
+                                <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Must only store &lt;goto-stmt&gt; in next_goto[&#39;goto-stmt&#39;]. Current: &lt;</span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2">&gt;.&quot;</span>
                                 <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span>
                                     <span class="s1">&#39;target_label&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">goto_target_lbl_before</span><span class="p">:</span>
                                     <span class="n">goto_stmt</span><span class="p">[</span><span class="s1">&#39;statement&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span>
@@ -5440,7 +5443,7 @@
             <span class="n">header_elem</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">loop_elem</span><span class="p">,</span> <span class="s2">&quot;header&quot;</span><span class="p">)</span>
             <span class="c1"># The outermost flag == N and the innermost flag == 1</span>
             <span class="n">flag_num</span> <span class="o">=</span> <span class="n">declared_label_flag_num</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;label_flag_{str(flag_num)}&quot;</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;label_flag_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">flag_num</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="n">name_attrib</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s2">&quot;hasSubscripts&quot;</span><span class="p">:</span> <span class="s2">&quot;false&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
@@ -5506,7 +5509,7 @@
                             <span class="n">body_elem</span> <span class="o">=</span> <span class="n">grand_parent_elem</span>
                             <span class="n">end_of_current_goto_loop</span> <span class="o">=</span> <span class="kc">False</span>
                             <span class="n">flag_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;label_flag_&quot;</span> \
-                                <span class="sa">f</span><span class="s2">&quot;{str(number_of_gotos + i - 1)}&quot;</span>
+                                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">number_of_gotos</span> <span class="o">+</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
                     <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
 
             <span class="k">else</span><span class="p">:</span>
@@ -5718,7 +5721,7 @@
         <span class="k">assert</span> <span class="p">(</span>
             <span class="kc">False</span>
         <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;[[ Missing either input or output file.</span><span class="se">\</span>
-<span class="s2">             Input: </span><span class="si">{args.file}</span><span class="s2">, Output: </span><span class="si">{args.gen}</span><span class="s2"> ]]&quot;</span>
+<span class="s2">             Input: </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">file</span><span class="si">}</span><span class="s2">, Output: </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">gen</span><span class="si">}</span><span class="s2"> ]]&quot;</span>
 
     <span class="k">return</span> <span class="p">(</span><span class="n">ofpFile</span><span class="p">,</span> <span class="n">rectifiedFile</span><span class="p">)</span></div>
 
@@ -5742,7 +5745,7 @@
     <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
         <span class="k">assert</span> <span class="p">(</span>
             <span class="kc">False</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;File </span><span class="si">{filename}</span><span class="s2"> does not exit or invalid mode </span><span class="si">{mode}</span><span class="s2">.&quot;</span></div>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;File </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> does not exit or invalid mode </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2">.&quot;</span></div>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
@@ -5775,20 +5778,25 @@
            
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Adarsh
+        &#169; Copyright 2018, Adarsh.
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
@@ -5796,7 +5804,6 @@
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

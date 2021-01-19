@@ -16,7 +16,8 @@ Detailed Description
 --------------------
 
 Syntactic sugar for setting Agraph_t component properties 
- 
+
+
 
 
 

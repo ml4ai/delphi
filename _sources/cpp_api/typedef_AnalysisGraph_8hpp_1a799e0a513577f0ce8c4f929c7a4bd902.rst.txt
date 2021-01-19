@@ -1,0 +1,13 @@
+.. _exhale_typedef_AnalysisGraph_8hpp_1a799e0a513577f0ce8c4f929c7a4bd902:
+
+Typedef CausalFragmentCollection
+================================
+
+- Defined in :ref:`file_lib_AnalysisGraph.hpp`
+
+
+Typedef Documentation
+---------------------
+
+
+.. doxygentypedef:: CausalFragmentCollection

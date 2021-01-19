@@ -1,43 +1,46 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>Program Listing for File causemos_integration.cpp &mdash; delphi  documentation</title>
   
-
-  
-  
-  
-  
-
-  
-  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
-        <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
-        <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
 
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
   <link rel="stylesheet" href="../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
 </head>
@@ -79,6 +82,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -89,13 +93,9 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../model.html">The Delphi model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../GrFN_API.html">GroundedFunctionNetwork API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html#change-log">Change Log</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html">}</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTING.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="library_root.html">C++ API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
@@ -104,6 +104,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -138,18 +139,20 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../index.html">Docs</a> &raquo;</li>
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Program Listing for File causemos_integration.cpp</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="../_sources/cpp_api/program_listing_file_lib_causemos_integration.cpp.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -207,7 +210,7 @@
     <span class="kt">time_t</span> <span class="n">timestamp</span><span class="p">;</span>
     <span class="kt">int</span> <span class="n">year</span><span class="p">;</span>
     <span class="kt">int</span> <span class="n">month</span><span class="p">;</span>
-    <span class="k">struct</span> <span class="n">tm</span> <span class="o">*</span><span class="n">ptm</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="nc">tm</span> <span class="o">*</span><span class="n">ptm</span><span class="p">;</span>
 
     <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">v</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="n">num_verts</span><span class="p">;</span> <span class="n">v</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
         <span class="n">Node</span><span class="o">&amp;</span> <span class="n">n</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">v</span><span class="p">];</span>
@@ -247,7 +250,7 @@
 
         <span class="kt">int</span> <span class="n">ind_idx</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">set_indicator</span><span class="p">(</span><span class="n">n</span><span class="p">.</span><span class="n">name</span><span class="p">,</span> <span class="n">indicator_name</span><span class="p">,</span> <span class="n">indicator_source</span><span class="p">);</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="n">ind_idx</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">ind_idx</span> <span class="o">==</span> <span class="mi">-1</span><span class="p">)</span> <span class="p">{</span>
             <span class="c1">// This is a duplicate indicator, and will not be added again.</span>
             <span class="c1">// TODO: Decide how to handle this situation and inform the user at</span>
             <span class="c1">// the CauseMos HMI end.</span>
@@ -499,7 +502,7 @@
 
     <span class="c1">// Convert the time-step to year and month.</span>
     <span class="c1">// We are converting it according to GMT.</span>
-    <span class="k">struct</span> <span class="n">tm</span> <span class="o">*</span><span class="n">ptm</span> <span class="o">=</span> <span class="n">gmtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">timestamp</span><span class="p">);</span>
+    <span class="k">struct</span> <span class="nc">tm</span> <span class="o">*</span><span class="n">ptm</span> <span class="o">=</span> <span class="n">gmtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">timestamp</span><span class="p">);</span>
     <span class="kt">int</span> <span class="n">year</span> <span class="o">=</span> <span class="mi">1900</span> <span class="o">+</span> <span class="n">ptm</span><span class="o">-&gt;</span><span class="n">tm_year</span><span class="p">;</span>
     <span class="kt">int</span> <span class="n">month</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">ptm</span><span class="o">-&gt;</span><span class="n">tm_mon</span><span class="p">;</span>
 
@@ -509,8 +512,8 @@
 <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">calculate_end_year_month</span><span class="p">(</span><span class="kt">int</span> <span class="n">start_year</span><span class="p">,</span>
                                                             <span class="kt">int</span> <span class="n">start_month</span><span class="p">,</span>
                                                             <span class="kt">int</span> <span class="n">num_timesteps</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kt">int</span> <span class="n">end_year</span> <span class="o">=</span> <span class="n">start_year</span> <span class="o">+</span> <span class="p">(</span><span class="n">start_month</span> <span class="o">+</span> <span class="n">num_timesteps</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">12</span><span class="p">;</span>
-    <span class="kt">int</span> <span class="n">end_month</span> <span class="o">=</span> <span class="p">(</span><span class="n">start_month</span> <span class="o">+</span> <span class="n">num_timesteps</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">12</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">end_year</span> <span class="o">=</span> <span class="n">start_year</span> <span class="o">+</span> <span class="p">(</span><span class="n">start_month</span> <span class="o">+</span> <span class="n">num_timesteps</span> <span class="mi">-1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">12</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">end_month</span> <span class="o">=</span> <span class="p">(</span><span class="n">start_month</span> <span class="o">+</span> <span class="n">num_timesteps</span> <span class="mi">-1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">12</span><span class="p">;</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="n">end_month</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
         <span class="n">end_month</span> <span class="o">=</span> <span class="mi">12</span><span class="p">;</span>
@@ -596,7 +599,7 @@
                                                                  <span class="kt">int</span> <span class="n">res</span><span class="p">)</span> <span class="p">{</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="n">json_data</span><span class="p">[</span><span class="s">&quot;experimentParam&quot;</span><span class="p">].</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
-        <span class="k">throw</span> <span class="n">BadCausemosInputException</span><span class="p">(</span><span class="s">&quot;Experiment parameters null&quot;</span><span class="p">);</span>
+        <span class="k">throw</span> <span class="nf">BadCausemosInputException</span><span class="p">(</span><span class="s">&quot;Experiment parameters null&quot;</span><span class="p">);</span>
     <span class="p">}</span>
 
     <span class="k">auto</span> <span class="n">projection_parameters</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;experimentParam&quot;</span><span class="p">];</span>
@@ -604,7 +607,7 @@
     <span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">year_month</span><span class="p">;</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="n">projection_parameters</span><span class="p">[</span><span class="s">&quot;startTime&quot;</span><span class="p">].</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
-        <span class="k">throw</span> <span class="n">BadCausemosInputException</span><span class="p">(</span><span class="s">&quot;Projection start time null&quot;</span><span class="p">);</span>
+        <span class="k">throw</span> <span class="nf">BadCausemosInputException</span><span class="p">(</span><span class="s">&quot;Projection start time null&quot;</span><span class="p">);</span>
     <span class="p">}</span>
 
     <span class="kt">long</span> <span class="n">proj_start_timestamp</span> <span class="o">=</span> <span class="n">projection_parameters</span><span class="p">[</span><span class="s">&quot;startTime&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">long</span><span class="o">&gt;</span><span class="p">();</span>
@@ -614,7 +617,7 @@
     <span class="kt">int</span> <span class="n">proj_start_month</span> <span class="o">=</span> <span class="n">year_month</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="n">projection_parameters</span><span class="p">[</span><span class="s">&quot;endTime&quot;</span><span class="p">].</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
-        <span class="k">throw</span> <span class="n">BadCausemosInputException</span><span class="p">(</span><span class="s">&quot;Projection end time null&quot;</span><span class="p">);</span>
+        <span class="k">throw</span> <span class="nf">BadCausemosInputException</span><span class="p">(</span><span class="s">&quot;Projection end time null&quot;</span><span class="p">);</span>
     <span class="p">}</span>
 
     <span class="kt">long</span> <span class="n">proj_end_timestamp</span> <span class="o">=</span> <span class="n">projection_parameters</span><span class="p">[</span><span class="s">&quot;endTime&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">long</span><span class="o">&gt;</span><span class="p">();</span>
@@ -624,7 +627,7 @@
     <span class="kt">int</span> <span class="n">proj_end_month_given</span> <span class="o">=</span> <span class="n">year_month</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="n">projection_parameters</span><span class="p">[</span><span class="s">&quot;numTimesteps&quot;</span><span class="p">].</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
-        <span class="k">throw</span> <span class="n">BadCausemosInputException</span><span class="p">(</span><span class="s">&quot;Projection number of time steps null&quot;</span><span class="p">);</span>
+        <span class="k">throw</span> <span class="nf">BadCausemosInputException</span><span class="p">(</span><span class="s">&quot;Projection number of time steps null&quot;</span><span class="p">);</span>
     <span class="p">}</span>
 
     <span class="kt">int</span> <span class="n">proj_num_timesteps</span> <span class="o">=</span> <span class="n">projection_parameters</span><span class="p">[</span><span class="s">&quot;numTimesteps&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span>
@@ -662,7 +665,7 @@
     <span class="k">if</span> <span class="p">(</span><span class="n">train_start_year</span> <span class="o">&gt;</span> <span class="n">train_end_year</span><span class="p">)</span> <span class="p">{</span>
         <span class="c1">// No training data has been provided =&gt; Cannot train</span>
         <span class="c1">//                                    =&gt; Cannot project</span>
-        <span class="k">throw</span> <span class="n">BadCausemosInputException</span><span class="p">(</span><span class="s">&quot;No training data&quot;</span><span class="p">);</span>
+        <span class="k">throw</span> <span class="nf">BadCausemosInputException</span><span class="p">(</span><span class="s">&quot;No training data&quot;</span><span class="p">);</span>
     <span class="p">}</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">trained</span><span class="p">)</span> <span class="p">{</span>
@@ -788,34 +791,43 @@
     <span class="k">auto</span> <span class="n">obj_polarity_json</span> <span class="o">=</span> <span class="n">obj_delta</span><span class="p">[</span><span class="s">&quot;polarity&quot;</span><span class="p">];</span>
 
     <span class="c1">// We set polarities to 1 (positive) by default if they are not specified.</span>
-    <span class="kt">int</span> <span class="n">subj_polarity</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-    <span class="kt">int</span> <span class="n">obj_polarity</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">subj_polarity_val</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">obj_polarity_val</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
     <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">subj_polarity_json</span><span class="p">.</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
-      <span class="n">subj_polarity</span> <span class="o">=</span> <span class="n">subj_polarity_json</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span>
+      <span class="n">subj_polarity_val</span> <span class="o">=</span> <span class="n">subj_polarity_json</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span>
     <span class="p">}</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">obj_polarity_json</span><span class="p">.</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
-      <span class="n">obj_polarity</span> <span class="o">=</span> <span class="n">obj_polarity_json</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span>
+      <span class="n">obj_polarity_val</span> <span class="o">=</span> <span class="n">obj_polarity_json</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span>
     <span class="p">}</span>
 
     <span class="k">auto</span> <span class="n">subj_adjectives</span> <span class="o">=</span> <span class="n">subj_delta</span><span class="p">[</span><span class="s">&quot;adjectives&quot;</span><span class="p">];</span>
     <span class="k">auto</span> <span class="n">obj_adjectives</span> <span class="o">=</span> <span class="n">obj_delta</span><span class="p">[</span><span class="s">&quot;adjectives&quot;</span><span class="p">];</span>
-    <span class="k">auto</span> <span class="n">subj_adjective</span> <span class="o">=</span>
-        <span class="p">(</span><span class="o">!</span><span class="n">subj_adjectives</span><span class="p">.</span><span class="n">is_null</span><span class="p">()</span> <span class="n">and</span> <span class="n">subj_adjectives</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
-            <span class="o">?</span> <span class="n">subj_adjectives</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="o">:</span> <span class="s">&quot;None&quot;</span><span class="p">;</span>
-    <span class="k">auto</span> <span class="n">obj_adjective</span> <span class="o">=</span>
-        <span class="p">(</span><span class="o">!</span><span class="n">obj_adjectives</span><span class="p">.</span><span class="n">is_null</span><span class="p">()</span> <span class="n">and</span> <span class="n">obj_adjectives</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
-            <span class="o">?</span> <span class="n">obj_adjectives</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="o">:</span> <span class="s">&quot;None&quot;</span><span class="p">;</span>
 
-    <span class="n">string</span> <span class="n">subj_adj_str</span> <span class="o">=</span> <span class="n">subj_adjective</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">();</span>
-    <span class="n">string</span> <span class="n">obj_adj_str</span> <span class="o">=</span> <span class="n">obj_adjective</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">();</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">subj_polarity</span> <span class="o">=</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="n">subj_polarity_val</span><span class="p">};</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">obj_polarity</span> <span class="o">=</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="n">obj_polarity_val</span><span class="p">};</span>
 
-    <span class="k">auto</span> <span class="n">causal_fragment</span> <span class="o">=</span>
-        <span class="n">CausalFragment</span><span class="p">({</span><span class="n">subj_adj_str</span><span class="p">,</span> <span class="n">subj_polarity</span><span class="p">,</span> <span class="n">subj_name</span><span class="p">},</span>
-                       <span class="p">{</span><span class="n">obj_adj_str</span><span class="p">,</span> <span class="n">obj_polarity</span><span class="p">,</span> <span class="n">obj_name</span><span class="p">});</span>
-    <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_edge</span><span class="p">(</span><span class="n">causal_fragment</span><span class="p">);</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">subj_adjective</span> <span class="o">=</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">{</span><span class="s">&quot;None&quot;</span><span class="p">};</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">obj_adjective</span> <span class="o">=</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">{</span><span class="s">&quot;None&quot;</span><span class="p">};</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">subj_adjectives</span><span class="p">.</span><span class="n">is_null</span><span class="p">()){</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">subj_adjectives</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">){</span>
+            <span class="n">subj_adjective</span> <span class="o">=</span> <span class="n">subj_adjectives</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;&gt;</span><span class="p">();</span>
+            <span class="n">subj_polarity</span> <span class="o">=</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">subj_adjective</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="n">subj_polarity_val</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">obj_adjectives</span><span class="p">.</span><span class="n">is_null</span><span class="p">()){</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">obj_adjectives</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">){</span>
+            <span class="n">obj_adjective</span> <span class="o">=</span> <span class="n">obj_adjectives</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;&gt;</span><span class="p">();</span>
+            <span class="n">obj_polarity</span> <span class="o">=</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">obj_adjectives</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="n">obj_polarity_val</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">auto</span> <span class="n">causal_fragments</span> <span class="o">=</span>
+        <span class="n">CausalFragmentCollection</span><span class="p">({</span><span class="n">subj_adjective</span><span class="p">,</span> <span class="n">subj_polarity</span><span class="p">,</span> <span class="n">subj_name</span><span class="p">},</span>
+                       <span class="p">{</span><span class="n">obj_adjective</span><span class="p">,</span> <span class="n">obj_polarity</span><span class="p">,</span> <span class="n">obj_name</span><span class="p">});</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_edge</span><span class="p">(</span><span class="n">causal_fragments</span><span class="p">);</span>
   <span class="p">}</span>
 
   <span class="k">if</span> <span class="p">(</span><span class="n">json_data</span><span class="p">[</span><span class="s">&quot;conceptIndicators&quot;</span><span class="p">].</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
@@ -937,7 +949,7 @@
     <span class="k">auto</span> <span class="n">json_data</span> <span class="o">=</span> <span class="n">load_json</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span>
 
     <span class="k">try</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="n">run_causemos_projection_experiment_from_json_dict</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="n">burn</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+        <span class="k">return</span> <span class="nf">run_causemos_projection_experiment_from_json_dict</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="n">burn</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
     <span class="p">}</span>
     <span class="k">catch</span> <span class="p">(</span><span class="n">BadCausemosInputException</span><span class="o">&amp;</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
         <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">e</span><span class="p">.</span><span class="n">what</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
@@ -955,20 +967,25 @@
            
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Adarsh
+        &#169; Copyright 2018, Adarsh.
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
@@ -976,7 +993,6 @@
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

@@ -1,43 +1,46 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>delphi.utils package &mdash; delphi  documentation</title>
   
-
-  
-  
-  
-  
-
-  
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script src="_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
-        <script src="_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
 
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
   <link rel="stylesheet" href="_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
 </head>
@@ -79,6 +82,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -89,13 +93,9 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="index.html">Home</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="model.html">The Delphi model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="GrFN_API.html">GroundedFunctionNetwork API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="grfn_spec.html#change-log">Change Log</a></li>
-<li class="toctree-l1"><a class="reference internal" href="delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grfn_spec.html">}</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CONTRIBUTING.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cpp_api/library_root.html">C++ API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="grfn_openapi.html">GrFN OpenAPI Specification</a></li>
@@ -104,6 +104,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -138,18 +139,20 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>delphi.utils package</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="_sources/delphi.utils.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -171,9 +174,9 @@
 <div class="section" id="module-delphi.utils.fp">
 <span id="delphi-utils-fp-module"></span><h2>delphi.utils.fp module<a class="headerlink" href="#module-delphi.utils.fp" title="Permalink to this headline">¶</a></h2>
 <p>Helper functions for functional programming.</p>
-<dl class="function">
+<dl class="py function">
 <dt id="delphi.utils.fp.prepend">
-<code class="sig-name descname">prepend</code><span class="sig-paren">(</span><em class="sig-param">x: T, xs: Iterable[T]</em><span class="sig-paren">)</span> &#x2192; Iterator[T]<a class="reference internal" href="_modules/delphi/utils/fp.html#prepend"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.prepend" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">prepend</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">T</span></em>, <em class="sig-param"><span class="n">xs</span><span class="p">:</span> <span class="n">Iterable<span class="p">[</span>T<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; Iterator<span class="p">[</span>T<span class="p">]</span><a class="reference internal" href="_modules/delphi/utils/fp.html#prepend"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.prepend" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prepend a value to an iterable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -194,9 +197,9 @@
 </div>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="delphi.utils.fp.append">
-<code class="sig-name descname">append</code><span class="sig-paren">(</span><em class="sig-param">x: T, xs: Iterable[T]</em><span class="sig-paren">)</span> &#x2192; Iterator[T]<a class="reference internal" href="_modules/delphi/utils/fp.html#append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.append" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">append</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">T</span></em>, <em class="sig-param"><span class="n">xs</span><span class="p">:</span> <span class="n">Iterable<span class="p">[</span>T<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; Iterator<span class="p">[</span>T<span class="p">]</span><a class="reference internal" href="_modules/delphi/utils/fp.html#append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.append" title="Permalink to this definition">¶</a></dt>
 <dd><p>Append a value to an iterable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -217,9 +220,9 @@
 </div>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="delphi.utils.fp.scanl">
-<code class="sig-name descname">scanl</code><span class="sig-paren">(</span><em class="sig-param">f: Callable[[T, U], T], x: T, xs: Iterable[U]</em><span class="sig-paren">)</span> &#x2192; Iterator[T]<a class="reference internal" href="_modules/delphi/utils/fp.html#scanl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.scanl" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">scanl</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">f</span><span class="p">:</span> <span class="n">Callable<span class="p">[</span><span class="p">[</span>T<span class="p">, </span>U<span class="p">]</span><span class="p">, </span>T<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">T</span></em>, <em class="sig-param"><span class="n">xs</span><span class="p">:</span> <span class="n">Iterable<span class="p">[</span>U<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; Iterator<span class="p">[</span>T<span class="p">]</span><a class="reference internal" href="_modules/delphi/utils/fp.html#scanl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.scanl" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make an iterator that returns accumulated results of a binary function
 applied to elements of an iterable.</p>
 <div class="math notranslate nohighlight">
@@ -244,9 +247,9 @@ applied to elements of an iterable.</p>
 </div>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="delphi.utils.fp.scanl1">
-<code class="sig-name descname">scanl1</code><span class="sig-paren">(</span><em class="sig-param">f: Callable[[T, T], T], xs: Iterable[T]</em><span class="sig-paren">)</span> &#x2192; Iterator[T]<a class="reference internal" href="_modules/delphi/utils/fp.html#scanl1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.scanl1" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">scanl1</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">f</span><span class="p">:</span> <span class="n">Callable<span class="p">[</span><span class="p">[</span>T<span class="p">, </span>T<span class="p">]</span><span class="p">, </span>T<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">xs</span><span class="p">:</span> <span class="n">Iterable<span class="p">[</span>T<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; Iterator<span class="p">[</span>T<span class="p">]</span><a class="reference internal" href="_modules/delphi/utils/fp.html#scanl1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.scanl1" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make an iterator that returns accumulated results of a binary function
 applied to elements of an iterable.</p>
 <div class="math notranslate nohighlight">
@@ -270,9 +273,9 @@ applied to elements of an iterable.</p>
 </div>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="delphi.utils.fp.foldl">
-<code class="sig-name descname">foldl</code><span class="sig-paren">(</span><em class="sig-param">f: Callable[[T, U], T], x: T, xs: Iterable[U]</em><span class="sig-paren">)</span> &#x2192; T<a class="reference internal" href="_modules/delphi/utils/fp.html#foldl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.foldl" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">foldl</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">f</span><span class="p">:</span> <span class="n">Callable<span class="p">[</span><span class="p">[</span>T<span class="p">, </span>U<span class="p">]</span><span class="p">, </span>T<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">T</span></em>, <em class="sig-param"><span class="n">xs</span><span class="p">:</span> <span class="n">Iterable<span class="p">[</span>U<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; T<a class="reference internal" href="_modules/delphi/utils/fp.html#foldl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.foldl" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the accumulated result of a binary function applied to elements
 of an iterable.</p>
 <div class="math notranslate nohighlight">
@@ -285,9 +288,9 @@ of an iterable.</p>
 </div>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="delphi.utils.fp.foldl1">
-<code class="sig-name descname">foldl1</code><span class="sig-paren">(</span><em class="sig-param">f: Callable[[T, T], T], xs: Iterable[T]</em><span class="sig-paren">)</span> &#x2192; T<a class="reference internal" href="_modules/delphi/utils/fp.html#foldl1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.foldl1" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">foldl1</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">f</span><span class="p">:</span> <span class="n">Callable<span class="p">[</span><span class="p">[</span>T<span class="p">, </span>T<span class="p">]</span><span class="p">, </span>T<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">xs</span><span class="p">:</span> <span class="n">Iterable<span class="p">[</span>T<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; T<a class="reference internal" href="_modules/delphi/utils/fp.html#foldl1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.foldl1" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the accumulated result of a binary function applied to elements
 of an iterable.</p>
 <div class="math notranslate nohighlight">
@@ -300,15 +303,15 @@ of an iterable.</p>
 </div>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="delphi.utils.fp.flatten">
-<code class="sig-name descname">flatten</code><span class="sig-paren">(</span><em class="sig-param">xs: Union[List, Tuple]</em><span class="sig-paren">)</span> &#x2192; List<a class="reference internal" href="_modules/delphi/utils/fp.html#flatten"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.flatten" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">flatten</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span><span class="p">:</span> <span class="n">Union<span class="p">[</span>List<span class="p">, </span>Tuple<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; List<a class="reference internal" href="_modules/delphi/utils/fp.html#flatten"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.flatten" title="Permalink to this definition">¶</a></dt>
 <dd><p>Flatten a nested list or tuple.</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="delphi.utils.fp.iterate">
-<code class="sig-name descname">iterate</code><span class="sig-paren">(</span><em class="sig-param">f: Callable[[T], T], x: T</em><span class="sig-paren">)</span> &#x2192; Iterator[T]<a class="reference internal" href="_modules/delphi/utils/fp.html#iterate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.iterate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">iterate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">f</span><span class="p">:</span> <span class="n">Callable<span class="p">[</span><span class="p">[</span>T<span class="p">]</span><span class="p">, </span>T<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">T</span></em><span class="sig-paren">)</span> &#x2192; Iterator<span class="p">[</span>T<span class="p">]</span><a class="reference internal" href="_modules/delphi/utils/fp.html#iterate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.iterate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Makes infinite iterator that returns the result of successive
 applications of a function to an element</p>
 <div class="math notranslate nohighlight">
@@ -321,67 +324,67 @@ applications of a function to an element</p>
 </div>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="delphi.utils.fp.take">
-<code class="sig-name descname">take</code><span class="sig-paren">(</span><em class="sig-param">n: int, xs: Iterable[T]</em><span class="sig-paren">)</span> &#x2192; Iterable[T]<a class="reference internal" href="_modules/delphi/utils/fp.html#take"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.take" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">take</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></span></em>, <em class="sig-param"><span class="n">xs</span><span class="p">:</span> <span class="n">Iterable<span class="p">[</span>T<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; Iterable<span class="p">[</span>T<span class="p">]</span><a class="reference internal" href="_modules/delphi/utils/fp.html#take"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.take" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="delphi.utils.fp.ptake">
-<code class="sig-name descname">ptake</code><span class="sig-paren">(</span><em class="sig-param">n: int, xs: Iterable[T]</em><span class="sig-paren">)</span> &#x2192; Iterable[T]<a class="reference internal" href="_modules/delphi/utils/fp.html#ptake"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.ptake" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ptake</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></span></em>, <em class="sig-param"><span class="n">xs</span><span class="p">:</span> <span class="n">Iterable<span class="p">[</span>T<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; Iterable<span class="p">[</span>T<span class="p">]</span><a class="reference internal" href="_modules/delphi/utils/fp.html#ptake"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.ptake" title="Permalink to this definition">¶</a></dt>
 <dd><p>take with a tqdm progress bar.</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="delphi.utils.fp.ltake">
-<code class="sig-name descname">ltake</code><span class="sig-paren">(</span><em class="sig-param">n: int, xs: Iterable[T]</em><span class="sig-paren">)</span> &#x2192; List[T]<a class="reference internal" href="_modules/delphi/utils/fp.html#ltake"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.ltake" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ltake</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></span></em>, <em class="sig-param"><span class="n">xs</span><span class="p">:</span> <span class="n">Iterable<span class="p">[</span>T<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>T<span class="p">]</span><a class="reference internal" href="_modules/delphi/utils/fp.html#ltake"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.ltake" title="Permalink to this definition">¶</a></dt>
 <dd><p>A non-lazy version of take.</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="delphi.utils.fp.compose">
-<code class="sig-name descname">compose</code><span class="sig-paren">(</span><em class="sig-param">*fs: Any</em><span class="sig-paren">)</span> &#x2192; Callable<a class="reference internal" href="_modules/delphi/utils/fp.html#compose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.compose" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">compose</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">fs</span><span class="p">:</span> <span class="n">Any</span></em><span class="sig-paren">)</span> &#x2192; Callable<a class="reference internal" href="_modules/delphi/utils/fp.html#compose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.compose" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compose functions from left to right.</p>
 <p>e.g. compose(f, g)(x) = f(g(x))</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="delphi.utils.fp.rcompose">
-<code class="sig-name descname">rcompose</code><span class="sig-paren">(</span><em class="sig-param">*fs: Any</em><span class="sig-paren">)</span> &#x2192; Callable<a class="reference internal" href="_modules/delphi/utils/fp.html#rcompose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.rcompose" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">rcompose</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">fs</span><span class="p">:</span> <span class="n">Any</span></em><span class="sig-paren">)</span> &#x2192; Callable<a class="reference internal" href="_modules/delphi/utils/fp.html#rcompose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.rcompose" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compose functions from right to left.</p>
 <p>e.g. rcompose(f, g)(x) = g(f(x))</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="delphi.utils.fp.flatMap">
-<code class="sig-name descname">flatMap</code><span class="sig-paren">(</span><em class="sig-param">f: Callable</em>, <em class="sig-param">xs: Iterable</em><span class="sig-paren">)</span> &#x2192; List<a class="reference internal" href="_modules/delphi/utils/fp.html#flatMap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.flatMap" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">flatMap</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">f</span><span class="p">:</span> <span class="n">Callable</span></em>, <em class="sig-param"><span class="n">xs</span><span class="p">:</span> <span class="n">Iterable</span></em><span class="sig-paren">)</span> &#x2192; List<a class="reference internal" href="_modules/delphi/utils/fp.html#flatMap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.flatMap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Map a function onto an iterable and flatten the result.</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="delphi.utils.fp.exists">
-<code class="sig-name descname">exists</code><span class="sig-paren">(</span><em class="sig-param">x: Any</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/delphi/utils/fp.html#exists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.exists" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">exists</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">Any</span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)">bool</a><a class="reference internal" href="_modules/delphi/utils/fp.html#exists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.exists" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="delphi.utils.fp.repeatfunc">
-<code class="sig-name descname">repeatfunc</code><span class="sig-paren">(</span><em class="sig-param">func: Callable</em>, <em class="sig-param">*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils/fp.html#repeatfunc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.repeatfunc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">repeatfunc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils/fp.html#repeatfunc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.repeatfunc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Repeat calls to func with specified arguments.</p>
 <p>Example:  repeatfunc(random.random)</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="delphi.utils.fp.grouper">
-<code class="sig-name descname">grouper</code><span class="sig-paren">(</span><em class="sig-param">xs: Iterable</em>, <em class="sig-param">n: int</em>, <em class="sig-param">fillvalue=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils/fp.html#grouper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.grouper" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">grouper</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span><span class="p">:</span> <span class="n">Iterable</span></em>, <em class="sig-param"><span class="n">n</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a></span></em>, <em class="sig-param"><span class="n">fillvalue</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils/fp.html#grouper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.grouper" title="Permalink to this definition">¶</a></dt>
 <dd><p>Collect data into fixed-length chunks or blocks.
 &gt;&gt;&gt; from delphi.utils.fp import grouper
 &gt;&gt;&gt; list(grouper(‘ABCDEFG’, 3, ‘x’))
 [(‘A’, ‘B’, ‘C’), (‘D’, ‘E’, ‘F’), (‘G’, ‘x’, ‘x’)]</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="delphi.utils.fp.pairwise">
-<code class="sig-name descname">pairwise</code><span class="sig-paren">(</span><em class="sig-param">iterable</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils/fp.html#pairwise"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.pairwise" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">pairwise</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">iterable</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils/fp.html#pairwise"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.fp.pairwise" title="Permalink to this definition">¶</a></dt>
 <dd><p>s -&gt; (s0,s1), (s1,s2), (s2, s3), …</p>
 </dd></dl>
 
@@ -391,14 +394,14 @@ applications of a function to an element</p>
 </div>
 <div class="section" id="module-delphi.utils.misc">
 <span id="delphi-utils-misc-module"></span><h2>delphi.utils.misc module<a class="headerlink" href="#module-delphi.utils.misc" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
+<dl class="py function">
 <dt id="delphi.utils.misc.choose_font">
 <code class="sig-name descname">choose_font</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils/misc.html#choose_font"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.misc.choose_font" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="delphi.utils.misc.multiple_replace">
-<code class="sig-name descname">multiple_replace</code><span class="sig-paren">(</span><em class="sig-param">d: Dict[str, str], text: str</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/delphi/utils/misc.html#multiple_replace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.misc.multiple_replace" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">multiple_replace</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a><span class="p">, </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">text</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a><a class="reference internal" href="_modules/delphi/utils/misc.html#multiple_replace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.misc.multiple_replace" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs string replacement from dict in a single pass. Taken from
 <a class="reference external" href="https://www.oreilly.com/library/view/python-cookbook/0596001673/ch03s15.html">https://www.oreilly.com/library/view/python-cookbook/0596001673/ch03s15.html</a></p>
 </dd></dl>
@@ -407,32 +410,32 @@ applications of a function to an element</p>
 <div class="section" id="module-delphi.utils.shell">
 <span id="delphi-utils-shell-module"></span><h2>delphi.utils.shell module<a class="headerlink" href="#module-delphi.utils.shell" title="Permalink to this headline">¶</a></h2>
 <p>Helper functions for shell operations.</p>
-<dl class="function">
+<dl class="py function">
 <dt id="delphi.utils.shell.cd">
-<code class="sig-name descname">cd</code><span class="sig-paren">(</span><em class="sig-param">destination_directory</em><span class="sig-paren">)</span><a class="headerlink" href="#delphi.utils.shell.cd" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">cd</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">destination_directory</span></em><span class="sig-paren">)</span><a class="headerlink" href="#delphi.utils.shell.cd" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
 <div class="section" id="module-delphi.utils.web">
 <span id="delphi-utils-web-module"></span><h2>delphi.utils.web module<a class="headerlink" href="#module-delphi.utils.web" title="Permalink to this headline">¶</a></h2>
 <p>Helper functions for web activity.</p>
-<dl class="function">
+<dl class="py function">
 <dt id="delphi.utils.web.tqdm_reporthook">
-<code class="sig-name descname">tqdm_reporthook</code><span class="sig-paren">(</span><em class="sig-param">t</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils/web.html#tqdm_reporthook"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.web.tqdm_reporthook" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">tqdm_reporthook</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils/web.html#tqdm_reporthook"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.web.tqdm_reporthook" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wraps tqdm instance.
 Don’t forget to close() or __exit__()
 the tqdm instance once you’re done with it (easiest using <cite>with</cite> syntax).
 .. rubric:: Example</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="delphi.utils.web.get_data_from_url">
-<code class="sig-name descname">get_data_from_url</code><span class="sig-paren">(</span><em class="sig-param">url: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils/web.html#get_data_from_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.web.get_data_from_url" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_data_from_url</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">url</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils/web.html#get_data_from_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.web.get_data_from_url" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="delphi.utils.web.download_file">
-<code class="sig-name descname">download_file</code><span class="sig-paren">(</span><em class="sig-param">url: str</em>, <em class="sig-param">filename: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils/web.html#download_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.web.download_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">download_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">url</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span></em>, <em class="sig-param"><span class="n">filename</span><span class="p">:</span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/utils/web.html#download_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#delphi.utils.web.download_file" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -446,20 +449,25 @@ the tqdm instance once you’re done with it (easiest using <cite>with</cite> sy
            
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Adarsh
+        &#169; Copyright 2018, Adarsh.
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
@@ -467,7 +475,6 @@ the tqdm instance once you’re done with it (easiest using <cite>with</cite> sy
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

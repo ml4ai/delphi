@@ -304,6 +304,11 @@ Typedefs
 .. toctree::
    :maxdepth: 5
 
+   typedef_AnalysisGraph_8hpp_1a799e0a513577f0ce8c4f929c7a4bd902.rst
+
+.. toctree::
+   :maxdepth: 5
+
    typedef_AnalysisGraph_8hpp_1af007983fd492cfaedabba8775b0d0dd3.rst
 
 .. toctree::
@@ -365,6 +370,11 @@ Typedefs
    :maxdepth: 5
 
    typedef_AnalysisGraph_8hpp_1ac3e83aa9f00904eae1d442fe20caa090.rst
+
+.. toctree::
+   :maxdepth: 5
+
+   typedef_AnalysisGraph_8hpp_1a35c0c33dd4ed7eef4ebe007037451383.rst
 
 .. toctree::
    :maxdepth: 5

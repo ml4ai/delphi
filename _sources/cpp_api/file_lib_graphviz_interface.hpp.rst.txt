@@ -52,5 +52,7 @@ Namespaces
 ----------
 
 
+- :ref:`namespace_delphi`
+
 - :ref:`namespace_delphi__gv`
 

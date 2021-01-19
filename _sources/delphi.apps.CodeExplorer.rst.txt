@@ -28,7 +28,6 @@ delphi.apps.CodeExplorer.surface\_plots module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

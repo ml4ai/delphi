@@ -1,4 +1,4 @@
-delphi.GrFN.networks.GroundedFunctionNetwork.to\_CAG
+﻿delphi.GrFN.networks.GroundedFunctionNetwork.to\_CAG
 ====================================================
 
 .. currentmodule:: delphi.GrFN.networks

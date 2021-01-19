@@ -1,43 +1,46 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>sqlalchemy.sql.sqltypes &mdash; delphi  documentation</title>
   
-
-  
-  
-  
-  
-
-  
-  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/language_data.js"></script>
-        <script src="../../../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
-        <script src="../../../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
-    
 
   
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../../../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
@@ -79,6 +82,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -89,13 +93,9 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../index.html">Home</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model.html">The Delphi model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../GrFN_API.html">GroundedFunctionNetwork API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../grfn_spec.html#change-log">Change Log</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../grfn_spec.html">}</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../CONTRIBUTING.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cpp_api/library_root.html">C++ API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
@@ -104,6 +104,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -138,11 +139,13 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="../../index.html">Module code</a> &raquo;</li>
         
@@ -201,6 +204,7 @@
 <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">processors</span>
 <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">util</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">compat</span>
+<span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">langhelpers</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">pickle</span>
 
 
@@ -344,7 +348,7 @@
 <span class="sd">          E.g.::</span>
 
 <span class="sd">            &gt;&gt;&gt; from sqlalchemy import cast, select, String</span>
-<span class="sd">            &gt;&gt;&gt; print select([cast(&#39;some string&#39;, String(collation=&#39;utf8&#39;))])</span>
+<span class="sd">            &gt;&gt;&gt; print(select([cast(&#39;some string&#39;, String(collation=&#39;utf8&#39;))]))</span>
 <span class="sd">            SELECT CAST(:param_1 AS VARCHAR COLLATE utf8) AS anon_1</span>
 
 <span class="sd">        :param convert_unicode: When set to ``True``, the</span>
@@ -354,8 +358,8 @@
 <span class="sd">          In the rare circumstance that the DBAPI does not support</span>
 <span class="sd">          Python unicode under Python 2, SQLAlchemy will use its own</span>
 <span class="sd">          encoder/decoder functionality on strings, referring to the</span>
-<span class="sd">          value of the :paramref:`.create_engine.encoding` parameter</span>
-<span class="sd">          parameter passed to :func:`.create_engine` as the encoding.</span>
+<span class="sd">          value of the :paramref:`_sa.create_engine.encoding` parameter</span>
+<span class="sd">          parameter passed to :func:`_sa.create_engine` as the encoding.</span>
 
 <span class="sd">          For the extremely rare case that Python Unicode</span>
 <span class="sd">          is to be encoded/decoded by SQLAlchemy on a backend</span>
@@ -377,15 +381,16 @@
 
 <span class="sd">            In the vast majority of cases, the :class:`.Unicode` or</span>
 <span class="sd">            :class:`.UnicodeText` datatypes should be used for a</span>
-<span class="sd">            :class:`.Column` that expects to store non-ascii data.  These</span>
+<span class="sd">            :class:`_schema.Column` that expects to store non-ascii data.</span>
+<span class="sd">            These</span>
 <span class="sd">            datatypes will ensure that the correct types are used on the</span>
 <span class="sd">            database side as well as set up the correct Unicode behaviors</span>
 <span class="sd">            under Python 2.</span>
 
 <span class="sd">          .. seealso::</span>
 
-<span class="sd">            :paramref:`.create_engine.convert_unicode` -</span>
-<span class="sd">            :class:`.Engine`-wide parameter</span>
+<span class="sd">            :paramref:`_sa.create_engine.convert_unicode` -</span>
+<span class="sd">            :class:`_engine.Engine`-wide parameter</span>
 
 <span class="sd">        :param unicode_error: Optional, a method to use to handle Unicode</span>
 <span class="sd">          conversion errors. Behaves like the ``errors`` keyword argument to</span>
@@ -543,7 +548,7 @@
 <span class="sd">    directly, SQLAlchemy does the encoding and decoding</span>
 <span class="sd">    outside of the DBAPI.   The encoding in this scenario</span>
 <span class="sd">    is determined by the ``encoding`` flag passed to</span>
-<span class="sd">    :func:`.create_engine`.</span>
+<span class="sd">    :func:`_sa.create_engine`.</span>
 
 <span class="sd">    When using the :class:`.Unicode` type, it is only appropriate</span>
 <span class="sd">    to pass Python ``unicode`` objects, and not plain ``str``.</span>
@@ -606,7 +611,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a Unicode-converting Text type.</span>
 
-<span class="sd">        Parameters are the same as that of :class:`.Text`,</span>
+<span class="sd">        Parameters are the same as that of :class:`_expression.TextClause`,</span>
 <span class="sd">        with the exception that ``convert_unicode``</span>
 <span class="sd">        defaults to ``True``.</span>
 
@@ -697,7 +702,7 @@
 <span class="sd">        type that is explicitly known to be a decimal type</span>
 <span class="sd">        (e.g. ``DECIMAL``, ``NUMERIC``, others) and not a floating point</span>
 <span class="sd">        type (e.g. ``FLOAT``, ``REAL``, others).</span>
-<span class="sd">        If the database column on the server is in fact a floating-point type</span>
+<span class="sd">        If the database column on the server is in fact a floating-point</span>
 <span class="sd">        type, such as ``FLOAT`` or ``REAL``, use the :class:`.Float`</span>
 <span class="sd">        type or a subclass, otherwise numeric coercion between</span>
 <span class="sd">        ``float``/``Decimal`` may or may not function as expected.</span>
@@ -940,7 +945,7 @@
 <span class="sd">    backends include additional options, such as timezone support and</span>
 <span class="sd">    fractional seconds support.  For fractional seconds, use the</span>
 <span class="sd">    dialect-specific datatype, such as :class:`.mysql.TIME`.  For</span>
-<span class="sd">    timezone support, use at least the :class:`~.types.TIMESTAMP` datatype,</span>
+<span class="sd">    timezone support, use at least the :class:`_types.TIMESTAMP` datatype,</span>
 <span class="sd">    if not the dialect-specific datatype object.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -953,7 +958,7 @@
 <span class="sd">        :param timezone: boolean.  Indicates that the datetime type should</span>
 <span class="sd">         enable timezone support, if available on the</span>
 <span class="sd">         **base date/time-holding type only**.   It is recommended</span>
-<span class="sd">         to make use of the :class:`~.types.TIMESTAMP` datatype directly when</span>
+<span class="sd">         to make use of the :class:`_types.TIMESTAMP` datatype directly when</span>
 <span class="sd">         using this flag, as some databases include separate generic</span>
 <span class="sd">         date/time-holding types distinct from the timezone-capable</span>
 <span class="sd">         TIMESTAMP datatype, such as Oracle.</span>
@@ -1168,7 +1173,7 @@
 <span class="sd">    :meth:`.DDLEvents.before_parent_attach` and</span>
 <span class="sd">    :meth:`.DDLEvents.after_parent_attach` events, where the events fire off</span>
 <span class="sd">    surrounding the association of the type object with a parent</span>
-<span class="sd">    :class:`.Column`.</span>
+<span class="sd">    :class:`_schema.Column`.</span>
 
 <span class="sd">    .. seealso::</span>
 
@@ -1287,7 +1292,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">bind</span> <span class="ow">or</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bind</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">checkfirst</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Issue CREATE ddl for this type, if applicable.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Issue CREATE DDL for this type, if applicable.&quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">bind</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">bind</span> <span class="o">=</span> <span class="n">_bind_or_error</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -1296,7 +1301,7 @@
             <span class="n">t</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="n">bind</span><span class="p">,</span> <span class="n">checkfirst</span><span class="o">=</span><span class="n">checkfirst</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">drop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bind</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">checkfirst</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Issue DROP ddl for this type, if applicable.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Issue DROP DDL for this type, if applicable.&quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">bind</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">bind</span> <span class="o">=</span> <span class="n">_bind_or_error</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -1420,7 +1425,7 @@
 
 <span class="sd">    .. seealso::</span>
 
-<span class="sd">        :class:`.postgresql.ENUM` - PostgreSQL-specific type,</span>
+<span class="sd">        :class:`_postgresql.ENUM` - PostgreSQL-specific type,</span>
 <span class="sd">        which has additional functionality.</span>
 
 <span class="sd">        :class:`.mysql.ENUM` - MySQL-specific type</span>
@@ -1483,7 +1488,14 @@
 
 <span class="sd">        :param native_enum: Use the database&#39;s native ENUM type when</span>
 <span class="sd">           available. Defaults to True. When False, uses VARCHAR + check</span>
-<span class="sd">           constraint for all backends.</span>
+<span class="sd">           constraint for all backends. The VARCHAR length can be controlled</span>
+<span class="sd">           with :paramref:`.Enum.length`</span>
+
+<span class="sd">        :param length: Allows specifying a custom length for the VARCHAR</span>
+<span class="sd">           when :paramref:`.Enum.native_enum` is False. By default it uses the</span>
+<span class="sd">           length of the longest value.</span>
+
+<span class="sd">           .. versionadded:: 1.3.16</span>
 
 <span class="sd">        :param schema: Schema name of this type. For types that exist on the</span>
 <span class="sd">           target database as an independent schema construct (PostgreSQL),</span>
@@ -1494,16 +1506,17 @@
 
 <span class="sd">                The ``schema`` of the :class:`.Enum` type does not</span>
 <span class="sd">                by default make use of the ``schema`` established on the</span>
-<span class="sd">                owning :class:`.Table`.  If this behavior is desired,</span>
+<span class="sd">                owning :class:`_schema.Table`.  If this behavior is desired,</span>
 <span class="sd">                set the ``inherit_schema`` flag to ``True``.</span>
 
 <span class="sd">        :param quote: Set explicit quoting preferences for the type&#39;s name.</span>
 
 <span class="sd">        :param inherit_schema: When ``True``, the &quot;schema&quot; from the owning</span>
-<span class="sd">           :class:`.Table` will be copied to the &quot;schema&quot; attribute of this</span>
+<span class="sd">           :class:`_schema.Table`</span>
+<span class="sd">           will be copied to the &quot;schema&quot; attribute of this</span>
 <span class="sd">           :class:`.Enum`, replacing whatever value was passed for the</span>
 <span class="sd">           ``schema`` attribute.   This also takes effect when using the</span>
-<span class="sd">           :meth:`.Table.tometadata` operation.</span>
+<span class="sd">           :meth:`_schema.Table.tometadata` operation.</span>
 
 <span class="sd">        :param validate_strings: when True, string values that are being</span>
 <span class="sd">           passed to the database in a SQL statement will be checked</span>
@@ -1529,7 +1542,7 @@
 <span class="sd">           default, the database value of the enumeration is used as the</span>
 <span class="sd">           sorting function.</span>
 
-<span class="sd">            .. versionadded:: 1.3.8</span>
+<span class="sd">           .. versionadded:: 1.3.8</span>
 
 
 
@@ -1555,6 +1568,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">create_constraint</span> <span class="o">=</span> <span class="n">kw</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;create_constraint&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">values_callable</span> <span class="o">=</span> <span class="n">kw</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;values_callable&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sort_key_function</span> <span class="o">=</span> <span class="n">kw</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;sort_key_function&quot;</span><span class="p">,</span> <span class="n">NO_ARG</span><span class="p">)</span>
+        <span class="n">length_arg</span> <span class="o">=</span> <span class="n">kw</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;length&quot;</span><span class="p">,</span> <span class="n">NO_ARG</span><span class="p">)</span>
 
         <span class="n">values</span><span class="p">,</span> <span class="n">objects</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_into_values</span><span class="p">(</span><span class="n">enums</span><span class="p">,</span> <span class="n">kw</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_setup_for_values</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">objects</span><span class="p">,</span> <span class="n">kw</span><span class="p">)</span>
@@ -1578,6 +1592,15 @@
             <span class="n">length</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">enums</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">length</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">native_enum</span> <span class="ow">and</span> <span class="n">length_arg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">NO_ARG</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">length_arg</span> <span class="o">&lt;</span> <span class="n">length</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;When provided, length must be larger or equal&quot;</span>
+                    <span class="s2">&quot; than the length of the longest enum value. </span><span class="si">%s</span><span class="s2"> &lt; </span><span class="si">%s</span><span class="s2">&quot;</span>
+                    <span class="o">%</span> <span class="p">(</span><span class="n">length_arg</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="n">length_arg</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_valid_lookup</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_object_lookup</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="nb">super</span><span class="p">(</span><span class="n">Enum</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -1641,7 +1664,7 @@
     <span class="k">def</span> <span class="nf">_db_value_for_elem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elem</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_valid_lookup</span><span class="p">[</span><span class="n">elem</span><span class="p">]</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
             <span class="c1"># for unknown string values, we return as is.  While we can</span>
             <span class="c1"># validate these if we wanted, that does not allow for lesser-used</span>
             <span class="c1"># end-user use cases, such as using a LIKE comparison with an enum,</span>
@@ -1655,8 +1678,17 @@
             <span class="p">):</span>
                 <span class="k">return</span> <span class="n">elem</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span>
-                    <span class="s1">&#39;&quot;</span><span class="si">%s</span><span class="s1">&quot; is not among the defined enum values&#39;</span> <span class="o">%</span> <span class="n">elem</span>
+                <span class="n">util</span><span class="o">.</span><span class="n">raise_</span><span class="p">(</span>
+                    <span class="ne">LookupError</span><span class="p">(</span>
+                        <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39; is not among the defined enum values. &quot;</span>
+                        <span class="s2">&quot;Enum name: </span><span class="si">%s</span><span class="s2">. Possible values: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                        <span class="o">%</span> <span class="p">(</span>
+                            <span class="n">elem</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                            <span class="n">langhelpers</span><span class="o">.</span><span class="n">repr_tuple_names</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">enums</span><span class="p">),</span>
+                        <span class="p">)</span>
+                    <span class="p">),</span>
+                    <span class="n">replace_context</span><span class="o">=</span><span class="n">err</span><span class="p">,</span>
                 <span class="p">)</span>
 
     <span class="k">class</span> <span class="nc">Comparator</span><span class="p">(</span><span class="n">String</span><span class="o">.</span><span class="n">Comparator</span><span class="p">):</span>
@@ -1675,9 +1707,18 @@
     <span class="k">def</span> <span class="nf">_object_value_for_elem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elem</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_object_lookup</span><span class="p">[</span><span class="n">elem</span><span class="p">]</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span>
-                <span class="s1">&#39;&quot;</span><span class="si">%s</span><span class="s1">&quot; is not among the defined enum values&#39;</span> <span class="o">%</span> <span class="n">elem</span>
+        <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">util</span><span class="o">.</span><span class="n">raise_</span><span class="p">(</span>
+                <span class="ne">LookupError</span><span class="p">(</span>
+                    <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39; is not among the defined enum values. &quot;</span>
+                    <span class="s2">&quot;Enum name: </span><span class="si">%s</span><span class="s2">. Possible values: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                    <span class="o">%</span> <span class="p">(</span>
+                        <span class="n">elem</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                        <span class="n">langhelpers</span><span class="o">.</span><span class="n">repr_tuple_names</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">enums</span><span class="p">),</span>
+                    <span class="p">)</span>
+                <span class="p">),</span>
+                <span class="n">replace_context</span><span class="o">=</span><span class="n">err</span><span class="p">,</span>
             <span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1698,6 +1739,7 @@
         <span class="n">kw</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;native_enum&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">native_enum</span><span class="p">)</span>
         <span class="n">kw</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;values_callable&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">values_callable</span><span class="p">)</span>
         <span class="n">kw</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;create_constraint&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_constraint</span><span class="p">)</span>
+        <span class="n">kw</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;length&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">)</span>
         <span class="k">assert</span> <span class="s2">&quot;_enums&quot;</span> <span class="ow">in</span> <span class="n">kw</span>
         <span class="k">return</span> <span class="n">impltype</span><span class="p">(</span><span class="o">**</span><span class="n">kw</span><span class="p">)</span>
 
@@ -1801,7 +1843,7 @@
 
 <span class="sd">        :param pickler: defaults to cPickle.pickle or pickle.pickle if</span>
 <span class="sd">          cPickle is not available.  May be any object with</span>
-<span class="sd">          pickle-compatible ``dumps` and ``loads`` methods.</span>
+<span class="sd">          pickle-compatible ``dumps`` and ``loads`` methods.</span>
 
 <span class="sd">        :param comparator: a 2-arg callable predicate used</span>
 <span class="sd">          to compare values of this type.  If left as ``None``,</span>
@@ -2098,7 +2140,8 @@
 <span class="k">class</span> <span class="nc">JSON</span><span class="p">(</span><span class="n">Indexable</span><span class="p">,</span> <span class="n">TypeEngine</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Represent a SQL JSON type.</span>
 
-<span class="sd">    .. note::  :class:`.types.JSON` is provided as a facade for vendor-specific</span>
+<span class="sd">    .. note::  :class:`_types.JSON`</span>
+<span class="sd">       is provided as a facade for vendor-specific</span>
 <span class="sd">       JSON types.  Since it supports JSON SQL operations, it only</span>
 <span class="sd">       works on backends that have an actual JSON type, currently:</span>
 
@@ -2108,10 +2151,10 @@
 
 <span class="sd">       * SQLite as of version 3.9</span>
 
-<span class="sd">    :class:`.types.JSON` is part of the Core in support of the growing</span>
+<span class="sd">    :class:`_types.JSON` is part of the Core in support of the growing</span>
 <span class="sd">    popularity of native JSON datatypes.</span>
 
-<span class="sd">    The :class:`.types.JSON` type stores arbitrary JSON format data, e.g.::</span>
+<span class="sd">    The :class:`_types.JSON` type stores arbitrary JSON format data, e.g.::</span>
 
 <span class="sd">        data_table = Table(&#39;data_table&#39;, metadata,</span>
 <span class="sd">            Column(&#39;id&#39;, Integer, primary_key=True),</span>
@@ -2126,7 +2169,8 @@
 
 <span class="sd">    **JSON-Specific Expression Operators**</span>
 
-<span class="sd">    The :class:`.types.JSON` datatype provides these additional SQL operations:</span>
+<span class="sd">    The :class:`_types.JSON`</span>
+<span class="sd">    datatype provides these additional SQL operations:</span>
 
 <span class="sd">    * Keyed index operations::</span>
 
@@ -2148,15 +2192,16 @@
 <span class="sd">      .. versionadded:: 1.3.11</span>
 
 <span class="sd">    Additional operations may be available from the dialect-specific versions</span>
-<span class="sd">    of :class:`.types.JSON`, such as :class:`.postgresql.JSON` and</span>
-<span class="sd">    :class:`.postgresql.JSONB` which both offer additional PostgreSQL-specific</span>
+<span class="sd">    of :class:`_types.JSON`, such as :class:`_postgresql.JSON` and</span>
+<span class="sd">    :class:`_postgresql.JSONB` which both offer additional PostgreSQL-specific</span>
 <span class="sd">    operations.</span>
 
 <span class="sd">    **Casting JSON Elements to Other Types**</span>
 
 <span class="sd">    Index operations, i.e. those invoked by calling upon the expression using</span>
 <span class="sd">    the Python bracket operator as in ``some_column[&#39;some key&#39;]``, return an</span>
-<span class="sd">    expression object whose type defaults to :class:`.JSON` by default, so that</span>
+<span class="sd">    expression object whose type defaults to :class:`_types.JSON` by default,</span>
+<span class="sd">    so that</span>
 <span class="sd">    further JSON-oriented instructions may be called upon the result type.</span>
 <span class="sd">    However, it is likely more common that an index operation is expected</span>
 <span class="sd">    to return a specific scalar element, such as a string or integer.  In</span>
@@ -2205,7 +2250,7 @@
 
 <span class="sd">    **Detecting Changes in JSON columns when using the ORM**</span>
 
-<span class="sd">    The :class:`.JSON` type, when used with the SQLAlchemy ORM, does not</span>
+<span class="sd">    The :class:`_types.JSON` type, when used with the SQLAlchemy ORM, does not</span>
 <span class="sd">    detect in-place mutations to the structure.  In order to detect these, the</span>
 <span class="sd">    :mod:`sqlalchemy.ext.mutable` extension must be used.  This extension will</span>
 <span class="sd">    allow &quot;in-place&quot; changes to the datastructure to produce events which</span>
@@ -2214,7 +2259,8 @@
 
 <span class="sd">    **Support for JSON null vs. SQL NULL**</span>
 
-<span class="sd">    When working with NULL values, the :class:`.JSON` type recommends the</span>
+<span class="sd">    When working with NULL values, the :class:`_types.JSON`</span>
+<span class="sd">    type recommends the</span>
 <span class="sd">    use of two specific constants in order to differentiate between a column</span>
 <span class="sd">    that evaluates to SQL NULL, e.g. no value, vs. the JSON-encoded string</span>
 <span class="sd">    of ``&quot;null&quot;``.   To insert or select against a value that is SQL NULL,</span>
@@ -2224,30 +2270,31 @@
 <span class="sd">        conn.execute(table.insert(), json_value=null())</span>
 
 <span class="sd">    To insert or select against a value that is JSON ``&quot;null&quot;``, use the</span>
-<span class="sd">    constant :attr:`.JSON.NULL`::</span>
+<span class="sd">    constant :attr:`_types.JSON.NULL`::</span>
 
 <span class="sd">        conn.execute(table.insert(), json_value=JSON.NULL)</span>
 
-<span class="sd">    The :class:`.JSON` type supports a flag</span>
-<span class="sd">    :paramref:`.JSON.none_as_null` which when set to True will result</span>
+<span class="sd">    The :class:`_types.JSON` type supports a flag</span>
+<span class="sd">    :paramref:`_types.JSON.none_as_null` which when set to True will result</span>
 <span class="sd">    in the Python constant ``None`` evaluating to the value of SQL</span>
 <span class="sd">    NULL, and when set to False results in the Python constant</span>
 <span class="sd">    ``None`` evaluating to the value of JSON ``&quot;null&quot;``.    The Python</span>
 <span class="sd">    value ``None`` may be used in conjunction with either</span>
-<span class="sd">    :attr:`.JSON.NULL` and :func:`.null` in order to indicate NULL</span>
+<span class="sd">    :attr:`_types.JSON.NULL` and :func:`.null` in order to indicate NULL</span>
 <span class="sd">    values, but care must be taken as to the value of the</span>
-<span class="sd">    :paramref:`.JSON.none_as_null` in these cases.</span>
+<span class="sd">    :paramref:`_types.JSON.none_as_null` in these cases.</span>
 
 <span class="sd">    **Customizing the JSON Serializer**</span>
 
-<span class="sd">    The JSON serializer and deserializer used by :class:`.JSON` defaults to</span>
+<span class="sd">    The JSON serializer and deserializer used by :class:`_types.JSON`</span>
+<span class="sd">    defaults to</span>
 <span class="sd">    Python&#39;s ``json.dumps`` and ``json.loads`` functions; in the case of the</span>
 <span class="sd">    psycopg2 dialect, psycopg2 may be using its own custom loader function.</span>
 
 <span class="sd">    In order to affect the serializer / deserializer, they are currently</span>
-<span class="sd">    configurable at the :func:`.create_engine` level via the</span>
-<span class="sd">    :paramref:`.create_engine.json_serializer` and</span>
-<span class="sd">    :paramref:`.create_engine.json_deserializer` parameters.  For example,</span>
+<span class="sd">    configurable at the :func:`_sa.create_engine` level via the</span>
+<span class="sd">    :paramref:`_sa.create_engine.json_serializer` and</span>
+<span class="sd">    :paramref:`_sa.create_engine.json_deserializer` parameters.  For example,</span>
 <span class="sd">    to turn off ``ensure_ascii``::</span>
 
 <span class="sd">        engine = create_engine(</span>
@@ -2262,13 +2309,13 @@
 
 <span class="sd">    .. seealso::</span>
 
-<span class="sd">        :class:`.postgresql.JSON`</span>
+<span class="sd">        :class:`_postgresql.JSON`</span>
 
-<span class="sd">        :class:`.postgresql.JSONB`</span>
+<span class="sd">        :class:`_postgresql.JSONB`</span>
 
 <span class="sd">        :class:`.mysql.JSON`</span>
 
-<span class="sd">        :class:`.sqlite.JSON`</span>
+<span class="sd">        :class:`_sqlite.JSON`</span>
 
 <span class="sd">    .. versionadded:: 1.1</span>
 
@@ -2284,9 +2331,11 @@
 <span class="sd">    This value is used to force the JSON value of ``&quot;null&quot;`` to be</span>
 <span class="sd">    used as the value.   A value of Python ``None`` will be recognized</span>
 <span class="sd">    either as SQL NULL or JSON ``&quot;null&quot;``, based on the setting</span>
-<span class="sd">    of the :paramref:`.JSON.none_as_null` flag; the :attr:`.JSON.NULL`</span>
+<span class="sd">    of the :paramref:`_types.JSON.none_as_null` flag; the</span>
+<span class="sd">    :attr:`_types.JSON.NULL`</span>
 <span class="sd">    constant can be used to always resolve to JSON ``&quot;null&quot;`` regardless</span>
-<span class="sd">    of this setting.  This is in contrast to the :func:`.sql.null` construct,</span>
+<span class="sd">    of this setting.  This is in contrast to the :func:`_expression.null`</span>
+<span class="sd">    construct,</span>
 <span class="sd">    which always resolves to SQL NULL.  E.g.::</span>
 
 <span class="sd">        from sqlalchemy import null</span>
@@ -2302,15 +2351,16 @@
 <span class="sd">        session.commit()</span>
 
 <span class="sd">    In order to set JSON NULL as a default value for a column, the most</span>
-<span class="sd">    transparent method is to use :func:`.text`::</span>
+<span class="sd">    transparent method is to use :func:`_expression.text`::</span>
 
 <span class="sd">        Table(</span>
 <span class="sd">            &#39;my_table&#39;, metadata,</span>
 <span class="sd">            Column(&#39;json_data&#39;, JSON, default=text(&quot;&#39;null&#39;&quot;))</span>
 <span class="sd">        )</span>
 
-<span class="sd">    While it is possible to use :attr:`.JSON.NULL` in this context, the</span>
-<span class="sd">    :attr:`.JSON.NULL` value will be returned as the value of the column,</span>
+<span class="sd">    While it is possible to use :attr:`_types.JSON.NULL` in this context, the</span>
+<span class="sd">    :attr:`_types.JSON.NULL` value will be returned as the value of the</span>
+<span class="sd">    column,</span>
 <span class="sd">    which in the context of the ORM or other repurposing of the default</span>
 <span class="sd">    value, may not be desirable.  Using a SQL expression means the value</span>
 <span class="sd">    will be re-fetched from the database within the context of retrieving</span>
@@ -2320,7 +2370,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">none_as_null</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Construct a :class:`.types.JSON` type.</span>
+        <span class="sd">&quot;&quot;&quot;Construct a :class:`_types.JSON` type.</span>
 
 <span class="sd">        :param none_as_null=False: if True, persist the value ``None`` as a</span>
 <span class="sd">         SQL NULL value, not the JSON encoding of ``null``.   Note that</span>
@@ -2332,20 +2382,20 @@
 
 <span class="sd">         .. note::</span>
 
-<span class="sd">              :paramref:`.JSON.none_as_null` does **not** apply to the</span>
-<span class="sd">              values passed to :paramref:`.Column.default` and</span>
-<span class="sd">              :paramref:`.Column.server_default`; a value of ``None``</span>
+<span class="sd">              :paramref:`_types.JSON.none_as_null` does **not** apply to the</span>
+<span class="sd">              values passed to :paramref:`_schema.Column.default` and</span>
+<span class="sd">              :paramref:`_schema.Column.server_default`; a value of ``None``</span>
 <span class="sd">              passed for these parameters means &quot;no default present&quot;.</span>
 
 <span class="sd">         .. seealso::</span>
 
 <span class="sd">              :attr:`.types.JSON.NULL`</span>
 
-<span class="sd">         &quot;&quot;&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">none_as_null</span> <span class="o">=</span> <span class="n">none_as_null</span>
 
     <span class="k">class</span> <span class="nc">JSONElementType</span><span class="p">(</span><span class="n">TypeEngine</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;common function for index / path elements in a JSON expression.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Common function for index / path elements in a JSON expression.&quot;&quot;&quot;</span>
 
         <span class="n">_integer</span> <span class="o">=</span> <span class="n">Integer</span><span class="p">()</span>
         <span class="n">_string</span> <span class="o">=</span> <span class="n">String</span><span class="p">()</span>
@@ -2399,7 +2449,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
     <span class="k">class</span> <span class="nc">Comparator</span><span class="p">(</span><span class="n">Indexable</span><span class="o">.</span><span class="n">Comparator</span><span class="p">,</span> <span class="n">Concatenable</span><span class="o">.</span><span class="n">Comparator</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Define comparison operations for :class:`.types.JSON`.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Define comparison operations for :class:`_types.JSON`.&quot;&quot;&quot;</span>
 
         <span class="nd">@util</span><span class="o">.</span><span class="n">dependencies</span><span class="p">(</span><span class="s2">&quot;sqlalchemy.sql.default_comparator&quot;</span><span class="p">)</span>
         <span class="k">def</span> <span class="nf">_setup_getitem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_comparator</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
@@ -2528,7 +2578,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">should_evaluate_none</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Alias of :attr:`.JSON.none_as_null`&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Alias of :attr:`_types.JSON.none_as_null`&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">none_as_null</span>
 
     <span class="nd">@should_evaluate_none</span><span class="o">.</span><span class="n">setter</span>
@@ -2579,17 +2629,18 @@
 <span class="sd">    .. note::  This type serves as the basis for all ARRAY operations.</span>
 <span class="sd">       However, currently **only the PostgreSQL backend has support</span>
 <span class="sd">       for SQL arrays in SQLAlchemy**.  It is recommended to use the</span>
-<span class="sd">       :class:`.postgresql.ARRAY` type directly when using ARRAY types</span>
+<span class="sd">       :class:`_postgresql.ARRAY` type directly when using ARRAY types</span>
 <span class="sd">       with PostgreSQL, as it provides additional operators specific</span>
 <span class="sd">       to that backend.</span>
 
-<span class="sd">    :class:`.types.ARRAY` is part of the Core in support of various SQL</span>
-<span class="sd">    standard functions such as :class:`.array_agg` which explicitly involve</span>
+<span class="sd">    :class:`_types.ARRAY` is part of the Core in support of various SQL</span>
+<span class="sd">    standard functions such as :class:`_functions.array_agg`</span>
+<span class="sd">    which explicitly involve</span>
 <span class="sd">    arrays; however, with the exception of the PostgreSQL backend and possibly</span>
 <span class="sd">    some third-party dialects, no other SQLAlchemy built-in dialect has support</span>
 <span class="sd">    for this type.</span>
 
-<span class="sd">    An :class:`.types.ARRAY` type is constructed given the &quot;type&quot;</span>
+<span class="sd">    An :class:`_types.ARRAY` type is constructed given the &quot;type&quot;</span>
 <span class="sd">    of element::</span>
 
 <span class="sd">        mytable = Table(&quot;mytable&quot;, metadata,</span>
@@ -2606,7 +2657,7 @@
 <span class="sd">                data=[1,2,3]</span>
 <span class="sd">        )</span>
 
-<span class="sd">    The :class:`.types.ARRAY` type can be constructed given a fixed number</span>
+<span class="sd">    The :class:`_types.ARRAY` type can be constructed given a fixed number</span>
 <span class="sd">    of dimensions::</span>
 
 <span class="sd">        mytable = Table(&quot;mytable&quot;, metadata,</span>
@@ -2632,10 +2683,10 @@
 <span class="sd">          &gt;&gt;&gt; expr = table.c.column[5]  # returns ARRAY(Integer, dimensions=1)</span>
 <span class="sd">          &gt;&gt;&gt; expr = expr[6]  # returns Integer</span>
 
-<span class="sd">    For 1-dimensional arrays, an :class:`.types.ARRAY` instance with no</span>
+<span class="sd">    For 1-dimensional arrays, an :class:`_types.ARRAY` instance with no</span>
 <span class="sd">    dimension parameter will generally assume single-dimensional behaviors.</span>
 
-<span class="sd">    SQL expressions of type :class:`.types.ARRAY` have support for &quot;index&quot; and</span>
+<span class="sd">    SQL expressions of type :class:`_types.ARRAY` have support for &quot;index&quot; and</span>
 <span class="sd">    &quot;slice&quot; behavior.  The Python ``[]`` operator works normally here, given</span>
 <span class="sd">    integer indexes or slices.  Arrays default to 1-based indexing.</span>
 <span class="sd">    The operator produces binary expression</span>
@@ -2644,7 +2695,8 @@
 
 <span class="sd">        select([mytable.c.data[5], mytable.c.data[2:7]])</span>
 
-<span class="sd">    as well as UPDATE statements when the :meth:`.Update.values` method</span>
+<span class="sd">    as well as UPDATE statements when the :meth:`_expression.Update.values`</span>
+<span class="sd">    method</span>
 <span class="sd">    is used::</span>
 
 <span class="sd">        mytable.update().values({</span>
@@ -2652,28 +2704,28 @@
 <span class="sd">            mytable.c.data[2:7]: [1, 2, 3]</span>
 <span class="sd">        })</span>
 
-<span class="sd">    The :class:`.types.ARRAY` type also provides for the operators</span>
+<span class="sd">    The :class:`_types.ARRAY` type also provides for the operators</span>
 <span class="sd">    :meth:`.types.ARRAY.Comparator.any` and</span>
 <span class="sd">    :meth:`.types.ARRAY.Comparator.all`. The PostgreSQL-specific version of</span>
-<span class="sd">    :class:`.types.ARRAY` also provides additional operators.</span>
+<span class="sd">    :class:`_types.ARRAY` also provides additional operators.</span>
 
 <span class="sd">    .. versionadded:: 1.1.0</span>
 
 <span class="sd">    .. seealso::</span>
 
-<span class="sd">        :class:`.postgresql.ARRAY`</span>
+<span class="sd">        :class:`_postgresql.ARRAY`</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">__visit_name__</span> <span class="o">=</span> <span class="s2">&quot;ARRAY&quot;</span>
 
     <span class="n">zero_indexes</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="sd">&quot;&quot;&quot;if True, Python zero-based indexes should be interpreted as one-based</span>
+    <span class="sd">&quot;&quot;&quot;If True, Python zero-based indexes should be interpreted as one-based</span>
 <span class="sd">    on the SQL expression side.&quot;&quot;&quot;</span>
 
     <span class="k">class</span> <span class="nc">Comparator</span><span class="p">(</span><span class="n">Indexable</span><span class="o">.</span><span class="n">Comparator</span><span class="p">,</span> <span class="n">Concatenable</span><span class="o">.</span><span class="n">Comparator</span><span class="p">):</span>
 
-        <span class="sd">&quot;&quot;&quot;Define comparison operations for :class:`.types.ARRAY`.</span>
+        <span class="sd">&quot;&quot;&quot;Define comparison operations for :class:`_types.ARRAY`.</span>
 
 <span class="sd">        More operators are available on the dialect-specific form</span>
 <span class="sd">        of this type.  See :class:`.postgresql.ARRAY.Comparator`.</span>
@@ -2745,15 +2797,19 @@
 
 <span class="sd">            .. seealso::</span>
 
-<span class="sd">                :func:`.sql.expression.any_`</span>
+<span class="sd">                :func:`_expression.any_`</span>
 
 <span class="sd">                :meth:`.types.ARRAY.Comparator.all`</span>
 
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="n">operator</span> <span class="o">=</span> <span class="n">operator</span> <span class="k">if</span> <span class="n">operator</span> <span class="k">else</span> <span class="n">operators</span><span class="o">.</span><span class="n">eq</span>
-            <span class="k">return</span> <span class="n">operator</span><span class="p">(</span>
+
+            <span class="c1"># send plain BinaryExpression so that negate remains at None,</span>
+            <span class="c1"># leading to NOT expr for negation.</span>
+            <span class="k">return</span> <span class="n">elements</span><span class="o">.</span><span class="n">BinaryExpression</span><span class="p">(</span>
                 <span class="n">elements</span><span class="o">.</span><span class="n">_literal_as_binds</span><span class="p">(</span><span class="n">other</span><span class="p">),</span>
                 <span class="n">elements</span><span class="o">.</span><span class="n">CollectionAggregate</span><span class="o">.</span><span class="n">_create_any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="p">),</span>
+                <span class="n">operator</span><span class="p">,</span>
             <span class="p">)</span>
 
         <span class="nd">@util</span><span class="o">.</span><span class="n">dependencies</span><span class="p">(</span><span class="s2">&quot;sqlalchemy.sql.elements&quot;</span><span class="p">)</span>
@@ -2780,15 +2836,19 @@
 
 <span class="sd">            .. seealso::</span>
 
-<span class="sd">                :func:`.sql.expression.all_`</span>
+<span class="sd">                :func:`_expression.all_`</span>
 
 <span class="sd">                :meth:`.types.ARRAY.Comparator.any`</span>
 
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="n">operator</span> <span class="o">=</span> <span class="n">operator</span> <span class="k">if</span> <span class="n">operator</span> <span class="k">else</span> <span class="n">operators</span><span class="o">.</span><span class="n">eq</span>
-            <span class="k">return</span> <span class="n">operator</span><span class="p">(</span>
+
+            <span class="c1"># send plain BinaryExpression so that negate remains at None,</span>
+            <span class="c1"># leading to NOT expr for negation.</span>
+            <span class="k">return</span> <span class="n">elements</span><span class="o">.</span><span class="n">BinaryExpression</span><span class="p">(</span>
                 <span class="n">elements</span><span class="o">.</span><span class="n">_literal_as_binds</span><span class="p">(</span><span class="n">other</span><span class="p">),</span>
                 <span class="n">elements</span><span class="o">.</span><span class="n">CollectionAggregate</span><span class="o">.</span><span class="n">_create_all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="p">),</span>
+                <span class="n">operator</span><span class="p">,</span>
             <span class="p">)</span>
 
     <span class="n">comparator_factory</span> <span class="o">=</span> <span class="n">Comparator</span>
@@ -2796,7 +2856,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">item_type</span><span class="p">,</span> <span class="n">as_tuple</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">zero_indexes</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Construct an :class:`.types.ARRAY`.</span>
+        <span class="sd">&quot;&quot;&quot;Construct an :class:`_types.ARRAY`.</span>
 
 <span class="sd">        E.g.::</span>
 
@@ -2819,7 +2879,7 @@
 <span class="sd">         on the database, how it goes about interpreting Python and</span>
 <span class="sd">         result values, as well as how expression behavior in conjunction</span>
 <span class="sd">         with the &quot;getitem&quot; operator works.  See the description at</span>
-<span class="sd">         :class:`.types.ARRAY` for additional detail.</span>
+<span class="sd">         :class:`_types.ARRAY` for additional detail.</span>
 
 <span class="sd">        :param zero_indexes=False: when True, index values will be converted</span>
 <span class="sd">         between Python zero-based and SQL one-based indexes, e.g.</span>
@@ -2921,7 +2981,7 @@
 
     <span class="sd">&quot;&quot;&quot;The SQL TIMESTAMP type.</span>
 
-<span class="sd">    :class:`~.types.TIMESTAMP` datatypes have support for timezone</span>
+<span class="sd">    :class:`_types.TIMESTAMP` datatypes have support for timezone</span>
 <span class="sd">    storage on some backends, such as PostgreSQL and Oracle.  Use the</span>
 <span class="sd">    :paramref:`~types.TIMESTAMP.timezone` argument in order to enable</span>
 <span class="sd">    &quot;TIMESTAMP WITH TIMEZONE&quot; for these backends.</span>
@@ -2931,7 +2991,7 @@
     <span class="n">__visit_name__</span> <span class="o">=</span> <span class="s2">&quot;TIMESTAMP&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timezone</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Construct a new :class:`.TIMESTAMP`.</span>
+        <span class="sd">&quot;&quot;&quot;Construct a new :class:`_types.TIMESTAMP`.</span>
 
 <span class="sd">        :param timezone: boolean.  Indicates that the TIMESTAMP type should</span>
 <span class="sd">         enable timezone support, if available on the target database.</span>
@@ -3052,7 +3112,8 @@
 <span class="sd">      by the :class:`.Dialect`</span>
 <span class="sd">    * When constructing SQL expressions using plain Python objects of</span>
 <span class="sd">      unknown types (e.g. ``somecolumn == my_special_object``)</span>
-<span class="sd">    * When a new :class:`.Column` is created, and the given type is passed</span>
+<span class="sd">    * When a new :class:`_schema.Column` is created,</span>
+<span class="sd">      and the given type is passed</span>
 <span class="sd">      as ``None`` or is not passed at all.</span>
 
 <span class="sd">    The :class:`.NullType` can be used within SQL expression invocation</span>
@@ -3061,7 +3122,8 @@
 <span class="sd">    :class:`.NullType` will result in a :exc:`.CompileError` if the compiler</span>
 <span class="sd">    is asked to render the type itself, such as if it is used in a</span>
 <span class="sd">    :func:`.cast` operation or within a schema creation operation such as that</span>
-<span class="sd">    invoked by :meth:`.MetaData.create_all` or the :class:`.CreateTable`</span>
+<span class="sd">    invoked by :meth:`_schema.MetaData.create_all` or the</span>
+<span class="sd">    :class:`.CreateTable`</span>
 <span class="sd">    construct.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -3170,20 +3232,25 @@
            
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Adarsh
+        &#169; Copyright 2018, Adarsh.
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
@@ -3191,7 +3258,6 @@
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

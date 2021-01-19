@@ -5,6 +5,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 4
 
    delphi.apps.CodeExplorer
    delphi.apps.rest_api

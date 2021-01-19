@@ -1,43 +1,46 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>delphi.translators.for2py.translate &mdash; delphi  documentation</title>
   
-
-  
-  
-  
-  
-
-  
-  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/jquery.js"></script>
-        <script src="../../../../_static/underscore.js"></script>
-        <script src="../../../../_static/doctools.js"></script>
-        <script src="../../../../_static/language_data.js"></script>
-        <script src="../../../../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
-        <script src="../../../../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
-
-    
 
   
   <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css" />
   <link rel="stylesheet" href="../../../../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../../../../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
 </head>
@@ -79,6 +82,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -89,13 +93,9 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../index.html">Home</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../model.html">The Delphi model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../GrFN_API.html">GroundedFunctionNetwork API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html#change-log">Change Log</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html">}</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../CONTRIBUTING.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../cpp_api/library_root.html">C++ API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
@@ -104,6 +104,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -138,11 +139,13 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="../../../index.html">Module code</a> &raquo;</li>
         
@@ -395,8 +398,8 @@
         <span class="sd">&quot;&quot;&quot; This function handles &lt;call&gt; tag and its subelement &lt;name&gt;. &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="p">(</span>
             <span class="n">root</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;call&quot;</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;call&gt;. Current tag is </span><span class="si">{root.tag}</span><span class="s2"> with &quot;</span> \
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{root.attrib}</span><span class="s2"> attributes.&quot;</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;call&gt;. Current tag is </span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2"> with &quot;</span> \
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="si">}</span><span class="s2"> attributes.&quot;</span>
         <span class="n">call</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="s2">&quot;call&quot;</span><span class="p">}</span>
         <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">root</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span>
@@ -450,8 +453,8 @@
         <span class="n">declared_variable</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">assert</span> <span class="p">(</span>
             <span class="n">root</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;declaration&quot;</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;declaration&gt;. Current tag is </span><span class="si">{root.tag}</span><span class="s2"> with &quot;</span>\
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{root.attrib}</span><span class="s2"> attributes.&quot;</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;declaration&gt;. Current tag is </span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2"> with &quot;</span>\
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="si">}</span><span class="s2"> attributes.&quot;</span>
 
         <span class="c1"># Check if this is a parameter declaration under which case,</span>
         <span class="c1"># the declaration would be turned into an assignment operation</span>
@@ -557,8 +560,8 @@
 
         <span class="k">assert</span> <span class="p">(</span>
             <span class="n">root</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;type&quot;</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;type&gt;. Current tag is </span><span class="si">{root.tag}</span><span class="s2"> with &quot;</span> \
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{root.attrib}</span><span class="s2"> attributes.&quot;</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;type&gt;. Current tag is </span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2"> with &quot;</span> \
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="si">}</span><span class="s2"> attributes.&quot;</span>
         <span class="n">derived_type</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="p">(</span>
             <span class="n">root</span><span class="o">.</span><span class="n">text</span>
@@ -622,8 +625,8 @@
         <span class="sd">&quot;&quot;&quot; This function handles &lt;length&gt; tag.  &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="p">(</span>
             <span class="n">root</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;length&quot;</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;length&gt;. Current tag is </span><span class="si">{root.tag}</span><span class="s2"> with &quot;</span> \
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{root.attrib}</span><span class="s2"> attributes.&quot;</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;length&gt;. Current tag is </span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2"> with &quot;</span> \
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="si">}</span><span class="s2"> attributes.&quot;</span>
         <span class="n">length</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">root</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;literal&quot;</span><span class="p">:</span>
@@ -642,8 +645,8 @@
             <span class="n">variables</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">assert</span> <span class="p">(</span>
                 <span class="n">root</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;variables&quot;</span>
-            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;variables&gt;. Current tag is </span><span class="si">{root.tag}</span><span class="s2"> &quot;</span> \
-                <span class="sa">f</span><span class="s2">&quot;with </span><span class="si">{root.attrib}</span><span class="s2"> attributes.&quot;</span>
+            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;variables&gt;. Current tag is </span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2"> &quot;</span> \
+                <span class="sa">f</span><span class="s2">&quot;with </span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="si">}</span><span class="s2"> attributes.&quot;</span>
             <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">root</span><span class="p">:</span>
                 <span class="n">variables</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parseTree</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">variables</span>
@@ -658,8 +661,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="p">(</span>
             <span class="n">root</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;variable&quot;</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;variable&gt;. Current tag is </span><span class="si">{root.tag}</span><span class="s2"> with &quot;</span> \
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{root.attrib}</span><span class="s2"> attributes.&quot;</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;variable&gt;. Current tag is </span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2"> with &quot;</span> \
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="si">}</span><span class="s2"> attributes.&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="c1"># First check if the variables are actually function names</span>
             <span class="k">if</span> <span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">functionList</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
@@ -692,8 +695,8 @@
             <span class="n">constants</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">assert</span> <span class="p">(</span>
                 <span class="n">root</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;constants&quot;</span>
-            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;constants&gt;. Current tag is </span><span class="si">{root.tag}</span><span class="s2">&quot;</span> \
-                <span class="sa">f</span><span class="s2">&quot;with </span><span class="si">{root.attrib}</span><span class="s2"> attributes.&quot;</span>
+            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;constants&gt;. Current tag is </span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2">&quot;</span> \
+                <span class="sa">f</span><span class="s2">&quot;with </span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="si">}</span><span class="s2"> attributes.&quot;</span>
             <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">root</span><span class="p">:</span>
                 <span class="n">constants</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parseTree</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">constants</span>
@@ -709,8 +712,8 @@
 
         <span class="k">assert</span> <span class="p">(</span>
                 <span class="n">root</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;constant&quot;</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;constant&gt;. Current tag is </span><span class="si">{root.tag}</span><span class="s2"> with &quot;</span> \
-           <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{root.attrib}</span><span class="s2"> attributes.&quot;</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;constant&gt;. Current tag is </span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2"> with &quot;</span> \
+           <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="si">}</span><span class="s2"> attributes.&quot;</span>
         <span class="n">assign</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="s2">&quot;assignment&quot;</span><span class="p">}</span>
 
         <span class="c1"># Populate the target field of the parameter assignment</span>
@@ -744,8 +747,8 @@
 
         <span class="k">assert</span> <span class="p">(</span>
             <span class="n">root</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;derived-types&quot;</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;derived-type&gt;. Current tag is </span><span class="si">{root.tag}</span><span class="s2"> with &quot;</span> \
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{root.attrib}</span><span class="s2"> attributes.&quot;</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;derived-type&gt;. Current tag is </span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2"> with &quot;</span> \
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="si">}</span><span class="s2"> attributes.&quot;</span>
         <span class="n">derived_types</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;derived-types&quot;</span><span class="p">:</span> <span class="p">[]}</span>
         <span class="n">declared_type</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">root</span><span class="p">:</span>
@@ -781,8 +784,8 @@
 <span class="sd">        indicates the current loop is either &quot;do&quot; or &quot;do-while&quot; loop. &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="p">(</span>
             <span class="n">root</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;loop&quot;</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;loop&gt;. Current tag is </span><span class="si">{root.tag}</span><span class="s2"> with &quot;</span> \
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{root.attrib}</span><span class="s2"> attributes.&quot;</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;loop&gt;. Current tag is </span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2"> with &quot;</span> \
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="si">}</span><span class="s2"> attributes.&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">loop_active</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">if</span> <span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;do&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">loop_index</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -796,7 +799,7 @@
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
                     <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Unrecognized tag in the process_loop for &#39;do&#39; type.&quot;</span> \
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{node.tag}</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">loop_active</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">do</span><span class="p">]</span>
         <span class="k">elif</span> <span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;do-while&quot;</span><span class="p">:</span>
@@ -819,8 +822,8 @@
 
         <span class="k">assert</span> <span class="p">(</span>
             <span class="n">root</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;index-variable&quot;</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;index-variable&gt;. Current tag is </span><span class="si">{root.tag}</span><span class="s2"> &quot;</span> \
-            <span class="sa">f</span><span class="s2">&quot;with </span><span class="si">{root.attrib}</span><span class="s2"> attributes.&quot;</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;index-variable&gt;. Current tag is </span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2"> &quot;</span> \
+            <span class="sa">f</span><span class="s2">&quot;with </span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="si">}</span><span class="s2"> attributes.&quot;</span>
         <span class="n">ind</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()}</span>
         <span class="k">for</span> <span class="n">bounds</span> <span class="ow">in</span> <span class="n">root</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">bounds</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;lower-bound&quot;</span><span class="p">:</span>
@@ -836,8 +839,8 @@
 <span class="sd">        this tag. &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="p">(</span>
             <span class="n">root</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;if&quot;</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;if&gt;. Current tag is </span><span class="si">{root.tag}</span><span class="s2"> with &quot;</span> \
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{root.attrib}</span><span class="s2"> attributes.&quot;</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;if&gt;. Current tag is </span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2"> with &quot;</span> \
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="si">}</span><span class="s2"> attributes.&quot;</span>
         <span class="n">ifs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">curIf</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">root</span><span class="p">:</span>
@@ -865,8 +868,8 @@
 
         <span class="k">assert</span> <span class="p">(</span>
             <span class="n">root</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;operation&quot;</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;operation&gt;. Current tag is </span><span class="si">{root.tag}</span><span class="s2"> with &quot;</span> \
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{root.attrib}</span><span class="s2"> attributes.&quot;</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;operation&gt;. Current tag is </span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2"> with &quot;</span> \
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="si">}</span><span class="s2"> attributes.&quot;</span>
         <span class="n">op</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="s2">&quot;op&quot;</span><span class="p">}</span>
         <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">root</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;operand&quot;</span><span class="p">:</span>
@@ -890,8 +893,8 @@
         <span class="sd">&quot;&quot;&quot; This function handles &lt;literal&gt; tag &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="p">(</span>
             <span class="n">root</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;literal&quot;</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;literal&gt;. Current tag is </span><span class="si">{root.tag}</span><span class="s2"> with &quot;</span> \
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{root.attrib}</span><span class="s2"> attributes.&quot;</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;literal&gt;. Current tag is </span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2"> with &quot;</span> \
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="si">}</span><span class="s2"> attributes.&quot;</span>
         <span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">root</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;pause-stmt&quot;</span><span class="p">:</span>
                 <span class="k">return</span> <span class="p">[{</span><span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="s2">&quot;pause&quot;</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]}]</span>
@@ -915,8 +918,8 @@
 
         <span class="k">assert</span> <span class="p">(</span>
             <span class="n">root</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;io-controls&quot;</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;io-controls&gt;. Current tag is </span><span class="si">{root.tag}</span><span class="s2"> with &quot;</span> \
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{root.attrib}</span><span class="s2"> attributes.&quot;</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;io-controls&gt;. Current tag is </span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2"> with &quot;</span> \
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="si">}</span><span class="s2"> attributes.&quot;</span>
         <span class="n">io_control</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">root</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;hasExpression&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
@@ -940,8 +943,8 @@
 
         <span class="k">assert</span> <span class="p">(</span>
             <span class="n">root</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;name&quot;</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;name&gt;. Current tag is </span><span class="si">{root.tag}</span><span class="s2"> with &quot;</span> \
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{root.attrib}</span><span class="s2"> attributes.&quot;</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;name&gt;. Current tag is </span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2"> with &quot;</span> \
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="si">}</span><span class="s2"> attributes.&quot;</span>
         <span class="k">if</span> <span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">libFns</span><span class="p">:</span>
             <span class="n">fn</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="s2">&quot;call&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">[]}</span>
             <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">root</span><span class="p">:</span>
@@ -1019,8 +1022,8 @@
 
         <span class="k">assert</span> <span class="p">(</span>
             <span class="n">root</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;assignment&quot;</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;assignment&gt;. Current tag is </span><span class="si">{root.tag}</span><span class="s2"> with &quot;</span> \
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{root.attrib}</span><span class="s2"> attributes.&quot;</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;assignment&gt;. Current tag is </span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2"> with &quot;</span> \
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="si">}</span><span class="s2"> attributes.&quot;</span>
         <span class="n">assign</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="s2">&quot;assignment&quot;</span><span class="p">}</span>
         <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">root</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;target&quot;</span><span class="p">:</span>
@@ -1044,7 +1047,7 @@
             <span class="n">assign</span><span class="p">[</span><span class="s2">&quot;target&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">state</span><span class="o">.</span><span class="n">subroutine</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="p">):</span>
             <span class="c1"># Create the dummy variable name</span>
-            <span class="n">dummy_variable</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{assign[&quot;target&quot;][0][&quot;name&quot;]}</span><span class="s1">_return&#39;</span>
+            <span class="n">dummy_variable</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">assign</span><span class="p">[</span><span class="s2">&quot;target&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">_return&#39;</span>
             <span class="c1"># We need to make sure that this dummy variable is not already</span>
             <span class="c1"># present in this module scope. If it is, throw and error for now</span>
             <span class="n">check_list</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1110,8 +1113,8 @@
         <span class="sd">&quot;&quot;&quot; This function handles &lt;function&gt; tag.  &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="p">(</span>
             <span class="n">root</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;function&quot;</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;function&gt;. Current tag is </span><span class="si">{root.tag}</span><span class="s2"> with&quot;</span> \
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{root.attrib}</span><span class="s2"> attributes.&quot;</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;function&gt;. Current tag is </span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2"> with&quot;</span> \
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="si">}</span><span class="s2"> attributes.&quot;</span>
         <span class="n">subroutine</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current_module</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">summaries</span><span class="p">[</span><span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1147,8 +1150,8 @@
 
         <span class="k">assert</span> <span class="p">(</span>
             <span class="n">root</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;dimension&quot;</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;dimension&gt;. Current tag is </span><span class="si">{root.tag}</span><span class="s2"> with &quot;</span> \
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{root.attrib}</span><span class="s2"> attributes.&quot;</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;dimension&gt;. Current tag is </span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2"> with &quot;</span> \
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="si">}</span><span class="s2"> attributes.&quot;</span>
         <span class="n">dimension</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">root</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;range&quot;</span><span class="p">:</span>
@@ -1166,8 +1169,8 @@
 
         <span class="k">assert</span> <span class="p">(</span>
             <span class="n">root</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;range&quot;</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;range&gt;. Current tag is </span><span class="si">{root.tag}</span><span class="s2"> with &quot;</span> \
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{root.attrib}</span><span class="s2"> attributes.&quot;</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;range&gt;. Current tag is </span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2"> with &quot;</span> \
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="si">}</span><span class="s2"> attributes.&quot;</span>
         <span class="n">ran</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">root</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;lower-bound&quot;</span><span class="p">:</span>
@@ -1180,8 +1183,8 @@
         <span class="sd">&quot;&quot;&quot; This function handles &lt;keyword-argument&gt; tag. &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="p">(</span>
             <span class="n">root</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;keyword-argument&quot;</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;keyword-argument&gt;. Current tag is </span><span class="si">{root.tag}</span><span class="s2"> &quot;</span> \
-            <span class="sa">f</span><span class="s2">&quot;with </span><span class="si">{root.attrib}</span><span class="s2"> attributes.&quot;</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;keyword-argument&gt;. Current tag is </span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2"> &quot;</span> \
+            <span class="sa">f</span><span class="s2">&quot;with </span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="si">}</span><span class="s2"> attributes.&quot;</span>
         <span class="n">x</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="n">root</span><span class="o">.</span><span class="n">attrib</span> <span class="ow">and</span> <span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;argument-name&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
             <span class="n">x</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;arg_name&quot;</span><span class="p">:</span> <span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;argument-name&quot;</span><span class="p">]}]</span>
@@ -1219,13 +1222,13 @@
             <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">break_index</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">loop_active</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">loop_constructs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;loop&quot;</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;break_</span><span class="si">{self.break_index}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="sa">f</span><span class="s2">&quot;loop&quot;</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;break_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">break_index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">root</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;stop&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">return_index</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_index</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">loop_active</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">loop_constructs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;loop&quot;</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;return_</span><span class="si">{self.return_index}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="sa">f</span><span class="s2">&quot;loop&quot;</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;return_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">return_index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[{</span><span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="n">index</span><span class="p">}]</span></div>
 
 <div class="viewcode-block" id="XML_to_JSON_translator.process_format"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.translate.XML_to_JSON_translator.process_format">[docs]</a>    <span class="k">def</span> <span class="nf">process_format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
@@ -1233,8 +1236,8 @@
 
         <span class="k">assert</span> <span class="p">(</span>
             <span class="n">root</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;format&quot;</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;format&gt;. Current tag is </span><span class="si">{root.tag}</span><span class="s2"> with &quot;</span> \
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{root.attrib}</span><span class="s2"> attributes.&quot;</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;The root must be &lt;format&gt;. Current tag is </span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2"> with &quot;</span> \
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">root</span><span class="o">.</span><span class="n">attrib</span><span class="si">}</span><span class="s2"> attributes.&quot;</span>
         <span class="n">format_spec</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="s2">&quot;format&quot;</span><span class="p">,</span> <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">[]}</span>
         <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">root</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;label&quot;</span><span class="p">:</span>
@@ -1318,7 +1321,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cycle_index</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">loop_active</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">loop_constructs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;loop&quot;</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;cycle_</span><span class="si">{self.cycle_index}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="sa">f</span><span class="s2">&quot;loop&quot;</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;cycle_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cycle_index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[{</span><span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="n">root</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> <span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle_index</span><span class="p">}]</span></div>
 
 <div class="viewcode-block" id="XML_to_JSON_translator.process_select"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.translate.XML_to_JSON_translator.process_select">[docs]</a>    <span class="k">def</span> <span class="nf">process_select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
@@ -1343,7 +1346,7 @@
                     <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;value-ranges&quot;</span><span class="p">:</span>
                         <span class="n">case_spec</span><span class="p">[</span><span class="s2">&quot;args&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parseTree</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unhandled type </span><span class="si">{child.tag}</span><span class="s2"> in case&quot;</span>
+                        <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unhandled type </span><span class="si">{</span><span class="n">child</span><span class="o">.</span><span class="n">tag</span><span class="si">}</span><span class="s2"> in case&quot;</span>
             <span class="k">elif</span> <span class="n">node</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;body&quot;</span><span class="p">:</span>
                 <span class="n">case_spec</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parseTree</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
 
@@ -1807,13 +1810,13 @@
             <span class="s2">&quot;is_derived_type&quot;</span><span class="p">:</span> <span class="s2">&quot;false&quot;</span><span class="p">,</span>
             <span class="s2">&quot;keyword2&quot;</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
             <span class="s2">&quot;is_string&quot;</span><span class="p">:</span> <span class="n">is_string</span><span class="p">,</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{function_name}</span><span class="s2">_</span><span class="si">{function_name_tail}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">function_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">function_name_tail</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="s2">&quot;is_array&quot;</span><span class="p">:</span> <span class="s2">&quot;false&quot;</span><span class="p">,</span>
             <span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="s2">&quot;variable&quot;</span>
         <span class="p">}</span>
         <span class="n">target_var</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;tag&quot;</span><span class="p">:</span> <span class="s2">&quot;ref&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{function_name}</span><span class="s2">_</span><span class="si">{function_name_tail}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">function_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">function_name_tail</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="s2">&quot;numPartRef&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
             <span class="s2">&quot;hasSubscripts&quot;</span><span class="p">:</span> <span class="s2">&quot;false&quot;</span><span class="p">,</span>
             <span class="s2">&quot;is_array&quot;</span><span class="p">:</span> <span class="s2">&quot;false&quot;</span><span class="p">,</span>
@@ -1935,7 +1938,7 @@
                 <span class="s2">&quot;WARNING: input contains the following unhandled tags:</span><span class="se">\n</span><span class="s2">&quot;</span>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">unhandled_tags</span><span class="p">:</span>
-                <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{tag}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div></div>
+                <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="get_trees"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.translate.get_trees">[docs]</a><span class="k">def</span> <span class="nf">get_trees</span><span class="p">(</span><span class="n">files</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ET</span><span class="o">.</span><span class="n">ElementTree</span><span class="p">]:</span>
@@ -2014,20 +2017,25 @@
            
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Adarsh
+        &#169; Copyright 2018, Adarsh.
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
@@ -2035,7 +2043,6 @@
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

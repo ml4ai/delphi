@@ -164,7 +164,6 @@ delphi.translators.for2py.types\_ext module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

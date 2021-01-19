@@ -1,43 +1,46 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>delphi.GrFN.networks &mdash; delphi  documentation</title>
   
-
-  
-  
-  
-  
-
-  
-  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/language_data.js"></script>
-        <script src="../../../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
-        <script src="../../../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
-    
 
   
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../../../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
@@ -79,6 +82,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -89,13 +93,9 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../index.html">Home</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model.html">The Delphi model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../GrFN_API.html">GroundedFunctionNetwork API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../grfn_spec.html#change-log">Change Log</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../grfn_spec.html">}</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../CONTRIBUTING.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cpp_api/library_root.html">C++ API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
@@ -104,6 +104,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -138,11 +139,13 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="../../index.html">Module code</a> &raquo;</li>
         
@@ -367,10 +370,10 @@
             <span class="nb">repr</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">n</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;variable&quot;</span>
-                <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{n}</span><span class="s2">{inspect.signature(self.nodes[n][&#39;lambda_fn&#39;])}&quot;</span>
+                <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">n</span><span class="si">}{</span><span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s1">&#39;lambda_fn&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
 
-            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;{tab * depth}</span><span class="si">{repr}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tab</span> <span class="o">*</span> <span class="n">depth</span><span class="si">}{</span><span class="nb">repr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">result</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">traverse_nodes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">successors</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">depth</span><span class="o">=</span><span class="n">depth</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
             <span class="p">)</span>
@@ -424,7 +427,7 @@
             <span class="k">return</span> <span class="n">make_variable_name</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">make_variable_name</span><span class="p">(</span><span class="n">parent</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">basename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{parent}</span><span class="s2">::</span><span class="si">{basename}</span><span class="s2">::</span><span class="si">{index}</span><span class="s2">&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">parent</span><span class="si">}</span><span class="s2">::</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">::</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">&quot;</span>
 
         <span class="k">def</span> <span class="nf">add_variable_node</span><span class="p">(</span>
             <span class="n">parent</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">basename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">is_exit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
@@ -438,8 +441,8 @@
                 <span class="n">fillcolor</span><span class="o">=</span><span class="s2">&quot;crimson&quot;</span> <span class="k">if</span> <span class="n">is_exit</span> <span class="k">else</span> <span class="s2">&quot;white&quot;</span><span class="p">,</span>
                 <span class="n">style</span><span class="o">=</span><span class="s2">&quot;filled&quot;</span> <span class="k">if</span> <span class="n">is_exit</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
                 <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
-                <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{basename}</span><span class="s2">::</span><span class="si">{index}</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="n">cag_label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{basename}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">::</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">cag_label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="n">basename</span><span class="o">=</span><span class="n">basename</span><span class="p">,</span>
                 <span class="n">padding</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
                 <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -448,7 +451,7 @@
 
         <span class="k">def</span> <span class="nf">process_wiring_statement</span><span class="p">(</span><span class="n">stmt</span><span class="p">,</span> <span class="n">scope</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">cname</span><span class="p">):</span>
             <span class="n">lambda_name</span> <span class="o">=</span> <span class="n">stmt</span><span class="p">[</span><span class="s2">&quot;function&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
-            <span class="n">lambda_node_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{scope.name}</span><span class="s2">::&quot;</span> <span class="o">+</span> <span class="n">lambda_name</span>
+            <span class="n">lambda_node_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">scope</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">::&quot;</span> <span class="o">+</span> <span class="n">lambda_name</span>
 
             <span class="n">stmt_type</span> <span class="o">=</span> <span class="n">lambda_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">stmt_type</span> <span class="o">==</span> <span class="s2">&quot;assign&quot;</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">stmt</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -527,7 +530,7 @@
                 <span class="n">caller_up</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node_name</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">callee_var</span><span class="p">,</span> <span class="n">caller_var</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">callee_ret</span><span class="p">,</span> <span class="n">caller_ret</span><span class="p">):</span>
-                <span class="n">lambda_node_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{callee_var}</span><span class="s2">--&gt;</span><span class="si">{caller_var}</span><span class="s2">&quot;</span>
+                <span class="n">lambda_node_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">callee_var</span><span class="si">}</span><span class="s2">--&gt;</span><span class="si">{</span><span class="n">caller_var</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
                     <span class="n">lambda_node_name</span><span class="p">,</span>
                     <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;function&quot;</span><span class="p">,</span>
@@ -542,7 +545,7 @@
                 <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">lambda_node_name</span><span class="p">,</span> <span class="n">caller_var</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">callee_var</span><span class="p">,</span> <span class="n">caller_var</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">callee_up</span><span class="p">,</span> <span class="n">caller_up</span><span class="p">):</span>
-                <span class="n">lambda_node_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{callee_var}</span><span class="s2">--&gt;</span><span class="si">{caller_var}</span><span class="s2">&quot;</span>
+                <span class="n">lambda_node_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">callee_var</span><span class="si">}</span><span class="s2">--&gt;</span><span class="si">{</span><span class="n">caller_var</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
                     <span class="n">lambda_node_name</span><span class="p">,</span>
                     <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;function&quot;</span><span class="p">,</span>
@@ -576,7 +579,7 @@
                 <span class="k">elif</span> <span class="n">func_type</span> <span class="o">==</span> <span class="s2">&quot;container&quot;</span><span class="p">:</span>
                     <span class="n">process_call_statement</span><span class="p">(</span><span class="n">stmt</span><span class="p">,</span> <span class="n">scope</span><span class="p">,</span> <span class="n">input_vars</span><span class="p">,</span> <span class="n">cname</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Undefined function type: </span><span class="si">{func_type}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Undefined function type: </span><span class="si">{</span><span class="n">func_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
             <span class="n">return_list</span><span class="p">,</span> <span class="n">updated_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(),</span> <span class="nb">list</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">scope</span><span class="o">.</span><span class="n">returns</span><span class="p">:</span>
@@ -736,7 +739,7 @@
                     <span class="p">}</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unrecognized node type: </span><span class="si">{data[&#39;type&#39;]}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unrecognized node type: </span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
             <span class="p">{</span>
@@ -767,7 +770,7 @@
             <span class="n">root_graph</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">(</span><span class="n">subgraph_nodes</span><span class="p">)</span>
             <span class="n">subgraph</span> <span class="o">=</span> <span class="n">root_graph</span><span class="o">.</span><span class="n">add_subgraph</span><span class="p">(</span>
                 <span class="n">subgraph_nodes</span><span class="p">,</span>
-                <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;cluster_</span><span class="si">{cluster_name}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;cluster_</span><span class="si">{</span><span class="n">cluster_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="n">label</span><span class="o">=</span><span class="n">cluster_name</span><span class="p">,</span>
                 <span class="n">style</span><span class="o">=</span><span class="s2">&quot;bold, rounded&quot;</span><span class="p">,</span>
                 <span class="n">rankdir</span><span class="o">=</span><span class="s2">&quot;LR&quot;</span><span class="p">,</span>
@@ -929,7 +932,7 @@
             <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">G2</span><span class="p">,</span> <span class="n">GroundedFunctionNetwork</span><span class="p">)</span>
         <span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Expected two GrFNs, but got ({type(G1)}, {type(G2)})&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Expected two GrFNs, but got (</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">G1</span><span class="p">)</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">G2</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
             <span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">shortname</span><span class="p">(</span><span class="n">var</span><span class="p">):</span>
@@ -993,20 +996,25 @@
            
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Adarsh
+        &#169; Copyright 2018, Adarsh.
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
@@ -1014,7 +1022,6 @@
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

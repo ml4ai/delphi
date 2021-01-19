@@ -1,4 +1,4 @@
-delphi.GrFN.networks.GroundedFunctionNetwork.run
+﻿delphi.GrFN.networks.GroundedFunctionNetwork.run
 ================================================
 
 .. currentmodule:: delphi.GrFN.networks

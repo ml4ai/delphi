@@ -44,7 +44,6 @@ delphi.apps.rest\_api.run module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

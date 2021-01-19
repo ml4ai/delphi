@@ -1,43 +1,46 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>Program Listing for File AnalysisGraph.hpp &mdash; delphi  documentation</title>
   
-
-  
-  
-  
-  
-
-  
-  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
-        <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
-        <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
 
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
   <link rel="stylesheet" href="../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
 </head>
@@ -79,6 +82,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -89,13 +93,9 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../model.html">The Delphi model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../GrFN_API.html">GroundedFunctionNetwork API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html#change-log">Change Log</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html">}</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTING.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="library_root.html">C++ API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
@@ -104,6 +104,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -138,18 +139,20 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../index.html">Docs</a> &raquo;</li>
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Program Listing for File AnalysisGraph.hpp</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="../_sources/cpp_api/program_listing_file_lib_AnalysisGraph.hpp.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -186,7 +189,7 @@
 
 <span class="k">const</span> <span class="kt">double</span> <span class="n">tuning_param</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">;</span>
 
-<span class="k">enum</span> <span class="n">InitialBeta</span> <span class="p">{</span> <span class="n">ZERO</span><span class="p">,</span> <span class="n">ONE</span><span class="p">,</span> <span class="n">HALF</span><span class="p">,</span> <span class="n">MEAN</span><span class="p">,</span> <span class="n">RANDOM</span> <span class="p">};</span>
+<span class="k">enum</span> <span class="nc">InitialBeta</span> <span class="p">{</span> <span class="n">ZERO</span><span class="p">,</span> <span class="n">ONE</span><span class="p">,</span> <span class="n">HALF</span><span class="p">,</span> <span class="n">MEAN</span><span class="p">,</span> <span class="n">RANDOM</span> <span class="p">};</span>
 
 <span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span>
     <span class="n">AdjectiveResponseMap</span><span class="p">;</span>
@@ -215,6 +218,12 @@
 <span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">tuple</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">,</span>
                   <span class="n">std</span><span class="o">::</span><span class="n">tuple</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;&gt;</span>
     <span class="n">CausalFragment</span><span class="p">;</span>
+
+<span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">tuple</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span>
+    <span class="n">EventCollection</span><span class="p">;</span>
+
+<span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">EventCollection</span><span class="p">,</span> <span class="n">EventCollection</span><span class="o">&gt;</span>
+    <span class="n">CausalFragmentCollection</span><span class="p">;</span>
 
 <span class="c1">// Access</span>
 <span class="c1">// [ sample ][ time_step ]{ vertex_name --&gt; { indicator_name --&gt; pred}}</span>
@@ -551,7 +560,7 @@
   <span class="c1">// chance in our current model. So for one-off clamping, we have to reset the</span>
   <span class="c1">// derivative back to original after the clamping step. This variable</span>
   <span class="c1">// remembers the time step to reset the clamped derivatives.</span>
-  <span class="kt">int</span> <span class="n">rest_derivative_clamp_ts</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">rest_derivative_clamp_ts</span> <span class="o">=</span> <span class="mi">-1</span><span class="p">;</span>
 
   <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="o">&gt;</span> <span class="n">transition_matrix_collection</span><span class="p">;</span>
   <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="o">&gt;</span> <span class="n">initial_latent_state_collection</span><span class="p">;</span>
@@ -672,13 +681,13 @@
 
   <span class="kt">int</span> <span class="nf">num_nodes</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">boost</span><span class="o">::</span><span class="n">num_vertices</span><span class="p">(</span><span class="n">graph</span><span class="p">);</span> <span class="p">}</span>
 
-  <span class="kt">int</span> <span class="nf">get_vertex_id</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">concept</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kt">int</span> <span class="nf">get_vertex_id</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="k">concept</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">using</span> <span class="k">namespace</span> <span class="n">fmt</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
     <span class="k">try</span> <span class="p">{</span>
-      <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">name_to_vertex</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">concept</span><span class="p">);</span>
+      <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">name_to_vertex</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="k">concept</span><span class="p">);</span>
     <span class="p">}</span>
     <span class="k">catch</span> <span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">out_of_range</span><span class="o">&amp;</span> <span class="n">oor</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">out_of_range</span><span class="p">(</span><span class="s">&quot;Concept </span><span class="se">\&quot;</span><span class="s">{}</span><span class="se">\&quot;</span><span class="s"> not in CAG!&quot;</span><span class="n">_format</span><span class="p">(</span><span class="n">concept</span><span class="p">));</span>
+      <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">out_of_range</span><span class="p">(</span><span class="s">&quot;Concept </span><span class="se">\&quot;</span><span class="s">{}</span><span class="se">\&quot;</span><span class="s"> not in CAG!&quot;</span><span class="n">_format</span><span class="p">(</span><span class="k">concept</span><span class="p">));</span>
     <span class="p">}</span>
   <span class="p">}</span>
 
@@ -707,11 +716,11 @@
     <span class="k">return</span> <span class="n">boost</span><span class="o">::</span><span class="n">make_iterator_range</span><span class="p">(</span><span class="n">boost</span><span class="o">::</span><span class="n">out_edges</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">graph</span><span class="p">));</span>
   <span class="p">}</span>
 
-  <span class="n">Node</span><span class="o">&amp;</span> <span class="n">source</span><span class="p">(</span><span class="n">EdgeDescriptor</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">Node</span><span class="o">&amp;</span> <span class="nf">source</span><span class="p">(</span><span class="n">EdgeDescriptor</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">boost</span><span class="o">::</span><span class="n">source</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">)];</span>
   <span class="p">};</span>
 
-  <span class="n">Node</span><span class="o">&amp;</span> <span class="n">target</span><span class="p">(</span><span class="n">EdgeDescriptor</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">Node</span><span class="o">&amp;</span> <span class="nf">target</span><span class="p">(</span><span class="n">EdgeDescriptor</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">boost</span><span class="o">::</span><span class="n">target</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">)];</span>
   <span class="p">};</span>
 
@@ -911,27 +920,27 @@
 <span class="cm">  */</span>
 
   <span class="k">static</span> <span class="n">AnalysisGraph</span>
-  <span class="nf">from_indra_statements_json_dict</span><span class="p">(</span><span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="n">json_data</span><span class="p">,</span>
+  <span class="n">from_indra_statements_json_dict</span><span class="p">(</span><span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="n">json_data</span><span class="p">,</span>
                                   <span class="kt">double</span> <span class="n">belief_score_cutoff</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span>
                                   <span class="kt">double</span> <span class="n">grounding_score_cutoff</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
                                   <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">ontology</span> <span class="o">=</span> <span class="s">&quot;WM&quot;</span><span class="p">);</span>
 
   <span class="k">static</span> <span class="n">AnalysisGraph</span>
-  <span class="nf">from_indra_statements_json_string</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">json_string</span><span class="p">,</span>
+  <span class="n">from_indra_statements_json_string</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">json_string</span><span class="p">,</span>
                                     <span class="kt">double</span> <span class="n">belief_score_cutoff</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span>
                                     <span class="kt">double</span> <span class="n">grounding_score_cutoff</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
                                     <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">ontology</span> <span class="o">=</span> <span class="s">&quot;WM&quot;</span><span class="p">);</span>
 
   <span class="k">static</span> <span class="n">AnalysisGraph</span>
-  <span class="nf">from_indra_statements_json_file</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filename</span><span class="p">,</span>
+  <span class="n">from_indra_statements_json_file</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filename</span><span class="p">,</span>
                                   <span class="kt">double</span> <span class="n">belief_score_cutoff</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span>
                                   <span class="kt">double</span> <span class="n">grounding_score_cutoff</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
                                   <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">ontology</span> <span class="o">=</span> <span class="s">&quot;WM&quot;</span><span class="p">);</span>
 
   <span class="k">static</span> <span class="n">AnalysisGraph</span>
-  <span class="nf">from_causal_fragments</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">CausalFragment</span><span class="o">&gt;</span> <span class="n">causal_fragments</span><span class="p">);</span>
+  <span class="n">from_causal_fragments</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">CausalFragment</span><span class="o">&gt;</span> <span class="n">causal_fragments</span><span class="p">);</span>
 
-  <span class="k">static</span> <span class="n">AnalysisGraph</span> <span class="nf">from_json_string</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">);</span>
+  <span class="k">static</span> <span class="n">AnalysisGraph</span> <span class="n">from_json_string</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">);</span>
 
   <span class="n">AnalysisGraph</span><span class="p">(</span><span class="k">const</span> <span class="n">AnalysisGraph</span><span class="o">&amp;</span> <span class="n">rhs</span><span class="p">);</span>
 
@@ -948,9 +957,9 @@
 
   <span class="kt">void</span> <span class="nf">from_causemos_json_dict</span><span class="p">(</span><span class="k">const</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="o">&amp;</span><span class="n">json_data</span><span class="p">);</span>
 
-  <span class="k">static</span> <span class="n">AnalysisGraph</span> <span class="nf">from_causemos_json_string</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">json_string</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">res</span><span class="p">);</span>
+  <span class="k">static</span> <span class="n">AnalysisGraph</span> <span class="n">from_causemos_json_string</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">json_string</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">res</span><span class="p">);</span>
 
-  <span class="k">static</span> <span class="n">AnalysisGraph</span> <span class="nf">from_causemos_json_file</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filename</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">res</span><span class="p">);</span>
+  <span class="k">static</span> <span class="n">AnalysisGraph</span> <span class="n">from_causemos_json_file</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filename</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">res</span><span class="p">);</span>
 
   <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">generate_create_model_response</span><span class="p">();</span>
 
@@ -976,9 +985,9 @@
 
   <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">serialize_to_json_string</span><span class="p">(</span><span class="kt">bool</span> <span class="n">verbose</span> <span class="o">=</span> <span class="nb">true</span><span class="p">);</span>
 
-  <span class="k">static</span> <span class="n">AnalysisGraph</span> <span class="nf">deserialize_from_json_string</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">json_string</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">verbose</span> <span class="o">=</span> <span class="nb">true</span><span class="p">);</span>
+  <span class="k">static</span> <span class="n">AnalysisGraph</span> <span class="n">deserialize_from_json_string</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">json_string</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">verbose</span> <span class="o">=</span> <span class="nb">true</span><span class="p">);</span>
 
-  <span class="k">static</span> <span class="n">AnalysisGraph</span> <span class="nf">deserialize_from_json_file</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filename</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">verbose</span> <span class="o">=</span> <span class="nb">true</span><span class="p">);</span>
+  <span class="k">static</span> <span class="n">AnalysisGraph</span> <span class="n">deserialize_from_json_file</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filename</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">verbose</span> <span class="o">=</span> <span class="nb">true</span><span class="p">);</span>
 
   <span class="cm">/*</span>
 <span class="cm">   ============================================================================</span>
@@ -1037,15 +1046,16 @@
 <span class="cm">   ============================================================================</span>
 <span class="cm">  */</span>
 
-  <span class="kt">void</span> <span class="nf">add_node</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">concept</span><span class="p">);</span>
+  <span class="kt">void</span> <span class="nf">add_node</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="k">concept</span><span class="p">);</span>
 
-  <span class="kt">void</span> <span class="nf">add_edge</span><span class="p">(</span><span class="n">CausalFragment</span> <span class="n">causal_fragment</span><span class="p">);</span>
+  <span class="kt">bool</span> <span class="nf">add_edge</span><span class="p">(</span><span class="n">CausalFragment</span> <span class="n">causal_fragment</span><span class="p">);</span>
+  <span class="kt">void</span> <span class="nf">add_edge</span><span class="p">(</span><span class="n">CausalFragmentCollection</span> <span class="n">causal_fragments</span><span class="p">);</span>
   <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">EdgeDescriptor</span><span class="p">,</span> <span class="kt">bool</span><span class="o">&gt;</span> <span class="n">add_edge</span><span class="p">(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="p">);</span>
   <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">EdgeDescriptor</span><span class="p">,</span> <span class="kt">bool</span><span class="o">&gt;</span> <span class="n">add_edge</span><span class="p">(</span><span class="kt">int</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">);</span>
   <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">EdgeDescriptor</span><span class="p">,</span> <span class="kt">bool</span><span class="o">&gt;</span> <span class="n">add_edge</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="p">);</span>
   <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">EdgeDescriptor</span><span class="p">,</span> <span class="kt">bool</span><span class="o">&gt;</span> <span class="n">add_edge</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">);</span>
 
-  <span class="kt">void</span> <span class="nf">remove_node</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">concept</span><span class="p">);</span>
+  <span class="kt">void</span> <span class="nf">remove_node</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="k">concept</span><span class="p">);</span>
 
   <span class="c1">// Note:</span>
   <span class="c1">//      Although just calling this-&gt;remove_node(concept) within the loop</span>
@@ -1070,13 +1080,13 @@
   <span class="c1">// TODO Change the name of this function to something better, like</span>
   <span class="c1">// restrict_to_subgraph_for_concept, update docstring</span>
 
-  <span class="n">AnalysisGraph</span> <span class="nf">get_subgraph_for_concept</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">concept</span><span class="p">,</span>
+  <span class="n">AnalysisGraph</span> <span class="nf">get_subgraph_for_concept</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="k">concept</span><span class="p">,</span>
                                          <span class="kt">bool</span> <span class="n">inward</span> <span class="o">=</span> <span class="nb">false</span><span class="p">,</span>
-                                         <span class="kt">int</span> <span class="n">depth</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+                                         <span class="kt">int</span> <span class="n">depth</span> <span class="o">=</span> <span class="mi">-1</span><span class="p">);</span>
 
   <span class="n">AnalysisGraph</span> <span class="nf">get_subgraph_for_concept_pair</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">source_concept</span><span class="p">,</span>
                                               <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">target_concept</span><span class="p">,</span>
-                                              <span class="kt">int</span> <span class="n">cutoff</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+                                              <span class="kt">int</span> <span class="n">cutoff</span> <span class="o">=</span> <span class="mi">-1</span><span class="p">);</span>
 
   <span class="cm">/*</span>
 <span class="cm">   ============================================================================</span>
@@ -1106,11 +1116,11 @@
 <span class="cm">  */</span>
 
   <span class="kt">int</span>
-  <span class="nf">set_indicator</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">concept</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">indicator</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">source</span><span class="p">);</span>
+  <span class="nf">set_indicator</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="k">concept</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">indicator</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">source</span><span class="p">);</span>
 
-  <span class="kt">void</span> <span class="nf">delete_indicator</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">concept</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">indicator</span><span class="p">);</span>
+  <span class="kt">void</span> <span class="nf">delete_indicator</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="k">concept</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">indicator</span><span class="p">);</span>
 
-  <span class="kt">void</span> <span class="nf">delete_all_indicators</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">concept</span><span class="p">);</span>
+  <span class="kt">void</span> <span class="nf">delete_all_indicators</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="k">concept</span><span class="p">);</span>
 
   <span class="kt">void</span> <span class="nf">map_concepts_to_indicators</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">country</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="p">);</span>
 
@@ -1259,20 +1269,25 @@
            
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Adarsh
+        &#169; Copyright 2018, Adarsh.
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
@@ -1280,7 +1295,6 @@
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

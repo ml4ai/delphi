@@ -129,6 +129,8 @@ Typedefs
 
 - :ref:`exhale_typedef_AnalysisGraph_8hpp_1ae4708e8d7ab72d366215bd1758e95d30`
 
+- :ref:`exhale_typedef_AnalysisGraph_8hpp_1a799e0a513577f0ce8c4f929c7a4bd902`
+
 - :ref:`exhale_typedef_AnalysisGraph_8hpp_1af007983fd492cfaedabba8775b0d0dd3`
 
 - :ref:`exhale_typedef_AnalysisGraph_8hpp_1ac0056af77c80eea9d6bf759eb26c26a6`
@@ -150,6 +152,8 @@ Typedefs
 - :ref:`exhale_typedef_AnalysisGraph_8hpp_1abefc047aeed979eb75695e7f604b24fd`
 
 - :ref:`exhale_typedef_AnalysisGraph_8hpp_1ac3e83aa9f00904eae1d442fe20caa090`
+
+- :ref:`exhale_typedef_AnalysisGraph_8hpp_1a35c0c33dd4ed7eef4ebe007037451383`
 
 - :ref:`exhale_typedef_AnalysisGraph_8hpp_1a79c6d5c182c277498b6c9b3151276580`
 

@@ -1,43 +1,46 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>delphi.plotter &mdash; delphi  documentation</title>
   
-
-  
-  
-  
-  
-
-  
-  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/language_data.js"></script>
-        <script src="../../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
-        <script src="../../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="../../_static/js/theme.js"></script>
-
-    
 
   
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
 </head>
@@ -79,6 +82,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -89,13 +93,9 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../index.html">Home</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../model.html">The Delphi model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../GrFN_API.html">GroundedFunctionNetwork API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../grfn_spec.html#change-log">Change Log</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../grfn_spec.html">}</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../CONTRIBUTING.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cpp_api/library_root.html">C++ API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
@@ -104,6 +104,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -138,11 +139,13 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../../index.html">Docs</a> &raquo;</li>
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="../index.html">Module code</a> &raquo;</li>
         
@@ -196,7 +199,7 @@
     <span class="k">if</span> <span class="n">out_dir</span><span class="p">:</span>
         <span class="n">out_path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">out_dir</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">out_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Making output directory: </span><span class="si">{out_dir}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Making output directory: </span><span class="si">{</span><span class="n">out_dir</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="n">out_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="n">concept_indicators</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">adjectives</span><span class="p">,</span> <span class="n">polarities</span><span class="p">,</span> <span class="n">edge_data</span><span class="p">,</span> <span class="n">derivatives</span><span class="p">,</span> <span class="n">data_range</span><span class="p">,</span> <span class="n">data_set</span><span class="p">,</span> <span class="n">pred_range</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">cis</span>  <span class="o">=</span> <span class="n">model_state</span>
@@ -239,8 +242,8 @@
         <span class="n">adj</span> <span class="o">=</span> <span class="n">adjectives</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
         <span class="n">pol</span> <span class="o">=</span> <span class="n">polarities</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
 
-        <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{source}</span><span class="s1">)&#39;</span> <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;$\longrightarrow$&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{target}</span><span class="s1">)</span><span class="se">\n</span><span class="s1">(</span><span class="si">{adj[0]}</span><span class="s1">, </span><span class="si">{pol[0]}</span><span class="s1">)&#39;</span> <span class="o">+</span>
-                <span class="sa">r</span><span class="s1">&#39;$\longrightarrow$&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{adj[1]}</span><span class="s1">, </span><span class="si">{pol[1]}</span><span class="s1">)&#39;</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s1">)&#39;</span> <span class="o">+</span> <span class="sa">r</span><span class="s1">&#39;$\longrightarrow$&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s1">)</span><span class="se">\n</span><span class="s1">(</span><span class="si">{</span><span class="n">adj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">pol</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">)&#39;</span> <span class="o">+</span>
+                <span class="sa">r</span><span class="s1">&#39;$\longrightarrow$&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="n">adj</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">pol</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
         <span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Theta Samples&#39;</span><span class="p">)</span>
         <span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Theta Prior and Samples&#39;</span><span class="p">)</span>
         <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Prior</span><span class="se">\n</span><span class="s1">Probabilities&#39;</span><span class="p">)</span>
@@ -249,7 +252,7 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">out_dir</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{out_dir}</span><span class="s1">/</span><span class="si">{file_name_prefix}</span><span class="s1">_</span><span class="si">{plot_num}</span><span class="s1">_Thetas_</span><span class="si">{source}</span><span class="s1">--</span><span class="si">{target}</span><span class="s1">.png&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">out_dir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">file_name_prefix</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">plot_num</span><span class="si">}</span><span class="s1">_Thetas_</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s1">--</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">)</span>
             <span class="n">plot_num</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -286,7 +289,7 @@
     <span class="n">g</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">out_dir</span><span class="p">:</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{out_dir}</span><span class="s1">/</span><span class="si">{file_name_prefix}</span><span class="s1">_</span><span class="si">{plot_num}</span><span class="s1">_Derivatives.png&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">out_dir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">file_name_prefix</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">plot_num</span><span class="si">}</span><span class="s1">_Derivatives.png&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
         <span class="n">plot_num</span> <span class="o">+=</span> <span class="mi">1</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -361,11 +364,11 @@
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="n">ind</span> <span class="o">=</span> <span class="n">ind</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Mean Predictions and Data</span><span class="se">\n</span><span class="si">{ind}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Mean Predictions and Data</span><span class="se">\n</span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">out_dir</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{out_dir}</span><span class="s1">/</span><span class="si">{file_name_prefix}</span><span class="s1">_</span><span class="si">{plot_num}</span><span class="s1">_Data_and_Predictions_</span><span class="si">{ind}</span><span class="s1">.png&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">out_dir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">file_name_prefix</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">plot_num</span><span class="si">}</span><span class="s1">_Data_and_Predictions_</span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">)</span>
             <span class="n">plot_num</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -435,10 +438,10 @@
 
 
         <span class="n">ind</span> <span class="o">=</span> <span class="n">ind</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Median Predictions and $95\%$ Confidence Interval</span><span class="se">\n</span><span class="si">{ind}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Median Predictions and $95\%$ Confidence Interval</span><span class="se">\n</span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">out_dir</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{out_dir}</span><span class="s1">/</span><span class="si">{file_name_prefix}</span><span class="s1">_</span><span class="si">{plot_num}</span><span class="s1">_Predictions_Median_and_CI_</span><span class="si">{ind}</span><span class="s1">.png&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">out_dir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">file_name_prefix</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">plot_num</span><span class="si">}</span><span class="s1">_Predictions_Median_and_CI_</span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">)</span>
             <span class="n">plot_num</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -490,15 +493,15 @@
 
                 <span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax_left</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df_source</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;Time Step&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;Median&#39;</span><span class="p">,</span>
                         <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color_left</span><span class="p">,</span>
-                        <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{source}</span><span class="s1">&#39;</span><span class="p">)</span>
+                        <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
                 <span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax_right</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df_target</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;Time Step&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;Median&#39;</span><span class="p">,</span>
                         <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color_right</span><span class="p">,</span>
-                        <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{target}</span><span class="s1">&#39;</span><span class="p">)</span>
+                        <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
                 <span class="n">sns</span><span class="o">.</span><span class="n">scatterplot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax_left</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df_source_data</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;Time Step&#39;</span><span class="p">,</span>
-                    <span class="n">y</span><span class="o">=</span><span class="s1">&#39;Data&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color_left</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{source}</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">y</span><span class="o">=</span><span class="s1">&#39;Data&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color_left</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
                 <span class="n">sns</span><span class="o">.</span><span class="n">scatterplot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax_right</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df_target_data</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;Time Step&#39;</span><span class="p">,</span>
-                        <span class="n">y</span><span class="o">=</span><span class="s1">&#39;Data&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color_right</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{target}</span><span class="s1">&#39;</span><span class="p">)</span>
+                        <span class="n">y</span><span class="o">=</span><span class="s1">&#39;Data&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color_right</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
                 <span class="c1"># Legend</span>
                 <span class="n">handles_left</span><span class="p">,</span> <span class="n">labels_left</span> <span class="o">=</span> <span class="n">ax_left</span><span class="o">.</span><span class="n">get_legend_handles_labels</span><span class="p">()</span>
@@ -525,14 +528,14 @@
                 <span class="n">ax_right</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">ind_target</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color_right</span><span class="p">)</span>
                 <span class="n">ax_right</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">labelcolor</span><span class="o">=</span><span class="n">color_right</span><span class="p">)</span>
 
-                <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{source}</span><span class="s1">)&#39;</span> <span class="o">+</span>
-                        <span class="sa">r</span><span class="s1">&#39;$\longrightarrow$&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{target}</span><span class="s1">)</span><span class="se">\n</span><span class="s1">(</span><span class="si">{adj[0]}</span><span class="s1">, </span><span class="si">{pol[0]}</span><span class="s1">)&#39;</span> <span class="o">+</span>
-                        <span class="sa">r</span><span class="s1">&#39;$\longrightarrow$&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{adj[1]}</span><span class="s1">, </span><span class="si">{pol[1]}</span><span class="s1">)&#39;</span><span class="p">)</span>
+                <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s1">)&#39;</span> <span class="o">+</span>
+                        <span class="sa">r</span><span class="s1">&#39;$\longrightarrow$&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s1">)</span><span class="se">\n</span><span class="s1">(</span><span class="si">{</span><span class="n">adj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">pol</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">)&#39;</span> <span class="o">+</span>
+                        <span class="sa">r</span><span class="s1">&#39;$\longrightarrow$&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="n">adj</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">pol</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
 
                 <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 
                 <span class="k">if</span> <span class="n">out_dir</span><span class="p">:</span>
-                    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{out_dir}</span><span class="s1">/</span><span class="si">{file_name_prefix}</span><span class="s1">_</span><span class="si">{plot_num}</span><span class="s1">_</span><span class="si">{source}</span><span class="s1">--</span><span class="si">{target}</span><span class="s1">.png&#39;</span><span class="p">)</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">out_dir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">file_name_prefix</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">plot_num</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s1">--</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">)</span>
                     <span class="n">plot_num</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -544,20 +547,25 @@
            
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Adarsh
+        &#169; Copyright 2018, Adarsh.
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
@@ -565,7 +573,6 @@
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

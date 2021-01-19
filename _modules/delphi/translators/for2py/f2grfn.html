@@ -1,43 +1,46 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>delphi.translators.for2py.f2grfn &mdash; delphi  documentation</title>
   
-
-  
-  
-  
-  
-
-  
-  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/jquery.js"></script>
-        <script src="../../../../_static/underscore.js"></script>
-        <script src="../../../../_static/doctools.js"></script>
-        <script src="../../../../_static/language_data.js"></script>
-        <script src="../../../../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
-        <script src="../../../../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
-
-    
 
   
   <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css" />
   <link rel="stylesheet" href="../../../../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../../../../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
 </head>
@@ -79,6 +82,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -89,13 +93,9 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../index.html">Home</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../model.html">The Delphi model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../GrFN_API.html">GroundedFunctionNetwork API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html#change-log">Change Log</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html">}</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../CONTRIBUTING.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../cpp_api/library_root.html">C++ API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
@@ -104,6 +104,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -138,11 +139,13 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="../../../index.html">Module code</a> &raquo;</li>
         
@@ -256,7 +259,7 @@
     <span class="k">if</span> <span class="n">save_intermediate_files</span><span class="p">:</span>
         <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">ElementTree</span><span class="p">(</span><span class="n">ET</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">ofp_xml_string</span><span class="p">))</span>
         <span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{temp_dir}</span><span class="s2">/{Path(preprocessed_fortran_file).stem}.xml&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">temp_dir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="n">preprocessed_fortran_file</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">.xml&quot;</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">ofp_xml_string</span></div>
@@ -276,7 +279,7 @@
     <span class="n">base</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="c1"># TODO Add some code using Pathlib to check the file extension and make</span>
     <span class="c1"># sure it&#39;s either .f or .for.</span>
-    <span class="n">preprocessed_fortran_file_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{temp_dir}</span><span class="s2">/{str(base)}_preprocessed.f&quot;</span>
+    <span class="n">preprocessed_fortran_file_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">temp_dir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">base</span><span class="p">)</span><span class="si">}</span><span class="s2">_preprocessed.f&quot;</span>
     <span class="n">preprocessed_fortran</span> <span class="o">=</span> <span class="n">preprocessor</span><span class="o">.</span><span class="n">get_preprocessed_lines_from_file</span><span class="p">(</span>
         <span class="n">original_fortran_file</span>
     <span class="p">)</span>
@@ -314,7 +317,7 @@
 
     <span class="n">rectified_tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">ElementTree</span><span class="p">(</span><span class="n">rectified_xml</span><span class="p">)</span>
     <span class="n">rectified_tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{temp_dir}</span><span class="s2">/rectified_{str(Path(original_fortran_file).stem)}.xml&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">temp_dir</span><span class="si">}</span><span class="s2">/rectified_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">original_fortran_file</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span><span class="p">)</span><span class="si">}</span><span class="s2">.xml&quot;</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">rectified_xml</span><span class="p">,</span> <span class="n">module_files_to_process</span></div>
 
@@ -372,7 +375,7 @@
 
     <span class="k">for</span> <span class="n">python_src_tuple</span> <span class="ow">in</span> <span class="n">python_sources</span><span class="p">:</span>
         <span class="n">file_path</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{temp_dir}</span><span class="s2">/</span><span class="si">{MODULE_FILE_PREFIX}</span><span class="s2">{python_src_tuple[1].lower()}.py&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">temp_dir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">MODULE_FILE_PREFIX</span><span class="si">}{</span><span class="n">python_src_tuple</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">.py&quot;</span>
             <span class="k">if</span> <span class="n">python_src_tuple</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;module&quot;</span>
             <span class="k">else</span> <span class="n">main_python_file</span>
         <span class="p">)</span>
@@ -431,9 +434,9 @@
     <span class="c1"># since these module files do not contain a corresponding XML file.</span>
     <span class="k">if</span> <span class="n">module_file_exists</span><span class="p">:</span>
         <span class="n">file_name</span> <span class="o">=</span> <span class="n">genPGM</span><span class="o">.</span><span class="n">get_original_file_name</span><span class="p">(</span><span class="n">original_fortran_file</span><span class="p">)</span>
-        <span class="n">xml_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{path}</span><span class="s2">rectified_</span><span class="si">{file_name}</span><span class="s2">.xml&quot;</span>
+        <span class="n">xml_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">rectified_</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">.xml&quot;</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">xml_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{path}</span><span class="s2">rectified_</span><span class="si">{filename}</span><span class="s2">.xml&quot;</span>
+        <span class="n">xml_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">rectified_</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">.xml&quot;</span>
 
     <span class="c1"># Mapping all variables and objects in the various files</span>
 
@@ -521,7 +524,7 @@
 
         <span class="k">if</span> <span class="n">not_found</span><span class="p">:</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;ERROR: JAR files not found via CLASSPATH:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; {&#39;,&#39;.join(not_found)}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">not_found</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
 
 
@@ -612,10 +615,10 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span>
             <span class="n">temp_dir</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">W_OK</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Directory </span><span class="si">{temp_dir}</span><span class="s2"> is not writable.</span><span class="se">\n\</span>
+        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Directory </span><span class="si">{</span><span class="n">temp_dir</span><span class="si">}</span><span class="s2"> is not writable.</span><span class="se">\n\</span>
 <span class="s2">            Please, provide the directory name to hold files.&quot;</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;*** ALL OUTPUT FILES LIVE IN [</span><span class="si">{temp_dir}</span><span class="s2">]&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;*** ALL OUTPUT FILES LIVE IN [</span><span class="si">{</span><span class="n">temp_dir</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
 
     <span class="c1"># Output files</span>
     <span class="n">python_file</span> <span class="o">=</span> <span class="n">temp_dir</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">base</span> <span class="o">+</span> <span class="s2">&quot;.py&quot;</span>
@@ -698,20 +701,25 @@
            
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Adarsh
+        &#169; Copyright 2018, Adarsh.
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
@@ -719,7 +727,6 @@
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

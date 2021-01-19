@@ -1,43 +1,46 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>delphi.translators.for2py.pyTranslate &mdash; delphi  documentation</title>
   
-
-  
-  
-  
-  
-
-  
-  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/jquery.js"></script>
-        <script src="../../../../_static/underscore.js"></script>
-        <script src="../../../../_static/doctools.js"></script>
-        <script src="../../../../_static/language_data.js"></script>
-        <script src="../../../../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
-        <script src="../../../../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
-
-    
 
   
   <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css" />
   <link rel="stylesheet" href="../../../../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../../../../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
 </head>
@@ -79,6 +82,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -89,13 +93,9 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../index.html">Home</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../model.html">The Delphi model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../GrFN_API.html">GroundedFunctionNetwork API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html">Grounded Function Network (GrFN) Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html#change-log">Change Log</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../delphi_database.html">The Delphi Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grfn_spec.html">}</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../CONTRIBUTING.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../cpp_api/library_root.html">C++ API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
@@ -104,6 +104,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -138,11 +139,13 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="../../../index.html">Module code</a> &raquo;</li>
         
@@ -442,7 +445,7 @@
                            <span class="n">indexRef</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                        <span class="p">),</span>
                        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">def {self.nameMapper[node[&#39;name&#39;]]}(&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">def </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nameMapper</span><span class="p">[</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]]</span><span class="si">}</span><span class="s2">(&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">printAst</span><span class="p">(</span>
             <span class="n">node</span><span class="p">[</span><span class="s2">&quot;args&quot;</span><span class="p">],</span>
             <span class="n">printState</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span>
@@ -484,7 +487,7 @@
                        <span class="p">),</span>
         <span class="p">)</span>
         <span class="c1"># self.functions.append(self.nameMapper[node[&#39;name&#39;]])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">def {self.nameMapper[node[&#39;name&#39;]]}(&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">def </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nameMapper</span><span class="p">[</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]]</span><span class="si">}</span><span class="s2">(&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">funcArgs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">nameMapper</span><span class="p">[</span><span class="n">node</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">nameMapper</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;args&quot;</span><span class="p">]</span>
         <span class="p">]</span>
@@ -548,7 +551,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">py_fn</span><span class="p">,</span> <span class="n">py_fn_type</span><span class="p">,</span> <span class="n">py_mod</span> <span class="o">=</span> <span class="n">INTRINSICS_MAP</span><span class="p">[</span><span class="n">intrinsic</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">For2PyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No handler for Fortran intrinsic </span><span class="si">{intrinsic}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">For2PyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No handler for Fortran intrinsic </span><span class="si">{</span><span class="n">intrinsic</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="n">arg_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_arg_list</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
         <span class="n">arg_strs</span> <span class="o">=</span> <span class="p">[</span>
@@ -556,21 +559,21 @@
         <span class="p">]</span>
 
         <span class="k">if</span> <span class="n">py_mod</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">handler</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{py_mod}</span><span class="s2">.</span><span class="si">{py_fn}</span><span class="s2">&quot;</span>
+            <span class="n">handler</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">py_mod</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">py_fn</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">handler</span> <span class="o">=</span> <span class="n">py_fn</span>
 
         <span class="k">if</span> <span class="n">py_fn_type</span> <span class="o">==</span> <span class="s2">&quot;FUNC&quot;</span><span class="p">:</span>
             <span class="n">arguments</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">arg_strs</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">py_fn</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;adjustl&quot;</span><span class="p">,</span> <span class="s2">&quot;adjustr&quot;</span><span class="p">]:</span>
-                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{arguments}</span><span class="s2">.</span><span class="si">{handler}</span><span class="s2">()&quot;</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">arguments</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">handler</span><span class="si">}</span><span class="s2">()&quot;</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{handler}</span><span class="s2">(</span><span class="si">{arguments}</span><span class="s2">)&quot;</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">handler</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">arguments</span><span class="si">}</span><span class="s2">)&quot;</span>
         <span class="k">elif</span> <span class="n">py_fn_type</span> <span class="o">==</span> <span class="s2">&quot;INFIXOP&quot;</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">arg_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;INFIXOP with {len(arg_list)} arguments&quot;</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{arg_strs[0]}</span><span class="s2"> </span><span class="si">{py_fn}</span><span class="s2"> </span><span class="si">{arg_strs[1]}</span><span class="s2">)&quot;</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">arg_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;INFIXOP with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">arg_list</span><span class="p">)</span><span class="si">}</span><span class="s2"> arguments&quot;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">arg_strs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">py_fn</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">arg_strs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unknown py_fn_type: </span><span class="si">{py_fn_type}</span><span class="s2">&quot;</span></div>
+            <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unknown py_fn_type: </span><span class="si">{</span><span class="n">py_fn_type</span><span class="si">}</span><span class="s2">&quot;</span></div>
 
 <div class="viewcode-block" id="PythonCodeGenerator.get_arg_list"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.pyTranslate.PythonCodeGenerator.get_arg_list">[docs]</a>    <span class="k">def</span> <span class="nf">get_arg_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get_arg_list() returns the list of arguments or subscripts at a node.</span>
@@ -597,17 +600,17 @@
                 <span class="n">to_find</span> <span class="o">=</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;args&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s2">&quot;args&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
                     <span class="n">opt_arg</span> <span class="o">=</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;args&quot;</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
-                    <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{var}</span><span class="s1">.f_index(&quot;</span><span class="si">{to_find}</span><span class="s1">&quot;, [&quot;</span><span class="si">{opt_arg}</span><span class="s1">&quot;])&#39;</span>
+                    <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">.f_index(&quot;</span><span class="si">{</span><span class="n">to_find</span><span class="si">}</span><span class="s1">&quot;, [&quot;</span><span class="si">{</span><span class="n">opt_arg</span><span class="si">}</span><span class="s1">&quot;])&#39;</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{var}</span><span class="s1">.f_index(&quot;</span><span class="si">{to_find}</span><span class="s1">&quot;)&#39;</span>
+                    <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1">.f_index(&quot;</span><span class="si">{</span><span class="n">to_find</span><span class="si">}</span><span class="s1">&quot;)&#39;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">to_find</span> <span class="o">=</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;args&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
-                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{var}</span><span class="s2">[0].find(</span><span class="si">{to_find}</span><span class="s2">)&quot;</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">[0].find(</span><span class="si">{</span><span class="n">to_find</span><span class="si">}</span><span class="s2">)&quot;</span>
 
         <span class="k">if</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">syntax</span><span class="o">.</span><span class="n">F_INTRINSICS</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc_intrinsic</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">current_call</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nameMapper</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{node[&#39;name&#39;]}</span><span class="s2">&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_call</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nameMapper</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
         <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_arg_list</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
 
         <span class="n">arg_strs</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">proc_expr</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span>
@@ -618,14 +621,14 @@
             <span class="n">arguments</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc_print</span><span class="p">(</span><span class="n">arg_strs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">arguments</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">arg_strs</span><span class="p">)</span>
-        <span class="n">exp_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{self.current_call}</span><span class="s2">(</span><span class="si">{arguments}</span><span class="s2">)&quot;</span>
+        <span class="n">exp_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_call</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">arguments</span><span class="si">}</span><span class="s2">)&quot;</span>
 
         <span class="k">return</span> <span class="n">exp_str</span></div>
 
 <div class="viewcode-block" id="PythonCodeGenerator.proc_print"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.pyTranslate.PythonCodeGenerator.proc_print">[docs]</a>    <span class="k">def</span> <span class="nf">proc_print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg_strs</span><span class="p">):</span>
         <span class="n">arguments</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">arg_strs</span><span class="p">)):</span>
-            <span class="n">arguments</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{arg_strs[idx]}</span><span class="s2">&quot;</span>
+            <span class="n">arguments</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">arg_strs</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">arg_strs</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">arguments</span> <span class="o">+=</span> <span class="s2">&quot;, &quot;</span>
         <span class="k">return</span> <span class="n">arguments</span></div>
@@ -642,7 +645,7 @@
                 <span class="n">return_val</span> <span class="o">=</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">return_val</span> <span class="o">=</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{return_val}</span><span class="s1">&quot;&#39;</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">return_val</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span></div>
 
@@ -669,10 +672,10 @@
             <span class="k">if</span> <span class="n">is_derived_type_ref</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">ref_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> \
                             <span class="bp">self</span><span class="o">.</span><span class="n">saved_variables</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_module</span><span class="p">]:</span>
-                    <span class="n">ref_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{self.current_module}</span><span class="s2">.</span><span class="si">{ref_str}</span><span class="s2">&quot;</span>
+                    <span class="n">ref_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_module</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">ref_str</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">ref_str</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">saved_variables</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_module</span><span class="p">]:</span>
-                    <span class="n">ref_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{self.current_module}</span><span class="s2">.</span><span class="si">{ref_str}</span><span class="s2">&quot;</span>
+                    <span class="n">ref_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_module</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">ref_str</span><span class="si">}</span><span class="s2">&quot;</span>
 
         <span class="k">if</span> <span class="s2">&quot;subscripts&quot;</span> <span class="ow">in</span> <span class="n">node</span><span class="p">:</span>
             <span class="c1"># array reference or function call or string indexing</span>
@@ -682,7 +685,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">proc_expr</span><span class="p">(</span><span class="n">subs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">subs</span><span class="p">))</span>
                 <span class="p">]</span>
                 <span class="n">subscripts</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subs_strs</span><span class="p">)</span>
-                <span class="n">expr_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{ref_str}</span><span class="s2">.get_((</span><span class="si">{subscripts}</span><span class="s2">))&quot;</span>
+                <span class="n">expr_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ref_str</span><span class="si">}</span><span class="s2">.get_((</span><span class="si">{</span><span class="n">subscripts</span><span class="si">}</span><span class="s2">))&quot;</span>
             <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">variableMap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span> <span class="ow">and</span> \
                     <span class="bp">self</span><span class="o">.</span><span class="n">variableMap</span><span class="p">[</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> \
                     <span class="s2">&quot;character&quot;</span><span class="p">:</span>
@@ -691,7 +694,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">proc_expr</span><span class="p">(</span><span class="n">subs</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">subs</span>
                 <span class="p">]</span>
                 <span class="n">subscripts</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subs_strs</span><span class="p">)</span>
-                <span class="n">expr_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{ref_str}</span><span class="s2">.get_substr(</span><span class="si">{subscripts}</span><span class="s2">)&quot;</span>
+                <span class="n">expr_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ref_str</span><span class="si">}</span><span class="s2">.get_substr(</span><span class="si">{</span><span class="n">subscripts</span><span class="si">}</span><span class="s2">)&quot;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">expr_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc_call</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -723,7 +726,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">op_str</span> <span class="o">=</span> <span class="n">OPERATOR_MAP</span><span class="p">[</span><span class="n">node</span><span class="p">[</span><span class="s2">&quot;operator&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">For2PyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unhandled operator </span><span class="si">{node[&#39;operator&#39;]}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">For2PyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unhandled operator </span><span class="si">{</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;operator&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s2">&quot;left&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span>
         <span class="n">l_subexpr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc_expr</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s2">&quot;left&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="kc">False</span><span class="p">)</span>
@@ -732,10 +735,10 @@
             <span class="c1"># binary operator</span>
             <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s2">&quot;right&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span>
             <span class="n">r_subexpr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc_expr</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s2">&quot;right&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="kc">False</span><span class="p">)</span>
-            <span class="n">expr_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{l_subexpr}</span><span class="s2"> </span><span class="si">{op_str}</span><span class="s2"> </span><span class="si">{r_subexpr}</span><span class="s2">)&quot;</span>
+            <span class="n">expr_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">l_subexpr</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">op_str</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">r_subexpr</span><span class="si">}</span><span class="s2">)&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># unary operator</span>
-            <span class="n">expr_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{op_str}</span><span class="s2">(</span><span class="si">{l_subexpr}</span><span class="s2">)&quot;</span>
+            <span class="n">expr_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">op_str</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">l_subexpr</span><span class="si">}</span><span class="s2">)&quot;</span>
 
         <span class="k">return</span> <span class="n">expr_str</span></div>
 
@@ -752,8 +755,8 @@
             <span class="c1"># a list wrapper (e.g. f([1]) instead of f(1)</span>
             <span class="k">if</span> <span class="n">wrapper</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_call</span> <span class="o">!=</span> <span class="s2">&quot;print&quot;</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;char&quot;</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;String({len(literal[1:-1])}, </span><span class="si">{literal}</span><span class="s2">)&quot;</span>
-                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{literal}</span><span class="s2">]&quot;</span>
+                    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;String(</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">literal</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">literal</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">literal</span><span class="si">}</span><span class="s2">]&quot;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">literal</span>
 
@@ -771,7 +774,7 @@
             <span class="k">assert</span> <span class="ow">not</span> <span class="n">wrapper</span>
             <span class="n">expr_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc_op</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
 
-        <span class="k">assert</span> <span class="n">expr_str</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;&gt;&gt;&gt; [proc_expr] NULL value: </span><span class="si">{node}</span><span class="s2">&quot;</span>
+        <span class="k">assert</span> <span class="n">expr_str</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;&gt;&gt;&gt; [proc_expr] NULL value: </span><span class="si">{</span><span class="n">node</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">return</span> <span class="n">expr_str</span></div>
 
 <div class="viewcode-block" id="PythonCodeGenerator.printCall"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.pyTranslate.PythonCodeGenerator.printCall">[docs]</a>    <span class="k">def</span> <span class="nf">printCall</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">printState</span><span class="p">:</span> <span class="n">PrintState</span><span class="p">):</span>
@@ -815,7 +818,7 @@
             <span class="k">elif</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;is_derived_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
                 <span class="n">var_type</span> <span class="o">=</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">For2PyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unrecognized type </span><span class="si">{node[&#39;type&#39;]}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">For2PyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unrecognized type </span><span class="si">{</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="n">arg_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nameMapper</span><span class="p">[</span><span class="n">node</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">variableMap</span><span class="p">[</span><span class="n">arg_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
@@ -827,13 +830,13 @@
             <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">var_type</span>
         <span class="p">})</span>
         <span class="k">if</span> <span class="s2">&quot;is_array&quot;</span> <span class="ow">in</span> <span class="n">node</span> <span class="ow">and</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;is_array&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{arg_name}</span><span class="s2">: Array&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">arg_name</span><span class="si">}</span><span class="s2">: Array&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">var_type</span> <span class="o">==</span> <span class="s2">&quot;String&quot;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{arg_name}</span><span class="s2">: String&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">arg_name</span><span class="si">}</span><span class="s2">: String&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;real&quot;</span><span class="p">:</span>
                 <span class="n">var_type</span> <span class="o">=</span> <span class="s2">&quot;Real&quot;</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{arg_name}</span><span class="s2">: List[</span><span class="si">{var_type}</span><span class="s2">]&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">arg_name</span><span class="si">}</span><span class="s2">: List[</span><span class="si">{</span><span class="n">var_type</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
         <span class="n">printState</span><span class="o">.</span><span class="n">definedVars</span> <span class="o">+=</span> <span class="p">[</span><span class="n">arg_name</span><span class="p">]</span></div>
 
     <span class="c1">###########################################################################</span>
@@ -879,8 +882,8 @@
         <span class="c1"># subroutine/function name to it&#39;s prefix.</span>
         <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nameMapper</span><span class="p">[</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]]</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">saved_variables</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_module</span><span class="p">]:</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{self.current_module}</span><span class="s2">.</span><span class="si">{name}</span><span class="s2">&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{name}</span><span class="s2">[0] in range(&quot;</span><span class="p">)</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_module</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">[0] in range(&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">printAst</span><span class="p">(</span>
             <span class="n">node</span><span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">],</span>
@@ -969,25 +972,25 @@
                     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">subs</span><span class="p">))</span>
                 <span class="p">]</span>
                 <span class="n">subscripts</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subs_strs</span><span class="p">)</span>
-                <span class="n">assg_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{lhs[&#39;name&#39;]}</span><span class="s2">.set_((</span><span class="si">{subscripts}</span><span class="s2">), &quot;</span>
+                <span class="n">assg_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lhs</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.set_((</span><span class="si">{</span><span class="n">subscripts</span><span class="si">}</span><span class="s2">), &quot;</span>
             <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">variableMap</span><span class="p">[</span><span class="n">lhs</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;character&quot;</span><span class="p">:</span>
                 <span class="n">subs</span> <span class="o">=</span> <span class="n">lhs</span><span class="p">[</span><span class="s2">&quot;subscripts&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
                 <span class="n">subs_strs</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">proc_expr</span><span class="p">(</span><span class="n">subs</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">subs</span>
                 <span class="p">]</span>
                 <span class="n">subscripts</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subs_strs</span><span class="p">)</span>
-                <span class="n">assg_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{lhs[&#39;name&#39;]}</span><span class="s2">.set_substr(</span><span class="si">{subscripts}</span><span class="s2">, &quot;</span>
+                <span class="n">assg_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lhs</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.set_substr(</span><span class="si">{</span><span class="n">subscripts</span><span class="si">}</span><span class="s2">, &quot;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="kc">False</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">variableMap</span><span class="p">[</span><span class="n">lhs</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;character&quot;</span><span class="p">:</span>
-            <span class="n">assg_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{lhs[&quot;name&quot;]}</span><span class="s1">.set_(&#39;</span>
+            <span class="n">assg_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">lhs</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">.set_(&#39;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># target is a scalar variable</span>
-            <span class="n">assg_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{lhs[&#39;name&#39;]}</span><span class="s2">[0]&quot;</span>
+            <span class="n">assg_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lhs</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">[0]&quot;</span>
 
         <span class="c1"># Check if this is a parameter assignment</span>
         <span class="k">if</span> <span class="n">lhs</span><span class="p">[</span><span class="s2">&quot;is_parameter&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
-            <span class="n">parameter_comment</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;  # PARAMETER: {assg_str[:-3].upper()}&quot;</span>
+            <span class="n">parameter_comment</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;  # PARAMETER: </span><span class="si">{</span><span class="n">assg_str</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">variableMap</span><span class="p">[</span><span class="n">assg_str</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]][</span><span class="s2">&quot;parameter&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="n">is_parameter</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1001,18 +1004,18 @@
                 <span class="k">if</span> <span class="p">(</span><span class="n">lhs</span><span class="p">[</span><span class="s2">&quot;is_derived_type_ref&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">assg_str</span><span class="p">)</span> \
                         <span class="ow">or</span> <span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">nameMapper</span><span class="p">[</span><span class="n">lhs</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]])</span> <span class="ow">and</span> \
                         <span class="n">item</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;int&quot;</span><span class="p">:</span>
-                    <span class="n">rhs_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;int(</span><span class="si">{rhs_str}</span><span class="s2">)&quot;</span>
+                    <span class="n">rhs_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;int(</span><span class="si">{</span><span class="n">rhs_str</span><span class="si">}</span><span class="s2">)&quot;</span>
 
         <span class="c1"># If the target variable is a saved variable add the</span>
         <span class="c1"># subroutine/function name to it&#39;s prefix.</span>
         <span class="k">if</span> <span class="n">lhs</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">saved_variables</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_module</span><span class="p">]:</span>
-            <span class="n">assg_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{self.current_module}</span><span class="s2">.</span><span class="si">{assg_str}</span><span class="s2">&quot;</span>
+            <span class="n">assg_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_module</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">assg_str</span><span class="si">}</span><span class="s2">&quot;</span>
 
         <span class="c1"># Check if the lhs is a real and convert the variable to a numpy float</span>
         <span class="c1"># object if it is</span>
         <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variableMap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">lhs</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="s2">&quot;REAL&quot;</span>
                 <span class="ow">and</span> <span class="n">rhs</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;literal&quot;</span><span class="p">):</span>
-            <span class="n">rhs_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Float32(</span><span class="si">{rhs_str}</span><span class="s2">)&quot;</span>
+            <span class="n">rhs_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Float32(</span><span class="si">{</span><span class="n">rhs_str</span><span class="si">}</span><span class="s2">)&quot;</span>
 
         <span class="k">if</span> <span class="s2">&quot;set_&quot;</span> <span class="ow">in</span> <span class="n">assg_str</span><span class="p">:</span>
             <span class="c1"># If the assignment is to an array and the value is a string,</span>
@@ -1024,13 +1027,13 @@
                 <span class="k">if</span> <span class="n">check_further</span> <span class="ow">and</span> \
                         <span class="s2">&quot;String&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">array_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">lhs</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]):</span>
                     <span class="n">length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">array_map</span><span class="p">[</span><span class="n">lhs</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]][</span><span class="mi">7</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-                    <span class="n">assg_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;String(</span><span class="si">{length}</span><span class="s2">, </span><span class="si">{rhs_str}</span><span class="s2">))&quot;</span>
+                    <span class="n">assg_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;String(</span><span class="si">{</span><span class="n">length</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">rhs_str</span><span class="si">}</span><span class="s2">))&quot;</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">assg_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{rhs_str}</span><span class="s2">)&quot;</span>
+                    <span class="n">assg_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">rhs_str</span><span class="si">}</span><span class="s2">)&quot;</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">assg_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{rhs_str}</span><span class="s2">)&quot;</span>
+                <span class="n">assg_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">rhs_str</span><span class="si">}</span><span class="s2">)&quot;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">assg_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; = </span><span class="si">{rhs_str}</span><span class="s2">&quot;</span>
+            <span class="n">assg_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; = </span><span class="si">{</span><span class="n">rhs_str</span><span class="si">}</span><span class="s2">&quot;</span>
 
         <span class="k">if</span> <span class="n">is_parameter</span><span class="p">:</span>
             <span class="n">assg_str</span> <span class="o">+=</span> <span class="n">parameter_comment</span>
@@ -1041,13 +1044,13 @@
 <div class="viewcode-block" id="PythonCodeGenerator.printUse"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.pyTranslate.PythonCodeGenerator.printUse">[docs]</a>    <span class="k">def</span> <span class="nf">printUse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">printState</span><span class="p">:</span> <span class="n">PrintState</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;include&quot;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">imports</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;from delphi.translators.for2py.tmp.m_{node[&#39;arg&#39;].lower()} &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;import {&#39;, &#39;.join(node[&#39;include&#39;])}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;from delphi.translators.for2py.tmp.m_</span><span class="si">{</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;arg&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;import </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;include&#39;</span><span class="p">])</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">imports</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;from delphi.translators.for2py.tmp.m_&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;{node[&#39;arg&#39;].lower()} import *</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;arg&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2"> import *</span><span class="se">\n</span><span class="s2">&quot;</span>
             <span class="p">)</span></div>
 
 <div class="viewcode-block" id="PythonCodeGenerator.printFuncReturn"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.pyTranslate.PythonCodeGenerator.printFuncReturn">[docs]</a>    <span class="k">def</span> <span class="nf">printFuncReturn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">printState</span><span class="p">:</span> <span class="n">PrintState</span><span class="p">):</span>
@@ -1069,7 +1072,7 @@
                             <span class="s2">&quot;left&quot;</span> <span class="ow">in</span> <span class="n">node</span> <span class="ow">and</span>
                             <span class="s2">&quot;operator&quot;</span> <span class="ow">in</span> <span class="n">node</span> <span class="ow">and</span>
                             <span class="s2">&quot;right&quot;</span> <span class="ow">in</span> <span class="n">node</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Something is missing. Detail of node content: </span><span class="si">{node}</span><span class="s2">&quot;</span>
+                    <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Something is missing. Detail of node content: </span><span class="si">{</span><span class="n">node</span><span class="si">}</span><span class="s2">&quot;</span>
 
                     <span class="k">if</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;left&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;ref&quot;</span><span class="p">:</span>
                         <span class="n">left</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc_ref</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s2">&quot;left&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="kc">False</span><span class="p">)</span>
@@ -1089,7 +1092,7 @@
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">right</span> <span class="o">=</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;right&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
 
-                    <span class="n">val</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{left}</span><span class="s2"> </span><span class="si">{operator}</span><span class="s2"> </span><span class="si">{right}</span><span class="s2">&quot;</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">left</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">operator</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">right</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nameMapper</span><span class="p">[</span><span class="n">node</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]]</span>
@@ -1098,18 +1101,18 @@
                     <span class="n">val</span> <span class="o">=</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">val</span> <span class="o">=</span> <span class="s2">&quot;None&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;return </span><span class="si">{val}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;return </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PythonCodeGenerator.printExit"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.pyTranslate.PythonCodeGenerator.printExit">[docs]</a>    <span class="k">def</span> <span class="nf">printExit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">printState</span><span class="p">:</span> <span class="n">PrintState</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;print(</span><span class="si">{node[&#39;value&#39;]}</span><span class="s2">)&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;print(</span><span class="si">{</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">printState</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">node</span><span class="p">[</span><span class="s1">&#39;tag&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;exit&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;break&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">node</span><span class="p">[</span><span class="s1">&#39;tag&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;stop&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;return&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;tag: </span><span class="si">{node[&#39;tag&#39;]}</span><span class="s2"> not being handled yet.&quot;</span></div>
+            <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;tag: </span><span class="si">{</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;tag&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> not being handled yet.&quot;</span></div>
 
 <div class="viewcode-block" id="PythonCodeGenerator.printReturn"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.pyTranslate.PythonCodeGenerator.printReturn">[docs]</a>    <span class="k">def</span> <span class="nf">printReturn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">printState</span><span class="p">:</span> <span class="n">PrintState</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
@@ -1128,9 +1131,9 @@
         <span class="c1"># the file handles have to be prefixed with their subroutine/function</span>
         <span class="c1"># names</span>
         <span class="k">if</span> <span class="n">file_handle</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">saved_variables</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_module</span><span class="p">]:</span>
-            <span class="n">file_handle</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{self.current_module}</span><span class="s2">.</span><span class="si">{file_handle}</span><span class="s2">&quot;</span>
+            <span class="n">file_handle</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_module</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">file_handle</span><span class="si">}</span><span class="s2">&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{file_handle}</span><span class="s2"> = &quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_handle</span><span class="si">}</span><span class="s2"> = &quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s2">&quot;args&quot;</span><span class="p">]):</span>
             <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;arg_name&quot;</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;arg_name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;file&quot;</span><span class="p">:</span>
@@ -1145,7 +1148,7 @@
                 <span class="p">(</span><span class="n">file_name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&quot;&#39;</span> <span class="ow">and</span> <span class="n">file_name</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">):</span>
             <span class="n">file_name</span> <span class="o">=</span> <span class="n">file_name</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;open(&quot;</span><span class="si">{file_name}</span><span class="s1">&quot;, &quot;</span><span class="si">{open_state}</span><span class="s1">&quot;)&#39;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;open(&quot;</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s1">&quot;, &quot;</span><span class="si">{</span><span class="n">open_state</span><span class="si">}</span><span class="s1">&quot;)&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PythonCodeGenerator.printRead"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.pyTranslate.PythonCodeGenerator.printRead">[docs]</a>    <span class="k">def</span> <span class="nf">printRead</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">printState</span><span class="p">:</span> <span class="n">PrintState</span><span class="p">):</span>
         <span class="n">file_number</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s2">&quot;args&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">])</span>
@@ -1158,13 +1161,13 @@
         <span class="c1"># the file handles have to be prefixed with their subroutine/function</span>
         <span class="c1"># names</span>
         <span class="k">if</span> <span class="n">file_handle</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">saved_variables</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_module</span><span class="p">]:</span>
-            <span class="n">file_handle</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{self.current_module}</span><span class="s2">.</span><span class="si">{file_handle}</span><span class="s2">&quot;</span>
+            <span class="n">file_handle</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_module</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">file_handle</span><span class="si">}</span><span class="s2">&quot;</span>
 
         <span class="n">isArray</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">tempInd</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">if</span> <span class="s2">&quot;subscripts&quot;</span> <span class="ow">in</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;args&quot;</span><span class="p">][</span><span class="mi">2</span><span class="p">]:</span>
             <span class="n">array_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s2">&quot;args&quot;</span><span class="p">])</span> <span class="o">-</span> <span class="mi">2</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;tempVar = [0] * </span><span class="si">{array_len}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;tempVar = [0] * </span><span class="si">{</span><span class="n">array_len</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">printState</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span>
 
         <span class="n">ind</span> <span class="o">=</span> <span class="mi">0</span>
@@ -1174,16 +1177,16 @@
                 <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nameMapper</span><span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]]</span>
                 <span class="k">if</span> <span class="s2">&quot;subscripts&quot;</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
                     <span class="n">isArray</span> <span class="o">=</span> <span class="kc">True</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;tempVar[</span><span class="si">{tempInd}</span><span class="s2">]&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;tempVar[</span><span class="si">{</span><span class="n">tempInd</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
                     <span class="n">tempInd</span> <span class="o">=</span> <span class="n">tempInd</span> <span class="o">+</span> <span class="mi">1</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{var}</span><span class="s2">[0]&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">[0]&quot;</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">ind</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s2">&quot;args&quot;</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">)</span>
             <span class="n">ind</span> <span class="o">=</span> <span class="n">ind</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;,) = format_</span><span class="si">{format_label}</span><span class="s2">_obj.&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;read_line(</span><span class="si">{file_handle}</span><span class="s2">.readline())&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;,) = format_</span><span class="si">{</span><span class="n">format_label</span><span class="si">}</span><span class="s2">_obj.&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;read_line(</span><span class="si">{</span><span class="n">file_handle</span><span class="si">}</span><span class="s2">.readline())&quot;</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">printState</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span>
 
@@ -1193,7 +1196,7 @@
                 <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;ref&quot;</span><span class="p">:</span>
                     <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nameMapper</span><span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]]</span>
                     <span class="k">if</span> <span class="s2">&quot;subscripts&quot;</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{var}</span><span class="s2">.set_((&quot;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">.set_((&quot;</span><span class="p">)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">printAst</span><span class="p">(</span>
                             <span class="n">item</span><span class="p">[</span><span class="s2">&quot;subscripts&quot;</span><span class="p">],</span>
                             <span class="n">printState</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span>
@@ -1203,7 +1206,7 @@
                                 <span class="n">indexRef</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                             <span class="p">),</span>
                         <span class="p">)</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;), tempVar[</span><span class="si">{tempInd}</span><span class="s2">])&quot;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;), tempVar[</span><span class="si">{</span><span class="n">tempInd</span><span class="si">}</span><span class="s2">])&quot;</span><span class="p">)</span>
                         <span class="n">tempInd</span> <span class="o">=</span> <span class="n">tempInd</span> <span class="o">+</span> <span class="mi">1</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">printState</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span>
                 <span class="n">ind</span> <span class="o">=</span> <span class="n">ind</span> <span class="o">+</span> <span class="mi">1</span></div>
@@ -1225,7 +1228,7 @@
             <span class="c1"># means the file handles have to be prefixed with their</span>
             <span class="c1"># subroutine/function names</span>
             <span class="k">if</span> <span class="n">file_handle</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">saved_variables</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_module</span><span class="p">]:</span>
-                <span class="n">file_handle</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{self.current_module}</span><span class="s2">.</span><span class="si">{file_handle}</span><span class="s2">&quot;</span>
+                <span class="n">file_handle</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_module</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">file_handle</span><span class="si">}</span><span class="s2">&quot;</span>
 
         <span class="c1"># Check whether format has been specified</span>
         <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s2">&quot;args&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="s2">&quot;*&quot;</span><span class="p">:</span>
@@ -1236,7 +1239,7 @@
                 <span class="n">format_label</span> <span class="o">=</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;args&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">write_target</span> <span class="o">==</span> <span class="s2">&quot;file&quot;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;write_list_</span><span class="si">{file_id}</span><span class="s2"> = &quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;write_list_</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2"> = &quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">write_target</span> <span class="o">==</span> <span class="s2">&quot;outStream&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;write_list_stream = &quot;</span><span class="p">)</span>
 
@@ -1259,7 +1262,7 @@
                 <span class="n">args_str</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proc_expr</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="kc">False</span><span class="p">))</span>
 
         <span class="n">write_string</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args_str</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{write_string}</span><span class="s2">]&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">write_string</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">printState</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span>
 
         <span class="c1"># If format specified and output in a file, execute write_line on file</span>
@@ -1267,11 +1270,11 @@
         <span class="k">if</span> <span class="n">write_target</span> <span class="o">==</span> <span class="s2">&quot;file&quot;</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">format_type</span> <span class="o">==</span> <span class="s2">&quot;specifier&quot;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;write_line = format_</span><span class="si">{format_label}</span><span class="s2">_obj.&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;write_line(write_list_</span><span class="si">{file_id}</span><span class="s2">)&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;write_line = format_</span><span class="si">{</span><span class="n">format_label</span><span class="si">}</span><span class="s2">_obj.&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;write_line(write_list_</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">)&quot;</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">printState</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{file_handle}</span><span class="s2">.write(write_line)&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_handle</span><span class="si">}</span><span class="s2">.write(write_line)&quot;</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">format_type</span> <span class="o">==</span> <span class="s2">&quot;runtime&quot;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;output_fmt = list_output_formats([&quot;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">write_string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">):</span>
@@ -1281,7 +1284,7 @@
                     <span class="k">if</span> <span class="n">varMatch</span><span class="p">:</span>
                         <span class="n">var</span> <span class="o">=</span> <span class="n">varMatch</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{self.variableMap[var.strip()]}</span><span class="s1">&quot;,&#39;</span>
+                            <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">variableMap</span><span class="p">[</span><span class="n">var</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span><span class="si">}</span><span class="s1">&quot;,&#39;</span>
                         <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;])&quot;</span> <span class="o">+</span> <span class="n">printState</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
@@ -1289,10 +1292,10 @@
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="s2">&quot;write_line = write_stream_obj.&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;write_line(write_list_</span><span class="si">{file_id}</span><span class="s2">)&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;write_line(write_list_</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">)&quot;</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">printState</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{file_handle}</span><span class="s2">.write(write_line)&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_handle</span><span class="si">}</span><span class="s2">.write(write_line)&quot;</span><span class="p">)</span>
 
         <span class="c1"># If printing on stdout, handle accordingly</span>
         <span class="k">elif</span> <span class="n">write_target</span> <span class="o">==</span> <span class="s2">&quot;outStream&quot;</span><span class="p">:</span>
@@ -1306,7 +1309,7 @@
                     <span class="k">if</span> <span class="n">varMatch</span><span class="p">:</span>
                         <span class="n">var</span> <span class="o">=</span> <span class="n">varMatch</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{self.variableMap[var.strip()]}</span><span class="s1">&quot;,&#39;</span>
+                            <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">variableMap</span><span class="p">[</span><span class="n">var</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span><span class="si">}</span><span class="s1">&quot;,&#39;</span>
                         <span class="p">)</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;])&quot;</span> <span class="o">+</span> <span class="n">printState</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span>
@@ -1321,7 +1324,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;sys.stdout.write(write_line)&quot;</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">format_type</span> <span class="o">==</span> <span class="s2">&quot;specifier&quot;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;write_line = format_</span><span class="si">{format_label}</span><span class="s2">_obj.&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;write_line = format_</span><span class="si">{</span><span class="n">format_label</span><span class="si">}</span><span class="s2">_obj.&quot;</span>
                     <span class="s2">&quot;write_line(write_list_stream)&quot;</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">printState</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span>
@@ -1337,13 +1340,13 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="n">_re_int</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
                 <span class="n">temp_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">type_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{token}</span><span class="s2">({&#39;,&#39;.join(temp_list)})&quot;</span><span class="p">)</span>
+                <span class="n">type_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">token</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_list</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
                 <span class="n">temp_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">type_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">type_list</span> <span class="o">=</span> <span class="n">temp_list</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">printState</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">nameMapper</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;format_</span><span class="si">{node[&#39;label&#39;]}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;format_</span><span class="si">{node[&#39;label&#39;]}</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nameMapper</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;format_</span><span class="si">{</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;format_</span><span class="si">{</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">printVariable</span><span class="p">(</span>
             <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;format_&quot;</span> <span class="o">+</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">],</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;STRING&quot;</span><span class="p">},</span> <span class="n">printState</span>
         <span class="p">)</span>
@@ -1351,9 +1354,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
             <span class="p">[</span>
                 <span class="n">printState</span><span class="o">.</span><span class="n">sep</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;format_</span><span class="si">{node[&#39;label&#39;]}</span><span class="s2"> = </span><span class="si">{type_list}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;format_</span><span class="si">{</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">type_list</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="n">printState</span><span class="o">.</span><span class="n">sep</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;format_</span><span class="si">{node[&#39;label&#39;]}</span><span class="s2">_obj = Format(format_</span><span class="si">{node[&#39;label&#39;]}</span><span class="s2">)&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;format_</span><span class="si">{</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_obj = Format(format_</span><span class="si">{</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
                 <span class="n">printState</span><span class="o">.</span><span class="n">sep</span><span class="p">,</span>
             <span class="p">]</span>
         <span class="p">)</span></div>
@@ -1364,7 +1367,7 @@
             <span class="k">if</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;args&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
             <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">nameMapper</span><span class="p">[</span><span class="n">node</span><span class="p">[</span><span class="s2">&quot;args&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]]</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;file_</span><span class="si">{file_id}</span><span class="s2">.close()&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;file_</span><span class="si">{</span><span class="n">file_id</span><span class="si">}</span><span class="s2">.close()&quot;</span><span class="p">)</span></div>
 
     <span class="c1">###########################################################################</span>
     <span class="c1">#                                                                         #</span>
@@ -1389,7 +1392,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">assert</span> <span class="p">(</span>
                         <span class="kc">False</span>
-                    <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Tag </span><span class="si">{node[&#39;value&#39;][0][&#39;tag&#39;]}</span><span class="s2"> &quot;</span> \
+                    <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Tag </span><span class="si">{</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;tag&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> &quot;</span> \
                         <span class="sa">f</span><span class="s2">&quot;currently not handled yet.&quot;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">initVal</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1398,11 +1401,11 @@
 
             <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;op&quot;</span> <span class="ow">and</span> \
                     <span class="p">(</span><span class="s2">&quot;/&quot;</span> <span class="ow">in</span> <span class="n">initVal</span> <span class="ow">or</span> <span class="s2">&quot;*&quot;</span> <span class="ow">in</span> <span class="n">initVal</span><span class="p">)</span> <span class="ow">and</span> <span class="n">varType</span> <span class="o">==</span> <span class="s2">&quot;int&quot;</span><span class="p">:</span>
-                <span class="n">initVal</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;int(</span><span class="si">{initVal}</span><span class="s2">)&quot;</span>
+                <span class="n">initVal</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;int(</span><span class="si">{</span><span class="n">initVal</span><span class="si">}</span><span class="s2">)&quot;</span>
 
             <span class="k">if</span> <span class="s2">&quot;is_derived_type&quot;</span> <span class="ow">in</span> <span class="n">node</span> <span class="ow">and</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;is_derived_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;{self.nameMapper[node[&#39;name&#39;]]} =  </span><span class="si">{varType}</span><span class="s2">()&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nameMapper</span><span class="p">[</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]]</span><span class="si">}</span><span class="s2"> =  </span><span class="si">{</span><span class="n">varType</span><span class="si">}</span><span class="s2">()&quot;</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">declaredDerivedTVars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
@@ -1411,21 +1414,21 @@
                             <span class="n">printState</span><span class="o">.</span><span class="n">functionScope</span>
                     <span class="p">):</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{var_name}</span><span class="s2">: List[</span><span class="si">{varType}</span><span class="s2">]&quot;</span> <span class="sa">f</span><span class="s2">&quot; = [</span><span class="si">{initVal}</span><span class="s2">]&quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s2">: List[</span><span class="si">{</span><span class="n">varType</span><span class="si">}</span><span class="s2">]&quot;</span> <span class="sa">f</span><span class="s2">&quot; = [</span><span class="si">{</span><span class="n">initVal</span><span class="si">}</span><span class="s2">]&quot;</span>
                         <span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{var_name}</span><span class="s2">: List[</span><span class="si">{varType}</span><span class="s2">]&quot;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s2">: List[</span><span class="si">{</span><span class="n">varType</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;is_string&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;is_string&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">initVal</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{var_name}</span><span class="s2"> = &quot;</span>
-                                              <span class="sa">f</span><span class="s2">&quot;String(</span><span class="si">{node[&#39;length&#39;]}</span><span class="s2">)&quot;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s2"> = &quot;</span>
+                                              <span class="sa">f</span><span class="s2">&quot;String(</span><span class="si">{</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;length&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{var_name}</span><span class="s1"> = &#39;</span>
-                                              <span class="sa">f</span><span class="s1">&#39;String(</span><span class="si">{node[&quot;length&quot;]}</span><span class="s1">, &#39;</span>
-                                              <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{initVal}</span><span class="s1">)&#39;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1"> = &#39;</span>
+                                              <span class="sa">f</span><span class="s1">&#39;String(</span><span class="si">{</span><span class="n">node</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">, &#39;</span>
+                                              <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">initVal</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{var_name}</span><span class="s2">: List[</span><span class="si">{varType}</span><span class="s2">] = &quot;</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{initVal}</span><span class="s2">]&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s2">: List[</span><span class="si">{</span><span class="n">varType</span><span class="si">}</span><span class="s2">] = &quot;</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">initVal</span><span class="si">}</span><span class="s2">]&quot;</span>
                     <span class="p">)</span>
 
             <span class="c1"># The code below might cause issues on unexpected places.</span>
@@ -1461,7 +1464,7 @@
             <span class="c1"># If the array has string elements, then we need the length</span>
             <span class="c1"># information as well</span>
             <span class="k">if</span> <span class="n">var_type</span> <span class="o">==</span> <span class="s2">&quot;character&quot;</span><span class="p">:</span>
-                <span class="n">var_type</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;String(</span><span class="si">{node[&#39;length&#39;]}</span><span class="s2">)&quot;</span>
+                <span class="n">var_type</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;String(</span><span class="si">{</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;length&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">array_map</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">nameMapper</span><span class="p">[</span><span class="n">node</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]]]</span> <span class="o">=</span> <span class="n">var_type</span>
             <span class="n">array_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_array_dimension</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
@@ -1470,9 +1473,9 @@
             <span class="c1"># is_save will be True and the argument to the decorator is</span>
             <span class="c1"># returned.</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_save</span><span class="p">:</span>
-                <span class="n">save_argument</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;{{&quot;name&quot;: &quot;</span><span class="si">{node[&quot;name&quot;]}</span><span class="s1">&quot;, &quot;call&quot;: Array&#39;</span> \
-                    <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{var_type}</span><span class="s1">, [</span><span class="si">{array_range}</span><span class="s1">]), &quot;type&quot;: &#39;</span> \
-                    <span class="sa">f</span><span class="s1">&#39;&quot;{TYPE_MAP[node[&quot;type&quot;].lower()]}&quot;}}&#39;</span>
+                <span class="n">save_argument</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">{{</span><span class="s1">&quot;name&quot;: &quot;</span><span class="si">{</span><span class="n">node</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&quot;, &quot;call&quot;: Array&#39;</span> \
+                    <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="n">var_type</span><span class="si">}</span><span class="s1">, [</span><span class="si">{</span><span class="n">array_range</span><span class="si">}</span><span class="s1">]), &quot;type&quot;: &#39;</span> \
+                    <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">TYPE_MAP</span><span class="p">[</span><span class="n">node</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span><span class="si">}</span><span class="s1">&quot;</span><span class="se">}}</span><span class="s1">&#39;</span>
                 <span class="k">return</span> <span class="n">save_argument</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># If the array variable is not SAVEd, print the</span>
@@ -1480,7 +1483,7 @@
                 <span class="k">if</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">saved_variables</span><span class="p">[</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">current_module</span><span class="p">]:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{node[&#39;name&#39;]}</span><span class="s2"> = Array(</span><span class="si">{var_type}</span><span class="s2">, [</span><span class="si">{array_range}</span><span class="s2">])&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> = Array(</span><span class="si">{</span><span class="n">var_type</span><span class="si">}</span><span class="s2">, [</span><span class="si">{</span><span class="n">array_range</span><span class="si">}</span><span class="s2">])&quot;</span>
                     <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="c1"># If it is SAVEd, don&#39;t print the initialization code and</span>
@@ -1493,7 +1496,7 @@
         <span class="n">num_of_variables</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">derived_type_variables</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">printState</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;class </span><span class="si">{derived_type_class_info[&#39;type&#39;]}</span><span class="s2">:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;class </span><span class="si">{</span><span class="n">derived_type_class_info</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="c1"># For a record, store the declared derived type names</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">declaredDerivedTypes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">derived_type_class_info</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">])</span>
 
@@ -1524,25 +1527,25 @@
                     <span class="k">if</span> <span class="n">var_type</span> <span class="o">==</span> <span class="s2">&quot;String&quot;</span><span class="p">:</span>
                         <span class="n">str_length</span> <span class="o">=</span> <span class="n">derived_type_variables</span><span class="p">[</span><span class="n">var</span><span class="p">][</span><span class="s2">&quot;length&quot;</span><span class="p">]</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;        self.</span><span class="si">{name}</span><span class="s2"> = </span><span class="si">{var_type}</span><span class="s2">(</span><span class="si">{str_length}</span><span class="s2">&quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;        self.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">var_type</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">str_length</span><span class="si">}</span><span class="s2">&quot;</span>
                         <span class="p">)</span>
 
                         <span class="k">if</span> <span class="s2">&quot;value&quot;</span> <span class="ow">in</span> <span class="n">derived_type_variables</span><span class="p">[</span><span class="n">var</span><span class="p">]:</span>
                             <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc_literal</span><span class="p">(</span>
                                 <span class="n">derived_type_variables</span><span class="p">[</span><span class="n">var</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
                             <span class="p">)</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;, </span><span class="se">\&quot;</span><span class="si">{value}</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;, </span><span class="se">\&quot;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;)&quot;</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;        self.</span><span class="si">{name}</span><span class="s2"> : </span><span class="si">{var_type}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;        self.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> : </span><span class="si">{</span><span class="n">var_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                         <span class="k">if</span> <span class="s2">&quot;value&quot;</span> <span class="ow">in</span> <span class="n">derived_type_variables</span><span class="p">[</span><span class="n">var</span><span class="p">]:</span>
                             <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc_literal</span><span class="p">(</span>
                                 <span class="n">derived_type_variables</span><span class="p">[</span><span class="n">var</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
                             <span class="p">)</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; = </span><span class="si">{value}</span><span class="s2">&quot;</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; = </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;        self.</span><span class="si">{name}</span><span class="s2"> = </span><span class="si">{var_type}</span><span class="s2">()&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;        self.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">var_type</span><span class="si">}</span><span class="s2">()&quot;</span>
                     <span class="p">)</span>
 
             <span class="k">else</span><span class="p">:</span>
@@ -1551,9 +1554,9 @@
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="n">var_type</span> <span class="o">==</span> <span class="s2">&quot;character&quot;</span><span class="p">:</span>
                     <span class="n">var_type</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;String(&quot;</span> \
-                               <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{derived_type_variables[var][&#39;length&#39;]}</span><span class="s2">)&quot;</span>
+                               <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">derived_type_variables</span><span class="p">[</span><span class="n">var</span><span class="p">][</span><span class="s1">&#39;length&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;        self.</span><span class="si">{name}</span><span class="s2"> = Array(</span><span class="si">{var_type}</span><span class="s2">, [</span><span class="si">{array_range}</span><span class="s2">])&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;        self.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> = Array(</span><span class="si">{</span><span class="n">var_type</span><span class="si">}</span><span class="s2">, [</span><span class="si">{</span><span class="n">array_range</span><span class="si">}</span><span class="s2">])&quot;</span>
                 <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">printState</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span></div>
 
@@ -1584,15 +1587,15 @@
                         <span class="c1"># Array declaration. This will be on the argument to</span>
                         <span class="c1"># the decorator.</span>
                         <span class="n">save_argument</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">printArray</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">printState</span><span class="p">)</span>
-                        <span class="n">variables</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{save_argument}</span><span class="s2">, &quot;</span>
+                        <span class="n">variables</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">save_argument</span><span class="si">}</span><span class="s2">, &quot;</span>
                     <span class="k">elif</span> <span class="n">var</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;variable&quot;</span><span class="p">:</span>
                         <span class="k">if</span> <span class="n">var</span><span class="p">[</span><span class="s2">&quot;is_derived_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
-                            <span class="n">save_argument</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;{{&#39;name&#39;: &#39;</span><span class="si">{var[&#39;name&#39;]}</span><span class="s2">&#39;, &quot;</span> \
-                                <span class="sa">f</span><span class="s2">&quot;&#39;call&#39;: </span><span class="si">{var[&#39;type&#39;]}</span><span class="s2">(), &#39;type&#39;: &quot;</span> \
-                                <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{variable_type}</span><span class="s2">&#39;}}&quot;</span>
+                            <span class="n">save_argument</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">{{</span><span class="s2">&#39;name&#39;: &#39;</span><span class="si">{</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;, &quot;</span> \
+                                <span class="sa">f</span><span class="s2">&quot;&#39;call&#39;: </span><span class="si">{</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">(), &#39;type&#39;: &quot;</span> \
+                                <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">variable_type</span><span class="si">}</span><span class="s2">&#39;</span><span class="se">}}</span><span class="s2">&quot;</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;        self.</span><span class="si">{name}</span><span class="s2"> = </span><span class="si">{var_type}</span><span class="s2">()&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;        self.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">var_type</span><span class="si">}</span><span class="s2">()&quot;</span>
                     <span class="p">)</span>
 
             <span class="k">else</span><span class="p">:</span>
@@ -1600,7 +1603,7 @@
                     <span class="n">derived_type_variables</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;        self.</span><span class="si">{name}</span><span class="s2"> = Array(</span><span class="si">{var_type}</span><span class="s2">, [</span><span class="si">{array_range}</span><span class="s2">])&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;        self.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> = Array(</span><span class="si">{</span><span class="n">var_type</span><span class="si">}</span><span class="s2">, [</span><span class="si">{</span><span class="n">array_range</span><span class="si">}</span><span class="s2">])&quot;</span>
                 <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">printState</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span>
 
@@ -1631,24 +1634,24 @@
                         <span class="c1"># Array declaration. This will be on the argument to</span>
                         <span class="c1"># the decorator.</span>
                         <span class="n">save_argument</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">printArray</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">printState</span><span class="p">)</span>
-                        <span class="n">variables</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{save_argument}</span><span class="s2">, &quot;</span>
+                        <span class="n">variables</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">save_argument</span><span class="si">}</span><span class="s2">, &quot;</span>
                     <span class="k">elif</span> <span class="n">var</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;variable&quot;</span><span class="p">:</span>
                         <span class="k">if</span> <span class="n">var</span><span class="p">[</span><span class="s2">&quot;is_derived_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
-                            <span class="n">save_argument</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;{{&#39;name&#39;: &#39;</span><span class="si">{var[&#39;name&#39;]}</span><span class="s2">&#39;, &quot;</span> \
-                                <span class="sa">f</span><span class="s2">&quot;&#39;call&#39;: </span><span class="si">{var[&#39;type&#39;]}</span><span class="s2">(), &#39;type&#39;: &quot;</span> \
-                                <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{variable_type}</span><span class="s2">&#39;}}&quot;</span>
+                            <span class="n">save_argument</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">{{</span><span class="s2">&#39;name&#39;: &#39;</span><span class="si">{</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;, &quot;</span> \
+                                <span class="sa">f</span><span class="s2">&quot;&#39;call&#39;: </span><span class="si">{</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">(), &#39;type&#39;: &quot;</span> \
+                                <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">variable_type</span><span class="si">}</span><span class="s2">&#39;</span><span class="se">}}</span><span class="s2">&quot;</span>
                         <span class="k">else</span><span class="p">:</span>
                             <span class="n">save_argument</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">var</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
                                              <span class="s2">&quot;call&quot;</span><span class="p">:</span> <span class="p">[</span><span class="kc">None</span><span class="p">],</span>
                                              <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">variable_type</span><span class="p">}</span>
-                        <span class="n">variables</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{save_argument}</span><span class="s2">, &quot;</span>
+                        <span class="n">variables</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">save_argument</span><span class="si">}</span><span class="s2">, &quot;</span>
                     <span class="k">elif</span> <span class="n">var</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;open&quot;</span><span class="p">:</span>
-                        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;file_</span><span class="si">{var[&#39;args&#39;][0][&#39;value&#39;]}</span><span class="s2">&quot;</span>
+                        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;file_</span><span class="si">{</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;args&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">saved_variables</span><span class="p">[</span><span class="n">parent</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-                        <span class="n">save_argument</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;{{&#39;name&#39;: &#39;</span><span class="si">{name}</span><span class="s2">&#39;, &#39;call&#39;: None, &quot;</span> \
-                            <span class="sa">f</span><span class="s2">&quot;&#39;type&#39;: &#39;file_handle&#39;}}&quot;</span>
-                        <span class="n">variables</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{save_argument}</span><span class="s2">, &quot;</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{variables[:-2]}</span><span class="s2">])&quot;</span><span class="p">)</span>
+                        <span class="n">save_argument</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">{{</span><span class="s2">&#39;name&#39;: &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;, &#39;call&#39;: None, &quot;</span> \
+                            <span class="sa">f</span><span class="s2">&quot;&#39;type&#39;: &#39;file_handle&#39;</span><span class="se">}}</span><span class="s2">&quot;</span>
+                        <span class="n">variables</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">save_argument</span><span class="si">}</span><span class="s2">, &quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">variables</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2">])&quot;</span><span class="p">)</span>
                 <span class="n">node</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">to_delete</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_save</span> <span class="o">=</span> <span class="kc">False</span></div>
 
@@ -1660,7 +1663,7 @@
         <span class="k">assert</span> <span class="p">(</span>
                 <span class="n">node</span><span class="p">[</span><span class="s1">&#39;tag&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;cycle&quot;</span>
         <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Tag must be &lt;cycle&gt; for &lt;continue&gt; statement.</span><span class="se">\</span>
-<span class="s2">            current: </span><span class="si">{node[&#39;tag&#39;]}</span><span class="s2">&quot;</span>
+<span class="s2">            current: </span><span class="si">{</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;tag&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;continue&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PythonCodeGenerator.printSelect"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.pyTranslate.PythonCodeGenerator.printSelect">[docs]</a>    <span class="k">def</span> <span class="nf">printSelect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">printState</span><span class="p">:</span> <span class="n">PrintState</span><span class="p">):</span>
@@ -1698,12 +1701,12 @@
                     <span class="n">select_string</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\[.*\]&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_select</span><span class="p">)</span>
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">variableMap</span><span class="p">[</span><span class="n">select_string</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> \
                             <span class="o">==</span> <span class="s2">&quot;character&quot;</span><span class="p">:</span>
-                        <span class="n">check_variable</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{self.current_select}</span><span class="s2">.__str__()&quot;</span>
+                        <span class="n">check_variable</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_select</span><span class="si">}</span><span class="s2">.__str__()&quot;</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">check_variable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_select</span>
 
                     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">arguments</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{check_variable}</span><span class="s2"> == &quot;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">check_variable</span><span class="si">}</span><span class="s2"> == &quot;</span><span class="p">)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">printAst</span><span class="p">(</span>
                             <span class="n">arg</span><span class="p">[</span><span class="s1">&#39;args&#39;</span><span class="p">],</span>
                             <span class="n">printState</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span>
@@ -1715,7 +1718,7 @@
                         <span class="n">right_arg</span> <span class="o">=</span> <span class="n">arguments</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
                         <span class="k">if</span> <span class="n">left_arg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tag&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;literal&quot;</span> <span class="ow">and</span> \
                            <span class="n">left_arg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;&#39;-Inf&#39;&quot;</span><span class="p">:</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{check_variable}</span><span class="s2"> &lt;= &quot;</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">check_variable</span><span class="si">}</span><span class="s2"> &lt;= &quot;</span><span class="p">)</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">printAst</span><span class="p">(</span>
                                 <span class="p">[</span><span class="n">right_arg</span><span class="p">],</span>
                                 <span class="n">printState</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span>
@@ -1724,7 +1727,7 @@
                             <span class="p">)</span>
                         <span class="k">elif</span> <span class="n">right_arg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tag&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;literal&quot;</span> <span class="ow">and</span>  \
                                 <span class="n">right_arg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;&#39;Inf&#39;&quot;</span><span class="p">:</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{check_variable}</span><span class="s2"> &gt;= &quot;</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">check_variable</span><span class="si">}</span><span class="s2"> &gt;= &quot;</span><span class="p">)</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">printAst</span><span class="p">(</span>
                                 <span class="p">[</span><span class="n">left_arg</span><span class="p">],</span>
                                 <span class="n">printState</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span>
@@ -1732,7 +1735,7 @@
                                 <span class="p">)</span>
                             <span class="p">)</span>
                         <span class="k">else</span><span class="p">:</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{check_variable}</span><span class="s2"> &gt;= &quot;</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">check_variable</span><span class="si">}</span><span class="s2"> &gt;= &quot;</span><span class="p">)</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">printAst</span><span class="p">(</span>
                                 <span class="p">[</span><span class="n">left_arg</span><span class="p">],</span>
                                 <span class="n">printState</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span>
@@ -1740,7 +1743,7 @@
                                 <span class="p">)</span>
                             <span class="p">)</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; and &quot;</span>
-                                                  <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{check_variable}</span><span class="s2"> &lt;= &quot;</span><span class="p">)</span>
+                                                  <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">check_variable</span><span class="si">}</span><span class="s2"> &lt;= &quot;</span><span class="p">)</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">printAst</span><span class="p">(</span>
                                 <span class="p">[</span><span class="n">right_arg</span><span class="p">],</span>
                                 <span class="n">printState</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span>
@@ -1749,10 +1752,10 @@
                             <span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Invalid length of case arguments &quot;</span> \
-                                      <span class="sa">f</span><span class="s2">&quot;{len(arguments)}&quot;</span>
+                                      <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">arguments</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;)&quot;</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unhandled case argument {arg.get(&#39;tag&#39;)}&quot;</span>
+                    <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unhandled case argument </span><span class="si">{</span><span class="n">arg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;tag&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;else:&quot;</span><span class="p">)</span>
@@ -1809,7 +1812,7 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">imports</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">imports</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">programName</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="si">{self.programName}</span><span class="s2">()</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">programName</span><span class="si">}</span><span class="s2">()</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pyStrings</span><span class="p">)</span></div>
 
@@ -1823,7 +1826,7 @@
         <span class="n">retrieved_bounds</span> <span class="o">=</span> <span class="p">[</span><span class="n">node</span><span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">],</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">]]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">get_bound</span><span class="p">(</span><span class="n">bounds</span><span class="p">,</span> <span class="n">retrieved_bounds</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{bounds[0]}</span><span class="s2">, </span><span class="si">{bounds[1]}</span><span class="s2">&quot;</span></div>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span></div>
 
 <div class="viewcode-block" id="PythonCodeGenerator.get_bound"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.pyTranslate.PythonCodeGenerator.get_bound">[docs]</a>    <span class="k">def</span> <span class="nf">get_bound</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">retrieved_bounds</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;This function will fill the bounds list with appropriately</span>
@@ -1838,7 +1841,7 @@
                 <span class="n">bounds</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc_ref</span><span class="p">(</span><span class="n">bound</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="kc">False</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unrecognized tag in retrieved_bound: &quot;</span> \
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{bound[0][&#39;tag&#39;]}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bound</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;tag&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span></div>
 
 <div class="viewcode-block" id="PythonCodeGenerator.get_derived_type_ref"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.pyTranslate.PythonCodeGenerator.get_derived_type_ref">[docs]</a>    <span class="k">def</span> <span class="nf">get_derived_type_ref</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">numPartRef</span><span class="p">,</span> <span class="n">is_assignment</span><span class="p">):</span>
@@ -1848,21 +1851,21 @@
         <span class="k">if</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;hasSubscripts&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
             <span class="n">subscript</span> <span class="o">=</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;subscripts&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">subscript</span><span class="p">[</span><span class="s2">&quot;tag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;ref&quot;</span><span class="p">:</span>
-                <span class="n">index</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{subscript[&#39;name&#39;]}</span><span class="s2">[0]&quot;</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">subscript</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">[0]&quot;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">index</span> <span class="o">=</span> <span class="n">subscript</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
 
             <span class="k">if</span> <span class="n">numPartRef</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">is_assignment</span><span class="p">:</span>
-                <span class="n">ref</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{node[&#39;name&#39;]}</span><span class="s2">.get_(</span><span class="si">{index}</span><span class="s2">)&quot;</span>
+                <span class="n">ref</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.get_(</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">)&quot;</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">ref</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{node[&#39;name&#39;]}</span><span class="s2">.set_(</span><span class="si">{index}</span><span class="s2">, &quot;</span>
+                <span class="n">ref</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.set_(</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">, &quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">ref</span> <span class="o">+=</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
         <span class="n">numPartRef</span> <span class="o">-=</span> <span class="mi">1</span>
         <span class="k">if</span> <span class="s2">&quot;ref&quot;</span> <span class="ow">in</span> <span class="n">node</span><span class="p">:</span>
             <span class="n">derived_type_ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_derived_type_ref</span><span class="p">(</span>
                 <span class="n">node</span><span class="p">[</span><span class="s1">&#39;ref&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">numPartRef</span><span class="p">,</span> <span class="n">is_assignment</span><span class="p">)</span>
-            <span class="n">ref</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;.</span><span class="si">{derived_type_ref}</span><span class="s2">&quot;</span>
+            <span class="n">ref</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;.</span><span class="si">{</span><span class="n">derived_type_ref</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">return</span> <span class="n">ref</span></div>
 
 <div class="viewcode-block" id="PythonCodeGenerator.get_type"><a class="viewcode-back" href="../../../../delphi.translators.for2py.html#delphi.translators.for2py.pyTranslate.PythonCodeGenerator.get_type">[docs]</a>    <span class="k">def</span> <span class="nf">get_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
@@ -1887,7 +1890,7 @@
                 <span class="k">if</span> <span class="n">variable_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_type</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_type</span><span class="p">[</span><span class="n">variable_type</span><span class="p">]:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">var_type</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_module</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
-                            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{var_name}</span><span class="s2">.</span><span class="si">{var[&#39;name&#39;]}</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                             <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">var</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
                         <span class="p">})</span>
             <span class="k">elif</span> <span class="p">(</span>
@@ -1897,7 +1900,7 @@
                 <span class="n">variable_type</span> <span class="o">==</span> <span class="s2">&quot;str&quot;</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">set_default_var_type</span><span class="p">(</span><span class="n">var_name</span><span class="p">,</span> <span class="n">variable_type</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unrecognized variable type: </span><span class="si">{variable_type}</span><span class="s2">&quot;</span>
+                <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unrecognized variable type: </span><span class="si">{</span><span class="n">variable_type</span><span class="si">}</span><span class="s2">&quot;</span>
 
             <span class="k">return</span> <span class="n">variable_type</span></div>
 
@@ -1922,19 +1925,19 @@
                     <span class="s2">&quot;literal&quot;</span> <span class="ow">in</span> <span class="n">dimension</span>
             <span class="p">):</span>  <span class="c1"># A case where no explicit low bound set</span>
                 <span class="n">upBound</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc_literal</span><span class="p">(</span><span class="n">dimension</span><span class="p">[</span><span class="s2">&quot;literal&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-                <span class="n">array_range</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;(0, </span><span class="si">{upBound}</span><span class="s2">)&quot;</span>
+                <span class="n">array_range</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;(0, </span><span class="si">{</span><span class="n">upBound</span><span class="si">}</span><span class="s2">)&quot;</span>
             <span class="k">elif</span> <span class="p">(</span>
                     <span class="s2">&quot;range&quot;</span> <span class="ow">in</span> <span class="n">dimension</span>
             <span class="p">):</span>  <span class="c1"># A case where explicit low and up bounds are set</span>
-                <span class="n">array_range</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;({self.get_range(dimension[&#39;range&#39;][0])})&quot;</span>
+                <span class="n">array_range</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_range</span><span class="p">(</span><span class="n">dimension</span><span class="p">[</span><span class="s1">&#39;range&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2">)&quot;</span>
             <span class="k">elif</span> <span class="p">(</span>
                     <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">dimension</span>
             <span class="p">):</span> <span class="c1"># A case where variable name given as a size with no explicit lower bound.</span>
-                <span class="n">array_range</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;(0, </span><span class="si">{dimension[&#39;name&#39;]}</span><span class="s2">)&quot;</span>
+                <span class="n">array_range</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;(0, </span><span class="si">{</span><span class="n">dimension</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="p">(</span>
                     <span class="kc">False</span>
-                <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Array range case not handled. Reference node content: </span><span class="si">{node}</span><span class="s2">&quot;</span>
+                <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Array range case not handled. Reference node content: </span><span class="si">{</span><span class="n">node</span><span class="si">}</span><span class="s2">&quot;</span>
 
             <span class="k">if</span> <span class="n">count</span> <span class="o">&lt;</span> <span class="nb">int</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">]):</span>
                 <span class="n">array_range</span> <span class="o">+=</span> <span class="s2">&quot;, &quot;</span>
@@ -2104,40 +2107,40 @@
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pickleFile</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">outputDict</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">For2PyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to read file </span><span class="si">{pickleFile}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">For2PyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to read file </span><span class="si">{</span><span class="n">pickleFile</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
 
     <span class="p">(</span><span class="n">python_source_list</span><span class="p">,</span> <span class="n">variable_map</span><span class="p">)</span> <span class="o">=</span> <span class="n">create_python_source_list</span><span class="p">(</span><span class="n">outputDict</span><span class="p">)</span>
     <span class="n">outputList</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">python_source_list</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;module&quot;</span><span class="p">:</span>
-            <span class="n">modFile</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{targetDir}</span><span class="s2">m_{item[1].lower()}.py&quot;</span>
+            <span class="n">modFile</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">targetDir</span><span class="si">}</span><span class="s2">m_</span><span class="si">{</span><span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">.py&quot;</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">modFile</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                     <span class="n">outputList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">modFile</span><span class="p">)</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
             <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">For2PyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to write to </span><span class="si">{modFile}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">For2PyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to write to </span><span class="si">{</span><span class="n">modFile</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pyFile</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                     <span class="n">outputList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pyFile</span><span class="p">)</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
             <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">For2PyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to write to </span><span class="si">{pyFile}</span><span class="s2">.&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">For2PyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to write to </span><span class="si">{</span><span class="n">pyFile</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
 
-    <span class="n">variable_map_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{pyFile[:-3]}</span><span class="s2">_variables_pickle&quot;</span>
+    <span class="n">variable_map_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pyFile</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span><span class="si">}</span><span class="s2">_variables_pickle&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">variable_map_file</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">variable_map</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">For2PyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to write to </span><span class="si">{variable_map_file}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">For2PyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to write to </span><span class="si">{</span><span class="n">variable_map_file</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">outFile</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">fileName</span> <span class="ow">in</span> <span class="n">outputList</span><span class="p">:</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">fileName</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">For2PyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to write to </span><span class="si">{outFile}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">For2PyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to write to </span><span class="si">{</span><span class="n">outFile</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
 
 </pre></div>
 
@@ -2145,20 +2148,25 @@
            
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Adarsh
+        &#169; Copyright 2018, Adarsh.
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
@@ -2166,7 +2174,6 @@
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

@@ -5,6 +5,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 4
 
    delphi.GrFN
    delphi.apps
@@ -53,7 +54,6 @@ delphi.plotter module
    :members:
    :undoc-members:
    :show-inheritance:
-
 
 Module contents
 ---------------
