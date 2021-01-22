@@ -189,10 +189,13 @@ void AnalysisGraph::infer_modeling_frequency(
 
     unordered_map<long, int> gap_frequencies;
     unordered_map<long, int>::iterator itr;
+    unordered_set<long> epochs_all;
 
     for (vector<long> ind_epochs : concept_indicator_epochs) {
         vector<long> gaps = vector<long>(ind_epochs.size());
+
         adjacent_difference (ind_epochs.begin(), ind_epochs.end(), gaps.begin());
+        epochs_all.insert(ind_epochs.begin(), ind_epochs.end());
 
         // Compute number of months between data points
         for (int i = 1; i < gaps.size();  i++) {
@@ -227,9 +230,20 @@ void AnalysisGraph::infer_modeling_frequency(
     frequent_gap = 0;
     highest_frequency = 0;
 
-    itr = gap_frequencies.begin();
-    this->modeling_frequency = itr->first;
+    vector<long> epochs_sorted = vector<long>(epochs_all.begin(), epochs_all.end());
+    vector<long> gaps_all = vector<long> (epochs_sorted.size());
+    sort(epochs_sorted.begin(), epochs_sorted.end());
+    adjacent_difference (epochs_sorted.begin(), epochs_sorted.end(), gaps_all.begin());
 
+
+    itr = gap_frequencies.begin();
+    this->modeling_frequency = gaps_all[1];
+
+    for(int i = 2; i < gaps_all.size(); i++){
+        this->modeling_frequency = gcd(this->modeling_frequency, gaps_all[i]);
+    }
+
+    // Epochs statistics for individual indicator time series for debugging purposes.
     for(auto const& [gap, freq] : gap_frequencies){
         if (shortest_gap > gap) {
             shortest_gap = gap;
@@ -244,7 +258,7 @@ void AnalysisGraph::infer_modeling_frequency(
             frequent_gap = gap;
         }
 
-        this->modeling_frequency = gcd(this->modeling_frequency, gap);
+        //this->modeling_frequency = gcd(this->modeling_frequency, gap);
     }
 
 }
@@ -300,10 +314,10 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
         // NOTE: This code is very similar to the implementations in
         // set_observed_state_sequence_from_data and get_observed_state_from_data
         this->n_timesteps = (this->train_end_epoch - this->train_start_epoch) / this->modeling_frequency + 1 ;
-        dbg(this->train_start_epoch);
-        dbg(this->train_end_epoch);
-        dbg(this->modeling_frequency);
-        dbg(this->n_timesteps);
+        //dbg(this->train_start_epoch);
+        //dbg(this->train_end_epoch);
+        //dbg(this->modeling_frequency);
+        //dbg(this->n_timesteps);
     }
 
     dbg(this->train_start_epoch);
@@ -480,9 +494,9 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann:
 
     long proj_start_timestamp = projection_parameters["startTime"].get<long>();
 
-    year_month = this->timestamp_to_year_month(proj_start_timestamp);
-    int proj_start_year = year_month.first;
-    int proj_start_month = year_month.second;
+    //year_month = this->timestamp_to_year_month(proj_start_timestamp);
+    //int proj_start_year = year_month.first;
+    //int proj_start_month = year_month.second;
 
     if (projection_parameters["endTime"].is_null()) {
         throw BadCausemosInputException("Projection end time null");
@@ -490,9 +504,9 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann:
 
     long proj_end_timestamp = projection_parameters["endTime"].get<long>();
 
-    year_month = this->timestamp_to_year_month(proj_end_timestamp);
-    int proj_end_year_given = year_month.first;
-    int proj_end_month_given = year_month.second;
+    //year_month = this->timestamp_to_year_month(proj_end_timestamp);
+    //int proj_end_year_given = year_month.first;
+    //int proj_end_month_given = year_month.second;
 
     if (projection_parameters["numTimesteps"].is_null()) {
         throw BadCausemosInputException("Projection number of time steps null");
@@ -520,25 +534,27 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann:
     //       that now Delphi is predicting on a monthly basis. We can do better
     //       by making Delphi predict at a different frequency than the
     //       training frequency by setting Δt appropriately.
-    year_month = calculate_end_year_month(proj_start_year, proj_start_month,
-                                          proj_num_timesteps);
-    int proj_end_year_calculated = year_month.first;
-    int proj_end_month_calculated = year_month.second;
+    ////year_month = calculate_end_year_month(proj_start_year, proj_start_month,
+    ////                                      proj_num_timesteps);
+    ////int proj_end_year_calculated = year_month.first;
+    ////int proj_end_month_calculated = year_month.second;
+////
+    ////int train_start_year = this->training_range.first.first;
+    ////int train_start_month = this->training_range.first.second;
+    ////int train_end_year = this->training_range.second.first;
+    ////int train_end_month = this->training_range.second.second;
 
-    int train_start_year = this->training_range.first.first;
-    int train_start_month = this->training_range.first.second;
-    int train_end_year = this->training_range.second.first;
-    int train_end_month = this->training_range.second.second;
 
-    if (train_start_year > train_end_year) {
+    if (train_start_epoch > train_end_epoch) {
         // No training data has been provided => Cannot train
         //                                    => Cannot project
         throw BadCausemosInputException("No training data");
     }
 
     if (!this->trained) {
-        this->train_model(train_start_year, train_start_month,
-                                train_end_year, train_end_month, res, burn);
+        //this->train_model(train_start_year, train_start_month,
+        //                        train_end_year, train_end_month, res, burn);
+        this->train_model(train_start_epoch, train_end_epoch, res, burn);
     }
 
     // NOTE: At the moment we are assuming that delta_t for prediction is also
