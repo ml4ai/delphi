@@ -554,7 +554,7 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann:
     if (!this->trained) {
         //this->train_model(train_start_year, train_start_month,
         //                        train_end_year, train_end_month, res, burn);
-        this->train_model(train_start_epoch, train_end_epoch, res, burn);
+       // this->train_model(train_start_epoch, train_end_epoch, res, burn);
     }
 
     // NOTE: At the moment we are assuming that delta_t for prediction is also
