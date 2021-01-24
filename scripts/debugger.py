@@ -88,26 +88,26 @@ def draw_CAG(G, file_name):
 
 
 if __name__ == "__main__":
-    causemos_create_model = "../tests/data/delphi/create_model_input_2.json"
+    causemos_create_model = "../tests/data/delphi/create_model_test.json"
     #causemos_create_model = ""
-    causemos_create_experiment = "../tests/data/delphi/experiments_projection_input_2.json"
+    causemos_create_experiment = "../tests/data/delphi/experiments_projection_test.json"
 
     G = create_base_CAG(causemos_create_model, 100)
     #G = create_base_CAG('', 100)
 
     draw_CAG(G, 'plot_testing_CAG.png')
 
-    '''
+    
     print('\nTraining Model')
     try:
         preds = G.run_causemos_projection_experiment_from_json_file(
                 filename=causemos_create_experiment,
-                burn=100,
-                res=100)
+                burn=10,
+                res=10)
     except G.BadCausemosInputException as e:
         print(e)
         exit()
-    '''
+    
     print('\n\nPlotting \n')
     model_state = G.get_complete_state()
 

@@ -781,6 +781,13 @@ class AnalysisGraph {
                                         std::string state = "",
                                         std::string county = "");
 
+
+  void run_train_model(int res = 200,
+                   int burn = 10000,
+                   InitialBeta initial_beta = InitialBeta::ZERO,
+                   bool use_heuristic = false,
+                   bool use_continuous = true);
+
   /**
    * Get the observed state (values for all the indicators)
    * for a given time point from data.

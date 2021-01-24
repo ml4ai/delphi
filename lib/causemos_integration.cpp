@@ -544,14 +544,14 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann:
     ////int train_end_year = this->training_range.second.first;
     ////int train_end_month = this->training_range.second.second;
 
-
-    if (train_start_epoch > train_end_epoch) {
+    if (this->train_start_epoch > this->train_end_epoch) {
         // No training data has been provided => Cannot train
         //                                    => Cannot project
         throw BadCausemosInputException("No training data");
     }
 
     if (!this->trained) {
+        this->run_train_model(res, burn);
         //this->train_model(train_start_year, train_start_month,
         //                        train_end_year, train_end_month, res, burn);
        // this->train_model(train_start_epoch, train_end_epoch, res, burn);
@@ -569,11 +569,11 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann:
 
     this->extract_projection_constraints(projection_parameters["constraints"]);
 
-    Prediction pred = this->generate_prediction(proj_start_year,
-                                                proj_start_month,
-                                                proj_end_year_calculated,
-                                                proj_end_month_calculated);
-
+    //Prediction pred = this->generate_prediction(proj_start_year,
+    //                                            proj_start_month,
+    //                                            proj_end_year_calculated,
+    //                                            proj_end_month_calculated);
+    Prediction pred;
     return pred;
 }
 
