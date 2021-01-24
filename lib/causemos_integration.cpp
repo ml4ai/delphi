@@ -492,7 +492,7 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann:
         throw BadCausemosInputException("Projection start time null");
     }
 
-    long proj_start_timestamp = projection_parameters["startTime"].get<long>();
+    long proj_start_epoch = projection_parameters["startTime"].get<long>();
 
     //year_month = this->timestamp_to_year_month(proj_start_timestamp);
     //int proj_start_year = year_month.first;
@@ -502,7 +502,7 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann:
         throw BadCausemosInputException("Projection end time null");
     }
 
-    long proj_end_timestamp = projection_parameters["endTime"].get<long>();
+    long proj_end_epoch = projection_parameters["endTime"].get<long>();
 
     //year_month = this->timestamp_to_year_month(proj_end_timestamp);
     //int proj_end_year_given = year_month.first;
@@ -513,6 +513,16 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann:
     }
 
     int proj_num_timesteps = projection_parameters["numTimesteps"].get<int>();
+
+    this->delta_t = (proj_end_epoch - proj_start_epoch) / (proj_num_timesteps - 1) / this->modeling_frequency;
+    dbg(this->delta_t);
+
+    double init_pred_step = (proj_start_epoch - this->train_start_epoch) /  this->modeling_frequency - this->delta_t;
+
+    if(init_pred_step < 0){
+        init_pred_step = 0;
+    }
+    dbg(init_pred_step);
 
     // Calculate end_year, end_month assuming that each time step is a month.
     // In other words, we are calculating the end_year, end_month assuming that

@@ -37,7 +37,7 @@ void AnalysisGraph::train_model(int start_year,
           this->set_observed_state_sequence_from_data(country, state, county);
       }
 
-      this->run_train_model(res, burn, initial_beta, use_heuristic, use_continuous); 
+      this->run_train_model(res, burn, initial_beta, use_heuristic, use_continuous);
   }
 }
 
