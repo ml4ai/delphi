@@ -176,6 +176,7 @@ string AnalysisGraph::serialize_to_json_string(bool verbose) {
     j["modeling_frequency"] = this->modeling_frequency;
     j["train_start_epoch"] = this->train_start_epoch;
     j["train_end_epoch"] = this->train_end_epoch;
+    j["train_timesteps"] = this->n_timesteps;
 
     // This contains all the observations. Indexing goes by
     // [ timestep ][ concept ][ indicator ][ observation ]

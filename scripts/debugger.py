@@ -89,8 +89,12 @@ def draw_CAG(G, file_name):
 
 if __name__ == "__main__":
     causemos_create_model = "../tests/data/delphi/create_model_test.json"
+    causemos_create_model = "../tests/data/delphi/create_model_input_2.json"
+    causemos_create_model = "../tests/data/delphi/causemos_create-model.json"
     #causemos_create_model = ""
     causemos_create_experiment = "../tests/data/delphi/experiments_projection_test.json"
+    causemos_create_experiment = "../tests/data/delphi/experiments_projection_input_2.json"
+    causemos_create_experiment = "../tests/data/delphi/causemos_experiments_projection_input.json"
 
     G = create_base_CAG(causemos_create_model, 100)
     #G = create_base_CAG('', 100)
