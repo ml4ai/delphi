@@ -247,8 +247,8 @@ class AnalysisGraph {
   std::pair<std::pair<int, int>, std::pair<int, int>> training_range;
   std::vector<std::string> pred_range;
   long modeling_frequency = 1;
-  long train_start_epoch;
-  long train_end_epoch;
+  long train_start_epoch = -1;
+  long train_end_epoch = -1;
 
   double t = 0.0;
   double delta_t = 1.0;
@@ -567,9 +567,10 @@ class AnalysisGraph {
                                               int pred_timesteps);
 
   void extract_projection_constraints(
-                                const nlohmann::json &projection_constraints);
+                                const nlohmann::json &projection_constraints, long skip_steps);
 
-  Prediction run_causemos_projection_experiment_from_json_dict(const nlohmann::json &json_data,
+  FormattedProjectionResult run_causemos_projection_experiment_from_json_dict(
+                                                               const nlohmann::json &json_data,
                                                                int burn = 10000,
                                                                int res = 200);
 
@@ -1109,7 +1110,7 @@ class AnalysisGraph {
                                                       int burn = 10000,
                                                       int res = 200);
 
-  Prediction
+  FormattedProjectionResult
   run_causemos_projection_experiment_from_json_file(std::string filename,
                                                     int burn = 10000,
                                                     int res = 200);

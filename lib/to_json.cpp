@@ -173,6 +173,10 @@ string AnalysisGraph::serialize_to_json_string(bool verbose) {
         j["training_range"] = this->training_range;
     }
 
+    j["modeling_frequency"] = this->modeling_frequency;
+    j["train_start_epoch"] = this->train_start_epoch;
+    j["train_end_epoch"] = this->train_end_epoch;
+
     // This contains all the observations. Indexing goes by
     // [ timestep ][ concept ][ indicator ][ observation ]
     // Concept and indicator indexes are according to the concept and indicator

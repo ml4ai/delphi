@@ -450,7 +450,7 @@ double AnalysisGraph::calculate_prediction_timestep_length(int start_year,
 }
 
 void AnalysisGraph::extract_projection_constraints(
-                            const nlohmann::json &projection_constraints) {
+                            const nlohmann::json &projection_constraints, long skip_steps) {
     for (auto constraint : projection_constraints) {
         if (constraint["concept"].is_null()) {continue;}
         string concept_name = constraint["concept"].get<string>();
@@ -470,12 +470,14 @@ void AnalysisGraph::extract_projection_constraints(
             //       to constrain the first indicator attached to a concept
             //       which should be present irrespective of whether this
             //       concept has one or more indicators attached to it.
-            this->add_constraint(step, concept_name, "", ind_value);
+            if(step >= skip_steps){
+                this->add_constraint(step-skip_steps, concept_name, "", ind_value);
+            }
         }
     }
 }
 
-Prediction
+FormattedProjectionResult
 AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann::json &json_data,
                                                                  int burn,
                                                                  int res) {
@@ -512,15 +514,31 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann:
         throw BadCausemosInputException("Projection number of time steps null");
     }
 
-    int proj_num_timesteps = projection_parameters["numTimesteps"].get<int>();
+    this->pred_timesteps = projection_parameters["numTimesteps"].get<int>();
 
-    this->delta_t = (proj_end_epoch - proj_start_epoch) / (proj_num_timesteps - 1) / this->modeling_frequency;
+    if(proj_start_epoch > proj_end_epoch) {
+        throw BadCausemosInputException("Projection end epoch is before projection start epoch");
+    }
+
+    double projecting_freq = (proj_end_epoch - proj_start_epoch) / (this->pred_timesteps - 1);
+    this->delta_t = projecting_freq / this->modeling_frequency;
     dbg(this->delta_t);
 
-    double init_pred_step = (proj_start_epoch - this->train_start_epoch) /  this->modeling_frequency - this->delta_t;
+    this->pred_timesteps++;
+    long epochs_till_proj = proj_start_epoch - this->train_start_epoch;
+    double init_pred_step = epochs_till_proj /  this->modeling_frequency - this->delta_t;
+    int skip_steps = 0;
 
     if(init_pred_step < 0){
-        init_pred_step = 0;
+        skip_steps = ceil(abs(init_pred_step)/this->delta_t);
+        init_pred_step += skip_steps;
+        this->pred_timesteps -= skip_steps;
+        double last_pred_step = (proj_start_epoch - this->train_start_epoch) /  this->modeling_frequency;
+
+        if(init_pred_step > last_pred_step) {
+            throw BadCausemosInputException("Projection end epoch is before projection start epoch");
+        }
+
     }
     dbg(init_pred_step);
 
@@ -545,7 +563,7 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann:
     //       by making Delphi predict at a different frequency than the
     //       training frequency by setting Δt appropriately.
     ////year_month = calculate_end_year_month(proj_start_year, proj_start_month,
-    ////                                      proj_num_timesteps);
+    ////                                      pred_timesteps);
     ////int proj_end_year_calculated = year_month.first;
     ////int proj_end_month_calculated = year_month.second;
 ////
@@ -577,14 +595,17 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann:
     //                                                     end_month_given,
     //                                                     num_timesteps);
 
-    this->extract_projection_constraints(projection_parameters["constraints"]);
+    this->extract_projection_constraints(projection_parameters["constraints"], skip_steps);
+
+    this->generate_latent_state_sequences(init_pred_step);
+    this->generate_observed_state_sequences();
+    return this->format_projection_result();
 
     //Prediction pred = this->generate_prediction(proj_start_year,
     //                                            proj_start_month,
     //                                            proj_end_year_calculated,
     //                                            proj_end_month_calculated);
-    Prediction pred;
-    return pred;
+    //return pred;
 }
 
 FormattedProjectionResult AnalysisGraph::format_projection_result() {
@@ -815,8 +836,7 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_string(string json_s
     auto json_data = nlohmann::json::parse(json_string);
 
     try {
-        Prediction pred = run_causemos_projection_experiment_from_json_dict(json_data, burn, res);
-        return this->format_projection_result();
+        return run_causemos_projection_experiment_from_json_dict(json_data, burn, res);
     }
     catch (BadCausemosInputException& e) {
         cout << e.what() << endl;
@@ -826,7 +846,7 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_string(string json_s
     }
 }
 
-Prediction
+FormattedProjectionResult
 AnalysisGraph::run_causemos_projection_experiment_from_json_file(string filename,
                                                                  int burn,
                                                                  int res) {
@@ -854,6 +874,6 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_file(string filename
         cout << e.what() << endl;
         // Just a dummy empty prediction to signal that there is an error in
         // projection parameters.
-        return Prediction();
+        return FormattedProjectionResult();
     }
 }

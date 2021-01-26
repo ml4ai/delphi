@@ -40,10 +40,9 @@ void AnalysisGraph::generate_latent_state_sequences(
       if (this->continuous) {
           // Here A = Ac = this->transition_matrix_collection[samp] (continuous)
 
-          // Evolving the system one time step before the
-          // initial_prediction_step
+          // Evolving the system till the initial_prediction_step
           A = (this->transition_matrix_collection[samp] *
-                  this->delta_t * (initial_prediction_step - 1)).exp();
+                   initial_prediction_step).exp();
 
           this->predicted_latent_state_sequences[samp][0] =
                                A * this->initial_latent_state_collection[samp];
@@ -61,10 +60,9 @@ void AnalysisGraph::generate_latent_state_sequences(
           // length Δt
           A = this->transition_matrix_collection[samp];
 
-          // Evolving the system one time step before the
-          // initial_prediction_step
+          // Evolving the system till the initial_prediction_step
           this->predicted_latent_state_sequences[samp][0] =
-                              A.pow(initial_prediction_step - 1) *
+                              A.pow(initial_prediction_step) *
                                   this->initial_latent_state_collection[samp];
       }
 
