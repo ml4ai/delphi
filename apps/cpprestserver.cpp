@@ -7,6 +7,9 @@
 using namespace std;
 
 
+
+
+
 // Todo: Database call handling
 class DelphiModel(){
     public:
@@ -21,7 +24,7 @@ class DelphiModel(){
             this->id = _id;
             this->model = _model;
         }        
-}
+};
 
 
 
@@ -50,7 +53,7 @@ class CauseMosAsyncExperimentResult(ExperimentResult){
             //results = db.Column(JsonEncodedDict, nullable=True)
             __mapper_args__["polymorphic_identity"] = "CauseMosAsyncExperimentResult";
         }
-}
+};
 
 
 int main(int argc, const char *argv[])
@@ -111,7 +114,7 @@ void runProjectionExperiment(const served::request & request, string modelID, st
     int numTimesteps = request_body["experimentParam"]["numTimesteps"];
 
     FormattedProjectionResult causemos_experiment_result = G.run_causemos_projection_experiment(
-        request.data // todo: ??????
+        request_body // todo: ??????
     )
 
     DelphiModel model;

@@ -107,6 +107,7 @@ add_custom_command(TARGET DelphiPython POST_BUILD
     COMMAND cp DelphiPython* ${PROJECT_SOURCE_DIR}/delphi/cpp/)
 
 add_subdirectory(external/served)
+add_executable(DatabaseHelper lib/DatabaseHelper.cpp)
 add_executable(cpprestserver apps/cpprestserver.cpp)
 target_link_libraries(cpprestserver served)
 target_include_directories(cpprestserver PUBLIC external/served/src)
