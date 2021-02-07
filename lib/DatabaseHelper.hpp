@@ -21,12 +21,14 @@ class Database {
   	
   	int prepareStatement(const char* query, sqlite3_stmt* stmt);
 
-    vector<string> Database_Create(string database_name);
+    int Database_Create(string create_table_query);
 
   	vector<string> Database_Read(string query);
 
-    vector<string> Database::Database_Write(string database_name);
+    vector<string> Database_Write(string database_name);
 
-    vector<string> Database::Database_Delete(string database_name);
+    vector<string> Database_Update(string database_name);
+
+    vector<string> Database_Delete(string database_name);
 
 };

@@ -109,5 +109,6 @@ add_custom_command(TARGET DelphiPython POST_BUILD
 add_subdirectory(external/served)
 add_executable(DatabaseHelper lib/DatabaseHelper.cpp)
 add_executable(cpprestserver apps/cpprestserver.cpp)
-target_link_libraries(cpprestserver served)
+target_link_libraries(cpprestserver PRIVATE Delphi served)
+target_link_libraries(cpprestserver PRIVATE Eigen3::Eigen)
 target_include_directories(cpprestserver PUBLIC external/served/src)
