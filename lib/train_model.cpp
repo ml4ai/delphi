@@ -41,7 +41,11 @@ void AnalysisGraph::train_model(int start_year,
   }
 }
 
-
+/*
+ ============================================================================
+ Private: Run train model procedure (in train_model.cpp)
+ ============================================================================
+*/
 
 
 void AnalysisGraph::run_train_model(int res,

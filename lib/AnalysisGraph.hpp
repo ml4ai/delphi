@@ -443,30 +443,14 @@ class AnalysisGraph {
    *                                  observations for an indicator at a time
    *                                  point. Observed state sequence is filled
    *                                  using data in this data structure.
-   * @param concept_indicator_dates : This data structure gets filled with
-   *                                  year-month date points where observations
+   * @param concept_indicator_epochs : This data structure gets filled with
+   *                                  epochs where observations
    *                                  are available for each indicator. Each
    *                                  indicator gets a separate sequence of
-   *                                  chronologically ordered year-months.
+   *                                  chronologically ordered epochs.
    *                                  These are used to asses the best
    *                                  frequency to align observations across
    *                                  all the indicators.
-   * @param start_year              : Start year of the observations. Note
-   *                                  that there could be some observation
-   *                                  sequences that start after start_year,
-   *                                  start_month date.
-   * @param start_month             : Start month of the observations. Note
-   *                                  that there could be some observation
-   *                                  sequences that start after start_year,
-   *                                  start_month date.
-   * @param end_year                : Ending year of the observations. Note
-   *                                  that there could be some observation
-   *                                  sequences that end before end_year,
-   *                                  end_month date.
-   * @param end_month               : Ending month of the observations. Note
-   *                                  that there could be some observation
-   *                                  sequences that end before end_year,
-   *                                  end_month date.
    * @returns void
    *
    */
@@ -478,27 +462,14 @@ class AnalysisGraph {
 
   /** Infer the least common observation frequency for all the
    * observation sequences so that they are time aligned starting from the
-   * start_year and start_month.
-   * At the moment we do not use the information we gather in this method as
-   * the rest of the code by default models at a monthly frequency. The
-   * advantage of modeling at the least common observation frequency is less
-   * missing data points.
+   * train_start_epoch
    *
-   * TODO: We can and might need to make Delphi adapt to least common
-   * observation frequency present in the training data. However, to reach
-   * that level, we would have to update some of the older code in other
-   * functions. One such method is AnalysisGraph::calculate_num_timesteps(),
-   * which assumes a monthly frequency when calculating the number of time
-   * steps. We also have to update the plotting functions. There could be other
-   * functions I do not foresee that needs updating.
+   * We make Delphi adapt to least common observation frequency
+   * present in the training data.
    *
    * NOTE: Some thought about how to use this information:
-   * shortest_gap = longest_gap = 1  ⇒ monthly with no missing data
-   * shortest_gap = longest_gap = 12 ⇒ yearly with no missing data
-   * shortest_gap = longest_gap ≠ 1 or 12  ⇒ no missing data odd frequency
-   * shortest_gap = 1 < longest_gap ⇒ monthly with missing data
-   *    frequent_gap = 1 ⇒ little missing data
-   *    frequent_gap > 1 ⇒ lot of missing data
+   * shortest_gap = longest_gap  ⇒ no missing data
+   * shortest_gap < longest_gap ⇒ missing data
    * 1 < shortest_gap < longest_gap
    *    Best frequency to model at is the greatest common divisor of all
    *    gaps. For example if we see gaps 4, 6, 10 then gcd(4, 6, 10) = 2
@@ -510,17 +481,17 @@ class AnalysisGraph {
    * the caller. The caller should declare these variables and pass them here so
    * that after the execution of this method, the caller can access the results.
    *
-   * @param concept_indicator_dates : Chronologically ordered observation date
+   * @param concept_indicator_epochs : Chronologically ordered observation epoch
    *                                  sequences for each indicator extracted
    *                                  from the JSON data in the create model
    *                                  request. This data structure is populated
    *                                  by AnalysisGraph::
    *                                  extract_concept_indicator_mapping_and_observations_from_json().
-   * @param shortest_gap            : Least number of months between any two
+   * @param shortest_gap            : Least number of epochs between any two
    *                                  consecutive observations.
-   * @param longest_gap             : Longest number of months between any two
+   * @param longest_gap             : Most number of epochs between any two
    *                                  consecutive observations.
-   * @param frequent_gap            : Most frequent number of months between
+   * @param frequent_gap            : Most frequent number of epochs between
    *                                  two consecutive observations.
    * @param highest_frequency       : Number of time the frequent_gap is seen
    *                                  in all the observation sequences.
@@ -536,7 +507,7 @@ class AnalysisGraph {
   /**
    * Set the observed state sequence from the create model JSON input received
    * from the HMI.
-   * The start_year, start_month, end_year, and end_month are inferred from the
+   * The training_start_epoch and training_end_epochs are extracted from the
    * observation sequences for indicators provided in the JSON input.
    * The sequence includes both ends of the range.
    *
@@ -757,6 +728,18 @@ class AnalysisGraph {
 
   /*
    ============================================================================
+   Private: Run train model procedure (in train_model.cpp)
+   ============================================================================
+  */
+
+  void run_train_model(int res = 200,
+                       int burn = 10000,
+                       InitialBeta initial_beta = InitialBeta::ZERO,
+                       bool use_heuristic = false,
+                       bool use_continuous = true);
+
+  /*
+   ============================================================================
    Private: Get Training Data Sequence (in train_model.cpp)
    ============================================================================
   */
@@ -781,13 +764,6 @@ class AnalysisGraph {
   set_observed_state_sequence_from_data(std::string country = "South Sudan",
                                         std::string state = "",
                                         std::string county = "");
-
-
-  void run_train_model(int res = 200,
-                   int burn = 10000,
-                   InitialBeta initial_beta = InitialBeta::ZERO,
-                   bool use_heuristic = false,
-                   bool use_continuous = true);
 
   /**
    * Get the observed state (values for all the indicators)
