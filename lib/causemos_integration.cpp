@@ -104,6 +104,7 @@ void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json
 
             // Note: HMI sends epochs as unix epoch * 1000
             epoch = data_point["timestamp"].get<long>();
+            //epoch /= 100000;
 
             // Keep track of multiple observations for each epoch
             indicator_data.insert(make_pair(epoch, observation));
@@ -136,13 +137,12 @@ void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json
         concept_indicator_data[v].push_back(indicator_data);
 
         // To assess the frequency of the data
-        vector<long> epoch_sorted;
-        for (long epo : epochs) {
-            epoch_sorted.push_back(epo);
-        }
-        sort(epoch_sorted.begin(), epoch_sorted.end());
-        concept_indicator_epochs[v] = epoch_sorted;
+        concept_indicator_epochs[v] = vector<long>(epochs.begin(), epochs.end());
     }
+}
+
+double AnalysisGraph::epoch_to_timestep(long epoch, long train_start_epoch, long modeling_frequency) {
+  return (epoch - train_start_epoch) / double(modeling_frequency);
 }
 
 /** Infer the least common observation frequency for all the
@@ -153,62 +153,52 @@ void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json
  *
  * Check method declaration in AnalysisGraph.hpp for a detailed comment.
  */
-void AnalysisGraph::infer_modeling_frequency(
+vector<long> AnalysisGraph::infer_modeling_period(
                         const ConceptIndicatorEpochs &concept_indicator_epochs,
                         int &shortest_gap,
                         int &longest_gap,
                         int &frequent_gap,
                         int &highest_frequency) {
 
-    unordered_map<long, int> gap_frequencies;
-    unordered_map<long, int>::iterator itr;
     unordered_set<long> epochs_all;
 
     for (vector<long> ind_epochs : concept_indicator_epochs) {
-        vector<long> gaps = vector<long>(ind_epochs.size());
-
-        adjacent_difference (ind_epochs.begin(), ind_epochs.end(), gaps.begin());
         epochs_all.insert(ind_epochs.begin(), ind_epochs.end());
+    }
 
-        // Compute number of epochs between data points
-        for (int gap = 1; gap < gaps.size(); gap++) {
-            // Check whether two adjacent data points with the same gap of
-            // epochs in between is already found.
-            itr = gap_frequencies.find(gaps[gap]);
+    vector<long> epochs_sorted(epochs_all.begin(), epochs_all.end());
+    sort(epochs_sorted.begin(), epochs_sorted.end());
 
-            if (itr != gap_frequencies.end()) {
-                // There were previous adjacent pairs of data points with
-                // gap epochs in between. Now we have found one more
-                // so increase the number of data points at this frequency.
-                itr->second++;
-            } else {
-                // This is the first data point that is gap epochs
-                // away from its previous data point. Start recording this new
-                // frequency.
-                gap_frequencies.insert(make_pair(gaps[gap], 1));
-            }
+    vector<long> gaps(epochs_sorted.size());
+    adjacent_difference(epochs_sorted.begin(), epochs_sorted.end(), gaps.begin());
+
+    // Compute number of epochs between data points
+    unordered_map<long, int> gap_frequencies;
+    unordered_map<long, int>::iterator itr;
+
+    for (int gap = 1; gap < gaps.size(); gap++) {
+        // Check whether two adjacent data points with the same gap of
+        // epochs in between is already found.
+        itr = gap_frequencies.find(gaps[gap]);
+
+        if (itr != gap_frequencies.end()) {
+            // There were previous adjacent pairs of data points with
+            // gap epochs in between. Now we have found one more
+            // so increase the number of data points at this frequency.
+            itr->second++;
+        } else {
+            // This is the first data point that is gap epochs
+            // away from its previous data point. Start recording this new
+            // frequency.
+            gap_frequencies.insert(make_pair(gaps[gap], 1));
         }
     }
 
     // Find the smallest gap and most frequent gap
     shortest_gap = INT_MAX;
     longest_gap = 0;
-    frequent_gap = 0;
+    frequent_gap = INT_MAX;
     highest_frequency = 0;
-
-    // Determine the modeling frequency of data, which is the greatest common
-    // divisor of gaps between observations.
-    vector<long> epochs_sorted = vector<long>(epochs_all.begin(), epochs_all.end());
-    vector<long> gaps_all = vector<long> (epochs_sorted.size());
-    sort(epochs_sorted.begin(), epochs_sorted.end());
-    adjacent_difference (epochs_sorted.begin(), epochs_sorted.end(), gaps_all.begin());
-
-    itr = gap_frequencies.begin();
-    this->modeling_frequency = gaps_all[1];
-
-    for(int i = 2; i < gaps_all.size(); i++){
-        this->modeling_frequency = gcd(this->modeling_frequency, gaps_all[i]);
-    }
 
     // Epochs statistics for individual indicator time series for debugging purposes.
     for(auto const& [gap, freq] : gap_frequencies){
@@ -220,11 +210,61 @@ void AnalysisGraph::infer_modeling_frequency(
             longest_gap = gap;
         }
 
-        if (highest_frequency < freq) {
-            highest_frequency = freq;
-            frequent_gap = gap;
+        if (highest_frequency == freq) {
+            // In case of multiple gaps having the same highest frequency,
+            // note down the shortest highest frequency gap
+            if (frequent_gap > gap) {
+              frequent_gap = gap;
+            }
+        } else if (highest_frequency < freq) {
+          highest_frequency = freq;
+          frequent_gap = gap;
         }
     }
+
+    /*
+    // Determine the modeling frequency of data, which is the greatest common
+    // divisor of gaps between observations.
+    this->observation_gaps.clear();
+    this->observation_gaps = vector<long>(epochs_sorted.size());
+    adjacent_difference(epochs_sorted.begin(),
+                        epochs_sorted.end(),
+                        this->observation_gaps.begin());
+    this->observation_gaps[0] = 0;
+
+    itr = gap_frequencies.begin();
+    this->modeling_period = this->observation_gaps[1];
+
+    for(int i = 2; i < observation_gaps.size(); i++){
+      this->modeling_period = gcd(this->modeling_period,
+                                     this->observation_gaps[i]);
+    }
+    */
+
+    this->modeling_period = frequent_gap;
+
+    this->observation_timesteps.clear();
+    this->observation_timesteps = vector<double>(epochs_sorted.size());
+    transform(epochs_sorted.begin(), epochs_sorted.end(), this->observation_timesteps.begin(),
+             [&](long epoch) {
+                return this->epoch_to_timestep(epoch, this->train_start_epoch,
+                                               this->modeling_period);
+              });
+
+    for(double epo : this->observation_timesteps) {
+      cout << epo << ", ";
+    }
+    cout << endl;
+    vector<double> transformed_gaps(this->observation_timesteps.size());
+    adjacent_difference(this->observation_timesteps.begin(),
+                        this->observation_timesteps.end(),
+                        transformed_gaps.begin());
+    for(double epo : transformed_gaps) {
+      cout << epo << ", ";
+    }
+    cout << endl;
+
+    return epochs_sorted;
 }
 
 /**
@@ -262,16 +302,17 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
     int highest_frequency = 0;
 
     this->n_timesteps = 0;
+    vector<long> epochs_sorted;
 
     if (this->train_start_epoch <= this->train_end_epoch) {
         // Some training data has been provided
-        this->infer_modeling_frequency(concept_indicator_epochs,
-                    shortest_gap, longest_gap, frequent_gap, highest_frequency);
+        epochs_sorted = this->infer_modeling_period(concept_indicator_epochs,
+                                                    shortest_gap,
+                                                    longest_gap,
+                                                    frequent_gap,
+                                                    highest_frequency);
 
-        // Fill in observed state sequence
-        // NOTE: This code is very similar to the implementations in
-        // set_observed_state_sequence_from_data and get_observed_state_from_data
-        this->n_timesteps = (this->train_end_epoch - this->train_start_epoch) / this->modeling_frequency + 1 ;
+        this->n_timesteps = epochs_sorted.size();
     }
 
     this->observed_state_sequence.clear();
@@ -280,6 +321,9 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
     // [ timestep ][ concept ][ indicator ][ observation ]
     this->observed_state_sequence = ObservedStateSequence(this->n_timesteps);
 
+    // Fill in observed state sequence
+    // NOTE: This code is very similar to the implementations in
+    // set_observed_state_sequence_from_data and get_observed_state_from_data
     for (int ts = 0; ts < this->n_timesteps; ts++) {
         this->observed_state_sequence[ts] = vector<vector<vector<double>>>(num_verts);
 
@@ -290,10 +334,10 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
             for (int i = 0; i < n.indicators.size(); i++) {
                 this->observed_state_sequence[ts][v][i] = vector<double>();
 
-                long epoch = this->train_start_epoch + ts * this->modeling_frequency;
+                //long epoch = this->train_start_epoch + ts * this->modeling_period;
                 pair<multimap<long, double>::iterator,
                      multimap<long, double>::iterator> obs =
-                    concept_indicator_data[v][i].equal_range(epoch);
+                    concept_indicator_data[v][i].equal_range(epochs_sorted[ts]);
 
                 for(auto it = obs.first; it != obs.second; it++) {
                     this->observed_state_sequence[ts][v][i].push_back(it->second);
@@ -430,49 +474,52 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann:
     }
 
     long proj_start_epoch = projection_parameters["startTime"].get<long>();
+    this->pred_start_epoch = proj_start_epoch;
+    this->pred_start_timestep = this->epoch_to_timestep(pred_start_epoch,
+                                                         this->train_start_epoch,
+                                                         this->modeling_period);
+    dbg(pred_start_timestep);
 
     if (projection_parameters["endTime"].is_null()) {
         throw BadCausemosInputException("Projection end time null");
     }
 
     long proj_end_epoch = projection_parameters["endTime"].get<long>();
+    this->pred_end_epoch = proj_end_epoch;
+    double pred_end_timestep = this->epoch_to_timestep(pred_end_epoch,
+                                                         this->train_start_epoch,
+                                                         this->modeling_period);
+    dbg(pred_end_timestep);
 
     if (projection_parameters["numTimesteps"].is_null()) {
         throw BadCausemosInputException("Projection number of time steps null");
     }
 
     this->pred_timesteps = projection_parameters["numTimesteps"].get<int>();
+    dbg(this->pred_timesteps);
 
     if(proj_start_epoch > proj_end_epoch) {
         throw BadCausemosInputException("Projection end epoch is before projection start epoch");
     }
 
-    // Align prediction epochs with modeling frequency
-    // 1 trainig timesteps = modeling_frequency epochs           (1)
-    // 1 prediction timesteps = projection_frequencey epochs     (2)
-    // [ (2) / (1) ] * 1 training timesteps gives
-    // 1 prediction timestep = ( projection_frequency / modeling_frequency ) training timesteps
-    double projecting_freq = (proj_end_epoch - proj_start_epoch) / (this->pred_timesteps - 1);
-    this->delta_t = projecting_freq / this->modeling_frequency;
+    this->delta_t = (pred_end_timestep - this->pred_start_timestep)
+                                                / (this->pred_timesteps - 1.0);
+    dbg(this->delta_t);
 
     // To help clamping we predict one additional timestep
     this->pred_timesteps++;
-    long epochs_till_proj_start = proj_start_epoch - this->train_start_epoch;
-    double init_pred_step =
-        epochs_till_proj_start /  this->modeling_frequency - this->delta_t;
-
-    long epochs_till_proj_end = proj_end_epoch - this->train_start_epoch;
-    double last_pred_step = epochs_till_proj_end /  this->modeling_frequency;
+    this->pred_start_timestep -= this->delta_t;
+    dbg(this->pred_start_timestep);
 
     int skip_steps = 0;
 
-    if(init_pred_step < 0) {
-        skip_steps = ceil(abs(init_pred_step)/this->delta_t);
-        init_pred_step += skip_steps;
+    if(this->pred_start_timestep < 0) {
+        skip_steps = ceil(abs(this->pred_start_timestep) / this->delta_t);
+        this->pred_start_timestep += skip_steps;
         this->pred_timesteps -= skip_steps;
     }
 
-    if(init_pred_step > last_pred_step) {
+    if(this->pred_start_timestep > pred_end_timestep) {
       throw BadCausemosInputException("Projection end epoch is before projection start epoch");
     }
 
@@ -482,13 +529,17 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann:
         throw BadCausemosInputException("No training data");
     }
 
+  dbg(this->delta_t);
+  dbg(this->pred_timesteps);
+  dbg(skip_steps);
+
     if (!this->trained) {
         this->run_train_model(res, burn);
     }
 
     this->extract_projection_constraints(projection_parameters["constraints"], skip_steps);
 
-    this->generate_latent_state_sequences(init_pred_step);
+    this->generate_latent_state_sequences(this->pred_start_timestep);
     this->generate_observed_state_sequences();
     return this->format_projection_result();
 }
@@ -501,7 +552,7 @@ FormattedProjectionResult AnalysisGraph::format_projection_result() {
   for (auto [vert_name, vert_id] : this->name_to_vertex) {
     result[vert_name] =
         vector<vector<double>>(this->pred_timesteps, vector<double>(this->res));
-    for (int ts = 0; ts < this->pred_timesteps; ts++) {
+    for (int ts = 1; ts < this->pred_timesteps; ts++) {
       for (int samp = 0; samp < this->res; samp++) {
         result[vert_name][ts][samp] =
             this->predicted_observed_state_sequences[samp][ts][vert_id][0];

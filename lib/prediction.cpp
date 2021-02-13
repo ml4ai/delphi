@@ -18,7 +18,7 @@ using fmt::print;
 */
 
 void AnalysisGraph::generate_latent_state_sequences(
-    int initial_prediction_step) {
+    double initial_prediction_step) {
 
   // Allocate memory for prediction_latent_state_sequences
   this->predicted_latent_state_sequences.clear();

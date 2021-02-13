@@ -130,7 +130,7 @@ void AnalysisGraph::set_current_latent_state(int ts) {
   //const Eigen::MatrixXd& A_t = this->A_original;
   //this->current_latent_state = A_t.pow(ts) * this->s0;
   // Computing e^At
-  const Eigen::MatrixXd& e_A_t = (this->A_original * ts).exp();
+  const Eigen::MatrixXd& e_A_t = (this->A_original * this->observation_timesteps[ts]).exp();
   this->current_latent_state = e_A_t * this->s0;
 }
 

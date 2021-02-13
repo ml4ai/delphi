@@ -15,6 +15,7 @@
 #include "Tran_Mat_Cell.hpp"
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
+#include "dbg.h"
 
 const double tuning_param = 1.0;
 
@@ -135,11 +136,13 @@ typedef std::tuple<
     Thetas,
     Derivatives,
     // Data year month range
-    std::vector<std::string>,
+    //std::vector<std::string>,
+    std::vector<long>,
     // Data
     Data,
     // Prediction year month range
-    std::vector<std::string>,
+    //std::vector<std::string>,
+    std::vector<double>,
     Predictions,
     ConfidenceIntervals
             > CompleteState;
@@ -246,9 +249,14 @@ class AnalysisGraph {
   int pred_timesteps = 0;
   std::pair<std::pair<int, int>, std::pair<int, int>> training_range;
   std::vector<std::string> pred_range;
-  long modeling_frequency = 1;
   long train_start_epoch = -1;
   long train_end_epoch = -1;
+  long pred_start_epoch = -1;
+  long pred_end_epoch = -1;
+  double pred_start_timestep = -1;
+  std::vector<double> observation_timesteps;
+  std::vector<long> observation_gaps;
+  long modeling_period = 1; // Number of epochs per one modeling timestep
 
   double t = 0.0;
   double delta_t = 1.0;
@@ -460,6 +468,8 @@ class AnalysisGraph {
                         ConceptIndicatorEpochs &concept_indicator_epochs);
 
 
+  static double epoch_to_timestep(long epoch, long train_start_epoch, long modeling_frequency);
+
   /** Infer the least common observation frequency for all the
    * observation sequences so that they are time aligned starting from the
    * train_start_epoch
@@ -495,9 +505,11 @@ class AnalysisGraph {
    *                                  two consecutive observations.
    * @param highest_frequency       : Number of time the frequent_gap is seen
    *                                  in all the observation sequences.
-   * @returns void
+   * @returns epochs_sorted         : A sorted list of epochs where observations
+   *                                  are present for at least one indicator
    */
-  void infer_modeling_frequency(
+  std::vector<long>
+  infer_modeling_period(
                         const ConceptIndicatorEpochs &concept_indicator_epochs,
                         int &shortest_gap,
                         int &longest_gap,
@@ -907,7 +919,7 @@ class AnalysisGraph {
    *                                 latent state sequence based on the
    *                                 perturbed initial latent state s0.
    */
-  void generate_latent_state_sequences(int initial_prediction_step);
+  void generate_latent_state_sequences(double initial_prediction_step);
 
   void perturb_predicted_latent_state_at(int timestep, int sample_number);
 

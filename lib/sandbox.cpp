@@ -128,10 +128,11 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
     this->training_range = json_data["training_range"];
   }
 
-  this->modeling_frequency = json_data["modeling_frequency"].get<long>();
+  this->modeling_period = json_data["modeling_period"].get<long>();
   this->train_start_epoch = json_data["train_start_epoch"].get<long>();
   this->train_end_epoch = json_data["train_end_epoch"].get<long>();
   this->n_timesteps = json_data["train_timesteps"].get<int>();
+  this->observation_timesteps = json_data["observation_timesteps"].get<vector<double>>();
 
   this->observed_state_sequence =
       json_data["observations"].get<ObservedStateSequence>();

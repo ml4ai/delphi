@@ -44,7 +44,7 @@ CompleteState AnalysisGraph::get_complete_state() {
     Derivatives derivatives;
     Predictions predictions;
     Data data_set;
-    /*
+
     for (int v : this->node_indices()) {
         for (auto [ind_name, vert] : (*this)[v].nameToIndexMap) {
             concept_indicators[(*this)[v].name].push_back(ind_name);
@@ -82,7 +82,7 @@ CompleteState AnalysisGraph::get_complete_state() {
             derivatives[vert_name].push_back(this->initial_latent_state_collection[samp](vert_id * 2 + 1));
         }
     }
-
+    /*
     int year = this->training_range.first.first;
     int month = this->training_range.first.second;
     int num_data_points =
@@ -108,7 +108,7 @@ CompleteState AnalysisGraph::get_complete_state() {
         for (auto [ind_name, ind_id] : (*this)[vert_id].nameToIndexMap) {
             std::unordered_map<int, std::vector<double>> preds;
             std::unordered_map<std::string, std::vector<double>> data;
-/*
+
             for (int ts = 0; ts < this->pred_timesteps; ts++) {
                 for (int samp = 0; samp < this->res; samp++) {
                     preds[ts].push_back(this-> 
@@ -117,7 +117,7 @@ CompleteState AnalysisGraph::get_complete_state() {
                 }
             }
             predictions[ind_name] = preds;
-*/
+
             //for (int ts = 0; ts < num_data_points; ts++) {
             for (int ts = 0; ts < this->n_timesteps; ts++) {
                 for (double obs : this->observed_state_sequence[ts][vert_id][ind_id]) {
@@ -129,10 +129,20 @@ CompleteState AnalysisGraph::get_complete_state() {
         }
     }
 
-    ConfidenceIntervals cis ;
-    std::vector<std::string> data_range;
-    //ConfidenceIntervals cis = get_confidence_interval(predictions);
+    std::vector<long> data_range(this->observation_timesteps.size());
+    for (int ts = 0; ts < this->n_timesteps; ts++) {
+        data_range[ts] = this->train_start_epoch +
+                       this->observation_timesteps[ts] * this->modeling_period;
+    }
 
-    return std::make_tuple(concept_indicators, edges, adjectives, polarities, thetas, derivatives, data_range, data_set, this->pred_range, predictions, cis);
+    std::vector<double> prediction_range(this->pred_timesteps);
 
+    for (int ts = 0; ts < this->pred_timesteps; ts++) {
+      prediction_range[ts] = this->train_start_epoch + (this->pred_start_timestep + ts * this->delta_t) * this->modeling_period;
+    }
+
+    ConfidenceIntervals cis = get_confidence_interval(predictions);
+
+    //return std::make_tuple(concept_indicators, edges, adjectives, polarities, thetas, derivatives, data_range, data_set, this->pred_range, predictions, cis);
+    return std::make_tuple(concept_indicators, edges, adjectives, polarities, thetas, derivatives, data_range, data_set, prediction_range, predictions, cis);
 }

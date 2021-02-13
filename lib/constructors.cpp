@@ -161,7 +161,11 @@ AnalysisGraph::AnalysisGraph(const AnalysisGraph& rhs) {
   this->training_range = rhs.training_range;
   this->train_start_epoch = rhs.train_start_epoch;
   this->train_end_epoch = rhs.train_end_epoch;
-  this->modeling_frequency = rhs.modeling_frequency;
+  this->pred_start_epoch = rhs.pred_start_epoch;
+  this->pred_end_epoch = rhs.pred_end_epoch;
+  this->pred_start_timestep = rhs.pred_start_timestep;
+  this->observation_timesteps = rhs.observation_timesteps;
+  this->modeling_period = rhs.modeling_period;
   this->pred_range = rhs.pred_range;
   this->t = rhs.t;
   this->delta_t = rhs.delta_t;

@@ -27,7 +27,7 @@ class LegendTitle(object):
 # Plots the complete state of a delphi model.
 # There is a lot of repeated code here.
 def delphi_plotter(model_state, num_bins=400, rotation=45,
-        out_dir='plots', file_name_prefix=''):
+        out_dir='plots', file_name_prefix='', month_year=False):
 
     if out_dir:
         out_path = pathlib.Path(out_dir)
@@ -138,17 +138,29 @@ def delphi_plotter(model_state, num_bins=400, rotation=45,
         df_preds = pd.DataFrame.from_dict(preds)
         df_preds= pd.melt(df_preds, value_vars=df_preds.columns,
                 value_name='Prediction', var_name='Time Step')
-        df_preds['Time Step'] = df_preds['Time Step'].apply(lambda ts:
-                pd.to_datetime(pred_range[ts]))
+
+        if month_year:
+            df_preds['Time Step'] = df_preds['Time Step'].apply(lambda ts:
+                    pd.to_datetime(pred_range[ts]))
+        else:
+            df_preds['Time Step'] = df_preds['Time Step'].apply(lambda ts:
+                                                                pred_range[ts])
 
         df_data = pd.DataFrame.from_dict(data_set[ind])
-        df_data['Time Step'] = df_data['Time Step'].apply(lambda ts:
-                pd.to_datetime(data_range[int(ts)]))
+
+        if month_year:
+            df_data['Time Step'] = df_data['Time Step'].apply(lambda ts:
+                    pd.to_datetime(data_range[int(ts)]))
+        else:
+            df_data['Time Step'] = df_data['Time Step'].apply(lambda ts:
+                                                              data_range[int(ts)])
 
         # Aggregate multiple coinciding data points
         df_data['frequency'] = df_data['Time Step'].apply(lambda x: 1)
         df_data_grp = df_data.groupby(by=['Time Step', 'Data'], as_index=False).count()
-        df_data_grp['Time Step'] = pd.to_datetime(df_data_grp['Time Step'])
+
+        if month_year:
+            df_data_grp['Time Step'] = pd.to_datetime(df_data_grp['Time Step'])
 
         g = sns.lineplot(ax=ax, data=df_preds, x='Time Step', y='Prediction',
                 sort=False, marker='D', label='Mean Prediction')
@@ -211,74 +223,95 @@ def delphi_plotter(model_state, num_bins=400, rotation=45,
     # Plot predictions from the summarized (median, upper and lower confidence
     # intervals) set of predictions (plots the median and the confidence
     # interval) and the full data set
-    for ind, ind_cis in cis.items():
-        sns.set_style("whitegrid")
-        fig, ax = plt.subplots(dpi=150, figsize=(8, 4.5))
+    for with_preds in [True, False]:
+        for ind, ind_cis in cis.items():
+            sns.set_style("whitegrid")
+            fig, ax = plt.subplots(dpi=150, figsize=(8, 4.5))
 
-        df_cis = pd.DataFrame.from_dict(ind_cis)
-        df_cis['Time Step'] = pd.to_datetime(pred_range)
+            if with_preds:
+                df_cis = pd.DataFrame.from_dict(ind_cis)
 
-        sns.lineplot(ax=ax, data=df_cis, x='Time Step', y='Median',
-                sort=False, marker='D', label='Median Prediction')
-        ax.fill_between(
-            x=df_cis['Time Step'],
-            y1=df_cis['Upper 95% CI'],
-            y2=df_cis['Lower 95% CI'],
-            alpha=0.2,
-            color='red',
-            label='95% CI'
-        )
+                if month_year:
+                    df_cis['Time Step'] = pd.to_datetime(pred_range)
+                else:
+                    df_cis['Time Step'] = pred_range
 
-        df_data = pd.DataFrame.from_dict(data_set[ind])
-        df_data['Time Step'] = df_data['Time Step'].apply(lambda ts:
-                pd.to_datetime(data_range[int(ts)]))
+                sns.lineplot(ax=ax, data=df_cis, x='Time Step', y='Median',
+                        sort=False, marker='D', label='Median Prediction')
+                ax.fill_between(
+                    x=df_cis['Time Step'],
+                    y1=df_cis['Upper 95% CI'],
+                    y2=df_cis['Lower 95% CI'],
+                    alpha=0.2,
+                    color='red',
+                    label='95% CI'
+                )
 
-        # Aggregate multiple coinciding data points
-        df_data['frequency'] = df_data['Time Step'].apply(lambda x: 1)
-        df_data_grp = df_data.groupby(by=['Time Step', 'Data'], as_index=False).count()
-        df_data_grp['Time Step'] = pd.to_datetime(df_data_grp['Time Step'])
+            df_data = pd.DataFrame.from_dict(data_set[ind])
 
-        if df_data_grp['frequency'].max() == df_data_grp['frequency'].min():
-            # There are no coinciding data points
-            sns.scatterplot(
-                ax=ax,
-                data=df_data_grp,
-                y='Data',
-                x='Time Step',
-                marker='o',
-                label='Data',
-                color='red'
-            )
-        else:
-            sns.scatterplot(
-                ax=ax,
-                data=df_data_grp,
-                y='Data',
-                x='Time Step',
-                marker='o',
-                label='Data',
-                hue=df_data_grp['frequency'].tolist(),
-                palette='ch:r=-.8, l=.75',
-                size=df_data_grp['frequency'].tolist(),
-                sizes=(50, 250)
-            )
+            if month_year:
+                df_data['Time Step'] = df_data['Time Step'].apply(lambda ts:
+                        pd.to_datetime(data_range[int(ts)]))
+            else:
+                df_data['Time Step'] = df_data['Time Step'].apply(lambda ts:
+                                                                  data_range[int(ts)])
 
-            handles, labels = ax.get_legend_handles_labels()
-            handles.insert(2, 'Number of Data Points')
-            labels.insert(2, '')
-            ax.legend(handles, labels, handler_map={str: LegendTitle({'fontsize':
-                12})}, fancybox=True)
+            # Aggregate multiple coinciding data points
+            df_data['frequency'] = df_data['Time Step'].apply(lambda x: 1)
+            df_data_grp = df_data.groupby(by=['Time Step', 'Data'], as_index=False).count()
+
+            if month_year:
+                df_data_grp['Time Step'] = pd.to_datetime(df_data_grp['Time Step'])
+
+            if df_data_grp['frequency'].max() == df_data_grp['frequency'].min():
+                # There are no coinciding data points
+                sns.scatterplot(
+                    ax=ax,
+                    data=df_data_grp,
+                    y='Data',
+                    x='Time Step',
+                    marker='o',
+                    label='Data',
+                    color='red'
+                )
+            else:
+                sns.scatterplot(
+                    ax=ax,
+                    data=df_data_grp,
+                    y='Data',
+                    x='Time Step',
+                    marker='o',
+                    label='Data',
+                    hue=df_data_grp['frequency'].tolist(),
+                    palette='ch:r=-.8, l=.75',
+                    size=df_data_grp['frequency'].tolist(),
+                    sizes=(50, 250)
+                )
+
+                handles, labels = ax.get_legend_handles_labels()
+                handles.insert(2, 'Number of Data Points')
+                labels.insert(2, '')
+                ax.legend(handles, labels, handler_map={str: LegendTitle({'fontsize':
+                    12})}, fancybox=True)
 
 
-        ind = ind.split('/')[-1]
-        plt.title(f'Median Predictions and $95\%$ Confidence Interval\n{ind}')
+            ind = ind.split('/')[-1]
+            if with_preds:
+                plt.title(f'Median Predictions and $95\%$ Confidence Interval\n{ind}')
+            else:
+                plt.title(f'{ind}\nData')
+                print('\n', ind)
+                print(df_data_grp[['Time Step', 'Data']])
 
-        if out_dir:
-            plt.savefig(f'{out_dir}/{file_name_prefix}_{plot_num}_Predictions_Median_and_CI_{ind}.png')
-            plot_num += 1
-        else:
-            plt.show()
-        plt.close()
+            if out_dir:
+                if with_preds:
+                    plt.savefig(f'{out_dir}/{file_name_prefix}_{plot_num}_Predictions_Median_and_CI_{ind}.png')
+                else:
+                    plt.savefig(f'{out_dir}/{file_name_prefix}_{plot_num}_Data_{ind}.png')
+                plot_num += 1
+            else:
+                plt.show()
+            plt.close()
 
 
     # Plot predictions for pairs of indicators related by edges
@@ -305,18 +338,30 @@ def delphi_plotter(model_state, num_bins=400, rotation=45,
                 df_source['Time Step'] = df_source.index
                 df_target['Time Step'] = df_target.index
 
-                df_source['Time Step'] = df_source['Time Step'].apply(lambda ts:
-                        pd.to_datetime(pred_range[ts]))
-                df_target['Time Step'] = df_target['Time Step'].apply(lambda ts:
-                        pd.to_datetime(pred_range[ts]))
+                if month_year:
+                    df_source['Time Step'] = df_source['Time Step'].apply(lambda ts:
+                            pd.to_datetime(pred_range[ts]))
+                    df_target['Time Step'] = df_target['Time Step'].apply(lambda ts:
+                            pd.to_datetime(pred_range[ts]))
+                else:
+                    df_source['Time Step'] = df_source['Time Step'].apply(lambda ts:
+                                                                          pred_range[ts])
+                    df_target['Time Step'] = df_target['Time Step'].apply(lambda ts:
+                                                                          pred_range[ts])
 
                 df_source_data = pd.DataFrame.from_dict(data_set[ind_source])
                 df_target_data = pd.DataFrame.from_dict(data_set[ind_target])
 
-                df_source_data['Time Step'] = df_source_data['Time Step'].apply(lambda ts:
-                        pd.to_datetime(data_range[int(ts)]))
-                df_target_data['Time Step'] = df_target_data['Time Step'].apply(lambda ts:
-                        pd.to_datetime(data_range[int(ts)]))
+                if month_year:
+                    df_source_data['Time Step'] = df_source_data['Time Step'].apply(lambda ts:
+                            pd.to_datetime(data_range[int(ts)]))
+                    df_target_data['Time Step'] = df_target_data['Time Step'].apply(lambda ts:
+                            pd.to_datetime(data_range[int(ts)]))
+                else:
+                    df_source_data['Time Step'] = df_source_data['Time Step'].apply(lambda ts:
+                                                                                    data_range[int(ts)])
+                    df_target_data['Time Step'] = df_target_data['Time Step'].apply(lambda ts:
+                                                                                    data_range[int(ts)])
 
                 color_left = 'tab:red'
                 color_right = 'tab:blue'
