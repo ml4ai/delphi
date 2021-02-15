@@ -123,7 +123,8 @@ typedef std::unordered_map<std::string, std::unordered_map<std::string, std::vec
 //                        }
 typedef std::unordered_map<std::string, std::unordered_map<int, std::vector<double>>> Predictions;
 
-typedef std::unordered_map<std::string, std::unordered_map<std::string, std::vector<double>>> ConfidenceIntervals;
+typedef std::unordered_map<std::string, std::unordered_map<std::string, std::vector<double>>>
+    CredibleIntervals;
 
 typedef std::tuple<
     ConceptIndicators,
@@ -143,7 +144,7 @@ typedef std::tuple<
     //std::vector<std::string>,
     std::vector<double>,
     Predictions,
-    ConfidenceIntervals
+    CredibleIntervals
             > CompleteState;
 
 // Access
@@ -1467,7 +1468,7 @@ class AnalysisGraph {
    ============================================================================
   */
 
-  ConfidenceIntervals get_confidence_interval(Predictions preds);
+  CredibleIntervals get_credible_interval(Predictions preds);
 
   CompleteState get_complete_state();
 };

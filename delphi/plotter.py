@@ -243,7 +243,7 @@ def delphi_plotter(model_state, num_bins=400, rotation=45,
                     y1=df_cis['Upper 95% CI'],
                     y2=df_cis['Lower 95% CI'],
                     alpha=0.2,
-                    color='red',
+                    color='blue',
                     label='95% CI'
                 )
 
@@ -297,11 +297,9 @@ def delphi_plotter(model_state, num_bins=400, rotation=45,
 
             ind = ind.split('/')[-1]
             if with_preds:
-                plt.title(f'Median Predictions and $95\%$ Confidence Interval\n{ind}')
+                plt.title(f'Median Predictions and $95\%$ Credible Interval\n{ind}')
             else:
                 plt.title(f'{ind}\nData')
-                print('\n', ind)
-                print(df_data_grp[['Time Step', 'Data']])
 
             if out_dir:
                 if with_preds:

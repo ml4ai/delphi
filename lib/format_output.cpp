@@ -1,7 +1,8 @@
 #include "AnalysisGraph.hpp"
 
-ConfidenceIntervals AnalysisGraph::get_confidence_interval(Predictions preds) {
-    ConfidenceIntervals cis;
+CredibleIntervals
+AnalysisGraph::get_credible_interval(Predictions preds) {
+  CredibleIntervals cis;
     // The calculation of the 95% confidence interval about the median is
     // taken from:
     // https://www.ucl.ac.uk/child-health/short-courses-events/ \
@@ -143,7 +144,7 @@ CompleteState AnalysisGraph::get_complete_state() {
       prediction_range[ts] = this->train_start_epoch + (this->pred_start_timestep + ts * this->delta_t) * this->modeling_period;
     }
 
-    ConfidenceIntervals cis = get_confidence_interval(predictions);
+    CredibleIntervals cis = get_credible_interval(predictions);
 
     //return std::make_tuple(concept_indicators, edges, adjectives, polarities, thetas, derivatives, data_range, data_set, this->pred_range, predictions, cis);
     return std::make_tuple(concept_indicators, edges, adjectives, polarities, thetas, derivatives, data_range, data_set, prediction_range, predictions, cis);
