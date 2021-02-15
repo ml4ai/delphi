@@ -104,7 +104,6 @@ void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json
 
             // Note: HMI sends epochs as unix epoch * 1000
             epoch = data_point["timestamp"].get<long>();
-            //epoch /= 100000;
 
             // Keep track of multiple observations for each epoch
             indicator_data.insert(make_pair(epoch, observation));
@@ -243,26 +242,18 @@ vector<long> AnalysisGraph::infer_modeling_period(
 
     this->modeling_period = frequent_gap;
 
-    this->observation_timesteps.clear();
-    this->observation_timesteps = vector<double>(epochs_sorted.size());
-    transform(epochs_sorted.begin(), epochs_sorted.end(), this->observation_timesteps.begin(),
+    vector<double> observation_timesteps(epochs_sorted.size());
+    transform(epochs_sorted.begin(), epochs_sorted.end(), observation_timesteps.begin(),
              [&](long epoch) {
                 return this->epoch_to_timestep(epoch, this->train_start_epoch,
                                                this->modeling_period);
               });
 
-    for(double epo : this->observation_timesteps) {
-      cout << epo << ", ";
-    }
-    cout << endl;
-    vector<double> transformed_gaps(this->observation_timesteps.size());
-    adjacent_difference(this->observation_timesteps.begin(),
-                        this->observation_timesteps.end(),
-                        transformed_gaps.begin());
-    for(double epo : transformed_gaps) {
-      cout << epo << ", ";
-    }
-    cout << endl;
+    this->observation_timestep_gaps.clear();
+    this->observation_timestep_gaps = vector<double>(observation_timesteps.size());
+    adjacent_difference(observation_timesteps.begin(),
+                        observation_timesteps.end(),
+                        this->observation_timestep_gaps.begin());
 
     return epochs_sorted;
 }
@@ -474,29 +465,24 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann:
     }
 
     long proj_start_epoch = projection_parameters["startTime"].get<long>();
-    this->pred_start_epoch = proj_start_epoch;
-    this->pred_start_timestep = this->epoch_to_timestep(pred_start_epoch,
+    this->pred_start_timestep = this->epoch_to_timestep(proj_start_epoch,
                                                          this->train_start_epoch,
                                                          this->modeling_period);
-    dbg(pred_start_timestep);
 
     if (projection_parameters["endTime"].is_null()) {
         throw BadCausemosInputException("Projection end time null");
     }
 
     long proj_end_epoch = projection_parameters["endTime"].get<long>();
-    this->pred_end_epoch = proj_end_epoch;
-    double pred_end_timestep = this->epoch_to_timestep(pred_end_epoch,
+    double pred_end_timestep = this->epoch_to_timestep(proj_end_epoch,
                                                          this->train_start_epoch,
                                                          this->modeling_period);
-    dbg(pred_end_timestep);
 
     if (projection_parameters["numTimesteps"].is_null()) {
         throw BadCausemosInputException("Projection number of time steps null");
     }
 
     this->pred_timesteps = projection_parameters["numTimesteps"].get<int>();
-    dbg(this->pred_timesteps);
 
     if(proj_start_epoch > proj_end_epoch) {
         throw BadCausemosInputException("Projection end epoch is before projection start epoch");
@@ -504,12 +490,10 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann:
 
     this->delta_t = (pred_end_timestep - this->pred_start_timestep)
                                                 / (this->pred_timesteps - 1.0);
-    dbg(this->delta_t);
 
     // To help clamping we predict one additional timestep
     this->pred_timesteps++;
     this->pred_start_timestep -= this->delta_t;
-    dbg(this->pred_start_timestep);
 
     int skip_steps = 0;
 
@@ -529,10 +513,6 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann:
         throw BadCausemosInputException("No training data");
     }
 
-  dbg(this->delta_t);
-  dbg(this->pred_timesteps);
-  dbg(skip_steps);
-
     if (!this->trained) {
         this->run_train_model(res, burn);
     }
@@ -549,13 +529,16 @@ FormattedProjectionResult AnalysisGraph::format_projection_result() {
   // [ vertex_name ][ timestep ][ sample ]
   FormattedProjectionResult result;
 
+  // To facilitate clamping derivative we start predicting one timestep before
+  // the requested prediction start timestep. We are removing that timestep when
+  // returning the results.
   for (auto [vert_name, vert_id] : this->name_to_vertex) {
     result[vert_name] =
-        vector<vector<double>>(this->pred_timesteps, vector<double>(this->res));
-    for (int ts = 1; ts < this->pred_timesteps; ts++) {
+        vector<vector<double>>(this->pred_timesteps - 1, vector<double>(this->res));
+    for (int ts = 0; ts < this->pred_timesteps - 1; ts++) {
       for (int samp = 0; samp < this->res; samp++) {
         result[vert_name][ts][samp] =
-            this->predicted_observed_state_sequences[samp][ts][vert_id][0];
+            this->predicted_observed_state_sequences[samp][ts + 1][vert_id][0];
       }
       ranges::sort(result[vert_name][ts]);
     }

@@ -251,11 +251,9 @@ class AnalysisGraph {
   std::vector<std::string> pred_range;
   long train_start_epoch = -1;
   long train_end_epoch = -1;
-  long pred_start_epoch = -1;
-  long pred_end_epoch = -1;
   double pred_start_timestep = -1;
-  std::vector<double> observation_timesteps;
-  std::vector<long> observation_gaps;
+  std::vector<double> observation_timestep_gaps;
+  std::unordered_map<double, Eigen::MatrixXd> e_A_ts;
   long modeling_period = 1; // Number of epochs per one modeling timestep
 
   double t = 0.0;
@@ -858,8 +856,6 @@ class AnalysisGraph {
   void set_log_likelihood_helper(int ts);
 
   void set_log_likelihood();
-
-  void set_current_latent_state(int ts);
 
   /**
    * Run Bayesian inference - sample from the posterior distribution.

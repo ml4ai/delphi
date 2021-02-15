@@ -101,6 +101,7 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
 
       for (int i = 0; i < n.indicators.size(); i++) {
           Indicator &ind = n.indicators[i];
+          double mean = 0.0001;
 
           // The (v, i) pair uniquely identifies an indicator. It is the i th
           // indicator of v th concept.
@@ -157,7 +158,7 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
           if (aggregation_method.compare("first") == 0) {
               if (ts_sequence[0] == 0) {
                   // The first observation is not missing
-                  ind.set_mean(mean_sequence[0]);
+                  mean = mean_sequence[0];
               } else {
                   // First observation is missing
                   // TODO: Decide what to do
@@ -167,14 +168,14 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
                   // weights? We need i < j => w_i > w_j and sum of w's = 1.
                   // For the moment as a placeholder, average of the earliest
                   // available observation is used to set the indicator mean.
-                  ind.set_mean(mean_sequence[0]);
+                  mean = mean_sequence[0];
               }
           }
           else if (aggregation_method.compare("last") == 0) {
               int last_obs_idx = this->n_timesteps - 1;
               if (ts_sequence.back() == last_obs_idx) {
                   // The first observation is not missing
-                  ind.set_mean(mean_sequence.back());
+                  mean = mean_sequence.back();
               } else {
                   // First observation is missing
                   // TODO: Similar to "first" decide what to do.
@@ -184,16 +185,22 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
               }
           }
           else if (aggregation_method.compare("min") == 0) {
-              ind.set_mean(ranges::min(mean_sequence));
+              mean = ranges::min(mean_sequence);
           }
           else if (aggregation_method.compare("max") == 0) {
-              ind.set_mean(ranges::max(mean_sequence));
+              mean = ranges::max(mean_sequence);
           }
           else if (aggregation_method.compare("mean") == 0) {
-              ind.set_mean(delphi::utils::mean(mean_sequence));
+              mean = delphi::utils::mean(mean_sequence);
           }
           else if (aggregation_method.compare("median") == 0) {
-              ind.set_mean(delphi::utils::median(mean_sequence));
+              mean = delphi::utils::median(mean_sequence);
+          }
+          if (mean != 0) {
+            ind.set_mean(mean);
+          } else {
+            // To avoid division by zero error later on
+            ind.set_mean(0.0001);
           }
       }
   }

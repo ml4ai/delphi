@@ -129,10 +129,12 @@ CompleteState AnalysisGraph::get_complete_state() {
         }
     }
 
-    std::vector<long> data_range(this->observation_timesteps.size());
+    std::vector<long> data_range(this->n_timesteps);
+    double timestep = 0;
     for (int ts = 0; ts < this->n_timesteps; ts++) {
+        timestep += this->observation_timestep_gaps[ts];
         data_range[ts] = this->train_start_epoch +
-                       this->observation_timesteps[ts] * this->modeling_period;
+                        timestep * this->modeling_period;
     }
 
     std::vector<double> prediction_range(this->pred_timesteps);
