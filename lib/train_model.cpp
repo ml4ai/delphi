@@ -37,6 +37,24 @@ void AnalysisGraph::train_model(int start_year,
           this->set_observed_state_sequence_from_data(country, state, county);
       }
 
+      this->run_train_model(res, burn, initial_beta, use_heuristic, use_continuous);
+  }
+}
+
+/*
+ ============================================================================
+ Private: Run train model procedure (in train_model.cpp)
+ ============================================================================
+*/
+
+
+void AnalysisGraph::run_train_model(int res,
+                                int burn,
+                                InitialBeta initial_beta,
+                                bool use_heuristic,
+                                bool use_continuous) {
+
+  if(this->n_timesteps > 0) {
       this->initialize_parameters(res, initial_beta, use_heuristic, use_continuous);
 
       cout << "\nBurning " << burn << " samples out..." << endl;
@@ -59,6 +77,7 @@ void AnalysisGraph::train_model(int start_year,
       RNG::release_instance();
   }
 }
+
 
 
 /*

@@ -1,0 +1,237 @@
+{
+  "id": "XYZ1606327881",
+  "statements": [
+    {
+      "belief": 1,
+      "evidence": [],
+      "id": "0",
+      "type": "Influence",
+      "subj": {
+        "db_refs": {
+          "TEXT": "a impressive increase in rainfall",
+          "concept": "a"
+        },
+        "name": "a"
+      },
+      "subj_delta": {
+        "adjectives": [
+          "impressive"
+        ],
+        "polarity": 1
+      },
+      "obj": {
+        "db_refs": {
+          "TEXT": "micro change in food prices",
+          "concept": "b"
+        },
+        "name": "b"
+      },
+      "obj_delta": {
+        "adjectives": [
+          "micro"
+        ],
+        "polarity": 1
+      }
+    },
+    {
+      "belief": 1,
+      "evidence": [],
+      "id": "1",
+      "type": "Influence",
+      "subj": {
+        "db_refs": {
+          "TEXT": "a giant increase in rainfall",
+          "concept": "c"
+        },
+        "name": "c"
+      },
+      "subj_delta": {
+        "adjectives": [
+          "giant"
+        ],
+        "polarity": 1
+      },
+      "obj": {
+        "db_refs": {
+          "TEXT": "significant change in food prices",
+          "concept": "a"
+        },
+        "name": "a"
+      },
+      "obj_delta": {
+        "adjectives": [
+          "significant"
+        ],
+        "polarity": 1
+      }
+    },
+    {
+      "belief": 1,
+      "evidence": [],
+      "id": "2",
+      "type": "Influence",
+      "subj": {
+        "db_refs": {
+          "TEXT": "a considerable increase in rainfall",
+          "concept": "c"
+        },
+        "name": "c"
+      },
+      "subj_delta": {
+        "adjectives": [
+          "considerable"
+        ],
+        "polarity": 1
+      },
+      "obj": {
+        "db_refs": {
+          "TEXT": "considerable change in food prices",
+          "concept": "b"
+        },
+        "name": "b"
+      },
+      "obj_delta": {
+        "adjectives": [
+          "considerable"
+        ],
+        "polarity": -1
+      }
+    }
+  ],
+  "conceptIndicators": {
+    "a": {
+      "name": "a_ind",
+      "func": "last",
+      "minValue": 1,
+      "maxValue": 201,
+      "numLevels": 31,
+      "values": [
+        {
+          "timestamp": 3,
+          "value": 1
+        },
+        {
+          "timestamp": 9,
+          "value": 1.5571030640668524
+        },
+        {
+          "timestamp": 15,
+          "value": 2.114206128133705
+        },
+        {
+          "timestamp": 21,
+          "value": 2.671309192200557
+        },
+        {
+          "timestamp": 27,
+          "value": 3.2284122562674096
+        },
+        {
+          "timestamp": 39,
+          "value": 3.785515320334262
+        },
+        {
+          "timestamp": 45,
+          "value": 4.342618384401114
+        },
+        {
+          "timestamp": 57,
+          "value": 4.899721448467966
+        },
+        {
+          "timestamp": 69,
+          "value": 5.456824512534819
+        },
+        {
+          "timestamp": 81,
+          "value": 6.013927576601672
+        }
+      ],
+      "source": ""
+    },
+    "b": {
+      "name": "b_ind",
+      "func": "last",
+      "minValue": 1,
+      "maxValue": 201,
+      "numLevels": 31,
+      "values": [
+        {
+          "timestamp": 9,
+          "value": 201
+        },
+        {
+          "timestamp": 21,
+          "value": 200.44289693593313
+        },
+        {
+          "timestamp": 33,
+          "value": 199.8857938718663
+        },
+        {
+          "timestamp": 69,
+          "value": 199.32869080779943
+        },
+        {
+          "timestamp": 81,
+          "value": 198.7715877437326
+        },
+        {
+          "timestamp": 105,
+          "value": 198.21448467966573
+        },
+        {
+          "timestamp": 117,
+          "value": 197.6573816155989
+        }
+      ],
+      "source": ""
+    },
+    "c": {
+      "name": "c_ind",
+      "func": "last",
+      "minValue": 1,
+      "maxValue": 201,
+      "numLevels": 31,
+      "values": [
+        {
+          "timestamp": 12,
+          "value": 1
+        },
+        {
+          "timestamp": 30,
+          "value": 1.5571030640668524
+        },
+        {
+          "timestamp": 48,
+          "value": 2.114206128133705
+        },
+        {
+          "timestamp": 66,
+          "value": 2.671309192200557
+        },
+        {
+          "timestamp": 84,
+          "value": 3.2284122562674096
+        },
+        {
+          "timestamp": 102,
+          "value": 3.785515320334262
+        },
+        {
+          "timestamp": 120,
+          "value": 4.342618384401114
+        },
+        {
+          "timestamp": 138,
+          "value": 4.899721448467966
+        },
+        {
+          "timestamp": 174,
+          "value": 5.456824512534819
+        }
+      ],
+      "source": ""
+    }
+  }
+}

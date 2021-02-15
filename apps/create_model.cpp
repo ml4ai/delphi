@@ -37,11 +37,24 @@ int main(int argc, char* argv[]) {
 };
 
 
-    AnalysisGraph G = AnalysisGraph::from_causemos_json_file("../tests/data/delphi/causemos_create-model_nodata.json", 4);
-
-    return(0);
+    AnalysisGraph G = AnalysisGraph::from_causemos_json_file("../tests/data/delphi/causemos_create-model.json", 4);
+    FormattedProjectionResult proj = G.run_causemos_projection_experiment_from_json_file("../tests/data/delphi/causemos_experiments_projection_input.json",
+                                                          10,
+                                                          4);
 
     string result = G.serialize_to_json_string(false);
+    G = AnalysisGraph::deserialize_from_json_string(result, false);
+    proj = G.run_causemos_projection_experiment_from_json_file("../tests/data/delphi/causemos_experiments_projection_input.json",
+                                                                                         10,
+                                                                                         4);
+    string result2 = G.serialize_to_json_string(false);
+
+    if (result.compare(result2) == 0){
+      dbg("\nSame\n");
+    } else {
+      dbg("\nDifferent\n");
+    }
+    return(0);
 
     G.train_model(2020, 1, 2020, 12);
     result = G.serialize_to_json_string(false);

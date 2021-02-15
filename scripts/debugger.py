@@ -1,5 +1,7 @@
 import delphi.plotter as dp
 from delphi.cpp.DelphiPython import AnalysisGraph
+import pandas as pd
+import numpy as np
 
 
 def set_indicator(G, concept, indicator_new, source):
@@ -87,26 +89,48 @@ def draw_CAG(G, file_name):
 
 
 if __name__ == "__main__":
-    causemos_create_model = "../tests/data/delphi/create_model_input_2.json"
-    #causemos_create_model = ""
-    causemos_create_experiment = "../tests/data/delphi/experiments_projection_input_2.json"
+    json_inputs = [
+        ["../tests/data/delphi/create_model_test.json",
+         "../tests/data/delphi/experiments_projection_test.json"],
+        ["../tests/data/delphi/create_model_ideal.json",
+         "../tests/data/delphi/experiments_projection_ideal.json"],
+        ["../tests/data/delphi/create_model_ideal_10.json",
+         "../tests/data/delphi/experiments_projection_ideal_2.json"],
+        ["../tests/data/delphi/create_model_ideal_3.json",
+         "../tests/data/delphi/experiments_projection_ideal_3.json"],
+        ["../tests/data/delphi/create_model_input_2.json",
+         "../tests/data/delphi/experiments_projection_input_2.json"],
+        ["../tests/data/delphi/causemos_create-model.json",
+         "../tests/data/delphi/causemos_experiments_projection_input.json"],
+    ]
 
-    G = create_base_CAG(causemos_create_model, 100)
+    input_idx = 0
+    causemos_create_model = json_inputs[input_idx][0]
+    causemos_create_experiment = json_inputs[input_idx][1]
+
+    G = create_base_CAG(causemos_create_model, 1000)
     #G = create_base_CAG('', 100)
 
     draw_CAG(G, 'plot_testing_CAG.png')
 
+    
     print('\nTraining Model')
     try:
         preds = G.run_causemos_projection_experiment_from_json_file(
                 filename=causemos_create_experiment,
-                burn=100,
-                res=100)
-    except G.BadCausemosInputException as e:
+                burn=10,
+                res=10)
+    except AnalysisGraph.BadCausemosInputException as e:
         print(e)
         exit()
 
     print('\n\nPlotting \n')
     model_state = G.get_complete_state()
+
+    concept_indicators, edges, adjectives, polarities, edge_data, derivatives, data_range, data_set, pred_range, predictions, cis  = model_state
+
+    print(data_range)
+    print(pred_range[1:])
+
     dp.delphi_plotter(model_state, num_bins=400, rotation=45,
             out_dir='plots', file_name_prefix='')

@@ -128,8 +128,15 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
     this->training_range = json_data["training_range"];
   }
 
+  this->modeling_period = json_data["modeling_period"].get<long>();
+  this->train_start_epoch = json_data["train_start_epoch"].get<long>();
+  this->train_end_epoch = json_data["train_end_epoch"].get<long>();
+  this->n_timesteps = json_data["train_timesteps"].get<int>();
+  this->observation_timestep_gaps = json_data["observation_timestep_gaps"].get<vector<double>>();
+
   this->observed_state_sequence =
       json_data["observations"].get<ObservedStateSequence>();
+  this->set_indicator_means_and_standard_deviations();
 
     if(json_data["trained"].is_null()) {
         this->trained = false;
