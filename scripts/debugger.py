@@ -1,6 +1,7 @@
 import delphi.plotter as dp
 from delphi.cpp.DelphiPython import AnalysisGraph
 import pandas as pd
+import numpy as np
 
 
 def set_indicator(G, concept, indicator_new, source):
@@ -88,15 +89,26 @@ def draw_CAG(G, file_name):
 
 
 if __name__ == "__main__":
-    causemos_create_model = "../tests/data/delphi/create_model_test.json"
-    causemos_create_model = "../tests/data/delphi/create_model_input_2.json"
-    causemos_create_model = "../tests/data/delphi/causemos_create-model.json"
-    #causemos_create_model = ""
-    causemos_create_experiment = "../tests/data/delphi/experiments_projection_test.json"
-    causemos_create_experiment = "../tests/data/delphi/experiments_projection_input_2.json"
-    causemos_create_experiment = "../tests/data/delphi/causemos_experiments_projection_input.json"
+    json_inputs = [
+        ["../tests/data/delphi/create_model_test.json",
+         "../tests/data/delphi/experiments_projection_test.json"],
+        ["../tests/data/delphi/create_model_ideal.json",
+         "../tests/data/delphi/experiments_projection_ideal.json"],
+        ["../tests/data/delphi/create_model_ideal_10.json",
+         "../tests/data/delphi/experiments_projection_ideal_2.json"],
+        ["../tests/data/delphi/create_model_ideal_3.json",
+         "../tests/data/delphi/experiments_projection_ideal_3.json"],
+        ["../tests/data/delphi/create_model_input_2.json",
+         "../tests/data/delphi/experiments_projection_input_2.json"],
+        ["../tests/data/delphi/causemos_create-model.json",
+         "../tests/data/delphi/causemos_experiments_projection_input.json"],
+    ]
 
-    G = create_base_CAG(causemos_create_model, 100)
+    input_idx = 0
+    causemos_create_model = json_inputs[input_idx][0]
+    causemos_create_experiment = json_inputs[input_idx][1]
+
+    G = create_base_CAG(causemos_create_model, 1000)
     #G = create_base_CAG('', 100)
 
     draw_CAG(G, 'plot_testing_CAG.png')
@@ -108,36 +120,17 @@ if __name__ == "__main__":
                 filename=causemos_create_experiment,
                 burn=10,
                 res=10)
-    except G.BadCausemosInputException as e:
+    except AnalysisGraph.BadCausemosInputException as e:
         print(e)
         exit()
-    
+
     print('\n\nPlotting \n')
     model_state = G.get_complete_state()
 
     concept_indicators, edges, adjectives, polarities, edge_data, derivatives, data_range, data_set, pred_range, predictions, cis  = model_state
-    df_data = pd.DataFrame.from_dict(data_set["a_ind"])
-    thelist1 = list(df_data["Time Step"])
-    df_data = pd.DataFrame.from_dict(data_set["b_ind"])
-    thelist2 = list(df_data["Time Step"])
-    #print(list(df_data["Time Step"]))
-    df_data = pd.DataFrame.from_dict(data_set["c_ind"])
-    #print(list(df_data["Time Step"]))
-    thelist3 = list(df_data["Time Step"])
-    print(len(thelist3))
 
-    
-    for i in range(1, len(thelist1)):
-        print(thelist1[i] - thelist1[i-1], end = ', ')
-    print()
-    for i in range(1, len(thelist2)):
-        print(thelist2[i] - thelist2[i-1], end = ', ')
-    print()
-    for i in range(1, len(thelist3)):
-        print(thelist3[i] - thelist3[i-1], end = ', ')
-    print()
-    
+    print(data_range)
+    print(pred_range[1:])
 
-    exit()
     dp.delphi_plotter(model_state, num_bins=400, rotation=45,
             out_dir='plots', file_name_prefix='')
