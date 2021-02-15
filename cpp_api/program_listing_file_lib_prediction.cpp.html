@@ -36,7 +36,6 @@
         <script src="../_static/doctools.js"></script>
         <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
         <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -189,7 +188,7 @@
 <span class="cm">*/</span>
 
 <span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">generate_latent_state_sequences</span><span class="p">(</span>
-    <span class="kt">int</span> <span class="n">initial_prediction_step</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">double</span> <span class="n">initial_prediction_step</span><span class="p">)</span> <span class="p">{</span>
 
   <span class="c1">// Allocate memory for prediction_latent_state_sequences</span>
   <span class="k">this</span><span class="o">-&gt;</span><span class="n">predicted_latent_state_sequences</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
@@ -211,10 +210,9 @@
       <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">continuous</span><span class="p">)</span> <span class="p">{</span>
           <span class="c1">// Here A = Ac = this-&gt;transition_matrix_collection[samp] (continuous)</span>
 
-          <span class="c1">// Evolving the system one time step before the</span>
-          <span class="c1">// initial_prediction_step</span>
+          <span class="c1">// Evolving the system till the initial_prediction_step</span>
           <span class="n">A</span> <span class="o">=</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">transition_matrix_collection</span><span class="p">[</span><span class="n">samp</span><span class="p">]</span> <span class="o">*</span>
-                  <span class="k">this</span><span class="o">-&gt;</span><span class="n">delta_t</span> <span class="o">*</span> <span class="p">(</span><span class="n">initial_prediction_step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)).</span><span class="n">exp</span><span class="p">();</span>
+                   <span class="n">initial_prediction_step</span><span class="p">).</span><span class="n">exp</span><span class="p">();</span>
 
           <span class="k">this</span><span class="o">-&gt;</span><span class="n">predicted_latent_state_sequences</span><span class="p">[</span><span class="n">samp</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span>
                                <span class="n">A</span> <span class="o">*</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">initial_latent_state_collection</span><span class="p">[</span><span class="n">samp</span><span class="p">];</span>
@@ -232,10 +230,9 @@
           <span class="c1">// length Δt</span>
           <span class="n">A</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">transition_matrix_collection</span><span class="p">[</span><span class="n">samp</span><span class="p">];</span>
 
-          <span class="c1">// Evolving the system one time step before the</span>
-          <span class="c1">// initial_prediction_step</span>
+          <span class="c1">// Evolving the system till the initial_prediction_step</span>
           <span class="k">this</span><span class="o">-&gt;</span><span class="n">predicted_latent_state_sequences</span><span class="p">[</span><span class="n">samp</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span>
-                              <span class="n">A</span><span class="p">.</span><span class="n">pow</span><span class="p">(</span><span class="n">initial_prediction_step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span>
+                              <span class="n">A</span><span class="p">.</span><span class="n">pow</span><span class="p">(</span><span class="n">initial_prediction_step</span><span class="p">)</span> <span class="o">*</span>
                                   <span class="k">this</span><span class="o">-&gt;</span><span class="n">initial_latent_state_collection</span><span class="p">[</span><span class="n">samp</span><span class="p">];</span>
       <span class="p">}</span>
 

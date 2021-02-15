@@ -36,7 +36,6 @@
         <script src="../_static/doctools.js"></script>
         <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
         <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -252,6 +251,16 @@
     <span class="k">this</span><span class="o">-&gt;</span><span class="n">A_original</span><span class="p">(</span><span class="n">row</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">col</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">=</span>
         <span class="k">this</span><span class="o">-&gt;</span><span class="n">A_beta_factors</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">compute_cell</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">);</span>
   <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">continuous</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Initialize the transition matrix pre-calculation data structure.</span>
+    <span class="c1">// This data structure holds all the transition matrices required to</span>
+    <span class="c1">// advance the system from each timestep to the next.</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">double</span> <span class="nl">gap</span> <span class="p">:</span> <span class="n">set</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">observation_timestep_gaps</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span>
+                                  <span class="k">this</span><span class="o">-&gt;</span><span class="n">observation_timestep_gaps</span><span class="p">.</span><span class="n">end</span><span class="p">()))</span> <span class="p">{</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">e_A_ts</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">make_pair</span><span class="p">(</span><span class="n">gap</span><span class="p">,</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">A_original</span> <span class="o">*</span> <span class="n">gap</span><span class="p">).</span><span class="n">exp</span><span class="p">()));</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
 <span class="p">}</span>
 
 <span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">set_log_likelihood_helper</span><span class="p">(</span><span class="kt">int</span> <span class="n">ts</span><span class="p">)</span> <span class="p">{</span>
@@ -282,9 +291,22 @@
   <span class="k">this</span><span class="o">-&gt;</span><span class="n">log_likelihood</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span>
 
   <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">continuous</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">ts</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">ts</span> <span class="o">&lt;</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">n_timesteps</span><span class="p">;</span> <span class="n">ts</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-          <span class="k">this</span><span class="o">-&gt;</span><span class="n">set_current_latent_state</span><span class="p">(</span><span class="n">ts</span><span class="p">);</span>
-          <span class="n">set_log_likelihood_helper</span><span class="p">(</span><span class="n">ts</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">coin_flip</span> <span class="o">&lt;</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">coin_flip_thresh</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// A θ has been sampled</span>
+        <span class="c1">// Precalculate all the transition matrices required to advance the system</span>
+        <span class="c1">// from one timestep to the next.</span>
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="p">[</span><span class="n">gap</span><span class="p">,</span> <span class="n">mat</span><span class="p">]</span> <span class="o">:</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">e_A_ts</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">this</span><span class="o">-&gt;</span><span class="n">e_A_ts</span><span class="p">[</span><span class="n">gap</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">A_original</span> <span class="o">*</span> <span class="n">gap</span><span class="p">).</span><span class="n">exp</span><span class="p">();</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">current_latent_state</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">s0</span><span class="p">;</span>
+      <span class="n">set_log_likelihood_helper</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">ts</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">ts</span> <span class="o">&lt;</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">n_timesteps</span><span class="p">;</span> <span class="n">ts</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="o">-&gt;</span><span class="n">current_latent_state</span> <span class="o">=</span>
+            <span class="k">this</span><span class="o">-&gt;</span><span class="n">e_A_ts</span><span class="p">[</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">observation_timestep_gaps</span><span class="p">[</span><span class="n">ts</span><span class="p">]]</span>
+            <span class="o">*</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">current_latent_state</span><span class="p">;</span>
+        <span class="n">set_log_likelihood_helper</span><span class="p">(</span><span class="n">ts</span><span class="p">);</span>
       <span class="p">}</span>
   <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
       <span class="c1">// Discretized version</span>
@@ -295,14 +317,6 @@
           <span class="k">this</span><span class="o">-&gt;</span><span class="n">current_latent_state</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">A_original</span> <span class="o">*</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">current_latent_state</span><span class="p">;</span>
       <span class="p">}</span>
   <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">set_current_latent_state</span><span class="p">(</span><span class="kt">int</span> <span class="n">ts</span><span class="p">)</span> <span class="p">{</span>
-  <span class="c1">//const Eigen::MatrixXd&amp; A_t = this-&gt;A_original;</span>
-  <span class="c1">//this-&gt;current_latent_state = A_t.pow(ts) * this-&gt;s0;</span>
-  <span class="c1">// Computing e^At</span>
-  <span class="k">const</span> <span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="o">&amp;</span> <span class="n">e_A_t</span> <span class="o">=</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">A_original</span> <span class="o">*</span> <span class="n">ts</span><span class="p">).</span><span class="n">exp</span><span class="p">();</span>
-  <span class="k">this</span><span class="o">-&gt;</span><span class="n">current_latent_state</span> <span class="o">=</span> <span class="n">e_A_t</span> <span class="o">*</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">s0</span><span class="p">;</span>
 <span class="p">}</span>
 
 <span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">sample_from_posterior</span><span class="p">()</span> <span class="p">{</span>

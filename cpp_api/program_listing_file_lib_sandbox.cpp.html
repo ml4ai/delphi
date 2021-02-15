@@ -36,7 +36,6 @@
         <script src="../_static/doctools.js"></script>
         <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
         <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -289,8 +288,15 @@
     <span class="k">this</span><span class="o">-&gt;</span><span class="n">training_range</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;training_range&quot;</span><span class="p">];</span>
   <span class="p">}</span>
 
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">modeling_period</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;modeling_period&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">long</span><span class="o">&gt;</span><span class="p">();</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">train_start_epoch</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;train_start_epoch&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">long</span><span class="o">&gt;</span><span class="p">();</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">train_end_epoch</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;train_end_epoch&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">long</span><span class="o">&gt;</span><span class="p">();</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">n_timesteps</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;train_timesteps&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">observation_timestep_gaps</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;observation_timestep_gaps&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span><span class="p">();</span>
+
   <span class="k">this</span><span class="o">-&gt;</span><span class="n">observed_state_sequence</span> <span class="o">=</span>
       <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;observations&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="n">ObservedStateSequence</span><span class="o">&gt;</span><span class="p">();</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">set_indicator_means_and_standard_deviations</span><span class="p">();</span>
 
     <span class="k">if</span><span class="p">(</span><span class="n">json_data</span><span class="p">[</span><span class="s">&quot;trained&quot;</span><span class="p">].</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
         <span class="k">this</span><span class="o">-&gt;</span><span class="n">trained</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>

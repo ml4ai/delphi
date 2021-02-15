@@ -36,7 +36,6 @@
         <script src="../_static/doctools.js"></script>
         <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
         <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -320,6 +319,12 @@
   <span class="k">this</span><span class="o">-&gt;</span><span class="n">n_timesteps</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">n_timesteps</span><span class="p">;</span>
   <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_timesteps</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">pred_timesteps</span><span class="p">;</span>
   <span class="k">this</span><span class="o">-&gt;</span><span class="n">training_range</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">training_range</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">train_start_epoch</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">train_start_epoch</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">train_end_epoch</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">train_end_epoch</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_start_timestep</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">pred_start_timestep</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">observation_timestep_gaps</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">observation_timestep_gaps</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">e_A_ts</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">e_A_ts</span><span class="p">;</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">modeling_period</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">modeling_period</span><span class="p">;</span>
   <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_range</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">pred_range</span><span class="p">;</span>
   <span class="k">this</span><span class="o">-&gt;</span><span class="n">t</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">t</span><span class="p">;</span>
   <span class="k">this</span><span class="o">-&gt;</span><span class="n">delta_t</span> <span class="o">=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">delta_t</span><span class="p">;</span>

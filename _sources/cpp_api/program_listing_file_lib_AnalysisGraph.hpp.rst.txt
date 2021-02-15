@@ -38,15 +38,15 @@ Program Listing for File AnalysisGraph.hpp
    // This is a multimap to keep provision to have multiple observations per
    // time point per indicator.
    // Access (concept is a vertex in the CAG)
-   // [ concept ][ indicator ][ <year, month> --→ observation ]
-   typedef std::vector<std::vector<std::multimap<std::pair<int, int>, double>>>
+   // [ concept ][ indicator ][ epoch --→ observation ]
+   typedef std::vector<std::vector<std::multimap<long, double>>>
        ConceptIndicatorData;
    
    // Keeps the sequence of dates for which data points are available
    // Data points are sorted according to dates
    // Access:
-   // [ concept ][ indicator ][<year, month>]
-   typedef std::vector<std::vector<std::pair<int, int>>> ConceptIndicatorDates;
+   // [ concept ][ indicator ][epoch]
+   typedef std::vector<std::vector<long>> ConceptIndicatorEpochs;
    
    // Access
    // [ timestep ][ concept ][ indicator ][ observation ]
@@ -135,7 +135,8 @@ Program Listing for File AnalysisGraph.hpp
    //                        }
    typedef std::unordered_map<std::string, std::unordered_map<int, std::vector<double>>> Predictions;
    
-   typedef std::unordered_map<std::string, std::unordered_map<std::string, std::vector<double>>> ConfidenceIntervals;
+   typedef std::unordered_map<std::string, std::unordered_map<std::string, std::vector<double>>>
+       CredibleIntervals;
    
    typedef std::tuple<
        ConceptIndicators,
@@ -147,13 +148,15 @@ Program Listing for File AnalysisGraph.hpp
        Thetas,
        Derivatives,
        // Data year month range
-       std::vector<std::string>,
+       //std::vector<std::string>,
+       std::vector<long>,
        // Data
        Data,
        // Prediction year month range
-       std::vector<std::string>,
+       //std::vector<std::string>,
+       std::vector<double>,
        Predictions,
-       ConfidenceIntervals
+       CredibleIntervals
                > CompleteState;
    
    // Access
@@ -255,6 +258,12 @@ Program Listing for File AnalysisGraph.hpp
      int pred_timesteps = 0;
      std::pair<std::pair<int, int>, std::pair<int, int>> training_range;
      std::vector<std::string> pred_range;
+     long train_start_epoch = -1;
+     long train_end_epoch = -1;
+     double pred_start_timestep = -1;
+     std::vector<double> observation_timestep_gaps;
+     std::unordered_map<double, Eigen::MatrixXd> e_A_ts;
+     long modeling_period = 1; // Number of epochs per one modeling timestep
    
      double t = 0.0;
      double delta_t = 1.0;
@@ -423,12 +432,14 @@ Program Listing for File AnalysisGraph.hpp
      void extract_concept_indicator_mapping_and_observations_from_json(
                            const nlohmann::json &json_indicators,
                            ConceptIndicatorData &concept_indicator_data,
-                           ConceptIndicatorDates &concept_indicator_dates,
-                           int &start_year, int &start_month,
-                           int &end_year, int &end_month);
+                           ConceptIndicatorEpochs &concept_indicator_epochs);
    
-     void infer_modeling_frequency(
-                           const ConceptIndicatorDates &concept_indicator_dates,
+   
+     static double epoch_to_timestep(long epoch, long train_start_epoch, long modeling_frequency);
+   
+     std::vector<long>
+     infer_modeling_period(
+                           const ConceptIndicatorEpochs &concept_indicator_epochs,
                            int &shortest_gap,
                            int &longest_gap,
                            int &frequent_gap,
@@ -443,17 +454,11 @@ Program Listing for File AnalysisGraph.hpp
    
      std::pair<int, int> timestamp_to_year_month(long timestamp);
    
-     std::pair<int, int> calculate_end_year_month(int start_year, int start_month,
-                                                  int num_timesteps);
-   
-     double calculate_prediction_timestep_length(int start_year, int start_month,
-                                                 int end_year, int end_month,
-                                                 int pred_timesteps);
-   
      void extract_projection_constraints(
-                                   const nlohmann::json &projection_constraints);
+                                   const nlohmann::json &projection_constraints, long skip_steps);
    
-     Prediction run_causemos_projection_experiment_from_json_dict(const nlohmann::json &json_data,
+     FormattedProjectionResult run_causemos_projection_experiment_from_json_dict(
+                                                                  const nlohmann::json &json_data,
                                                                   int burn = 10000,
                                                                   int res = 200);
    
@@ -608,6 +613,18 @@ Program Listing for File AnalysisGraph.hpp
    
      /*
       ============================================================================
+      Private: Run train model procedure (in train_model.cpp)
+      ============================================================================
+     */
+   
+     void run_train_model(int res = 200,
+                          int burn = 10000,
+                          InitialBeta initial_beta = InitialBeta::ZERO,
+                          bool use_heuristic = false,
+                          bool use_continuous = true);
+   
+     /*
+      ============================================================================
       Private: Get Training Data Sequence (in train_model.cpp)
       ============================================================================
      */
@@ -658,8 +675,6 @@ Program Listing for File AnalysisGraph.hpp
    
      void set_log_likelihood();
    
-     void set_current_latent_state(int ts);
-   
      void sample_from_posterior();
    
      // TODO: Need testng
@@ -685,7 +700,7 @@ Program Listing for File AnalysisGraph.hpp
       ============================================================================
      */
    
-     void generate_latent_state_sequences(int initial_prediction_step);
+     void generate_latent_state_sequences(double initial_prediction_step);
    
      void perturb_predicted_latent_state_at(int timestep, int sample_number);
    
@@ -813,7 +828,7 @@ Program Listing for File AnalysisGraph.hpp
                                                          int burn = 10000,
                                                          int res = 200);
    
-     Prediction
+     FormattedProjectionResult
      run_causemos_projection_experiment_from_json_file(std::string filename,
                                                        int burn = 10000,
                                                        int res = 200);
@@ -1097,7 +1112,7 @@ Program Listing for File AnalysisGraph.hpp
       ============================================================================
      */
    
-     ConfidenceIntervals get_confidence_interval(Predictions preds);
+     CredibleIntervals get_credible_interval(Predictions preds);
    
      CompleteState get_complete_state();
    };

@@ -36,7 +36,6 @@
         <script src="../_static/doctools.js"></script>
         <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
         <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -197,15 +196,15 @@
 <span class="c1">// This is a multimap to keep provision to have multiple observations per</span>
 <span class="c1">// time point per indicator.</span>
 <span class="c1">// Access (concept is a vertex in the CAG)</span>
-<span class="c1">// [ concept ][ indicator ][ &lt;year, month&gt; --→ observation ]</span>
-<span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">multimap</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span><span class="p">,</span> <span class="kt">double</span><span class="o">&gt;&gt;&gt;</span>
+<span class="c1">// [ concept ][ indicator ][ epoch --→ observation ]</span>
+<span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">multimap</span><span class="o">&lt;</span><span class="kt">long</span><span class="p">,</span> <span class="kt">double</span><span class="o">&gt;&gt;&gt;</span>
     <span class="n">ConceptIndicatorData</span><span class="p">;</span>
 
 <span class="c1">// Keeps the sequence of dates for which data points are available</span>
 <span class="c1">// Data points are sorted according to dates</span>
 <span class="c1">// Access:</span>
-<span class="c1">// [ concept ][ indicator ][&lt;year, month&gt;]</span>
-<span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;&gt;&gt;</span> <span class="n">ConceptIndicatorDates</span><span class="p">;</span>
+<span class="c1">// [ concept ][ indicator ][epoch]</span>
+<span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">long</span><span class="o">&gt;&gt;</span> <span class="n">ConceptIndicatorEpochs</span><span class="p">;</span>
 
 <span class="c1">// Access</span>
 <span class="c1">// [ timestep ][ concept ][ indicator ][ observation ]</span>
@@ -294,7 +293,8 @@
 <span class="c1">//                        }</span>
 <span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&gt;</span> <span class="n">Predictions</span><span class="p">;</span>
 
-<span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&gt;</span> <span class="n">ConfidenceIntervals</span><span class="p">;</span>
+<span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;&gt;</span>
+    <span class="n">CredibleIntervals</span><span class="p">;</span>
 
 <span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">tuple</span><span class="o">&lt;</span>
     <span class="n">ConceptIndicators</span><span class="p">,</span>
@@ -306,13 +306,15 @@
     <span class="n">Thetas</span><span class="p">,</span>
     <span class="n">Derivatives</span><span class="p">,</span>
     <span class="c1">// Data year month range</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="c1">//std::vector&lt;std::string&gt;,</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">long</span><span class="o">&gt;</span><span class="p">,</span>
     <span class="c1">// Data</span>
     <span class="n">Data</span><span class="p">,</span>
     <span class="c1">// Prediction year month range</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="c1">//std::vector&lt;std::string&gt;,</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">,</span>
     <span class="n">Predictions</span><span class="p">,</span>
-    <span class="n">ConfidenceIntervals</span>
+    <span class="n">CredibleIntervals</span>
             <span class="o">&gt;</span> <span class="n">CompleteState</span><span class="p">;</span>
 
 <span class="c1">// Access</span>
@@ -414,6 +416,12 @@
   <span class="kt">int</span> <span class="n">pred_timesteps</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
   <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">training_range</span><span class="p">;</span>
   <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">pred_range</span><span class="p">;</span>
+  <span class="kt">long</span> <span class="n">train_start_epoch</span> <span class="o">=</span> <span class="mi">-1</span><span class="p">;</span>
+  <span class="kt">long</span> <span class="n">train_end_epoch</span> <span class="o">=</span> <span class="mi">-1</span><span class="p">;</span>
+  <span class="kt">double</span> <span class="n">pred_start_timestep</span> <span class="o">=</span> <span class="mi">-1</span><span class="p">;</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">observation_timestep_gaps</span><span class="p">;</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">double</span><span class="p">,</span> <span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="o">&gt;</span> <span class="n">e_A_ts</span><span class="p">;</span>
+  <span class="kt">long</span> <span class="n">modeling_period</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="c1">// Number of epochs per one modeling timestep</span>
 
   <span class="kt">double</span> <span class="n">t</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span>
   <span class="kt">double</span> <span class="n">delta_t</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">;</span>
@@ -582,12 +590,14 @@
   <span class="kt">void</span> <span class="nf">extract_concept_indicator_mapping_and_observations_from_json</span><span class="p">(</span>
                         <span class="k">const</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="o">&amp;</span><span class="n">json_indicators</span><span class="p">,</span>
                         <span class="n">ConceptIndicatorData</span> <span class="o">&amp;</span><span class="n">concept_indicator_data</span><span class="p">,</span>
-                        <span class="n">ConceptIndicatorDates</span> <span class="o">&amp;</span><span class="n">concept_indicator_dates</span><span class="p">,</span>
-                        <span class="kt">int</span> <span class="o">&amp;</span><span class="n">start_year</span><span class="p">,</span> <span class="kt">int</span> <span class="o">&amp;</span><span class="n">start_month</span><span class="p">,</span>
-                        <span class="kt">int</span> <span class="o">&amp;</span><span class="n">end_year</span><span class="p">,</span> <span class="kt">int</span> <span class="o">&amp;</span><span class="n">end_month</span><span class="p">);</span>
+                        <span class="n">ConceptIndicatorEpochs</span> <span class="o">&amp;</span><span class="n">concept_indicator_epochs</span><span class="p">);</span>
 
-  <span class="kt">void</span> <span class="nf">infer_modeling_frequency</span><span class="p">(</span>
-                        <span class="k">const</span> <span class="n">ConceptIndicatorDates</span> <span class="o">&amp;</span><span class="n">concept_indicator_dates</span><span class="p">,</span>
+
+  <span class="k">static</span> <span class="kt">double</span> <span class="n">epoch_to_timestep</span><span class="p">(</span><span class="kt">long</span> <span class="n">epoch</span><span class="p">,</span> <span class="kt">long</span> <span class="n">train_start_epoch</span><span class="p">,</span> <span class="kt">long</span> <span class="n">modeling_frequency</span><span class="p">);</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">long</span><span class="o">&gt;</span>
+  <span class="n">infer_modeling_period</span><span class="p">(</span>
+                        <span class="k">const</span> <span class="n">ConceptIndicatorEpochs</span> <span class="o">&amp;</span><span class="n">concept_indicator_epochs</span><span class="p">,</span>
                         <span class="kt">int</span> <span class="o">&amp;</span><span class="n">shortest_gap</span><span class="p">,</span>
                         <span class="kt">int</span> <span class="o">&amp;</span><span class="n">longest_gap</span><span class="p">,</span>
                         <span class="kt">int</span> <span class="o">&amp;</span><span class="n">frequent_gap</span><span class="p">,</span>
@@ -602,17 +612,11 @@
 
   <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">timestamp_to_year_month</span><span class="p">(</span><span class="kt">long</span> <span class="n">timestamp</span><span class="p">);</span>
 
-  <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">calculate_end_year_month</span><span class="p">(</span><span class="kt">int</span> <span class="n">start_year</span><span class="p">,</span> <span class="kt">int</span> <span class="n">start_month</span><span class="p">,</span>
-                                               <span class="kt">int</span> <span class="n">num_timesteps</span><span class="p">);</span>
-
-  <span class="kt">double</span> <span class="nf">calculate_prediction_timestep_length</span><span class="p">(</span><span class="kt">int</span> <span class="n">start_year</span><span class="p">,</span> <span class="kt">int</span> <span class="n">start_month</span><span class="p">,</span>
-                                              <span class="kt">int</span> <span class="n">end_year</span><span class="p">,</span> <span class="kt">int</span> <span class="n">end_month</span><span class="p">,</span>
-                                              <span class="kt">int</span> <span class="n">pred_timesteps</span><span class="p">);</span>
-
   <span class="kt">void</span> <span class="nf">extract_projection_constraints</span><span class="p">(</span>
-                                <span class="k">const</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="o">&amp;</span><span class="n">projection_constraints</span><span class="p">);</span>
+                                <span class="k">const</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="o">&amp;</span><span class="n">projection_constraints</span><span class="p">,</span> <span class="kt">long</span> <span class="n">skip_steps</span><span class="p">);</span>
 
-  <span class="n">Prediction</span> <span class="nf">run_causemos_projection_experiment_from_json_dict</span><span class="p">(</span><span class="k">const</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="o">&amp;</span><span class="n">json_data</span><span class="p">,</span>
+  <span class="n">FormattedProjectionResult</span> <span class="nf">run_causemos_projection_experiment_from_json_dict</span><span class="p">(</span>
+                                                               <span class="k">const</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="o">&amp;</span><span class="n">json_data</span><span class="p">,</span>
                                                                <span class="kt">int</span> <span class="n">burn</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
                                                                <span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">200</span><span class="p">);</span>
 
@@ -767,12 +771,24 @@
 
   <span class="cm">/*</span>
 <span class="cm">   ============================================================================</span>
+<span class="cm">   Private: Run train model procedure (in train_model.cpp)</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+  <span class="kt">void</span> <span class="n">run_train_model</span><span class="p">(</span><span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+                       <span class="kt">int</span> <span class="n">burn</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
+                       <span class="n">InitialBeta</span> <span class="n">initial_beta</span> <span class="o">=</span> <span class="n">InitialBeta</span><span class="o">::</span><span class="n">ZERO</span><span class="p">,</span>
+                       <span class="kt">bool</span> <span class="n">use_heuristic</span> <span class="o">=</span> <span class="nb">false</span><span class="p">,</span>
+                       <span class="kt">bool</span> <span class="n">use_continuous</span> <span class="o">=</span> <span class="nb">true</span><span class="p">);</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
 <span class="cm">   Private: Get Training Data Sequence (in train_model.cpp)</span>
 <span class="cm">   ============================================================================</span>
 <span class="cm">  */</span>
 
   <span class="kt">void</span>
-  <span class="n">set_observed_state_sequence_from_data</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">country</span> <span class="o">=</span> <span class="s">&quot;South Sudan&quot;</span><span class="p">,</span>
+  <span class="nf">set_observed_state_sequence_from_data</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">country</span> <span class="o">=</span> <span class="s">&quot;South Sudan&quot;</span><span class="p">,</span>
                                         <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">state</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="p">,</span>
                                         <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">county</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="p">);</span>
 
@@ -817,8 +833,6 @@
 
   <span class="kt">void</span> <span class="nf">set_log_likelihood</span><span class="p">();</span>
 
-  <span class="kt">void</span> <span class="nf">set_current_latent_state</span><span class="p">(</span><span class="kt">int</span> <span class="n">ts</span><span class="p">);</span>
-
   <span class="kt">void</span> <span class="nf">sample_from_posterior</span><span class="p">();</span>
 
   <span class="c1">// TODO: Need testng</span>
@@ -844,7 +858,7 @@
 <span class="cm">   ============================================================================</span>
 <span class="cm">  */</span>
 
-  <span class="kt">void</span> <span class="nf">generate_latent_state_sequences</span><span class="p">(</span><span class="kt">int</span> <span class="n">initial_prediction_step</span><span class="p">);</span>
+  <span class="kt">void</span> <span class="nf">generate_latent_state_sequences</span><span class="p">(</span><span class="kt">double</span> <span class="n">initial_prediction_step</span><span class="p">);</span>
 
   <span class="kt">void</span> <span class="nf">perturb_predicted_latent_state_at</span><span class="p">(</span><span class="kt">int</span> <span class="n">timestep</span><span class="p">,</span> <span class="kt">int</span> <span class="n">sample_number</span><span class="p">);</span>
 
@@ -972,7 +986,7 @@
                                                       <span class="kt">int</span> <span class="n">burn</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
                                                       <span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">200</span><span class="p">);</span>
 
-  <span class="n">Prediction</span>
+  <span class="n">FormattedProjectionResult</span>
   <span class="nf">run_causemos_projection_experiment_from_json_file</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filename</span><span class="p">,</span>
                                                     <span class="kt">int</span> <span class="n">burn</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
                                                     <span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">200</span><span class="p">);</span>
@@ -1256,7 +1270,7 @@
 <span class="cm">   ============================================================================</span>
 <span class="cm">  */</span>
 
-  <span class="n">ConfidenceIntervals</span> <span class="nf">get_confidence_interval</span><span class="p">(</span><span class="n">Predictions</span> <span class="n">preds</span><span class="p">);</span>
+  <span class="n">CredibleIntervals</span> <span class="nf">get_credible_interval</span><span class="p">(</span><span class="n">Predictions</span> <span class="n">preds</span><span class="p">);</span>
 
   <span class="n">CompleteState</span> <span class="nf">get_complete_state</span><span class="p">();</span>
 <span class="p">};</span>

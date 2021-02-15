@@ -93,6 +93,16 @@ Program Listing for File sampling.cpp
        this->A_original(row * 2, col * 2 + 1) =
            this->A_beta_factors[row][col]->compute_cell(this->graph);
      }
+   
+     if (this->continuous) {
+       // Initialize the transition matrix pre-calculation data structure.
+       // This data structure holds all the transition matrices required to
+       // advance the system from each timestep to the next.
+       for (double gap : set<double>(this->observation_timestep_gaps.begin(),
+                                     this->observation_timestep_gaps.end())) {
+         this->e_A_ts.insert(make_pair(gap, (this->A_original * gap).exp()));
+       }
+     }
    }
    
    void AnalysisGraph::set_log_likelihood_helper(int ts) {
@@ -123,9 +133,22 @@ Program Listing for File sampling.cpp
      this->log_likelihood = 0.0;
    
      if (this->continuous) {
-         for (int ts = 0; ts < this->n_timesteps; ts++) {
-             this->set_current_latent_state(ts);
-             set_log_likelihood_helper(ts);
+         if (this->coin_flip < this->coin_flip_thresh) {
+           // A θ has been sampled
+           // Precalculate all the transition matrices required to advance the system
+           // from one timestep to the next.
+           for (auto [gap, mat] : this->e_A_ts) {
+             this->e_A_ts[gap] = (this->A_original * gap).exp();
+           }
+         }
+         this->current_latent_state = this->s0;
+         set_log_likelihood_helper(0);
+   
+         for (int ts = 1; ts < this->n_timesteps; ts++) {
+           this->current_latent_state =
+               this->e_A_ts[this->observation_timestep_gaps[ts]]
+               * this->current_latent_state;
+           set_log_likelihood_helper(ts);
          }
      } else {
          // Discretized version
@@ -136,14 +159,6 @@ Program Listing for File sampling.cpp
              this->current_latent_state = this->A_original * this->current_latent_state;
          }
      }
-   }
-   
-   void AnalysisGraph::set_current_latent_state(int ts) {
-     //const Eigen::MatrixXd& A_t = this->A_original;
-     //this->current_latent_state = A_t.pow(ts) * this->s0;
-     // Computing e^At
-     const Eigen::MatrixXd& e_A_t = (this->A_original * ts).exp();
-     this->current_latent_state = e_A_t * this->s0;
    }
    
    void AnalysisGraph::sample_from_posterior() {

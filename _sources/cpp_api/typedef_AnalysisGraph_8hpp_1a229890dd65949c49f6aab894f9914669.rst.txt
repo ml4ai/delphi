@@ -1,0 +1,13 @@
+.. _exhale_typedef_AnalysisGraph_8hpp_1a229890dd65949c49f6aab894f9914669:
+
+Typedef CredibleIntervals
+=========================
+
+- Defined in :ref:`file_lib_AnalysisGraph.hpp`
+
+
+Typedef Documentation
+---------------------
+
+
+.. doxygentypedef:: CredibleIntervals

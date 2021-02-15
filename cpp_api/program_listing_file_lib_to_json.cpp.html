@@ -36,7 +36,6 @@
         <script src="../_static/doctools.js"></script>
         <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
         <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -343,6 +342,12 @@
         <span class="c1">// start_month&gt; and the second pair is &lt;end_year, end_month&gt;</span>
         <span class="n">j</span><span class="p">[</span><span class="s">&quot;training_range&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">training_range</span><span class="p">;</span>
     <span class="p">}</span>
+
+    <span class="n">j</span><span class="p">[</span><span class="s">&quot;modeling_period&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">modeling_period</span><span class="p">;</span>
+    <span class="n">j</span><span class="p">[</span><span class="s">&quot;train_start_epoch&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">train_start_epoch</span><span class="p">;</span>
+    <span class="n">j</span><span class="p">[</span><span class="s">&quot;train_end_epoch&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">train_end_epoch</span><span class="p">;</span>
+    <span class="n">j</span><span class="p">[</span><span class="s">&quot;train_timesteps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">n_timesteps</span><span class="p">;</span>
+    <span class="n">j</span><span class="p">[</span><span class="s">&quot;observation_timestep_gaps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">observation_timestep_gaps</span><span class="p">;</span>
 
     <span class="c1">// This contains all the observations. Indexing goes by</span>
     <span class="c1">// [ timestep ][ concept ][ indicator ][ observation ]</span>

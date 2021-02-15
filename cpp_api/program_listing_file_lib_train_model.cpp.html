@@ -36,7 +36,6 @@
         <script src="../_static/doctools.js"></script>
         <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
         <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -208,6 +207,24 @@
           <span class="k">this</span><span class="o">-&gt;</span><span class="n">set_observed_state_sequence_from_data</span><span class="p">(</span><span class="n">country</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">county</span><span class="p">);</span>
       <span class="p">}</span>
 
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">run_train_model</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">burn</span><span class="p">,</span> <span class="n">initial_beta</span><span class="p">,</span> <span class="n">use_heuristic</span><span class="p">,</span> <span class="n">use_continuous</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="cm">/*</span>
+<span class="cm"> ============================================================================</span>
+<span class="cm"> Private: Run train model procedure (in train_model.cpp)</span>
+<span class="cm"> ============================================================================</span>
+<span class="cm">*/</span>
+
+
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">run_train_model</span><span class="p">(</span><span class="kt">int</span> <span class="n">res</span><span class="p">,</span>
+                                <span class="kt">int</span> <span class="n">burn</span><span class="p">,</span>
+                                <span class="n">InitialBeta</span> <span class="n">initial_beta</span><span class="p">,</span>
+                                <span class="kt">bool</span> <span class="n">use_heuristic</span><span class="p">,</span>
+                                <span class="kt">bool</span> <span class="n">use_continuous</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="k">if</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">n_timesteps</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
       <span class="k">this</span><span class="o">-&gt;</span><span class="n">initialize_parameters</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">initial_beta</span><span class="p">,</span> <span class="n">use_heuristic</span><span class="p">,</span> <span class="n">use_continuous</span><span class="p">);</span>
 
       <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">Burning &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">burn</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; samples out...&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
@@ -230,6 +247,7 @@
       <span class="n">RNG</span><span class="o">::</span><span class="n">release_instance</span><span class="p">();</span>
   <span class="p">}</span>
 <span class="p">}</span>
+
 
 
 <span class="cm">/*</span>
