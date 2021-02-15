@@ -15,7 +15,6 @@
 #include "Tran_Mat_Cell.hpp"
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
-#include "dbg.h"
 
 const double tuning_param = 1.0;
 
@@ -468,12 +467,13 @@ class AnalysisGraph {
 
   static double epoch_to_timestep(long epoch, long train_start_epoch, long modeling_frequency);
 
-  /** Infer the least common observation frequency for all the
-   * observation sequences so that they are time aligned starting from the
-   * train_start_epoch
+  /** Infer the best sampling period to align observations to be used as the
+   * modeling frequency from all the observation sequences.
    *
-   * We make Delphi adapt to least common observation frequency
-   * present in the training data.
+   * We consider the sequence of epochs where observations are available and
+   * then the gaps in epochs between adjacent observations. We take the most
+   * frequent gap as the modeling frequency. When more than one gap is most
+   * frequent, we take the smallest such gap.
    *
    * NOTE: Some thought about how to use this information:
    * shortest_gap = longest_gap  ⇒ no missing data
@@ -539,13 +539,6 @@ class AnalysisGraph {
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
   std::pair<int, int> timestamp_to_year_month(long timestamp);
-
-  std::pair<int, int> calculate_end_year_month(int start_year, int start_month,
-                                               int num_timesteps);
-
-  double calculate_prediction_timestep_length(int start_year, int start_month,
-                                              int end_year, int end_month,
-                                              int pred_timesteps);
 
   void extract_projection_constraints(
                                 const nlohmann::json &projection_constraints, long skip_steps);

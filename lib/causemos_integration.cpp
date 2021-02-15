@@ -140,17 +140,18 @@ void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json
     }
 }
 
-double AnalysisGraph::epoch_to_timestep(long epoch, long train_start_epoch, long modeling_frequency) {
+double AnalysisGraph::epoch_to_timestep(long epoch, long train_start_epoch,
+                                        long modeling_frequency) {
   return (epoch - train_start_epoch) / double(modeling_frequency);
 }
 
-/** Infer the least common observation frequency for all the
- * observation sequences so that they are time aligned starting from the
- * train_start_epoch.
- * The advantage of modeling at the least common observation frequency is less
- * missing data points.
+/** Infer the best sampling period to align observations to be used as the
+ * modeling frequency from all the observation sequences.
  *
- * Check method declaration in AnalysisGraph.hpp for a detailed comment.
+ * We consider the sequence of epochs where observations are available and
+ * then the gaps in epochs between adjacent observations. We take the most
+ * frequent gap as the modeling frequency. When more than one gap is most
+ * frequent, we take the smallest such gap.
  */
 vector<long> AnalysisGraph::infer_modeling_period(
                         const ConceptIndicatorEpochs &concept_indicator_epochs,
@@ -220,25 +221,6 @@ vector<long> AnalysisGraph::infer_modeling_period(
           frequent_gap = gap;
         }
     }
-
-    /*
-    // Determine the modeling frequency of data, which is the greatest common
-    // divisor of gaps between observations.
-    this->observation_gaps.clear();
-    this->observation_gaps = vector<long>(epochs_sorted.size());
-    adjacent_difference(epochs_sorted.begin(),
-                        epochs_sorted.end(),
-                        this->observation_gaps.begin());
-    this->observation_gaps[0] = 0;
-
-    itr = gap_frequencies.begin();
-    this->modeling_period = this->observation_gaps[1];
-
-    for(int i = 2; i < observation_gaps.size(); i++){
-      this->modeling_period = gcd(this->modeling_period,
-                                     this->observation_gaps[i]);
-    }
-    */
 
     this->modeling_period = frequent_gap;
 
@@ -325,7 +307,6 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
             for (int i = 0; i < n.indicators.size(); i++) {
                 this->observed_state_sequence[ts][v][i] = vector<double>();
 
-                //long epoch = this->train_start_epoch + ts * this->modeling_period;
                 pair<multimap<long, double>::iterator,
                      multimap<long, double>::iterator> obs =
                     concept_indicator_data[v][i].equal_range(epochs_sorted[ts]);
@@ -355,64 +336,6 @@ std::pair<int, int> AnalysisGraph::timestamp_to_year_month(long timestamp) {
     int month = 1 + ptm->tm_mon;
 
     return make_pair(year, month);
-}
-
-std::pair<int, int> AnalysisGraph::calculate_end_year_month(int start_year,
-                                                            int start_month,
-                                                            int num_timesteps) {
-    int end_year = start_year + (start_month + num_timesteps -1) / 12;
-    int end_month = (start_month + num_timesteps -1) % 12;
-
-    if (end_month == 0) {
-        end_month = 12;
-        end_year--;
-    }
-
-    return make_pair(end_year, end_month);
-}
-
-double AnalysisGraph::calculate_prediction_timestep_length(int start_year,
-                                                           int start_month,
-                                                           int end_year,
-                                                           int end_month,
-                                                           int pred_timesteps) {
-
-    /*
-     * We calculate the number of training time steps that fits within the
-     * provided start time point and the end time point (both ends inclusive)
-     * and then divide that number by the number of requested prediction time
-     * steps.
-     *
-     * Example:
-     * pred_timesteps : 1 2  3 4  5 6  7 8  9 10  11 12  13 14  15 16
-     * train_timesteps:  1    2    3    4    5      6      7      8
-     *
-     *            (# of training time steps between  *  (training time step
-     *                 prediction start and end)             duration)
-     * Δt_pred  = -----------------------------------------------------------
-     *                             prediction time steps
-     *
-     *            (# of training time steps between  *  Δt_train
-     *                 prediction start and end)
-     * Δt_pred  = -----------------------------------------------------------
-     *                             prediction time steps
-     *
-     * Δt_train = 1 (we set it as this for convenience)
-     *
-     *            (# of training time steps between prediction start and end)
-     * Δt_pred  = -----------------------------------------------------------
-     *                             prediction time steps
-     *
-     * Δt_pred  = 8/16 = 0.5
-     *
-     * In effect for each training time step we produce two prediction points.
-     */
-    // Calculate the number of training time steps between start and end of the
-    // prediction time points (# training time steps)
-    int num_training_time_steps = this->calculate_num_timesteps(start_year,
-                                            start_month, end_year, end_month);
-
-    return (double)num_training_time_steps / (double)pred_timesteps;
 }
 
 void AnalysisGraph::extract_projection_constraints(

@@ -82,12 +82,14 @@ void AnalysisGraph::set_transition_matrix_from_betas() {
         this->A_beta_factors[row][col]->compute_cell(this->graph);
   }
 
-  // Initialize the transition matrix pre-calculation data structure.
-  // This data structure holds all the transition matrices required to
-  // advance the system from each timestep to the next.
-  for(double gap : set<double>(this->observation_timestep_gaps.begin(),
-                                this->observation_timestep_gaps.end())) {
-    this->e_A_ts.insert(make_pair(gap, (this->A_original * gap).exp()));
+  if (this->continuous) {
+    // Initialize the transition matrix pre-calculation data structure.
+    // This data structure holds all the transition matrices required to
+    // advance the system from each timestep to the next.
+    for (double gap : set<double>(this->observation_timestep_gaps.begin(),
+                                  this->observation_timestep_gaps.end())) {
+      this->e_A_ts.insert(make_pair(gap, (this->A_original * gap).exp()));
+    }
   }
 }
 
