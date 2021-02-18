@@ -1,3 +1,7 @@
+#ifndef DATABASEHELPER_H
+#define DATABASEHELPER_H
+
+
 #include <sqlite3.h>
 #include <vector>
 #include <range/v3/all.hpp>
@@ -12,23 +16,35 @@ using namespace std;
 // takes exp id gives result
 
 class Database {
-	public:
-		sqlite3  *db = nullptr;
+	private:
+	
+  	sqlite3  *db;
   		
+
+  public:
+
 		Database();
 
 		~Database();
   	
-  	int prepareStatement(const char* query, sqlite3_stmt* stmt);
+  	//int prepareStatement(const char* query, sqlite3_stmt* stmt);
 
-    int Database_Create(string create_table_query);
+    //int callbackCreate(void *NotUsed, int argc, char **argv, char **azColName);
 
-  	vector<string> Database_Read(string query);
+    void Database_Create();
 
-    vector<string> Database_Write(string database_name);
+  	vector<string> Database_Read_ColumnText(string query);
 
-    vector<string> Database_Update(string database_name);
+    vector<string> Database_Read_Query(string column_name, string table_name);
 
-    vector<string> Database_Delete(string database_name);
+    void Database_Insert(string insert_query);
+
+    void Database_Update(string table_name, string column_name, string value, string where_column_name, string where_value);
+
+    void Database_Drop_Table(string database_name);
+
+    void Database_Delete_Row(string database_name);
 
 };
+
+#endif /* DATABASEHELPER_H */

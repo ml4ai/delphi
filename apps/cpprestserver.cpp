@@ -3,12 +3,96 @@
 #include <nlohmann/json.hpp>
 //#include "dbg"
 #include "AnalysisGraph.hpp"
+#include <string>
+#include <assert.h>
+#include <sqlite3.h>
+#include <range/v3/all.hpp>
+#include "DatabaseHelper.hpp"
+
+
 
 using namespace std;
 
 
+/*
+*  ================= Testsuite ===================
+*  Creates tables
+*  
+*  
+*  
+*  
+*/
 
 
+
+
+
+
+void testcase_Database_Create(Database* sqlite3DB)
+{
+    std::cout << "\n======================= Test testcase_Database_Create =======================\n" << std::endl;
+    
+    //sqlite3DB->Database_Create();
+}
+
+
+void testcase_Database_Read_ColumnText(Database* sqlite3DB)
+{
+    std::cout << "\n======================= Test testcase_Database_Read_ColumnText =======================\n" << std::endl;
+    
+    string query = "SELECT adjective from gradableAdjectiveData;";
+    //string query = "select Unit from indicator;";
+    vector<string> matches = sqlite3DB->Database_Read_ColumnText(query);
+    cout << "Read vector size: " << matches.size() << endl;
+}
+
+
+void testcase_Database_Insert(Database* sqlite3DB)
+{
+    std::cout << "\n======================= Test testcase_Database_Insert =======================\n" << std::endl;
+    
+    string query = "INSERT INTO concept_to_indicator_mapping ('Concept', 'Source', 'Indicator', 'Score') VALUES ('wm/concept/time/temporal/crop_season', 'delphi_db_inds_TEST', 'TEST', 0.49010614);";
+    sqlite3DB->Database_Insert(query);
+    
+    query = "SELECT Source from concept_to_indicator_mapping WHERE Indicator = 'TEST';";
+    vector<string> matches = sqlite3DB->Database_Read_ColumnText(query);
+    cout << "Read vector size: " << matches.size() << endl;
+    if(matches.size()) cout << "Read Source column value: " << matches[0] << endl;
+}
+
+void testcase_Database_Update(Database* sqlite3DB)
+{
+    std::cout << "\n======================= Test testcase_Database_Update =======================\n" << std::endl;
+    
+    sqlite3DB->Database_Update("concept_to_indicator_mapping", "Source", "'delphi_db_inds_TEST_update_2'", "Indicator", "'TEST'");
+        void Database_Update(string table_name, string column_name, string value, string where_column_name, string where_value);
+
+    string query = "SELECT Source from concept_to_indicator_mapping WHERE Indicator = 'TEST';";
+    vector<string> matches = sqlite3DB->Database_Read_ColumnText(query);
+    cout << "Read vector size: " << matches.size() << endl;
+    if(matches.size()) cout << "Read Source column value: " << matches[0] << endl;
+}
+
+
+int main(int argc, char **argv)
+{
+
+    Database* sqlite3DB = new Database();
+
+    // Run Tests:
+    //testcase_Database_Create(db); 
+    
+    // working
+    //testcase_Database_Read_ColumnText(sqlite3DB); // doubt todo
+    //testcase_Database_Insert(sqlite3DB); 
+    testcase_Database_Update(sqlite3DB); 
+
+
+    return 0;
+}
+
+
+/*
 
 // Todo: Database call handling
 class DelphiModel(){
@@ -27,11 +111,11 @@ class DelphiModel(){
 };
 
 
+*/
 
-
-class CauseMosAsyncExperimentResult(ExperimentResult){
+//class CauseMosAsyncExperimentResult(ExperimentResult){
     /* Placeholder docstring for class CauseMosAsyncExperimentResult. */
-    public:
+ /*   public:
         string __tablename__;
         string id;
         string status;
@@ -163,5 +247,7 @@ void runProjectionExperiment(const served::request & request, string modelID, st
     }
 
 }
+
+*/
 
  

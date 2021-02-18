@@ -1,5 +1,5 @@
 #include "DatabaseHelper.hpp"
-
+#include<iostream>
 
 using namespace std;
 
@@ -12,18 +12,26 @@ using namespace std;
 Database::Database(){
 	int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
 
-	if (rc == 1)
+	if (rc){
+		// Show an error message
+        cout << "DB Error: " << sqlite3_errmsg(db) << endl;
+        // Close the connection
+        sqlite3_close(db);
+        // Return an error
+        //return(1);
   	  	throw "Could not open db\n";
+	}
 }
 
 Database::~Database(){
 	sqlite3_close(db);
+	db = nullptr;
 }
   	
-int Database::prepareStatement(const char* query, sqlite3_stmt* stmt){
-	int rc =  sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
-	return rc;
-}
+//int Database::prepareStatement(const char* query, sqlite3_stmt* stmt){
+//	int rc =  sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+//	return rc;
+//}
 
 // Create a callback function  
 int callbackCreate(void *NotUsed, int argc, char **argv, char **azColName){
@@ -31,49 +39,63 @@ int callbackCreate(void *NotUsed, int argc, char **argv, char **azColName){
     return 0;
 }
 
-int Database::Database_Create(string table_name){
+void Database::Database_Create(){
 	/*
 		Example query:
 			CREATE TABLE PEOPLE (
       		"ID INT PRIMARY KEY     NOT NULL,
       		"NAME           TEXT    NOT NULL);
 	*/
-	// Todo: 1 func for all table if not exist
-	string create_table_query = "";
-	if(table_name == "delphimodel"){
-		create_table_query= "CREATE TABLE " + table_name + " (
-							 id TEXT PRIMARY KEY,
-							 model TEXT NOT NULL,
-							 );";
-	} else if(table_name == "experimentresult"){
-		create_table_query= "CREATE TABLE " + table_name + " (
-							 baseType TEXT NOT NULL,
-							 id TEXT PRIMARY KEY,
-							 );";
-		// Todo: more args
-	} else if(table_name == "causemosasyncexperimentresult"){
-		create_table_query= "CREATE TABLE " + table_name + " (
-							 id TEXT PRIMARY KEY,
-							 status TEXT,
-							 experimentType TEXT,
-							 results TEXT, // todo: type???? okay as text => nhollman
-							 FOREIGN KEY (id) 
-      						 	REFERENCES experimentresult (id) 
-      						 	   ON DELETE CASCADE 
-      						 	   ON UPDATE NO ACTION
-							 );";
-		// Todo: more args
-	} else return -1;
+	// Save any error messages
+    ///////char *zErrMsg = 0;
+///////
+	///////// if not exist
+	///////string create_table_query = "CREATE TABLE IF NOT EXISTS delphimodel ( \
+	///////								id VARCHAR NOT NULL, \
+	///////								model VARCHAR, \
+	///////								PRIMARY KEY (id) \
+	///////							 );";
+///////
+	///////cout << "\nBefore" << endl;
+	///////int rc = sqlite3_exec(db, create_table_query.c_str(), callbackCreate, 0, &zErrMsg);
+	///////string zErrMsgstr(zErrMsg);
+	///////cout << "\n" << zErrMsgstr << endl;
+
+	//create_table_query= "CREATE TABLE experimentresult (
+	//						\"baseType\" VARCHAR,
+	//						id VARCHAR NOT NULL,
+	//						PRIMARY KEY (id)
+	//					 );";
+	
+
+	//	// Todo: more args
+	//} else if(table_name == "causemosasyncexperimentresult"){
+	//	create_table_query= "CREATE TABLE " + table_name + " (
+	//						 id TEXT PRIMARY KEY,
+	//						 status TEXT,
+	//						 experimentType TEXT,
+	//						 results TEXT, // todo: type???? okay as text => nhollman
+	//						 FOREIGN KEY (id) 
+    //  						 	REFERENCES experimentresult (id) 
+    //  						 	   ON DELETE CASCADE 
+    //  						 	   ON UPDATE NO ACTION
+	//						 );";
+	//
 	 
-	int rc = sqlite3_exec(db, create_table_query.c_str(), callbackCreate, 0, NULL);
-	return rc;
+	
+
+
 }
+
 
 vector<string> Database::Database_Read_ColumnText(string query){
   	vector<string> matches;
   	sqlite3_stmt* stmt = nullptr;
-  	int rc = prepareStatement(query.c_str(), stmt);
-   	while (sqlite3_step(stmt) == SQLITE_ROW) {
+  	//const char **tail;
+  	cout << query << endl;
+  	int rc =  sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
+  	cout << SQLITE_ROW << endl;
+   	while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
    	  matches.push_back(
    	      string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0))));
    	}
@@ -82,27 +104,34 @@ vector<string> Database::Database_Read_ColumnText(string query){
    	return matches;
 }
 
-vector<string> Database::Database_Read_Query(string query){
-
-  	vector<string> matches = this->Database_Read(query);
+vector<string> Database::Database_Read_Query(string column_name, string table_name){
+	string query = "SELECT "+ column_name +" from "+ table_name +" ;";
+  	vector<string> matches = this->Database_Read_ColumnText(query);
    	return matches;
 }
 
 
-vector<string> Database::Database_Write(string database_name){
-
+void Database::Database_Insert(string insert_query){
+	char *zErrMsg = 0;
+	int rc = sqlite3_exec(db, insert_query.c_str(), callbackCreate, 0, &zErrMsg);
 }
 
-vector<string> Database::Database_Update(string database_name){
-
+void Database::Database_Update(string table_name, string column_name, string value, string where_column_name, string where_value){
+	string update_table_query = "UPDATE "+ table_name +" SET "+ column_name +" = "+ value +" WHERE "+ where_column_name +" = "+ where_value +";";
+	int rc = sqlite3_exec(db, update_table_query.c_str(), callbackCreate, 0, NULL);
 }
 
-vector<string> Database::Database_Delete_Table(string database_name){
-
-}
-
-vector<string> Database::Database_Delete_Row(string database_name){
-
-}
+///////void Database::Database_Drop_Table(string database_name){
+///////	//string drop_table_query = "DROP TABLE delphimodel;";
+///////	//int rc = sqlite3_exec(db, drop_table_query.c_str(), callbackCreate, 0, NULL);
+///////	//drop_table_query = "DROP TABLE experimentresult;";
+///////	//int rc = sqlite3_exec(db, drop_table_query.c_str(), callbackCreate, 0, NULL);
+///////	//drop_table_query = "DROP TABLE causemosasyncexperimentresult;";
+///////	//int rc = sqlite3_exec(db, drop_table_query.c_str(), callbackCreate, 0, NULL);
+///////}
+///////
+///////void Database::Database_Delete_Row(string database_name){
+///////
+///////}
 
 

@@ -74,7 +74,7 @@ add_library(Delphi
   lib/printing.cpp
   lib/indicator_manipulation.cpp
   lib/sandbox.cpp
-  #lib/PybindTester.hpp
+  lib/DatabaseHelper.cpp
 )
 
 target_link_libraries(Delphi
@@ -86,28 +86,27 @@ target_link_libraries(Delphi
                               ${GRAPHVIZ_LIBS})
 target_link_libraries(Delphi INTERFACE range-v3)
 
-pybind11_add_module(DelphiPython MODULE NO_EXTRAS lib/DelphiPython.cpp)
-target_link_libraries(DelphiPython PRIVATE Delphi Eigen3::Eigen)
+#####pybind11_add_module(DelphiPython MODULE NO_EXTRAS lib/DelphiPython.cpp)
+#####target_link_libraries(DelphiPython PRIVATE Delphi Eigen3::Eigen)
 
-# Executables
-add_executable(create_model apps/create_model.cpp)
-target_link_libraries(create_model PRIVATE Delphi Eigen3::Eigen)
-add_executable(sandbox_tester apps/sandbox_tester.cpp)
-target_link_libraries(sandbox_tester PRIVATE Delphi Eigen3::Eigen)
+####### Executables
+######add_executable(create_model apps/create_model.cpp)
+######target_link_libraries(create_model PRIVATE Delphi Eigen3::Eigen)
+######add_executable(sandbox_tester apps/sandbox_tester.cpp)
+######target_link_libraries(sandbox_tester PRIVATE Delphi Eigen3::Eigen)
 
 #add_executable(pybind_tester_driver apps/pybind_tester_driver.cpp)
 
-add_custom_command(TARGET DelphiPython POST_BUILD
-    COMMAND echo ""
-    COMMAND echo "Copying..."
-    COMMAND ls DelphiPython*
-    COMMAND echo "to ${PROJECT_SOURCE_DIR}/delphi/cpp/"
-    COMMAND echo ""
-    COMMAND rm -rf ${PROJECT_SOURCE_DIR}/delphi/cpp/DelphiPython*
-    COMMAND cp DelphiPython* ${PROJECT_SOURCE_DIR}/delphi/cpp/)
+########add_custom_command(TARGET DelphiPython POST_BUILD
+########    COMMAND echo ""
+########    COMMAND echo "Copying..."
+########    COMMAND ls DelphiPython*
+########    COMMAND echo "to ${PROJECT_SOURCE_DIR}/delphi/cpp/"
+########    COMMAND echo ""
+########    COMMAND rm -rf ${PROJECT_SOURCE_DIR}/delphi/cpp/DelphiPython*
+########    COMMAND cp DelphiPython* ${PROJECT_SOURCE_DIR}/delphi/cpp/)
 
 add_subdirectory(external/served)
-add_executable(DatabaseHelper lib/DatabaseHelper.cpp)
 add_executable(cpprestserver apps/cpprestserver.cpp)
 target_link_libraries(cpprestserver PRIVATE Delphi served)
 target_link_libraries(cpprestserver PRIVATE Eigen3::Eigen)
