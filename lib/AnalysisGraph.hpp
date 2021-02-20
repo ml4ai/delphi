@@ -18,7 +18,7 @@
 
 const double tuning_param = 1.0;
 
-enum InitialBeta { ZERO, ONE, HALF, MEAN, RANDOM };
+enum InitialBeta { ZERO, ONE, HALF, MEAN, MEDIAN, RANDOM };
 
 typedef std::unordered_map<std::string, std::vector<double>>
     AdjectiveResponseMap;

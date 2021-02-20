@@ -54,28 +54,26 @@ void AnalysisGraph::run_train_model(int res,
                                 bool use_heuristic,
                                 bool use_continuous) {
 
-  if(this->n_timesteps > 0) {
-      this->initialize_parameters(res, initial_beta, use_heuristic, use_continuous);
+    this->initialize_parameters(res, initial_beta, use_heuristic, use_continuous);
 
-      cout << "\nBurning " << burn << " samples out..." << endl;
-      for (int i : trange(burn)) {
-          this->sample_from_posterior();
-      }
+    cout << "\nBurning " << burn << " samples out..." << endl;
+    for (int i : trange(burn)) {
+        this->sample_from_posterior();
+    }
 
-      cout << "\nSampling " << this->res << " samples from posterior..." << endl;
-      for (int i : trange(this->res)) {
-          this->sample_from_posterior();
-          this->transition_matrix_collection[i] = this->A_original;
-          this->initial_latent_state_collection[i] = this->s0;
+    cout << "\nSampling " << this->res << " samples from posterior..." << endl;
+    for (int i : trange(this->res)) {
+        this->sample_from_posterior();
+        this->transition_matrix_collection[i] = this->A_original;
+        this->initial_latent_state_collection[i] = this->s0;
 
-          for (auto e : this->edges()) {
-            this->graph[e].sampled_thetas.push_back(this->graph[e].theta);
-          }
-      }
+        for (auto e : this->edges()) {
+          this->graph[e].sampled_thetas.push_back(this->graph[e].theta);
+        }
+    }
 
-      this->trained = true;
-      RNG::release_instance();
-  }
+    this->trained = true;
+    RNG::release_instance();
 }
 
 

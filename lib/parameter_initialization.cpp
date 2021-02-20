@@ -79,6 +79,11 @@ void AnalysisGraph::init_betas_to(InitialBeta ib) {
       graph[e].theta = graph[e].kde.mu;
     }
     break;
+  case InitialBeta::MEDIAN:
+      for (EdgeDescriptor e : this->edges()) {
+        graph[e].theta = median(graph[e].kde.dataset);
+      }
+      break;
   case InitialBeta::RANDOM:
     for (EdgeDescriptor e : this->edges()) {
       // this->uni_dist() gives a random number in range [0, 1]
@@ -95,6 +100,10 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
   vector<double> mean_sequence;
   vector<double> std_sequence;
   vector<int> ts_sequence;
+
+  if (this->observed_state_sequence.empty()) {
+    return;
+  }
 
   for (int v = 0; v < num_verts; v++) {
       Node &n = (*this)[v];
@@ -123,6 +132,10 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
               } //else {
                 // This is a missing observation
                 //}
+          }
+
+          if (mean_sequence.empty()) {
+              return;
           }
 
           // Set the indicator standard deviation
@@ -197,10 +210,10 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
               mean = delphi::utils::median(mean_sequence);
           }
           if (mean != 0) {
-            ind.set_mean(mean);
+              ind.set_mean(mean);
           } else {
-            // To avoid division by zero error later on
-            ind.set_mean(0.0001);
+              // To avoid division by zero error later on
+              ind.set_mean(0.0001);
           }
       }
   }

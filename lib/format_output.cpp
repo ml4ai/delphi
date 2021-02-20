@@ -21,7 +21,7 @@ AnalysisGraph::get_credible_interval(Predictions preds) {
 
         for (int ts = 0; ts < this->pred_timesteps; ts++) {
 
-            ranges::sort(ind_preds[ts]);
+            sort(ind_preds[ts].begin(), ind_preds[ts].end());
             double median_value = n_is_odd ? ind_preds[ts][middle]
                 : (ind_preds[ts][middle] + ind_preds[ts][middle - 1]) / 2.0;
             double lower_limit = ind_preds[ts][lower_rank];

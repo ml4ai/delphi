@@ -120,6 +120,10 @@ void AnalysisGraph::set_log_likelihood() {
   this->previous_log_likelihood = this->log_likelihood;
   this->log_likelihood = 0.0;
 
+  if (this->observed_state_sequence.empty()) {
+    return;
+  }
+
   if (this->continuous) {
       if (this->coin_flip < this->coin_flip_thresh) {
         // A θ has been sampled
@@ -237,8 +241,13 @@ double AnalysisGraph::calculate_delta_log_prior() {
   }
   else {
     // A derivative  has been sampled
-    // At the moment we are using a uniform prior.
-    return 0.0;
+    // We assume the prior for derivative is N(0, 0.1)
+    // We have to return: log( p(ẋ_new )) - log( p( ẋ_old ))
+    // After some mathematical simplifications we can derive
+    // (ẋ_old - ẋ_new)(ẋ_old + ẋ_new) / 2σ²
+    return (this->previous_derivative - this->s0[this->changed_derivative])
+           * (this->previous_derivative + this->s0[this->changed_derivative])
+           / (2 * 0.1);
   }
 }
 
