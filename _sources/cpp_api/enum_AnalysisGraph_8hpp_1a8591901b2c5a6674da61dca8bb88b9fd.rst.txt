@@ -1,0 +1,13 @@
+.. _exhale_enum_AnalysisGraph_8hpp_1a8591901b2c5a6674da61dca8bb88b9fd:
+
+Enum InitialDerivative
+======================
+
+- Defined in :ref:`file_lib_AnalysisGraph.hpp`
+
+
+Enum Documentation
+------------------
+
+
+.. doxygenenum:: InitialDerivative

@@ -188,7 +188,9 @@
 
 <span class="k">const</span> <span class="kt">double</span> <span class="n">tuning_param</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">;</span>
 
-<span class="k">enum</span> <span class="nc">InitialBeta</span> <span class="p">{</span> <span class="n">ZERO</span><span class="p">,</span> <span class="n">ONE</span><span class="p">,</span> <span class="n">HALF</span><span class="p">,</span> <span class="n">MEAN</span><span class="p">,</span> <span class="n">RANDOM</span> <span class="p">};</span>
+<span class="k">enum</span> <span class="nc">InitialBeta</span> <span class="p">{</span> <span class="n">ZERO</span><span class="p">,</span> <span class="n">ONE</span><span class="p">,</span> <span class="n">HALF</span><span class="p">,</span> <span class="n">MEAN</span><span class="p">,</span> <span class="n">MEDIAN</span><span class="p">,</span> <span class="n">PRIOR</span><span class="p">,</span> <span class="n">RANDOM</span> <span class="p">};</span>
+<span class="c1">//enum class InitialBeta : char { ZERO, ONE, HALF, MEAN, MEDIAN, PRIOR, RANDOM };</span>
+<span class="k">enum</span> <span class="nc">InitialDerivative</span> <span class="p">{</span> <span class="n">DERI_ZERO</span><span class="p">,</span> <span class="n">DERI_PRIOR</span> <span class="p">};</span>
 
 <span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span>
     <span class="n">AdjectiveResponseMap</span><span class="p">;</span>
@@ -446,6 +448,7 @@
   <span class="c1">// Latent state that is evolved by sampling.</span>
   <span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span> <span class="n">s0</span><span class="p">;</span>
   <span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span> <span class="n">s0_prev</span><span class="p">;</span>
+  <span class="kt">double</span> <span class="n">derivative_prior_variance</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">;</span>
 
   <span class="c1">// Transition matrix that is evolved by sampling.</span>
   <span class="c1">// Since variable A has been already used locally in other methods,</span>
@@ -618,7 +621,10 @@
   <span class="n">FormattedProjectionResult</span> <span class="nf">run_causemos_projection_experiment_from_json_dict</span><span class="p">(</span>
                                                                <span class="k">const</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="o">&amp;</span><span class="n">json_data</span><span class="p">,</span>
                                                                <span class="kt">int</span> <span class="n">burn</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
-                                                               <span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">200</span><span class="p">);</span>
+                                                               <span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+                                                               <span class="n">InitialBeta</span> <span class="n">initial_beta</span> <span class="o">=</span> <span class="n">InitialBeta</span><span class="o">::</span><span class="n">ZERO</span><span class="p">,</span>
+                                                               <span class="n">InitialDerivative</span> <span class="n">initial_derivative</span> <span class="o">=</span> <span class="n">InitialDerivative</span><span class="o">::</span><span class="n">DERI_ZERO</span>
+                                                                <span class="p">);</span>
 
   <span class="n">FormattedProjectionResult</span> <span class="nf">format_projection_result</span><span class="p">();</span>
 
@@ -778,6 +784,7 @@
   <span class="kt">void</span> <span class="n">run_train_model</span><span class="p">(</span><span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
                        <span class="kt">int</span> <span class="n">burn</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
                        <span class="n">InitialBeta</span> <span class="n">initial_beta</span> <span class="o">=</span> <span class="n">InitialBeta</span><span class="o">::</span><span class="n">ZERO</span><span class="p">,</span>
+                       <span class="n">InitialDerivative</span> <span class="n">initial_derivative</span> <span class="o">=</span> <span class="n">InitialDerivative</span><span class="o">::</span><span class="n">DERI_ZERO</span><span class="p">,</span>
                        <span class="kt">bool</span> <span class="n">use_heuristic</span> <span class="o">=</span> <span class="nb">false</span><span class="p">,</span>
                        <span class="kt">bool</span> <span class="n">use_continuous</span> <span class="o">=</span> <span class="nb">true</span><span class="p">);</span>
 
@@ -807,6 +814,7 @@
 
   <span class="kt">void</span> <span class="nf">initialize_parameters</span><span class="p">(</span><span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
                              <span class="n">InitialBeta</span> <span class="n">initial_beta</span> <span class="o">=</span> <span class="n">InitialBeta</span><span class="o">::</span><span class="n">ZERO</span><span class="p">,</span>
+                             <span class="n">InitialDerivative</span> <span class="n">initial_derivative</span> <span class="o">=</span> <span class="n">InitialDerivative</span><span class="o">::</span><span class="n">DERI_ZERO</span><span class="p">,</span>
                              <span class="kt">bool</span> <span class="n">use_heuristic</span> <span class="o">=</span> <span class="nb">false</span><span class="p">,</span>
                              <span class="kt">bool</span> <span class="n">use_continuous</span> <span class="o">=</span> <span class="nb">true</span><span class="p">);</span>
 
@@ -984,12 +992,18 @@
   <span class="n">FormattedProjectionResult</span>
   <span class="nf">run_causemos_projection_experiment_from_json_string</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">json_string</span><span class="p">,</span>
                                                       <span class="kt">int</span> <span class="n">burn</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
-                                                      <span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">200</span><span class="p">);</span>
+                                                      <span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+                                                      <span class="n">InitialBeta</span> <span class="n">initial_beta</span> <span class="o">=</span> <span class="n">InitialBeta</span><span class="o">::</span><span class="n">ZERO</span><span class="p">,</span>
+                                                      <span class="n">InitialDerivative</span> <span class="n">initial_derivative</span> <span class="o">=</span> <span class="n">InitialDerivative</span><span class="o">::</span><span class="n">DERI_ZERO</span>
+                                                      <span class="p">);</span>
 
   <span class="n">FormattedProjectionResult</span>
   <span class="nf">run_causemos_projection_experiment_from_json_file</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filename</span><span class="p">,</span>
                                                     <span class="kt">int</span> <span class="n">burn</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
-                                                    <span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">200</span><span class="p">);</span>
+                                                    <span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+                                                    <span class="n">InitialBeta</span> <span class="n">initial_beta</span> <span class="o">=</span> <span class="n">InitialBeta</span><span class="o">::</span><span class="n">ZERO</span><span class="p">,</span>
+                                                    <span class="n">InitialDerivative</span> <span class="n">initial_derivative</span> <span class="o">=</span> <span class="n">InitialDerivative</span><span class="o">::</span><span class="n">DERI_ZERO</span>
+                                                    <span class="p">);</span>
 
   <span class="cm">/*</span>
 <span class="cm">   ============================================================================</span>
@@ -1170,6 +1184,7 @@
                    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">county</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="p">,</span>
                    <span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">units</span> <span class="o">=</span> <span class="p">{},</span>
                    <span class="n">InitialBeta</span> <span class="n">initial_beta</span> <span class="o">=</span> <span class="n">InitialBeta</span><span class="o">::</span><span class="n">ZERO</span><span class="p">,</span>
+                   <span class="n">InitialDerivative</span> <span class="n">initial_derivative</span> <span class="o">=</span> <span class="n">InitialDerivative</span><span class="o">::</span><span class="n">DERI_ZERO</span><span class="p">,</span>
                    <span class="kt">bool</span> <span class="n">use_heuristic</span> <span class="o">=</span> <span class="nb">false</span><span class="p">,</span>
                    <span class="kt">bool</span> <span class="n">use_continuous</span> <span class="o">=</span> <span class="nb">true</span><span class="p">);</span>
 
@@ -1181,7 +1196,7 @@
 
   <span class="kt">void</span> <span class="nf">set_initial_latent_state</span><span class="p">(</span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span> <span class="n">vec</span><span class="p">)</span> <span class="p">{</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">s0</span> <span class="o">=</span> <span class="n">vec</span><span class="p">;</span> <span class="p">};</span>
 
-  <span class="kt">void</span> <span class="nf">set_default_initial_state</span><span class="p">();</span>
+  <span class="kt">void</span> <span class="nf">set_default_initial_state</span><span class="p">(</span><span class="n">InitialDerivative</span> <span class="n">id</span> <span class="o">=</span> <span class="n">InitialDerivative</span><span class="o">::</span><span class="n">DERI_ZERO</span><span class="p">);</span>
 
   <span class="cm">/*</span>
 <span class="cm">   ============================================================================</span>
@@ -1219,6 +1234,7 @@
       <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">county</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="p">,</span>
       <span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">units</span> <span class="o">=</span> <span class="p">{},</span>
       <span class="n">InitialBeta</span> <span class="n">initial_beta</span> <span class="o">=</span> <span class="n">InitialBeta</span><span class="o">::</span><span class="n">HALF</span><span class="p">,</span>
+      <span class="n">InitialDerivative</span> <span class="n">initial_derivative</span> <span class="o">=</span> <span class="n">InitialDerivative</span><span class="o">::</span><span class="n">DERI_ZERO</span><span class="p">,</span>
       <span class="kt">bool</span> <span class="n">use_continuous</span> <span class="o">=</span> <span class="nb">true</span><span class="p">);</span>
 
   <span class="cm">/*</span>

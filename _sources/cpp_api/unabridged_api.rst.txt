@@ -142,6 +142,11 @@ Enums
 .. toctree::
    :maxdepth: 5
 
+   enum_AnalysisGraph_8hpp_1a8591901b2c5a6674da61dca8bb88b9fd.rst
+
+.. toctree::
+   :maxdepth: 5
+
    enum_Edge_8hpp_1a84a045fa4024e050ca8be6d33311a054.rst
 
 Functions

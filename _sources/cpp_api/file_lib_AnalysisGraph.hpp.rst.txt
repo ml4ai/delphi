@@ -111,6 +111,8 @@ Enums
 
 - :ref:`exhale_enum_AnalysisGraph_8hpp_1aa4ec7a08bda020624a88080a11bb9fc9`
 
+- :ref:`exhale_enum_AnalysisGraph_8hpp_1a8591901b2c5a6674da61dca8bb88b9fd`
+
 
 Functions
 ---------

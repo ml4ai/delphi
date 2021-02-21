@@ -47,6 +47,14 @@ delphi.paths module
    :undoc-members:
    :show-inheritance:
 
+delphi.plot\_delphi\_results\_offline module
+--------------------------------------------
+
+.. automodule:: delphi.plot_delphi_results_offline
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 delphi.plotter module
 ---------------------
 

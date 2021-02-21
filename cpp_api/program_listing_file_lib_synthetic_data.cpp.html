@@ -276,11 +276,13 @@
                                                   <span class="n">string</span> <span class="n">county</span><span class="p">,</span>
                                                   <span class="n">map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="n">string</span><span class="o">&gt;</span> <span class="n">units</span><span class="p">,</span>
                                                   <span class="n">InitialBeta</span> <span class="n">initial_beta</span><span class="p">,</span>
+                                                  <span class="n">InitialDerivative</span> <span class="n">initial_derivative</span><span class="p">,</span>
                                                   <span class="kt">bool</span> <span class="n">use_continuous</span><span class="p">)</span> <span class="p">{</span>
   <span class="n">synthetic_data_experiment</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
   <span class="k">this</span><span class="o">-&gt;</span><span class="n">n_timesteps</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">calculate_num_timesteps</span><span class="p">(</span>
       <span class="n">start_year</span><span class="p">,</span> <span class="n">start_month</span><span class="p">,</span> <span class="n">end_year</span><span class="p">,</span> <span class="n">end_month</span><span class="p">);</span>
-  <span class="k">this</span><span class="o">-&gt;</span><span class="n">initialize_parameters</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">initial_beta</span><span class="p">,</span> <span class="nb">false</span><span class="p">,</span> <span class="n">use_continuous</span><span class="p">);</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">initialize_parameters</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">initial_beta</span><span class="p">,</span> <span class="n">initial_derivative</span><span class="p">,</span>
+                              <span class="nb">false</span><span class="p">,</span> <span class="n">use_continuous</span><span class="p">);</span>
 
   <span class="c1">// Initialize the latent state vector at time 0</span>
   <span class="k">this</span><span class="o">-&gt;</span><span class="n">set_random_initial_latent_state</span><span class="p">();</span>

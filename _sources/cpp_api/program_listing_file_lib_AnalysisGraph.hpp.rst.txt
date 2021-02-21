@@ -30,7 +30,9 @@ Program Listing for File AnalysisGraph.hpp
    
    const double tuning_param = 1.0;
    
-   enum InitialBeta { ZERO, ONE, HALF, MEAN, RANDOM };
+   enum InitialBeta { ZERO, ONE, HALF, MEAN, MEDIAN, PRIOR, RANDOM };
+   //enum class InitialBeta : char { ZERO, ONE, HALF, MEAN, MEDIAN, PRIOR, RANDOM };
+   enum InitialDerivative { DERI_ZERO, DERI_PRIOR };
    
    typedef std::unordered_map<std::string, std::vector<double>>
        AdjectiveResponseMap;
@@ -288,6 +290,7 @@ Program Listing for File AnalysisGraph.hpp
      // Latent state that is evolved by sampling.
      Eigen::VectorXd s0;
      Eigen::VectorXd s0_prev;
+     double derivative_prior_variance = 0.1;
    
      // Transition matrix that is evolved by sampling.
      // Since variable A has been already used locally in other methods,
@@ -460,7 +463,10 @@ Program Listing for File AnalysisGraph.hpp
      FormattedProjectionResult run_causemos_projection_experiment_from_json_dict(
                                                                   const nlohmann::json &json_data,
                                                                   int burn = 10000,
-                                                                  int res = 200);
+                                                                  int res = 200,
+                                                                  InitialBeta initial_beta = InitialBeta::ZERO,
+                                                                  InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO
+                                                                   );
    
      FormattedProjectionResult format_projection_result();
    
@@ -620,6 +626,7 @@ Program Listing for File AnalysisGraph.hpp
      void run_train_model(int res = 200,
                           int burn = 10000,
                           InitialBeta initial_beta = InitialBeta::ZERO,
+                          InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO,
                           bool use_heuristic = false,
                           bool use_continuous = true);
    
@@ -649,6 +656,7 @@ Program Listing for File AnalysisGraph.hpp
    
      void initialize_parameters(int res = 200,
                                 InitialBeta initial_beta = InitialBeta::ZERO,
+                                InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO,
                                 bool use_heuristic = false,
                                 bool use_continuous = true);
    
@@ -826,12 +834,18 @@ Program Listing for File AnalysisGraph.hpp
      FormattedProjectionResult
      run_causemos_projection_experiment_from_json_string(std::string json_string,
                                                          int burn = 10000,
-                                                         int res = 200);
+                                                         int res = 200,
+                                                         InitialBeta initial_beta = InitialBeta::ZERO,
+                                                         InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO
+                                                         );
    
      FormattedProjectionResult
      run_causemos_projection_experiment_from_json_file(std::string filename,
                                                        int burn = 10000,
-                                                       int res = 200);
+                                                       int res = 200,
+                                                       InitialBeta initial_beta = InitialBeta::ZERO,
+                                                       InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO
+                                                       );
    
      /*
       ============================================================================
@@ -1012,6 +1026,7 @@ Program Listing for File AnalysisGraph.hpp
                       std::string county = "",
                       std::map<std::string, std::string> units = {},
                       InitialBeta initial_beta = InitialBeta::ZERO,
+                      InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO,
                       bool use_heuristic = false,
                       bool use_continuous = true);
    
@@ -1023,7 +1038,7 @@ Program Listing for File AnalysisGraph.hpp
    
      void set_initial_latent_state(Eigen::VectorXd vec) { this->s0 = vec; };
    
-     void set_default_initial_state();
+     void set_default_initial_state(InitialDerivative id = InitialDerivative::DERI_ZERO);
    
      /*
       ============================================================================
@@ -1061,6 +1076,7 @@ Program Listing for File AnalysisGraph.hpp
          std::string county = "",
          std::map<std::string, std::string> units = {},
          InitialBeta initial_beta = InitialBeta::HALF,
+         InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO,
          bool use_continuous = true);
    
      /*

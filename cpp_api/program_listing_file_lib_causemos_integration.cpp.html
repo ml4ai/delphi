@@ -524,7 +524,10 @@
 <span class="n">FormattedProjectionResult</span>
 <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">run_causemos_projection_experiment_from_json_dict</span><span class="p">(</span><span class="k">const</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="o">&amp;</span><span class="n">json_data</span><span class="p">,</span>
                                                                  <span class="kt">int</span> <span class="n">burn</span><span class="p">,</span>
-                                                                 <span class="kt">int</span> <span class="n">res</span><span class="p">)</span> <span class="p">{</span>
+                                                                 <span class="kt">int</span> <span class="n">res</span><span class="p">,</span>
+                                                                 <span class="n">InitialBeta</span> <span class="n">initial_beta</span><span class="p">,</span>
+                                                                 <span class="n">InitialDerivative</span> <span class="n">initial_derivative</span>
+                                                                 <span class="p">)</span> <span class="p">{</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="n">json_data</span><span class="p">[</span><span class="s">&quot;experimentParam&quot;</span><span class="p">].</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
         <span class="k">throw</span> <span class="nf">BadCausemosInputException</span><span class="p">(</span><span class="s">&quot;Experiment parameters null&quot;</span><span class="p">);</span>
@@ -537,18 +540,12 @@
     <span class="p">}</span>
 
     <span class="kt">long</span> <span class="n">proj_start_epoch</span> <span class="o">=</span> <span class="n">projection_parameters</span><span class="p">[</span><span class="s">&quot;startTime&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">long</span><span class="o">&gt;</span><span class="p">();</span>
-    <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_start_timestep</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">epoch_to_timestep</span><span class="p">(</span><span class="n">proj_start_epoch</span><span class="p">,</span>
-                                                         <span class="k">this</span><span class="o">-&gt;</span><span class="n">train_start_epoch</span><span class="p">,</span>
-                                                         <span class="k">this</span><span class="o">-&gt;</span><span class="n">modeling_period</span><span class="p">);</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="n">projection_parameters</span><span class="p">[</span><span class="s">&quot;endTime&quot;</span><span class="p">].</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
         <span class="k">throw</span> <span class="nf">BadCausemosInputException</span><span class="p">(</span><span class="s">&quot;Projection end time null&quot;</span><span class="p">);</span>
     <span class="p">}</span>
 
     <span class="kt">long</span> <span class="n">proj_end_epoch</span> <span class="o">=</span> <span class="n">projection_parameters</span><span class="p">[</span><span class="s">&quot;endTime&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">long</span><span class="o">&gt;</span><span class="p">();</span>
-    <span class="kt">double</span> <span class="n">pred_end_timestep</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">epoch_to_timestep</span><span class="p">(</span><span class="n">proj_end_epoch</span><span class="p">,</span>
-                                                         <span class="k">this</span><span class="o">-&gt;</span><span class="n">train_start_epoch</span><span class="p">,</span>
-                                                         <span class="k">this</span><span class="o">-&gt;</span><span class="n">modeling_period</span><span class="p">);</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="n">projection_parameters</span><span class="p">[</span><span class="s">&quot;numTimesteps&quot;</span><span class="p">].</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
         <span class="k">throw</span> <span class="nf">BadCausemosInputException</span><span class="p">(</span><span class="s">&quot;Projection number of time steps null&quot;</span><span class="p">);</span>
@@ -560,34 +557,45 @@
         <span class="k">throw</span> <span class="nf">BadCausemosInputException</span><span class="p">(</span><span class="s">&quot;Projection end epoch is before projection start epoch&quot;</span><span class="p">);</span>
     <span class="p">}</span>
 
-    <span class="k">this</span><span class="o">-&gt;</span><span class="n">delta_t</span> <span class="o">=</span> <span class="p">(</span><span class="n">pred_end_timestep</span> <span class="o">-</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_start_timestep</span><span class="p">)</span>
-                                                <span class="o">/</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_timesteps</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">);</span>
-
-    <span class="c1">// To help clamping we predict one additional timestep</span>
-    <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_timesteps</span><span class="o">++</span><span class="p">;</span>
-    <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_start_timestep</span> <span class="o">-=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">delta_t</span><span class="p">;</span>
-
     <span class="kt">int</span> <span class="n">skip_steps</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
 
-    <span class="k">if</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_start_timestep</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">skip_steps</span> <span class="o">=</span> <span class="n">ceil</span><span class="p">(</span><span class="n">abs</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_start_timestep</span><span class="p">)</span> <span class="o">/</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">delta_t</span><span class="p">);</span>
-        <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_start_timestep</span> <span class="o">+=</span> <span class="n">skip_steps</span><span class="p">;</span>
-        <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_timesteps</span> <span class="o">-=</span> <span class="n">skip_steps</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">observed_state_sequence</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+      <span class="c1">// No training data has been provided</span>
+      <span class="c1">// &quot;Train&quot; (more like derive) a model based on prior distributions</span>
+      <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">NOTE:</span><span class="se">\n\t\&quot;</span><span class="s">Training</span><span class="se">\&quot;</span><span class="s"> a model based on priors. Without any training observations&quot;</span><span class="p">;</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">train_start_epoch</span> <span class="o">=</span> <span class="mi">-1</span><span class="p">;</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_start_timestep</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">delta_t</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_timesteps</span><span class="o">++</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_start_timestep</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">epoch_to_timestep</span><span class="p">(</span>
+          <span class="n">proj_start_epoch</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">train_start_epoch</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">modeling_period</span><span class="p">);</span>
+      <span class="kt">double</span> <span class="n">pred_end_timestep</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">epoch_to_timestep</span><span class="p">(</span>
+          <span class="n">proj_end_epoch</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">train_start_epoch</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">modeling_period</span><span class="p">);</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">delta_t</span> <span class="o">=</span> <span class="p">(</span><span class="n">pred_end_timestep</span> <span class="o">-</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_start_timestep</span><span class="p">)</span> <span class="o">/</span>
+                      <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_timesteps</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">);</span>
+
+      <span class="c1">// To help clamping we predict one additional timestep</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_timesteps</span><span class="o">++</span><span class="p">;</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_start_timestep</span> <span class="o">-=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">delta_t</span><span class="p">;</span>
+
+      <span class="c1">// Prevent predicting for timesteps earlier than training start time</span>
+      <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_start_timestep</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">NOTE:</span><span class="se">\n\t\&quot;</span><span class="s">Predicting</span><span class="se">\&quot;</span><span class="s"> in the past&quot;</span><span class="p">;</span>
+        <span class="cm">/*</span>
+<span class="cm">        skip_steps = ceil(abs(this-&gt;pred_start_timestep) / this-&gt;delta_t);</span>
+<span class="cm">        this-&gt;pred_start_timestep += skip_steps;</span>
+<span class="cm">        this-&gt;pred_timesteps -= skip_steps;</span>
+<span class="cm">        */</span>
+      <span class="p">}</span>
+
+      <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_start_timestep</span> <span class="o">&gt;</span> <span class="n">pred_end_timestep</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">throw</span> <span class="nf">BadCausemosInputException</span><span class="p">(</span>
+            <span class="s">&quot;Projection end epoch is before projection start epoch&quot;</span><span class="p">);</span>
+      <span class="p">}</span>
     <span class="p">}</span>
 
-    <span class="k">if</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_start_timestep</span> <span class="o">&gt;</span> <span class="n">pred_end_timestep</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">throw</span> <span class="nf">BadCausemosInputException</span><span class="p">(</span><span class="s">&quot;Projection end epoch is before projection start epoch&quot;</span><span class="p">);</span>
-    <span class="p">}</span>
-
-    <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">train_start_epoch</span> <span class="o">&gt;</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">train_end_epoch</span><span class="p">)</span> <span class="p">{</span>
-        <span class="c1">// No training data has been provided =&gt; Cannot train</span>
-        <span class="c1">//                                    =&gt; Cannot project</span>
-        <span class="k">throw</span> <span class="nf">BadCausemosInputException</span><span class="p">(</span><span class="s">&quot;No training data&quot;</span><span class="p">);</span>
-    <span class="p">}</span>
-
-    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">trained</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">this</span><span class="o">-&gt;</span><span class="n">run_train_model</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">burn</span><span class="p">);</span>
-    <span class="p">}</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">run_train_model</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">burn</span><span class="p">,</span> <span class="n">initial_beta</span><span class="p">,</span> <span class="n">initial_derivative</span><span class="p">);</span>
 
     <span class="k">this</span><span class="o">-&gt;</span><span class="n">extract_projection_constraints</span><span class="p">(</span><span class="n">projection_parameters</span><span class="p">[</span><span class="s">&quot;constraints&quot;</span><span class="p">],</span> <span class="n">skip_steps</span><span class="p">);</span>
 
@@ -803,7 +811,10 @@
 <span class="n">FormattedProjectionResult</span>
 <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">run_causemos_projection_experiment_from_json_string</span><span class="p">(</span><span class="n">string</span> <span class="n">json_string</span><span class="p">,</span>
                                                                    <span class="kt">int</span> <span class="n">burn</span><span class="p">,</span>
-                                                                   <span class="kt">int</span> <span class="n">res</span><span class="p">)</span> <span class="p">{</span>
+                                                                   <span class="kt">int</span> <span class="n">res</span><span class="p">,</span>
+                                                                   <span class="n">InitialBeta</span> <span class="n">initial_beta</span><span class="p">,</span>
+                                                                   <span class="n">InitialDerivative</span> <span class="n">initial_derivative</span>
+                                                                    <span class="p">)</span> <span class="p">{</span>
     <span class="k">using</span> <span class="k">namespace</span> <span class="n">fmt</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
     <span class="k">using</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="p">;</span>
 
@@ -822,7 +833,10 @@
     <span class="k">auto</span> <span class="n">json_data</span> <span class="o">=</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span><span class="n">json_string</span><span class="p">);</span>
 
     <span class="k">try</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nf">run_causemos_projection_experiment_from_json_dict</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="n">burn</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+        <span class="k">return</span> <span class="nf">run_causemos_projection_experiment_from_json_dict</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span>
+                                                               <span class="n">burn</span><span class="p">,</span> <span class="n">res</span><span class="p">,</span>
+                                                               <span class="n">initial_beta</span><span class="p">,</span>
+                                                               <span class="n">initial_derivative</span><span class="p">);</span>
     <span class="p">}</span>
     <span class="k">catch</span> <span class="p">(</span><span class="n">BadCausemosInputException</span><span class="o">&amp;</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
         <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">e</span><span class="p">.</span><span class="n">what</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
@@ -835,7 +849,10 @@
 <span class="n">FormattedProjectionResult</span>
 <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">run_causemos_projection_experiment_from_json_file</span><span class="p">(</span><span class="n">string</span> <span class="n">filename</span><span class="p">,</span>
                                                                  <span class="kt">int</span> <span class="n">burn</span><span class="p">,</span>
-                                                                 <span class="kt">int</span> <span class="n">res</span><span class="p">)</span> <span class="p">{</span>
+                                                                 <span class="kt">int</span> <span class="n">res</span><span class="p">,</span>
+                                                                 <span class="n">InitialBeta</span> <span class="n">initial_beta</span><span class="p">,</span>
+                                                                 <span class="n">InitialDerivative</span> <span class="n">initial_derivative</span>
+                                                                  <span class="p">)</span> <span class="p">{</span>
     <span class="k">using</span> <span class="k">namespace</span> <span class="n">fmt</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
     <span class="k">using</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="p">;</span>
 
@@ -854,7 +871,10 @@
     <span class="k">auto</span> <span class="n">json_data</span> <span class="o">=</span> <span class="n">load_json</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span>
 
     <span class="k">try</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nf">run_causemos_projection_experiment_from_json_dict</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="n">burn</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+        <span class="k">return</span> <span class="nf">run_causemos_projection_experiment_from_json_dict</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span>
+                                                               <span class="n">burn</span><span class="p">,</span> <span class="n">res</span><span class="p">,</span>
+                                                               <span class="n">initial_beta</span><span class="p">,</span>
+                                                               <span class="n">initial_derivative</span><span class="p">);</span>
     <span class="p">}</span>
     <span class="k">catch</span> <span class="p">(</span><span class="n">BadCausemosInputException</span><span class="o">&amp;</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
         <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">e</span><span class="p">.</span><span class="n">what</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>

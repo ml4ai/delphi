@@ -290,6 +290,10 @@
   <span class="k">this</span><span class="o">-&gt;</span><span class="n">previous_log_likelihood</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">log_likelihood</span><span class="p">;</span>
   <span class="k">this</span><span class="o">-&gt;</span><span class="n">log_likelihood</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span>
 
+  <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">observed_state_sequence</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+
   <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">continuous</span><span class="p">)</span> <span class="p">{</span>
       <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">coin_flip</span> <span class="o">&lt;</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">coin_flip_thresh</span><span class="p">)</span> <span class="p">{</span>
         <span class="c1">// A θ has been sampled</span>
@@ -407,8 +411,13 @@
   <span class="p">}</span>
   <span class="k">else</span> <span class="p">{</span>
     <span class="c1">// A derivative  has been sampled</span>
-    <span class="c1">// At the moment we are using a uniform prior.</span>
-    <span class="k">return</span> <span class="mf">0.0</span><span class="p">;</span>
+    <span class="c1">// We assume the prior for derivative is N(0, 0.1)</span>
+    <span class="c1">// We have to return: log( p(ẋ_new )) - log( p( ẋ_old ))</span>
+    <span class="c1">// After some mathematical simplifications we can derive</span>
+    <span class="c1">// (ẋ_old - ẋ_new)(ẋ_old + ẋ_new) / 2σ²</span>
+    <span class="k">return</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">previous_derivative</span> <span class="o">-</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">s0</span><span class="p">[</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">changed_derivative</span><span class="p">])</span>
+           <span class="o">*</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">previous_derivative</span> <span class="o">+</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">s0</span><span class="p">[</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">changed_derivative</span><span class="p">])</span>
+           <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">derivative_prior_variance</span><span class="p">);</span>
   <span class="p">}</span>
 <span class="p">}</span>
 
@@ -437,7 +446,7 @@
 <span class="cm"> ============================================================================</span>
 <span class="cm">*/</span>
 
-<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">set_default_initial_state</span><span class="p">()</span> <span class="p">{</span>
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">set_default_initial_state</span><span class="p">(</span><span class="n">InitialDerivative</span> <span class="n">id</span><span class="p">)</span> <span class="p">{</span>
   <span class="c1">// Let vertices of the CAG be v = 0, 1, 2, 3, ...</span>
   <span class="c1">// Then,</span>
   <span class="c1">//    indexes 2*v keeps track of the state of each variable v</span>
@@ -449,6 +458,14 @@
 
   <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">num_els</span><span class="p">;</span> <span class="n">i</span> <span class="o">+=</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">this</span><span class="o">-&gt;</span><span class="n">s0</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">id</span> <span class="o">==</span> <span class="n">InitialDerivative</span><span class="o">::</span><span class="n">DERI_PRIOR</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">double</span> <span class="n">derivative_prior_std</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">derivative_prior_variance</span><span class="p">);</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">num_els</span><span class="p">;</span> <span class="n">i</span> <span class="o">+=</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">s0</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">=</span> <span class="n">derivative_prior_std</span> <span class="o">*</span>
+                    <span class="k">this</span><span class="o">-&gt;</span><span class="n">norm_dist</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">rand_num_generator</span><span class="p">);</span>
+    <span class="p">}</span>
   <span class="p">}</span>
 <span class="p">}</span>
 
