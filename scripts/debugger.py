@@ -94,7 +94,7 @@ if __name__ == "__main__":
          "../tests/data/delphi/experiments_projection_test.json"],
         ["../tests/data/delphi/create_model_ideal.json",                # 1. Ideal data with gaps of 1
          "../tests/data/delphi/experiments_projection_ideal.json"],
-        ["../tests/data/delphi/create_model_input_2.json",              # 2. Ideal data with gaps of 2
+        ["../tests/data/delphi/create_model_input_2.json",              # 2. Usual Data
          "../tests/data/delphi/experiments_projection_input_2.json"],
         ["../tests/data/delphi/create_model_ideal_10.json",             # 3. Ideal data with gaps of 10
          "../tests/data/delphi/experiments_projection_ideal_2.json"],

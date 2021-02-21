@@ -50,9 +50,9 @@ int main(int argc, char* argv[]) {
     string result2 = G.serialize_to_json_string(false);
 
     if (result.compare(result2) == 0){
-      dbg("\nSame\n");
+      cout << "\nSame\n";
     } else {
-      dbg("\nDifferent\n");
+      cout << "\nDifferent\n";
     }
     return(0);
 

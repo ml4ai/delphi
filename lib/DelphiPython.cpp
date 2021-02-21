@@ -20,7 +20,13 @@ PYBIND11_MODULE(DelphiPython, m) {
       .value("ONE", InitialBeta::ONE)
       .value("HALF", InitialBeta::HALF)
       .value("MEAN", InitialBeta::MEAN)
+      .value("MEDIAN", InitialBeta::MEDIAN)
+      .value("PRIOR", InitialBeta::PRIOR)
       .value("RANDOM", InitialBeta::RANDOM);
+
+  py::enum_<InitialDerivative>(m, "InitialDerivative")
+      .value("DERI_ZERO", InitialDerivative::DERI_ZERO)
+      .value("DERI_PRIOR", InitialDerivative::DERI_PRIOR);
 
   py::class_<AnalysisGraph>(m, "AnalysisGraph")
       .def(py::init())
@@ -140,6 +146,7 @@ PYBIND11_MODULE(DelphiPython, m) {
            "county"_a = "",
            py::arg("units") = map<std::string, std::string>{},
            "initial_beta"_a = InitialBeta::HALF,
+           "initial_derivative"_a = InitialDerivative::DERI_ZERO,
            "use_continuous"_a = true)
       .def("train_model",
            &AnalysisGraph::train_model,
@@ -154,6 +161,7 @@ PYBIND11_MODULE(DelphiPython, m) {
            "county"_a = "",
            py::arg("units") = map<std::string, std::string>{},
            "initial_beta"_a = InitialBeta::ZERO,
+           "initial_derivative"_a = InitialDerivative::DERI_ZERO,
            "use_heuristic"_a = false,
            "use_continuous"_a = true)
       .def("generate_prediction",

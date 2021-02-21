@@ -247,7 +247,7 @@ double AnalysisGraph::calculate_delta_log_prior() {
     // (ẋ_old - ẋ_new)(ẋ_old + ẋ_new) / 2σ²
     return (this->previous_derivative - this->s0[this->changed_derivative])
            * (this->previous_derivative + this->s0[this->changed_derivative])
-           / (2 * 0.1);
+           / (2 * this->derivative_prior_variance);
   }
 }
 
@@ -276,7 +276,7 @@ void AnalysisGraph::revert_back_to_previous_state() {
  ============================================================================
 */
 
-void AnalysisGraph::set_default_initial_state() {
+void AnalysisGraph::set_default_initial_state(InitialDerivative id) {
   // Let vertices of the CAG be v = 0, 1, 2, 3, ...
   // Then,
   //    indexes 2*v keeps track of the state of each variable v
@@ -288,6 +288,14 @@ void AnalysisGraph::set_default_initial_state() {
 
   for (int i = 0; i < num_els; i += 2) {
     this->s0(i) = 1.0;
+  }
+
+  if (id == InitialDerivative::DERI_PRIOR) {
+    double derivative_prior_std = sqrt(this->derivative_prior_variance);
+    for (int i = 1; i < num_els; i += 2) {
+      this->s0(i) = derivative_prior_std *
+                    this->norm_dist(this->rand_num_generator);
+    }
   }
 }
 

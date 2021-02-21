@@ -26,8 +26,8 @@ class LegendTitle(object):
 
 # Plots the complete state of a delphi model.
 # There is a lot of repeated code here.
-def delphi_plotter(model_state, num_bins=400, rotation=45,
-        out_dir='plots', file_name_prefix='', month_year=False, num_distinct_derivative=25):
+def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file_name_prefix='',
+                   month_year=False, num_distinct_derivative=25, save_csv=False):
 
     if out_dir:
         out_path = pathlib.Path(out_dir)
@@ -89,8 +89,9 @@ def delphi_plotter(model_state, num_bins=400, rotation=45,
 
         if out_dir:
             plt.savefig(f'{out_dir}/{file_name_prefix}{plot_num}_Thetas_{source}--{target}.png')
-            df_theta_samples.to_csv(f'{out_dir}/{file_name_prefix}{plot_num}_Theta_samples_{source}--{target}.csv', index=False)
-            df_prior.to_csv(f'{out_dir}/{file_name_prefix}{plot_num}_Theta_priors_{source}--{target}.csv', index=False)
+            if save_csv:
+                df_theta_samples.to_csv(f'{out_dir}/{file_name_prefix}{plot_num}_Theta_samples_{source}--{target}.csv', index=False)
+                df_prior.to_csv(f'{out_dir}/{file_name_prefix}{plot_num}_Theta_priors_{source}--{target}.csv', index=False)
             plot_num += 1
         else:
             plt.show()
@@ -135,8 +136,9 @@ def delphi_plotter(model_state, num_bins=400, rotation=45,
 
     if out_dir:
         plt.savefig(f'{out_dir}/{file_name_prefix}{plot_num}_Derivatives.png', dpi=150)
-        df_derivatives.to_csv(f'{out_dir}/{file_name_prefix}{plot_num}_Derivative_samples.csv', index=False)
-        df_derivatives_grp.to_csv(f'{out_dir}/{file_name_prefix}{plot_num}_Derivative_frequencies.csv', index=False)
+        if save_csv:
+            df_derivatives.to_csv(f'{out_dir}/{file_name_prefix}{plot_num}_Derivative_samples.csv', index=False)
+            df_derivatives_grp.to_csv(f'{out_dir}/{file_name_prefix}{plot_num}_Derivative_frequencies.csv', index=False)
         plot_num += 1
     else:
         plt.show()
@@ -240,9 +242,10 @@ def delphi_plotter(model_state, num_bins=400, rotation=45,
                     plt.savefig(f'{out_dir}/{file_name_prefix}{plot_num}_Predictions_Box_{ind}.png')
                 else:
                     plt.savefig(f'{out_dir}/{file_name_prefix}{plot_num}_Data_and_Predictions_{ind}.png')
-                    df_preds.to_csv(f'{out_dir}/{file_name_prefix}{plot_num}_Predictions_{ind}.csv', index=False)
-                    if len(data_set[ind]) > 0:
-                        df_data_grp.to_csv(f'{out_dir}/{file_name_prefix}{plot_num}_Data_{ind}.csv', index=False)
+                    if save_csv:
+                        df_preds.to_csv(f'{out_dir}/{file_name_prefix}{plot_num}_Predictions_{ind}.csv', index=False)
+                        if len(data_set[ind]) > 0:
+                            df_data_grp.to_csv(f'{out_dir}/{file_name_prefix}{plot_num}_Data_{ind}.csv', index=False)
                 plot_num += 1
             else:
                 plt.show()
@@ -334,7 +337,8 @@ def delphi_plotter(model_state, num_bins=400, rotation=45,
             if out_dir:
                 if with_preds:
                     plt.savefig(f'{out_dir}/{file_name_prefix}{plot_num}_Predictions_Median_and_CI_{ind}.png')
-                    df_cis.to_csv(f'{out_dir}/{file_name_prefix}{plot_num}_Predictions_Median_and_CI_{ind}.csv', index=False)
+                    if save_csv:
+                        df_cis.to_csv(f'{out_dir}/{file_name_prefix}{plot_num}_Predictions_Median_and_CI_{ind}.csv', index=False)
                 else:
                     plt.savefig(f'{out_dir}/{file_name_prefix}{plot_num}_Data_{ind}.png')
                 plot_num += 1

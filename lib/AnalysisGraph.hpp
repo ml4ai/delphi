@@ -18,7 +18,9 @@
 
 const double tuning_param = 1.0;
 
-enum InitialBeta { ZERO, ONE, HALF, MEAN, MEDIAN, RANDOM };
+enum InitialBeta { ZERO, ONE, HALF, MEAN, MEDIAN, PRIOR, RANDOM };
+//enum class InitialBeta : char { ZERO, ONE, HALF, MEAN, MEDIAN, PRIOR, RANDOM };
+enum InitialDerivative { DERI_ZERO, DERI_PRIOR };
 
 typedef std::unordered_map<std::string, std::vector<double>>
     AdjectiveResponseMap;
@@ -279,6 +281,7 @@ class AnalysisGraph {
   // Latent state that is evolved by sampling.
   Eigen::VectorXd s0;
   Eigen::VectorXd s0_prev;
+  double derivative_prior_variance = 0.1;
 
   // Transition matrix that is evolved by sampling.
   // Since variable A has been already used locally in other methods,
@@ -739,6 +742,7 @@ class AnalysisGraph {
   void run_train_model(int res = 200,
                        int burn = 10000,
                        InitialBeta initial_beta = InitialBeta::ZERO,
+                       InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO,
                        bool use_heuristic = false,
                        bool use_continuous = true);
 
@@ -820,6 +824,7 @@ class AnalysisGraph {
    */
   void initialize_parameters(int res = 200,
                              InitialBeta initial_beta = InitialBeta::ZERO,
+                             InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO,
                              bool use_heuristic = false,
                              bool use_continuous = true);
 
@@ -1336,6 +1341,7 @@ class AnalysisGraph {
                    std::string county = "",
                    std::map<std::string, std::string> units = {},
                    InitialBeta initial_beta = InitialBeta::ZERO,
+                   InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO,
                    bool use_heuristic = false,
                    bool use_continuous = true);
 
@@ -1347,7 +1353,7 @@ class AnalysisGraph {
 
   void set_initial_latent_state(Eigen::VectorXd vec) { this->s0 = vec; };
 
-  void set_default_initial_state();
+  void set_default_initial_state(InitialDerivative id = InitialDerivative::DERI_ZERO);
 
   /*
    ============================================================================
@@ -1417,6 +1423,7 @@ class AnalysisGraph {
       std::string county = "",
       std::map<std::string, std::string> units = {},
       InitialBeta initial_beta = InitialBeta::HALF,
+      InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO,
       bool use_continuous = true);
 
   /*

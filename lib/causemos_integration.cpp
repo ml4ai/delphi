@@ -443,7 +443,8 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann:
       }
     }
 
-    this->run_train_model(res, burn, InitialBeta::RANDOM);
+    this->run_train_model(res, burn, InitialBeta::MEDIAN,
+                          InitialDerivative::DERI_ZERO);
 
     this->extract_projection_constraints(projection_parameters["constraints"], skip_steps);
 
