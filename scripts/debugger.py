@@ -1,5 +1,5 @@
 import delphi.plotter as dp
-from delphi.cpp.DelphiPython import AnalysisGraph
+from delphi.cpp.DelphiPython import AnalysisGraph, InitialBeta, InitialDerivative
 import pandas as pd
 import numpy as np
 
@@ -90,7 +90,7 @@ def draw_CAG(G, file_name):
 
 if __name__ == "__main__":
     json_inputs = [
-        ["../tests/data/delphi/create_model_test.json",                 # 0.
+        ["../tests/data/delphi/create_model_test.json",                 # 0. Missing data and mixed sampling frequency
          "../tests/data/delphi/experiments_projection_test.json"],
         ["../tests/data/delphi/create_model_ideal.json",                # 1. Ideal data with gaps of 1
          "../tests/data/delphi/experiments_projection_ideal.json"],
@@ -110,7 +110,7 @@ if __name__ == "__main__":
          "../tests/data/delphi/causemos_experiments_projection_input.json"],
     ]
 
-    input_idx = 0
+    input_idx = 2
     causemos_create_model = json_inputs[input_idx][0]
     causemos_create_experiment = json_inputs[input_idx][1]
 
@@ -124,8 +124,10 @@ if __name__ == "__main__":
     try:
         preds = G.run_causemos_projection_experiment_from_json_file(
                 filename=causemos_create_experiment,
-                burn=10,
-                res=10)
+                burn=10000,
+                res=1000,
+                initial_beta=InitialBeta.ZERO,
+                initial_derivative=InitialDerivative.DERI_ZERO)
     except AnalysisGraph.BadCausemosInputException as e:
         print(e)
         exit()

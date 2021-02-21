@@ -375,7 +375,10 @@ void AnalysisGraph::extract_projection_constraints(
 FormattedProjectionResult
 AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann::json &json_data,
                                                                  int burn,
-                                                                 int res) {
+                                                                 int res,
+                                                                 InitialBeta initial_beta,
+                                                                 InitialDerivative initial_derivative
+                                                                 ) {
 
     if (json_data["experimentParam"].is_null()) {
         throw BadCausemosInputException("Experiment parameters null");
@@ -443,8 +446,7 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann:
       }
     }
 
-    this->run_train_model(res, burn, InitialBeta::MEDIAN,
-                          InitialDerivative::DERI_ZERO);
+    this->run_train_model(res, burn, initial_beta, initial_derivative);
 
     this->extract_projection_constraints(projection_parameters["constraints"], skip_steps);
 
@@ -665,7 +667,10 @@ string AnalysisGraph::generate_create_model_response() {
 FormattedProjectionResult
 AnalysisGraph::run_causemos_projection_experiment_from_json_string(string json_string,
                                                                    int burn,
-                                                                   int res) {
+                                                                   int res,
+                                                                   InitialBeta initial_beta,
+                                                                   InitialDerivative initial_derivative
+                                                                    ) {
     using namespace fmt::literals;
     using nlohmann::json;
 
@@ -684,7 +689,10 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_string(string json_s
     auto json_data = nlohmann::json::parse(json_string);
 
     try {
-        return run_causemos_projection_experiment_from_json_dict(json_data, burn, res);
+        return run_causemos_projection_experiment_from_json_dict(json_data,
+                                                               burn, res,
+                                                               initial_beta,
+                                                               initial_derivative);
     }
     catch (BadCausemosInputException& e) {
         cout << e.what() << endl;
@@ -697,7 +705,10 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_string(string json_s
 FormattedProjectionResult
 AnalysisGraph::run_causemos_projection_experiment_from_json_file(string filename,
                                                                  int burn,
-                                                                 int res) {
+                                                                 int res,
+                                                                 InitialBeta initial_beta,
+                                                                 InitialDerivative initial_derivative
+                                                                  ) {
     using namespace fmt::literals;
     using nlohmann::json;
 
@@ -716,7 +727,10 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_file(string filename
     auto json_data = load_json(filename);
 
     try {
-        return run_causemos_projection_experiment_from_json_dict(json_data, burn, res);
+        return run_causemos_projection_experiment_from_json_dict(json_data,
+                                                               burn, res,
+                                                               initial_beta,
+                                                               initial_derivative);
     }
     catch (BadCausemosInputException& e) {
         cout << e.what() << endl;

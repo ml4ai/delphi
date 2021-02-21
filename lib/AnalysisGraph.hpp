@@ -550,7 +550,10 @@ class AnalysisGraph {
   FormattedProjectionResult run_causemos_projection_experiment_from_json_dict(
                                                                const nlohmann::json &json_data,
                                                                int burn = 10000,
-                                                               int res = 200);
+                                                               int res = 200,
+                                                               InitialBeta initial_beta = InitialBeta::ZERO,
+                                                               InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO
+                                                                );
 
   FormattedProjectionResult format_projection_result();
 
@@ -1091,12 +1094,18 @@ class AnalysisGraph {
   FormattedProjectionResult
   run_causemos_projection_experiment_from_json_string(std::string json_string,
                                                       int burn = 10000,
-                                                      int res = 200);
+                                                      int res = 200,
+                                                      InitialBeta initial_beta = InitialBeta::ZERO,
+                                                      InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO
+                                                      );
 
   FormattedProjectionResult
   run_causemos_projection_experiment_from_json_file(std::string filename,
                                                     int burn = 10000,
-                                                    int res = 200);
+                                                    int res = 200,
+                                                    InitialBeta initial_beta = InitialBeta::ZERO,
+                                                    InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO
+                                                    );
 
   /*
    ============================================================================

@@ -177,12 +177,18 @@ PYBIND11_MODULE(DelphiPython, m) {
            &AnalysisGraph::run_causemos_projection_experiment_from_json_string,
            "json_string"_a,
            "burn"_a = 10000,
-           "res"_a = 200)
+           "res"_a = 200,
+           "initial_beta"_a = InitialBeta::ZERO,
+           "initial_derivative"_a = InitialDerivative::DERI_ZERO
+           )
       .def("run_causemos_projection_experiment_from_json_file",
            &AnalysisGraph::run_causemos_projection_experiment_from_json_file,
            "filename"_a,
            "burn"_a = 10000,
-           "res"_a = 200)
+           "res"_a = 200,
+           "initial_beta"_a = InitialBeta::ZERO,
+           "initial_derivative"_a = InitialDerivative::DERI_ZERO
+      )
       .def("prediction_to_array",
            &AnalysisGraph::prediction_to_array,
            "indicator"_a)
