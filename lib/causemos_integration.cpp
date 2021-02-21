@@ -375,7 +375,10 @@ void AnalysisGraph::extract_projection_constraints(
 FormattedProjectionResult
 AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann::json &json_data,
                                                                  int burn,
-                                                                 int res) {
+                                                                 int res,
+                                                                 InitialBeta initial_beta,
+                                                                 InitialDerivative initial_derivative
+                                                                 ) {
 
     if (json_data["experimentParam"].is_null()) {
         throw BadCausemosInputException("Experiment parameters null");
@@ -388,18 +391,12 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann:
     }
 
     long proj_start_epoch = projection_parameters["startTime"].get<long>();
-    this->pred_start_timestep = this->epoch_to_timestep(proj_start_epoch,
-                                                         this->train_start_epoch,
-                                                         this->modeling_period);
 
     if (projection_parameters["endTime"].is_null()) {
         throw BadCausemosInputException("Projection end time null");
     }
 
     long proj_end_epoch = projection_parameters["endTime"].get<long>();
-    double pred_end_timestep = this->epoch_to_timestep(proj_end_epoch,
-                                                         this->train_start_epoch,
-                                                         this->modeling_period);
 
     if (projection_parameters["numTimesteps"].is_null()) {
         throw BadCausemosInputException("Projection number of time steps null");
@@ -411,34 +408,45 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann:
         throw BadCausemosInputException("Projection end epoch is before projection start epoch");
     }
 
-    this->delta_t = (pred_end_timestep - this->pred_start_timestep)
-                                                / (this->pred_timesteps - 1.0);
-
-    // To help clamping we predict one additional timestep
-    this->pred_timesteps++;
-    this->pred_start_timestep -= this->delta_t;
-
     int skip_steps = 0;
 
-    if(this->pred_start_timestep < 0) {
+    if (this->observed_state_sequence.empty()) {
+      // No training data has been provided
+      // "Train" (more like derive) a model based on prior distributions
+      cout << "\nNOTE:\n\t\"Training\" a model based on priors. Without any training observations";
+      this->train_start_epoch = -1;
+      this->pred_start_timestep = 0;
+      this->delta_t = 1;
+      this->pred_timesteps++;
+    } else {
+      this->pred_start_timestep = this->epoch_to_timestep(
+          proj_start_epoch, this->train_start_epoch, this->modeling_period);
+      double pred_end_timestep = this->epoch_to_timestep(
+          proj_end_epoch, this->train_start_epoch, this->modeling_period);
+      this->delta_t = (pred_end_timestep - this->pred_start_timestep) /
+                      (this->pred_timesteps - 1.0);
+
+      // To help clamping we predict one additional timestep
+      this->pred_timesteps++;
+      this->pred_start_timestep -= this->delta_t;
+
+      // Prevent predicting for timesteps earlier than training start time
+      if (this->pred_start_timestep < 0) {
+        cout << "\nNOTE:\n\t\"Predicting\" in the past";
+        /*
         skip_steps = ceil(abs(this->pred_start_timestep) / this->delta_t);
         this->pred_start_timestep += skip_steps;
         this->pred_timesteps -= skip_steps;
+        */
+      }
+
+      if (this->pred_start_timestep > pred_end_timestep) {
+        throw BadCausemosInputException(
+            "Projection end epoch is before projection start epoch");
+      }
     }
 
-    if(this->pred_start_timestep > pred_end_timestep) {
-      throw BadCausemosInputException("Projection end epoch is before projection start epoch");
-    }
-
-    if (this->train_start_epoch > this->train_end_epoch) {
-        // No training data has been provided => Cannot train
-        //                                    => Cannot project
-        throw BadCausemosInputException("No training data");
-    }
-
-    if (!this->trained) {
-        this->run_train_model(res, burn);
-    }
+    this->run_train_model(res, burn, initial_beta, initial_derivative);
 
     this->extract_projection_constraints(projection_parameters["constraints"], skip_steps);
 
@@ -659,7 +667,10 @@ string AnalysisGraph::generate_create_model_response() {
 FormattedProjectionResult
 AnalysisGraph::run_causemos_projection_experiment_from_json_string(string json_string,
                                                                    int burn,
-                                                                   int res) {
+                                                                   int res,
+                                                                   InitialBeta initial_beta,
+                                                                   InitialDerivative initial_derivative
+                                                                    ) {
     using namespace fmt::literals;
     using nlohmann::json;
 
@@ -678,7 +689,10 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_string(string json_s
     auto json_data = nlohmann::json::parse(json_string);
 
     try {
-        return run_causemos_projection_experiment_from_json_dict(json_data, burn, res);
+        return run_causemos_projection_experiment_from_json_dict(json_data,
+                                                               burn, res,
+                                                               initial_beta,
+                                                               initial_derivative);
     }
     catch (BadCausemosInputException& e) {
         cout << e.what() << endl;
@@ -691,7 +705,10 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_string(string json_s
 FormattedProjectionResult
 AnalysisGraph::run_causemos_projection_experiment_from_json_file(string filename,
                                                                  int burn,
-                                                                 int res) {
+                                                                 int res,
+                                                                 InitialBeta initial_beta,
+                                                                 InitialDerivative initial_derivative
+                                                                  ) {
     using namespace fmt::literals;
     using nlohmann::json;
 
@@ -710,7 +727,10 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_file(string filename
     auto json_data = load_json(filename);
 
     try {
-        return run_causemos_projection_experiment_from_json_dict(json_data, burn, res);
+        return run_causemos_projection_experiment_from_json_dict(json_data,
+                                                               burn, res,
+                                                               initial_beta,
+                                                               initial_derivative);
     }
     catch (BadCausemosInputException& e) {
         cout << e.what() << endl;

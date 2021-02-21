@@ -27,7 +27,7 @@ class Indicator : public RV {
 public:
   std::string source = "";
   std::string unit = "";
-  double mean = 0;
+  double mean = 1;
   double value = 0;
   double stdev = 1;
   std::string time = ""; // TODO: Need a proper type. There is one in c++20
@@ -42,7 +42,7 @@ public:
       std::string name,
       std::string source = "",
       std::string unit = "",
-      double mean = 0,
+      double mean = 1,
       double value = 0,
       double stdev = 1,
       std::string time = "", // TODO: Need a proper type. There is one in c++20

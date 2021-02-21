@@ -16,6 +16,7 @@ Private: Initializing model parameters
  */
 void AnalysisGraph::initialize_parameters(int res,
                                           InitialBeta initial_beta,
+                                          InitialDerivative initial_derivative,
                                           bool use_heuristic,
                                           bool use_continuous) {
     this->initialize_random_number_generator();
@@ -39,7 +40,8 @@ void AnalysisGraph::initialize_parameters(int res,
 
     this->set_indicator_means_and_standard_deviations();
     this->set_transition_matrix_from_betas();
-    this->set_default_initial_state();
+    this->derivative_prior_variance = 0.1;
+    this->set_default_initial_state(initial_derivative);
     this->set_log_likelihood();
 
     this->transition_matrix_collection.clear();
@@ -58,33 +60,45 @@ void AnalysisGraph::init_betas_to(InitialBeta ib) {
   case InitialBeta::ZERO:
     for (EdgeDescriptor e : this->edges()) {
       // β = tan(0.0) = 0
-      graph[e].theta = 0.0;
+      this->graph[e].theta = 0.0;
     }
     break;
   case InitialBeta::ONE:
     for (EdgeDescriptor e : this->edges()) {
       // θ = atan(1) = Π/4
       // β = tan(atan(1)) = 1
-      graph[e].theta = std::atan(1);
+      this->graph[e].theta = std::atan(1);
     }
     break;
   case InitialBeta::HALF:
     for (EdgeDescriptor e : this->edges()) {
       // β = tan(atan(0.5)) = 0.5
-      graph[e].theta = std::atan(0.5);
+      this->graph[e].theta = std::atan(0.5);
     }
     break;
   case InitialBeta::MEAN:
     for (EdgeDescriptor e : this->edges()) {
-      graph[e].theta = graph[e].kde.mu;
+      this->graph[e].theta = this->graph[e].kde.mu;
     }
     break;
+  case InitialBeta::MEDIAN:
+      for (EdgeDescriptor e : this->edges()) {
+        this->graph[e].theta = median(this->graph[e].kde.dataset);
+      }
+      break;
+    case InitialBeta::PRIOR:
+      for (EdgeDescriptor e : this->edges()) {
+        this->graph[e].theta = this->graph[e].kde.resample(
+            1, this->rand_num_generator,
+            this->uni_dist, this->norm_dist)[0];
+      }
+      break;
   case InitialBeta::RANDOM:
     for (EdgeDescriptor e : this->edges()) {
       // this->uni_dist() gives a random number in range [0, 1]
       // Multiplying by 2 scales the range to [0, 2]
       // Subtracting 1 moves the range to [-1, 1]
-      graph[e].theta = this->uni_dist(this->rand_num_generator) * 2 - 1;
+      this->graph[e].theta = this->uni_dist(this->rand_num_generator) * 2 - 1;
     }
     break;
   }
@@ -95,6 +109,10 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
   vector<double> mean_sequence;
   vector<double> std_sequence;
   vector<int> ts_sequence;
+
+  if (this->observed_state_sequence.empty()) {
+    return;
+  }
 
   for (int v = 0; v < num_verts; v++) {
       Node &n = (*this)[v];
@@ -123,6 +141,10 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
               } //else {
                 // This is a missing observation
                 //}
+          }
+
+          if (mean_sequence.empty()) {
+              return;
           }
 
           // Set the indicator standard deviation
@@ -197,10 +219,10 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
               mean = delphi::utils::median(mean_sequence);
           }
           if (mean != 0) {
-            ind.set_mean(mean);
+              ind.set_mean(mean);
           } else {
-            // To avoid division by zero error later on
-            ind.set_mean(0.0001);
+              // To avoid division by zero error later on
+              ind.set_mean(0.0001);
           }
       }
   }

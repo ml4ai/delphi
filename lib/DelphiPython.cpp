@@ -20,7 +20,13 @@ PYBIND11_MODULE(DelphiPython, m) {
       .value("ONE", InitialBeta::ONE)
       .value("HALF", InitialBeta::HALF)
       .value("MEAN", InitialBeta::MEAN)
+      .value("MEDIAN", InitialBeta::MEDIAN)
+      .value("PRIOR", InitialBeta::PRIOR)
       .value("RANDOM", InitialBeta::RANDOM);
+
+  py::enum_<InitialDerivative>(m, "InitialDerivative")
+      .value("DERI_ZERO", InitialDerivative::DERI_ZERO)
+      .value("DERI_PRIOR", InitialDerivative::DERI_PRIOR);
 
   py::class_<AnalysisGraph>(m, "AnalysisGraph")
       .def(py::init())
@@ -140,6 +146,7 @@ PYBIND11_MODULE(DelphiPython, m) {
            "county"_a = "",
            py::arg("units") = map<std::string, std::string>{},
            "initial_beta"_a = InitialBeta::HALF,
+           "initial_derivative"_a = InitialDerivative::DERI_ZERO,
            "use_continuous"_a = true)
       .def("train_model",
            &AnalysisGraph::train_model,
@@ -154,6 +161,7 @@ PYBIND11_MODULE(DelphiPython, m) {
            "county"_a = "",
            py::arg("units") = map<std::string, std::string>{},
            "initial_beta"_a = InitialBeta::ZERO,
+           "initial_derivative"_a = InitialDerivative::DERI_ZERO,
            "use_heuristic"_a = false,
            "use_continuous"_a = true)
       .def("generate_prediction",
@@ -169,12 +177,18 @@ PYBIND11_MODULE(DelphiPython, m) {
            &AnalysisGraph::run_causemos_projection_experiment_from_json_string,
            "json_string"_a,
            "burn"_a = 10000,
-           "res"_a = 200)
+           "res"_a = 200,
+           "initial_beta"_a = InitialBeta::ZERO,
+           "initial_derivative"_a = InitialDerivative::DERI_ZERO
+           )
       .def("run_causemos_projection_experiment_from_json_file",
            &AnalysisGraph::run_causemos_projection_experiment_from_json_file,
            "filename"_a,
            "burn"_a = 10000,
-           "res"_a = 200)
+           "res"_a = 200,
+           "initial_beta"_a = InitialBeta::ZERO,
+           "initial_derivative"_a = InitialDerivative::DERI_ZERO
+      )
       .def("prediction_to_array",
            &AnalysisGraph::prediction_to_array,
            "indicator"_a)

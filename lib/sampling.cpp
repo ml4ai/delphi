@@ -120,6 +120,10 @@ void AnalysisGraph::set_log_likelihood() {
   this->previous_log_likelihood = this->log_likelihood;
   this->log_likelihood = 0.0;
 
+  if (this->observed_state_sequence.empty()) {
+    return;
+  }
+
   if (this->continuous) {
       if (this->coin_flip < this->coin_flip_thresh) {
         // A θ has been sampled
@@ -237,8 +241,13 @@ double AnalysisGraph::calculate_delta_log_prior() {
   }
   else {
     // A derivative  has been sampled
-    // At the moment we are using a uniform prior.
-    return 0.0;
+    // We assume the prior for derivative is N(0, 0.1)
+    // We have to return: log( p(ẋ_new )) - log( p( ẋ_old ))
+    // After some mathematical simplifications we can derive
+    // (ẋ_old - ẋ_new)(ẋ_old + ẋ_new) / 2σ²
+    return (this->previous_derivative - this->s0[this->changed_derivative])
+           * (this->previous_derivative + this->s0[this->changed_derivative])
+           / (2 * this->derivative_prior_variance);
   }
 }
 
@@ -267,7 +276,7 @@ void AnalysisGraph::revert_back_to_previous_state() {
  ============================================================================
 */
 
-void AnalysisGraph::set_default_initial_state() {
+void AnalysisGraph::set_default_initial_state(InitialDerivative id) {
   // Let vertices of the CAG be v = 0, 1, 2, 3, ...
   // Then,
   //    indexes 2*v keeps track of the state of each variable v
@@ -279,6 +288,14 @@ void AnalysisGraph::set_default_initial_state() {
 
   for (int i = 0; i < num_els; i += 2) {
     this->s0(i) = 1.0;
+  }
+
+  if (id == InitialDerivative::DERI_PRIOR) {
+    double derivative_prior_std = sqrt(this->derivative_prior_variance);
+    for (int i = 1; i < num_els; i += 2) {
+      this->s0(i) = derivative_prior_std *
+                    this->norm_dist(this->rand_num_generator);
+    }
   }
 }
 
