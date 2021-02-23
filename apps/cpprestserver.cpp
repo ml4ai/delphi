@@ -32,7 +32,7 @@ void testcase_Database_Create(Database* sqlite3DB)
 {
     std::cout << "\n======================= Test testcase_Database_Create =======================\n" << std::endl;
     
-    //sqlite3DB->Database_Create();
+    sqlite3DB->Database_Create();
 }
 
 
@@ -80,12 +80,13 @@ int main(int argc, char **argv)
     Database* sqlite3DB = new Database();
 
     // Run Tests:
-    //testcase_Database_Create(db); 
+    testcase_Database_Create(sqlite3DB); 
     
     // working
-    //testcase_Database_Read_ColumnText(sqlite3DB); // doubt todo
+    //testcase_Database_Read_ColumnText(sqlite3DB); 
     //testcase_Database_Insert(sqlite3DB); 
-    testcase_Database_Update(sqlite3DB); 
+    //testcase_Database_Update(sqlite3DB); 
+    // drop test rows from delphi.db
 
 
     return 0;
