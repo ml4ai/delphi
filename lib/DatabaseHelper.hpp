@@ -39,6 +39,8 @@ class Database {
 
     void Database_Insert(string insert_query);
 
+    void Database_InsertInto_delphimodel(string id, string model);
+
     void Database_Update(string table_name, string column_name, string value, string where_column_name, string where_value);
 
     void Database_Drop_Table(string database_name);

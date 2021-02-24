@@ -14,18 +14,6 @@
 using namespace std;
 
 
-/*
-*  ================= Testsuite ===================
-*  Creates tables
-*  
-*  
-*  
-*  
-*/
-
-
-
-
 
 
 void testcase_Database_Create(Database* sqlite3DB)
@@ -64,7 +52,7 @@ void testcase_Database_Update(Database* sqlite3DB)
 {
     std::cout << "\n======================= Test testcase_Database_Update =======================\n" << std::endl;
     
-    sqlite3DB->Database_Update("concept_to_indicator_mapping", "Source", "'delphi_db_inds_TEST_update_2'", "Indicator", "'TEST'");
+    sqlite3DB->Database_Update("concept_to_indicator_mapping", "Source", "delphi_db_inds_TEST_update_2", "Indicator", "TEST");
         void Database_Update(string table_name, string column_name, string value, string where_column_name, string where_value);
 
     string query = "SELECT Source from concept_to_indicator_mapping WHERE Indicator = 'TEST';";
@@ -74,13 +62,62 @@ void testcase_Database_Update(Database* sqlite3DB)
 }
 
 
-int main(int argc, char **argv)
-{
 
+
+//// Todo: Database call handling
+//class DelphiModel(){
+//    public:
+//        string __tablename__;
+//        string id;
+//        string model;
+//        //id = db.Column(db.String, primary_key=True)
+//        //model = db.Column(db.String)
+//
+//        DelphiModel(string _id, string _model){
+//            this->__tablename__ = "delphimodel";
+//            this->id = _id;
+//            this->model = _model;
+//        }        
+//};
+
+
+
+
+//class CauseMosAsyncExperimentResult(ExperimentResult){
+//    /* Placeholder docstring for class CauseMosAsyncExperimentResult. */
+//    public:
+//        string __tablename__;
+//        string id;
+//        string status;
+//        string experimentType;
+//        string results;
+//        unordered_map<string, string> __mapper_args__;
+//
+//
+//        CauseMosAsyncExperimentResult(){
+//            this->__tablename__ = "causemosasyncexperimentresult";
+//            //id = db.Column(
+//            //    db.String,
+//            //    db.ForeignKey("experimentresult.id"),
+//            //    primary_key=True,
+//            //    default=str(uuid4()),
+//            //)
+//            //status = db.Column(db.String, nullable=True)
+//            //experimentType = db.Column(db.String, nullable=True)
+//            //results = db.Column(JsonEncodedDict, nullable=True)
+//            __mapper_args__["polymorphic_identity"] = "CauseMosAsyncExperimentResult";
+//        }
+//};
+
+
+int main(int argc, const char *argv[])
+{
     Database* sqlite3DB = new Database();
 
+
+    //================= Testsuite =============================================
     // Run Tests:
-    testcase_Database_Create(sqlite3DB); 
+    //testcase_Database_Create(sqlite3DB); 
     
     // working
     //testcase_Database_Read_ColumnText(sqlite3DB); 
@@ -88,87 +125,39 @@ int main(int argc, char **argv)
     //testcase_Database_Update(sqlite3DB); 
     // drop test rows from delphi.db
 
+    //======================App=================================================    
 
-    return 0;
-}
-
-
-/*
-
-// Todo: Database call handling
-class DelphiModel(){
-    public:
-        string __tablename__;
-        string id;
-        string model;
-        //id = db.Column(db.String, primary_key=True)
-        //model = db.Column(db.String)
-
-        DelphiModel(string _id, string _model){
-            this->__tablename__ = "delphimodel";
-            this->id = _id;
-            this->model = _model;
-        }        
-};
-
-
-*/
-
-//class CauseMosAsyncExperimentResult(ExperimentResult){
-    /* Placeholder docstring for class CauseMosAsyncExperimentResult. */
- /*   public:
-        string __tablename__;
-        string id;
-        string status;
-        string experimentType;
-        string results;
-        unordered_map<string, string> __mapper_args__;
-
-
-        CauseMosAsyncExperimentResult(){
-            this->__tablename__ = "causemosasyncexperimentresult";
-            //id = db.Column(
-            //    db.String,
-            //    db.ForeignKey("experimentresult.id"),
-            //    primary_key=True,
-            //    default=str(uuid4()),
-            //)
-            //status = db.Column(db.String, nullable=True)
-            //experimentType = db.Column(db.String, nullable=True)
-            //results = db.Column(JsonEncodedDict, nullable=True)
-            __mapper_args__["polymorphic_identity"] = "CauseMosAsyncExperimentResult";
-        }
-};
-
-
-int main(int argc, const char *argv[])
-{
 
     served::multiplexer mux;
     mux.handle("/delphi/create-model")
-        .post([](served::response & res, const served::request & req) {
+        .post([&sqlite3DB](served::response & res, const served::request & req) {
             auto json_data = nlohmann::json::parse(req.body());
-            //std::cout << "POST req: " << json_data << std::endl;
+            std::cout << "POST req: " << json_data << std::endl;
             size_t result = 1000;
             //const char* env_p = ;
-            string ci(getenv("CI"));
-            size_t DELPHI_N_SAMPLES((size_t)stoul(getenv("DELPHI_N_SAMPLES")));
-            if( ci == "true") 
-                result = 5;
-            else if (DELPHI_N_SAMPLES) 
-                result = DELPHI_N_SAMPLES;
 
-            AnalysisGraph G = AnalysisGraph::from_causemos_json_string(json_data, result);
+            //Todo
+            /////string ci(getenv("CI"));
+            /////size_t DELPHI_N_SAMPLES((size_t)stoul(getenv("DELPHI_N_SAMPLES")));
+            /////if( ci == "true") 
+            /////    result = 5;
+            /////else if (DELPHI_N_SAMPLES) 
+            /////    result = DELPHI_N_SAMPLES;
+            /////std::cout << "DELPHI_N_SAMPLES: " << DELPHI_N_SAMPLES << std::endl;
 
-            //string id = "123";
-            //string model = "abc";
-            DelphiModel model(json_data["id"], G.serialize_to_json_string(false));
-            // Todo: Database call handling
-            //db.session.merge(model)
-            //db.session.commit()
+            ////AnalysisGraph G = AnalysisGraph::from_causemos_json_string(json_data, result);
 
-            res <<  nlohmann::json::parse(G.generate_create_model_response());
-            //res << json_data.dump();
+            string id = "123";
+            string model = "TEST";
+
+            cout << "Before Insert" << endl;
+            sqlite3DB->Database_InsertInto_delphimodel(id, model);
+            ////sqlite3DB->Database_InsertInto_delphimodel(json_data["id"], G.serialize_to_json_string(false));
+            cout << "After Insert" << endl;
+
+
+            //res <<  nlohmann::json::parse(G.generate_create_model_response());
+            res << json_data.dump();
         });
 
 
@@ -188,7 +177,7 @@ int main(int argc, const char *argv[])
 
 
 
-
+/*
 
 void runProjectionExperiment(const served::request & request, string modelID, string experiment_id, AnalysisGraph G, bool trained){
     auto request_body = nlohmann::json::parse(request.body());

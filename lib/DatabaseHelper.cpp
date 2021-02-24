@@ -107,7 +107,7 @@ vector<string> Database::Database_Read_ColumnText(string query){
 }
 
 vector<string> Database::Database_Read_Query(string column_name, string table_name){
-	string query = "SELECT "+ column_name +" from "+ table_name +" ;";
+	string query = "SELECT "+ column_name +" from '"+ table_name +"' ;";
   	vector<string> matches = this->Database_Read_ColumnText(query);
    	return matches;
 }
@@ -118,8 +118,17 @@ void Database::Database_Insert(string insert_query){
 	int rc = sqlite3_exec(db, insert_query.c_str(), callbackCreate, 0, &zErrMsg);
 }
 
+
+void Database::Database_InsertInto_delphimodel(string id, string model){
+	string query = "INSERT INTO delphimodel ('id', 'model') VALUES ('"+ id +"', '"+ model +"');";
+    this->Database_Insert(query);
+    
+    //query = "SELECT Source from concept_to_indicator_mapping WHERE Indicator = 'TEST';";
+    //vector<string> matches = sqlite3DB->Database_Read_ColumnText(query);
+}
+
 void Database::Database_Update(string table_name, string column_name, string value, string where_column_name, string where_value){
-	string update_table_query = "UPDATE "+ table_name +" SET "+ column_name +" = "+ value +" WHERE "+ where_column_name +" = "+ where_value +";";
+	string update_table_query = "UPDATE "+ table_name +" SET "+ column_name +" = '"+ value +"' WHERE "+ where_column_name +" = '"+ where_value +"';";
 	int rc = sqlite3_exec(db, update_table_query.c_str(), callbackCreate, 0, NULL);
 }
 
