@@ -311,9 +311,9 @@
 
 <span class="n">vector</span><span class="o">&lt;</span><span class="kt">long</span><span class="o">&gt;</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">infer_modeling_period</span><span class="p">(</span>
                         <span class="k">const</span> <span class="n">ConceptIndicatorEpochs</span> <span class="o">&amp;</span><span class="n">concept_indicator_epochs</span><span class="p">,</span>
-                        <span class="kt">int</span> <span class="o">&amp;</span><span class="n">shortest_gap</span><span class="p">,</span>
-                        <span class="kt">int</span> <span class="o">&amp;</span><span class="n">longest_gap</span><span class="p">,</span>
-                        <span class="kt">int</span> <span class="o">&amp;</span><span class="n">frequent_gap</span><span class="p">,</span>
+                        <span class="kt">long</span> <span class="o">&amp;</span><span class="n">shortest_gap</span><span class="p">,</span>
+                        <span class="kt">long</span> <span class="o">&amp;</span><span class="n">longest_gap</span><span class="p">,</span>
+                        <span class="kt">long</span> <span class="o">&amp;</span><span class="n">frequent_gap</span><span class="p">,</span>
                         <span class="kt">int</span> <span class="o">&amp;</span><span class="n">highest_frequency</span><span class="p">)</span> <span class="p">{</span>
 
     <span class="n">unordered_set</span><span class="o">&lt;</span><span class="kt">long</span><span class="o">&gt;</span> <span class="n">epochs_all</span><span class="p">;</span>
@@ -351,9 +351,9 @@
     <span class="p">}</span>
 
     <span class="c1">// Find the smallest gap and most frequent gap</span>
-    <span class="n">shortest_gap</span> <span class="o">=</span> <span class="n">INT_MAX</span><span class="p">;</span>
+    <span class="n">shortest_gap</span> <span class="o">=</span> <span class="n">LONG_MAX</span><span class="p">;</span>
     <span class="n">longest_gap</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-    <span class="n">frequent_gap</span> <span class="o">=</span> <span class="n">INT_MAX</span><span class="p">;</span>
+    <span class="n">frequent_gap</span> <span class="o">=</span> <span class="n">LONG_MAX</span><span class="p">;</span>
     <span class="n">highest_frequency</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
 
     <span class="c1">// Epochs statistics for individual indicator time series for debugging purposes.</span>
@@ -418,9 +418,9 @@
             <span class="n">json_indicators</span><span class="p">,</span> <span class="n">concept_indicator_data</span><span class="p">,</span> <span class="n">concept_indicator_epochs</span><span class="p">);</span>
 
     <span class="c1">// Decide the data frequency.</span>
-    <span class="kt">int</span> <span class="n">shortest_gap</span> <span class="o">=</span> <span class="n">INT_MAX</span><span class="p">;</span>
-    <span class="kt">int</span> <span class="n">longest_gap</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-    <span class="kt">int</span> <span class="n">frequent_gap</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="n">shortest_gap</span> <span class="o">=</span> <span class="n">LONG_MAX</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="n">longest_gap</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="n">frequent_gap</span> <span class="o">=</span> <span class="n">LONG_MAX</span><span class="p">;</span>
     <span class="kt">int</span> <span class="n">highest_frequency</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
 
     <span class="k">this</span><span class="o">-&gt;</span><span class="n">n_timesteps</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
@@ -562,7 +562,7 @@
     <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">observed_state_sequence</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
       <span class="c1">// No training data has been provided</span>
       <span class="c1">// &quot;Train&quot; (more like derive) a model based on prior distributions</span>
-      <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">NOTE:</span><span class="se">\n\t\&quot;</span><span class="s">Training</span><span class="se">\&quot;</span><span class="s"> a model based on priors. Without any training observations&quot;</span><span class="p">;</span>
+      <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">NOTE:</span><span class="se">\n\t\&quot;</span><span class="s">Training</span><span class="se">\&quot;</span><span class="s"> a model, without any training observations, using only prior distributions!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
       <span class="k">this</span><span class="o">-&gt;</span><span class="n">train_start_epoch</span> <span class="o">=</span> <span class="mi">-1</span><span class="p">;</span>
       <span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_start_timestep</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
       <span class="k">this</span><span class="o">-&gt;</span><span class="n">delta_t</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
@@ -581,7 +581,7 @@
 
       <span class="c1">// Prevent predicting for timesteps earlier than training start time</span>
       <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_start_timestep</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">NOTE:</span><span class="se">\n\t\&quot;</span><span class="s">Predicting</span><span class="se">\&quot;</span><span class="s"> in the past&quot;</span><span class="p">;</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">NOTE:</span><span class="se">\n\t\&quot;</span><span class="s">Predicting</span><span class="se">\&quot;</span><span class="s"> in the past</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
         <span class="cm">/*</span>
 <span class="cm">        skip_steps = ceil(abs(this-&gt;pred_start_timestep) / this-&gt;delta_t);</span>
 <span class="cm">        this-&gt;pred_start_timestep += skip_steps;</span>
