@@ -513,9 +513,9 @@ class AnalysisGraph {
   std::vector<long>
   infer_modeling_period(
                         const ConceptIndicatorEpochs &concept_indicator_epochs,
-                        int &shortest_gap,
-                        int &longest_gap,
-                        int &frequent_gap,
+                        long &shortest_gap,
+                        long &longest_gap,
+                        long &frequent_gap,
                         int &highest_frequency);
 
   /**

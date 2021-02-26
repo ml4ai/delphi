@@ -155,9 +155,9 @@ double AnalysisGraph::epoch_to_timestep(long epoch, long train_start_epoch,
  */
 vector<long> AnalysisGraph::infer_modeling_period(
                         const ConceptIndicatorEpochs &concept_indicator_epochs,
-                        int &shortest_gap,
-                        int &longest_gap,
-                        int &frequent_gap,
+                        long &shortest_gap,
+                        long &longest_gap,
+                        long &frequent_gap,
                         int &highest_frequency) {
 
     unordered_set<long> epochs_all;
@@ -195,9 +195,9 @@ vector<long> AnalysisGraph::infer_modeling_period(
     }
 
     // Find the smallest gap and most frequent gap
-    shortest_gap = INT_MAX;
+    shortest_gap = LONG_MAX;
     longest_gap = 0;
-    frequent_gap = INT_MAX;
+    frequent_gap = LONG_MAX;
     highest_frequency = 0;
 
     // Epochs statistics for individual indicator time series for debugging purposes.
@@ -269,9 +269,9 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
             json_indicators, concept_indicator_data, concept_indicator_epochs);
 
     // Decide the data frequency.
-    int shortest_gap = INT_MAX;
-    int longest_gap = 0;
-    int frequent_gap = 0;
+    long shortest_gap = LONG_MAX;
+    long longest_gap = 0;
+    long frequent_gap = LONG_MAX;
     int highest_frequency = 0;
 
     this->n_timesteps = 0;
@@ -413,7 +413,7 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann:
     if (this->observed_state_sequence.empty()) {
       // No training data has been provided
       // "Train" (more like derive) a model based on prior distributions
-      cout << "\nNOTE:\n\t\"Training\" a model based on priors. Without any training observations";
+      cout << "\nNOTE:\n\t\"Training\" a model, without any training observations, using only prior distributions!\n";
       this->train_start_epoch = -1;
       this->pred_start_timestep = 0;
       this->delta_t = 1;
@@ -432,7 +432,7 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann:
 
       // Prevent predicting for timesteps earlier than training start time
       if (this->pred_start_timestep < 0) {
-        cout << "\nNOTE:\n\t\"Predicting\" in the past";
+        cout << "\nNOTE:\n\t\"Predicting\" in the past\n";
         /*
         skip_steps = ceil(abs(this->pred_start_timestep) / this->delta_t);
         this->pred_start_timestep += skip_steps;
