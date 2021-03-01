@@ -6,9 +6,6 @@
 #include <vector>
 #include <range/v3/all.hpp>
 
-
-using namespace std;
-
 // DB class
 //conn to sqlite
 // methods to connect, CRUD, save model, 
@@ -33,19 +30,21 @@ class Database {
 
     void Database_Create();
 
-  	vector<string> Database_Read_ColumnText(string query);
+  	std::vector<std::string> Database_Read_ColumnText(std::string query);
 
-    vector<string> Database_Read_Query(string column_name, string table_name);
+    std::vector<std::string> Database_Read_ColumnText_Query(std::string table_name, std::string column_name);
 
-    void Database_Insert(string insert_query);
+    std::vector<std::string> Database_Read_ColumnText_Query_Where(std::string table_name, std::string column_name, std::string where_column_name, std::string where_value);
 
-    void Database_InsertInto_delphimodel(string id, string model);
+    void Database_Insert(std::string insert_query);
 
-    void Database_Update(string table_name, string column_name, string value, string where_column_name, string where_value);
+    void Database_InsertInto_delphimodel(std::string id, std::string model);
 
-    void Database_Drop_Table(string database_name);
+    void Database_Update(std::string table_name, std::string column_name, std::string value, std::string where_column_name, std::string where_value);
 
-    void Database_Delete_Row(string database_name);
+    void Database_Drop_Table(std::string database_name);
+
+    void Database_Delete_Row(std::string database_name);
 
 };
 

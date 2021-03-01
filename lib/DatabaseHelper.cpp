@@ -106,12 +106,18 @@ vector<string> Database::Database_Read_ColumnText(string query){
    	return matches;
 }
 
-vector<string> Database::Database_Read_Query(string column_name, string table_name){
+vector<string> Database::Database_Read_ColumnText_Query(string table_name, string column_name){
 	string query = "SELECT "+ column_name +" from '"+ table_name +"' ;";
   	vector<string> matches = this->Database_Read_ColumnText(query);
    	return matches;
 }
 
+
+vector<string> Database::Database_Read_ColumnText_Query_Where(string table_name, string column_name, string where_column_name, string where_value){
+	string query = "SELECT "+ column_name +" from '"+ table_name +"'  WHERE "+ where_column_name +" = '"+ where_value +"' ;";
+  	vector<string> matches = this->Database_Read_ColumnText(query);
+   	return matches;
+}
 
 void Database::Database_Insert(string insert_query){
 	char *zErrMsg = 0;
