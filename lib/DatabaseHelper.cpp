@@ -227,4 +227,3 @@ void Database::Database_Delete_Rows(string table_name, string where_column_name,
 	string delete_table_query = "DELETE FROM  "+ table_name +" WHERE "+ where_column_name +" = '"+ where_value +"';";
 	int rc = sqlite3_exec(db, delete_table_query.c_str(), callback, 0, NULL);
 }
-

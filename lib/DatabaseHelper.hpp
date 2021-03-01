@@ -9,20 +9,20 @@
 
 
 class Database {
-	private:
-	
-  	sqlite3  *db;
-  		
+  private:
+  
+    sqlite3  *db;
+      
 
   public:
 
-		Database();
+    Database();
 
-		~Database();
-  	
+    ~Database();
+    
     void Database_Create();
 
-  	std::vector<std::string> Database_Read_ColumnText(std::string query);
+    std::vector<std::string> Database_Read_ColumnText(std::string query);
 
     std::vector<std::string> Database_Read_ColumnText_Query(std::string table_name, std::string column_name);
 
