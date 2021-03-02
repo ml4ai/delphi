@@ -446,7 +446,11 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann:
       }
     }
 
+    time_t start = time(0);
     this->run_train_model(res, burn, initial_beta, initial_derivative);
+    time_t end = time(0);
+    cout << "\n\n\t[test_rest_api.py->causemos_integration.cpp][run_causemos_projection_experiment] Time train_model : " << end - start << " sec" << endl;
+
 
     this->extract_projection_constraints(projection_parameters["constraints"], skip_steps);
 
