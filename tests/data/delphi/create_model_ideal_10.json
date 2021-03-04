@@ -2,35 +2,32 @@
   "id": "XYZ1606327881",
   "statements": [
     {
-      "belief": 1,
-      "evidence": [],
       "id": "0",
-      "type": "Influence",
+      "belief": 1,
+      "evidence": [
+        {
+          "evidence_context": {
+            "subj_adjectives": ["small"],
+            "subj_polarity": 1,
+            "obj_adjectives": ["large"],
+            "obj_polarity": 1,
+            "text": "a small increase in rainfall results a large change in food prices"
+          }
+        }
+      ],
       "subj": {
-        "db_refs": {
-          "TEXT": "a small increase in rainfall",
-          "concept": "a"
-        },
-        "name": "a"
-      },
-      "subj_delta": {
-        "adjectives": [
-          "small"
-        ],
-        "polarity": 1
+        "adjectives": [],
+        "concept": "a",
+        "concept_score": 1,
+        "polarity": 1,
+        "theme": "a"
       },
       "obj": {
-        "db_refs": {
-          "TEXT": "large change in food prices",
-          "concept": "b"
-        },
-        "name": "b"
-      },
-      "obj_delta": {
-        "adjectives": [
-          "large"
-        ],
-        "polarity": 1
+        "adjectives": [],
+        "concept": "b",
+        "concept_score": 1,
+        "polarity": 1,
+        "theme": "b"
       }
     }
   ],

@@ -7,6 +7,7 @@
 #include <range/v3/all.hpp>
 #include <time.h>
 #include <limits.h>
+#include "dbg.h"
 
 using namespace std;
 using namespace delphi::utils;
@@ -517,13 +518,11 @@ void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data) {
   auto statements = json_data["statements"];
 
   for (auto stmt : statements) {
-    /*
     auto evidence = stmt["evidence"];
 
     if (evidence.is_null()) {
       continue;
     }
-    */
 
     auto subj = stmt["subj"];
     auto obj = stmt["obj"];
@@ -532,15 +531,8 @@ void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data) {
       continue;
     }
 
-    auto subj_db_ref = subj["db_refs"];
-    auto obj_db_ref = obj["db_refs"];
-
-    if (subj_db_ref.is_null() or obj_db_ref.is_null()) {
-      continue;
-    }
-
-    auto subj_concept_json = subj_db_ref["concept"];
-    auto obj_concept_json = obj_db_ref["concept"];
+    auto subj_concept_json = subj["concept"];
+    auto obj_concept_json = obj["concept"];
 
     if (subj_concept_json.is_null() or obj_concept_json.is_null()) {
       continue;
@@ -549,50 +541,66 @@ void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data) {
     string subj_name = subj_concept_json.get<string>();
     string obj_name = obj_concept_json.get<string>();
 
-    auto subj_delta = stmt["subj_delta"];
-    auto obj_delta = stmt["obj_delta"];
-
-    auto subj_polarity_json = subj_delta["polarity"];
-    auto obj_polarity_json = obj_delta["polarity"];
-
-    // We set polarities to 1 (positive) by default if they are not specified.
-    int subj_polarity_val = 1;
-    int obj_polarity_val = 1;
-    if (!subj_polarity_json.is_null()) {
-      subj_polarity_val = subj_polarity_json.get<int>();
+    if (subj_name.compare(obj_name) == 0) { // Guard against self loops
+      // Add the nodes to the graph if they are not in it already
+      continue;
     }
 
-    if (!obj_polarity_json.is_null()) {
-      obj_polarity_val = obj_polarity_json.get<int>();
-    }
+    this->add_node(subj_name);
+    this->add_node(obj_name);
 
-    auto subj_adjectives = subj_delta["adjectives"];
-    auto obj_adjectives = obj_delta["adjectives"];
+    // Add the edge to the graph if it is not in it already
+    for (auto evid : evidence) {
+      if (evid["evidence_context"].is_null()) {
+        continue;
+      }
 
-    vector<int> subj_polarity = vector<int>{subj_polarity_val};
-    vector<int> obj_polarity = vector<int>{obj_polarity_val};
+      auto evid_context = evid["evidence_context"];
 
-    vector<string> subj_adjective = vector<string>{"None"};
-    vector<string> obj_adjective = vector<string>{"None"};
+      auto subj_polarity_json = evid_context["subj_polarity"];
+      auto obj_polarity_json = evid_context["obj_polarity"];
 
-    if(!subj_adjectives.is_null()){
-        if(subj_adjectives.size() > 0){
-            subj_adjective = subj_adjectives.get<vector<string>>();
-            subj_polarity = vector<int>(subj_adjective.size(), subj_polarity_val);
+      // We set polarities to 1 (positive) by default if they are not specified.
+      int subj_polarity_val = 1;
+      int obj_polarity_val = 1;
+      if (!subj_polarity_json.is_null()) {
+        subj_polarity_val = subj_polarity_json.get<int>();
+      }
+
+      if (!obj_polarity_json.is_null()) {
+        obj_polarity_val = obj_polarity_json.get<int>();
+      }
+
+      auto subj_adjectives_json = evid_context["subj_adjectives"];
+      auto obj_adjectives_json = evid_context["obj_adjectives"];
+
+      vector<string> subj_adjectives{"None"};
+      vector<string> obj_adjectives{"None"};
+
+      if(!subj_adjectives_json.is_null()){
+        if(subj_adjectives_json.size() > 0){
+          subj_adjectives = subj_adjectives_json.get<vector<string>>();
         }
-    }
+      }
 
-    if(!obj_adjectives.is_null()){
-        if(obj_adjectives.size() > 0){
-            obj_adjective = obj_adjectives.get<vector<string>>();
-            obj_polarity = vector<int>(obj_adjectives.size(), obj_polarity_val);
+      if(!obj_adjectives_json.is_null()){
+        if(obj_adjectives_json.size() > 0){
+          obj_adjectives = obj_adjectives_json.get<vector<string>>();
         }
-    }
+      }
 
-    auto causal_fragments =
-        CausalFragmentCollection({subj_adjective, subj_polarity, subj_name},
-                       {obj_adjective, obj_polarity, obj_name});
-    this->add_edge(causal_fragments);
+      auto causal_fragment =
+          CausalFragment({subj_adjectives[0], subj_polarity_val, subj_name},
+                         {obj_adjectives[0], obj_polarity_val, obj_name});
+      this->add_edge(causal_fragment);
+      dbg(subj_name);
+      dbg(subj_polarity_val);
+      dbg(subj_adjectives);
+      dbg(obj_name);
+      dbg(obj_polarity_val);
+      dbg(obj_adjectives);
+      cout << subj_adjectives[0] << endl;
+    }
   }
 
   if (json_data["conceptIndicators"].is_null()) {
@@ -608,6 +616,7 @@ void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data) {
 
   this->initialize_random_number_generator();
   this->construct_theta_pdfs();
+  this->to_png("causemos_CAG.png");
 }
 
 AnalysisGraph AnalysisGraph::from_causemos_json_string(string json_string, size_t res) {

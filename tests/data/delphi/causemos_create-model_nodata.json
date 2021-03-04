@@ -28,91 +28,91 @@
     },
     "statements": [
         {
+            "id": "7b3a5671-7da9-43d5-b91c-3f7f530ff3fc",
             "belief": 0.9919689,
             "evidence": [
+                {
+                    "evidence_context": {
+                        "subj_adjectives": [],
+                        "subj_polarity": 1,
+                        "obj_adjectives": ["heavy"],
+                        "obj_polarity": 1,
+                        "text": "Tropical Storm Amanda heavy rainfall"
+                    }
+                }
             ],
-            "id": "7b3a5671-7da9-43d5-b91c-3f7f530ff3fc",
-            "obj": {
-                "db_refs": {
-                    "TEXT": "heavy rainfall",
-                    "concept": "rainfall"
-                },
-                "name": "heavy rainfall"
-            },
-            "obj_delta": {
-                "adjectives": [],
-                "polarity": 1
-            },
             "subj": {
-                "db_refs": {
-                    "TEXT": "Tropical Storm Amanda",
-                    "concept": "storm"
-                },
-                "name": "Tropical Storm Amanda"
-            },
-            "subj_delta": {
                 "adjectives": [],
-                "polarity": 1
+                "concept": "storm",
+                "concept_score": 1,
+                "polarity": 1,
+                "theme": "storm"
             },
-            "type": "Influence"
+            "obj": {
+                "adjectives": [],
+                "concept": "rainfall",
+                "concept_score": 1,
+                "polarity": 1,
+                "theme": "rainfall"
+            }
         },
         {
+            "id": "562a52e0-121c-48aa-b2d8-770dadacf496",
             "belief": 0.923,
             "evidence": [
+                {
+                    "evidence_context": {
+                        "subj_adjectives": ["extreme"],
+                        "subj_polarity": 1,
+                        "obj_adjectives": ["heavy"],
+                        "obj_polarity": 1,
+                        "text": "other extreme weather events that lead to heavy rainfall"
+                    }
+                }
             ],
-            "id": "562a52e0-121c-48aa-b2d8-770dadacf496",
-            "obj": {
-                "db_refs": {
-                    "TEXT": "to heavy rainfall",
-                    "concept": "rainfall"
-                },
-                "name": "to heavy rainfall"
-            },
-            "obj_delta": {
-                "adjectives": [],
-                "polarity": 1
-            },
             "subj": {
-                "db_refs": {
-                    "TEXT": "other extreme weather events that lead to heavy rainfall",
-                    "concept": "weather"
-                },
-                "name": "other extreme weather events that lead to heavy rainfall"
-            },
-            "subj_delta": {
                 "adjectives": [],
-                "polarity": 1
+                "concept": "weather",
+                "concept_score": 1,
+                "polarity": 1,
+                "theme": "weather"
             },
-            "type": "Influence"
+            "obj": {
+                "adjectives": [],
+                "concept": "rainfall",
+                "concept_score": 1,
+                "polarity": 1,
+                "theme": "rainfall"
+            }
         },
         {
+            "id": "f286d82c-7d51-473b-98d1-f3d7b214b2f5",
             "belief": 0.65,
             "evidence": [
+                {
+                    "evidence_context": {
+                        "subj_adjectives": ["extreme"],
+                        "subj_polarity": 1,
+                        "obj_adjectives": ["heavy"],
+                        "obj_polarity": 1,
+                        "text": "weather caused recent heavy rains"
+                    }
+                }
             ],
-            "id": "f286d82c-7d51-473b-98d1-f3d7b214b2f5",
-            "obj": {
-                "db_refs": {
-                    "TEXT": "rainfall",
-                    "concept": "rainfall"
-                },
-                "name": "rainfall"
-            },
-            "obj_delta": {
-                "adjectives": [],
-                "polarity": 1
-            },
             "subj": {
-                "db_refs": {
-                    "TEXT": "recent heavy rains",
-                    "concept": "weather"
-                },
-                "name": "recent heavy rains"
-            },
-            "subj_delta": {
                 "adjectives": [],
-                "polarity": 1
+                "concept": "weather",
+                "concept_score": 1,
+                "polarity": 1,
+                "theme": "weather"
             },
-            "type": "Influence"
+            "obj": {
+                "adjectives": [],
+                "concept": "rainfall",
+                "concept_score": 1,
+                "polarity": 1,
+                "theme": "rainfall"
+            }
         }
     ]
 }

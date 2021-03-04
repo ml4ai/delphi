@@ -29,18 +29,18 @@ def client(app):
 def test_createModel_and_createExperiment(client):
     # test_createModel
     with open(
-        "tests/data/delphi/causemos_create-model.json", encoding="utf-8"
+        "tests/data/delphi/create_model_input_2.json", encoding="utf-8"
     ) as f:
         data = json.load(f)
     rv = client.post(f"/delphi/create-model", json=data)
 
     # Test createExperiment
     with open(
-        "tests/data/delphi/causemos_experiments_projection_input.json",
+        "tests/data/delphi/experiments_projection_input_2.json",
         encoding="utf-8",
     ) as f:
         data = json.load(f)
-    model_id = "XYZ"
+    model_id = "XYZ1606327881"
     rv = client.post(f"/delphi/models/{model_id}/experiments", json=data)
     experiment_id1 = rv.get_json()["experimentId"]
     status = "in progress"
