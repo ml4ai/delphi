@@ -1,4 +1,5 @@
 import pandas as pd
+from hdx.utilities.easy_logging import setup_logging
 from hdx.data.dataset import Dataset
 from hdx.hdx_configuration import Configuration
 import pprint
@@ -9,12 +10,12 @@ def print_dict(dictionary):
     for key, value in dictionary.items():
         print(key, '\t:\t', value)
 
-Configuration.create(hdx_site='prod', user_agent='A_Quick_Example', hdx_read_only=True)
+setup_logging()
+Configuration.create(hdx_site='prod', user_agent='Delphi', hdx_read_only=True)
 
-
-dataset_name = 'acled-conflict-data-for-africa-1997-lastyear'
+#dataset_name = 'acled-conflict-data-for-africa-1997-lastyear'
 #dataset_name = '2016-sahel-inform'
-dataset = Dataset.read_from_hdx(dataset_name)
+#dataset = Dataset.read_from_hdx(dataset_name)
 #pprint.pprint(dataset.__dict__)
 
 indicators = []
