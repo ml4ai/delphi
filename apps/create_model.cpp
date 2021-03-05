@@ -29,24 +29,29 @@ int main(int argc, char* argv[]) {
         {{"small", 1, "n4"}, {"large", -1, "n15"}},
         {{"small", 1, "n15"}, {"large", -1, "n16"}},
         {{"small", 1, "n5"}, {"large", -1, "n3"}},  // Creates a loop
-};
+  };
 
   vector<CausalFragment> causal_fragments2 = {  
         {{"small", 1, "n0"}, {"large", -1, "n1"}},
         {{"small", 1, "n1"}, {"large", -1, "n2"}},
-};
+  };
 
 
-    AnalysisGraph G = AnalysisGraph::from_causemos_json_file("../tests/data/delphi/causemos_create-model.json", 4);
-    FormattedProjectionResult proj = G.run_causemos_projection_experiment_from_json_file("../tests/data/delphi/causemos_experiments_projection_input.json",
-                                                          10,
-                                                          4);
+    AnalysisGraph G = AnalysisGraph::from_causemos_json_file(
+      "../tests/data/delphi/create_model_input_2.json", 4);
+    FormattedProjectionResult proj = G.run_causemos_projection_experiment_from_json_file(
+        "../tests/data/delphi/experiments_projection_input_2.json",
+        10,
+        4);
 
+
+  return(0);
     string result = G.serialize_to_json_string(false);
     G = AnalysisGraph::deserialize_from_json_string(result, false);
-    proj = G.run_causemos_projection_experiment_from_json_file("../tests/data/delphi/causemos_experiments_projection_input.json",
-                                                                                         10,
-                                                                                         4);
+    proj = G.run_causemos_projection_experiment_from_json_file(
+        "../tests/data/delphi/experiments_projection_input_2.json",
+        10,
+        4);
     string result2 = G.serialize_to_json_string(false);
 
     if (result.compare(result2) == 0){
@@ -54,7 +59,6 @@ int main(int argc, char* argv[]) {
     } else {
       cout << "\nDifferent\n";
     }
-    return(0);
 
     G.train_model(2020, 1, 2020, 12);
     result = G.serialize_to_json_string(false);
