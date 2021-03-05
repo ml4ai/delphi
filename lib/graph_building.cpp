@@ -202,7 +202,7 @@ void AnalysisGraph::remove_edges(vector<pair<string, string>> edges) {
                    if (src_id != -1 && tgt_id != -1) {
                      pair<int, int> edge_id = make_pair(src_id, tgt_id);
 
-                     if (in(this->beta2cell, edge_id)) {
+                     if (!in(this->beta2cell, edge_id)) {
                        src_id = -2;
                      }
                    }
