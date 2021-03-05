@@ -7,7 +7,6 @@
 #include <range/v3/all.hpp>
 #include <time.h>
 #include <limits.h>
-#include "dbg.h"
 
 using namespace std;
 using namespace delphi::utils;
@@ -320,6 +319,135 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
     }
 }
 
+void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data,
+                                            double belief_score_cutoff,
+                                            double grounding_score_cutoff) {
+
+  this->causemos_call = true;
+
+  // TODO: If model id is not present, we might want to not create the model
+  // and send a failure response. At the moment we just create a blank model,
+  // which could lead to future bugs that are hard to debug.
+  if (json_data["id"].is_null()){return;}
+  this->id = json_data["id"].get<string>();
+
+  auto statements = json_data["statements"];
+
+  for (auto stmt : statements) {
+    if (stmt["belief"].is_null() or
+        stmt["belief"].get<double>() < belief_score_cutoff) {
+      continue;
+    }
+
+    auto evidence = stmt["evidence"];
+
+    if (evidence.is_null()) {
+      continue;
+    }
+
+    auto subj = stmt["subj"];
+    auto obj = stmt["obj"];
+
+    if (subj.is_null() or obj.is_null()) {
+      continue;
+    }
+
+    auto subj_score_json = subj["concept_score"];
+    auto obj_score_json = obj["concept_score"];
+
+    if (subj_score_json.is_null() or obj_score_json.is_null()) {
+      continue;
+    }
+
+    double subj_score = subj_score_json.get<double>();
+    double obj_score = obj_score_json.get<double>();
+
+    if (subj_score < grounding_score_cutoff or
+        obj_score < grounding_score_cutoff) {
+      continue;
+    }
+
+    auto subj_concept_json = subj["concept"];
+    auto obj_concept_json = obj["concept"];
+
+    if (subj_concept_json.is_null() or obj_concept_json.is_null()) {
+      continue;
+    }
+
+    string subj_name = subj_concept_json.get<string>();
+    string obj_name = obj_concept_json.get<string>();
+
+    if (subj_name.compare(obj_name) == 0) { // Guard against self loops
+      // Add the nodes to the graph if they are not in it already
+      continue;
+    }
+
+    this->add_node(subj_name);
+    this->add_node(obj_name);
+
+    // Add the edge to the graph if it is not in it already
+    for (auto evid : evidence) {
+      if (evid["evidence_context"].is_null()) {
+        continue;
+      }
+
+      auto evid_context = evid["evidence_context"];
+
+      auto subj_polarity_json = evid_context["subj_polarity"];
+      auto obj_polarity_json = evid_context["obj_polarity"];
+
+      // We set polarities to 1 (positive) by default if they are not specified.
+      int subj_polarity_val = 1;
+      int obj_polarity_val = 1;
+      if (!subj_polarity_json.is_null()) {
+        subj_polarity_val = subj_polarity_json.get<int>();
+      }
+
+      if (!obj_polarity_json.is_null()) {
+        obj_polarity_val = obj_polarity_json.get<int>();
+      }
+
+      auto subj_adjectives_json = evid_context["subj_adjectives"];
+      auto obj_adjectives_json = evid_context["obj_adjectives"];
+
+      vector<string> subj_adjectives{"None"};
+      vector<string> obj_adjectives{"None"};
+
+      if(!subj_adjectives_json.is_null()){
+        if(subj_adjectives_json.size() > 0){
+          subj_adjectives = subj_adjectives_json.get<vector<string>>();
+        }
+      }
+
+      if(!obj_adjectives_json.is_null()){
+        if(obj_adjectives_json.size() > 0){
+          obj_adjectives = obj_adjectives_json.get<vector<string>>();
+        }
+      }
+
+      auto causal_fragment =
+          CausalFragment({subj_adjectives[0], subj_polarity_val, subj_name},
+                         {obj_adjectives[0], obj_polarity_val, obj_name});
+      this->add_edge(causal_fragment);
+    }
+  }
+
+  if (json_data["conceptIndicators"].is_null()) {
+    // No indicator data provided.
+    // TODO: What is the best action here?
+    //throw runtime_error("No indicator information provided");
+    // Maybe this is acceptable since there is another call: edit-indicators,
+    // which is not yet implemented. An analyst can create a CAG structure
+    // without any indicators and then later attach indicators one by one.
+  } else {
+    this->set_observed_state_sequence_from_json_dict(json_data["conceptIndicators"]);
+  }
+
+  this->initialize_random_number_generator();
+  this->construct_theta_pdfs();
+  this->to_png("causemos_CAG.png");
+}
+
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                       create-experiment (private)
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -505,135 +633,25 @@ Public: Integration with Uncharted's CauseMos interface
                           create-model (public)
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data) {
-
-  this->causemos_call = true;
-
-  // TODO: If model id is not present, we might want to not create the model
-  // and send a failure response. At the moment we just create a blank model,
-  // which could lead to future bugs that are hard to debug.
-  if (json_data["id"].is_null()){return;}
-  this->id = json_data["id"].get<string>();
-
-  auto statements = json_data["statements"];
-
-  for (auto stmt : statements) {
-    auto evidence = stmt["evidence"];
-
-    if (evidence.is_null()) {
-      continue;
-    }
-
-    auto subj = stmt["subj"];
-    auto obj = stmt["obj"];
-
-    if (subj.is_null() or obj.is_null()) {
-      continue;
-    }
-
-    auto subj_concept_json = subj["concept"];
-    auto obj_concept_json = obj["concept"];
-
-    if (subj_concept_json.is_null() or obj_concept_json.is_null()) {
-      continue;
-    }
-
-    string subj_name = subj_concept_json.get<string>();
-    string obj_name = obj_concept_json.get<string>();
-
-    if (subj_name.compare(obj_name) == 0) { // Guard against self loops
-      // Add the nodes to the graph if they are not in it already
-      continue;
-    }
-
-    this->add_node(subj_name);
-    this->add_node(obj_name);
-
-    // Add the edge to the graph if it is not in it already
-    for (auto evid : evidence) {
-      if (evid["evidence_context"].is_null()) {
-        continue;
-      }
-
-      auto evid_context = evid["evidence_context"];
-
-      auto subj_polarity_json = evid_context["subj_polarity"];
-      auto obj_polarity_json = evid_context["obj_polarity"];
-
-      // We set polarities to 1 (positive) by default if they are not specified.
-      int subj_polarity_val = 1;
-      int obj_polarity_val = 1;
-      if (!subj_polarity_json.is_null()) {
-        subj_polarity_val = subj_polarity_json.get<int>();
-      }
-
-      if (!obj_polarity_json.is_null()) {
-        obj_polarity_val = obj_polarity_json.get<int>();
-      }
-
-      auto subj_adjectives_json = evid_context["subj_adjectives"];
-      auto obj_adjectives_json = evid_context["obj_adjectives"];
-
-      vector<string> subj_adjectives{"None"};
-      vector<string> obj_adjectives{"None"};
-
-      if(!subj_adjectives_json.is_null()){
-        if(subj_adjectives_json.size() > 0){
-          subj_adjectives = subj_adjectives_json.get<vector<string>>();
-        }
-      }
-
-      if(!obj_adjectives_json.is_null()){
-        if(obj_adjectives_json.size() > 0){
-          obj_adjectives = obj_adjectives_json.get<vector<string>>();
-        }
-      }
-
-      auto causal_fragment =
-          CausalFragment({subj_adjectives[0], subj_polarity_val, subj_name},
-                         {obj_adjectives[0], obj_polarity_val, obj_name});
-      this->add_edge(causal_fragment);
-      dbg(subj_name);
-      dbg(subj_polarity_val);
-      dbg(subj_adjectives);
-      dbg(obj_name);
-      dbg(obj_polarity_val);
-      dbg(obj_adjectives);
-      cout << subj_adjectives[0] << endl;
-    }
-  }
-
-  if (json_data["conceptIndicators"].is_null()) {
-      // No indicator data provided.
-      // TODO: What is the best action here?
-      //throw runtime_error("No indicator information provided");
-      // Maybe this is acceptable since there is another call: edit-indicators,
-      // which is not yet implemented. An analyst can create a CAG structure
-      // without any indicators and then later attach indicators one by one.
-  } else {
-      this->set_observed_state_sequence_from_json_dict(json_data["conceptIndicators"]);
-  }
-
-  this->initialize_random_number_generator();
-  this->construct_theta_pdfs();
-  this->to_png("causemos_CAG.png");
-}
-
-AnalysisGraph AnalysisGraph::from_causemos_json_string(string json_string, size_t res) {
+AnalysisGraph AnalysisGraph::from_causemos_json_string(string json_string, size_t res,
+                                                       double belief_score_cutoff,
+                                                       double grounding_score_cutoff) {
   AnalysisGraph G;
   G.set_res(res);
 
   auto json_data = nlohmann::json::parse(json_string);
-  G.from_causemos_json_dict(json_data);
+  G.from_causemos_json_dict(json_data, belief_score_cutoff, grounding_score_cutoff);
   return G;
 }
 
-AnalysisGraph AnalysisGraph::from_causemos_json_file(string filename, size_t res) {
+AnalysisGraph AnalysisGraph::from_causemos_json_file(string filename, size_t res,
+                                                     double belief_score_cutoff,
+                                                     double grounding_score_cutoff) {
   AnalysisGraph G;
   G.set_res(res);
 
   auto json_data = load_json(filename);
-  G.from_causemos_json_dict(json_data);
+  G.from_causemos_json_dict(json_data, belief_score_cutoff, grounding_score_cutoff);
   return G;
 }
 

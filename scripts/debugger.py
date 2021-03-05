@@ -66,7 +66,7 @@ def curate_indicators(G):
 
 def create_base_CAG(causemos_create_model, res = 4):
     if causemos_create_model:
-        G = AnalysisGraph.from_causemos_json_file(causemos_create_model, res);
+        G = AnalysisGraph.from_causemos_json_file(causemos_create_model, res)
     else:
         statements = [
             (
