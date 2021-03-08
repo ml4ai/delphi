@@ -8,6 +8,10 @@
 #include <sqlite3.h>
 #include <range/v3/all.hpp>
 #include "DatabaseHelper.hpp"
+#include <boost/graph/graph_traits.hpp>
+#include <boost/uuid/uuid.hpp>            // uuid class
+#include <boost/uuid/uuid_generators.hpp> // generators
+#include <boost/uuid/uuid_io.hpp>         // streaming operators etc.
 
 
 
@@ -64,7 +68,6 @@ void testcase_Database_Update(Database* sqlite3DB)
 
 
 
-//// Todo: Database call handling
 //class DelphiModel(){
 //    public:
 //        string __tablename__;
@@ -83,7 +86,7 @@ void testcase_Database_Update(Database* sqlite3DB)
 
 
 
-class CauseMosAsyncExperimentResult(ExperimentResult){
+class CauseMosAsyncExperimentResult{
     /* Placeholder docstring for class CauseMosAsyncExperimentResult. */
     public:
         string id;
@@ -122,52 +125,48 @@ int main(int argc, const char *argv[])
     // drop test rows from delphi.db
 
     //======================App=================================================    
-
-
-// 1st working
-
     served::multiplexer mux;
+
+
     mux.handle("/delphi/create-model")
-        .post([&sqlite3DB](served::response & res, const served::request & req) {
-            auto json_data = nlohmann::json::parse(req.body());
-            std::cout << "POST req: " << json_data << std::endl;
-            size_t result = 1000;
-            //const char* env_p = ;
-
-            //Todo
-            //string ci();
-            size_t DELPHI_N_SAMPLES;
+        .post([&sqlite3DB](served::response & response, const served::request & req) {
+            nlohmann::json json_data = nlohmann::json::parse(req.body());
+            size_t res = 1000;
             if(getenv("CI")) 
-                result = 5;
+                res = 5;
             else if (getenv("DELPHI_N_SAMPLES")) {
-                DELPHI_N_SAMPLES((size_t)stoul(getenv("DELPHI_N_SAMPLES")));
-                result = DELPHI_N_SAMPLES;
+                res = (size_t)stoul(getenv("DELPHI_N_SAMPLES"));
             }
-            std::cout << "DELPHI_N_SAMPLES: " << DELPHI_N_SAMPLES << std::endl;
 
-            ////AnalysisGraph G = AnalysisGraph::from_causemos_json_string(json_data, result);
+            AnalysisGraph G;
+            G.set_res(res);
+            G.from_causemos_json_dict(json_data);
 
-            string id = "123";
-            string model = "TEST";
-
-            cout << "Before Insert" << endl;
-            sqlite3DB->Database_InsertInto_delphimodel(id, model);
-            ////sqlite3DB->Database_InsertInto_delphimodel(json_data["id"], G.serialize_to_json_string(false));
-            cout << "After Insert" << endl;
-
+            sqlite3DB->Database_InsertInto_delphimodel(json_data["id"], G.serialize_to_json_string(false));
 
             //res <<  nlohmann::json::parse(G.generate_create_model_response());
-            res << json_data.dump();
+            response << json_data;
         });
 
 
+
 // 2nd createCausemosExperiment
-    mux.handle("/delphi/models/<modelID>/experiments")
+    mux.handle("/delphi/models/{modelID}/experiments")
         .post([&sqlite3DB](served::response & res, const served::request & req) {
             auto request_body = nlohmann::json::parse(req.body());
+            string modelID = req.params["modelID"];
 
             string experiment_type = request_body["experimentType"]; //??
-            string experiment_id = str(uuid4());
+            boost::uuids::uuid uuid = boost::uuids::random_generator()(); // todo: error: no member named 'uuids' in namespace 'boost'
+            string experiment_id = to_string(uuid);
+
+            cout << "Before Insert" << endl;
+            //string experiment_id = "123";
+            // TODO:  add not update check
+            sqlite3DB->Database_InsertInto_causemosasyncexperimentresult(experiment_id, "in progress", experiment_type, "");
+            cout << "After Insert" << endl;
+
+
         });
 
 
@@ -175,7 +174,8 @@ int main(int argc, const char *argv[])
 
 
     std::cout << "Try this example with:" << std::endl;
-    std::cout << "curl -X POST \"http://localhost:8123/delphi/create-model\" -d @test.json --header \"Content-Type: application/json\" " << std::endl;
+    std::cout << "curl -X POST \"http://localhost:8123/delphi/create-model\" -d @delphi/tests/data/delphi/causemos_create-model.json --header \"Content-Type: application/json\" " << std::endl;
+    std::cout << "curl -X POST \"http://localhost:8123/delphi/models/modelID/experiments\" -d @test.json --header \"Content-Type: application/json\" " << std::endl;
 
     served::net::server server("127.0.0.1", "8123", mux);
     server.run(10);
@@ -183,6 +183,7 @@ int main(int argc, const char *argv[])
     return (EXIT_SUCCESS);
 }
 
+/*
 
 
 // 4th check datatypes
@@ -203,7 +204,6 @@ void runProjectionExperiment(const served::request & request, string modelID, st
     if(not trained){
         //model = DelphiModel(modelID, G.serialize_to_json_string(false));
 
-        // Todo: db
         //db.session.merge(model)
         //db.session.commit()
 
@@ -212,13 +212,12 @@ void runProjectionExperiment(const served::request & request, string modelID, st
         sqlite3DB->Database_InsertInto_delphimodel(modelID, G.serialize_to_json_string(false));
     }
 
-    // todo ??????
+    // created causemosasyncexperimentresult class
     //result = CauseMosAsyncExperimentResult.query.filter_by(
     //    id=experiment_id
     //).first()
     vector<string> matches = sqlite3DB->Database_Read_ColumnText_Wrapper("causemosasyncexperimentresult", ,"id", experiment_id);
 
-    /// TODO!!!!!!!!!!
 
     vector<vector<vector<double>>> formattedProjectionTimestepSample;
     for (const auto & [ key, value ] : causemos_experiment_result) {
@@ -248,7 +247,7 @@ void runProjectionExperiment(const served::request & request, string modelID, st
         unordered_map<string, vector<string>> res_data; // vector<string> datatype ???
         res_data["data"] = {};
         
-        result.results = res_data; // todo 
+        result.results = res_data; 
 
         for (const auto & [ conceptname, timestamp_sample_matrix ] : causemos_experiment_result) {
             json data_dict;
@@ -279,20 +278,76 @@ void runProjectionExperiment(const served::request & request, string modelID, st
                 value_dict["value"] = upper_limit;
                 data_dict["confidenceInterval"]["upper"].push_back(value_dict);
             }
-            result.results["data"].push_back(data_dict); // todo ?
+            result.results["data"].push_back(data_dict); 
         }
     }
 
     // result = CauseMosAsyncExperimentResult
     // db.session.merge: update in already, else insert
 
-    // todo
     //db.session.merge(result)
     //db.session.commit()
 
 }
 
-
+*/
 
 // 3rd runExperiment
+void runExperiment(const served::request & request, string modelID, string experiment_id, bool trained){
+    auto request_body = nlohmann::json::parse(request.body());
+    string experiment_type = request_body["experimentType"]; 
+
+
+    ////query_result = DelphiModel.query.filter_by(id=modelID).first()
+
+    if(query_result.empty()){
+        // Model ID not in database. Should be an incorrect model ID
+        result = CauseMosAsyncExperimentResult.query.filter_by(
+            id=experiment_id
+        ).first()
+        result.status = "failed"
+        db.session.merge(result)
+        db.session.commit()
+        return
+    }
+
+    model = query_result.model
+    trained = request_body["trained"];
+    AnalysisGraph G;
+    G = G.deserialize_from_json_string(model, false);
+
+    if(experiment_type == "PROJECTION")
+        runProjectionExperiment(request, modelID, experiment_id, G, trained);
+    else if(experiment_type == "GOAL_OPTIMIZATION")
+        // Not yet implemented
+    else if( experiment_type == "SENSITIVITY_ANALYSIS")
+        // Not yet implemented
+    else if( experiment_type == "MODEL_VALIDATION")
+        // Not yet implemented
+    else if( experiment_type == "BACKCASTING")
+        // Not yet implemented
+    else
+        // Unknown experiment type
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+Todo
+Remove done from api.py
+
+*/
+
  

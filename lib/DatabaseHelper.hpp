@@ -40,6 +40,8 @@ class Database {
 
     void Database_InsertInto_delphimodel(std::string id, std::string model);
 
+    void Database_InsertInto_causemosasyncexperimentresult(std::string id, std::string status, std::string experimentType, std::string results);
+
     void Database_Update(std::string table_name, std::string column_name, std::string value, std::string where_column_name, std::string where_value);
 
     void Database_Drop_Table(std::string database_name);

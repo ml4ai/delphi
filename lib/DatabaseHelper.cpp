@@ -85,8 +85,13 @@ void Database::Database_Create(){
 	//
 	 
 	
+/*
+		
 
+CREATE TABLE causemosasyncexperimentresult ( id TEXT PRIMARY KEY, status TEXT, experimentType TEXT, results TEXT, FOREIGN KEY (id)  REFERENCES experimentresult (id) ON DELETE CASCADE  ON UPDATE NO ACTION );
+	
 
+	*/
 }
 
 
@@ -127,6 +132,15 @@ void Database::Database_Insert(string insert_query){
 
 void Database::Database_InsertInto_delphimodel(string id, string model){
 	string query = "INSERT INTO delphimodel ('id', 'model') VALUES ('"+ id +"', '"+ model +"');";
+    this->Database_Insert(query);
+    
+    //query = "SELECT Source from concept_to_indicator_mapping WHERE Indicator = 'TEST';";
+    //vector<string> matches = sqlite3DB->Database_Read_ColumnText(query);
+}
+
+
+void Database::Database_InsertInto_causemosasyncexperimentresult(string id, string status, string experimentType, string results){
+	string query = "INSERT INTO causemosasyncexperimentresult ('id', 'status', 'experimentType', 'results') VALUES ('"+ id +"', '"+ status +"', '"+ experimentType +"', '"+ results +"');";
     this->Database_Insert(query);
     
     //query = "SELECT Source from concept_to_indicator_mapping WHERE Indicator = 'TEST';";
