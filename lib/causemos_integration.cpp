@@ -446,13 +446,32 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann:
       }
     }
 
+    time_t start = time(0);
     this->run_train_model(res, burn, initial_beta, initial_derivative);
+    time_t end = time(0);
+    cout << "\n\n\t[test_rest_api.py->causemos_integration.cpp][run_causemos_projection_experiment] Time train_model : " << end - start << " sec" << endl;
 
+    start = time(0);
     this->extract_projection_constraints(projection_parameters["constraints"], skip_steps);
+    end = time(0);
+    cout << "\n\n\t[test_rest_api.py->causemos_integration.cpp][run_causemos_projection_experiment] Time extract_projection_constraints : " << end - start << " sec" << endl;
 
+    start = time(0);
     this->generate_latent_state_sequences(this->pred_start_timestep);
+    end = time(0);
+    cout << "\n\n\t[test_rest_api.py->causemos_integration.cpp][run_causemos_projection_experiment] Time generate_latent_state_sequences : " << end - start << " sec" << endl;
+
+    start = time(0);
     this->generate_observed_state_sequences();
-    return this->format_projection_result();
+    end = time(0);
+    cout << "\n\n\t[test_rest_api.py->causemos_integration.cpp][run_causemos_projection_experiment] Time generate_observed_state_sequences : " << end - start << " sec" << endl;
+
+    start = time(0);
+    FormattedProjectionResult fpresult = this->format_projection_result();
+    end = time(0);
+    cout << "\n\n\t[test_rest_api.py->causemos_integration.cpp][run_causemos_projection_experiment] Time format_projection_result : " << end - start << " sec" << endl;
+
+    return fpresult;
 }
 
 FormattedProjectionResult AnalysisGraph::format_projection_result() {
