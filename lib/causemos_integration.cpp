@@ -626,7 +626,10 @@ void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data) {
   }
 
   this->initialize_random_number_generator();
+  time_t start = time(0);
   this->construct_theta_pdfs();
+  time_t end = time(0);
+  cout << "\n\n\t[test_rest_api.py->causemos_integration.cpp][from_causemos_json_dict] construct_theta_pdfs : " << end - start << " sec" << endl;
 }
 
 AnalysisGraph AnalysisGraph::from_causemos_json_string(string json_string, size_t res) {
