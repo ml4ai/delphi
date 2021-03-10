@@ -5,6 +5,8 @@
 #include <sqlite3.h>
 #include <vector>
 #include <range/v3/all.hpp>
+#include <nlohmann/json.hpp>
+
 
 // DB class
 //conn to sqlite
@@ -35,6 +37,8 @@ class Database {
     std::vector<std::string> Database_Read_ColumnText_Query(std::string table_name, std::string column_name);
 
     std::vector<std::string> Database_Read_ColumnText_Query_Where(std::string table_name, std::string column_name, std::string where_column_name, std::string where_value);
+
+    nlohmann::json Database_Read_causemosasyncexperimentresult(std::string modelId);
 
     void Database_Insert(std::string insert_query);
 

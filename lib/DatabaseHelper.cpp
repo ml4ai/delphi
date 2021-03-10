@@ -1,7 +1,11 @@
 #include "DatabaseHelper.hpp"
 #include<iostream>
+#include <nlohmann/json.hpp>
+
 
 using namespace std;
+using json = nlohmann::json;
+
 
 // DB class
 //conn to sqlite
@@ -111,6 +115,7 @@ vector<string> Database::Database_Read_ColumnText(string query){
    	return matches;
 }
 
+
 vector<string> Database::Database_Read_ColumnText_Query(string table_name, string column_name){
 	string query = "SELECT "+ column_name +" from '"+ table_name +"' ;";
   	vector<string> matches = this->Database_Read_ColumnText(query);
@@ -123,6 +128,26 @@ vector<string> Database::Database_Read_ColumnText_Query_Where(string table_name,
   	vector<string> matches = this->Database_Read_ColumnText(query);
    	return matches;
 }
+
+
+json Database::Database_Read_causemosasyncexperimentresult(string modelId){
+  	json matches;
+  	sqlite3_stmt* stmt = nullptr;
+  	//const char **tail;
+  	string query = "SELECT TOP 1 * from causemosasyncexperimentresult WHERE id='"+modelId+"';";
+  	int rc =  sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
+  	//cout << SQLITE_ROW << endl;
+   	while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+   		matches["id"] = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
+   		matches["status"] = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
+   		matches["experimentType"] = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2)));
+   		matches["results"] = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3)));
+   	}
+   	sqlite3_finalize(stmt);
+   	stmt = nullptr;
+   	return matches;
+}
+
 
 void Database::Database_Insert(string insert_query){
 	char *zErrMsg = 0;

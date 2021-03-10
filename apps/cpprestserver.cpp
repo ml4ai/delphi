@@ -128,6 +128,7 @@ int main(int argc, const char *argv[])
     served::multiplexer mux;
 
 
+// done
     mux.handle("/delphi/create-model")
         .post([&sqlite3DB](served::response & response, const served::request & req) {
             nlohmann::json json_data = nlohmann::json::parse(req.body());
@@ -150,14 +151,14 @@ int main(int argc, const char *argv[])
 
 
 
-// 2nd createCausemosExperiment
+// done without async
     mux.handle("/delphi/models/{modelID}/experiments")
         .post([&sqlite3DB](served::response & res, const served::request & req) {
             auto request_body = nlohmann::json::parse(req.body());
             string modelID = req.params["modelID"];
 
             string experiment_type = request_body["experimentType"]; //??
-            boost::uuids::uuid uuid = boost::uuids::random_generator()(); // todo: error: no member named 'uuids' in namespace 'boost'
+            boost::uuids::uuid uuid = boost::uuids::random_generator()(); 
             string experiment_id = to_string(uuid);
 
             cout << "Before Insert" << endl;
@@ -166,16 +167,42 @@ int main(int argc, const char *argv[])
             sqlite3DB->Database_InsertInto_causemosasyncexperimentresult(experiment_id, "in progress", experiment_type, "");
             cout << "After Insert" << endl;
 
+            // Todo: thread and set obj in sstl to hold experiment ids (experiment_id) ids
+            //executor.submit_stored(experiment_id, runExperiment, request, modelID, experiment_id)
+            //return jsonify({"experimentId": experiment_id})
+
 
         });
 
 
+    mux.handle("/delphi/models/{modelID}/experiments/{experimentID}")
+        .get([&sqlite3DB](served::response & res, const served::request & req) {
+            
+            res << "done";
+        });
 
+/*
+    mux.handle("/delphi/models/{modelID}/experiments/{experimentID}")
+        .get([&sqlite3DB](served::response & res, const served::request & req) {
+            json result = sqlite3DB->Database_Read_causemosasyncexperimentresult(req.params["experimentID"]);
+            string experimentType, status, results;
+            if(!result.empty()){
+                // experimentID not in database. Should be an incorrect experimentID
+                result["experimentType"] = "UNKNOWN";
+                result["status"] = "invalid experiment id";
+                result["results"] = "";
+            }
 
+            res << result;
+        });
 
+*/
     std::cout << "Try this example with:" << std::endl;
     std::cout << "curl -X POST \"http://localhost:8123/delphi/create-model\" -d @delphi/tests/data/delphi/causemos_create-model.json --header \"Content-Type: application/json\" " << std::endl;
     std::cout << "curl -X POST \"http://localhost:8123/delphi/models/modelID/experiments\" -d @test.json --header \"Content-Type: application/json\" " << std::endl;
+    std::cout << "curl \"http://localhost:8123/delphi/models/modelID/experiments/d93b18a7-e2a3-4023-9f2f-06652b4bba66\" " << std::endl;
+    std::cout << "curl http://localhost:8123/delphi/models/modelID/experiments/d93b18a7-e2a3-4023-9f2f-06652b4bba66 " << std::endl;
+    std::cout << "curl http://localhost:8123/delphi/models/modelID/experiments/123 " << std::endl;
 
     served::net::server server("127.0.0.1", "8123", mux);
     server.run(10);
@@ -183,12 +210,13 @@ int main(int argc, const char *argv[])
     return (EXIT_SUCCESS);
 }
 
+
+
 /*
 
+// 4th check datatypes : test separately
 
-// 4th check datatypes
-
-void runProjectionExperiment(const served::request & request, string modelID, string experiment_id, AnalysisGraph G, bool trained){
+void runProjectionExperiment(Database* sqlite3DB, const served::request & request, string modelID, string experiment_id, AnalysisGraph G, bool trained){
     auto request_body = nlohmann::json::parse(request.body());
 
 
@@ -283,7 +311,7 @@ void runProjectionExperiment(const served::request & request, string modelID, st
     }
 
     // result = CauseMosAsyncExperimentResult
-    // db.session.merge: update in already, else insert
+    // db.session.merge: update if already, else insert
 
     //db.session.merge(result)
     //db.session.commit()
@@ -293,43 +321,49 @@ void runProjectionExperiment(const served::request & request, string modelID, st
 */
 
 // 3rd runExperiment
-void runExperiment(const served::request & request, string modelID, string experiment_id, bool trained){
+void runExperiment(Database* sqlite3DB, const served::request & request, string modelID, string experiment_id, bool trained){
     auto request_body = nlohmann::json::parse(request.body());
     string experiment_type = request_body["experimentType"]; 
 
 
     ////query_result = DelphiModel.query.filter_by(id=modelID).first()
+    json query_result = sqlite3DB->Database_Read_causemosasyncexperimentresult(modelID);
+
 
     if(query_result.empty()){
         // Model ID not in database. Should be an incorrect model ID
-        result = CauseMosAsyncExperimentResult.query.filter_by(
-            id=experiment_id
-        ).first()
-        result.status = "failed"
-        db.session.merge(result)
-        db.session.commit()
-        return
+        //result = CauseMosAsyncExperimentResult.query.filter_by(
+        //    id=experiment_id
+        //).first()
+        query_result = sqlite3DB->Database_Read_causemosasyncexperimentresult(experiment_id);
+        query_result["status"] = "failed";
+
+        //result.status = "failed"
+        //db.session.merge(result)
+        //db.session.commit()
+        sqlite3DB->Database_InsertInto_causemosasyncexperimentresult(query_result["id"], query_result["status"], query_result["experimentType"], query_result["results"]);
+        return;
     }
 
-    model = query_result.model
-    trained = request_body["trained"];
+    model = query_result.model   // Todo: no .model in query_result
+    string trained = request_body["trained"];
     AnalysisGraph G;
-    G = G.deserialize_from_json_string(model, false);
+    //G = G.deserialize_from_json_string(model, false);
+    G.from_delphi_json_dict(model, false);
 
     if(experiment_type == "PROJECTION")
-        runProjectionExperiment(request, modelID, experiment_id, G, trained);
+        runProjectionExperiment(sqlite3DB, request, modelID, experiment_id, G, trained);
     else if(experiment_type == "GOAL_OPTIMIZATION")
-        // Not yet implemented
+        ;// Not yet implemented
     else if( experiment_type == "SENSITIVITY_ANALYSIS")
-        // Not yet implemented
+        ;// Not yet implemented
     else if( experiment_type == "MODEL_VALIDATION")
-        // Not yet implemented
+        ;// Not yet implemented
     else if( experiment_type == "BACKCASTING")
-        // Not yet implemented
+        ;// Not yet implemented
     else
-        // Unknown experiment type
+        ;// Unknown experiment type
 }
-
 
 
 
@@ -347,6 +381,7 @@ void runExperiment(const served::request & request, string modelID, string exper
 /*
 Todo
 Remove done from api.py
+check db.add vs db.merge
 
 */
 
