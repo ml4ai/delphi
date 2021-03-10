@@ -174,7 +174,7 @@ int main(int argc, const char *argv[])
 
         });
 
-
+    // if i do a post instead of get here, then it calls above function, basically truncating the 2nd parameter
     mux.handle("/delphi/models/{modelID}/experiments/{experimentID}")
         .get([&sqlite3DB](served::response & res, const served::request & req) {
             
@@ -318,7 +318,6 @@ void runProjectionExperiment(Database* sqlite3DB, const served::request & reques
 
 }
 
-*/
 
 // 3rd runExperiment
 void runExperiment(Database* sqlite3DB, const served::request & request, string modelID, string experiment_id, bool trained){
@@ -369,6 +368,7 @@ void runExperiment(Database* sqlite3DB, const served::request & request, string 
 
 
 
+*/
 
 
 
