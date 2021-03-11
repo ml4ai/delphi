@@ -73,10 +73,11 @@ void AnalysisGraph::print_latent_state(const Eigen::VectorXd& v) {
 void AnalysisGraph::print_all_paths() {
   int num_verts = this->num_vertices();
 
-  if (this->A_beta_factors.size() != num_verts ||
-      this->A_beta_factors[0].size() != num_verts) {
-    this->find_all_paths();
-  }
+//  if (this->A_beta_factors.size() != num_verts ||
+//      this->A_beta_factors[0].size() != num_verts) {
+//    this->find_all_paths();
+//  }
+  this->find_all_paths();
 
   cout << "All the simple paths of:" << endl;
 

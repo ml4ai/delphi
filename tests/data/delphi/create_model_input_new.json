@@ -1,0 +1,97 @@
+{
+    "conceptIndicators": {
+        "wm_compositional/concept/health/disease/COVID": {
+            "maxValue": 1,
+            "minValue": 0,
+            "numLevels": 31,
+            "values": []
+        },
+        "wm_compositional/process/medical/quarantine": {
+            "maxValue": 1,
+            "minValue": 0,
+            "numLevels": 31,
+            "values": []
+        }
+    },
+    "id": "499a18a7-c2b3-42aa-822d-22db4ce6c775",
+    "statements": [
+        {
+            "belief": 0.7053,
+            "evidence": [
+                {
+                    "document_context": {
+                        "analysis": null,
+                        "author": "Jordi Casafont Torra",
+                        "doc_id": "b94ae21da377be21aae54a1c8679490e",
+                        "document_source": "BackgroundSource",
+                        "file_type": "application/pdf",
+                        "publication_date": {
+                            "date": "2020-04-24",
+                            "day": 24,
+                            "month": 4,
+                            "year": 2020
+                        },
+                        "publisher_name": "",
+                        "title": ""
+                    },
+                    "evidence_context": {
+                        "agents_text": [
+                            "14-day quarantine",
+                            "spread of COVID-19"
+                        ],
+                        "contradiction_words": [],
+                        "hedging_words": [],
+                        "obj_adjectives": ["small", "tiney", "minute"],
+                        "obj_polarity": -1,
+                        "source_api": "eidos",
+                        "source_hash": 4576343781242926000,
+                        "subj_adjectives": ["large", "huge"],
+                        "subj_polarity": 0,
+                        "text": "Current facilities to sustain the 14-day quarantine to prevent the spread of COVID-19 are stretched ."
+                    }
+                }
+            ],
+            "id": "8643590b-7aa4-4b3b-a675-5ae74f58e0de",
+            "modified_at": 1612812779000,
+            "obj": {
+                "adjectives": [],
+                "concept": "wm_compositional/concept/health/disease/COVID",
+                "concept_score": 1,
+                "factor": "COVID",
+                "geo_context": {},
+                "polarity": -1,
+                "process": "",
+                "process_property": "",
+                "theme": "wm_compositional/concept/health/disease/COVID",
+                "theme_property": "",
+                "time_context": {
+                    "end": {
+                        "date": "2020-04-25",
+                        "day": 25,
+                        "month": 4,
+                        "year": 2020
+                    },
+                    "start": {
+                        "date": "2020-04-24",
+                        "day": 24,
+                        "month": 4,
+                        "year": 2020
+                    }
+                }
+            },
+            "subj": {
+                "adjectives": [],
+                "concept": "wm_compositional/process/medical/quarantine",
+                "concept_score": 1,
+                "factor": "quarantine",
+                "geo_context": {},
+                "polarity": 1,
+                "process": "",
+                "process_property": "",
+                "theme": "wm_compositional/process/medical/quarantine",
+                "theme_property": "",
+                "time_context": {}
+            }
+        }
+    ]
+}

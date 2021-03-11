@@ -538,6 +538,11 @@ class AnalysisGraph {
   void
   set_observed_state_sequence_from_json_dict(const nlohmann::json &json_indicators);
 
+  /** Construct an AnalysisGraph object from JSON exported by CauseMos. */
+  void from_causemos_json_dict(const nlohmann::json &json_data,
+                               double belief_score_cutoff,
+                               double grounding_score_cutoff);
+
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                           create-experiment
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -1067,16 +1072,17 @@ class AnalysisGraph {
                             create-model
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-  /** Construct an AnalysisGraph object from JSON exported by CauseMos. */
-  void from_causemos_json_dict(const nlohmann::json &json_data);
-
   /** Construct an AnalysisGraph object from a JSON string exported by CauseMos.
    */
-  static AnalysisGraph from_causemos_json_string(std::string json_string, size_t res);
+  static AnalysisGraph from_causemos_json_string(std::string json_string, size_t res,
+                                                 double belief_score_cutoff = 0,
+                                                 double grounding_score_cutoff = 0);
 
   /** Construct an AnalysisGraph object from a file containing JSON data from
    * CauseMos. */
-  static AnalysisGraph from_causemos_json_file(std::string filename, size_t res);
+  static AnalysisGraph from_causemos_json_file(std::string filename, size_t res,
+                                               double belief_score_cutoff = 0,
+                                               double grounding_score_cutoff = 0);
 
   /**
    * Generate the response for the create model request from the HMI.

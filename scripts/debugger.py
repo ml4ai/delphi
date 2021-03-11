@@ -66,7 +66,7 @@ def curate_indicators(G):
 
 def create_base_CAG(causemos_create_model, res = 4):
     if causemos_create_model:
-        G = AnalysisGraph.from_causemos_json_file(causemos_create_model, res);
+        G = AnalysisGraph.from_causemos_json_file(causemos_create_model, res)
     else:
         statements = [
             (
@@ -104,9 +104,9 @@ if __name__ == "__main__":
          "../tests/data/delphi/experiments_projection_input_2.json"],
         ["../tests/data/delphi/create_model_input_2_partial_data.json", # 6. Partial data
          "../tests/data/delphi/experiments_projection_input_2.json"],
-        ["../tests/data/delphi/causemos_create-model_nodata.json",      # 7. No data another model
-         "../tests/data/delphi/experiments_projection_input_2.json"],
-        ["../tests/data/delphi/causemos_create-model.json",             # 8. Usual test data
+        ["../tests/data/delphi/create_model_input_new.json",            # 7. Updated create model format
+         ""],
+        ["../tests/data/delphi/causemos_create.json",                   # 8. Oldest test data
          "../tests/data/delphi/causemos_experiments_projection_input.json"],
     ]
 
@@ -119,7 +119,7 @@ if __name__ == "__main__":
 
     draw_CAG(G, 'plot_testing_CAG.png')
 
-    
+
     print('\nTraining Model')
     try:
         preds = G.run_causemos_projection_experiment_from_json_file(

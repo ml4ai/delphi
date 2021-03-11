@@ -32,10 +32,7 @@ bool AnalysisGraph::add_edge(CausalFragment causal_fragment) {
     this->add_node(subj_name);
     this->add_node(obj_name);
 
-    // Add the edge to the graph if it is not in it already
-    auto [e, exists] = boost::add_edge(this->name_to_vertex[subj_name],
-                                       this->name_to_vertex[obj_name],
-                                       this->graph);
+    auto [e, exists] = this->add_edge(subj_name, obj_name);
     this->graph[e].evidence.push_back(Statement{subject, object});
 
     return true;
@@ -61,10 +58,8 @@ void AnalysisGraph::add_edge(CausalFragmentCollection causal_fragments) {
     this->add_node(subj_name);
     this->add_node(obj_name);
 
-    // Add the edge to the graph if it is not in it already
-    auto [e, exists] = boost::add_edge(this->name_to_vertex[subj_name],
-                                       this->name_to_vertex[obj_name],
-                                       this->graph);
+    auto [e, exists] = this->add_edge(subj_name, obj_name);
+
     string subject_adj;
     string object_adj ;
     int subject_pol;
@@ -98,22 +93,30 @@ void AnalysisGraph::add_edge(CausalFragmentCollection causal_fragments) {
 }
 
 pair<EdgeDescriptor, bool> AnalysisGraph::add_edge(int source, int target) {
-  return boost::add_edge(source, target, this->graph);
+  // In Boost Graph Library, we are using vecS as the OutEdgeList,
+  // So, we have to check whether an edge exists from source to target before
+  // adding to prevent adding multiple edges between them in the same direction.
+  pair<EdgeDescriptor, bool> edge = boost::edge(source, target, this->graph);
+
+  if (!edge.second) {
+    edge = boost::add_edge(source, target, this->graph);
+  }
+
+  return edge;
 }
 
 pair<EdgeDescriptor, bool> AnalysisGraph::add_edge(int source, string target) {
-  return boost::add_edge(source, this->get_vertex_id(target), this->graph);
+  return this->add_edge(source, this->get_vertex_id(target));
 }
 
 pair<EdgeDescriptor, bool> AnalysisGraph::add_edge(string source, int target) {
-  return boost::add_edge(this->get_vertex_id(source), target, this->graph);
+  return this->add_edge(this->get_vertex_id(source), target);
 }
 
 pair<EdgeDescriptor, bool> AnalysisGraph::add_edge(string source,
                                                    string target) {
-  return boost::add_edge(this->get_vertex_id(source),
-                         this->get_vertex_id(target),
-                         this->graph);
+  return this->add_edge(this->get_vertex_id(source),
+                         this->get_vertex_id(target));
 }
 
 /*
@@ -202,7 +205,7 @@ void AnalysisGraph::remove_edges(vector<pair<string, string>> edges) {
                    if (src_id != -1 && tgt_id != -1) {
                      pair<int, int> edge_id = make_pair(src_id, tgt_id);
 
-                     if (in(this->beta2cell, edge_id)) {
+                     if (!in(this->beta2cell, edge_id)) {
                        src_id = -2;
                      }
                    }

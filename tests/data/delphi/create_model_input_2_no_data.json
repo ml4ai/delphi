@@ -2,99 +2,90 @@
     "id": "XYZ1606327881",
     "statements": [
         {
-            "belief": 1,
-            "evidence": [],
             "id": "0",
-            "type": "Influence",
+            "belief": 1,
+            "evidence": [
+                {
+                    "evidence_context": {
+                        "subj_adjectives": ["impressive"],
+                        "subj_polarity": 1,
+                        "obj_adjectives": ["micro"],
+                        "obj_polarity": 1,
+                        "text": "a impressive increase in rainfall causes a micro change in food prices"
+                    }
+                }
+            ],
             "subj": {
-                "db_refs": {
-                    "TEXT": "a impressive increase in rainfall",
-                    "concept": "a"
-                },
-                "name": "a"
-            },
-            "subj_delta": {
-                "adjectives": [
-                    "impressive"
-                ],
-                "polarity": 1
+                "adjectives": [],
+                "concept": "a",
+                "concept_score": 1,
+                "polarity": 1,
+                "theme": "a"
             },
             "obj": {
-                "db_refs": {
-                    "TEXT": "micro change in food prices",
-                    "concept": "b"
-                },
-                "name": "b"
-            },
-            "obj_delta": {
-                "adjectives": [
-                    "micro"
-                ],
-                "polarity": 1
+                "adjectives": [],
+                "concept": "b",
+                "concept_score": 1,
+                "polarity": 1,
+                "theme": "b"
             }
         },
         {
-            "belief": 1,
-            "evidence": [],
             "id": "1",
-            "type": "Influence",
+            "belief": 1,
+            "evidence": [
+                {
+                    "evidence_context": {
+                        "subj_adjectives": ["giant"],
+                        "subj_polarity": 1,
+                        "obj_adjectives": ["significant"],
+                        "obj_polarity": 1,
+                        "text": "a giant increase in rainfall results a significant change in food prices"
+                    }
+                }
+            ],
             "subj": {
-                "db_refs": {
-                    "TEXT": "a giant increase in rainfall",
-                    "concept": "c"
-                },
-                "name": "c"
-            },
-            "subj_delta": {
-                "adjectives": [
-                    "giant"
-                ],
-                "polarity": 1
+                "adjectives": [],
+                "concept": "c",
+                "concept_score": 1,
+                "polarity": 1,
+                "theme": "c"
             },
             "obj": {
-                "db_refs": {
-                    "TEXT": "significant change in food prices",
-                    "concept": "a"
-                },
-                "name": "a"
-            },
-            "obj_delta": {
-                "adjectives": [
-                    "significant"
-                ],
-                "polarity": 1
+                "adjectives": [],
+                "concept": "a",
+                "concept_score": 1,
+                "polarity": 1,
+                "theme": "a"
             }
         },
         {
-            "belief": 1,
-            "evidence": [],
             "id": "2",
-            "type": "Influence",
+            "belief": 1,
+            "evidence": [
+                {
+                    "evidence_context": {
+                        "subj_adjectives": ["considerable"],
+                        "subj_polarity": 1,
+                        "obj_adjectives": ["considerable"],
+                        "obj_polarity": -1,
+                        "text": "a considerable increase in rainfall leads to a considerable change in food prices"
+                    }
+                }
+            ],
             "subj": {
-                "db_refs": {
-                    "TEXT": "a considerable increase in rainfall",
-                    "concept": "c"
-                },
-                "name": "c"
-            },
-            "subj_delta": {
-                "adjectives": [
-                    "considerable"
-                ],
-                "polarity": 1
+                "adjectives": [],
+                "concept": "c",
+                "concept_score": 1,
+                "polarity": 1,
+                "theme": "c"
             },
             "obj": {
-                "db_refs": {
-                    "TEXT": "considerable change in food prices",
-                    "concept": "b"
-                },
-                "name": "b"
-            },
-            "obj_delta": {
-                "adjectives": [
-                    "considerable"
-                ],
-                "polarity": -1
+                "adjectives": [],
+                "concept": "b",
+                "concept_score": 1,
+                "polarity": -1,
+                "theme": "b"
             }
         }
     ],
