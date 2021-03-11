@@ -667,12 +667,11 @@ string AnalysisGraph::generate_create_model_response() {
     j["status"] = "success";
     j["relations"] = {};
     j["conceptIndicators"] = {};
-    vector<double> all_weights = {};
 
     for (auto e : this->edges()) {
         json edge_json = {{"source", this->source(e).name},
                           {"target", this->target(e).name},
-                          {"weight", 0.5}};
+                          {"weights", vector<double>{0.5}}};
 
         j["relations"].push_back(edge_json);
     }
