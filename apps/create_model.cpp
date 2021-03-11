@@ -25,7 +25,7 @@ void test_simple_path_construction() {
 
   G.add_edge({{"", 1, "c0"}, {"", 1, "c1"}});
   G.add_edge({{"", 1, "c1"}, {"", 1, "c2"}});
-  G.add_edge({{"", 1, "c0"}, {"", 1, "c2"}});
+  G.add_edge({{"", 1, "c2"}, {"", 1, "c3"}});
   // Creates a loop 1->2->3->1
   G.add_edge({{"", 1, "c3"}, {"", 1, "c1"}});
 

@@ -445,7 +445,7 @@ void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data,
 
   this->initialize_random_number_generator();
   this->construct_theta_pdfs();
-  this->to_png("causemos_CAG.png");
+  RNG::release_instance();
 }
 
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
