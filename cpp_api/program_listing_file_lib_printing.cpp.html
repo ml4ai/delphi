@@ -243,10 +243,11 @@
 <span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">print_all_paths</span><span class="p">()</span> <span class="p">{</span>
   <span class="kt">int</span> <span class="n">num_verts</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">num_vertices</span><span class="p">();</span>
 
-  <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">A_beta_factors</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">!=</span> <span class="n">num_verts</span> <span class="o">||</span>
-      <span class="k">this</span><span class="o">-&gt;</span><span class="n">A_beta_factors</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">size</span><span class="p">()</span> <span class="o">!=</span> <span class="n">num_verts</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">this</span><span class="o">-&gt;</span><span class="n">find_all_paths</span><span class="p">();</span>
-  <span class="p">}</span>
+<span class="c1">//  if (this-&gt;A_beta_factors.size() != num_verts ||</span>
+<span class="c1">//      this-&gt;A_beta_factors[0].size() != num_verts) {</span>
+<span class="c1">//    this-&gt;find_all_paths();</span>
+<span class="c1">//  }</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">find_all_paths</span><span class="p">();</span>
 
   <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;All the simple paths of:&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
 

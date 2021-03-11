@@ -57,9 +57,17 @@ Program Listing for File DelphiPython.cpp
                      "grounding_score_cutoff"_a = 0.0,
                      "ontology"_a = "WM")
          .def_static("from_causemos_json_string",
-                     &AnalysisGraph::from_causemos_json_string)
+                     &AnalysisGraph::from_causemos_json_string,
+                     "json_string"_a,
+                     "res"_a = 1000,
+                     "belief_score_cutoff"_a = 0,
+                     "grounding_score_cutoff"_a = 0)
          .def_static("from_causemos_json_file",
-                     &AnalysisGraph::from_causemos_json_file)
+                     &AnalysisGraph::from_causemos_json_file,
+                     "filename"_a,
+                     "res"_a = 1000,
+                     "belief_score_cutoff"_a = 0,
+                     "grounding_score_cutoff"_a = 0)
          .def_static("from_causal_fragments",
                      &AnalysisGraph::from_causal_fragments,
                      "causal_fragments"_a)

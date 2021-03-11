@@ -215,9 +215,17 @@
                   <span class="s">&quot;grounding_score_cutoff&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
                   <span class="s">&quot;ontology&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="s">&quot;WM&quot;</span><span class="p">)</span>
       <span class="p">.</span><span class="n">def_static</span><span class="p">(</span><span class="s">&quot;from_causemos_json_string&quot;</span><span class="p">,</span>
-                  <span class="o">&amp;</span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">from_causemos_json_string</span><span class="p">)</span>
+                  <span class="o">&amp;</span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">from_causemos_json_string</span><span class="p">,</span>
+                  <span class="s">&quot;json_string&quot;</span><span class="n">_a</span><span class="p">,</span>
+                  <span class="s">&quot;res&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+                  <span class="s">&quot;belief_score_cutoff&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                  <span class="s">&quot;grounding_score_cutoff&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
       <span class="p">.</span><span class="n">def_static</span><span class="p">(</span><span class="s">&quot;from_causemos_json_file&quot;</span><span class="p">,</span>
-                  <span class="o">&amp;</span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">from_causemos_json_file</span><span class="p">)</span>
+                  <span class="o">&amp;</span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">from_causemos_json_file</span><span class="p">,</span>
+                  <span class="s">&quot;filename&quot;</span><span class="n">_a</span><span class="p">,</span>
+                  <span class="s">&quot;res&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+                  <span class="s">&quot;belief_score_cutoff&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                  <span class="s">&quot;grounding_score_cutoff&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
       <span class="p">.</span><span class="n">def_static</span><span class="p">(</span><span class="s">&quot;from_causal_fragments&quot;</span><span class="p">,</span>
                   <span class="o">&amp;</span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">from_causal_fragments</span><span class="p">,</span>
                   <span class="s">&quot;causal_fragments&quot;</span><span class="n">_a</span><span class="p">)</span>

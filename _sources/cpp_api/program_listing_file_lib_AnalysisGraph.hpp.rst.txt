@@ -451,6 +451,10 @@ Program Listing for File AnalysisGraph.hpp
      void
      set_observed_state_sequence_from_json_dict(const nlohmann::json &json_indicators);
    
+     void from_causemos_json_dict(const nlohmann::json &json_data,
+                                  double belief_score_cutoff,
+                                  double grounding_score_cutoff);
+   
                /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                              create-experiment
                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -819,11 +823,13 @@ Program Listing for File AnalysisGraph.hpp
                                create-model
                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
    
-     void from_causemos_json_dict(const nlohmann::json &json_data);
+     static AnalysisGraph from_causemos_json_string(std::string json_string, size_t res,
+                                                    double belief_score_cutoff = 0,
+                                                    double grounding_score_cutoff = 0);
    
-     static AnalysisGraph from_causemos_json_string(std::string json_string, size_t res);
-   
-     static AnalysisGraph from_causemos_json_file(std::string filename, size_t res);
+     static AnalysisGraph from_causemos_json_file(std::string filename, size_t res,
+                                                  double belief_score_cutoff = 0,
+                                                  double grounding_score_cutoff = 0);
    
      std::string generate_create_model_response();
    

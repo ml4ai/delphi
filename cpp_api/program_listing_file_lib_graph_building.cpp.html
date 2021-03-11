@@ -202,10 +202,7 @@
     <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_node</span><span class="p">(</span><span class="n">subj_name</span><span class="p">);</span>
     <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_node</span><span class="p">(</span><span class="n">obj_name</span><span class="p">);</span>
 
-    <span class="c1">// Add the edge to the graph if it is not in it already</span>
-    <span class="k">auto</span> <span class="p">[</span><span class="n">e</span><span class="p">,</span> <span class="n">exists</span><span class="p">]</span> <span class="o">=</span> <span class="n">boost</span><span class="o">::</span><span class="n">add_edge</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">name_to_vertex</span><span class="p">[</span><span class="n">subj_name</span><span class="p">],</span>
-                                       <span class="k">this</span><span class="o">-&gt;</span><span class="n">name_to_vertex</span><span class="p">[</span><span class="n">obj_name</span><span class="p">],</span>
-                                       <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">);</span>
+    <span class="k">auto</span> <span class="p">[</span><span class="n">e</span><span class="p">,</span> <span class="n">exists</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_edge</span><span class="p">(</span><span class="n">subj_name</span><span class="p">,</span> <span class="n">obj_name</span><span class="p">);</span>
     <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">evidence</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">Statement</span><span class="p">{</span><span class="n">subject</span><span class="p">,</span> <span class="n">object</span><span class="p">});</span>
 
     <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
@@ -231,10 +228,8 @@
     <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_node</span><span class="p">(</span><span class="n">subj_name</span><span class="p">);</span>
     <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_node</span><span class="p">(</span><span class="n">obj_name</span><span class="p">);</span>
 
-    <span class="c1">// Add the edge to the graph if it is not in it already</span>
-    <span class="k">auto</span> <span class="p">[</span><span class="n">e</span><span class="p">,</span> <span class="n">exists</span><span class="p">]</span> <span class="o">=</span> <span class="n">boost</span><span class="o">::</span><span class="n">add_edge</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">name_to_vertex</span><span class="p">[</span><span class="n">subj_name</span><span class="p">],</span>
-                                       <span class="k">this</span><span class="o">-&gt;</span><span class="n">name_to_vertex</span><span class="p">[</span><span class="n">obj_name</span><span class="p">],</span>
-                                       <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">);</span>
+    <span class="k">auto</span> <span class="p">[</span><span class="n">e</span><span class="p">,</span> <span class="n">exists</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_edge</span><span class="p">(</span><span class="n">subj_name</span><span class="p">,</span> <span class="n">obj_name</span><span class="p">);</span>
+
     <span class="n">string</span> <span class="n">subject_adj</span><span class="p">;</span>
     <span class="n">string</span> <span class="n">object_adj</span> <span class="p">;</span>
     <span class="kt">int</span> <span class="n">subject_pol</span><span class="p">;</span>
@@ -268,22 +263,30 @@
 <span class="p">}</span>
 
 <span class="n">pair</span><span class="o">&lt;</span><span class="n">EdgeDescriptor</span><span class="p">,</span> <span class="kt">bool</span><span class="o">&gt;</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">add_edge</span><span class="p">(</span><span class="kt">int</span> <span class="n">source</span><span class="p">,</span> <span class="kt">int</span> <span class="n">target</span><span class="p">)</span> <span class="p">{</span>
-  <span class="k">return</span> <span class="n">boost</span><span class="o">::</span><span class="n">add_edge</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">);</span>
+  <span class="c1">// In Boost Graph Library, we are using vecS as the OutEdgeList,</span>
+  <span class="c1">// So, we have to check whether an edge exists from source to target before</span>
+  <span class="c1">// adding to prevent adding multiple edges between them in the same direction.</span>
+  <span class="n">pair</span><span class="o">&lt;</span><span class="n">EdgeDescriptor</span><span class="p">,</span> <span class="kt">bool</span><span class="o">&gt;</span> <span class="n">edge</span> <span class="o">=</span> <span class="n">boost</span><span class="o">::</span><span class="n">edge</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">);</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">edge</span><span class="p">.</span><span class="n">second</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">edge</span> <span class="o">=</span> <span class="n">boost</span><span class="o">::</span><span class="n">add_edge</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="n">edge</span><span class="p">;</span>
 <span class="p">}</span>
 
 <span class="n">pair</span><span class="o">&lt;</span><span class="n">EdgeDescriptor</span><span class="p">,</span> <span class="kt">bool</span><span class="o">&gt;</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">add_edge</span><span class="p">(</span><span class="kt">int</span> <span class="n">source</span><span class="p">,</span> <span class="n">string</span> <span class="n">target</span><span class="p">)</span> <span class="p">{</span>
-  <span class="k">return</span> <span class="n">boost</span><span class="o">::</span><span class="n">add_edge</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">target</span><span class="p">),</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">);</span>
+  <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_edge</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">target</span><span class="p">));</span>
 <span class="p">}</span>
 
 <span class="n">pair</span><span class="o">&lt;</span><span class="n">EdgeDescriptor</span><span class="p">,</span> <span class="kt">bool</span><span class="o">&gt;</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">add_edge</span><span class="p">(</span><span class="n">string</span> <span class="n">source</span><span class="p">,</span> <span class="kt">int</span> <span class="n">target</span><span class="p">)</span> <span class="p">{</span>
-  <span class="k">return</span> <span class="n">boost</span><span class="o">::</span><span class="n">add_edge</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">source</span><span class="p">),</span> <span class="n">target</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">);</span>
+  <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_edge</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">source</span><span class="p">),</span> <span class="n">target</span><span class="p">);</span>
 <span class="p">}</span>
 
 <span class="n">pair</span><span class="o">&lt;</span><span class="n">EdgeDescriptor</span><span class="p">,</span> <span class="kt">bool</span><span class="o">&gt;</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">add_edge</span><span class="p">(</span><span class="n">string</span> <span class="n">source</span><span class="p">,</span>
                                                    <span class="n">string</span> <span class="n">target</span><span class="p">)</span> <span class="p">{</span>
-  <span class="k">return</span> <span class="n">boost</span><span class="o">::</span><span class="n">add_edge</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">source</span><span class="p">),</span>
-                         <span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">target</span><span class="p">),</span>
-                         <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">);</span>
+  <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_edge</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">source</span><span class="p">),</span>
+                         <span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">target</span><span class="p">));</span>
 <span class="p">}</span>
 
 <span class="cm">/*</span>
@@ -372,7 +375,7 @@
                    <span class="k">if</span> <span class="p">(</span><span class="n">src_id</span> <span class="o">!=</span> <span class="mi">-1</span> <span class="o">&amp;&amp;</span> <span class="n">tgt_id</span> <span class="o">!=</span> <span class="mi">-1</span><span class="p">)</span> <span class="p">{</span>
                      <span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">edge_id</span> <span class="o">=</span> <span class="n">make_pair</span><span class="p">(</span><span class="n">src_id</span><span class="p">,</span> <span class="n">tgt_id</span><span class="p">);</span>
 
-                     <span class="k">if</span> <span class="p">(</span><span class="n">in</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">beta2cell</span><span class="p">,</span> <span class="n">edge_id</span><span class="p">))</span> <span class="p">{</span>
+                     <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">in</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">beta2cell</span><span class="p">,</span> <span class="n">edge_id</span><span class="p">))</span> <span class="p">{</span>
                        <span class="n">src_id</span> <span class="o">=</span> <span class="mi">-2</span><span class="p">;</span>
                      <span class="p">}</span>
                    <span class="p">}</span>

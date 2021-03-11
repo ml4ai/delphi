@@ -468,6 +468,135 @@
     <span class="p">}</span>
 <span class="p">}</span>
 
+<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">from_causemos_json_dict</span><span class="p">(</span><span class="k">const</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="o">&amp;</span><span class="n">json_data</span><span class="p">,</span>
+                                            <span class="kt">double</span> <span class="n">belief_score_cutoff</span><span class="p">,</span>
+                                            <span class="kt">double</span> <span class="n">grounding_score_cutoff</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">causemos_call</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+
+  <span class="c1">// TODO: If model id is not present, we might want to not create the model</span>
+  <span class="c1">// and send a failure response. At the moment we just create a blank model,</span>
+  <span class="c1">// which could lead to future bugs that are hard to debug.</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">json_data</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">].</span><span class="n">is_null</span><span class="p">()){</span><span class="k">return</span><span class="p">;}</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">id</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">();</span>
+
+  <span class="k">auto</span> <span class="n">statements</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;statements&quot;</span><span class="p">];</span>
+
+  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">stmt</span> <span class="p">:</span> <span class="n">statements</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">stmt</span><span class="p">[</span><span class="s">&quot;belief&quot;</span><span class="p">].</span><span class="n">is_null</span><span class="p">()</span> <span class="n">or</span>
+        <span class="n">stmt</span><span class="p">[</span><span class="s">&quot;belief&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">belief_score_cutoff</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">continue</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">auto</span> <span class="n">evidence</span> <span class="o">=</span> <span class="n">stmt</span><span class="p">[</span><span class="s">&quot;evidence&quot;</span><span class="p">];</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">evidence</span><span class="p">.</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
+      <span class="k">continue</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">auto</span> <span class="n">subj</span> <span class="o">=</span> <span class="n">stmt</span><span class="p">[</span><span class="s">&quot;subj&quot;</span><span class="p">];</span>
+    <span class="k">auto</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">stmt</span><span class="p">[</span><span class="s">&quot;obj&quot;</span><span class="p">];</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">subj</span><span class="p">.</span><span class="n">is_null</span><span class="p">()</span> <span class="n">or</span> <span class="n">obj</span><span class="p">.</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
+      <span class="k">continue</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">auto</span> <span class="n">subj_score_json</span> <span class="o">=</span> <span class="n">subj</span><span class="p">[</span><span class="s">&quot;concept_score&quot;</span><span class="p">];</span>
+    <span class="k">auto</span> <span class="n">obj_score_json</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="s">&quot;concept_score&quot;</span><span class="p">];</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">subj_score_json</span><span class="p">.</span><span class="n">is_null</span><span class="p">()</span> <span class="n">or</span> <span class="n">obj_score_json</span><span class="p">.</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
+      <span class="k">continue</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kt">double</span> <span class="n">subj_score</span> <span class="o">=</span> <span class="n">subj_score_json</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">();</span>
+    <span class="kt">double</span> <span class="n">obj_score</span> <span class="o">=</span> <span class="n">obj_score_json</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">();</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">subj_score</span> <span class="o">&lt;</span> <span class="n">grounding_score_cutoff</span> <span class="n">or</span>
+        <span class="n">obj_score</span> <span class="o">&lt;</span> <span class="n">grounding_score_cutoff</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">continue</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">auto</span> <span class="n">subj_concept_json</span> <span class="o">=</span> <span class="n">subj</span><span class="p">[</span><span class="s">&quot;concept&quot;</span><span class="p">];</span>
+    <span class="k">auto</span> <span class="n">obj_concept_json</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="s">&quot;concept&quot;</span><span class="p">];</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">subj_concept_json</span><span class="p">.</span><span class="n">is_null</span><span class="p">()</span> <span class="n">or</span> <span class="n">obj_concept_json</span><span class="p">.</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
+      <span class="k">continue</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">string</span> <span class="n">subj_name</span> <span class="o">=</span> <span class="n">subj_concept_json</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">();</span>
+    <span class="n">string</span> <span class="n">obj_name</span> <span class="o">=</span> <span class="n">obj_concept_json</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">();</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">subj_name</span><span class="p">.</span><span class="n">compare</span><span class="p">(</span><span class="n">obj_name</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// Guard against self loops</span>
+      <span class="c1">// Add the nodes to the graph if they are not in it already</span>
+      <span class="k">continue</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_node</span><span class="p">(</span><span class="n">subj_name</span><span class="p">);</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_node</span><span class="p">(</span><span class="n">obj_name</span><span class="p">);</span>
+
+    <span class="c1">// Add the edge to the graph if it is not in it already</span>
+    <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">evid</span> <span class="p">:</span> <span class="n">evidence</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">evid</span><span class="p">[</span><span class="s">&quot;evidence_context&quot;</span><span class="p">].</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
+        <span class="k">continue</span><span class="p">;</span>
+      <span class="p">}</span>
+
+      <span class="k">auto</span> <span class="n">evid_context</span> <span class="o">=</span> <span class="n">evid</span><span class="p">[</span><span class="s">&quot;evidence_context&quot;</span><span class="p">];</span>
+
+      <span class="k">auto</span> <span class="n">subj_polarity_json</span> <span class="o">=</span> <span class="n">evid_context</span><span class="p">[</span><span class="s">&quot;subj_polarity&quot;</span><span class="p">];</span>
+      <span class="k">auto</span> <span class="n">obj_polarity_json</span> <span class="o">=</span> <span class="n">evid_context</span><span class="p">[</span><span class="s">&quot;obj_polarity&quot;</span><span class="p">];</span>
+
+      <span class="c1">// We set polarities to 1 (positive) by default if they are not specified.</span>
+      <span class="kt">int</span> <span class="n">subj_polarity_val</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+      <span class="kt">int</span> <span class="n">obj_polarity_val</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">subj_polarity_json</span><span class="p">.</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
+        <span class="n">subj_polarity_val</span> <span class="o">=</span> <span class="n">subj_polarity_json</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span>
+      <span class="p">}</span>
+
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">obj_polarity_json</span><span class="p">.</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
+        <span class="n">obj_polarity_val</span> <span class="o">=</span> <span class="n">obj_polarity_json</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span>
+      <span class="p">}</span>
+
+      <span class="k">auto</span> <span class="n">subj_adjectives_json</span> <span class="o">=</span> <span class="n">evid_context</span><span class="p">[</span><span class="s">&quot;subj_adjectives&quot;</span><span class="p">];</span>
+      <span class="k">auto</span> <span class="n">obj_adjectives_json</span> <span class="o">=</span> <span class="n">evid_context</span><span class="p">[</span><span class="s">&quot;obj_adjectives&quot;</span><span class="p">];</span>
+
+      <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">subj_adjectives</span><span class="p">{</span><span class="s">&quot;None&quot;</span><span class="p">};</span>
+      <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">obj_adjectives</span><span class="p">{</span><span class="s">&quot;None&quot;</span><span class="p">};</span>
+
+      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">subj_adjectives_json</span><span class="p">.</span><span class="n">is_null</span><span class="p">()){</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">subj_adjectives_json</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">){</span>
+          <span class="n">subj_adjectives</span> <span class="o">=</span> <span class="n">subj_adjectives_json</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;&gt;</span><span class="p">();</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+
+      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">obj_adjectives_json</span><span class="p">.</span><span class="n">is_null</span><span class="p">()){</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">obj_adjectives_json</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">){</span>
+          <span class="n">obj_adjectives</span> <span class="o">=</span> <span class="n">obj_adjectives_json</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;&gt;</span><span class="p">();</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+
+      <span class="k">auto</span> <span class="n">causal_fragment</span> <span class="o">=</span>
+          <span class="n">CausalFragment</span><span class="p">({</span><span class="n">subj_adjectives</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">subj_polarity_val</span><span class="p">,</span> <span class="n">subj_name</span><span class="p">},</span>
+                         <span class="p">{</span><span class="n">obj_adjectives</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">obj_polarity_val</span><span class="p">,</span> <span class="n">obj_name</span><span class="p">});</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_edge</span><span class="p">(</span><span class="n">causal_fragment</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">json_data</span><span class="p">[</span><span class="s">&quot;conceptIndicators&quot;</span><span class="p">].</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
+    <span class="c1">// No indicator data provided.</span>
+    <span class="c1">// TODO: What is the best action here?</span>
+    <span class="c1">//throw runtime_error(&quot;No indicator information provided&quot;);</span>
+    <span class="c1">// Maybe this is acceptable since there is another call: edit-indicators,</span>
+    <span class="c1">// which is not yet implemented. An analyst can create a CAG structure</span>
+    <span class="c1">// without any indicators and then later attach indicators one by one.</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">set_observed_state_sequence_from_json_dict</span><span class="p">(</span><span class="n">json_data</span><span class="p">[</span><span class="s">&quot;conceptIndicators&quot;</span><span class="p">]);</span>
+  <span class="p">}</span>
+
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">initialize_random_number_generator</span><span class="p">();</span>
+  <span class="k">this</span><span class="o">-&gt;</span><span class="n">construct_theta_pdfs</span><span class="p">();</span>
+  <span class="n">RNG</span><span class="o">::</span><span class="n">release_instance</span><span class="p">();</span>
+<span class="p">}</span>
+
             <span class="cm">/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
 <span class="cm">                      create-experiment (private)</span>
 <span class="cm">            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/</span>
@@ -653,127 +782,25 @@
 <span class="cm">                          create-model (public)</span>
 <span class="cm">            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/</span>
 
-<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">from_causemos_json_dict</span><span class="p">(</span><span class="k">const</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="o">&amp;</span><span class="n">json_data</span><span class="p">)</span> <span class="p">{</span>
-
-  <span class="k">this</span><span class="o">-&gt;</span><span class="n">causemos_call</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
-
-  <span class="c1">// TODO: If model id is not present, we might want to not create the model</span>
-  <span class="c1">// and send a failure response. At the moment we just create a blank model,</span>
-  <span class="c1">// which could lead to future bugs that are hard to debug.</span>
-  <span class="k">if</span> <span class="p">(</span><span class="n">json_data</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">].</span><span class="n">is_null</span><span class="p">()){</span><span class="k">return</span><span class="p">;}</span>
-  <span class="k">this</span><span class="o">-&gt;</span><span class="n">id</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">();</span>
-
-  <span class="k">auto</span> <span class="n">statements</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;statements&quot;</span><span class="p">];</span>
-
-  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">stmt</span> <span class="p">:</span> <span class="n">statements</span><span class="p">)</span> <span class="p">{</span>
-    <span class="cm">/*</span>
-<span class="cm">    auto evidence = stmt[&quot;evidence&quot;];</span>
-
-<span class="cm">    if (evidence.is_null()) {</span>
-<span class="cm">      continue;</span>
-<span class="cm">    }</span>
-<span class="cm">    */</span>
-
-    <span class="k">auto</span> <span class="n">subj</span> <span class="o">=</span> <span class="n">stmt</span><span class="p">[</span><span class="s">&quot;subj&quot;</span><span class="p">];</span>
-    <span class="k">auto</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">stmt</span><span class="p">[</span><span class="s">&quot;obj&quot;</span><span class="p">];</span>
-
-    <span class="k">if</span> <span class="p">(</span><span class="n">subj</span><span class="p">.</span><span class="n">is_null</span><span class="p">()</span> <span class="n">or</span> <span class="n">obj</span><span class="p">.</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
-      <span class="k">continue</span><span class="p">;</span>
-    <span class="p">}</span>
-
-    <span class="k">auto</span> <span class="n">subj_db_ref</span> <span class="o">=</span> <span class="n">subj</span><span class="p">[</span><span class="s">&quot;db_refs&quot;</span><span class="p">];</span>
-    <span class="k">auto</span> <span class="n">obj_db_ref</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="s">&quot;db_refs&quot;</span><span class="p">];</span>
-
-    <span class="k">if</span> <span class="p">(</span><span class="n">subj_db_ref</span><span class="p">.</span><span class="n">is_null</span><span class="p">()</span> <span class="n">or</span> <span class="n">obj_db_ref</span><span class="p">.</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
-      <span class="k">continue</span><span class="p">;</span>
-    <span class="p">}</span>
-
-    <span class="k">auto</span> <span class="n">subj_concept_json</span> <span class="o">=</span> <span class="n">subj_db_ref</span><span class="p">[</span><span class="s">&quot;concept&quot;</span><span class="p">];</span>
-    <span class="k">auto</span> <span class="n">obj_concept_json</span> <span class="o">=</span> <span class="n">obj_db_ref</span><span class="p">[</span><span class="s">&quot;concept&quot;</span><span class="p">];</span>
-
-    <span class="k">if</span> <span class="p">(</span><span class="n">subj_concept_json</span><span class="p">.</span><span class="n">is_null</span><span class="p">()</span> <span class="n">or</span> <span class="n">obj_concept_json</span><span class="p">.</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
-      <span class="k">continue</span><span class="p">;</span>
-    <span class="p">}</span>
-
-    <span class="n">string</span> <span class="n">subj_name</span> <span class="o">=</span> <span class="n">subj_concept_json</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">();</span>
-    <span class="n">string</span> <span class="n">obj_name</span> <span class="o">=</span> <span class="n">obj_concept_json</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">();</span>
-
-    <span class="k">auto</span> <span class="n">subj_delta</span> <span class="o">=</span> <span class="n">stmt</span><span class="p">[</span><span class="s">&quot;subj_delta&quot;</span><span class="p">];</span>
-    <span class="k">auto</span> <span class="n">obj_delta</span> <span class="o">=</span> <span class="n">stmt</span><span class="p">[</span><span class="s">&quot;obj_delta&quot;</span><span class="p">];</span>
-
-    <span class="k">auto</span> <span class="n">subj_polarity_json</span> <span class="o">=</span> <span class="n">subj_delta</span><span class="p">[</span><span class="s">&quot;polarity&quot;</span><span class="p">];</span>
-    <span class="k">auto</span> <span class="n">obj_polarity_json</span> <span class="o">=</span> <span class="n">obj_delta</span><span class="p">[</span><span class="s">&quot;polarity&quot;</span><span class="p">];</span>
-
-    <span class="c1">// We set polarities to 1 (positive) by default if they are not specified.</span>
-    <span class="kt">int</span> <span class="n">subj_polarity_val</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-    <span class="kt">int</span> <span class="n">obj_polarity_val</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">subj_polarity_json</span><span class="p">.</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
-      <span class="n">subj_polarity_val</span> <span class="o">=</span> <span class="n">subj_polarity_json</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span>
-    <span class="p">}</span>
-
-    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">obj_polarity_json</span><span class="p">.</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
-      <span class="n">obj_polarity_val</span> <span class="o">=</span> <span class="n">obj_polarity_json</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span>
-    <span class="p">}</span>
-
-    <span class="k">auto</span> <span class="n">subj_adjectives</span> <span class="o">=</span> <span class="n">subj_delta</span><span class="p">[</span><span class="s">&quot;adjectives&quot;</span><span class="p">];</span>
-    <span class="k">auto</span> <span class="n">obj_adjectives</span> <span class="o">=</span> <span class="n">obj_delta</span><span class="p">[</span><span class="s">&quot;adjectives&quot;</span><span class="p">];</span>
-
-    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">subj_polarity</span> <span class="o">=</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="n">subj_polarity_val</span><span class="p">};</span>
-    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">obj_polarity</span> <span class="o">=</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="n">obj_polarity_val</span><span class="p">};</span>
-
-    <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">subj_adjective</span> <span class="o">=</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">{</span><span class="s">&quot;None&quot;</span><span class="p">};</span>
-    <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">obj_adjective</span> <span class="o">=</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">{</span><span class="s">&quot;None&quot;</span><span class="p">};</span>
-
-    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">subj_adjectives</span><span class="p">.</span><span class="n">is_null</span><span class="p">()){</span>
-        <span class="k">if</span><span class="p">(</span><span class="n">subj_adjectives</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">){</span>
-            <span class="n">subj_adjective</span> <span class="o">=</span> <span class="n">subj_adjectives</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;&gt;</span><span class="p">();</span>
-            <span class="n">subj_polarity</span> <span class="o">=</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">subj_adjective</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="n">subj_polarity_val</span><span class="p">);</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-
-    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">obj_adjectives</span><span class="p">.</span><span class="n">is_null</span><span class="p">()){</span>
-        <span class="k">if</span><span class="p">(</span><span class="n">obj_adjectives</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">){</span>
-            <span class="n">obj_adjective</span> <span class="o">=</span> <span class="n">obj_adjectives</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;&gt;</span><span class="p">();</span>
-            <span class="n">obj_polarity</span> <span class="o">=</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">obj_adjectives</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="n">obj_polarity_val</span><span class="p">);</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-
-    <span class="k">auto</span> <span class="n">causal_fragments</span> <span class="o">=</span>
-        <span class="n">CausalFragmentCollection</span><span class="p">({</span><span class="n">subj_adjective</span><span class="p">,</span> <span class="n">subj_polarity</span><span class="p">,</span> <span class="n">subj_name</span><span class="p">},</span>
-                       <span class="p">{</span><span class="n">obj_adjective</span><span class="p">,</span> <span class="n">obj_polarity</span><span class="p">,</span> <span class="n">obj_name</span><span class="p">});</span>
-    <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_edge</span><span class="p">(</span><span class="n">causal_fragments</span><span class="p">);</span>
-  <span class="p">}</span>
-
-  <span class="k">if</span> <span class="p">(</span><span class="n">json_data</span><span class="p">[</span><span class="s">&quot;conceptIndicators&quot;</span><span class="p">].</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
-      <span class="c1">// No indicator data provided.</span>
-      <span class="c1">// TODO: What is the best action here?</span>
-      <span class="c1">//throw runtime_error(&quot;No indicator information provided&quot;);</span>
-      <span class="c1">// Maybe this is acceptable since there is another call: edit-indicators,</span>
-      <span class="c1">// which is not yet implemented. An analyst can create a CAG structure</span>
-      <span class="c1">// without any indicators and then later attach indicators one by one.</span>
-  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-      <span class="k">this</span><span class="o">-&gt;</span><span class="n">set_observed_state_sequence_from_json_dict</span><span class="p">(</span><span class="n">json_data</span><span class="p">[</span><span class="s">&quot;conceptIndicators&quot;</span><span class="p">]);</span>
-  <span class="p">}</span>
-
-  <span class="k">this</span><span class="o">-&gt;</span><span class="n">initialize_random_number_generator</span><span class="p">();</span>
-  <span class="k">this</span><span class="o">-&gt;</span><span class="n">construct_theta_pdfs</span><span class="p">();</span>
-<span class="p">}</span>
-
-<span class="n">AnalysisGraph</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">from_causemos_json_string</span><span class="p">(</span><span class="n">string</span> <span class="n">json_string</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">res</span><span class="p">)</span> <span class="p">{</span>
+<span class="n">AnalysisGraph</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">from_causemos_json_string</span><span class="p">(</span><span class="n">string</span> <span class="n">json_string</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">res</span><span class="p">,</span>
+                                                       <span class="kt">double</span> <span class="n">belief_score_cutoff</span><span class="p">,</span>
+                                                       <span class="kt">double</span> <span class="n">grounding_score_cutoff</span><span class="p">)</span> <span class="p">{</span>
   <span class="n">AnalysisGraph</span> <span class="n">G</span><span class="p">;</span>
   <span class="n">G</span><span class="p">.</span><span class="n">set_res</span><span class="p">(</span><span class="n">res</span><span class="p">);</span>
 
   <span class="k">auto</span> <span class="n">json_data</span> <span class="o">=</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span><span class="n">json_string</span><span class="p">);</span>
-  <span class="n">G</span><span class="p">.</span><span class="n">from_causemos_json_dict</span><span class="p">(</span><span class="n">json_data</span><span class="p">);</span>
+  <span class="n">G</span><span class="p">.</span><span class="n">from_causemos_json_dict</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="n">belief_score_cutoff</span><span class="p">,</span> <span class="n">grounding_score_cutoff</span><span class="p">);</span>
   <span class="k">return</span> <span class="n">G</span><span class="p">;</span>
 <span class="p">}</span>
 
-<span class="n">AnalysisGraph</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">from_causemos_json_file</span><span class="p">(</span><span class="n">string</span> <span class="n">filename</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">res</span><span class="p">)</span> <span class="p">{</span>
+<span class="n">AnalysisGraph</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">from_causemos_json_file</span><span class="p">(</span><span class="n">string</span> <span class="n">filename</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">res</span><span class="p">,</span>
+                                                     <span class="kt">double</span> <span class="n">belief_score_cutoff</span><span class="p">,</span>
+                                                     <span class="kt">double</span> <span class="n">grounding_score_cutoff</span><span class="p">)</span> <span class="p">{</span>
   <span class="n">AnalysisGraph</span> <span class="n">G</span><span class="p">;</span>
   <span class="n">G</span><span class="p">.</span><span class="n">set_res</span><span class="p">(</span><span class="n">res</span><span class="p">);</span>
 
   <span class="k">auto</span> <span class="n">json_data</span> <span class="o">=</span> <span class="n">load_json</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span>
-  <span class="n">G</span><span class="p">.</span><span class="n">from_causemos_json_dict</span><span class="p">(</span><span class="n">json_data</span><span class="p">);</span>
+  <span class="n">G</span><span class="p">.</span><span class="n">from_causemos_json_dict</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="n">belief_score_cutoff</span><span class="p">,</span> <span class="n">grounding_score_cutoff</span><span class="p">);</span>
   <span class="k">return</span> <span class="n">G</span><span class="p">;</span>
 <span class="p">}</span>
 
@@ -784,12 +811,11 @@
     <span class="n">j</span><span class="p">[</span><span class="s">&quot;status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;success&quot;</span><span class="p">;</span>
     <span class="n">j</span><span class="p">[</span><span class="s">&quot;relations&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{};</span>
     <span class="n">j</span><span class="p">[</span><span class="s">&quot;conceptIndicators&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{};</span>
-    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">all_weights</span> <span class="o">=</span> <span class="p">{};</span>
 
     <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">e</span> <span class="p">:</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">edges</span><span class="p">())</span> <span class="p">{</span>
         <span class="n">json</span> <span class="n">edge_json</span> <span class="o">=</span> <span class="p">{{</span><span class="s">&quot;source&quot;</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">source</span><span class="p">(</span><span class="n">e</span><span class="p">).</span><span class="n">name</span><span class="p">},</span>
                           <span class="p">{</span><span class="s">&quot;target&quot;</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">target</span><span class="p">(</span><span class="n">e</span><span class="p">).</span><span class="n">name</span><span class="p">},</span>
-                          <span class="p">{</span><span class="s">&quot;weight&quot;</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">}};</span>
+                          <span class="p">{</span><span class="s">&quot;weights&quot;</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">{</span><span class="mf">0.5</span><span class="p">}}};</span>
 
         <span class="n">j</span><span class="p">[</span><span class="s">&quot;relations&quot;</span><span class="p">].</span><span class="n">push_back</span><span class="p">(</span><span class="n">edge_json</span><span class="p">);</span>
     <span class="p">}</span>

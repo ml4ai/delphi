@@ -180,7 +180,13 @@
   <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">name</span><span class="p">;</span>
 <span class="p">};</span>
 
-<span class="k">typedef</span> <span class="n">boost</span><span class="o">::</span><span class="n">adjacency_list</span><span class="o">&lt;</span><span class="n">boost</span><span class="o">::</span><span class="n">setS</span><span class="p">,</span>
+<span class="c1">//adjacency_list&lt;OutEdgeList, VertexList, Directed,</span>
+<span class="c1">//                VertexProperties, EdgeProperties,</span>
+<span class="c1">//                GraphProperties, EdgeList&gt;</span>
+<span class="c1">// Note: When setS or hash_setS is used as OutEdgeList, Boost Graph Library</span>
+<span class="c1">//       gives memory problems on remove_vertex cal sometimes leading to</span>
+<span class="c1">// segmentation faults. So changed it to vecS</span>
+<span class="k">typedef</span> <span class="n">boost</span><span class="o">::</span><span class="n">adjacency_list</span><span class="o">&lt;</span><span class="n">boost</span><span class="o">::</span><span class="n">vecS</span><span class="p">,</span>
                               <span class="n">boost</span><span class="o">::</span><span class="n">vecS</span><span class="p">,</span>
                               <span class="n">boost</span><span class="o">::</span><span class="n">bidirectionalS</span><span class="p">,</span>
                               <span class="n">Node</span><span class="p">,</span>

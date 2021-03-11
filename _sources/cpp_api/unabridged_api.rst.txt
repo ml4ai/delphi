@@ -354,7 +354,7 @@ Typedefs
 .. toctree::
    :maxdepth: 5
 
-   typedef_DiGraph_8hpp_1aa8dbb5b324583306fe4e135a42c380c7.rst
+   typedef_DiGraph_8hpp_1ad6cb21be1699519756003fa73a17e2bc.rst
 
 .. toctree::
    :maxdepth: 5

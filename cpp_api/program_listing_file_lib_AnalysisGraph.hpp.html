@@ -609,6 +609,10 @@
   <span class="kt">void</span>
   <span class="nf">set_observed_state_sequence_from_json_dict</span><span class="p">(</span><span class="k">const</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="o">&amp;</span><span class="n">json_indicators</span><span class="p">);</span>
 
+  <span class="kt">void</span> <span class="nf">from_causemos_json_dict</span><span class="p">(</span><span class="k">const</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="o">&amp;</span><span class="n">json_data</span><span class="p">,</span>
+                               <span class="kt">double</span> <span class="n">belief_score_cutoff</span><span class="p">,</span>
+                               <span class="kt">double</span> <span class="n">grounding_score_cutoff</span><span class="p">);</span>
+
             <span class="cm">/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
 <span class="cm">                          create-experiment</span>
 <span class="cm">            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/</span>
@@ -977,11 +981,13 @@
 <span class="cm">                            create-model</span>
 <span class="cm">            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/</span>
 
-  <span class="kt">void</span> <span class="nf">from_causemos_json_dict</span><span class="p">(</span><span class="k">const</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="o">&amp;</span><span class="n">json_data</span><span class="p">);</span>
+  <span class="k">static</span> <span class="n">AnalysisGraph</span> <span class="n">from_causemos_json_string</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">json_string</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">res</span><span class="p">,</span>
+                                                 <span class="kt">double</span> <span class="n">belief_score_cutoff</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                                                 <span class="kt">double</span> <span class="n">grounding_score_cutoff</span> <span class="o">=</span> <span class="mi">0</span><span class="p">);</span>
 
-  <span class="k">static</span> <span class="n">AnalysisGraph</span> <span class="n">from_causemos_json_string</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">json_string</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">res</span><span class="p">);</span>
-
-  <span class="k">static</span> <span class="n">AnalysisGraph</span> <span class="n">from_causemos_json_file</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filename</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">res</span><span class="p">);</span>
+  <span class="k">static</span> <span class="n">AnalysisGraph</span> <span class="n">from_causemos_json_file</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filename</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">res</span><span class="p">,</span>
+                                               <span class="kt">double</span> <span class="n">belief_score_cutoff</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                                               <span class="kt">double</span> <span class="n">grounding_score_cutoff</span> <span class="o">=</span> <span class="mi">0</span><span class="p">);</span>
 
   <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">generate_create_model_response</span><span class="p">();</span>
 
