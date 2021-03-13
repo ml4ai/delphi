@@ -47,15 +47,25 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def_static("from_causemos_json_string",
                   &AnalysisGraph::from_causemos_json_string,
                   "json_string"_a,
-                  "res"_a = 1000,
                   "belief_score_cutoff"_a = 0,
-                  "grounding_score_cutoff"_a = 0)
+                  "grounding_score_cutoff"_a = 0,
+                  "kde_kernels"_a = 4,
+                  "burn"_a = 10000,
+                  "sampling_resolution"_a = 200,
+                  "initial_beta"_a = InitialBeta::ZERO,
+                  "initial_derivative"_a = InitialDerivative::DERI_ZERO
+      )
       .def_static("from_causemos_json_file",
                   &AnalysisGraph::from_causemos_json_file,
                   "filename"_a,
-                  "res"_a = 1000,
                   "belief_score_cutoff"_a = 0,
-                  "grounding_score_cutoff"_a = 0)
+                  "grounding_score_cutoff"_a = 0,
+                  "kde_kernels"_a = 4,
+                  "burn"_a = 10000,
+                  "sampling_resolution"_a = 200,
+                  "initial_beta"_a = InitialBeta::ZERO,
+                  "initial_derivative"_a = InitialDerivative::DERI_ZERO
+      )
       .def_static("from_causal_fragments",
                   &AnalysisGraph::from_causal_fragments,
                   "causal_fragments"_a)
@@ -183,20 +193,10 @@ PYBIND11_MODULE(DelphiPython, m) {
            "clamp_deri"_a = true)
       .def("run_causemos_projection_experiment_from_json_string",
            &AnalysisGraph::run_causemos_projection_experiment_from_json_string,
-           "json_string"_a,
-           "burn"_a = 10000,
-           "res"_a = 200,
-           "initial_beta"_a = InitialBeta::ZERO,
-           "initial_derivative"_a = InitialDerivative::DERI_ZERO
-           )
+           "json_string"_a)
       .def("run_causemos_projection_experiment_from_json_file",
            &AnalysisGraph::run_causemos_projection_experiment_from_json_file,
-           "filename"_a,
-           "burn"_a = 10000,
-           "res"_a = 200,
-           "initial_beta"_a = InitialBeta::ZERO,
-           "initial_derivative"_a = InitialDerivative::DERI_ZERO
-      )
+           "filename"_a)
       .def("prediction_to_array",
            &AnalysisGraph::prediction_to_array,
            "indicator"_a)

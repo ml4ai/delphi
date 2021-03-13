@@ -64,9 +64,23 @@ def curate_indicators(G):
     G.remove_node("wm/concept/causal_factor/condition/tension")
     '''
 
-def create_base_CAG(causemos_create_model, res = 4):
+def create_base_CAG(causemos_create_model,
+                    belief_score_cutoff=0,
+                    grounding_score_cutoff=0,
+                    kde_kernels=4,
+                    burn=10,
+                    sampling_resolution=10,
+                    initial_beta=InitialBeta.ZERO,
+                    initial_derivative=InitialDerivative.DERI_ZERO):
     if causemos_create_model:
-        G = AnalysisGraph.from_causemos_json_file(causemos_create_model, res)
+        G = AnalysisGraph.from_causemos_json_file(causemos_create_model,
+                                                  belief_score_cutoff,
+                                                  grounding_score_cutoff,
+                                                  kde_kernels,
+                                                  burn,
+                                                  sampling_resolution,
+                                                  initial_beta,
+                                                  initial_derivative)
     else:
         statements = [
             (
@@ -114,7 +128,15 @@ if __name__ == "__main__":
     causemos_create_model = json_inputs[input_idx][0]
     causemos_create_experiment = json_inputs[input_idx][1]
 
-    G = create_base_CAG(causemos_create_model, 1000)
+    # G = create_base_CAG(causemos_create_model)
+    G = create_base_CAG(causemos_create_model,
+                        belief_score_cutoff=0,
+                        grounding_score_cutoff=0,
+                        kde_kernels=1000,
+                        burn=10000,
+                        sampling_resolution=1000,
+                        initial_beta=InitialBeta.ZERO,
+                        initial_derivative=InitialDerivative.DERI_ZERO)
     #G = create_base_CAG('', 100)
 
     draw_CAG(G, 'plot_testing_CAG.png')
@@ -123,11 +145,7 @@ if __name__ == "__main__":
     print('\nTraining Model')
     try:
         preds = G.run_causemos_projection_experiment_from_json_file(
-                filename=causemos_create_experiment,
-                burn=10000,
-                res=1000,
-                initial_beta=InitialBeta.ZERO,
-                initial_derivative=InitialDerivative.DERI_ZERO)
+                filename=causemos_create_experiment)
     except AnalysisGraph.BadCausemosInputException as e:
         print(e)
         exit()
