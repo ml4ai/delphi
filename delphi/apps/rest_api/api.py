@@ -103,7 +103,7 @@ def getModelStatus(modelID):
     query_result = DelphiModel.query.filter_by(id=modelID).first()
 
     if not query_result:
-        return jsonify(json.loads('{"status": "invalid id"}'))
+        return jsonify(json.loads('{"status": "invalid model id"}'))
 
     model = query_result.model
     G = AnalysisGraph.deserialize_from_json_string(model, verbose=False)

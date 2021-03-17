@@ -11,11 +11,11 @@ def app():
     app = create_app(debug=True)
     app.testing = True
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/test.db"
+    #app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/test.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 
     with app.app_context():
-        db.create_all()
+        #db.create_all()
         yield app
         #db.drop_all()
 
@@ -45,7 +45,11 @@ def test_createModel_and_createExperiment(client):
     status = rv.get_json()['status']
     print('\nmodel status initial response:\n', rv.get_json())
 
-    if status == 'training error':
+    if status == 'invalid model id':
+        print('\nGet Model Status Error: Invalid model id!!')
+        assert False
+        return
+    elif status == 'server error: training':
         print('\nServer error: training process cannot be forked!!')
         assert False
         return
@@ -73,6 +77,22 @@ def test_createModel_and_createExperiment(client):
     experiment_id1 = rv.get_json()["experimentId"]
     print('\nexperiment 1 id: ', experiment_id1)
 
+    if experiment_id1 == 'invalid model id':
+        print('\nCreate Experiment Error: Invalid model id!!')
+        assert False
+        return
+    elif experiment_id1 == 'model not trained':
+        print('\nCreate Experiment Error: Model not trained. Cannot run experiment!!')
+        assert False
+        return
+
+    rv11 = client.get(f"/delphi/models/{model_id}/experiments/{experiment_id1}")
+    status = rv11.get_json()["status"]
+    if status == 'invalid experiment id':
+        print('\n\nGet Experiment Results Error: Invalid experiment id!!')
+        assert False
+        return
+
     status = "in progress"
     count = 1
     while status == "in progress":
@@ -92,6 +112,22 @@ def test_createModel_and_createExperiment(client):
     rv = client.post(f"/delphi/models/{model_id}/experiments", json=data)
     experiment_id2 = rv.get_json()["experimentId"]
     print('\nexperiment 2 id: ', experiment_id2)
+
+    if experiment_id2 == 'invalid model id':
+        print('\nCreate Experiment Error: Invalid model id!!')
+        assert False
+        return
+    elif experiment_id2 == 'model not trained':
+        print('\nCreate Experiment Error: Model not trained. Cannot run experiment!!')
+        assert False
+        return
+
+    rv21 = client.get(f"/delphi/models/{model_id}/experiments/{experiment_id1}")
+    status = rv21.get_json()["status"]
+    if status == 'invalid experiment id':
+        print('\nGet Experiment Results Error: Invalid experiment id!!')
+        assert False
+        return
 
     status = "in progress"
     count = 1

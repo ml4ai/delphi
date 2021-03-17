@@ -6,8 +6,8 @@ using namespace std;
 void AnalysisGraph::write_model_to_db(string model_id) {
   if (!model_id.empty()) {
     sqlite3* db = nullptr;
-    // int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
-    int rc = sqlite3_open("/tmp/test.db", &db);
+    int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
+    //int rc = sqlite3_open("/tmp/test.db", &db);
 
     if (rc != SQLITE_OK) {
       cout << "Could not open db\n";
