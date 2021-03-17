@@ -541,12 +541,7 @@ class AnalysisGraph {
   /** Construct an AnalysisGraph object from JSON exported by CauseMos. */
   void from_causemos_json_dict(const nlohmann::json &json_data,
                                double belief_score_cutoff,
-                               double grounding_score_cutoff,
-                               int burn = 10000,
-                               int res = 200,
-                               InitialBeta initial_beta = InitialBeta::ZERO,
-                               InitialDerivative initial_derivative =
-                                   InitialDerivative::DERI_ZERO);
+                               double grounding_score_cutoff);
 
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                           create-experiment
@@ -740,19 +735,6 @@ class AnalysisGraph {
     return this->A_original(2 * get_vertex_id(target_vertex_name),
                             2 * get_vertex_id(source_vertex_name) + 1);
   }
-
-  /*
-   ============================================================================
-   Private: Run train model procedure (in train_model.cpp)
-   ============================================================================
-  */
-
-  void run_train_model(int res = 200,
-                       int burn = 10000,
-                       InitialBeta initial_beta = InitialBeta::ZERO,
-                       InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO,
-                       bool use_heuristic = false,
-                       bool use_continuous = true);
 
   /*
    ============================================================================
@@ -1077,25 +1059,14 @@ class AnalysisGraph {
   static AnalysisGraph from_causemos_json_string(std::string json_string,
                                                  double belief_score_cutoff = 0,
                                                  double grounding_score_cutoff = 0,
-                                                 int kde_kernels = 4,
-                                                 int burn = 10000,
-                                                 int sampling_resolution = 200,
-                                                 InitialBeta initial_beta =
-                                                     InitialBeta::ZERO,
-                                                 InitialDerivative initial_derivative =
-                                                     InitialDerivative::DERI_ZERO);
+                                                 int kde_kernels = 4);
 
   /** Construct an AnalysisGraph object from a file containing JSON data from
    * CauseMos. */
   static AnalysisGraph from_causemos_json_file(std::string filename,
                                                double belief_score_cutoff = 0,
                                                double grounding_score_cutoff = 0,
-                                               int kde_kernels = 4,
-                                               int burn = 10000,
-                                               int sampling_resolution = 200,
-                                               InitialBeta initial_beta = InitialBeta::ZERO,
-                                               InitialDerivative initial_derivative =
-                                                   InitialDerivative::DERI_ZERO);
+                                               int kde_kernels = 4);
 
   /**
    * Generate the response for the create model request from the HMI.
@@ -1363,6 +1334,13 @@ class AnalysisGraph {
                    bool use_heuristic = false,
                    bool use_continuous = true);
 
+  void run_train_model(int res = 200,
+                       int burn = 10000,
+                       InitialBeta initial_beta = InitialBeta::ZERO,
+                       InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO,
+                       bool use_heuristic = false,
+                       bool use_continuous = true);
+
   /*
    ============================================================================
    Public: Training by MCMC Sampling (in sampling.cpp)
@@ -1496,4 +1474,12 @@ class AnalysisGraph {
   CredibleIntervals get_credible_interval(Predictions preds);
 
   CompleteState get_complete_state();
+
+  /*
+   ============================================================================
+   Public: Database interactions (in database.cpp)
+   ============================================================================
+  */
+
+  void write_model_to_db(std::string model_id);
 };

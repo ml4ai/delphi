@@ -321,11 +321,7 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
 
 void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data,
                                             double belief_score_cutoff,
-                                            double grounding_score_cutoff,
-                                            int burn,
-                                            int res,
-                                            InitialBeta initial_beta,
-                                            InitialDerivative initial_derivative
+                                            double grounding_score_cutoff
                                             ) {
 
   this->causemos_call = true;
@@ -447,8 +443,6 @@ void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data,
   } else {
     this->set_observed_state_sequence_from_json_dict(json_data["conceptIndicators"]);
   }
-
-  this->run_train_model(res, burn, initial_beta, initial_derivative);
 }
 
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -633,36 +627,26 @@ Public: Integration with Uncharted's CauseMos interface
 AnalysisGraph AnalysisGraph::from_causemos_json_string(string json_string,
                                                        double belief_score_cutoff,
                                                        double grounding_score_cutoff,
-                                                       int kde_kernels,
-                                                       int burn,
-                                                       int sampling_resolution,
-                                                       InitialBeta initial_beta,
-                                                       InitialDerivative initial_derivative
+                                                       int kde_kernels
                                                        ) {
   AnalysisGraph G;
   G.set_res(kde_kernels);
 
   auto json_data = nlohmann::json::parse(json_string);
-  G.from_causemos_json_dict(json_data, belief_score_cutoff, grounding_score_cutoff,
-                            burn, sampling_resolution, initial_beta, initial_derivative);
+  G.from_causemos_json_dict(json_data, belief_score_cutoff, grounding_score_cutoff);
   return G;
 }
 
 AnalysisGraph AnalysisGraph::from_causemos_json_file(string filename,
                                                      double belief_score_cutoff,
                                                      double grounding_score_cutoff,
-                                                     int kde_kernels,
-                                                     int burn,
-                                                     int sampling_resolution,
-                                                     InitialBeta initial_beta,
-                                                     InitialDerivative initial_derivative
+                                                     int kde_kernels
                                                      ) {
   AnalysisGraph G;
   G.set_res(kde_kernels);
 
   auto json_data = load_json(filename);
-  G.from_causemos_json_dict(json_data, belief_score_cutoff, grounding_score_cutoff,
-                            burn, sampling_resolution, initial_beta, initial_derivative);
+  G.from_causemos_json_dict(json_data, belief_score_cutoff, grounding_score_cutoff);
   return G;
 }
 
@@ -675,14 +659,16 @@ string AnalysisGraph::generate_create_model_response() {
     using nlohmann::json, ranges::max;
 
     json j;
-    j["status"] = "success";
+    j["status"] = this->trained? "ready" : "training";
     j["relations"] = {};
     j["conceptIndicators"] = {};
 
     for (auto e : this->edges()) {
         json edge_json = {{"source", this->source(e).name},
                           {"target", this->target(e).name},
-                          {"weights", vector<double>{0.5}}};
+                          {"weights", this->trained
+                                        ? this->graph[e].sampled_thetas
+                                        : vector<double>{0.5}}};
 
         j["relations"].push_back(edge_json);
     }

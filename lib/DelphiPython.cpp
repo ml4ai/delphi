@@ -49,22 +49,14 @@ PYBIND11_MODULE(DelphiPython, m) {
                   "json_string"_a,
                   "belief_score_cutoff"_a = 0,
                   "grounding_score_cutoff"_a = 0,
-                  "kde_kernels"_a = 4,
-                  "burn"_a = 10000,
-                  "sampling_resolution"_a = 200,
-                  "initial_beta"_a = InitialBeta::ZERO,
-                  "initial_derivative"_a = InitialDerivative::DERI_ZERO
+                  "kde_kernels"_a = 4
       )
       .def_static("from_causemos_json_file",
                   &AnalysisGraph::from_causemos_json_file,
                   "filename"_a,
                   "belief_score_cutoff"_a = 0,
                   "grounding_score_cutoff"_a = 0,
-                  "kde_kernels"_a = 4,
-                  "burn"_a = 10000,
-                  "sampling_resolution"_a = 200,
-                  "initial_beta"_a = InitialBeta::ZERO,
-                  "initial_derivative"_a = InitialDerivative::DERI_ZERO
+                  "kde_kernels"_a = 4
       )
       .def_static("from_causal_fragments",
                   &AnalysisGraph::from_causal_fragments,
@@ -182,6 +174,14 @@ PYBIND11_MODULE(DelphiPython, m) {
            "initial_derivative"_a = InitialDerivative::DERI_ZERO,
            "use_heuristic"_a = false,
            "use_continuous"_a = true)
+      .def("run_train_model",
+           &AnalysisGraph::run_train_model,
+           "res"_a = 200,
+           "burn"_a = 10000,
+           "initial_beta"_a = InitialBeta::ZERO,
+           "initial_derivative"_a = InitialDerivative::DERI_ZERO,
+           "use_heuristic"_a = false,
+           "use_continuous"_a = true)
       .def("generate_prediction",
            &AnalysisGraph::generate_prediction,
            "start_year"_a,
@@ -212,7 +212,10 @@ PYBIND11_MODULE(DelphiPython, m) {
            &AnalysisGraph::serialize_to_json_string,
            "verbose"_a = true)
       .def("get_complete_state",
-           &AnalysisGraph::get_complete_state);
+           &AnalysisGraph::get_complete_state)
+      .def("write_model_to_db",
+           &AnalysisGraph::write_model_to_db,
+           "model_id"_a);
 
   py::class_<RV>(m, "RV")
       .def(py::init<std::string>())

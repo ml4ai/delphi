@@ -43,19 +43,13 @@ void AnalysisGraph::train_model(int start_year,
   }
 }
 
-/*
- ============================================================================
- Private: Run train model procedure (in train_model.cpp)
- ============================================================================
-*/
-
-
 void AnalysisGraph::run_train_model(int res,
-                                int burn,
-                                InitialBeta initial_beta,
-                                InitialDerivative initial_derivative,
-                                bool use_heuristic,
-                                bool use_continuous) {
+                                    int burn,
+                                    InitialBeta initial_beta,
+                                    InitialDerivative initial_derivative,
+                                    bool use_heuristic,
+                                    bool use_continuous
+                                    ) {
 
     this->initialize_parameters(res, initial_beta, initial_derivative,
                               use_heuristic, use_continuous);
