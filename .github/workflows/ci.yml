@@ -22,7 +22,7 @@ jobs:
 
     - name: Continuous Integration
       env:
-        DELPHI_DB: ${GITHUB_WORKSPACE}/data/delphi.db
+        DELPHI_DB: /tmp/delphi.db
       run: |
         sudo apt-get update
         sudo apt-get install -y\
