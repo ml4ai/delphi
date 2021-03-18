@@ -3,7 +3,7 @@ import pytest
 import time
 
 from delphi.apps.rest_api import create_app, db
-from delphi.apps.rest_api.models import DelphiModel, CauseMosAsyncExperimentResult
+from delphi.apps.rest_api.models import DelphiModel, CauseMosAsyncExperimentResult, ExperimentResult
 
 
 @pytest.fixture(scope="module")
@@ -153,6 +153,8 @@ def test_createModel_and_createExperiment(client):
     # Delete the rows added to the database by testing code
     CauseMosAsyncExperimentResult.query.filter_by(id=experiment_id1).delete()
     CauseMosAsyncExperimentResult.query.filter_by(id=experiment_id2).delete()
+    ExperimentResult.query.filter_by(id=experiment_id1).delete()
+    ExperimentResult.query.filter_by(id=experiment_id2).delete()
     DelphiModel.query.filter_by(id=model_id).delete()
     db.session.commit()
 
