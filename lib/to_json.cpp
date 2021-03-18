@@ -149,7 +149,8 @@ string AnalysisGraph::serialize_to_json_string(bool verbose) {
             j["edges"].push_back({{"source",name_to_vertex.at(source.name)},
                                 {"target", name_to_vertex.at(target.name)},
                                 {"kernels", this->edge(e).kde.dataset},
-                                {"evidence", evidence}});
+                                {"evidence", evidence},
+                                {"thetas", this->edge(e).sampled_thetas}});
         }
         else {
             // This is a more compressed version of edges. We do not utilize space
@@ -158,7 +159,8 @@ string AnalysisGraph::serialize_to_json_string(bool verbose) {
             j["edges"].push_back(make_tuple(name_to_vertex.at(source.name),
                                             name_to_vertex.at(target.name),
                                             this->edge(e).kde.dataset,
-                                            evidence));
+                                            evidence,
+                                            this->edge(e).sampled_thetas));
         }
     }
 

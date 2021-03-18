@@ -31,7 +31,8 @@ typedef tuple<
     int,
     int,
     vector<double>,
-    vector<pair<tuple<string, int, string>, tuple<string, int, string>>>>
+    vector<pair<tuple<string, int, string>, tuple<string, int, string>>>,
+    vector<double>>
     Edge_tuple;
 
 /*
@@ -84,6 +85,8 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
       string target = edge_element["target"].get<string>();
       this->edge(source, target).kde.dataset =
           edge_element["kernels"].get<vector<double>>();
+      this->edge(source, target).sampled_thetas =
+          edge_element["thetas"].get<vector<double>>();
     }
 
     this->training_range.first.first = json_data["start_year"];
@@ -122,6 +125,8 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
       if (edge_added) {
           this->edge(get<0>(edge_element), get<1>(edge_element)).kde.dataset =
               get<2>(edge_element);
+          this->edge(get<0>(edge_element), get<1>(edge_element)).sampled_thetas =
+              get<4>(edge_element);
       }
     }
 
