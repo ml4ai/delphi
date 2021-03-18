@@ -117,7 +117,7 @@ setup(
         "pygments",
         "flask",
         "pybind11",
-        "SQLAlchemy<=1.3.23",
+        "SQLAlchemy<=1.3.18",
         "flask-sqlalchemy",
         "flask-executor",
         "python-dateutil",
