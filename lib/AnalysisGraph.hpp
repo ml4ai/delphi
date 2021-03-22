@@ -502,14 +502,7 @@ class AnalysisGraph {
 
   void sample_transition_matrix_collection_from_prior();
 
-  /*
-   ============================================================================
-   Private: Model serialization (in serialize.cpp)
-   ============================================================================
-  */
-
-  void from_delphi_json_dict(const nlohmann::json &json_data, bool verbose);
-
+ 
   /*
    ============================================================================
    Private: Utilities (in graph_utils.cpp)
@@ -1030,6 +1023,9 @@ class AnalysisGraph {
   std::string serialize_to_json_string(bool verbose = true);
 
   static AnalysisGraph deserialize_from_json_string(std::string json_string, bool verbose = true);
+
+
+  void from_delphi_json_dict(const nlohmann::json &json_data, bool verbose);
 
   static AnalysisGraph deserialize_from_json_file(std::string filename, bool verbose = true);
 

@@ -15,6 +15,7 @@
 
 
 
+
 using namespace std;
 using json = nlohmann::json;
 
@@ -109,9 +110,214 @@ class CauseMosAsyncExperimentResult{
 };
 
 
+
+
+
+class Experiment{
+public:
+
+
+
+/* a function to generate numpy linspace */
+vector<double> linspace(double start, double end, double num)
+{
+    vector<double> linspaced;
+
+    if (0 != num)
+    {
+        if (1 == num) 
+        {
+            linspaced.push_back(round(static_cast<double>(start)));
+        }
+        else
+        {
+            double delta = (end - start) / (num - 1);
+
+            for (auto i = 0; i < (num - 1); ++i)
+            {
+                linspaced.push_back(round(static_cast<double>(start + delta * i)));
+            }
+            // ensure that start and end are exactly the same as the input
+            linspaced.push_back(round(static_cast<double>(end)));
+        }
+    }
+    return linspaced;
+}
+
+// 4th check datatypes : test separately
+
+void runProjectionExperiment(Database* sqlite3DB, const served::request & request, string modelID, string experiment_id, AnalysisGraph G, bool trained){
+    auto request_body = nlohmann::json::parse(request.body());
+
+
+    double startTime = request_body["experimentParam"]["startTime"];
+    double endTime = request_body["experimentParam"]["endTime"];
+    int numTimesteps = request_body["experimentParam"]["numTimesteps"];
+
+    FormattedProjectionResult causemos_experiment_result = G.run_causemos_projection_experiment(
+        request.body() // todo: ??????
+    );
+
+    //DelphiModel model;
+    if(!trained){
+        //model = DelphiModel(modelID, G.serialize_to_json_string(false));
+
+        //db.session.merge(model)
+        //db.session.commit()
+
+        //string id = "123";
+        //string model = "TEST";
+        sqlite3DB->Database_InsertInto_delphimodel(modelID, G.serialize_to_json_string(false));
+    }
+
+    // created causemosasyncexperimentresult class
+    //result = CauseMosAsyncExperimentResult.query.filter_by(
+    //    id=experiment_id
+    //).first()
+    json result = sqlite3DB->Database_Read_causemosasyncexperimentresult(experiment_id);
+
+    /* 
+      A rudimentary test to see if the projection failed. We check whether
+      the number time steps is equal to the number of elements in the first
+      concept's time series.
+    */
+    vector<vector<vector<double>>> formattedProjectionTimestepSample;
+    for (const auto & [ key, value ] : causemos_experiment_result) {
+        formattedProjectionTimestepSample.push_back(value);
+    }
+    if(formattedProjectionTimestepSample[0].size() < numTimesteps)
+        result["status"] = "failed";
+    else{
+        result["status"] = "completed";
+
+
+
+        // todo !!!!!1
+        vector<double> timesteps_nparr = linspace(startTime, endTime, numTimesteps); 
+
+        //double timesteps_nparr = np.round(
+        //    np.linspace(startTime, endTime, numTimesteps)l
+        //)
+
+
+
+
+        // The calculation of the 95% confidence interval about the median is
+        // taken from:
+        // https://www.ucl.ac.uk/child-health/short-courses-events/ \
+        //     about-statistical-courses/research-methods-and-statistics/chapter-8-content-8
+        int n = G.get_res();
+
+        int lower_rank = (int)((n - 1.96 * sqrt(n)) / 2);
+        int upper_rank = (int)((2 + n + 1.96 * sqrt(n)) / 2);
+
+        lower_rank = lower_rank < 0 ? 0 : lower_rank;
+        upper_rank = upper_rank >= n ? n - 1 : upper_rank;
+        unordered_map<string, vector<string>> res_data; // vector<string> datatype ???
+        res_data["data"] = {};
+        
+        result["results"] = res_data;
+
+        for (const auto & [ conceptname, timestamp_sample_matrix ] : causemos_experiment_result) {
+            json data_dict;
+            data_dict["concept"] = conceptname;
+            data_dict["values"] = vector<unordered_map<string, double>>{};
+            unordered_map<string, vector<double>> m { {"upper", vector<double>{}}, {"lower", vector<double>{}}};
+            data_dict["confidenceInterval"] = m;
+            for(int i = 0; i < timestamp_sample_matrix.size(); i++){
+                vector<double> time_step = timestamp_sample_matrix[i];
+                sort(time_step.begin(), time_step.end());
+                int l = time_step.size() / 2;
+                double median_value = 0;
+                if(time_step.size())
+                    median_value = time_step.size() % 2? time_step[l]: (time_step[l] + time_step[l - 1]) / 2;
+
+                double lower_limit = time_step[lower_rank];
+                double upper_limit = time_step[upper_rank];
+
+                unordered_map<string, double> value_dict = {
+                    {"timestamp", timesteps_nparr[i]},
+                    {"value", median_value}
+                };
+
+                data_dict["values"].push_back(value_dict);
+                value_dict["value"] = lower_limit;
+                data_dict["confidenceInterval"]["lower"].push_back(value_dict);
+
+                value_dict["value"] = upper_limit;
+                data_dict["confidenceInterval"]["upper"].push_back(value_dict);
+            }
+            result["results"]["data"].push_back(data_dict); 
+        }
+    }
+
+    // result = CauseMosAsyncExperimentResult
+    // db.session.merge: update if already, else insert
+
+    //db.session.merge(result)
+    //db.session.commit()
+    sqlite3DB->Database_InsertInto_causemosasyncexperimentresult(result["id"], result["status"], result["experimentType"], result["results"]);
+
+
+}
+
+
+
+// 3rd runExperiment
+void runExperiment(Database* sqlite3DB, const served::request & request, string modelID, string experiment_id){
+    auto request_body = nlohmann::json::parse(request.body());
+    string experiment_type = request_body["experimentType"]; 
+
+
+    ////query_result = DelphiModel.query.filter_by(id=modelID).first()
+    json query_result = sqlite3DB->Database_Read_delphimodel(modelID);
+
+
+    if(query_result.empty()){
+        // Model ID not in database. Should be an incorrect model ID
+        //result = CauseMosAsyncExperimentResult.query.filter_by(
+        //    id=experiment_id
+        //).first()
+        query_result = sqlite3DB->Database_Read_causemosasyncexperimentresult(experiment_id);
+        query_result["status"] = "failed";
+
+        //result.status = "failed"
+        //db.session.merge(result)
+        //db.session.commit()
+        sqlite3DB->Database_InsertInto_causemosasyncexperimentresult(query_result["id"], query_result["status"], query_result["experimentType"], query_result["results"]);
+        return;
+    }
+
+    string model = query_result["model"];   // Todo: no .model in query_result
+    bool trained = nlohmann::json::parse(model)["trained"];
+    AnalysisGraph G;
+    //G = G.deserialize_from_json_string(model, false);
+    G.from_delphi_json_dict(model, false); // todo: made public
+
+    if(experiment_type == "PROJECTION")
+        runProjectionExperiment(sqlite3DB, request, modelID, experiment_id, G, trained); // Todo
+    else if(experiment_type == "GOAL_OPTIMIZATION")
+        ;// Not yet implemented
+    else if( experiment_type == "SENSITIVITY_ANALYSIS")
+        ;// Not yet implemented
+    else if( experiment_type == "MODEL_VALIDATION")
+        ;// Not yet implemented
+    else if( experiment_type == "BACKCASTING")
+        ;// Not yet implemented
+    else
+        ;// Unknown experiment type
+}
+
+};
+
+
+
+
+
 int main(int argc, const char *argv[])
 {
     Database* sqlite3DB = new Database();
+    Experiment* experiment = new Experiment();
 
 
     //================= Testsuite =============================================
@@ -153,7 +359,7 @@ int main(int argc, const char *argv[])
 
 // done without async
     mux.handle("/delphi/models/{modelID}/experiments")
-        .post([&sqlite3DB](served::response & res, const served::request & req) {
+        .post([&sqlite3DB, &experiment](served::response & res, const served::request & req) {
             auto request_body = nlohmann::json::parse(req.body());
             string modelID = req.params["modelID"];
 
@@ -169,6 +375,8 @@ int main(int argc, const char *argv[])
 
             // Todo: thread and set obj in sstl to hold experiment ids (experiment_id) ids
             //executor.submit_stored(experiment_id, runExperiment, request, modelID, experiment_id)
+            experiment->runExperiment(sqlite3DB, req, modelID, experiment_id);
+            //void runExperiment(Database* sqlite3DB, const served::request & request, string modelID, string experiment_id, bool trained);
             //return jsonify({"experimentId": experiment_id})
 
 
@@ -191,7 +399,9 @@ int main(int argc, const char *argv[])
                 result["experimentType"] = "UNKNOWN";
                 result["status"] = "invalid experiment id";
                 result["results"] = "";
-            }
+            } 
+            result["modelId"] = modelID;
+            result["experimentId"] = experimentID;
 
             res << result;
         });
@@ -199,7 +409,7 @@ int main(int argc, const char *argv[])
 */
     std::cout << "Try this example with:" << std::endl;
     std::cout << "curl -X POST \"http://localhost:8123/delphi/create-model\" -d @delphi/tests/data/delphi/causemos_create-model.json --header \"Content-Type: application/json\" " << std::endl;
-    std::cout << "curl -X POST \"http://localhost:8123/delphi/models/modelID/experiments\" -d @test.json --header \"Content-Type: application/json\" " << std::endl;
+    std::cout << "curl -X POST \"http://localhost:8123/delphi/models/modelID/experiments\" -d @causemos_experiments_projection_input.json --header \"Content-Type: application/json\" " << std::endl;
     std::cout << "curl \"http://localhost:8123/delphi/models/modelID/experiments/d93b18a7-e2a3-4023-9f2f-06652b4bba66\" " << std::endl;
     std::cout << "curl http://localhost:8123/delphi/models/modelID/experiments/d93b18a7-e2a3-4023-9f2f-06652b4bba66 " << std::endl;
     std::cout << "curl http://localhost:8123/delphi/models/modelID/experiments/123 " << std::endl;
@@ -209,167 +419,6 @@ int main(int argc, const char *argv[])
 
     return (EXIT_SUCCESS);
 }
-
-
-
-/*
-
-// 4th check datatypes : test separately
-
-void runProjectionExperiment(Database* sqlite3DB, const served::request & request, string modelID, string experiment_id, AnalysisGraph G, bool trained){
-    auto request_body = nlohmann::json::parse(request.body());
-
-
-    string startTime = request_body["experimentParam"]["startTime"];
-    string endTime = request_body["experimentParam"]["endTime"];
-    int numTimesteps = request_body["experimentParam"]["numTimesteps"];
-
-    FormattedProjectionResult causemos_experiment_result = G.run_causemos_projection_experiment(
-        request_body // todo: ??????
-    );
-
-    DelphiModel model;
-    if(not trained){
-        //model = DelphiModel(modelID, G.serialize_to_json_string(false));
-
-        //db.session.merge(model)
-        //db.session.commit()
-
-        string id = "123";
-        string model = "TEST";
-        sqlite3DB->Database_InsertInto_delphimodel(modelID, G.serialize_to_json_string(false));
-    }
-
-    // created causemosasyncexperimentresult class
-    //result = CauseMosAsyncExperimentResult.query.filter_by(
-    //    id=experiment_id
-    //).first()
-    vector<string> matches = sqlite3DB->Database_Read_ColumnText_Wrapper("causemosasyncexperimentresult", ,"id", experiment_id);
-
-
-    vector<vector<vector<double>>> formattedProjectionTimestepSample;
-    for (const auto & [ key, value ] : causemos_experiment_result) {
-        formattedProjectionTimestepSample.push_back(value);
-    }
-    if(formattedProjectionTimestepSample[0].size() < numTimesteps)
-        result.status = "failed";
-    else{
-        result.status = "completed";
-
-        // todo !!!!!1
-        double timesteps_nparr = np.round(
-            np.linspace(startTime, endTime, numTimesteps)l
-        )
-
-        // The calculation of the 95% confidence interval about the median is
-        // taken from:
-        // https://www.ucl.ac.uk/child-health/short-courses-events/ \
-        //     about-statistical-courses/research-methods-and-statistics/chapter-8-content-8
-        int n = G.get_res();
-
-        int lower_rank = (int)((n - 1.96 * sqrt(n)) / 2);
-        int upper_rank = (int)((2 + n + 1.96 * sqrt(n)) / 2);
-
-        lower_rank = lower_rank < 0 ? 0 : lower_rank;
-        upper_rank = upper_rank >= n ? n - 1 : upper_rank;
-        unordered_map<string, vector<string>> res_data; // vector<string> datatype ???
-        res_data["data"] = {};
-        
-        result.results = res_data; 
-
-        for (const auto & [ conceptname, timestamp_sample_matrix ] : causemos_experiment_result) {
-            json data_dict;
-            data_dict["concept"] = conceptname;
-            data_dict["values"] = vector<unordered_map<string, double>>{};
-            unordered_map<string, vector<double>> m { {"upper", vector<double>{}}, {"lower", vector<double>{}}};
-            data_dict["confidenceInterval"] = m;
-            for(int i = 0; i < timestamp_sample_matrix.size(); i++){
-                vector<double> time_step = timestamp_sample_matrix[i];
-                sort(time_step.begin(), time_step.end());
-                int l = time_step.size() / 2;
-                double median_value = 0;
-                if(time_step.size())
-                    median_value = time_step.size() % 2? time_step[l]: (time_step[l] + time_step[l - 1]) / 2;
-
-                double lower_limit = time_step[lower_rank];
-                double upper_limit = time_step[upper_rank];
-
-                unordered_map<string, double> value_dict = {
-                    {"timestamp", timesteps_nparr[i]},
-                    {"value", median_value}
-                };
-
-                data_dict["values"].push_back(value_dict);
-                value_dict["value"] = lower_limit;
-                data_dict["confidenceInterval"]["lower"].push_back(value_dict);
-
-                value_dict["value"] = upper_limit;
-                data_dict["confidenceInterval"]["upper"].push_back(value_dict);
-            }
-            result.results["data"].push_back(data_dict); 
-        }
-    }
-
-    // result = CauseMosAsyncExperimentResult
-    // db.session.merge: update if already, else insert
-
-    //db.session.merge(result)
-    //db.session.commit()
-
-}
-
-
-// 3rd runExperiment
-void runExperiment(Database* sqlite3DB, const served::request & request, string modelID, string experiment_id, bool trained){
-    auto request_body = nlohmann::json::parse(request.body());
-    string experiment_type = request_body["experimentType"]; 
-
-
-    ////query_result = DelphiModel.query.filter_by(id=modelID).first()
-    json query_result = sqlite3DB->Database_Read_causemosasyncexperimentresult(modelID);
-
-
-    if(query_result.empty()){
-        // Model ID not in database. Should be an incorrect model ID
-        //result = CauseMosAsyncExperimentResult.query.filter_by(
-        //    id=experiment_id
-        //).first()
-        query_result = sqlite3DB->Database_Read_causemosasyncexperimentresult(experiment_id);
-        query_result["status"] = "failed";
-
-        //result.status = "failed"
-        //db.session.merge(result)
-        //db.session.commit()
-        sqlite3DB->Database_InsertInto_causemosasyncexperimentresult(query_result["id"], query_result["status"], query_result["experimentType"], query_result["results"]);
-        return;
-    }
-
-    model = query_result.model   // Todo: no .model in query_result
-    string trained = request_body["trained"];
-    AnalysisGraph G;
-    //G = G.deserialize_from_json_string(model, false);
-    G.from_delphi_json_dict(model, false);
-
-    if(experiment_type == "PROJECTION")
-        runProjectionExperiment(sqlite3DB, request, modelID, experiment_id, G, trained);
-    else if(experiment_type == "GOAL_OPTIMIZATION")
-        ;// Not yet implemented
-    else if( experiment_type == "SENSITIVITY_ANALYSIS")
-        ;// Not yet implemented
-    else if( experiment_type == "MODEL_VALIDATION")
-        ;// Not yet implemented
-    else if( experiment_type == "BACKCASTING")
-        ;// Not yet implemented
-    else
-        ;// Unknown experiment type
-}
-
-
-
-
-
-*/
-
 
 
 

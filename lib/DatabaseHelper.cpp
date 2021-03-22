@@ -130,6 +130,23 @@ vector<string> Database::Database_Read_ColumnText_Query_Where(string table_name,
 }
 
 
+
+json Database::Database_Read_delphimodel(string modelId){
+  	json matches;
+  	sqlite3_stmt* stmt = nullptr;
+  	//const char **tail;
+  	string query = "SELECT TOP 1 * from delphimodel WHERE id='"+modelId+"';";
+  	int rc =  sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
+  	//cout << SQLITE_ROW << endl;
+   	while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+   		matches["id"] = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
+   		matches["model"] = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
+   	}
+   	sqlite3_finalize(stmt);
+   	stmt = nullptr;
+   	return matches;
+}
+
 json Database::Database_Read_causemosasyncexperimentresult(string modelId){
   	json matches;
   	sqlite3_stmt* stmt = nullptr;

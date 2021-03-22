@@ -38,6 +38,8 @@ class Database {
 
     std::vector<std::string> Database_Read_ColumnText_Query_Where(std::string table_name, std::string column_name, std::string where_column_name, std::string where_value);
 
+    nlohmann::json Database_Read_delphimodel(std::string modelId);
+
     nlohmann::json Database_Read_causemosasyncexperimentresult(std::string modelId);
 
     void Database_Insert(std::string insert_query);
