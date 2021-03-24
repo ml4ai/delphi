@@ -28,6 +28,7 @@ void AnalysisGraph::generate_latent_state_sequences(
 
   cout << "\nPredicting for " << this->pred_timesteps << " time steps..." << endl;
   for (int samp : tq::trange(this->res)) {
+    samp % 5 == 0 ? sleep(1) : true;
       // The sampled transition matrices would be either of matrix exponential
       // (continuous) version or discretized version depending on whether the
       // matrix exponential (continuous) version or the discretized transition

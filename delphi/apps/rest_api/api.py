@@ -17,9 +17,9 @@ from flask import jsonify, request, Blueprint, current_app
 from delphi.db import engine
 from delphi.apps.rest_api import db, executor
 from delphi.apps.rest_api.models import *
-from flask import current_app
 import threading
 import multiprocessing
+multiprocessing.set_start_method('fork')
 
 bp = Blueprint("rest_api", __name__)
 
@@ -28,14 +28,21 @@ bp = Blueprint("rest_api", __name__)
 # ============
 
 
-def train_model(G, modelID, sampling_resolution, burn):
+def train_model(G, modelID, sampling_resolution, burn, app):
     # print('child: ', os.getpid())
     # sampling_resolution = 100
     G.run_train_model(sampling_resolution,
                       burn,
                       InitialBeta.ZERO,
                       InitialDerivative.DERI_ZERO)
-    G.write_model_to_db(modelID)
+    #G.write_model_to_db(modelID)
+    with app.app_context():
+        model = DelphiModel(
+            id=modelID, model=G.serialize_to_json_string(verbose=False)
+        )
+        db.session.merge(model)
+        db.session.commit()
+
 
 @bp.route("/delphi/create-model", methods=["POST"])
 def createNewModel():
@@ -85,9 +92,8 @@ def createNewModel():
         # thread = threading.Thread(target=train_model,
         #                           args=(G, data["id"], db), daemon=True)
         # thread.start()
-        multiprocessing.set_start_method('fork')
         proc = multiprocessing.Process(target=train_model,
-                                       args=(G, data["id"], sampling_resolution, burn),
+                                       args=(G, data["id"], sampling_resolution, burn, current_app),
                                        name='training')
         proc.start()
     except multiprocessing.ProcessError:
@@ -97,6 +103,7 @@ def createNewModel():
 
     # print('parent: ', os.getpid())
     return jsonify(response)
+
 
 @bp.route("/delphi/models/<string:modelID>", methods=["GET"])
 def getModelStatus(modelID):
@@ -111,7 +118,8 @@ def getModelStatus(modelID):
     response = json.loads(G.generate_create_model_response())
     return jsonify(response)
 
-def runProjectionExperiment(request, experiment_id, G):
+
+def runProjectionExperiment(request, experiment_id, G, app):
     request_body = request.get_json()
 
     startTime = request_body["experimentParam"]["startTime"]
@@ -129,9 +137,10 @@ def runProjectionExperiment(request, experiment_id, G):
     #     db.session.merge(model)
     #     db.session.commit()
 
-    result = CauseMosAsyncExperimentResult.query.filter_by(
-        id=experiment_id
-    ).first()
+    with app.app_context():
+        result = CauseMosAsyncExperimentResult.query.filter_by(
+            id=experiment_id
+        ).first()
 
     # A rudimentary test to see if the projection failed. We check whether
     # the number time steps is equal to the number of elements in the first
@@ -191,10 +200,12 @@ def runProjectionExperiment(request, experiment_id, G):
                 )
             result.results["data"].append(data_dict)
 
-    db.session.merge(result)
-    db.session.commit()
+    with app.app_context():
+        db.session.merge(result)
+        db.session.commit()
 
-def runExperiment(request, experiment_id, experiment_type, model):
+
+def runExperiment(request, experiment_id, experiment_type, model, app):
     # request_body = request.get_json()
     # experiment_type = request_body["experimentType"]
     #
@@ -215,7 +226,7 @@ def runExperiment(request, experiment_id, experiment_type, model):
     G = AnalysisGraph.deserialize_from_json_string(model, verbose=False)
 
     if experiment_type == "PROJECTION":
-        runProjectionExperiment(request, experiment_id, G)
+        runProjectionExperiment(request, experiment_id, G, app)
     elif experiment_type == "GOAL_OPTIMIZATION":
         # Not yet implemented
         pass
@@ -231,6 +242,7 @@ def runExperiment(request, experiment_id, experiment_type, model):
     else:
         # Unknown experiment type
         pass
+
 
 @bp.route("/delphi/models/<string:modelID>/experiments", methods=["POST"])
 def createCausemosExperiment(modelID):
@@ -261,8 +273,18 @@ def createCausemosExperiment(modelID):
     db.session.add(result)
     db.session.commit()
 
-    executor.submit_stored(experiment_id, runExperiment, request,
-                           experiment_id, experiment_type, model)
+    # executor.submit_stored(experiment_id, runExperiment, request,
+    #                        experiment_id, experiment_type, model)
+
+    try:
+        proc = multiprocessing.Process(target=runExperiment,
+                                       args=(request,
+                                             experiment_id, experiment_type, model, current_app),
+                                       name='experiment')
+        proc.start()
+    except multiprocessing.ProcessError:
+        print("Error: unable to start experiment process")
+        return jsonify({"experimentId": 'server error: experiment'})
 
     return jsonify({"experimentId": experiment_id})
 
