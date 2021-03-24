@@ -4,6 +4,7 @@
 
 # MacOS:
 .DS_Store
+*.icloud
 
 # JetBrains (PyCharm)
 .idea
