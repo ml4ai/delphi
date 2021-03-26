@@ -106,8 +106,11 @@ target_link_libraries(Delphi INTERFACE range-v3)
 ########    COMMAND rm -rf ${PROJECT_SOURCE_DIR}/delphi/cpp/DelphiPython*
 ########    COMMAND cp DelphiPython* ${PROJECT_SOURCE_DIR}/delphi/cpp/)
 
-add_subdirectory(external/served)
+#find_package(Served REQUIRED)
+find_package(PkgConfig REQUIRED) 
+pkg_check_modules(SERVED REQUIRED IMPORTED_TARGET  served)
+
+
 add_executable(cpprestserver apps/cpprestserver.cpp)
-target_link_libraries(cpprestserver PRIVATE Delphi served)
+target_link_libraries(cpprestserver PRIVATE Delphi PkgConfig::SERVED)
 target_link_libraries(cpprestserver PRIVATE Eigen3::Eigen)
-target_include_directories(cpprestserver PUBLIC external/served/src)
