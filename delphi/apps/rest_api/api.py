@@ -1,23 +1,10 @@
 # -*- coding: utf-8 -*-
 import os
-import re
-import json
 import numpy as np
-from math import exp, sqrt
-from uuid import uuid4
-import pickle
-from datetime import date, timedelta, datetime
-import dateutil
-from dateutil.relativedelta import relativedelta
-from dateutil.parser import parse
-from statistics import median, mean
+from math import sqrt
 from delphi.cpp.DelphiPython import AnalysisGraph, InitialBeta, InitialDerivative
-from delphi.utils import lmap
 from flask import jsonify, request, Blueprint, current_app
-from delphi.db import engine
-from delphi.apps.rest_api import db, executor
 from delphi.apps.rest_api.models import *
-import threading
 import multiprocessing
 multiprocessing.set_start_method('fork')
 
@@ -29,8 +16,6 @@ bp = Blueprint("rest_api", __name__)
 
 
 def train_model(G, modelID, sampling_resolution, burn, app):
-    # print('child: ', os.getpid())
-    # sampling_resolution = 100
     G.run_train_model(sampling_resolution,
                       burn,
                       InitialBeta.ZERO,
@@ -87,21 +72,15 @@ def createNewModel():
     response = json.loads(G.generate_create_model_response())
 
     # executor.submit_stored(data["id"], train_model, G, data["id"])
-
     try:
-        # thread = threading.Thread(target=train_model,
-        #                           args=(G, data["id"], db), daemon=True)
-        # thread.start()
         proc = multiprocessing.Process(target=train_model,
                                        args=(G, data["id"], sampling_resolution, burn, current_app),
                                        name='training')
         proc.start()
     except multiprocessing.ProcessError:
         print("Error: unable to start training process")
-        # TODO: How to inform client?
         response['status'] = 'server error: training'
 
-    # print('parent: ', os.getpid())
     return jsonify(response)
 
 
@@ -129,13 +108,6 @@ def runProjectionExperiment(request, experiment_id, G, app):
     causemos_experiment_result = G.run_causemos_projection_experiment_from_json_string(
         request.data
     )
-
-    # if(not trained):
-    #     model = DelphiModel(
-    #         id=modelID, model=G.serialize_to_json_string(verbose=False)
-    #     )
-    #     db.session.merge(model)
-    #     db.session.commit()
 
     with app.app_context():
         result = CauseMosAsyncExperimentResult.query.filter_by(
@@ -206,23 +178,6 @@ def runProjectionExperiment(request, experiment_id, G, app):
 
 
 def runExperiment(request, experiment_id, experiment_type, model, app):
-    # request_body = request.get_json()
-    # experiment_type = request_body["experimentType"]
-    #
-    # query_result = DelphiModel.query.filter_by(id=modelID).first()
-    #
-    # if not query_result:
-    #     # Model ID not in database. Should be an incorrect model ID
-    #     result = CauseMosAsyncExperimentResult.query.filter_by(
-    #         id=experiment_id
-    #     ).first()
-    #     result.status = "failed"
-    #     db.session.merge(result)
-    #     db.session.commit()
-    #     return
-    #
-    # model = query_result.model
-    # trained = json.loads(model)["trained"]
     G = AnalysisGraph.deserialize_from_json_string(model, verbose=False)
 
     if experiment_type == "PROJECTION":
@@ -275,7 +230,6 @@ def createCausemosExperiment(modelID):
 
     # executor.submit_stored(experiment_id, runExperiment, request,
     #                        experiment_id, experiment_type, model)
-
     try:
         proc = multiprocessing.Process(target=runExperiment,
                                        args=(request,

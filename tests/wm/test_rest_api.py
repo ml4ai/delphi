@@ -11,7 +11,6 @@ def app():
     app = create_app(debug=True)
     app.testing = True
 
-    #app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/test.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 
     with app.app_context():
