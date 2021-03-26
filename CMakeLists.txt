@@ -75,6 +75,7 @@ add_library(Delphi
   lib/indicator_manipulation.cpp
   lib/sandbox.cpp
   lib/format_output.cpp
+  lib/database.cpp
   #lib/PybindTester.hpp
 )
 

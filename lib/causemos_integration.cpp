@@ -321,7 +321,8 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
 
 void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data,
                                             double belief_score_cutoff,
-                                            double grounding_score_cutoff) {
+                                            double grounding_score_cutoff
+                                            ) {
 
   this->causemos_call = true;
 
@@ -442,10 +443,6 @@ void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data,
   } else {
     this->set_observed_state_sequence_from_json_dict(json_data["conceptIndicators"]);
   }
-
-  this->initialize_random_number_generator();
-  this->construct_theta_pdfs();
-  RNG::release_instance();
 }
 
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -502,12 +499,8 @@ void AnalysisGraph::extract_projection_constraints(
 }
 
 FormattedProjectionResult
-AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann::json &json_data,
-                                                                 int burn,
-                                                                 int res,
-                                                                 InitialBeta initial_beta,
-                                                                 InitialDerivative initial_derivative
-                                                                 ) {
+AnalysisGraph::run_causemos_projection_experiment_from_json_dict(
+                                              const nlohmann::json &json_data) {
 
     if (json_data["experimentParam"].is_null()) {
         throw BadCausemosInputException("Experiment parameters null");
@@ -575,8 +568,6 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(const nlohmann:
       }
     }
 
-    this->run_train_model(res, burn, initial_beta, initial_derivative);
-
     this->extract_projection_constraints(projection_parameters["constraints"], skip_steps);
 
     this->generate_latent_state_sequences(this->pred_start_timestep);
@@ -633,22 +624,26 @@ Public: Integration with Uncharted's CauseMos interface
                           create-model (public)
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-AnalysisGraph AnalysisGraph::from_causemos_json_string(string json_string, size_t res,
+AnalysisGraph AnalysisGraph::from_causemos_json_string(string json_string,
                                                        double belief_score_cutoff,
-                                                       double grounding_score_cutoff) {
+                                                       double grounding_score_cutoff,
+                                                       int kde_kernels
+                                                       ) {
   AnalysisGraph G;
-  G.set_res(res);
+  G.set_res(kde_kernels);
 
   auto json_data = nlohmann::json::parse(json_string);
   G.from_causemos_json_dict(json_data, belief_score_cutoff, grounding_score_cutoff);
   return G;
 }
 
-AnalysisGraph AnalysisGraph::from_causemos_json_file(string filename, size_t res,
+AnalysisGraph AnalysisGraph::from_causemos_json_file(string filename,
                                                      double belief_score_cutoff,
-                                                     double grounding_score_cutoff) {
+                                                     double grounding_score_cutoff,
+                                                     int kde_kernels
+                                                     ) {
   AnalysisGraph G;
-  G.set_res(res);
+  G.set_res(kde_kernels);
 
   auto json_data = load_json(filename);
   G.from_causemos_json_dict(json_data, belief_score_cutoff, grounding_score_cutoff);
@@ -664,14 +659,27 @@ string AnalysisGraph::generate_create_model_response() {
     using nlohmann::json, ranges::max;
 
     json j;
-    j["status"] = "success";
+    j["status"] = this->trained? "ready" : "training";
     j["relations"] = {};
     j["conceptIndicators"] = {};
 
     for (auto e : this->edges()) {
+        vector<double> weights;
+        if (this->trained) {
+            weights = vector<double>(this->graph[e].sampled_thetas.size());
+            transform(this->graph[e].sampled_thetas.begin(),
+                      this->graph[e].sampled_thetas.end(),
+                      weights.begin(),
+                      [&](double theta) {
+                        return (double)tan(theta);
+                      });
+        } else {
+            weights = vector<double>{0.5};
+        }
+
         json edge_json = {{"source", this->source(e).name},
                           {"target", this->target(e).name},
-                          {"weights", vector<double>{0.5}}};
+                          {"weights", weights}};
 
         j["relations"].push_back(edge_json);
     }
@@ -691,12 +699,8 @@ string AnalysisGraph::generate_create_model_response() {
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 FormattedProjectionResult
-AnalysisGraph::run_causemos_projection_experiment_from_json_string(string json_string,
-                                                                   int burn,
-                                                                   int res,
-                                                                   InitialBeta initial_beta,
-                                                                   InitialDerivative initial_derivative
-                                                                    ) {
+AnalysisGraph::run_causemos_projection_experiment_from_json_string(
+                                                           string json_string) {
     using namespace fmt::literals;
     using nlohmann::json;
 
@@ -715,10 +719,7 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_string(string json_s
     auto json_data = nlohmann::json::parse(json_string);
 
     try {
-        return run_causemos_projection_experiment_from_json_dict(json_data,
-                                                               burn, res,
-                                                               initial_beta,
-                                                               initial_derivative);
+        return run_causemos_projection_experiment_from_json_dict(json_data);
     }
     catch (BadCausemosInputException& e) {
         cout << e.what() << endl;
@@ -729,12 +730,8 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_string(string json_s
 }
 
 FormattedProjectionResult
-AnalysisGraph::run_causemos_projection_experiment_from_json_file(string filename,
-                                                                 int burn,
-                                                                 int res,
-                                                                 InitialBeta initial_beta,
-                                                                 InitialDerivative initial_derivative
-                                                                  ) {
+AnalysisGraph::run_causemos_projection_experiment_from_json_file(
+                                                              string filename) {
     using namespace fmt::literals;
     using nlohmann::json;
 
@@ -753,10 +750,7 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_file(string filename
     auto json_data = load_json(filename);
 
     try {
-        return run_causemos_projection_experiment_from_json_dict(json_data,
-                                                               burn, res,
-                                                               initial_beta,
-                                                               initial_derivative);
+        return run_causemos_projection_experiment_from_json_dict(json_data);
     }
     catch (BadCausemosInputException& e) {
         cout << e.what() << endl;

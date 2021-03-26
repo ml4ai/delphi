@@ -1,23 +1,12 @@
 # -*- coding: utf-8 -*-
 import os
-import re
-import json
 import numpy as np
-from math import exp, sqrt
-from uuid import uuid4
-import pickle
-from datetime import date, timedelta, datetime
-import dateutil
-from dateutil.relativedelta import relativedelta
-from dateutil.parser import parse
-from statistics import median, mean
-from delphi.cpp.DelphiPython import AnalysisGraph
-from delphi.utils import lmap
+from math import sqrt
+from delphi.cpp.DelphiPython import AnalysisGraph, InitialBeta, InitialDerivative
 from flask import jsonify, request, Blueprint, current_app
-from delphi.db import engine
-from delphi.apps.rest_api import db, executor
 from delphi.apps.rest_api.models import *
-from flask import current_app
+import multiprocessing
+multiprocessing.set_start_method('fork')
 
 bp = Blueprint("rest_api", __name__)
 
@@ -26,37 +15,90 @@ bp = Blueprint("rest_api", __name__)
 # ============
 
 
+def train_model(G, modelID, sampling_resolution, burn, app):
+    G.run_train_model(sampling_resolution,
+                      burn,
+                      InitialBeta.ZERO,
+                      InitialDerivative.DERI_ZERO)
+    #G.write_model_to_db(modelID)
+    with app.app_context():
+        model = DelphiModel(
+            id=modelID, model=G.serialize_to_json_string(verbose=False)
+        )
+        db.session.merge(model)
+        db.session.commit()
+
+
 @bp.route("/delphi/create-model", methods=["POST"])
 def createNewModel():
     """ Create a new Delphi model. """
-    data = json.loads(request.data)
-
     if os.environ.get("CI") == "true":
         # When running in a continuous integration run, we set the sampling
         # resolution to be small to prevent timeouts.
-        res = 5
+        kde_kernels = 5
+        sampling_resolution = 5
+        burn = 5
     elif os.environ.get("DELPHI_N_SAMPLES") is not None:
         # We also enable setting the sampling resolution through the
         # environment variable "DELPHI_N_SAMPLES", for development and testing
         # purposes.
-        res = int(os.environ["DELPHI_N_SAMPLES"])
+        # NOTE: When creating, this environment variable is named incorrectly!
+        kde_kernels = int(os.environ["DELPHI_N_SAMPLES"])
+        sampling_resolution = 100
+        burn = 100
     else:
         # If neither "CI" or "DELPHI_N_SAMPLES" is set, we default to a
         # sampling resolution of 1000.
 
         # TODO - we might want to set the default sampling resolution with some
         # kind of heuristic, based on the number of nodes and edges. - Adarsh
-        res = 1000
-    G = AnalysisGraph.from_causemos_json_string(request.data, res)
+        kde_kernels = 1000
+        sampling_resolution = 1000
+        burn = 10000
+
+    data = json.loads(request.data)
+
+    G = AnalysisGraph.from_causemos_json_string(request.data,
+                                                belief_score_cutoff=0,
+                                                grounding_score_cutoff=0,
+                                                kde_kernels=kde_kernels)
+
     model = DelphiModel(
         id=data["id"], model=G.serialize_to_json_string(verbose=False)
     )
     db.session.merge(model)
     db.session.commit()
-    response =  json.loads(G.generate_create_model_response())
+
+    response = json.loads(G.generate_create_model_response())
+
+    # executor.submit_stored(data["id"], train_model, G, data["id"])
+    try:
+        proc = multiprocessing.Process(target=train_model,
+                                       args=(G, data["id"], sampling_resolution, burn, current_app),
+                                       name='training')
+        proc.start()
+    except multiprocessing.ProcessError:
+        print("Error: unable to start training process")
+        response['status'] = 'server error: training'
+
     return jsonify(response)
 
-def runProjectionExperiment(request, modelID, experiment_id, G, trained):
+
+@bp.route("/delphi/models/<string:modelID>", methods=["GET"])
+def getModelStatus(modelID):
+    query_result = DelphiModel.query.filter_by(id=modelID).first()
+
+    if not query_result:
+        return jsonify(json.loads('{"status": "invalid model id"}'))
+
+    model = query_result.model
+    G = AnalysisGraph.deserialize_from_json_string(model, verbose=False)
+
+    response = json.loads(G.generate_create_model_response())
+    return jsonify(response)
+
+
+def runProjectionExperiment(request, experiment_id, G, app):
     request_body = request.get_json()
 
     startTime = request_body["experimentParam"]["startTime"]
@@ -67,16 +109,10 @@ def runProjectionExperiment(request, modelID, experiment_id, G, trained):
         request.data
     )
 
-    if(not trained):
-        model = DelphiModel(
-            id=modelID, model=G.serialize_to_json_string(verbose=False)
-        )
-        db.session.merge(model)
-        db.session.commit()
-
-    result = CauseMosAsyncExperimentResult.query.filter_by(
-        id=experiment_id
-    ).first()
+    with app.app_context():
+        result = CauseMosAsyncExperimentResult.query.filter_by(
+            id=experiment_id
+        ).first()
 
     # A rudimentary test to see if the projection failed. We check whether
     # the number time steps is equal to the number of elements in the first
@@ -136,31 +172,16 @@ def runProjectionExperiment(request, modelID, experiment_id, G, trained):
                 )
             result.results["data"].append(data_dict)
 
-    db.session.merge(result)
-    db.session.commit()
-
-def runExperiment(request, modelID, experiment_id):
-    request_body = request.get_json()
-    experiment_type = request_body["experimentType"]
-
-    query_result = DelphiModel.query.filter_by(id=modelID).first()
-
-    if not query_result:
-        # Model ID not in database. Should be an incorrect model ID
-        result = CauseMosAsyncExperimentResult.query.filter_by(
-            id=experiment_id
-        ).first()
-        result.status = "failed"
+    with app.app_context():
         db.session.merge(result)
         db.session.commit()
-        return
 
-    model = query_result.model
-    trained = json.loads(model)["trained"]
+
+def runExperiment(request, experiment_id, experiment_type, model, app):
     G = AnalysisGraph.deserialize_from_json_string(model, verbose=False)
 
     if experiment_type == "PROJECTION":
-        runProjectionExperiment(request, modelID, experiment_id, G, trained)
+        runProjectionExperiment(request, experiment_id, G, app)
     elif experiment_type == "GOAL_OPTIMIZATION":
         # Not yet implemented
         pass
@@ -177,9 +198,22 @@ def runExperiment(request, modelID, experiment_id):
         # Unknown experiment type
         pass
 
+
 @bp.route("/delphi/models/<string:modelID>/experiments", methods=["POST"])
 def createCausemosExperiment(modelID):
     request_body = request.get_json()
+
+    query_result = DelphiModel.query.filter_by(id=modelID).first()
+
+    if not query_result:
+        return jsonify({"experimentId": "invalid model id"})
+
+    model = query_result.model
+    trained = json.loads(model)["trained"]
+
+    if not trained:
+        return jsonify({"experimentId": "model not trained"})
+
     experiment_type = request_body["experimentType"]
     experiment_id = str(uuid4())
 
@@ -188,13 +222,23 @@ def createCausemosExperiment(modelID):
         baseType="CauseMosAsyncExperimentResult",
         experimentType=experiment_type,
         status="in progress",
-        results = {}
+        results={}
     )
 
     db.session.add(result)
     db.session.commit()
 
-    executor.submit_stored(experiment_id, runExperiment, request, modelID, experiment_id)
+    # executor.submit_stored(experiment_id, runExperiment, request,
+    #                        experiment_id, experiment_type, model)
+    try:
+        proc = multiprocessing.Process(target=runExperiment,
+                                       args=(request,
+                                             experiment_id, experiment_type, model, current_app),
+                                       name='experiment')
+        proc.start()
+    except multiprocessing.ProcessError:
+        print("Error: unable to start experiment process")
+        return jsonify({"experimentId": 'server error: experiment'})
 
     return jsonify({"experimentId": experiment_id})
 

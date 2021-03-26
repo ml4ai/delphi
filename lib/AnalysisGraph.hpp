@@ -553,12 +553,7 @@ class AnalysisGraph {
                                 const nlohmann::json &projection_constraints, long skip_steps);
 
   FormattedProjectionResult run_causemos_projection_experiment_from_json_dict(
-                                                               const nlohmann::json &json_data,
-                                                               int burn = 10000,
-                                                               int res = 200,
-                                                               InitialBeta initial_beta = InitialBeta::ZERO,
-                                                               InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO
-                                                                );
+                                               const nlohmann::json &json_data);
 
   FormattedProjectionResult format_projection_result();
 
@@ -740,19 +735,6 @@ class AnalysisGraph {
     return this->A_original(2 * get_vertex_id(target_vertex_name),
                             2 * get_vertex_id(source_vertex_name) + 1);
   }
-
-  /*
-   ============================================================================
-   Private: Run train model procedure (in train_model.cpp)
-   ============================================================================
-  */
-
-  void run_train_model(int res = 200,
-                       int burn = 10000,
-                       InitialBeta initial_beta = InitialBeta::ZERO,
-                       InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO,
-                       bool use_heuristic = false,
-                       bool use_continuous = true);
 
   /*
    ============================================================================
@@ -1074,15 +1056,17 @@ class AnalysisGraph {
 
   /** Construct an AnalysisGraph object from a JSON string exported by CauseMos.
    */
-  static AnalysisGraph from_causemos_json_string(std::string json_string, size_t res,
+  static AnalysisGraph from_causemos_json_string(std::string json_string,
                                                  double belief_score_cutoff = 0,
-                                                 double grounding_score_cutoff = 0);
+                                                 double grounding_score_cutoff = 0,
+                                                 int kde_kernels = 4);
 
   /** Construct an AnalysisGraph object from a file containing JSON data from
    * CauseMos. */
-  static AnalysisGraph from_causemos_json_file(std::string filename, size_t res,
+  static AnalysisGraph from_causemos_json_file(std::string filename,
                                                double belief_score_cutoff = 0,
-                                               double grounding_score_cutoff = 0);
+                                               double grounding_score_cutoff = 0,
+                                               int kde_kernels = 4);
 
   /**
    * Generate the response for the create model request from the HMI.
@@ -1098,20 +1082,10 @@ class AnalysisGraph {
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
   FormattedProjectionResult
-  run_causemos_projection_experiment_from_json_string(std::string json_string,
-                                                      int burn = 10000,
-                                                      int res = 200,
-                                                      InitialBeta initial_beta = InitialBeta::ZERO,
-                                                      InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO
-                                                      );
+  run_causemos_projection_experiment_from_json_string(std::string json_string);
 
   FormattedProjectionResult
-  run_causemos_projection_experiment_from_json_file(std::string filename,
-                                                    int burn = 10000,
-                                                    int res = 200,
-                                                    InitialBeta initial_beta = InitialBeta::ZERO,
-                                                    InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO
-                                                    );
+  run_causemos_projection_experiment_from_json_file(std::string filename);
 
   /*
    ============================================================================
@@ -1360,6 +1334,13 @@ class AnalysisGraph {
                    bool use_heuristic = false,
                    bool use_continuous = true);
 
+  void run_train_model(int res = 200,
+                       int burn = 10000,
+                       InitialBeta initial_beta = InitialBeta::ZERO,
+                       InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO,
+                       bool use_heuristic = false,
+                       bool use_continuous = true);
+
   /*
    ============================================================================
    Public: Training by MCMC Sampling (in sampling.cpp)
@@ -1493,4 +1474,12 @@ class AnalysisGraph {
   CredibleIntervals get_credible_interval(Predictions preds);
 
   CompleteState get_complete_state();
+
+  /*
+   ============================================================================
+   Public: Database interactions (in database.cpp)
+   ============================================================================
+  */
+
+  void write_model_to_db(std::string model_id);
 };

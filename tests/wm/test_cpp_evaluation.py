@@ -27,7 +27,7 @@ def test_cpp_extensions_preds():
     # InitialBeta.MEAN
     # InitialBeta.RANDOM - A random value between [-1, 1]
     G.train_model(
-        2015, 1, 2015, 12, 1000, 10000, initial_beta=InitialBeta.ZERO, use_continuous=False
+        2015, 1, 2015, 12, 10, 10, initial_beta=InitialBeta.ZERO, use_continuous=False
     )
     preds = G.generate_prediction(2015, 1, 2016, 12)
     pred_plot(preds, "New asylum seeking applicants", save_as="pred_plot.pdf")
