@@ -194,17 +194,8 @@
     <span class="k">this</span><span class="o">-&gt;</span><span class="n">data_heuristic</span> <span class="o">=</span> <span class="n">use_heuristic</span><span class="p">;</span>
 
     <span class="k">this</span><span class="o">-&gt;</span><span class="n">find_all_paths</span><span class="p">();</span>
-
-    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">causemos_call</span><span class="p">)</span> <span class="p">{</span>
-        <span class="c1">// θ pdfs are generated during the create-model call and they are</span>
-        <span class="c1">// serialized into json. So we do not need to re-generate them now,</span>
-        <span class="c1">// which is a bit time consuming task.</span>
-        <span class="c1">// We had to generate θ pdfs while create-model to generate the</span>
-        <span class="c1">// appropriate model-creation response, which requires edge weights.</span>
-        <span class="k">this</span><span class="o">-&gt;</span><span class="n">construct_theta_pdfs</span><span class="p">();</span>
-    <span class="p">}</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">construct_theta_pdfs</span><span class="p">();</span>
     <span class="k">this</span><span class="o">-&gt;</span><span class="n">init_betas_to</span><span class="p">(</span><span class="n">initial_beta</span><span class="p">);</span>
-
     <span class="k">this</span><span class="o">-&gt;</span><span class="n">set_indicator_means_and_standard_deviations</span><span class="p">();</span>
     <span class="k">this</span><span class="o">-&gt;</span><span class="n">set_transition_matrix_from_betas</span><span class="p">();</span>
     <span class="k">this</span><span class="o">-&gt;</span><span class="n">derivative_prior_variance</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">;</span>

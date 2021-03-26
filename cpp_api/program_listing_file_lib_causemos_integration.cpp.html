@@ -470,7 +470,8 @@
 
 <span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">from_causemos_json_dict</span><span class="p">(</span><span class="k">const</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="o">&amp;</span><span class="n">json_data</span><span class="p">,</span>
                                             <span class="kt">double</span> <span class="n">belief_score_cutoff</span><span class="p">,</span>
-                                            <span class="kt">double</span> <span class="n">grounding_score_cutoff</span><span class="p">)</span> <span class="p">{</span>
+                                            <span class="kt">double</span> <span class="n">grounding_score_cutoff</span>
+                                            <span class="p">)</span> <span class="p">{</span>
 
   <span class="k">this</span><span class="o">-&gt;</span><span class="n">causemos_call</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
 
@@ -591,10 +592,6 @@
   <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
     <span class="k">this</span><span class="o">-&gt;</span><span class="n">set_observed_state_sequence_from_json_dict</span><span class="p">(</span><span class="n">json_data</span><span class="p">[</span><span class="s">&quot;conceptIndicators&quot;</span><span class="p">]);</span>
   <span class="p">}</span>
-
-  <span class="k">this</span><span class="o">-&gt;</span><span class="n">initialize_random_number_generator</span><span class="p">();</span>
-  <span class="k">this</span><span class="o">-&gt;</span><span class="n">construct_theta_pdfs</span><span class="p">();</span>
-  <span class="n">RNG</span><span class="o">::</span><span class="n">release_instance</span><span class="p">();</span>
 <span class="p">}</span>
 
             <span class="cm">/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
@@ -651,12 +648,8 @@
 <span class="p">}</span>
 
 <span class="n">FormattedProjectionResult</span>
-<span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">run_causemos_projection_experiment_from_json_dict</span><span class="p">(</span><span class="k">const</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="o">&amp;</span><span class="n">json_data</span><span class="p">,</span>
-                                                                 <span class="kt">int</span> <span class="n">burn</span><span class="p">,</span>
-                                                                 <span class="kt">int</span> <span class="n">res</span><span class="p">,</span>
-                                                                 <span class="n">InitialBeta</span> <span class="n">initial_beta</span><span class="p">,</span>
-                                                                 <span class="n">InitialDerivative</span> <span class="n">initial_derivative</span>
-                                                                 <span class="p">)</span> <span class="p">{</span>
+<span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">run_causemos_projection_experiment_from_json_dict</span><span class="p">(</span>
+                                              <span class="k">const</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="o">&amp;</span><span class="n">json_data</span><span class="p">)</span> <span class="p">{</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="n">json_data</span><span class="p">[</span><span class="s">&quot;experimentParam&quot;</span><span class="p">].</span><span class="n">is_null</span><span class="p">())</span> <span class="p">{</span>
         <span class="k">throw</span> <span class="nf">BadCausemosInputException</span><span class="p">(</span><span class="s">&quot;Experiment parameters null&quot;</span><span class="p">);</span>
@@ -724,8 +717,6 @@
       <span class="p">}</span>
     <span class="p">}</span>
 
-    <span class="k">this</span><span class="o">-&gt;</span><span class="n">run_train_model</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">burn</span><span class="p">,</span> <span class="n">initial_beta</span><span class="p">,</span> <span class="n">initial_derivative</span><span class="p">);</span>
-
     <span class="k">this</span><span class="o">-&gt;</span><span class="n">extract_projection_constraints</span><span class="p">(</span><span class="n">projection_parameters</span><span class="p">[</span><span class="s">&quot;constraints&quot;</span><span class="p">],</span> <span class="n">skip_steps</span><span class="p">);</span>
 
     <span class="k">this</span><span class="o">-&gt;</span><span class="n">generate_latent_state_sequences</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_start_timestep</span><span class="p">);</span>
@@ -782,22 +773,26 @@
 <span class="cm">                          create-model (public)</span>
 <span class="cm">            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/</span>
 
-<span class="n">AnalysisGraph</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">from_causemos_json_string</span><span class="p">(</span><span class="n">string</span> <span class="n">json_string</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">res</span><span class="p">,</span>
+<span class="n">AnalysisGraph</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">from_causemos_json_string</span><span class="p">(</span><span class="n">string</span> <span class="n">json_string</span><span class="p">,</span>
                                                        <span class="kt">double</span> <span class="n">belief_score_cutoff</span><span class="p">,</span>
-                                                       <span class="kt">double</span> <span class="n">grounding_score_cutoff</span><span class="p">)</span> <span class="p">{</span>
+                                                       <span class="kt">double</span> <span class="n">grounding_score_cutoff</span><span class="p">,</span>
+                                                       <span class="kt">int</span> <span class="n">kde_kernels</span>
+                                                       <span class="p">)</span> <span class="p">{</span>
   <span class="n">AnalysisGraph</span> <span class="n">G</span><span class="p">;</span>
-  <span class="n">G</span><span class="p">.</span><span class="n">set_res</span><span class="p">(</span><span class="n">res</span><span class="p">);</span>
+  <span class="n">G</span><span class="p">.</span><span class="n">set_res</span><span class="p">(</span><span class="n">kde_kernels</span><span class="p">);</span>
 
   <span class="k">auto</span> <span class="n">json_data</span> <span class="o">=</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span><span class="n">json_string</span><span class="p">);</span>
   <span class="n">G</span><span class="p">.</span><span class="n">from_causemos_json_dict</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="n">belief_score_cutoff</span><span class="p">,</span> <span class="n">grounding_score_cutoff</span><span class="p">);</span>
   <span class="k">return</span> <span class="n">G</span><span class="p">;</span>
 <span class="p">}</span>
 
-<span class="n">AnalysisGraph</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">from_causemos_json_file</span><span class="p">(</span><span class="n">string</span> <span class="n">filename</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">res</span><span class="p">,</span>
+<span class="n">AnalysisGraph</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">from_causemos_json_file</span><span class="p">(</span><span class="n">string</span> <span class="n">filename</span><span class="p">,</span>
                                                      <span class="kt">double</span> <span class="n">belief_score_cutoff</span><span class="p">,</span>
-                                                     <span class="kt">double</span> <span class="n">grounding_score_cutoff</span><span class="p">)</span> <span class="p">{</span>
+                                                     <span class="kt">double</span> <span class="n">grounding_score_cutoff</span><span class="p">,</span>
+                                                     <span class="kt">int</span> <span class="n">kde_kernels</span>
+                                                     <span class="p">)</span> <span class="p">{</span>
   <span class="n">AnalysisGraph</span> <span class="n">G</span><span class="p">;</span>
-  <span class="n">G</span><span class="p">.</span><span class="n">set_res</span><span class="p">(</span><span class="n">res</span><span class="p">);</span>
+  <span class="n">G</span><span class="p">.</span><span class="n">set_res</span><span class="p">(</span><span class="n">kde_kernels</span><span class="p">);</span>
 
   <span class="k">auto</span> <span class="n">json_data</span> <span class="o">=</span> <span class="n">load_json</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span>
   <span class="n">G</span><span class="p">.</span><span class="n">from_causemos_json_dict</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="n">belief_score_cutoff</span><span class="p">,</span> <span class="n">grounding_score_cutoff</span><span class="p">);</span>
@@ -808,14 +803,27 @@
     <span class="k">using</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="p">,</span> <span class="n">ranges</span><span class="o">::</span><span class="n">max</span><span class="p">;</span>
 
     <span class="n">json</span> <span class="n">j</span><span class="p">;</span>
-    <span class="n">j</span><span class="p">[</span><span class="s">&quot;status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;success&quot;</span><span class="p">;</span>
+    <span class="n">j</span><span class="p">[</span><span class="s">&quot;status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">trained</span><span class="o">?</span> <span class="s">&quot;ready&quot;</span> <span class="o">:</span> <span class="s">&quot;training&quot;</span><span class="p">;</span>
     <span class="n">j</span><span class="p">[</span><span class="s">&quot;relations&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{};</span>
     <span class="n">j</span><span class="p">[</span><span class="s">&quot;conceptIndicators&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{};</span>
 
     <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">e</span> <span class="p">:</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">edges</span><span class="p">())</span> <span class="p">{</span>
+        <span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">weights</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">trained</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">weights</span> <span class="o">=</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">sampled_thetas</span><span class="p">.</span><span class="n">size</span><span class="p">());</span>
+            <span class="n">transform</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">sampled_thetas</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span>
+                      <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">sampled_thetas</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span>
+                      <span class="n">weights</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span>
+                      <span class="p">[</span><span class="o">&amp;</span><span class="p">](</span><span class="kt">double</span> <span class="n">theta</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="k">return</span> <span class="p">(</span><span class="kt">double</span><span class="p">)</span><span class="n">tan</span><span class="p">(</span><span class="n">theta</span><span class="p">);</span>
+                      <span class="p">});</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="n">weights</span> <span class="o">=</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">{</span><span class="mf">0.5</span><span class="p">};</span>
+        <span class="p">}</span>
+
         <span class="n">json</span> <span class="n">edge_json</span> <span class="o">=</span> <span class="p">{{</span><span class="s">&quot;source&quot;</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">source</span><span class="p">(</span><span class="n">e</span><span class="p">).</span><span class="n">name</span><span class="p">},</span>
                           <span class="p">{</span><span class="s">&quot;target&quot;</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">target</span><span class="p">(</span><span class="n">e</span><span class="p">).</span><span class="n">name</span><span class="p">},</span>
-                          <span class="p">{</span><span class="s">&quot;weights&quot;</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">{</span><span class="mf">0.5</span><span class="p">}}};</span>
+                          <span class="p">{</span><span class="s">&quot;weights&quot;</span><span class="p">,</span> <span class="n">weights</span><span class="p">}};</span>
 
         <span class="n">j</span><span class="p">[</span><span class="s">&quot;relations&quot;</span><span class="p">].</span><span class="n">push_back</span><span class="p">(</span><span class="n">edge_json</span><span class="p">);</span>
     <span class="p">}</span>
@@ -835,12 +843,8 @@
 <span class="cm">            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/</span>
 
 <span class="n">FormattedProjectionResult</span>
-<span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">run_causemos_projection_experiment_from_json_string</span><span class="p">(</span><span class="n">string</span> <span class="n">json_string</span><span class="p">,</span>
-                                                                   <span class="kt">int</span> <span class="n">burn</span><span class="p">,</span>
-                                                                   <span class="kt">int</span> <span class="n">res</span><span class="p">,</span>
-                                                                   <span class="n">InitialBeta</span> <span class="n">initial_beta</span><span class="p">,</span>
-                                                                   <span class="n">InitialDerivative</span> <span class="n">initial_derivative</span>
-                                                                    <span class="p">)</span> <span class="p">{</span>
+<span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">run_causemos_projection_experiment_from_json_string</span><span class="p">(</span>
+                                                           <span class="n">string</span> <span class="n">json_string</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">using</span> <span class="k">namespace</span> <span class="n">fmt</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
     <span class="k">using</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="p">;</span>
 
@@ -859,10 +863,7 @@
     <span class="k">auto</span> <span class="n">json_data</span> <span class="o">=</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span><span class="n">json_string</span><span class="p">);</span>
 
     <span class="k">try</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nf">run_causemos_projection_experiment_from_json_dict</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span>
-                                                               <span class="n">burn</span><span class="p">,</span> <span class="n">res</span><span class="p">,</span>
-                                                               <span class="n">initial_beta</span><span class="p">,</span>
-                                                               <span class="n">initial_derivative</span><span class="p">);</span>
+        <span class="k">return</span> <span class="nf">run_causemos_projection_experiment_from_json_dict</span><span class="p">(</span><span class="n">json_data</span><span class="p">);</span>
     <span class="p">}</span>
     <span class="k">catch</span> <span class="p">(</span><span class="n">BadCausemosInputException</span><span class="o">&amp;</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
         <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">e</span><span class="p">.</span><span class="n">what</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
@@ -873,12 +874,8 @@
 <span class="p">}</span>
 
 <span class="n">FormattedProjectionResult</span>
-<span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">run_causemos_projection_experiment_from_json_file</span><span class="p">(</span><span class="n">string</span> <span class="n">filename</span><span class="p">,</span>
-                                                                 <span class="kt">int</span> <span class="n">burn</span><span class="p">,</span>
-                                                                 <span class="kt">int</span> <span class="n">res</span><span class="p">,</span>
-                                                                 <span class="n">InitialBeta</span> <span class="n">initial_beta</span><span class="p">,</span>
-                                                                 <span class="n">InitialDerivative</span> <span class="n">initial_derivative</span>
-                                                                  <span class="p">)</span> <span class="p">{</span>
+<span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">run_causemos_projection_experiment_from_json_file</span><span class="p">(</span>
+                                                              <span class="n">string</span> <span class="n">filename</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">using</span> <span class="k">namespace</span> <span class="n">fmt</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
     <span class="k">using</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="p">;</span>
 
@@ -897,10 +894,7 @@
     <span class="k">auto</span> <span class="n">json_data</span> <span class="o">=</span> <span class="n">load_json</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span>
 
     <span class="k">try</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nf">run_causemos_projection_experiment_from_json_dict</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span>
-                                                               <span class="n">burn</span><span class="p">,</span> <span class="n">res</span><span class="p">,</span>
-                                                               <span class="n">initial_beta</span><span class="p">,</span>
-                                                               <span class="n">initial_derivative</span><span class="p">);</span>
+        <span class="k">return</span> <span class="nf">run_causemos_projection_experiment_from_json_dict</span><span class="p">(</span><span class="n">json_data</span><span class="p">);</span>
     <span class="p">}</span>
     <span class="k">catch</span> <span class="p">(</span><span class="n">BadCausemosInputException</span><span class="o">&amp;</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
         <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">e</span><span class="p">.</span><span class="n">what</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>

@@ -217,15 +217,17 @@
       <span class="p">.</span><span class="n">def_static</span><span class="p">(</span><span class="s">&quot;from_causemos_json_string&quot;</span><span class="p">,</span>
                   <span class="o">&amp;</span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">from_causemos_json_string</span><span class="p">,</span>
                   <span class="s">&quot;json_string&quot;</span><span class="n">_a</span><span class="p">,</span>
-                  <span class="s">&quot;res&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
                   <span class="s">&quot;belief_score_cutoff&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-                  <span class="s">&quot;grounding_score_cutoff&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+                  <span class="s">&quot;grounding_score_cutoff&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                  <span class="s">&quot;kde_kernels&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="mi">4</span>
+      <span class="p">)</span>
       <span class="p">.</span><span class="n">def_static</span><span class="p">(</span><span class="s">&quot;from_causemos_json_file&quot;</span><span class="p">,</span>
                   <span class="o">&amp;</span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">from_causemos_json_file</span><span class="p">,</span>
                   <span class="s">&quot;filename&quot;</span><span class="n">_a</span><span class="p">,</span>
-                  <span class="s">&quot;res&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
                   <span class="s">&quot;belief_score_cutoff&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-                  <span class="s">&quot;grounding_score_cutoff&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+                  <span class="s">&quot;grounding_score_cutoff&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                  <span class="s">&quot;kde_kernels&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="mi">4</span>
+      <span class="p">)</span>
       <span class="p">.</span><span class="n">def_static</span><span class="p">(</span><span class="s">&quot;from_causal_fragments&quot;</span><span class="p">,</span>
                   <span class="o">&amp;</span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">from_causal_fragments</span><span class="p">,</span>
                   <span class="s">&quot;causal_fragments&quot;</span><span class="n">_a</span><span class="p">)</span>
@@ -342,6 +344,14 @@
            <span class="s">&quot;initial_derivative&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="n">InitialDerivative</span><span class="o">::</span><span class="n">DERI_ZERO</span><span class="p">,</span>
            <span class="s">&quot;use_heuristic&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="nb">false</span><span class="p">,</span>
            <span class="s">&quot;use_continuous&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="nb">true</span><span class="p">)</span>
+      <span class="p">.</span><span class="n">def</span><span class="p">(</span><span class="s">&quot;run_train_model&quot;</span><span class="p">,</span>
+           <span class="o">&amp;</span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">run_train_model</span><span class="p">,</span>
+           <span class="s">&quot;res&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+           <span class="s">&quot;burn&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
+           <span class="s">&quot;initial_beta&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="n">InitialBeta</span><span class="o">::</span><span class="n">ZERO</span><span class="p">,</span>
+           <span class="s">&quot;initial_derivative&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="n">InitialDerivative</span><span class="o">::</span><span class="n">DERI_ZERO</span><span class="p">,</span>
+           <span class="s">&quot;use_heuristic&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="nb">false</span><span class="p">,</span>
+           <span class="s">&quot;use_continuous&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="nb">true</span><span class="p">)</span>
       <span class="p">.</span><span class="n">def</span><span class="p">(</span><span class="s">&quot;generate_prediction&quot;</span><span class="p">,</span>
            <span class="o">&amp;</span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">generate_prediction</span><span class="p">,</span>
            <span class="s">&quot;start_year&quot;</span><span class="n">_a</span><span class="p">,</span>
@@ -353,20 +363,10 @@
            <span class="s">&quot;clamp_deri&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="nb">true</span><span class="p">)</span>
       <span class="p">.</span><span class="n">def</span><span class="p">(</span><span class="s">&quot;run_causemos_projection_experiment_from_json_string&quot;</span><span class="p">,</span>
            <span class="o">&amp;</span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">run_causemos_projection_experiment_from_json_string</span><span class="p">,</span>
-           <span class="s">&quot;json_string&quot;</span><span class="n">_a</span><span class="p">,</span>
-           <span class="s">&quot;burn&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
-           <span class="s">&quot;res&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
-           <span class="s">&quot;initial_beta&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="n">InitialBeta</span><span class="o">::</span><span class="n">ZERO</span><span class="p">,</span>
-           <span class="s">&quot;initial_derivative&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="n">InitialDerivative</span><span class="o">::</span><span class="n">DERI_ZERO</span>
-           <span class="p">)</span>
+           <span class="s">&quot;json_string&quot;</span><span class="n">_a</span><span class="p">)</span>
       <span class="p">.</span><span class="n">def</span><span class="p">(</span><span class="s">&quot;run_causemos_projection_experiment_from_json_file&quot;</span><span class="p">,</span>
            <span class="o">&amp;</span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">run_causemos_projection_experiment_from_json_file</span><span class="p">,</span>
-           <span class="s">&quot;filename&quot;</span><span class="n">_a</span><span class="p">,</span>
-           <span class="s">&quot;burn&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
-           <span class="s">&quot;res&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
-           <span class="s">&quot;initial_beta&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="n">InitialBeta</span><span class="o">::</span><span class="n">ZERO</span><span class="p">,</span>
-           <span class="s">&quot;initial_derivative&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="n">InitialDerivative</span><span class="o">::</span><span class="n">DERI_ZERO</span>
-      <span class="p">)</span>
+           <span class="s">&quot;filename&quot;</span><span class="n">_a</span><span class="p">)</span>
       <span class="p">.</span><span class="n">def</span><span class="p">(</span><span class="s">&quot;prediction_to_array&quot;</span><span class="p">,</span>
            <span class="o">&amp;</span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">prediction_to_array</span><span class="p">,</span>
            <span class="s">&quot;indicator&quot;</span><span class="n">_a</span><span class="p">)</span>
@@ -382,7 +382,10 @@
            <span class="o">&amp;</span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">serialize_to_json_string</span><span class="p">,</span>
            <span class="s">&quot;verbose&quot;</span><span class="n">_a</span> <span class="o">=</span> <span class="nb">true</span><span class="p">)</span>
       <span class="p">.</span><span class="n">def</span><span class="p">(</span><span class="s">&quot;get_complete_state&quot;</span><span class="p">,</span>
-           <span class="o">&amp;</span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">get_complete_state</span><span class="p">);</span>
+           <span class="o">&amp;</span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">get_complete_state</span><span class="p">)</span>
+      <span class="p">.</span><span class="n">def</span><span class="p">(</span><span class="s">&quot;write_model_to_db&quot;</span><span class="p">,</span>
+           <span class="o">&amp;</span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">write_model_to_db</span><span class="p">,</span>
+           <span class="s">&quot;model_id&quot;</span><span class="n">_a</span><span class="p">);</span>
 
   <span class="n">py</span><span class="o">::</span><span class="n">class_</span><span class="o">&lt;</span><span class="n">RV</span><span class="o">&gt;</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="s">&quot;RV&quot;</span><span class="p">)</span>
       <span class="p">.</span><span class="n">def</span><span class="p">(</span><span class="n">py</span><span class="o">::</span><span class="n">init</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">())</span>

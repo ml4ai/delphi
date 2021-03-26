@@ -52,7 +52,7 @@ Typedefs
 --------
 
 
-- :ref:`exhale_typedef_sandbox_8cpp_1aa6eff4668db1032bdb38d084d9078486`
+- :ref:`exhale_typedef_sandbox_8cpp_1a01027ce0641d9a224f4aeaffb85c9c1f`
 
 - :ref:`exhale_typedef_sandbox_8cpp_1af4a53a8754213c9236b8051673625ded`
 

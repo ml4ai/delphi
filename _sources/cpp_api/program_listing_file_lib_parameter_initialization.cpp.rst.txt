@@ -36,17 +36,8 @@ Program Listing for File parameter_initialization.cpp
        this->data_heuristic = use_heuristic;
    
        this->find_all_paths();
-   
-       if (!causemos_call) {
-           // θ pdfs are generated during the create-model call and they are
-           // serialized into json. So we do not need to re-generate them now,
-           // which is a bit time consuming task.
-           // We had to generate θ pdfs while create-model to generate the
-           // appropriate model-creation response, which requires edge weights.
-           this->construct_theta_pdfs();
-       }
+       this->construct_theta_pdfs();
        this->init_betas_to(initial_beta);
-   
        this->set_indicator_means_and_standard_deviations();
        this->set_transition_matrix_from_betas();
        this->derivative_prior_variance = 0.1;

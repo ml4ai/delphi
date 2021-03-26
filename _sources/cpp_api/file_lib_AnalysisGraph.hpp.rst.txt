@@ -63,6 +63,8 @@ Included By
 
 - :ref:`file_lib_constructors.cpp`
 
+- :ref:`file_lib_database.cpp`
+
 - :ref:`file_lib_DelphiPython.cpp`
 
 - :ref:`file_lib_format_output.cpp`

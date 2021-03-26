@@ -213,19 +213,13 @@
   <span class="p">}</span>
 <span class="p">}</span>
 
-<span class="cm">/*</span>
-<span class="cm"> ============================================================================</span>
-<span class="cm"> Private: Run train model procedure (in train_model.cpp)</span>
-<span class="cm"> ============================================================================</span>
-<span class="cm">*/</span>
-
-
 <span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">run_train_model</span><span class="p">(</span><span class="kt">int</span> <span class="n">res</span><span class="p">,</span>
-                                <span class="kt">int</span> <span class="n">burn</span><span class="p">,</span>
-                                <span class="n">InitialBeta</span> <span class="n">initial_beta</span><span class="p">,</span>
-                                <span class="n">InitialDerivative</span> <span class="n">initial_derivative</span><span class="p">,</span>
-                                <span class="kt">bool</span> <span class="n">use_heuristic</span><span class="p">,</span>
-                                <span class="kt">bool</span> <span class="n">use_continuous</span><span class="p">)</span> <span class="p">{</span>
+                                    <span class="kt">int</span> <span class="n">burn</span><span class="p">,</span>
+                                    <span class="n">InitialBeta</span> <span class="n">initial_beta</span><span class="p">,</span>
+                                    <span class="n">InitialDerivative</span> <span class="n">initial_derivative</span><span class="p">,</span>
+                                    <span class="kt">bool</span> <span class="n">use_heuristic</span><span class="p">,</span>
+                                    <span class="kt">bool</span> <span class="n">use_continuous</span>
+                                    <span class="p">)</span> <span class="p">{</span>
 
     <span class="k">this</span><span class="o">-&gt;</span><span class="n">initialize_parameters</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">initial_beta</span><span class="p">,</span> <span class="n">initial_derivative</span><span class="p">,</span>
                               <span class="n">use_heuristic</span><span class="p">,</span> <span class="n">use_continuous</span><span class="p">);</span>

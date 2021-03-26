@@ -623,12 +623,7 @@
                                 <span class="k">const</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="o">&amp;</span><span class="n">projection_constraints</span><span class="p">,</span> <span class="kt">long</span> <span class="n">skip_steps</span><span class="p">);</span>
 
   <span class="n">FormattedProjectionResult</span> <span class="nf">run_causemos_projection_experiment_from_json_dict</span><span class="p">(</span>
-                                                               <span class="k">const</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="o">&amp;</span><span class="n">json_data</span><span class="p">,</span>
-                                                               <span class="kt">int</span> <span class="n">burn</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
-                                                               <span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
-                                                               <span class="n">InitialBeta</span> <span class="n">initial_beta</span> <span class="o">=</span> <span class="n">InitialBeta</span><span class="o">::</span><span class="n">ZERO</span><span class="p">,</span>
-                                                               <span class="n">InitialDerivative</span> <span class="n">initial_derivative</span> <span class="o">=</span> <span class="n">InitialDerivative</span><span class="o">::</span><span class="n">DERI_ZERO</span>
-                                                                <span class="p">);</span>
+                                               <span class="k">const</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="o">&amp;</span><span class="n">json_data</span><span class="p">);</span>
 
   <span class="n">FormattedProjectionResult</span> <span class="nf">format_projection_result</span><span class="p">();</span>
 
@@ -781,25 +776,12 @@
 
   <span class="cm">/*</span>
 <span class="cm">   ============================================================================</span>
-<span class="cm">   Private: Run train model procedure (in train_model.cpp)</span>
-<span class="cm">   ============================================================================</span>
-<span class="cm">  */</span>
-
-  <span class="kt">void</span> <span class="n">run_train_model</span><span class="p">(</span><span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
-                       <span class="kt">int</span> <span class="n">burn</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
-                       <span class="n">InitialBeta</span> <span class="n">initial_beta</span> <span class="o">=</span> <span class="n">InitialBeta</span><span class="o">::</span><span class="n">ZERO</span><span class="p">,</span>
-                       <span class="n">InitialDerivative</span> <span class="n">initial_derivative</span> <span class="o">=</span> <span class="n">InitialDerivative</span><span class="o">::</span><span class="n">DERI_ZERO</span><span class="p">,</span>
-                       <span class="kt">bool</span> <span class="n">use_heuristic</span> <span class="o">=</span> <span class="nb">false</span><span class="p">,</span>
-                       <span class="kt">bool</span> <span class="n">use_continuous</span> <span class="o">=</span> <span class="nb">true</span><span class="p">);</span>
-
-  <span class="cm">/*</span>
-<span class="cm">   ============================================================================</span>
 <span class="cm">   Private: Get Training Data Sequence (in train_model.cpp)</span>
 <span class="cm">   ============================================================================</span>
 <span class="cm">  */</span>
 
   <span class="kt">void</span>
-  <span class="nf">set_observed_state_sequence_from_data</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">country</span> <span class="o">=</span> <span class="s">&quot;South Sudan&quot;</span><span class="p">,</span>
+  <span class="n">set_observed_state_sequence_from_data</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">country</span> <span class="o">=</span> <span class="s">&quot;South Sudan&quot;</span><span class="p">,</span>
                                         <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">state</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="p">,</span>
                                         <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">county</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="p">);</span>
 
@@ -981,13 +963,15 @@
 <span class="cm">                            create-model</span>
 <span class="cm">            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/</span>
 
-  <span class="k">static</span> <span class="n">AnalysisGraph</span> <span class="n">from_causemos_json_string</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">json_string</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">res</span><span class="p">,</span>
+  <span class="k">static</span> <span class="n">AnalysisGraph</span> <span class="n">from_causemos_json_string</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">json_string</span><span class="p">,</span>
                                                  <span class="kt">double</span> <span class="n">belief_score_cutoff</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-                                                 <span class="kt">double</span> <span class="n">grounding_score_cutoff</span> <span class="o">=</span> <span class="mi">0</span><span class="p">);</span>
+                                                 <span class="kt">double</span> <span class="n">grounding_score_cutoff</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                                                 <span class="kt">int</span> <span class="n">kde_kernels</span> <span class="o">=</span> <span class="mi">4</span><span class="p">);</span>
 
-  <span class="k">static</span> <span class="n">AnalysisGraph</span> <span class="n">from_causemos_json_file</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filename</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">res</span><span class="p">,</span>
+  <span class="k">static</span> <span class="n">AnalysisGraph</span> <span class="n">from_causemos_json_file</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filename</span><span class="p">,</span>
                                                <span class="kt">double</span> <span class="n">belief_score_cutoff</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-                                               <span class="kt">double</span> <span class="n">grounding_score_cutoff</span> <span class="o">=</span> <span class="mi">0</span><span class="p">);</span>
+                                               <span class="kt">double</span> <span class="n">grounding_score_cutoff</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                                               <span class="kt">int</span> <span class="n">kde_kernels</span> <span class="o">=</span> <span class="mi">4</span><span class="p">);</span>
 
   <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">generate_create_model_response</span><span class="p">();</span>
 
@@ -996,20 +980,10 @@
 <span class="cm">            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/</span>
 
   <span class="n">FormattedProjectionResult</span>
-  <span class="nf">run_causemos_projection_experiment_from_json_string</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">json_string</span><span class="p">,</span>
-                                                      <span class="kt">int</span> <span class="n">burn</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
-                                                      <span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
-                                                      <span class="n">InitialBeta</span> <span class="n">initial_beta</span> <span class="o">=</span> <span class="n">InitialBeta</span><span class="o">::</span><span class="n">ZERO</span><span class="p">,</span>
-                                                      <span class="n">InitialDerivative</span> <span class="n">initial_derivative</span> <span class="o">=</span> <span class="n">InitialDerivative</span><span class="o">::</span><span class="n">DERI_ZERO</span>
-                                                      <span class="p">);</span>
+  <span class="nf">run_causemos_projection_experiment_from_json_string</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">json_string</span><span class="p">);</span>
 
   <span class="n">FormattedProjectionResult</span>
-  <span class="nf">run_causemos_projection_experiment_from_json_file</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filename</span><span class="p">,</span>
-                                                    <span class="kt">int</span> <span class="n">burn</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
-                                                    <span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
-                                                    <span class="n">InitialBeta</span> <span class="n">initial_beta</span> <span class="o">=</span> <span class="n">InitialBeta</span><span class="o">::</span><span class="n">ZERO</span><span class="p">,</span>
-                                                    <span class="n">InitialDerivative</span> <span class="n">initial_derivative</span> <span class="o">=</span> <span class="n">InitialDerivative</span><span class="o">::</span><span class="n">DERI_ZERO</span>
-                                                    <span class="p">);</span>
+  <span class="nf">run_causemos_projection_experiment_from_json_file</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filename</span><span class="p">);</span>
 
   <span class="cm">/*</span>
 <span class="cm">   ============================================================================</span>
@@ -1194,6 +1168,13 @@
                    <span class="kt">bool</span> <span class="n">use_heuristic</span> <span class="o">=</span> <span class="nb">false</span><span class="p">,</span>
                    <span class="kt">bool</span> <span class="n">use_continuous</span> <span class="o">=</span> <span class="nb">true</span><span class="p">);</span>
 
+  <span class="kt">void</span> <span class="nf">run_train_model</span><span class="p">(</span><span class="kt">int</span> <span class="n">res</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+                       <span class="kt">int</span> <span class="n">burn</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
+                       <span class="n">InitialBeta</span> <span class="n">initial_beta</span> <span class="o">=</span> <span class="n">InitialBeta</span><span class="o">::</span><span class="n">ZERO</span><span class="p">,</span>
+                       <span class="n">InitialDerivative</span> <span class="n">initial_derivative</span> <span class="o">=</span> <span class="n">InitialDerivative</span><span class="o">::</span><span class="n">DERI_ZERO</span><span class="p">,</span>
+                       <span class="kt">bool</span> <span class="n">use_heuristic</span> <span class="o">=</span> <span class="nb">false</span><span class="p">,</span>
+                       <span class="kt">bool</span> <span class="n">use_continuous</span> <span class="o">=</span> <span class="nb">true</span><span class="p">);</span>
+
   <span class="cm">/*</span>
 <span class="cm">   ============================================================================</span>
 <span class="cm">   Public: Training by MCMC Sampling (in sampling.cpp)</span>
@@ -1295,6 +1276,14 @@
   <span class="n">CredibleIntervals</span> <span class="nf">get_credible_interval</span><span class="p">(</span><span class="n">Predictions</span> <span class="n">preds</span><span class="p">);</span>
 
   <span class="n">CompleteState</span> <span class="nf">get_complete_state</span><span class="p">();</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Public: Database interactions (in database.cpp)</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span>
+
+  <span class="kt">void</span> <span class="nf">write_model_to_db</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">model_id</span><span class="p">);</span>
 <span class="p">};</span>
 </pre></div>
 </div>

@@ -191,7 +191,8 @@
     <span class="kt">int</span><span class="p">,</span>
     <span class="kt">int</span><span class="p">,</span>
     <span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">,</span>
-    <span class="n">vector</span><span class="o">&lt;</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">tuple</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="p">,</span> <span class="n">string</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">tuple</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="p">,</span> <span class="n">string</span><span class="o">&gt;&gt;&gt;&gt;</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">tuple</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="p">,</span> <span class="n">string</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">tuple</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="p">,</span> <span class="n">string</span><span class="o">&gt;&gt;&gt;</span><span class="p">,</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span>
     <span class="n">Edge_tuple</span><span class="p">;</span>
 
 <span class="cm">/*</span>
@@ -244,6 +245,8 @@
       <span class="n">string</span> <span class="n">target</span> <span class="o">=</span> <span class="n">edge_element</span><span class="p">[</span><span class="s">&quot;target&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">();</span>
       <span class="k">this</span><span class="o">-&gt;</span><span class="n">edge</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">).</span><span class="n">kde</span><span class="p">.</span><span class="n">dataset</span> <span class="o">=</span>
           <span class="n">edge_element</span><span class="p">[</span><span class="s">&quot;kernels&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span><span class="p">();</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">edge</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">).</span><span class="n">sampled_thetas</span> <span class="o">=</span>
+          <span class="n">edge_element</span><span class="p">[</span><span class="s">&quot;thetas&quot;</span><span class="p">].</span><span class="n">get</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span><span class="p">();</span>
     <span class="p">}</span>
 
     <span class="k">this</span><span class="o">-&gt;</span><span class="n">training_range</span><span class="p">.</span><span class="n">first</span><span class="p">.</span><span class="n">first</span> <span class="o">=</span> <span class="n">json_data</span><span class="p">[</span><span class="s">&quot;start_year&quot;</span><span class="p">];</span>
@@ -282,6 +285,8 @@
       <span class="k">if</span> <span class="p">(</span><span class="n">edge_added</span><span class="p">)</span> <span class="p">{</span>
           <span class="k">this</span><span class="o">-&gt;</span><span class="n">edge</span><span class="p">(</span><span class="n">get</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">(</span><span class="n">edge_element</span><span class="p">),</span> <span class="n">get</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">(</span><span class="n">edge_element</span><span class="p">)).</span><span class="n">kde</span><span class="p">.</span><span class="n">dataset</span> <span class="o">=</span>
               <span class="n">get</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">(</span><span class="n">edge_element</span><span class="p">);</span>
+          <span class="k">this</span><span class="o">-&gt;</span><span class="n">edge</span><span class="p">(</span><span class="n">get</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">(</span><span class="n">edge_element</span><span class="p">),</span> <span class="n">get</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">(</span><span class="n">edge_element</span><span class="p">)).</span><span class="n">sampled_thetas</span> <span class="o">=</span>
+              <span class="n">get</span><span class="o">&lt;</span><span class="mi">4</span><span class="o">&gt;</span><span class="p">(</span><span class="n">edge_element</span><span class="p">);</span>
       <span class="p">}</span>
     <span class="p">}</span>
 

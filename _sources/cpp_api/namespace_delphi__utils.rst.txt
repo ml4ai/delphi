@@ -25,9 +25,9 @@ Functions
 
 - :ref:`exhale_function_utils_8hpp_1a9c267fceec97b3e1de1541325267a590`
 
-- :ref:`exhale_function_utils_8cpp_1af3db7708c72021920c9f76b82058db46`
-
 - :ref:`exhale_function_utils_8hpp_1a20dedc59789fac7a584b05141573e609`
+
+- :ref:`exhale_function_utils_8cpp_1af3db7708c72021920c9f76b82058db46`
 
 - :ref:`exhale_function_utils_8cpp_1aa96442924e4380d2588414804ec9bb1d`
 
