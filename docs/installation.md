@@ -86,6 +86,20 @@ To install graphviz on Debian systems (like Ubuntu), do
 sudo apt-get install graphviz libgraphviz-dev pkg-config
 ```
 
+### Completing the installatin
+
+Start the delphi python virtual environment:
+
+```bash
+activate delphi
+```
+
+With the delphi python virtual environment running, install the test and documentation files:
+
+```bash
+pip install -e .[test,docs]
+```
+
 ### Building documentation
 
 (This requires you have performed the installation for developers, above.) 
