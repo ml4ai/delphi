@@ -57,11 +57,10 @@ The following are the prerequisites for Delphi:
    source ~/.bashrc
    ```
 
-   If on a Mac:
+   If on a Mac, follow the same steps as above, using file 
    
    ```
-   echo "export DELPHI_DB=`pwd`/delphi.db" >> ~/.bash_profile
-   source ~/.bash_profile
+   ~/.bash_profile
    ```
 
 2. Install Delphi using pip:
