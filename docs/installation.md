@@ -97,6 +97,7 @@ activate delphi
 With the delphi python virtual environment running, install the test and documentation files:
 
 ```bash
+sudo port install pybind11
 pip install -e .[test,docs]
 ```
 
