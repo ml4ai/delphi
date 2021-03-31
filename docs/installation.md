@@ -56,8 +56,7 @@ If you use the [Homebrew](https://brew.sh) package manager:
 brew install graphviz
 ``` 
 
-If you use Homebrew to install graphviz, then you when you install
-pygraphviz by pip, you may need to install it by specifying paths to grab
+If you use Homebrew to install graphviz, you may need to install pygraphviz by pip, specifying paths to grab
 the necessary brew-based include and libs, as done below:
 
 ```bash
@@ -66,6 +65,11 @@ pip install --install-option="--include-path=/usr/local/include/" \
 ```
 
 If you use [MacPorts](https://www.macports.org/install.php) package manager:
+
+```bash
+port install graphviz
+``` 
+Installation using pip
 
 ```bash
 pip install --install-option="--include-path=/opt/local/include/" \
