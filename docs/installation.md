@@ -18,16 +18,51 @@ The following are the prerequisites for Delphi:
    ```
    curl -O http://vanga.sista.arizona.edu/delphi_data/delphi.db
    ```
+   
+   
 
-   Then, point the environment variable `DELPHI_DB` to point to `delphi.db`. On
-   Linux, you can do the following:
-
+   Then, point the environment variable `DELPHI_DB` to point to `delphi.db`.
+   
+   If on Linux, add this to your ~/.bashrc:
+ 
    ```
-   echo "export DELPHI_DB=`pwd`/delphi.db" >> ~/.bashrc
+   create_new_venv() {
+     mkdir -p ~/.venvs
+     python -m venv ~/.venvs/$1
+   }
+
+   # Usage example:
+   #
+   #     activate_py3 37
+   #
+   # will activate Python 3.7
+   activate_py3() {
+     sudo port select --set python python$1
+     sudo port select --set python3 python$1
+     sudo port select --set pip pip$1
+     sudo port select --set pip3 pip$1
+   }
+
+   # Activate a Python virtual environment
+   activate() {
+     source ~/.venvs/$1/bin/activate
+   }
+   
+   export DELPHI_DB=/Users/jastier/delphi.db
+   ```
+   
+   And then source the file
+   
+   ```
    source ~/.bashrc
    ```
 
-   If on a Mac, replace `~/.bashrc` with `~/.bash_profile`.
+   If on a Mac:
+   
+   ```
+   echo "export DELPHI_DB=`pwd`/delphi.db" >> ~/.bash_profile
+   source ~/.bash_profile
+   ```
 
 2. Install Delphi using pip:
   - If you are an _end-user_:
@@ -46,7 +81,6 @@ The following are the prerequisites for Delphi:
     make test_wm
     ```
 
-### Graphviz installation notes
 
 #### MacOS
 
@@ -86,7 +120,7 @@ To install graphviz on Debian systems (like Ubuntu), do
 sudo apt-get install graphviz libgraphviz-dev pkg-config
 ```
 
-### Completing the installatin
+### Completing the installation
 
 Start the delphi python virtual environment:
 
