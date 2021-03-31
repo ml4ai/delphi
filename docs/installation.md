@@ -18,7 +18,6 @@ The following are the prerequisites for Delphi:
    ```
    curl -O http://vanga.sista.arizona.edu/delphi_data/delphi.db
    ```
-(Last updated on 8/19/2019)
 
    Then, point the environment variable `DELPHI_DB` to point to `delphi.db`. On
    Linux, you can do the following:
@@ -66,7 +65,13 @@ pip install --install-option="--include-path=/usr/local/include/" \
             --install-option="--library-path=/usr/local/lib" pygraphviz
 ```
 
-If you use MacPorts, just replace `usr` in the above command with `opt`.
+If you use [MacPorts](https://www.macports.org/install.php) package manager:
+
+```bash
+pip install --install-option="--include-path=/opt/local/include/" \
+            --install-option="--library-path=/opt/local/lib" pygraphviz
+```
+
 
 
 ### Debian
