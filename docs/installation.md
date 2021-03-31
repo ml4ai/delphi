@@ -43,7 +43,7 @@ The following are the prerequisites for Delphi:
     ```
   - To test if everything is set up properly, run the tests:
     ```
-    make test
+    make test_wm
     ```
 
 ### Graphviz installation notes
