@@ -18,50 +18,10 @@ The following are the prerequisites for Delphi:
    ```
    curl -O http://vanga.sista.arizona.edu/delphi_data/delphi.db
    ```
-   
-   
 
    Then, point the environment variable `DELPHI_DB` to point to `delphi.db`.
    
-   If on Linux, add this to your ~/.bashrc:
- 
-   ```
-   create_new_venv() {
-     mkdir -p ~/.venvs
-     python -m venv ~/.venvs/$1
-   }
-
-   # Usage example:
-   #
-   #     activate_py3 37
-   #
-   # will activate Python 3.7
-   activate_py3() {
-     sudo port select --set python python$1
-     sudo port select --set python3 python$1
-     sudo port select --set pip pip$1
-     sudo port select --set pip3 pip$1
-   }
-
-   # Activate a Python virtual environment
-   activate() {
-     source ~/.venvs/$1/bin/activate
-   }
    
-   export DELPHI_DB=/Users/<user>/delphi.db
-   ```
-   
-   And then source the file
-   
-   ```
-   source ~/.bashrc
-   ```
-
-   If on a Mac, follow the same steps as above, using file 
-   
-   ```
-   ~/.bash_profile
-   ```
 
 2. Install Delphi using pip:
   - If you are an _end-user_:
@@ -100,15 +60,24 @@ pip install --install-option="--include-path=/usr/local/include/" \
 If you use [MacPorts](https://www.macports.org/install.php) package manager:
 
 ```bash
-port install graphviz
+sudo port install graphviz-devel
 ``` 
-Installation using pip
+
+Then install pygraphviz:
 
 ```bash
-pip install --install-option="--include-path=/opt/local/include/" \
-            --install-option="--library-path=/opt/local/lib" pygraphviz
-```
+port install graphviz-devel
+pip install --global-option=build_ext \
+            --global-option="-I/opt/local/include/" \
+            --global-option="-L/opt/local/lib/" \
+            pygraphviz
+``` 
 
+Once you have installed pygraphviz, the last step is:
+
+```bash
+pip install -e .[test,docs]
+``` 
 
 
 ### Debian
