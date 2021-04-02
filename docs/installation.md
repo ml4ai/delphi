@@ -48,7 +48,7 @@ The following are the prerequisites for Delphi:
      source ~/.venvs/$1/bin/activate
    }
    
-   export DELPHI_DB=/Users/jastier/delphi.db
+   export DELPHI_DB=/Users/<user>/delphi.db
    ```
    
    And then source the file
