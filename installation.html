@@ -180,28 +180,18 @@ for installing graphviz.</p></li>
 <li><p>[CMake](<a class="reference external" href="https://cmake.org">https://cmake.org</a>)</p></li>
 </ul>
 <p>## Step-by-step instructions</p>
-<ol class="arabic simple">
+<ol class="arabic">
 <li><p>Download and set up the Delphi database
 <code class="docutils literal notranslate"><span class="pre">`</span>
 <span class="pre">curl</span> <span class="pre">-O</span> <span class="pre">http://vanga.sista.arizona.edu/delphi_data/delphi.db</span>
-<span class="pre">`</span></code></p></li>
-</ol>
-<p>(Last updated on 8/19/2019)</p>
-<blockquote>
-<div><p>Then, point the environment variable <cite>DELPHI_DB</cite> to point to <cite>delphi.db</cite>. On
-Linux, you can do the following:</p>
-<p><code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">echo</span> <span class="pre">&quot;export</span> <span class="pre">DELPHI_DB=`pwd`/delphi.db&quot;</span> <span class="pre">&gt;&gt;</span> <span class="pre">~/.bashrc</span>
-<span class="pre">source</span> <span class="pre">~/.bashrc</span>
 <span class="pre">`</span></code></p>
-<p>If on a Mac, replace <cite>~/.bashrc</cite> with <cite>~/.bash_profile</cite>.</p>
-</div></blockquote>
-<ol class="arabic simple" start="2">
+<p>Then, point the environment variable <cite>DELPHI_DB</cite> to point to <cite>delphi.db</cite>.</p>
+</li>
 <li><p>Install Delphi using pip:</p></li>
 </ol>
 <blockquote>
 <div><ul class="simple">
-<li><p>If you are an _end-<a href="#id9"><span class="problematic" id="id10">user_</span></a>:
+<li><p>If you are an _end-<a href="#id17"><span class="problematic" id="id18">user_</span></a>:
 <code class="docutils literal notranslate"><span class="pre">`</span>
 <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">https://github.com/ml4ai/delphi/archive/master.zip</span>
 <span class="pre">`</span></code></p></li>
@@ -214,18 +204,16 @@ activate it, and then run the following commands:
 <span class="pre">`</span></code></p></li>
 <li><p>To test if everything is set up properly, run the tests:
 <code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">make</span> <span class="pre">test</span>
+<span class="pre">make</span> <span class="pre">test_wm</span>
 <span class="pre">`</span></code></p></li>
 </ul>
 </div></blockquote>
-<p>### Graphviz installation notes</p>
 <p>#### MacOS</p>
 <p>If you use the [Homebrew](<a class="reference external" href="https://brew.sh">https://brew.sh</a>) package manager:</p>
 <p><code class="docutils literal notranslate"><span class="pre">`bash</span>
 <span class="pre">brew</span> <span class="pre">install</span> <span class="pre">graphviz</span>
 <span class="pre">`</span></code></p>
-<p>If you use Homebrew to install graphviz, then you when you install
-pygraphviz by pip, you may need to install it by specifying paths to grab
+<p>If you use Homebrew to install graphviz, you may need to install pygraphviz by pip, specifying paths to grab
 the necessary brew-based include and libs, as done below:</p>
 <p><a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>bash
 pip install –install-option=”–include-path=/usr/local/include/” </p>
@@ -233,11 +221,31 @@ pip install –install-option=”–include-path=/usr/local/include/” </p>
 <div><p>–install-option=”–library-path=/usr/local/lib” pygraphviz</p>
 </div></blockquote>
 <p><a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a></p>
-<p>If you use MacPorts, just replace <cite>usr</cite> in the above command with <cite>opt</cite>.</p>
+<p>If you use [MacPorts](<a class="reference external" href="https://www.macports.org/install.php">https://www.macports.org/install.php</a>) package manager:</p>
+<p><code class="docutils literal notranslate"><span class="pre">`bash</span>
+<span class="pre">sudo</span> <span class="pre">port</span> <span class="pre">install</span> <span class="pre">graphviz-devel</span>
+<span class="pre">`</span></code></p>
+<p>Then install pygraphviz:</p>
+<p><a href="#id9"><span class="problematic" id="id10">``</span></a><a href="#id11"><span class="problematic" id="id12">`</span></a>bash
+port install graphviz-devel
+pip install –global-option=build_ext </p>
+<blockquote>
+<div><p>–global-option=”-I/opt/local/include/” –global-option=”-L/opt/local/lib/” pygraphviz</p>
+</div></blockquote>
+<p><a href="#id13"><span class="problematic" id="id14">``</span></a><a href="#id15"><span class="problematic" id="id16">`</span></a></p>
+<p>Once you have installed pygraphviz, the last step is:</p>
+<p><code class="docutils literal notranslate"><span class="pre">`bash</span>
+<span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.[test,docs]</span>
+<span class="pre">`</span></code></p>
 <p>### Debian</p>
 <p>To install graphviz on Debian systems (like Ubuntu), do</p>
 <p><code class="docutils literal notranslate"><span class="pre">`bash</span>
 <span class="pre">sudo</span> <span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">graphviz</span> <span class="pre">libgraphviz-dev</span> <span class="pre">pkg-config</span>
+<span class="pre">`</span></code></p>
+<p>With the delphi python virtual environment running, install the test and documentation files:</p>
+<p><code class="docutils literal notranslate"><span class="pre">`bash</span>
+<span class="pre">sudo</span> <span class="pre">port</span> <span class="pre">install</span> <span class="pre">pybind11</span>
+<span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.[test,docs]</span>
 <span class="pre">`</span></code></p>
 <p>### Building documentation</p>
 <p>(This requires you have performed the installation for developers, above.)

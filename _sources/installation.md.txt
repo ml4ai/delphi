@@ -18,17 +18,10 @@ The following are the prerequisites for Delphi:
    ```
    curl -O http://vanga.sista.arizona.edu/delphi_data/delphi.db
    ```
-(Last updated on 8/19/2019)
 
-   Then, point the environment variable `DELPHI_DB` to point to `delphi.db`. On
-   Linux, you can do the following:
-
-   ```
-   echo "export DELPHI_DB=`pwd`/delphi.db" >> ~/.bashrc
-   source ~/.bashrc
-   ```
-
-   If on a Mac, replace `~/.bashrc` with `~/.bash_profile`.
+   Then, point the environment variable `DELPHI_DB` to point to `delphi.db`.
+   
+   
 
 2. Install Delphi using pip:
   - If you are an _end-user_:
@@ -44,10 +37,9 @@ The following are the prerequisites for Delphi:
     ```
   - To test if everything is set up properly, run the tests:
     ```
-    make test
+    make test_wm
     ```
 
-### Graphviz installation notes
 
 #### MacOS
 
@@ -57,8 +49,7 @@ If you use the [Homebrew](https://brew.sh) package manager:
 brew install graphviz
 ``` 
 
-If you use Homebrew to install graphviz, then you when you install
-pygraphviz by pip, you may need to install it by specifying paths to grab
+If you use Homebrew to install graphviz, you may need to install pygraphviz by pip, specifying paths to grab
 the necessary brew-based include and libs, as done below:
 
 ```bash
@@ -66,7 +57,27 @@ pip install --install-option="--include-path=/usr/local/include/" \
             --install-option="--library-path=/usr/local/lib" pygraphviz
 ```
 
-If you use MacPorts, just replace `usr` in the above command with `opt`.
+If you use [MacPorts](https://www.macports.org/install.php) package manager:
+
+```bash
+sudo port install graphviz-devel
+``` 
+
+Then install pygraphviz:
+
+```bash
+port install graphviz-devel
+pip install --global-option=build_ext \
+            --global-option="-I/opt/local/include/" \
+            --global-option="-L/opt/local/lib/" \
+            pygraphviz
+``` 
+
+Once you have installed pygraphviz, the last step is:
+
+```bash
+pip install -e .[test,docs]
+``` 
 
 
 ### Debian
@@ -75,6 +86,14 @@ To install graphviz on Debian systems (like Ubuntu), do
 
 ```bash
 sudo apt-get install graphviz libgraphviz-dev pkg-config
+```
+
+
+With the delphi python virtual environment running, install the test and documentation files:
+
+```bash
+sudo port install pybind11
+pip install -e .[test,docs]
 ```
 
 ### Building documentation
