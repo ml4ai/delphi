@@ -12,7 +12,7 @@
 #include <boost/uuid/uuid.hpp>            // uuid class
 #include <boost/uuid/uuid_generators.hpp> // generators
 #include <boost/uuid/uuid_io.hpp>         // streaming operators etc.
-
+#include <thread> 
 
 
 
@@ -119,7 +119,7 @@ public:
 
 
 /* a function to generate numpy linspace */
-vector<double> linspace(double start, double end, double num)
+static vector<double> linspace(double start, double end, double num)
 {
     vector<double> linspaced;
 
@@ -144,9 +144,11 @@ vector<double> linspace(double start, double end, double num)
     return linspaced;
 }
 
-// 4th check datatypes : test separately
-
-void runProjectionExperiment(Database* sqlite3DB, const served::request & request, string modelID, string experiment_id, AnalysisGraph G, bool trained){
+// 1. Test output
+// 2. Thread
+// 3. Find REST library
+static void runProjectionExperiment(Database* sqlite3DB, const served::request & request, string modelID, string experiment_id, AnalysisGraph G, bool trained){
+    cout << "Start  runProjectionExperiment" << endl;
     auto request_body = nlohmann::json::parse(request.body());
 
 
@@ -154,9 +156,11 @@ void runProjectionExperiment(Database* sqlite3DB, const served::request & reques
     double endTime = request_body["experimentParam"]["endTime"];
     int numTimesteps = request_body["experimentParam"]["numTimesteps"];
 
+    cout << "Before  FormattedProjectionResult" << endl;
     FormattedProjectionResult causemos_experiment_result = G.run_causemos_projection_experiment(
         request.body() // todo: ??????
     );
+    cout << "After FormattedProjectionResult" << endl;
 
     //DelphiModel model;
     if(!trained){
@@ -168,13 +172,17 @@ void runProjectionExperiment(Database* sqlite3DB, const served::request & reques
         //string id = "123";
         //string model = "TEST";
         sqlite3DB->Database_InsertInto_delphimodel(modelID, G.serialize_to_json_string(false));
+        cout << "rPE: After Database_InsertInto_delphimodel" << endl;
+
     }
+
 
     // created causemosasyncexperimentresult class
     //result = CauseMosAsyncExperimentResult.query.filter_by(
     //    id=experiment_id
     //).first()
     json result = sqlite3DB->Database_Read_causemosasyncexperimentresult(experiment_id);
+    cout << "rPE: After Database_Read_causemosasyncexperimentresult" << endl;
 
     /* 
       A rudimentary test to see if the projection failed. We check whether
@@ -250,6 +258,7 @@ void runProjectionExperiment(Database* sqlite3DB, const served::request & reques
             result["results"]["data"].push_back(data_dict); 
         }
     }
+    cout << "rPE: After computing result" << endl;
 
     // result = CauseMosAsyncExperimentResult
     // db.session.merge: update if already, else insert
@@ -257,21 +266,22 @@ void runProjectionExperiment(Database* sqlite3DB, const served::request & reques
     //db.session.merge(result)
     //db.session.commit()
     sqlite3DB->Database_InsertInto_causemosasyncexperimentresult(result["id"], result["status"], result["experimentType"], result["results"]);
-
+    cout << "rPE: After Database_InsertInto_causemosasyncexperimentresult with result --- STOP Thread" << endl;
 
 }
 
 
 
-// 3rd runExperiment
-void runExperiment(Database* sqlite3DB, const served::request & request, string modelID, string experiment_id){
+static void runExperiment(Database* sqlite3DB, const served::request & request, string modelID, string experiment_id){
+    cout << "Start  runExperiment" << endl;
+    cout << "process id : "  << getpid() << "  thread id : "<< this_thread::get_id() << endl; 
     auto request_body = nlohmann::json::parse(request.body());
     string experiment_type = request_body["experimentType"]; 
 
 
     ////query_result = DelphiModel.query.filter_by(id=modelID).first()
     json query_result = sqlite3DB->Database_Read_delphimodel(modelID);
-
+    cout << "After  Database_Read_delphimodel " << query_result["id"]<< endl;
 
     if(query_result.empty()){
         // Model ID not in database. Should be an incorrect model ID
@@ -279,20 +289,26 @@ void runExperiment(Database* sqlite3DB, const served::request & request, string 
         //    id=experiment_id
         //).first()
         query_result = sqlite3DB->Database_Read_causemosasyncexperimentresult(experiment_id);
-        query_result["status"] = "failed";
+        cout << "After  Database_Read_causemosasyncexperimentresult" << endl;
+        //query_result["status"] = "failed";
 
         //result.status = "failed"
         //db.session.merge(result)
         //db.session.commit()
-        sqlite3DB->Database_InsertInto_causemosasyncexperimentresult(query_result["id"], query_result["status"], query_result["experimentType"], query_result["results"]);
+        cout << "Before  Database_InsertInto_causemosasyncexperimentresult" << query_result["id"] << endl;
+        sqlite3DB->Database_InsertInto_causemosasyncexperimentresult(query_result["id"], "failed", query_result["experimentType"], query_result["results"]);
+        cout << "After  Database_InsertInto_causemosasyncexperimentresult" << endl;
         return;
     }
 
     string model = query_result["model"];   // Todo: no .model in query_result
     bool trained = nlohmann::json::parse(model)["trained"];
+
+    cout << "After  trained " << trained << endl;  // trained = 0
     AnalysisGraph G;
-    //G = G.deserialize_from_json_string(model, false);
-    G.from_delphi_json_dict(model, false); // todo: made public
+    G = G.deserialize_from_json_string(model, false);
+    //G.from_delphi_json_dict(model, false); // todo: made public
+    cout << "After  from_delphi_json_dict" << endl;
 
     if(experiment_type == "PROJECTION")
         runProjectionExperiment(sqlite3DB, request, modelID, experiment_id, G, trained); // Todo
@@ -306,6 +322,7 @@ void runExperiment(Database* sqlite3DB, const served::request & request, string 
         ;// Not yet implemented
     else
         ;// Unknown experiment type
+    cout << "End  runExperiment" << endl;
 }
 
 };
@@ -345,6 +362,12 @@ int main(int argc, const char *argv[])
                 res = (size_t)stoul(getenv("DELPHI_N_SAMPLES"));
             }
 
+
+            // Todo: remove --------------------- Debugging -------------------------- // todo check why env var was not used???? // bec i didnt do create model but did run exp? 
+            res = 5;
+            // Todo: remove --------------------- Debugging --------------------------
+
+
             AnalysisGraph G;
             G.set_res(res);
             G.from_causemos_json_dict(json_data);
@@ -357,9 +380,42 @@ int main(int argc, const char *argv[])
 
 
 
+
+    //// if i do a post instead of get here, then it calls above function, basically truncating the 2nd parameter
+    //mux.handle("/delphi/models/{modelID}/experiments/{experimentID}")
+    //    .get([&sqlite3DB](served::response & res, const served::request & req) {
+    //        
+    //        res << "done";
+    //    });
+
+
+// 4th
+/*
+    mux.handle("/delphi/models/{modelID}/experiments/{experimentID}")
+        .get([&sqlite3DB](served::response & res, const served::request & req) {
+            json result = sqlite3DB->Database_Read_causemosasyncexperimentresult(req.params["experimentID"]);
+            cout << result["experimentType"] << endl;
+            string experimentType, status, results;
+            if(!result.empty()){
+                // experimentID not in database. Should be an incorrect experimentID
+                result["experimentType"] = "UNKNOWN";
+                result["status"] = "invalid experiment id";
+                result["results"] = "";
+            } 
+            result["modelId"] = req.params["modelID"];
+            result["experimentId"] = req.params["experimentID"];
+
+            res << result;
+        });
+
+*/
+
+
+
 // done without async
     mux.handle("/delphi/models/{modelID}/experiments")
-        .post([&sqlite3DB, &experiment](served::response & res, const served::request & req) {
+        //.post([&sqlite3DB, &experiment, &Experiment](served::response & res, const served::request & req) {
+        .post([&sqlite3DB](served::response & res, const served::request & req) {
             auto request_body = nlohmann::json::parse(req.body());
             string modelID = req.params["modelID"];
 
@@ -375,44 +431,26 @@ int main(int argc, const char *argv[])
 
             // Todo: thread and set obj in sstl to hold experiment ids (experiment_id) ids
             //executor.submit_stored(experiment_id, runExperiment, request, modelID, experiment_id)
-            experiment->runExperiment(sqlite3DB, req, modelID, experiment_id);
-            //void runExperiment(Database* sqlite3DB, const served::request & request, string modelID, string experiment_id, bool trained);
-            //return jsonify({"experimentId": experiment_id})
-
-
-        });
-
-    // if i do a post instead of get here, then it calls above function, basically truncating the 2nd parameter
-    mux.handle("/delphi/models/{modelID}/experiments/{experimentID}")
-        .get([&sqlite3DB](served::response & res, const served::request & req) {
+            cout << "process id : "  << getpid() << "  thread id : "<< this_thread::get_id() << endl; 
+            thread executor_experiment (&Experiment::runExperiment, sqlite3DB, req, modelID, experiment_id);
+            //experiment->runExperiment(sqlite3DB, req, modelID, experiment_id);
             
-            res << "done";
+            executor_experiment.join();
+            //void runExperiment(Database* sqlite3DB, const served::request & request, string modelID, string experiment_id, bool trained);
+            json ret_exp;
+            ret_exp["experimentId"] = experiment_id;
+            return ret_exp;
+
+
         });
 
-/*
-    mux.handle("/delphi/models/{modelID}/experiments/{experimentID}")
-        .get([&sqlite3DB](served::response & res, const served::request & req) {
-            json result = sqlite3DB->Database_Read_causemosasyncexperimentresult(req.params["experimentID"]);
-            string experimentType, status, results;
-            if(!result.empty()){
-                // experimentID not in database. Should be an incorrect experimentID
-                result["experimentType"] = "UNKNOWN";
-                result["status"] = "invalid experiment id";
-                result["results"] = "";
-            } 
-            result["modelId"] = modelID;
-            result["experimentId"] = experimentID;
-
-            res << result;
-        });
-
-*/
     std::cout << "Try this example with:" << std::endl;
-    std::cout << "curl -X POST \"http://localhost:8123/delphi/create-model\" -d @delphi/tests/data/delphi/causemos_create-model.json --header \"Content-Type: application/json\" " << std::endl;
-    std::cout << "curl -X POST \"http://localhost:8123/delphi/models/modelID/experiments\" -d @causemos_experiments_projection_input.json --header \"Content-Type: application/json\" " << std::endl;
-    std::cout << "curl \"http://localhost:8123/delphi/models/modelID/experiments/d93b18a7-e2a3-4023-9f2f-06652b4bba66\" " << std::endl;
-    std::cout << "curl http://localhost:8123/delphi/models/modelID/experiments/d93b18a7-e2a3-4023-9f2f-06652b4bba66 " << std::endl;
-    std::cout << "curl http://localhost:8123/delphi/models/modelID/experiments/123 " << std::endl;
+    std::cout << "curl -X POST \"http://localhost:8123/delphi/create-model\" -d @create_model_input_1.json --header \"Content-Type: application/json\" " << std::endl;
+    std::cout << "curl -X POST \"http://localhost:8123/delphi/models/XYZ/experiments\" -d @causemos_experiments_projection_input.json --header \"Content-Type: application/json\" " << std::endl;
+    //std::cout << "curl -X POST \"http://localhost:8123/delphi/models/a34a1389-1148-4b53-ae69-3ba6f1552fc9/experiments\" -d @causemos_experiments_projection_input.json --header \"Content-Type: application/json\" " << std::endl;
+    std::cout << "curl \"http://localhost:8123/delphi/models/XYZ/experiments/d93b18a7-e2a3-4023-9f2f-06652b4bba66\" " << std::endl;
+    std::cout << "curl http://localhost:8123/delphi/models/XYZ/experiments/d93b18a7-e2a3-4023-9f2f-06652b4bba66 " << std::endl;
+    std::cout << "curl http://localhost:8123/delphi/models/XYZ/experiments/123 " << std::endl;
 
     served::net::server server("127.0.0.1", "8123", mux);
     server.run(10);
@@ -431,6 +469,7 @@ int main(int argc, const char *argv[])
 Todo
 Remove done from api.py
 check db.add vs db.merge
+remove todos
 
 */
 

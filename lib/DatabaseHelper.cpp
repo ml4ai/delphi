@@ -135,10 +135,11 @@ json Database::Database_Read_delphimodel(string modelId){
   	json matches;
   	sqlite3_stmt* stmt = nullptr;
   	//const char **tail;
-  	string query = "SELECT TOP 1 * from delphimodel WHERE id='"+modelId+"';";
+  	string query = "SELECT * from delphimodel WHERE id='"+modelId+"'  LIMIT 1;";
   	int rc =  sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
-  	//cout << SQLITE_ROW << endl;
+  	//cout << rc << " " << modelId  <<  endl;
    	while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+   		//cout << rc << " " << modelId  << endl;
    		matches["id"] = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
    		matches["model"] = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
    	}
@@ -151,15 +152,18 @@ json Database::Database_Read_causemosasyncexperimentresult(string modelId){
   	json matches;
   	sqlite3_stmt* stmt = nullptr;
   	//const char **tail;
-  	string query = "SELECT TOP 1 * from causemosasyncexperimentresult WHERE id='"+modelId+"';";
+  	string query = "SELECT * from causemosasyncexperimentresult WHERE id='"+modelId+"' LIMIT 1;";
   	int rc =  sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
-  	//cout << SQLITE_ROW << endl;
    	while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
    		matches["id"] = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
    		matches["status"] = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
    		matches["experimentType"] = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2)));
    		matches["results"] = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3)));
    	}
+
+   	if (rc != SQLITE_DONE)
+    	cout << " Step Error: " << rc << " " <<  SQLITE_DONE;
+
    	sqlite3_finalize(stmt);
    	stmt = nullptr;
    	return matches;
@@ -173,7 +177,7 @@ void Database::Database_Insert(string insert_query){
 
 
 void Database::Database_InsertInto_delphimodel(string id, string model){
-	string query = "INSERT INTO delphimodel ('id', 'model') VALUES ('"+ id +"', '"+ model +"');";
+	string query = "INSERT OR REPLACE INTO delphimodel ('id', 'model') VALUES ('"+ id +"', '"+ model +"');";
     this->Database_Insert(query);
     
     //query = "SELECT Source from concept_to_indicator_mapping WHERE Indicator = 'TEST';";
@@ -182,7 +186,12 @@ void Database::Database_InsertInto_delphimodel(string id, string model){
 
 
 void Database::Database_InsertInto_causemosasyncexperimentresult(string id, string status, string experimentType, string results){
-	string query = "INSERT INTO causemosasyncexperimentresult ('id', 'status', 'experimentType', 'results') VALUES ('"+ id +"', '"+ status +"', '"+ experimentType +"', '"+ results +"');";
+	//string query = "INSERT INTO causemosasyncexperimentresult ('id', 'status', 'experimentType', 'results') VALUES ('"+ id +"', '"+ status +"', '"+ experimentType +"', '"+ results +"'); ";
+	//string query = "INSERT INTO causemosasyncexperimentresult ('id', 'status', 'experimentType', 'results') VALUES ('"+ id +"', '"+ status +"', '"+ experimentType +"', '"+ results +"')  ON CONFLICT (id) DO   UPDATE causemosasyncexperimentresult SET status='"+ status +"', experimentType='"+ experimentType +"', results='"+ results +"' WHERE id='"+ id +"';";
+	//string query = "INSERT INTO causemosasyncexperimentresult ('id', 'status', 'experimentType', 'results') VALUES ('"+ id +"', '"+ status +"', '"+ experimentType +"', '"+ results +"')  ON DUPLICATE KEY   UPDATE causemosasyncexperimentresult SET status='"+ status +"', experimentType='"+ experimentType +"', results='"+ results +"' WHERE id='"+ id +"';";
+	string query = "INSERT OR REPLACE INTO causemosasyncexperimentresult ('id', 'status', 'experimentType', 'results') VALUES ('"+ id +"', '"+ status +"', '"+ experimentType +"', '"+ results +"'); ";
+
+	cout << query << endl;
     this->Database_Insert(query);
     
     //query = "SELECT Source from concept_to_indicator_mapping WHERE Indicator = 'TEST';";
