@@ -265,9 +265,9 @@ static void runProjectionExperiment(Database* sqlite3DB, const served::request &
 
     //db.session.merge(result)
     //db.session.commit()
-    sqlite3DB->Database_InsertInto_causemosasyncexperimentresult(result["id"], result["status"], result["experimentType"], result["results"]);
+    sqlite3DB->Database_InsertInto_causemosasyncexperimentresult(result["id"], result["status"], result["experimentType"], result["results"].dump());
     cout << "rPE: After Database_InsertInto_causemosasyncexperimentresult with result --- STOP Thread" << endl;
-
+    cout << "End  runProjectionExperiment" << endl;
 }
 
 
@@ -362,20 +362,17 @@ int main(int argc, const char *argv[])
                 res = (size_t)stoul(getenv("DELPHI_N_SAMPLES"));
             }
 
-
-            // Todo: remove --------------------- Debugging -------------------------- // todo check why env var was not used???? // bec i didnt do create model but did run exp? 
-            res = 5;
-            // Todo: remove --------------------- Debugging --------------------------
-
-
             AnalysisGraph G;
             G.set_res(res);
             G.from_causemos_json_dict(json_data);
+            cout << "After  from_causemos_json_dict" << endl;
 
             sqlite3DB->Database_InsertInto_delphimodel(json_data["id"], G.serialize_to_json_string(false));
-
+            cout << "After  Database_InsertInto_delphimodel" << endl;
             //res <<  nlohmann::json::parse(G.generate_create_model_response());
-            response << json_data;
+            response << json_data.dump();
+            cout << "END  createmodel" << endl;
+            //return json_data;
         });
 
 
@@ -390,13 +387,13 @@ int main(int argc, const char *argv[])
 
 
 // 4th
-/*
+
     mux.handle("/delphi/models/{modelID}/experiments/{experimentID}")
         .get([&sqlite3DB](served::response & res, const served::request & req) {
             json result = sqlite3DB->Database_Read_causemosasyncexperimentresult(req.params["experimentID"]);
-            cout << result["experimentType"] << endl;
-            string experimentType, status, results;
-            if(!result.empty()){
+            cout << result["experimentType"] << result["status"]  <<  endl;
+            //string experimentType, status, results;
+            if(result.empty()){
                 // experimentID not in database. Should be an incorrect experimentID
                 result["experimentType"] = "UNKNOWN";
                 result["status"] = "invalid experiment id";
@@ -405,10 +402,10 @@ int main(int argc, const char *argv[])
             result["modelId"] = req.params["modelID"];
             result["experimentId"] = req.params["experimentID"];
 
-            res << result;
+            res << result.dump();
         });
 
-*/
+
 
 
 
@@ -433,19 +430,22 @@ int main(int argc, const char *argv[])
             //executor.submit_stored(experiment_id, runExperiment, request, modelID, experiment_id)
             cout << "process id : "  << getpid() << "  thread id : "<< this_thread::get_id() << endl; 
             thread executor_experiment (&Experiment::runExperiment, sqlite3DB, req, modelID, experiment_id);
+            executor_experiment.detach();
             //experiment->runExperiment(sqlite3DB, req, modelID, experiment_id);
             
-            executor_experiment.join();
+            //executor_experiment.join();
             //void runExperiment(Database* sqlite3DB, const served::request & request, string modelID, string experiment_id, bool trained);
             json ret_exp;
             ret_exp["experimentId"] = experiment_id;
+            cout << "  REST handle  : ret_exp : " << ret_exp << endl;
+            cout << "End  REST handle" << endl;
             return ret_exp;
 
 
         });
 
     std::cout << "Try this example with:" << std::endl;
-    std::cout << "curl -X POST \"http://localhost:8123/delphi/create-model\" -d @create_model_input_1.json --header \"Content-Type: application/json\" " << std::endl;
+    std::cout << "curl -X POST \"http://localhost:8123/delphi/create-model\" -d @causemos_create-model.json --header \"Content-Type: application/json\" " << std::endl;
     std::cout << "curl -X POST \"http://localhost:8123/delphi/models/XYZ/experiments\" -d @causemos_experiments_projection_input.json --header \"Content-Type: application/json\" " << std::endl;
     //std::cout << "curl -X POST \"http://localhost:8123/delphi/models/a34a1389-1148-4b53-ae69-3ba6f1552fc9/experiments\" -d @causemos_experiments_projection_input.json --header \"Content-Type: application/json\" " << std::endl;
     std::cout << "curl \"http://localhost:8123/delphi/models/XYZ/experiments/d93b18a7-e2a3-4023-9f2f-06652b4bba66\" " << std::endl;
@@ -470,7 +470,15 @@ Todo
 Remove done from api.py
 check db.add vs db.merge
 remove todos
+runProjectionExperiment: why  env var DELPHI_N_SAMPLES was not used whc was exported
+undo changes in other files: 
 
+
+
+err:
+Encountered an internal server error
 */
+
+
 
  
