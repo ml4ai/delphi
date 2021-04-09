@@ -69,49 +69,6 @@ void testcase_Database_Update(Database* sqlite3DB)
 
 
 
-//class DelphiModel(){
-//    public:
-//        string __tablename__;
-//        string id;
-//        string model;
-//        //id = db.Column(db.String, primary_key=True)
-//        //model = db.Column(db.String)
-//
-//        DelphiModel(string _id, string _model){
-//            this->__tablename__ = "delphimodel";
-//            this->id = _id;
-//            this->model = _model;
-//        }        
-//};
-
-
-
-
-class CauseMosAsyncExperimentResult{
-    /* Placeholder docstring for class CauseMosAsyncExperimentResult. */
-    public:
-        string id;
-        string status;
-        string experimentType;
-        json results;
-
-
-        CauseMosAsyncExperimentResult(){
-            //id = db.Column(
-            //    db.String,
-            //    db.ForeignKey("experimentresult.id"),
-            //    primary_key=True,
-            //    default=str(uuid4()),
-            //)
-            //status = db.Column(db.String, nullable=True)
-            //experimentType = db.Column(db.String, nullable=True)
-            //results = db.Column(JsonEncodedDict, nullable=True)
-        }
-};
-
-
-
-
 
 class Experiment{
 public:
@@ -158,22 +115,13 @@ static void runProjectionExperiment(Database* sqlite3DB, const served::request &
 
     cout << "Before  FormattedProjectionResult" << endl;
     FormattedProjectionResult causemos_experiment_result = G.run_causemos_projection_experiment(
-        request.body() // todo: ??????
+        request.body() 
     );
     cout << "After FormattedProjectionResult" << endl;
 
-    //DelphiModel model;
     if(!trained){
-        //model = DelphiModel(modelID, G.serialize_to_json_string(false));
-
-        //db.session.merge(model)
-        //db.session.commit()
-
-        //string id = "123";
-        //string model = "TEST";
         sqlite3DB->Database_InsertInto_delphimodel(modelID, G.serialize_to_json_string(false));
         cout << "rPE: After Database_InsertInto_delphimodel" << endl;
-
     }
 
 
@@ -278,23 +226,13 @@ static void runExperiment(Database* sqlite3DB, const served::request & request, 
     auto request_body = nlohmann::json::parse(request.body());
     string experiment_type = request_body["experimentType"]; 
 
-
-    ////query_result = DelphiModel.query.filter_by(id=modelID).first()
     json query_result = sqlite3DB->Database_Read_delphimodel(modelID);
     cout << "After  Database_Read_delphimodel " << query_result["id"]<< endl;
 
-    if(query_result.empty()){
+    if(query_result.empty()){ // todo: check this flow
         // Model ID not in database. Should be an incorrect model ID
-        //result = CauseMosAsyncExperimentResult.query.filter_by(
-        //    id=experiment_id
-        //).first()
         query_result = sqlite3DB->Database_Read_causemosasyncexperimentresult(experiment_id);
         cout << "After  Database_Read_causemosasyncexperimentresult" << endl;
-        //query_result["status"] = "failed";
-
-        //result.status = "failed"
-        //db.session.merge(result)
-        //db.session.commit()
         cout << "Before  Database_InsertInto_causemosasyncexperimentresult" << query_result["id"] << endl;
         sqlite3DB->Database_InsertInto_causemosasyncexperimentresult(query_result["id"], "failed", query_result["experimentType"], query_result["results"]);
         cout << "After  Database_InsertInto_causemosasyncexperimentresult" << endl;
@@ -372,21 +310,12 @@ int main(int argc, const char *argv[])
             //res <<  nlohmann::json::parse(G.generate_create_model_response());
             response << json_data.dump();
             cout << "END  createmodel" << endl;
-            //return json_data;
+            return json_data.dump();
         });
 
 
 
 
-    //// if i do a post instead of get here, then it calls above function, basically truncating the 2nd parameter
-    //mux.handle("/delphi/models/{modelID}/experiments/{experimentID}")
-    //    .get([&sqlite3DB](served::response & res, const served::request & req) {
-    //        
-    //        res << "done";
-    //    });
-
-
-// 4th
 
     mux.handle("/delphi/models/{modelID}/experiments/{experimentID}")
         .get([&sqlite3DB](served::response & res, const served::request & req) {
@@ -409,7 +338,6 @@ int main(int argc, const char *argv[])
 
 
 
-// done without async
     mux.handle("/delphi/models/{modelID}/experiments")
         //.post([&sqlite3DB, &experiment, &Experiment](served::response & res, const served::request & req) {
         .post([&sqlite3DB](served::response & res, const served::request & req) {
@@ -474,9 +402,7 @@ runProjectionExperiment: why  env var DELPHI_N_SAMPLES was not used whc was expo
 undo changes in other files: 
 
 
-
-err:
-Encountered an internal server error
+which return 
 */
 
 
