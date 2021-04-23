@@ -71,15 +71,17 @@ void testcase_Database_Update(Database* sqlite3DB)
 }
 
 
-void testcase_Database_Delete_Rows(Database* sqlite3DB)
+void testcase_Experiment(Database* sqlite3DB)
 {
-    std::cout << "\n======================= Test testcase_Database_Update =======================\n" << std::endl;
+    std::cout << "\n======================= Test testcase_Experiment =======================\n" << std::endl;
     
  
     sqlite3DB->Database_Delete_Rows("delphimodel", "id", "XYZ");
-    sqlite3DB->Database_Delete_Rows("delphimodel", "id", "XYZ");
+    string curl_create_model = "curl -X POST \"http://localhost:8123/delphi/create-model\" -d @../tests/data/delphi/causemos_create-model.json --header \"Content-Type: application/json\"";  
+    string curl_create_experiment = "curl -X POST \"http://localhost:8123/delphi/models/XYZ/experiments\" -d @../tests/data/delphi/causemos_experiments_projection_input.json --header \"Content-Type: application/json\"";
 
- 
+    system(curl_create_model.c_str());
+    system(curl_create_experiment.c_str());
 }
 
 
@@ -126,7 +128,7 @@ public:
         double endTime = request_body["experimentParam"]["endTime"];
         int numTimesteps = request_body["experimentParam"]["numTimesteps"];
     
-        cout << "Before  FormattedProjectionResult" << endl;
+        cout << "Before FormattedProjectionResult" << endl;
         FormattedProjectionResult causemos_experiment_result = G.run_causemos_projection_experiment(
             request.body() 
         );
@@ -278,7 +280,7 @@ int main(int argc, const char *argv[])
     //testcase_Database_Insert(sqlite3DB); 
     //testcase_Database_Update(sqlite3DB); 
     // CLEANUP: drop test rows from delphi.db
-    testcase_Database_Delete_Rows(sqlite3DB);
+    testcase_Experiment(sqlite3DB);
 
     //======================App=================================================    
     served::multiplexer mux;
@@ -315,9 +317,10 @@ int main(int argc, const char *argv[])
 
             sqlite3DB->Database_InsertInto_delphimodel(json_data["id"], G.serialize_to_json_string(false));
             cout << "After  Database_InsertInto_delphimodel" << endl;
-            response << json_data.dump();
+            string strresult = json_data.dump();
+            response << strresult;
             cout << "END  createmodel" << endl;
-            return json_data.dump();
+            return strresult;
         });
 
 
@@ -349,7 +352,9 @@ int main(int argc, const char *argv[])
             result["modelId"] = req.params["modelID"];
             result["experimentId"] = req.params["experimentID"];
 
-            res << result.dump();
+            string strresult = result.dump();
+            res << strresult;
+            //return strresult;
         });
 
 
@@ -399,5 +404,3 @@ int main(int argc, const char *argv[])
 }
 
 
-
- 

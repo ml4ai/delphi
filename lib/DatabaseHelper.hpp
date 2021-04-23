@@ -8,12 +8,6 @@
 #include <nlohmann/json.hpp>
 
 
-// DB class
-//conn to sqlite
-// methods to connect, CRUD, save model, 
-// serialize
-// takes exp id gives result
-
 class Database {
 	private:
 	
@@ -26,10 +20,6 @@ class Database {
 
 		~Database();
   	
-  	//int prepareStatement(const char* query, sqlite3_stmt* stmt);
-
-    //int callbackCreate(void *NotUsed, int argc, char **argv, char **azColName);
-
     void Database_Create();
 
   	std::vector<std::string> Database_Read_ColumnText(std::string query);
@@ -50,9 +40,7 @@ class Database {
 
     void Database_Update(std::string table_name, std::string column_name, std::string value, std::string where_column_name, std::string where_value);
 
-    void Database_Drop_Table(std::string database_name);
-
-    void Database_Delete_Row(std::string database_name);
+    void Database_Delete_Rows(std::string table_name, std::string where_column_name, std::string where_value);
 
 };
 

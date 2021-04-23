@@ -1254,7 +1254,6 @@ class AnalysisGraph {
                    int end_month = 12,
                    int res = 200,
                    int burn = 10000,
-                   //int burn = 5,
                    std::string country = "South Sudan",
                    std::string state = "",
                    std::string county = "",

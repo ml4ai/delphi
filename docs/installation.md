@@ -11,6 +11,8 @@ The following are the prerequisites for Delphi:
 - A C++17-compatible compiler.
 - [Boost](https://www.boost.org)
 - [CMake](https://cmake.org)
+- [served](https://github.com/meltwater/served)
+
 
 ## Step-by-step instructions
 
@@ -94,3 +96,17 @@ open docs/_build/html/index.html
 ```
 
 (On a Linux system, replace `open` with `xdg-open`)
+
+
+
+### Running C++ Served REST Framework
+
+```bash
+
+cd delphi/build
+cmake .. && make -j
+./delphi_rest_api
+
+```
+
+

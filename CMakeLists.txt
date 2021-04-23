@@ -111,6 +111,6 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(SERVED REQUIRED IMPORTED_TARGET  served)
 
 
-add_executable(cpprestserver apps/cpprestserver.cpp)
-target_link_libraries(cpprestserver PRIVATE Delphi PkgConfig::SERVED)
-target_link_libraries(cpprestserver PRIVATE Eigen3::Eigen)
+add_executable(delphi_rest_api apps/delphi_rest_api.cpp)
+target_link_libraries(delphi_rest_api PRIVATE Delphi PkgConfig::SERVED)
+target_link_libraries(delphi_rest_api PRIVATE Eigen3::Eigen)
