@@ -71,7 +71,7 @@ void testcase_Database_Update(Database* sqlite3DB)
 }
 
 
-void testcase_Experiment(Database* sqlite3DB)
+void testcase_delete(Database* sqlite3DB)
 {
     std::cout << "\n======================= Test testcase_Experiment =======================\n" << std::endl;
     
@@ -280,7 +280,7 @@ int main(int argc, const char *argv[])
     //testcase_Database_Insert(sqlite3DB); 
     //testcase_Database_Update(sqlite3DB); 
     // CLEANUP: drop test rows from delphi.db
-    testcase_Experiment(sqlite3DB);
+    //testcase_delete(sqlite3DB);
 
     //======================App=================================================    
     served::multiplexer mux;
@@ -317,10 +317,14 @@ int main(int argc, const char *argv[])
 
             sqlite3DB->Database_InsertInto_delphimodel(json_data["id"], G.serialize_to_json_string(false));
             cout << "After  Database_InsertInto_delphimodel" << endl;
-            string strresult = json_data.dump();
-            response << strresult;
+            response << json_data.dump();
             cout << "END  createmodel" << endl;
-            return strresult;
+            return json_data.dump();
+
+            //string strresult = json_data.dump();
+            //response << strresult;
+            //cout << "END  createmodel" << endl;
+            //return strresult;
         });
 
 
@@ -352,8 +356,10 @@ int main(int argc, const char *argv[])
             result["modelId"] = req.params["modelID"];
             result["experimentId"] = req.params["experimentID"];
 
-            string strresult = result.dump();
-            res << strresult;
+            res << result.dump();
+
+            //string strresult = result.dump();
+            //res << strresult;
             //return strresult;
         });
 
@@ -387,14 +393,15 @@ int main(int argc, const char *argv[])
             ret_exp["experimentId"] = experiment_id;
             cout << "  REST handle  : ret_exp : " << ret_exp << endl;
             cout << "End  REST handle" << endl;
+            res << ret_exp.dump();
             return ret_exp;
 
 
         });
 
     std::cout << "Run Delphi REST API with:" << std::endl;
-    std::cout << "curl -X POST \"http://localhost:8123/delphi/create-model\" -d @causemos_create-model.json --header \"Content-Type: application/json\" " << std::endl;
-    std::cout << "curl -X POST \"http://localhost:8123/delphi/models/XYZ/experiments\" -d @causemos_experiments_projection_input.json --header \"Content-Type: application/json\" " << std::endl;
+    std::cout << "curl -X POST \"http://localhost:8123/delphi/create-model\" -d @../tests/data/delphi/causemos_create-model.json --header \"Content-Type: application/json\" " << std::endl;
+    std::cout << "curl -X POST \"http://localhost:8123/delphi/models/XYZ/experiments\" -d @../tests/data/delphi/causemos_experiments_projection_input.json --header \"Content-Type: application/json\" " << std::endl;
     std::cout << "curl \"http://localhost:8123/delphi/models/XYZ/experiments/d93b18a7-e2a3-4023-9f2f-06652b4bba66\" " << std::endl;
 
     served::net::server server("127.0.0.1", "8123", mux);
