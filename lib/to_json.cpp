@@ -226,5 +226,5 @@ string AnalysisGraph::serialize_to_json_string(bool verbose) {
         }
     }
 
-    return j.dump(4);
+    return j.dump();
 }

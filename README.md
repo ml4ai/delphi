@@ -11,7 +11,7 @@ over multiple levels of abstraction and fully utilizing expert
 knowledge about multiple disparate domains, ranging from the
 environmental to the sociopolitical.
 
-Delphi is a Python/C++ library for assembling causal, dynamic, probabilistic
+Delphi is a C++ library for assembling causal, dynamic, probabilistic
 models from information extracted from two sources:
 
 - *Text*: Delphi utilizes causal relations extracted using machine
