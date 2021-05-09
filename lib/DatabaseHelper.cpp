@@ -101,7 +101,6 @@ void Database::create_table(){  // todo
 vector<string> Database::read_column_text(string query){
   	vector<string> matches;
   	sqlite3_stmt* stmt = nullptr;
-  	cout << query << endl;
   	int rc =  sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
    	while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
    	  matches.push_back(
@@ -171,9 +170,6 @@ json Database::select_causemosasyncexperimentresult_row(string modelId){
    		matches["results"] = string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3)));
    	}
 
-   	if (rc != SQLITE_DONE)
-    	cout << " Step Error: " << rc << " " <<  SQLITE_DONE;
-
    	sqlite3_finalize(stmt);
    	stmt = nullptr;
    	return matches;
@@ -204,7 +200,6 @@ void Database::insert_into_delphimodel(string id, string model){
 void Database::insert_into_causemosasyncexperimentresult(string id, string status, string experimentType, string results){
 	string query = "INSERT OR REPLACE INTO causemosasyncexperimentresult ('id', 'status', 'experimentType', 'results') VALUES ('"+ id +"', '"+ status +"', '"+ experimentType +"', '"+ results +"'); ";
 
-	cout << query << endl;
     this->insert(query);
     
 }

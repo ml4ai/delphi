@@ -12,7 +12,7 @@ def main():
     while status == "training":
     	time.sleep(5)
     	rv = os.popen("curl \"http://localhost:8123/delphi/models/XYZ\" ").read()
-    	print("response from getmodelststus in py: {}".format(rv))
+    	print("Response from getModelStatus: {}".format(rv))
     	status = json.loads(rv)["status"]
     	print(status)
 
@@ -21,7 +21,7 @@ def main():
     experiment_id1 = json.loads(result_exp)["experimentId"]
 
 
-    print("**************** result_exp res *********************** {}".format(experiment_id1))
+    print("Experiment_id {}".format(experiment_id1))
 
     status = "in progress"
     while status == "in progress":

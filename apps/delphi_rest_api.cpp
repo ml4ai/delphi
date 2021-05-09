@@ -59,7 +59,6 @@ public:
     
     
     static void runProjectionExperiment(Database* sqlite3DB, const served::request & request, string modelID, string experiment_id, AnalysisGraph G, bool trained){
-        cout << "Start  runProjectionExperiment" << endl;
         auto request_body = nlohmann::json::parse(request.body());
     
     
@@ -67,19 +66,15 @@ public:
         double endTime = request_body["experimentParam"]["endTime"];
         int numTimesteps = request_body["experimentParam"]["numTimesteps"];
     
-        cout << "Before FormattedProjectionResult" << endl;
         FormattedProjectionResult causemos_experiment_result = G.run_causemos_projection_experiment_from_json_string(
             request.body()
         );
-        cout << "After FormattedProjectionResult" << endl;
     
         if(!trained){
             sqlite3DB->insert_into_delphimodel(modelID, G.serialize_to_json_string(false));
-            cout << "rPE: After insert_into_delphimodel" << endl;
         }
     
         json result = sqlite3DB->select_causemosasyncexperimentresult_row(experiment_id);
-        cout << "rPE: After select_causemosasyncexperimentresult_row" << endl;
     
         /* 
             A rudimentary test to see if the projection failed. We check whether
@@ -147,41 +142,30 @@ public:
                 result["results"]["data"].push_back(data_dict); 
             }
         }
-        cout << "rPE: After computing result" << endl;
     
         sqlite3DB->insert_into_causemosasyncexperimentresult(result["id"], result["status"], result["experimentType"], result["results"].dump());
-        cout << "rPE: After insert_into_causemosasyncexperimentresult with result --- STOP Thread" << endl;
-        cout << "End  runProjectionExperiment" << endl;
     }
     
     
     
     static void runExperiment(Database* sqlite3DB, const served::request & request, string modelID, string experiment_id){
-        cout << "Start  runExperiment" << endl;
-        cout << "process id : "  << getpid() << "  thread id : "<< this_thread::get_id() << endl; 
         auto request_body = nlohmann::json::parse(request.body());
         string experiment_type = request_body["experimentType"]; 
     
         json query_result = sqlite3DB->select_delphimodel_row(modelID);
-        cout << "After  select_delphimodel_row " << query_result["id"]<< endl;
     
         if(query_result.empty()){ 
             // Model ID not in database. Should be an incorrect model ID
             query_result = sqlite3DB->select_causemosasyncexperimentresult_row(experiment_id);
-            cout << "After  select_causemosasyncexperimentresult_row" << endl;
-            cout << "Before  insert_into_causemosasyncexperimentresult" << query_result["id"] << endl;
             sqlite3DB->insert_into_causemosasyncexperimentresult(query_result["id"], "failed", query_result["experimentType"], query_result["results"]);
-            cout << "After  insert_into_causemosasyncexperimentresult" << endl;
             return;
         }
     
         string model = query_result["model"];   
         bool trained = nlohmann::json::parse(model)["trained"];
     
-        cout << "After  trained " << trained << endl;  
         AnalysisGraph G;
         G = G.deserialize_from_json_string(model, false);
-        cout << "After  from_delphi_json_dict" << endl;
     
         if(experiment_type == "PROJECTION")
             runProjectionExperiment(sqlite3DB, request, modelID, experiment_id, G, trained); 
@@ -195,7 +179,6 @@ public:
             ;// Not yet implemented
         else
             ;// Unknown experiment type
-        cout << "End  runExperiment" << endl;
     }
 
 
@@ -236,7 +219,6 @@ int main(int argc, const char *argv[])
     mux.handle("/delphi/models/{modelID}/experiments/{experimentID}")
         .get([&sqlite3DB](served::response & res, const served::request & req) {
             json result = sqlite3DB->select_causemosasyncexperimentresult_row(req.params["experimentID"]);
-            cout << result["experimentType"] << result["status"]  <<  endl;
             if(result.empty()){
                 // experimentID not in database. Should be an incorrect experimentID
                 result["experimentType"] = "UNKNOWN";
@@ -272,22 +254,16 @@ int main(int argc, const char *argv[])
             if(query_result.empty()){ 
                 json ret_exp;
                 ret_exp["experimentId"] =  "invalid model id";
-                cout << "  REST handle  : ret_exp : " << ret_exp << endl;
-                cout << "End  REST handle" << endl;
                 res << ret_exp.dump();
                 return ret_exp;
             }
 
             string model = query_result["model"];
-            cout << "  got model  :  : "  << endl;
             bool trained = nlohmann::json::parse(model)["trained"];
 
-            cout << "  trained  :  : " << trained << endl;
             if(trained == false){
                 json ret_exp;
                 ret_exp["experimentId"] =  "model not trained";
-                cout << "  REST handle  : ret_exp : " << ret_exp << endl;
-                cout << "End  REST handle" << endl;
                 res << ret_exp.dump();
                 return ret_exp;
             }
@@ -296,13 +272,7 @@ int main(int argc, const char *argv[])
             boost::uuids::uuid uuid = boost::uuids::random_generator()(); 
             string experiment_id = to_string(uuid);
 
-            cout << "Before Insert" << endl;
             sqlite3DB->insert_into_causemosasyncexperimentresult(experiment_id, "in progress", experiment_type, "");
-            cout << "After Insert" << endl;
-
-            cout << "process id : "  << getpid() << "  thread id : "<< this_thread::get_id() << endl; 
-            
-
 
             try{
                 thread executor_experiment (&Experiment::runExperiment, sqlite3DB, req, modelID, experiment_id);
@@ -312,16 +282,12 @@ int main(int argc, const char *argv[])
 
                 json ret_exp;
                 ret_exp["experimentId"] =  "server error: experiment";
-                cout << "  REST handle  : ret_exp : " << ret_exp << endl;
-                cout << "End  REST handle" << endl;
                 res << ret_exp.dump();
                 return ret_exp;
             }
             
             json ret_exp;
             ret_exp["experimentId"] = experiment_id;
-            cout << "  REST handle  : ret_exp : " << ret_exp << endl;
-            cout << "End  REST handle" << endl;
             res << ret_exp.dump();
             return ret_exp;
 
@@ -342,15 +308,12 @@ int main(int argc, const char *argv[])
             if(query_result.empty()){ 
                 json ret_exp;
                 ret_exp["status"] =  "invalid model id";
-                cout << "  REST handle  : ret_exp : " << ret_exp << endl;
-                cout << "End  REST handle" << endl;
                 res << ret_exp.dump();
                 //return ret_exp;
                 return;
             }
 
             string model = query_result["model"];
-            cout << "  got model  :  : "  << endl;
 
             AnalysisGraph G;
             G = G.deserialize_from_json_string(model, false);
@@ -393,7 +356,6 @@ int main(int argc, const char *argv[])
                 kde_kernels = (size_t)stoul(getenv("DELPHI_N_SAMPLES"));
                 sampling_resolution = 100;
                 burn = 100;
-                cout << getenv("DELPHI_N_SAMPLES") << endl;
             }
 
             // ------------------
@@ -403,13 +365,10 @@ int main(int argc, const char *argv[])
             AnalysisGraph G;
             G.set_res(kde_kernels);
             G.from_causemos_json_dict(json_data, 0, 0);
-            cout << "After  from_causemos_json_dict : " <<  json_data["id"] << endl;
 
             sqlite3DB->insert_into_delphimodel(json_data["id"], G.serialize_to_json_string(false));
 
             auto response_json = nlohmann::json::parse(G.generate_create_model_response());
-
-            
 
             try{
                 thread executor_create_model (&Experiment::train_model, sqlite3DB, G, json_data["id"], sampling_resolution, burn);
@@ -419,21 +378,16 @@ int main(int argc, const char *argv[])
 
                 json ret_exp;
                 ret_exp["status"] =  "server error: training";
-                cout << "  REST handle  : ret_exp : " << ret_exp << endl;
-                cout << "End  REST handle" << endl;
                 response << ret_exp.dump();
                 return ret_exp.dump();
             }
 
 
-            cout << "After  insert_into_delphimodel" << endl;
             response << response_json.dump();
-            cout << "END  createmodel" << endl;
             return response_json.dump();
 
             //string strresult = json_data.dump();
             //response << strresult;
-            //cout << "END  createmodel" << endl;
             //return strresult;
         });
 
