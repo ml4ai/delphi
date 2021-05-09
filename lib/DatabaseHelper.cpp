@@ -36,7 +36,7 @@ int callback(void *NotUsed, int argc, char **argv, char **azColName){
     return 0;
 }
 
-void Database::Database_Create(){  // todo
+void Database::create_table(){  // todo
 	/*
 		Example query:
 			CREATE TABLE PEOPLE (
@@ -98,7 +98,7 @@ void Database::Database_Create(){  // todo
     	SELECT <column_name> from <table_name>  WHERE  <where_column_name> = <where_value> ;
 
 */ 
-vector<string> Database::Database_Read_ColumnText(string query){
+vector<string> Database::read_column_text(string query){
   	vector<string> matches;
   	sqlite3_stmt* stmt = nullptr;
   	cout << query << endl;
@@ -119,9 +119,9 @@ vector<string> Database::Database_Read_ColumnText(string query){
     	SELECT <column_name> from <table_name>;
 
 */ 
-vector<string> Database::Database_Read_ColumnText_Query(string table_name, string column_name){
+vector<string> Database::read_column_text_query(string table_name, string column_name){
 	string query = "SELECT "+ column_name +" from '"+ table_name +"' ;";
-  	vector<string> matches = this->Database_Read_ColumnText(query);
+  	vector<string> matches = this->read_column_text(query);
    	return matches;
 }
 
@@ -131,9 +131,9 @@ vector<string> Database::Database_Read_ColumnText_Query(string table_name, strin
     	SELECT <column_name> from <table_name>  WHERE  <where_column_name> = <where_value> ;
 
 */
-vector<string> Database::Database_Read_ColumnText_Query_Where(string table_name, string column_name, string where_column_name, string where_value){
+vector<string> Database::read_column_text_query_where(string table_name, string column_name, string where_column_name, string where_value){
 	string query = "SELECT "+ column_name +" from '"+ table_name +"'  WHERE "+ where_column_name +" = '"+ where_value +"' ;";
-  	vector<string> matches = this->Database_Read_ColumnText(query);
+  	vector<string> matches = this->read_column_text(query);
    	return matches;
 }
 
@@ -141,7 +141,7 @@ vector<string> Database::Database_Read_ColumnText_Query_Where(string table_name,
 /* 
     Select/read all column and 1 rows of delphimodel table 
 */
-json Database::Database_Read_delphimodel(string modelId){
+json Database::select_delphimodel_row(string modelId){
   	json matches;
   	sqlite3_stmt* stmt = nullptr;
   	string query = "SELECT * from delphimodel WHERE id='"+modelId+"'  LIMIT 1;";
@@ -159,7 +159,7 @@ json Database::Database_Read_delphimodel(string modelId){
 /* 
     Select/read all column and 1 rows of causemosasyncexperimentresult table 
 */
-json Database::Database_Read_causemosasyncexperimentresult(string modelId){
+json Database::select_causemosasyncexperimentresult_row(string modelId){
   	json matches;
   	sqlite3_stmt* stmt = nullptr;
   	string query = "SELECT * from causemosasyncexperimentresult WHERE id='"+modelId+"' LIMIT 1;";
@@ -182,7 +182,7 @@ json Database::Database_Read_causemosasyncexperimentresult(string modelId){
 /* 
     Execute insert query string on any table
 */
-void Database::Database_Insert(string insert_query){
+void Database::insert(string insert_query){
 	char *zErrMsg = 0;
 	int rc = sqlite3_exec(db, insert_query.c_str(), callback, 0, &zErrMsg);
 }
@@ -191,9 +191,9 @@ void Database::Database_Insert(string insert_query){
 /* 
     Execute insert/replace query string on delphimodel table for 1 row
 */
-void Database::Database_InsertInto_delphimodel(string id, string model){
+void Database::insert_into_delphimodel(string id, string model){
 	string query = "INSERT OR REPLACE INTO delphimodel ('id', 'model') VALUES ('"+ id +"', '"+ model +"');";
-    this->Database_Insert(query);
+    this->insert(query);
     
 }
 
@@ -201,18 +201,18 @@ void Database::Database_InsertInto_delphimodel(string id, string model){
 /* 
     Execute insert/replace query string on causemosasyncexperimentresult table for 1 row
 */
-void Database::Database_InsertInto_causemosasyncexperimentresult(string id, string status, string experimentType, string results){
+void Database::insert_into_causemosasyncexperimentresult(string id, string status, string experimentType, string results){
 	string query = "INSERT OR REPLACE INTO causemosasyncexperimentresult ('id', 'status', 'experimentType', 'results') VALUES ('"+ id +"', '"+ status +"', '"+ experimentType +"', '"+ results +"'); ";
 
 	cout << query << endl;
-    this->Database_Insert(query);
+    this->insert(query);
     
 }
 
 /* 
     Execute update query string on any table for 1 column with where condition
 */
-void Database::Database_Update(string table_name, string column_name, string value, string where_column_name, string where_value){
+void Database::update_row(string table_name, string column_name, string value, string where_column_name, string where_value){
 	string update_table_query = "UPDATE "+ table_name +" SET "+ column_name +" = '"+ value +"' WHERE "+ where_column_name +" = '"+ where_value +"';";
 	int rc = sqlite3_exec(db, update_table_query.c_str(), callback, 0, NULL);
 }
@@ -223,7 +223,7 @@ void Database::Database_Update(string table_name, string column_name, string val
 /* 
     Execute update query string on any table for 1 column with where condition
 */
-void Database::Database_Delete_Rows(string table_name, string where_column_name, string where_value){
+void Database::delete_rows(string table_name, string where_column_name, string where_value){
 	string delete_table_query = "DELETE FROM  "+ table_name +" WHERE "+ where_column_name +" = '"+ where_value +"';";
 	int rc = sqlite3_exec(db, delete_table_query.c_str(), callback, 0, NULL);
 }

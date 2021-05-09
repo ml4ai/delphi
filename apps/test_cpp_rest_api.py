@@ -8,6 +8,14 @@ def main():
 
     os.system("curl -X POST \"http://localhost:8123/delphi/create-model\" -d @../tests/data/delphi/causemos_create-model.json --header \"Content-Type: application/json\" ;")
 
+    status = "training"
+    while status == "training":
+    	time.sleep(5)
+    	rv = os.popen("curl \"http://localhost:8123/delphi/models/XYZ\" ").read()
+    	print("response from getmodelststus in py: {}".format(rv))
+    	status = json.loads(rv)["status"]
+    	print(status)
+
     result_exp = os.popen("curl -X POST \"http://localhost:8123/delphi/models/XYZ/experiments\" -d @../tests/data/delphi/causemos_experiments_projection_input.json --header \"Content-Type: application/json\" ").read()
 
     experiment_id1 = json.loads(result_exp)["experimentId"]

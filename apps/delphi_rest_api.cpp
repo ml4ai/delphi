@@ -25,67 +25,6 @@ using json = nlohmann::json;
 */
 
 
-void testcase_Database_Create(Database* sqlite3DB)
-{
-    std::cout << "\n======================= Test testcase_Database_Create =======================\n" << std::endl;
-    
-    sqlite3DB->Database_Create();
-}
-
-
-void testcase_Database_Read_ColumnText(Database* sqlite3DB)
-{
-    std::cout << "\n======================= Test testcase_Database_Read_ColumnText =======================\n" << std::endl;
-    
-    string query = "SELECT adjective from gradableAdjectiveData;";
-    //string query = "select Unit from indicator;";
-    vector<string> matches = sqlite3DB->Database_Read_ColumnText(query);
-    cout << "Read vector size: " << matches.size() << endl;
-}
-
-
-void testcase_Database_Insert(Database* sqlite3DB)
-{
-    std::cout << "\n======================= Test testcase_Database_Insert =======================\n" << std::endl;
-    
-    string query = "INSERT INTO concept_to_indicator_mapping ('Concept', 'Source', 'Indicator', 'Score') VALUES ('wm/concept/time/temporal/crop_season', 'delphi_db_inds_TEST', 'TEST', 0.49010614);";
-    sqlite3DB->Database_Insert(query);
-    
-    query = "SELECT Source from concept_to_indicator_mapping WHERE Indicator = 'TEST';";
-    vector<string> matches = sqlite3DB->Database_Read_ColumnText(query);
-    cout << "Read vector size: " << matches.size() << endl;
-    if(matches.size()) cout << "Read Source column value: " << matches[0] << endl;
-}
-
-void testcase_Database_Update(Database* sqlite3DB)
-{
-    std::cout << "\n======================= Test testcase_Database_Update =======================\n" << std::endl;
-    
-    sqlite3DB->Database_Update("concept_to_indicator_mapping", "Source", "delphi_db_inds_TEST_update_2", "Indicator", "TEST");
-        void Database_Update(string table_name, string column_name, string value, string where_column_name, string where_value);
-
-    string query = "SELECT Source from concept_to_indicator_mapping WHERE Indicator = 'TEST';";
-    vector<string> matches = sqlite3DB->Database_Read_ColumnText(query);
-    cout << "Read vector size: " << matches.size() << endl;
-    if(matches.size()) cout << "Read Source column value: " << matches[0] << endl;
-}
-
-
-void testcase_delete(Database* sqlite3DB)
-{
-    std::cout << "\n======================= Test testcase_Experiment =======================\n" << std::endl;
-    
- 
-    sqlite3DB->Database_Delete_Rows("delphimodel", "id", "XYZ");
-    string curl_create_model = "curl -X POST \"http://localhost:8123/delphi/create-model\" -d @../tests/data/delphi/causemos_create-model.json --header \"Content-Type: application/json\"";  
-    string curl_create_experiment = "curl -X POST \"http://localhost:8123/delphi/models/XYZ/experiments\" -d @../tests/data/delphi/causemos_experiments_projection_input.json --header \"Content-Type: application/json\"";
-
-    system(curl_create_model.c_str());
-    system(curl_create_experiment.c_str());
-}
-
-
-
 
 class Experiment{
 public:
@@ -129,18 +68,18 @@ public:
         int numTimesteps = request_body["experimentParam"]["numTimesteps"];
     
         cout << "Before FormattedProjectionResult" << endl;
-        FormattedProjectionResult causemos_experiment_result = G.run_causemos_projection_experiment(
-            request.body() 
+        FormattedProjectionResult causemos_experiment_result = G.run_causemos_projection_experiment_from_json_string(
+            request.body()
         );
         cout << "After FormattedProjectionResult" << endl;
     
         if(!trained){
-            sqlite3DB->Database_InsertInto_delphimodel(modelID, G.serialize_to_json_string(false));
-            cout << "rPE: After Database_InsertInto_delphimodel" << endl;
+            sqlite3DB->insert_into_delphimodel(modelID, G.serialize_to_json_string(false));
+            cout << "rPE: After insert_into_delphimodel" << endl;
         }
     
-        json result = sqlite3DB->Database_Read_causemosasyncexperimentresult(experiment_id);
-        cout << "rPE: After Database_Read_causemosasyncexperimentresult" << endl;
+        json result = sqlite3DB->select_causemosasyncexperimentresult_row(experiment_id);
+        cout << "rPE: After select_causemosasyncexperimentresult_row" << endl;
     
         /* 
             A rudimentary test to see if the projection failed. We check whether
@@ -210,8 +149,8 @@ public:
         }
         cout << "rPE: After computing result" << endl;
     
-        sqlite3DB->Database_InsertInto_causemosasyncexperimentresult(result["id"], result["status"], result["experimentType"], result["results"].dump());
-        cout << "rPE: After Database_InsertInto_causemosasyncexperimentresult with result --- STOP Thread" << endl;
+        sqlite3DB->insert_into_causemosasyncexperimentresult(result["id"], result["status"], result["experimentType"], result["results"].dump());
+        cout << "rPE: After insert_into_causemosasyncexperimentresult with result --- STOP Thread" << endl;
         cout << "End  runProjectionExperiment" << endl;
     }
     
@@ -223,16 +162,16 @@ public:
         auto request_body = nlohmann::json::parse(request.body());
         string experiment_type = request_body["experimentType"]; 
     
-        json query_result = sqlite3DB->Database_Read_delphimodel(modelID);
-        cout << "After  Database_Read_delphimodel " << query_result["id"]<< endl;
+        json query_result = sqlite3DB->select_delphimodel_row(modelID);
+        cout << "After  select_delphimodel_row " << query_result["id"]<< endl;
     
         if(query_result.empty()){ 
             // Model ID not in database. Should be an incorrect model ID
-            query_result = sqlite3DB->Database_Read_causemosasyncexperimentresult(experiment_id);
-            cout << "After  Database_Read_causemosasyncexperimentresult" << endl;
-            cout << "Before  Database_InsertInto_causemosasyncexperimentresult" << query_result["id"] << endl;
-            sqlite3DB->Database_InsertInto_causemosasyncexperimentresult(query_result["id"], "failed", query_result["experimentType"], query_result["results"]);
-            cout << "After  Database_InsertInto_causemosasyncexperimentresult" << endl;
+            query_result = sqlite3DB->select_causemosasyncexperimentresult_row(experiment_id);
+            cout << "After  select_causemosasyncexperimentresult_row" << endl;
+            cout << "Before  insert_into_causemosasyncexperimentresult" << query_result["id"] << endl;
+            sqlite3DB->insert_into_causemosasyncexperimentresult(query_result["id"], "failed", query_result["experimentType"], query_result["results"]);
+            cout << "After  insert_into_causemosasyncexperimentresult" << endl;
             return;
         }
     
@@ -259,6 +198,13 @@ public:
         cout << "End  runExperiment" << endl;
     }
 
+
+    static void train_model(Database* sqlite3DB, AnalysisGraph G, string modelID, int sampling_resolution, int burn){
+        G.run_train_model(sampling_resolution, burn, InitialBeta::ZERO, InitialDerivative::DERI_ZERO);
+        //G.write_model_to_db(modelID);
+        sqlite3DB->insert_into_delphimodel(modelID, G.serialize_to_json_string(false));
+    }
+
 };
 
 
@@ -269,64 +215,8 @@ int main(int argc, const char *argv[])
 {
     Database* sqlite3DB = new Database();
     Experiment* experiment = new Experiment();
-
-
-    //================= Testsuite =============================================
-    // Run Tests:
-    //testcase_Database_Create(sqlite3DB); 
     
-    // working
-    //testcase_Database_Read_ColumnText(sqlite3DB); 
-    //testcase_Database_Insert(sqlite3DB); 
-    //testcase_Database_Update(sqlite3DB); 
-    // CLEANUP: drop test rows from delphi.db
-    //testcase_delete(sqlite3DB);
-
-    //======================App=================================================    
     served::multiplexer mux;
-
-
-    /* Create a new Delphi model. */
-    mux.handle("/delphi/create-model")
-        .post([&sqlite3DB](served::response & response, const served::request & req) {
-            nlohmann::json json_data = nlohmann::json::parse(req.body());
-            /*
-             If neither "CI" or "DELPHI_N_SAMPLES" is set, we default to a
-             sampling resolution of 1000.
-   
-             TODO - we might want to set the default sampling resolution with some
-             kind of heuristic, based on the number of nodes and edges. - Adarsh
-            */
-            size_t res = 1000;
-            if(getenv("CI")) 
-                // When running in a continuous integration run, we set the sampling
-                // resolution to be small to prevent timeouts.
-                res = 5;
-            else if (getenv("DELPHI_N_SAMPLES")) {
-                // We also enable setting the sampling resolution through the
-                // environment variable "DELPHI_N_SAMPLES", for development and testing
-                // purposes.
-                res = (size_t)stoul(getenv("DELPHI_N_SAMPLES"));
-                cout << getenv("DELPHI_N_SAMPLES") << endl;
-            }
-
-            AnalysisGraph G;
-            G.set_res(res);
-            G.from_causemos_json_dict(json_data);
-            cout << "After  from_causemos_json_dict" << endl;
-
-            sqlite3DB->Database_InsertInto_delphimodel(json_data["id"], G.serialize_to_json_string(false));
-            cout << "After  Database_InsertInto_delphimodel" << endl;
-            response << json_data.dump();
-            cout << "END  createmodel" << endl;
-            return json_data.dump();
-
-            //string strresult = json_data.dump();
-            //response << strresult;
-            //cout << "END  createmodel" << endl;
-            //return strresult;
-        });
-
 
 
 
@@ -345,7 +235,7 @@ int main(int argc, const char *argv[])
     */    
     mux.handle("/delphi/models/{modelID}/experiments/{experimentID}")
         .get([&sqlite3DB](served::response & res, const served::request & req) {
-            json result = sqlite3DB->Database_Read_causemosasyncexperimentresult(req.params["experimentID"]);
+            json result = sqlite3DB->select_causemosasyncexperimentresult_row(req.params["experimentID"]);
             cout << result["experimentType"] << result["status"]  <<  endl;
             if(result.empty()){
                 // experimentID not in database. Should be an incorrect experimentID
@@ -377,17 +267,56 @@ int main(int argc, const char *argv[])
             auto request_body = nlohmann::json::parse(req.body());
             string modelID = req.params["modelID"];
 
+            json query_result = sqlite3DB->select_delphimodel_row(modelID);
+            
+            if(query_result.empty()){ 
+                json ret_exp;
+                ret_exp["experimentId"] =  "invalid model id";
+                cout << "  REST handle  : ret_exp : " << ret_exp << endl;
+                cout << "End  REST handle" << endl;
+                res << ret_exp.dump();
+                return ret_exp;
+            }
+
+            string model = query_result["model"];
+            cout << "  got model  :  : "  << endl;
+            bool trained = nlohmann::json::parse(model)["trained"];
+
+            cout << "  trained  :  : " << trained << endl;
+            if(trained == false){
+                json ret_exp;
+                ret_exp["experimentId"] =  "model not trained";
+                cout << "  REST handle  : ret_exp : " << ret_exp << endl;
+                cout << "End  REST handle" << endl;
+                res << ret_exp.dump();
+                return ret_exp;
+            }
+
             string experiment_type = request_body["experimentType"]; 
             boost::uuids::uuid uuid = boost::uuids::random_generator()(); 
             string experiment_id = to_string(uuid);
 
             cout << "Before Insert" << endl;
-            sqlite3DB->Database_InsertInto_causemosasyncexperimentresult(experiment_id, "in progress", experiment_type, "");
+            sqlite3DB->insert_into_causemosasyncexperimentresult(experiment_id, "in progress", experiment_type, "");
             cout << "After Insert" << endl;
 
             cout << "process id : "  << getpid() << "  thread id : "<< this_thread::get_id() << endl; 
-            thread executor_experiment (&Experiment::runExperiment, sqlite3DB, req, modelID, experiment_id);
-            executor_experiment.detach();
+            
+
+
+            try{
+                thread executor_experiment (&Experiment::runExperiment, sqlite3DB, req, modelID, experiment_id);
+                executor_experiment.detach();
+            }catch(std::exception &e){
+                cout << "Error: unable to start experiment process" << endl;
+
+                json ret_exp;
+                ret_exp["experimentId"] =  "server error: experiment";
+                cout << "  REST handle  : ret_exp : " << ret_exp << endl;
+                cout << "End  REST handle" << endl;
+                res << ret_exp.dump();
+                return ret_exp;
+            }
             
             json ret_exp;
             ret_exp["experimentId"] = experiment_id;
@@ -399,9 +328,121 @@ int main(int argc, const char *argv[])
 
         });
 
+
+
+
+    /*
+        getModelStatus
+    */
+    mux.handle("/delphi/models/{modelID}")
+        .get([&sqlite3DB](served::response & res, const served::request & req) {
+            string modelID = req.params["modelID"];
+            json query_result = sqlite3DB->select_delphimodel_row(modelID);
+            
+            if(query_result.empty()){ 
+                json ret_exp;
+                ret_exp["status"] =  "invalid model id";
+                cout << "  REST handle  : ret_exp : " << ret_exp << endl;
+                cout << "End  REST handle" << endl;
+                res << ret_exp.dump();
+                //return ret_exp;
+                return;
+            }
+
+            string model = query_result["model"];
+            cout << "  got model  :  : "  << endl;
+
+            AnalysisGraph G;
+            G = G.deserialize_from_json_string(model, false);
+            auto response = nlohmann::json::parse(G.generate_create_model_response());
+
+            res << response.dump();
+            //res << G.generate_create_model_response();
+            //return response.dump();
+            //string strresult = response.dump();
+            //res << strresult;
+            //return strresult;
+        });
+
+
+
+    /* Create a new Delphi model. */
+    mux.handle("/delphi/create-model")
+        .post([&sqlite3DB](served::response & response, const served::request & req) {
+            nlohmann::json json_data = nlohmann::json::parse(req.body());
+            /*
+             If neither "CI" or "DELPHI_N_SAMPLES" is set, we default to a
+             sampling resolution of 1000.
+   
+             TODO - we might want to set the default sampling resolution with some
+             kind of heuristic, based on the number of nodes and edges. - Adarsh
+            */
+            size_t kde_kernels = 1000;
+            int sampling_resolution = 1000, burn = 10000;
+            if(getenv("CI")) {
+                // When running in a continuous integration run, we set the sampling
+                // resolution to be small to prevent timeouts.
+                kde_kernels = 5;
+                sampling_resolution = 5;
+                burn = 5;
+            }
+            else if (getenv("DELPHI_N_SAMPLES")) {
+                // We also enable setting the sampling resolution through the
+                // environment variable "DELPHI_N_SAMPLES", for development and testing
+                // purposes.
+                kde_kernels = (size_t)stoul(getenv("DELPHI_N_SAMPLES"));
+                sampling_resolution = 100;
+                burn = 100;
+                cout << getenv("DELPHI_N_SAMPLES") << endl;
+            }
+
+            // ------------------
+            burn = 100;
+            // ------------------
+
+            AnalysisGraph G;
+            G.set_res(kde_kernels);
+            G.from_causemos_json_dict(json_data, 0, 0);
+            cout << "After  from_causemos_json_dict : " <<  json_data["id"] << endl;
+
+            sqlite3DB->insert_into_delphimodel(json_data["id"], G.serialize_to_json_string(false));
+
+            auto response_json = nlohmann::json::parse(G.generate_create_model_response());
+
+            
+
+            try{
+                thread executor_create_model (&Experiment::train_model, sqlite3DB, G, json_data["id"], sampling_resolution, burn);
+                executor_create_model.detach();
+            }catch(std::exception &e){
+                cout << "Error: unable to start training process" << endl;
+
+                json ret_exp;
+                ret_exp["status"] =  "server error: training";
+                cout << "  REST handle  : ret_exp : " << ret_exp << endl;
+                cout << "End  REST handle" << endl;
+                response << ret_exp.dump();
+                return ret_exp.dump();
+            }
+
+
+            cout << "After  insert_into_delphimodel" << endl;
+            response << response_json.dump();
+            cout << "END  createmodel" << endl;
+            return response_json.dump();
+
+            //string strresult = json_data.dump();
+            //response << strresult;
+            //cout << "END  createmodel" << endl;
+            //return strresult;
+        });
+
+
+
     std::cout << "Run Delphi REST API with:" << std::endl;
-    std::cout << "curl -X POST \"http://localhost:8123/delphi/create-model\" -d @../tests/data/delphi/causemos_create-model.json --header \"Content-Type: application/json\" " << std::endl;
-    std::cout << "curl -X POST \"http://localhost:8123/delphi/models/XYZ/experiments\" -d @../tests/data/delphi/causemos_experiments_projection_input.json --header \"Content-Type: application/json\" " << std::endl;
+    std::cout << "curl -X POST \"http://localhost:8123/delphi/create-model\" -d @../tests/data/delphi/create_model_input_2.json --header \"Content-Type: application/json\" " << std::endl;
+    std::cout << "curl \"http://localhost:8123/delphi/models/XYZ\" " << std::endl;
+    std::cout << "curl -X POST \"http://localhost:8123/delphi/models/XYZ/experiments\" -d @../tests/data/delphi/experiments_projection_input_2.json --header \"Content-Type: application/json\" " << std::endl;
     std::cout << "curl \"http://localhost:8123/delphi/models/XYZ/experiments/d93b18a7-e2a3-4023-9f2f-06652b4bba66\" " << std::endl;
 
     served::net::server server("127.0.0.1", "8123", mux);

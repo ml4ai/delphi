@@ -538,10 +538,6 @@ class AnalysisGraph {
   void
   set_observed_state_sequence_from_json_dict(const nlohmann::json &json_indicators);
 
-  /** Construct an AnalysisGraph object from JSON exported by CauseMos. */
-  void from_causemos_json_dict(const nlohmann::json &json_data,
-                               double belief_score_cutoff,
-                               double grounding_score_cutoff);
 
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                           create-experiment
@@ -552,8 +548,6 @@ class AnalysisGraph {
   void extract_projection_constraints(
                                 const nlohmann::json &projection_constraints, long skip_steps);
 
-  FormattedProjectionResult run_causemos_projection_experiment_from_json_dict(
-                                               const nlohmann::json &json_data);
 
   FormattedProjectionResult format_projection_result();
 
@@ -1077,6 +1071,11 @@ class AnalysisGraph {
    */
   std::string generate_create_model_response();
 
+  /** Construct an AnalysisGraph object from JSON exported by CauseMos. */
+  void from_causemos_json_dict(const nlohmann::json &json_data,
+                               double belief_score_cutoff,
+                               double grounding_score_cutoff);
+
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                           create-experiment
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -1086,6 +1085,9 @@ class AnalysisGraph {
 
   FormattedProjectionResult
   run_causemos_projection_experiment_from_json_file(std::string filename);
+
+  FormattedProjectionResult run_causemos_projection_experiment_from_json_dict(
+                                const nlohmann::json &json_data);
 
   /*
    ============================================================================
