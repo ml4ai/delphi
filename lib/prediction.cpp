@@ -62,8 +62,27 @@ void AnalysisGraph::generate_latent_state_sequences(
 
           // Evolving the system till the initial_prediction_step
           this->predicted_latent_state_sequences[samp][0] =
-                              A.pow(initial_prediction_step) *
                                   this->initial_latent_state_collection[samp];
+
+          for (int ts = 0; ts < initial_prediction_step; ts++) {
+
+            // Set derivatives for frozen nodes
+            for (const auto & [ v, deriv_func ] : this->external_concepts) {
+              const Indicator& ind = this->graph[v].indicators[0];
+              this->predicted_latent_state_sequences[samp][0][2 * v + 1] =
+                                                      deriv_func(ts, ind.mean);
+            }
+
+            this->predicted_latent_state_sequences[samp][0] =
+                            A * this->predicted_latent_state_sequences[samp][0];
+          }
+
+          // Set derivatives for frozen nodes
+          for (const auto & [ v, deriv_func ] : this->external_concepts) {
+            const Indicator& ind = this->graph[v].indicators[0];
+            this->predicted_latent_state_sequences[samp][0][2 * v + 1] =
+                                  deriv_func(initial_prediction_step, ind.mean);
+          }
       }
 
       // Clear out perpetual constraints residual from previous sample
@@ -105,6 +124,13 @@ void AnalysisGraph::generate_latent_state_sequences(
           // When discrete  : s_t = Ad * s_{t-1}
           this->predicted_latent_state_sequences[samp][ts] =
               A * this->predicted_latent_state_sequences[samp][ts - 1];
+
+          // Set derivatives for frozen nodes
+          for (const auto & [ v, deriv_func ] : this->external_concepts) {
+            const Indicator& ind = this->graph[v].indicators[0];
+            this->predicted_latent_state_sequences[samp][ts][2 * v + 1] =
+                            deriv_func(initial_prediction_step + ts, ind.mean);
+          }
 
           if (this->clamp_at_derivative ) {
               if (ts == this->rest_derivative_clamp_ts) {
@@ -533,6 +559,31 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
 
   return make_tuple(
       this->training_range, this->pred_range, this->format_prediction_result());
+}
+
+void AnalysisGraph::generate_prediction(int pred_start_timestep,
+                                        int pred_timesteps,
+                                        ConstraintSchedule constraints,
+                                        bool one_off,
+                                        bool clamp_deri) {
+  this->is_one_off_constraints = one_off;
+  this->clamp_at_derivative = clamp_deri;
+
+  for (auto [step, const_vec] : constraints) {
+    for (auto constraint : const_vec) {
+      string concept_name = get<0>(constraint);
+      string indicator_name = get<1>(constraint);
+      double value = get<2>(constraint);
+
+      this->add_constraint(step, concept_name, indicator_name, value);
+    }
+  }
+
+  this->pred_start_timestep = pred_start_timestep - 1;
+  this->pred_timesteps = pred_timesteps + 1;
+
+  this->generate_latent_state_sequences(this->pred_start_timestep);
+  this->generate_observed_state_sequences();
 }
 
 vector<vector<double>> AnalysisGraph::prediction_to_array(string indicator) {

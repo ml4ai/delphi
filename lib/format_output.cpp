@@ -119,8 +119,8 @@ CompleteState AnalysisGraph::get_complete_state() {
             }
             predictions[ind_name] = preds;
 
-            //for (int ts = 0; ts < num_data_points; ts++) {
-            for (int ts = 0; ts < this->n_timesteps; ts++) {
+            //for (int ts = 0; ts < this->n_timesteps; ts++) {
+            for (int ts = 0; ts < this->observed_state_sequence.size(); ts++) {
                 for (double obs : this->observed_state_sequence[ts][vert_id][ind_id]) {
                     data["Time Step"].push_back(ts);
                     data["Data"].push_back(obs);
@@ -130,9 +130,11 @@ CompleteState AnalysisGraph::get_complete_state() {
         }
     }
 
-    std::vector<long> data_range(this->n_timesteps);
+    //std::vector<long> data_range(this->n_timesteps);
+    std::vector<long> data_range(this->observed_state_sequence.size());
     double timestep = 0;
-    for (int ts = 0; ts < this->n_timesteps; ts++) {
+    //for (int ts = 0; ts < this->n_timesteps; ts++) {
+    for (int ts = 0; ts < this->observed_state_sequence.size(); ts++) {
         timestep += this->observation_timestep_gaps[ts];
         data_range[ts] = this->train_start_epoch +
                         timestep * this->modeling_period;

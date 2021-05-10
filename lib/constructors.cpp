@@ -116,6 +116,64 @@ AnalysisGraph::from_causal_fragments(vector<CausalFragment> causal_fragments) {
   return G;
 }
 
+AnalysisGraph
+AnalysisGraph::from_causal_fragments_with_data(pair<vector<CausalFragment>,
+                                  ConceptIndicatorAlignedData> cag_ind_data,
+                                               int kde_kernels) {
+  AnalysisGraph G = from_causal_fragments(cag_ind_data.first);
+
+  G.set_res(kde_kernels);
+
+  G.observed_state_sequence.clear();
+  G.n_timesteps = 0;
+
+  // NOTE: Only one indicator per concept
+  for (const auto & [ concept, ind_data ] : cag_ind_data.second) {
+    G.set_indicator(concept, ind_data.first, "");
+
+    if (G.n_timesteps < ind_data.second.size()) {
+      G.n_timesteps = ind_data.second.size();
+    }
+  }
+
+  // Access (concept is a vertex in the CAG)
+  // [ timestep ][ concept ][ indicator ][ observation ]
+  G.observed_state_sequence = ObservedStateSequence(G.n_timesteps);
+
+  int num_verts = G.num_vertices();
+
+  // Fill in observed state sequence
+  // NOTE: This code is very similar to the implementations in
+  // set_observed_state_sequence_from_data and get_observed_state_from_data
+  for (int ts = 0; ts < G.n_timesteps; ts++) {
+    G.observed_state_sequence[ts] = vector<vector<vector<double>>>(num_verts);
+
+    for (const auto & [ concept, ind_data ] : cag_ind_data.second) {
+      int v = G.name_to_vertex.at(concept);
+
+      Node& n = G[v];
+      G.observed_state_sequence[ts][v] = vector<vector<double>>(n.indicators.size());
+
+      // Only one indicator per concept => i = 0
+      for (int i = 0; i < n.indicators.size(); i++) {
+        G.observed_state_sequence[ts][v][i] = vector<double>();
+
+        if (ts < ind_data.second.size()) {
+          G.observed_state_sequence[ts][v][i].push_back(ind_data.second[ts]);
+        }
+      }
+    }
+  }
+
+  G.modeling_period = 1;
+  G.train_start_epoch = 0;
+  G.observation_timestep_gaps.clear();
+  G.observation_timestep_gaps = vector<double>(G.n_timesteps, 1.0);
+  G.observation_timestep_gaps[0] = 0;
+
+  return G;
+}
+
 AnalysisGraph AnalysisGraph::from_json_string(string json_string) {
   auto data = nlohmann::json::parse(json_string);
   AnalysisGraph G;

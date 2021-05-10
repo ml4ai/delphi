@@ -50,6 +50,11 @@ typedef std::pair<std::tuple<std::string, int, std::string>,
                   std::tuple<std::string, int, std::string>>
     CausalFragment;
 
+// { concept_name --> (ind_name, [obs_0, obs_1, ... ])}
+typedef std::unordered_map<std::string,
+                           std::pair<std::string, std::vector<double>>>
+    ConceptIndicatorAlignedData;
+
 typedef std::tuple<std::vector<std::string>, std::vector<int>, std::string>
     EventCollection;
 
@@ -257,6 +262,9 @@ class AnalysisGraph {
   std::vector<double> observation_timestep_gaps;
   std::unordered_map<double, Eigen::MatrixXd> e_A_ts;
   long modeling_period = 1; // Number of epochs per one modeling timestep
+
+  std::unordered_map<int, std::function<double(unsigned int, double)>> external_concepts;
+  std::vector<unsigned int> concept_sample_pool;
 
   double t = 0.0;
   double delta_t = 1.0;
@@ -1037,6 +1045,11 @@ class AnalysisGraph {
   static AnalysisGraph
   from_causal_fragments(std::vector<CausalFragment> causal_fragments);
 
+  static AnalysisGraph
+  from_causal_fragments_with_data(std::pair<std::vector<CausalFragment>,
+                                  ConceptIndicatorAlignedData> cag_ind_data,
+                                  int kde_kernels = 5);
+
   /** From internal string representation output by to_json_string */
   static AnalysisGraph from_json_string(std::string);
 
@@ -1335,6 +1348,18 @@ class AnalysisGraph {
                    bool use_continuous = true);
 
   void run_train_model(int res = 200,
+                   int burn = 10000,
+                   InitialBeta initial_beta = InitialBeta::ZERO,
+                   InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO,
+                   bool use_heuristic = false,
+                   bool use_continuous = true,
+                   int train_start_timestep = 0,
+                   int train_timesteps = -1,
+                   std::unordered_map
+                       <std::string, std::function<double(unsigned int, double)>>
+                   ext_concepts = {});
+
+  void run_train_model_2(int res = 200,
                        int burn = 10000,
                        InitialBeta initial_beta = InitialBeta::ZERO,
                        InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO,
@@ -1382,9 +1407,16 @@ class AnalysisGraph {
                                  int end_year,
                                  int end_month,
                                  ConstraintSchedule constraints =
-                                                        ConstraintSchedule(),
+                                 ConstraintSchedule(),
                                  bool one_off = true,
                                  bool clamp_deri = true);
+
+  void generate_prediction(int pred_start_timestep,
+                           int pred_timesteps,
+                           ConstraintSchedule constraints =
+                           ConstraintSchedule(),
+                           bool one_off = true,
+                           bool clamp_deri = true);
 
   /**
    * this->generate_prediction() must be called before calling this method.

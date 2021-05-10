@@ -3,6 +3,7 @@
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/functional.h>
 
 #include "AnalysisGraph.hpp"
 #include "exceptions.hpp"
@@ -61,6 +62,10 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def_static("from_causal_fragments",
                   &AnalysisGraph::from_causal_fragments,
                   "causal_fragments"_a)
+      .def_static("from_causal_fragments_with_data",
+                  &AnalysisGraph::from_causal_fragments_with_data,
+                  "cag_ind_data"_a,
+                  "kde_kernels"_a = 5)
       .def("__len__", &AnalysisGraph::num_vertices)
       .def("__getitem__", [](AnalysisGraph& G, string name) { return G[name]; })
       .def("__getitem__",
@@ -181,13 +186,28 @@ PYBIND11_MODULE(DelphiPython, m) {
            "initial_beta"_a = InitialBeta::ZERO,
            "initial_derivative"_a = InitialDerivative::DERI_ZERO,
            "use_heuristic"_a = false,
-           "use_continuous"_a = true)
+           "use_continuous"_a = true,
+           "train_start_timestep"_a = 0,
+           "train_timesteps"_a = -1,
+           "ext_concepts"_a =
+               unordered_map<string, function<double(unsigned int, double)>>())
       .def("generate_prediction",
-           &AnalysisGraph::generate_prediction,
+           static_cast<Prediction (AnalysisGraph::*)
+                           (int, int, int, int, ConstraintSchedule, bool, bool)>
+           (&AnalysisGraph::generate_prediction),
            "start_year"_a,
            "start_month"_a,
            "end_year"_a,
            "end_month"_a,
+           "constraints"_a = ConstraintSchedule(),
+           "one_off"_a = true,
+           "clamp_deri"_a = true)
+      .def("generate_prediction",
+           static_cast<void (AnalysisGraph::*)
+                           (int, int, ConstraintSchedule, bool, bool)>
+           (&AnalysisGraph::generate_prediction),
+           "pred_start_timestep"_a,
+           "pred_timesteps"_a,
            "constraints"_a = ConstraintSchedule(),
            "one_off"_a = true,
            "clamp_deri"_a = true)

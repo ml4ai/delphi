@@ -147,6 +147,13 @@ void AnalysisGraph::set_log_likelihood() {
       this->current_latent_state = this->s0;
 
       for (int ts = 0; ts < this->n_timesteps; ts++) {
+
+          // Set derivatives for frozen nodes
+          for (const auto & [ v, deriv_func ] : this->external_concepts) {
+              const Indicator& ind = this->graph[v].indicators[0];
+              this->current_latent_state[2 * v + 1] = deriv_func(ts, ind.mean);
+          }
+
           set_log_likelihood_helper(ts);
           this->current_latent_state = this->A_original * this->current_latent_state;
       }
@@ -197,7 +204,7 @@ void AnalysisGraph::sample_from_proposal() {
   else {
     // Randomly select a concept to change the derivative
     this->changed_derivative =
-        2 * this->uni_disc_dist(this->rand_num_generator) + 1;
+        2 * this->concept_sample_pool[this->uni_disc_dist(this->rand_num_generator)] + 1;
     this->previous_derivative = this->s0[this->changed_derivative];
     this->s0[this->changed_derivative] += this->norm_dist(this->rand_num_generator);
   }

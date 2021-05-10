@@ -44,6 +44,64 @@ void AnalysisGraph::train_model(int start_year,
 }
 
 void AnalysisGraph::run_train_model(int res,
+                                int burn,
+                                InitialBeta initial_beta,
+                                InitialDerivative initial_derivative,
+                                bool use_heuristic,
+                                bool use_continuous,
+                                int train_start_timestep,
+                                int train_timesteps,
+                                unordered_map<string, function<double(unsigned int, double)>> ext_concepts
+                                ) {
+    if (train_timesteps < 0) {
+      this->n_timesteps = this->observed_state_sequence.size();
+    }
+    else {
+      this->n_timesteps = train_timesteps;
+    }
+
+    unordered_set<int> train_vertices =
+        unordered_set<int>
+            (this->node_indices().begin(), this->node_indices().end());
+
+    for (const auto & [ concept, deriv_func ] : ext_concepts) {
+      try {
+        int vert_id = this->name_to_vertex.at(concept);
+        this->external_concepts[vert_id] = deriv_func;
+        train_vertices.erase(vert_id);
+      }
+      catch (const std::out_of_range& oor) {
+        cout << "\nERROR: train_model - Concept << concept << is not in CAG!\n";
+      }
+    }
+
+    this->concept_sample_pool = vector<unsigned int>(train_vertices.begin(),
+                                                     train_vertices.end());
+
+    this->initialize_parameters(res, initial_beta, initial_derivative,
+                                use_heuristic, use_continuous);
+
+    cout << "\nBurning " << burn << " samples out..." << endl;
+    for (int i : trange(burn)) {
+      this->sample_from_posterior();
+    }
+
+    cout << "\nSampling " << this->res << " samples from posterior..." << endl;
+    for (int i : trange(this->res)) {
+      this->sample_from_posterior();
+      this->transition_matrix_collection[i] = this->A_original;
+      this->initial_latent_state_collection[i] = this->s0;
+
+      for (auto e : this->edges()) {
+        this->graph[e].sampled_thetas.push_back(this->graph[e].theta);
+      }
+    }
+
+    this->trained = true;
+    RNG::release_instance();
+}
+
+void AnalysisGraph::run_train_model_2(int res,
                                     int burn,
                                     InitialBeta initial_beta,
                                     InitialDerivative initial_derivative,
