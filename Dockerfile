@@ -40,3 +40,6 @@ RUN python3 -m venv $VIRTUAL_ENV
 RUN mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o data/delphi.db
 RUN . $VIRTUAL_ENV/bin/activate && pip install wheel && pip install -e .
 CMD delphi_rest_api
+
+RUN git clone https://github.com/meltwater/served
+RUN cd served && mkdir build && cd build && cmake .. && make -j install && cd ..

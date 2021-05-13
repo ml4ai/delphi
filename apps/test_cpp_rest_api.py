@@ -2,7 +2,7 @@ import os
 import time
 import json
 
-SQLITE3_DB_PATH="/Users/aishwaya/Desktop/delphi/delphi_test.db"
+SQLITE3_DB_PATH=os.environ['DELPHI_DB']
 
 def main():
 

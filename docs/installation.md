@@ -122,6 +122,8 @@ open docs/_build/html/index.html
 
 ```bash
 
+port install served
+
 cd delphi/build
 cmake .. && make -j
 ./delphi_rest_api

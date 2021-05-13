@@ -11,8 +11,7 @@ using json = nlohmann::json;
     Database class constructor to open sqlite3 connection 
 */
 Database::Database(){
-	//int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
-	int rc = sqlite3_open("/Users/aishwaya/Desktop/delphi/delphi_test.db", &db);
+	int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
 
 	if (rc){
 		// Show an error message

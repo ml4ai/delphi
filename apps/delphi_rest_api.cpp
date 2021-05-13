@@ -184,7 +184,6 @@ public:
 
     static void train_model(Database* sqlite3DB, AnalysisGraph G, string modelID, int sampling_resolution, int burn){
         G.run_train_model(sampling_resolution, burn, InitialBeta::ZERO, InitialDerivative::DERI_ZERO);
-        //G.write_model_to_db(modelID);
         sqlite3DB->insert_into_delphimodel(modelID, G.serialize_to_json_string(false));
     }
 
@@ -229,10 +228,6 @@ int main(int argc, const char *argv[])
             result["experimentId"] = req.params["experimentID"];
 
             res << result.dump();
-
-            //string strresult = result.dump();
-            //res << strresult;
-            //return strresult;
         });
 
 
@@ -291,7 +286,6 @@ int main(int argc, const char *argv[])
             res << ret_exp.dump();
             return ret_exp;
 
-
         });
 
 
@@ -309,7 +303,6 @@ int main(int argc, const char *argv[])
                 json ret_exp;
                 ret_exp["status"] =  "invalid model id";
                 res << ret_exp.dump();
-                //return ret_exp;
                 return;
             }
 
@@ -320,11 +313,6 @@ int main(int argc, const char *argv[])
             auto response = nlohmann::json::parse(G.generate_create_model_response());
 
             res << response.dump();
-            //res << G.generate_create_model_response();
-            //return response.dump();
-            //string strresult = response.dump();
-            //res << strresult;
-            //return strresult;
         });
 
 
@@ -383,12 +371,12 @@ int main(int argc, const char *argv[])
             }
 
 
-            response << response_json.dump();
-            return response_json.dump();
+            //response << response_json.dump();
+            //return response_json.dump();
 
-            //string strresult = json_data.dump();
-            //response << strresult;
-            //return strresult;
+            string strresult = response_json.dump();
+            response << strresult;
+            return strresult;
         });
 
 
