@@ -2,8 +2,6 @@ FROM        ubuntu:20.04
 CMD         bash
 
 ENV DEBIAN_FRONTEND noninteractive
-# Set up virtual environment
-ENV VIRTUAL_ENV=/venv
 # Set the environment variable DELPHI_DB to point to the SQLite3 database.
 ENV DELPHI_DB=/delphi/data/delphi.db
 ENV MODEL_FILES=/delphi/data/source_model_files
@@ -35,11 +33,10 @@ RUN apt-get -y install nlohmann-json3-dev
 COPY . /delphi
 WORKDIR /delphi
 
-RUN python3 -m venv $VIRTUAL_ENV
-
 RUN mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o data/delphi.db
-RUN . $VIRTUAL_ENV/bin/activate && pip install wheel && pip install -e .
-CMD delphi_rest_api
 
 RUN git clone https://github.com/meltwater/served
-RUN cd served && mkdir build && cd build && cmake .. && make -j install && cd ..
+RUN cd served && mkdir build && cd build && cmake .. && make -j install && cd ../..
+RUN cd build && cmake .. && make -j
+
+CMD delphi_rest_api
