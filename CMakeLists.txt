@@ -117,4 +117,4 @@ pkg_check_modules(SERVED REQUIRED IMPORTED_TARGET  served)
 
 add_executable(delphi_rest_api apps/delphi_rest_api.cpp)
 target_link_libraries(delphi_rest_api PRIVATE Delphi PkgConfig::SERVED)
-target_link_libraries(delphi_rest_api PRIVATE Eigen3::Eigen)
+target_link_libraries(delphi_rest_api PRIVATE Eigen3::Eigen pthread)
