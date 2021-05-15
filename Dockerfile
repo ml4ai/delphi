@@ -37,6 +37,6 @@ RUN mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -
 
 RUN git clone https://github.com/meltwater/served
 RUN cd served && mkdir build && cd build && cmake .. && make -j install && cd ../..
-RUN cd build && cmake .. && make -j
+RUN mkdir build && cd build && cmake .. && make -j
 
 CMD delphi_rest_api
