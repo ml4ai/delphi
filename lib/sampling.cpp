@@ -179,25 +179,31 @@ void AnalysisGraph::sample_from_proposal() {
 
   if (this->coin_flip < this->coin_flip_thresh) {
     // Randomly pick an edge ≡ θ
-    boost::iterator_range edge_it = this->edges();
+    //boost::iterator_range edge_it = this->edges();
 
-    vector<EdgeDescriptor> e(1);
+    //vector<EdgeDescriptor> e(1);
+    vector<pair<int, int>> edg(1);
+
     sample(
-        edge_it.begin(), edge_it.end(), e.begin(), 1, this->rand_num_generator);
+        this->edge_sample_pool.begin(),
+        this->edge_sample_pool.end(),
+        edg.begin(), 1, this->rand_num_generator);
+
+    EdgeDescriptor e = boost::edge(edg[0].first, edg[0].second, this->graph).first;
 
     // Remember the previous θ
-    this->previous_theta = make_pair(e[0], this->graph[e[0]].theta);
+    this->previous_theta = make_pair(e, this->graph[e].theta);
 
     // Perturb the θ
     // TODO: Check whether this perturbation is accurate
-    this->graph[e[0]].theta += this->norm_dist(this->rand_num_generator);
+    this->graph[e].theta += this->norm_dist(this->rand_num_generator);
 
-    this->update_transition_matrix_cells(e[0]);
+    this->update_transition_matrix_cells(e);
   }
   else {
     // Randomly select a concept to change the derivative
     this->changed_derivative =
-        2 * this->uni_disc_dist(this->rand_num_generator) + 1;
+        2 * this->node_sample_pool[this->uni_disc_dist(this->rand_num_generator)] + 1;
     this->previous_derivative = this->s0[this->changed_derivative];
     this->s0[this->changed_derivative] += this->norm_dist(this->rand_num_generator);
   }

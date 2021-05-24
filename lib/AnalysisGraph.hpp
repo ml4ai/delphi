@@ -258,6 +258,16 @@ class AnalysisGraph {
   std::unordered_map<double, Eigen::MatrixXd> e_A_ts;
   long modeling_period = 1; // Number of epochs per one modeling timestep
 
+  // {microtheory_name -->  {vert_id -->  derivative}}
+  std::unordered_map<std::string, std::unordered_map<int, double>> microtheories = {};
+  // {microtheory_name -->  {edge -->  beta}}
+  std::unordered_map<std::string,
+                     std::unordered_map<std::pair<int, int>, double,
+                                        delphi::utils::hash_pair>>
+                                                        microtheory_edges = {};
+  std::vector<int> node_sample_pool;
+  std::vector<std::pair<int, int>> edge_sample_pool;
+
   double t = 0.0;
   double delta_t = 1.0;
 
@@ -1159,7 +1169,7 @@ class AnalysisGraph {
 
   void add_node(std::string concept);
 
-  bool add_edge(CausalFragment causal_fragment);
+  bool add_edge(CausalFragment causal_fragment, double beta = 1);
   void add_edge(CausalFragmentCollection causal_fragments);
   std::pair<EdgeDescriptor, bool> add_edge(int, int);
   std::pair<EdgeDescriptor, bool> add_edge(int, std::string);

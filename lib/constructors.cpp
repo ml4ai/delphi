@@ -171,7 +171,8 @@ AnalysisGraph::AnalysisGraph(const AnalysisGraph& rhs) {
   this->s0 = rhs.s0;
   this->A_original = rhs.A_original;
   this->continuous = rhs.continuous;
-
+  this->microtheories = rhs.microtheories;
+  this->microtheory_edges = rhs.microtheory_edges;
   // NOTE: This assumes that node indices and indicator indices for each node
   // does not change when copied. This data structure is indexed using those
   // indices. If they gets changed while copying, assigned indicator data would

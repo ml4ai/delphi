@@ -114,9 +114,11 @@ if __name__ == "__main__":
          ""],
         ["../tests/data/delphi/causemos_create.json",                   # 8. Oldest test data
          "../tests/data/delphi/causemos_experiments_projection_input.json"],
+        ["../tests/data/delphi/create_model_with_microtheory.json",     # 9. With microtheory
+         "../tests/data/delphi/experiments_projection_ideal.json"]
     ]
 
-    input_idx = 2
+    input_idx = 9
     causemos_create_model = json_inputs[input_idx][0]
     causemos_create_experiment = json_inputs[input_idx][1]
 

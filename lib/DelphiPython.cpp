@@ -108,8 +108,9 @@ PYBIND11_MODULE(DelphiPython, m) {
            "concept"_a)
       .def("remove_nodes", &AnalysisGraph::remove_nodes, "concepts"_a)
       .def("add_edge",
-           py::overload_cast<CausalFragment>(&AnalysisGraph::add_edge),
-           "causal_fragment"_a)
+           py::overload_cast<CausalFragment, double>(&AnalysisGraph::add_edge),
+           "causal_fragment"_a,
+           "beta"_a = 1)
       .def("change_polarity_of_edge",
            &AnalysisGraph::change_polarity_of_edge,
            "source_concept"_a,

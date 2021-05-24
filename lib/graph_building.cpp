@@ -20,7 +20,7 @@ void AnalysisGraph::add_node(string concept) {
   }
 }
 
-bool AnalysisGraph::add_edge(CausalFragment causal_fragment) {
+bool AnalysisGraph::add_edge(CausalFragment causal_fragment, double beta) {
   Event subject = Event(causal_fragment.first);
   Event object = Event(causal_fragment.second);
 
@@ -34,6 +34,7 @@ bool AnalysisGraph::add_edge(CausalFragment causal_fragment) {
 
     auto [e, exists] = this->add_edge(subj_name, obj_name);
     this->graph[e].evidence.push_back(Statement{subject, object});
+    this->graph[e].theta = std::atan(beta);
 
     return true;
   }

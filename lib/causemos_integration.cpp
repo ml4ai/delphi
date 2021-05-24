@@ -47,10 +47,12 @@ void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json
         string indicator_name = "Qualitative measure of {}"_format(n.name);
         string indicator_source = "Delphi";
 
-        if (json_indicators[n.name].is_null()) {
+        //if (json_indicators[n.name].is_null()) {
+        if (json_indicators.find(n.name) == json_indicators.end()) {
             // In this case we do not have any observation data to train the model
             this->set_indicator(n.name, indicator_name, indicator_source);
             n.get_indicator(indicator_name).set_mean(1.0);
+            concept_indicator_data[v].push_back(multimap<long, double>());
             continue;
         }
 
@@ -66,11 +68,13 @@ void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json
             indicator_source = indicator["source"].get<string>();
         }
 
-        if (indicator["name"].is_null()) {
+//        if (indicator["name"].is_null()) {
+          if (json_indicators.find(n.name) == json_indicators.end()) {
             // This case there could be observations. However we are discarding
             // them. Why?
             this->set_indicator(n.name, indicator_name, indicator_source);
             n.get_indicator(indicator_name).set_mean(1.0);
+            concept_indicator_data[v].push_back(multimap<long, double>());
             continue;
         }
 
@@ -430,6 +434,39 @@ void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data,
           CausalFragment({subj_adjectives[0], subj_polarity_val, subj_name},
                          {obj_adjectives[0], obj_polarity_val, obj_name});
       this->add_edge(causal_fragment);
+    }
+  }
+
+  if (json_data.find("microtheories") != json_data.end()) {
+    auto mts = json_data["microtheories"];
+
+    string subj_adjective = "";
+    string obj_adjective = "";
+    int subj_polarity_val = 0;
+    int obj_polarity_val = 0;
+
+    for (auto mt : mts) {
+      for (auto edge : mt["edges"]) {
+
+        string subj_name = edge["subj"].get<string>();
+        string obj_name = edge["obj"].get<string>();
+        double beta = edge["beta"].get<double>();
+
+        auto causal_fragment =
+            CausalFragment({subj_adjective, subj_polarity_val, subj_name},
+                           {obj_adjective, obj_polarity_val, obj_name});
+        this->add_edge(causal_fragment, 0);
+
+        this->microtheory_edges[mt["name"].get<string>()]
+        [make_pair(this->name_to_vertex[subj_name], this->name_to_vertex[obj_name])]
+            = beta;
+      }
+
+      for (auto deri : mt["derivatives"]) {
+        this->microtheories[mt["name"].get<string>()]
+        [this->name_to_vertex[deri["concept"].get<string>()]]
+            = deri["derivative"].get<double>();
+      }
     }
   }
 

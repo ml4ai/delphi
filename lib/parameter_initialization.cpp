@@ -19,8 +19,43 @@ void AnalysisGraph::initialize_parameters(int res,
                                           InitialDerivative initial_derivative,
                                           bool use_heuristic,
                                           bool use_continuous) {
+
+    for (int vert = 0; vert < this->num_nodes(); vert++) {
+      bool microtheory_node = false;
+
+      for (auto [mt, deris] : this->microtheories) {
+        if (delphi::utils::in(deris, vert)) {
+          microtheory_node = true;
+          break;
+        }
+      }
+
+      if (!microtheory_node) {
+        this->node_sample_pool.push_back(vert);
+      }
+    }
+
+    for (EdgeDescriptor e : this->edges()) {
+      int src_id = boost::source(e, this->graph);
+      int tgt_id = boost::target(e, this->graph);
+      bool microtheory_edge = false;
+
+      for (auto [mt, deris] : this->microtheories) {
+        if (delphi::utils::in(deris, src_id)
+            || delphi::utils::in(deris, tgt_id)) {
+          microtheory_edge = true;
+          break;
+        }
+      }
+
+      if (!microtheory_edge) {
+        this->edge_sample_pool.push_back(make_pair(src_id, tgt_id));
+      }
+    }
+
     this->initialize_random_number_generator();
-    this->uni_disc_dist = uniform_int_distribution<int>(0, this->num_nodes() - 1);
+    this->uni_disc_dist = uniform_int_distribution<int>
+                                    (0, this->node_sample_pool.size() - 1);
 
     this->res = res;
     this->continuous = use_continuous;
@@ -43,55 +78,42 @@ void AnalysisGraph::initialize_parameters(int res,
 }
 
 void AnalysisGraph::init_betas_to(InitialBeta ib) {
-  switch (ib) {
-  // Initialize the initial β for this edge
-  // Note: I am repeating the loop within each case for efficiency.
-  // If we embed the switch within the for loop, there will be less code
-  // but we will evaluate the switch for each iteration through the loop
-  case InitialBeta::ZERO:
-    for (EdgeDescriptor e : this->edges()) {
+  for (pair<int, int> edg : this->edge_sample_pool) {
+    EdgeDescriptor e = boost::edge(edg.first, edg.second, this->graph).first;
+
+    switch (ib) {
+    // Initialize the initial β for this edge
+    case InitialBeta::ZERO:
       // β = tan(0.0) = 0
       this->graph[e].theta = 0.0;
-    }
-    break;
-  case InitialBeta::ONE:
-    for (EdgeDescriptor e : this->edges()) {
+      break;
+    case InitialBeta::ONE:
       // θ = atan(1) = Π/4
       // β = tan(atan(1)) = 1
       this->graph[e].theta = std::atan(1);
-    }
-    break;
-  case InitialBeta::HALF:
-    for (EdgeDescriptor e : this->edges()) {
+      break;
+    case InitialBeta::HALF:
       // β = tan(atan(0.5)) = 0.5
       this->graph[e].theta = std::atan(0.5);
-    }
-    break;
-  case InitialBeta::MEAN:
-    for (EdgeDescriptor e : this->edges()) {
-      this->graph[e].theta = this->graph[e].kde.mu;
-    }
-    break;
-  case InitialBeta::MEDIAN:
-      for (EdgeDescriptor e : this->edges()) {
-        this->graph[e].theta = median(this->graph[e].kde.dataset);
-      }
       break;
-    case InitialBeta::PRIOR:
-      for (EdgeDescriptor e : this->edges()) {
+    case InitialBeta::MEAN:
+      this->graph[e].theta = this->graph[e].kde.mu;
+      break;
+    case InitialBeta::MEDIAN:
+        this->graph[e].theta = median(this->graph[e].kde.dataset);
+        break;
+      case InitialBeta::PRIOR:
         this->graph[e].theta = this->graph[e].kde.resample(
             1, this->rand_num_generator,
             this->uni_dist, this->norm_dist)[0];
-      }
-      break;
-  case InitialBeta::RANDOM:
-    for (EdgeDescriptor e : this->edges()) {
+        break;
+    case InitialBeta::RANDOM:
       // this->uni_dist() gives a random number in range [0, 1]
       // Multiplying by 2 scales the range to [0, 2]
       // Subtracting 1 moves the range to [-1, 1]
       this->graph[e].theta = this->uni_dist(this->rand_num_generator) * 2 - 1;
+      break;
     }
-    break;
   }
 }
 
@@ -286,6 +308,30 @@ void AnalysisGraph::construct_theta_pdfs() {
 
   for (auto e : this->edges()) {
     vector<double> all_thetas = {};
+
+    int src_id = boost::source(e, this->graph);
+    int tgt_id = boost::target(e, this->graph);
+
+    bool microtheory_edge = false;
+//    for (auto it = this->microtheories.begin(); it != this->microtheories.end(); ++it) {
+//      std::cout << it->first << std::endl;
+//      for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
+//        std::cout << "  " << it2->first << " " << it2->second << std::endl;
+//      }
+//    }
+
+    for (auto [mt, deris] : this->microtheories) {
+      if (delphi::utils::in(deris, src_id) ||
+          delphi::utils::in(deris, tgt_id)) {
+        this->graph[e].kde = KDE({0, 0});
+        microtheory_edge = true;
+        break;
+      }
+    }
+
+    if (microtheory_edge) {
+      continue;
+    }
 
     for (Statement stmt : this->graph[e].evidence) {
       Event subject = stmt.subject;
