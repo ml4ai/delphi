@@ -1,0 +1,168 @@
+{
+  "id": "XYZ1606327881",
+  "statements": [
+    {
+      "id": "0",
+      "belief": 1,
+      "evidence": [
+        {
+           "evidence_context": {
+            "subj_adjectives": ["small"],
+            "subj_polarity": 1,
+            "obj_adjectives": ["large"],
+            "obj_polarity": 1,
+            "text": ""
+           }
+        }
+      ],
+      "subj": {
+        "adjectives": [],
+        "concept": "a",
+        "concept_score": 1,
+        "polarity": 1,
+        "theme": "a"
+      },
+      "obj": {
+        "adjectives": [],
+        "concept": "b",
+        "concept_score": 1,
+        "polarity": 1,
+        "theme": "b"
+      }
+    }
+  ],
+  "conceptIndicators": {
+    "a": {
+      "name": "a_ind",
+      "func": "mean",
+      "minValue": 1,
+      "maxValue": 201,
+      "numLevels": 31,
+      "values": [
+        {
+          "timestamp": 10,
+          "value": 1.0
+        },
+        {
+          "timestamp": 11,
+          "value": 1.1
+        },
+        {
+          "timestamp": 12,
+          "value": 1.2
+        },
+        {
+          "timestamp": 13,
+          "value": 1.3
+        },
+        {
+          "timestamp": 14,
+          "value": 1.4
+        },
+        {
+          "timestamp": 15,
+          "value": 1.5
+        },
+        {
+          "timestamp": 16,
+          "value": 1.6
+        },
+        {
+          "timestamp": 17,
+          "value": 1.7
+        },
+        {
+          "timestamp": 18,
+          "value": 1.8
+        },
+        {
+          "timestamp": 19,
+          "value": 1.9
+        }
+      ],
+      "source": ""
+    },
+    "b": {
+      "name": "b_ind",
+      "func": "first",
+      "minValue": 1,
+      "maxValue": 201,
+      "numLevels": 31,
+      "values": [
+        {
+          "timestamp": 10,
+          "value": 1.0
+        },
+        {
+          "timestamp": 11,
+          "value": 1.2
+        },
+        {
+          "timestamp": 12,
+          "value": 1.4
+        },
+        {
+          "timestamp": 13,
+          "value": 1.6
+        },
+        {
+          "timestamp": 14,
+          "value": 1.8
+        },
+        {
+          "timestamp": 15,
+          "value": 2.0
+        },
+        {
+          "timestamp": 16,
+          "value": 2.2
+        },
+        {
+          "timestamp": 17,
+          "value": 2.4
+        },
+        {
+          "timestamp": 18,
+          "value": 2.6
+        },
+        {
+          "timestamp": 19,
+          "value": 2.8
+        }
+      ],
+      "source": ""
+    }
+  },
+  "microtheories": [
+    {
+      "name": "locust",
+      "edges": [
+        {
+          "subj": "a",
+          "obj": "x",
+          "beta": -1.2
+        },
+        {
+          "subj": "x",
+          "obj": "y",
+          "beta": 2
+        },
+        {
+          "subj": "y",
+          "obj": "b",
+          "beta": -1.5
+        }
+      ],
+      "derivatives": [
+        {
+          "concept": "x",
+          "derivative": -0.5
+        },
+        {
+          "concept": "y",
+          "derivative": 1
+        }
+      ]
+    }
+  ]
+}
