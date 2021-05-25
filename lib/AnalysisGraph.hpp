@@ -241,6 +241,9 @@ class AnalysisGraph {
   // Maps each β to all the transition matrix cells that are dependent on it.
   std::multimap<std::pair<int, int>, std::pair<int, int>> beta2cell;
 
+  std::unordered_set<int> dependent_nodes = {};
+  std::unordered_set<int> independent_nodes = {};
+
   /*
    ============================================================================
    Sampler Related Variables
@@ -1170,7 +1173,7 @@ class AnalysisGraph {
    ============================================================================
   */
 
-  void add_node(std::string concept);
+  int add_node(std::string concept);
 
   bool add_edge(CausalFragment causal_fragment);
   void add_edge(CausalFragmentCollection causal_fragments);
