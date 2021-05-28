@@ -60,29 +60,34 @@ void AnalysisGraph::generate_latent_state_sequences(
           // length Δt
           A = this->transition_matrix_collection[samp];
 
+          this->generate_independent_node_latent_sequences(samp, initial_prediction_step
+                                                                 + this->pred_timesteps);
+
           // Evolving the system till the initial_prediction_step
-          this->predicted_latent_state_sequences[samp][0] =
-                                  this->initial_latent_state_collection[samp];
+          this->current_latent_state = this->initial_latent_state_collection[samp];
 
           for (int ts = 0; ts < initial_prediction_step; ts++) {
+            this->update_latent_state_with_generated_derivatives(ts);
 
             // Set derivatives for frozen nodes
             for (const auto & [ v, deriv_func ] : this->external_concepts) {
               const Indicator& ind = this->graph[v].indicators[0];
-              this->predicted_latent_state_sequences[samp][0][2 * v + 1] =
-                                                      deriv_func(ts, ind.mean);
+              this->current_latent_state[2 * v + 1] = deriv_func(ts, ind.mean);
             }
 
-            this->predicted_latent_state_sequences[samp][0] =
-                            A * this->predicted_latent_state_sequences[samp][0];
+            this->current_latent_state = A * this->current_latent_state;
           }
+
+          this->update_latent_state_with_generated_derivatives(initial_prediction_step);
 
           // Set derivatives for frozen nodes
           for (const auto & [ v, deriv_func ] : this->external_concepts) {
             const Indicator& ind = this->graph[v].indicators[0];
-            this->predicted_latent_state_sequences[samp][0][2 * v + 1] =
+            this->current_latent_state[2 * v + 1] =
                                   deriv_func(initial_prediction_step, ind.mean);
           }
+
+          this->predicted_latent_state_sequences[samp][0] = this->current_latent_state;
       }
 
       // Clear out perpetual constraints residual from previous sample
@@ -122,8 +127,9 @@ void AnalysisGraph::generate_latent_state_sequences(
           //                  The actual line of code represents,
           //                        s_t = e^{Ac * Δt } * s_{t-1}
           // When discrete  : s_t = Ad * s_{t-1}
-          this->predicted_latent_state_sequences[samp][ts] =
-              A * this->predicted_latent_state_sequences[samp][ts - 1];
+          this->current_latent_state = A * this->predicted_latent_state_sequences[samp][ts - 1];
+          this->update_latent_state_with_generated_derivatives(ts);
+          this->predicted_latent_state_sequences[samp][ts] = this->current_latent_state;
 
           // Set derivatives for frozen nodes
           for (const auto & [ v, deriv_func ] : this->external_concepts) {

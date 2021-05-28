@@ -34,13 +34,18 @@ void AnalysisGraph::initialize_parameters(int res,
     this->set_transition_matrix_from_betas();
     this->derivative_prior_variance = 0.1;
     this->set_default_initial_state(initial_derivative);
+    this->generate_independent_node_latent_sequences(-1, this->n_timesteps);
     this->set_log_likelihood();
 
     this->transition_matrix_collection.clear();
     this->initial_latent_state_collection.clear();
+    this->latent_mean_collection.clear();
+    this->latent_std_collection.clear();
 
     this->transition_matrix_collection = vector<Eigen::MatrixXd>(this->res);
     this->initial_latent_state_collection = vector<Eigen::VectorXd>(this->res);
+    this->latent_mean_collection = vector<vector<double>>(this->res);
+    this->latent_std_collection = vector<vector<double>>(this->res);
 }
 
 void AnalysisGraph::init_betas_to(InitialBeta ib) {
@@ -215,6 +220,20 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
           } else {
               // To avoid division by zero error later on
               ind.set_mean(0.0001);
+          }
+
+          // Set mean and standard deviation of the concept based on the mean
+          // and the standard deviation of the first indicator attached to it.
+          if (i == 0) {
+            n.mean = delphi::utils::mean(mean_sequence);
+
+            if (mean_sequence.size() > 1) {
+              n.std = delphi::utils::standard_deviation(n.mean, mean_sequence)
+                      / (n.indicators[0].mean * n.indicators[0].mean);
+            }
+
+            // Scale the mean to latent space
+            n.mean /= n.indicators[0].mean;
           }
       }
   }

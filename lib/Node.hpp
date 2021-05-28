@@ -9,6 +9,9 @@
 class Node {
   public:
   std::string name = "";
+  double mean = 0;
+  double std = 1;
+  std::vector<double> generated_latent_sequence = {};
   bool visited;
   LatentVar rv;
   std::string to_string() { return this->name; }

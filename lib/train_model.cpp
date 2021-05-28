@@ -86,6 +86,8 @@ void AnalysisGraph::run_train_model(int res,
       this->sample_from_posterior();
     }
 
+    int num_verts = this->num_vertices();
+
     cout << "\nSampling " << this->res << " samples from posterior..." << endl;
     for (int i : trange(this->res)) {
       this->sample_from_posterior();
@@ -94,6 +96,15 @@ void AnalysisGraph::run_train_model(int res,
 
       for (auto e : this->edges()) {
         this->graph[e].sampled_thetas.push_back(this->graph[e].theta);
+      }
+
+      this->latent_mean_collection[i] = vector<double>(num_verts);
+      this->latent_std_collection[i] = vector<double>(num_verts);
+
+      for (int v : this->node_indices()) {
+        Node &n = (*this)[v];
+        this->latent_mean_collection[i][v] = n.mean;
+        this->latent_std_collection[i][v] = n.std;
       }
     }
 

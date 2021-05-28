@@ -86,8 +86,9 @@ if __name__ == "__main__":
                       use_continuous=False,
                       train_start_timestep=0,
                       train_timesteps=48,
-                      ext_concepts={'rain': get_rain_derivative})
-                      #ext_concepts={'test': lambda x, s : x*s })
+                      #ext_concepts={'rain': get_rain_derivative}
+                      #ext_concepts={'test': lambda x, s : x*s }
+                      )
 
     # try:
     G.generate_prediction(49, 24)
@@ -104,4 +105,4 @@ if __name__ == "__main__":
     print(pred_range[1:])
 
     dp.delphi_plotter(model_state, num_bins=400, rotation=45,
-            out_dir='plots', file_name_prefix='')
+            out_dir='plots', file_name_prefix='', save_csv=True)

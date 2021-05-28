@@ -243,6 +243,8 @@ class AnalysisGraph {
 
   std::unordered_set<int> dependent_nodes = {};
   std::unordered_set<int> independent_nodes = {};
+  std::vector<double> generated_latent_sequence;
+  int generated_concept;
 
   /*
    ============================================================================
@@ -419,6 +421,8 @@ class AnalysisGraph {
 
   std::vector<Eigen::MatrixXd> transition_matrix_collection;
   std::vector<Eigen::VectorXd> initial_latent_state_collection;
+  std::vector<std::vector<double>> latent_mean_collection;
+  std::vector<std::vector<double>> latent_std_collection;
 
   std::vector<Eigen::VectorXd> synthetic_latent_state_sequence;
   bool synthetic_data_experiment = false;
@@ -893,6 +897,24 @@ class AnalysisGraph {
   double calculate_delta_log_prior();
 
   void revert_back_to_previous_state();
+
+
+  /*
+   ============================================================================
+   Private: Modeling independent nodes (in independent_nodes.cpp)
+   ============================================================================
+  */
+
+  void generate_from_data_mean_and_std_gussian(double mean,
+                                               double std,
+                                               int num_timesteps);
+
+  void generate_independent_node_latent_sequences(int samp, int num_timesteps);
+
+  void update_independent_node_latent_state_with_generated_derivatives(
+      int ts, int concept_id, std::vector<double>& latent_sequence);
+
+  void update_latent_state_with_generated_derivatives(int ts);
 
   /*
    ============================================================================
