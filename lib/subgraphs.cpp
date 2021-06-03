@@ -2,6 +2,8 @@
 #include "Node.hpp"
 #include "utils.hpp"
 #include <boost/range/algorithm/for_each.hpp>
+#include <boost/range/adaptor/transformed.hpp>
+#include <boost/range/adaptor/filtered.hpp>
 #include <range/v3/all.hpp>
 
 using boost::for_each;
@@ -82,7 +84,8 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
                                                       bool inward,
                                                       int depth) {
 
-  using ranges::views::filter, ranges::views::transform, ranges::to;
+  using ranges::to;
+  using namespace boost::adaptors;
 
   // Mark all the vertices as not visited
   for_each(this->nodes(), [](Node& node) { node.visited = false; });
@@ -96,8 +99,8 @@ AnalysisGraph AnalysisGraph::get_subgraph_for_concept(string concept,
 
   unordered_set<string> nodes_to_remove =
       this->node_indices() |
-      filter([&](int v) { return !in(vertices_to_keep, v); }) |
-      transform([&](int v) { return (*this)[v].name; }) | to<unordered_set>();
+      filtered([&](int v) { return !in(vertices_to_keep, v); }) |
+      transformed([&](int v) { return (*this)[v].name; }) | to<unordered_set>();
 
   if (vertices_to_keep.size() == 0) {
     print("Subgraph has 0 nodes - returning an empty CAG!");
