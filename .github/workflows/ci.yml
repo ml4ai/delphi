@@ -49,4 +49,4 @@ jobs:
             pip install wheel
             mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o $DELPHI_DB
             #        pip install -e .[test]
-            #        make test_wm
+            make test_wm
