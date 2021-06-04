@@ -49,13 +49,7 @@ jobs:
         pip install wheel
         mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o $DELPHI_DB
 
-        mkdir build
-        cd build
-        cmake ..
-        make
-
-
-        # ci errors being reported with these two steps
-        #pip install -e .[test]
-        #make test_wm
+        # ci errors being reported with these two steps.   No module "served" found.
+        pip install -e .[test]
+        make test_wm
 
