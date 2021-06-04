@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """ setuptools-based setup module. """
 
 import os
