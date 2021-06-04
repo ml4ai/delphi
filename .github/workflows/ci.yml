@@ -49,4 +49,10 @@ jobs:
         mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o $DELPHI_DB
         pip install wheel
         pip install -e .[test]
-        make test_wm
+        mkdir build
+        cd ./build
+        cmake ..
+        cd ..
+        make
+        ./delphi_rest_api &
+        ./apps/test_cpp_rest_api.py
