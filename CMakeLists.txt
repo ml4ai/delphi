@@ -108,7 +108,8 @@ target_link_libraries(Delphi INTERFACE range-v3)
 find_package(Served REQUIRED)
 find_package(PkgConfig REQUIRED) 
 #pkg_check_modules(SERVED REQUIRED IMPORTED_TARGET  served)
-pkg_check_modules(SERVED REQUIRED IMPORTED_TARGET)
+#pkg_check_modules(SERVED REQUIRED IMPORTED_TARGET)
+pkg_check_modules(Served REQUIRED IMPORTED_TARGET)
 
 
 add_executable(delphi_rest_api apps/delphi_rest_api.cpp)
