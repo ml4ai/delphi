@@ -105,7 +105,7 @@ target_link_libraries(Delphi INTERFACE range-v3)
 ########    COMMAND rm -rf ${PROJECT_SOURCE_DIR}/delphi/cpp/DelphiPython*
 ########    COMMAND cp DelphiPython* ${PROJECT_SOURCE_DIR}/delphi/cpp/)
 
-#find_package(Served REQUIRED)
+find_package(Served REQUIRED)
 find_package(PkgConfig REQUIRED) 
 #pkg_check_modules(SERVED REQUIRED IMPORTED_TARGET  served)
 pkg_check_modules(SERVED REQUIRED IMPORTED_TARGET)
