@@ -12,6 +12,9 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_FLAGS
     "${CMAKE_CXX_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden")
 
+# Include gdb flags
+set(CMAKE_BUILD_TYPE Debug)
+
 find_package(Graphviz)
 
 include_directories(${GRAPHVIZ_INCLUDE_DIRS})
@@ -25,14 +28,6 @@ find_package(range-v3 REQUIRED)
 find_package(Eigen3 REQUIRED NO_MODULE)
 find_package(fmt REQUIRED)
 find_package(nlohmann_json REQUIRED)
-find_package(pybind11 CONFIG REQUIRED)
-message(STATUS "Found pybind11 v${pybind11_VERSION}: ${pybind11_INCLUDE_DIRS}")
-
-
-find_package(Python3 REQUIRED)
-
-set(PYBIND11_PYTHON_VERSION "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
-set(PYBIND11_CPP_STANDARD -std=c++17)
 
 file(GLOB SRC_FILES ${PROJECT_SOURCE_DIR}/lib/*.cpp)
 find_package(SQLite3 REQUIRED)
@@ -112,7 +107,8 @@ target_link_libraries(Delphi INTERFACE range-v3)
 
 #find_package(Served REQUIRED)
 find_package(PkgConfig REQUIRED) 
-pkg_check_modules(SERVED REQUIRED IMPORTED_TARGET  served)
+#pkg_check_modules(SERVED REQUIRED IMPORTED_TARGET  served)
+pkg_check_modules(SERVED REQUIRED IMPORTED_TARGET)
 
 
 add_executable(delphi_rest_api apps/delphi_rest_api.cpp)
