@@ -50,8 +50,8 @@ jobs:
         mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o $DELPHI_DB
 
         # from Dockerfile.
-        git clone https://github.com/meltwater/served
-        cd served && mkdir build && cd build && cmake .. && make -j install && cd ../..
+        sudo git clone https://github.com/meltwater/served
+        sudo cd served && mkdir build && cd build && cmake .. && make -j install && cd ../..
 
         # ci errors being reported with these two steps.   No module "served" found.
         pip install -e .[test]
