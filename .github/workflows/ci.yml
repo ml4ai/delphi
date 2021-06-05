@@ -70,9 +70,5 @@ jobs:
         # test the api
         cd ../apps
         sudo chmod +x test_cpp_rest_api.py
-        sudo python ./test_cpp_rest_api.py
-
-        # ci errors being reported with these two steps.   No module "served" found.
-        #pip install -e .[test]
-        #make test_wm
+        python3 ./test_cpp_rest_api.py
 
