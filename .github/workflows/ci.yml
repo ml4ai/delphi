@@ -65,7 +65,7 @@ jobs:
         sudo make -j `nproc` 
 
         # run the api as a background process
-        sudo delphi_rest_api &
+        sudo ./delphi_rest_api &
 
         # test the api
         cd ../apps
