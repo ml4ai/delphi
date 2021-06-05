@@ -58,6 +58,14 @@ jobs:
         sudo make -j `nproc` install 
         cd ../..
 
+        # build the api
+        sudo mkdir build
+        cd build
+        sudo cmake ..
+        sudo make -j `nproc` 
+        cd ..
+
+
         # ci errors being reported with these two steps.   No module "served" found.
         #pip install -e .[test]
         #make test_wm
