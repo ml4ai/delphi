@@ -68,6 +68,9 @@ jobs:
         # run the api as a background process
         sudo ./delphi_rest_api &
 
+        # call out the database alias
+        printf "Using database: $DELPHI_DB\n"
+
         # test the api
         cd ../apps
         sudo chmod +x test_cpp_rest_api.py
