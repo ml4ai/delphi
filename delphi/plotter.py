@@ -167,9 +167,6 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
                 sns.boxplot(ax=ax, data=df_preds, x='Time Step', y='Prediction')
                 ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
             else:
-                sns.lineplot(ax=ax, data=df_preds, x='Time Step', y='Prediction',
-                             sort=False, marker='D', label='Mean Prediction')
-
                 if len(data_set[ind]) > 0:
                     df_data = pd.DataFrame.from_dict(data_set[ind])
 
@@ -189,14 +186,15 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
 
                     if df_data_grp['frequency'].max() == df_data_grp['frequency'].min():
                         # There are no coinciding data points
-                        sns.scatterplot(
+                        sns.lineplot(
                             ax=ax,
                             data=df_data_grp,
                             y='Data',
                             x='Time Step',
                             marker='o',
                             label='Data',
-                            color='red'
+                            color='red',
+                            alpha=0.3
                         )
                     else:
                         sns.scatterplot(
@@ -217,6 +215,9 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
                         labels.insert(2, '')
                         ax.legend(handles, labels, handler_map={str: LegendTitle({'fontsize':
                             12})}, fancybox=True)
+
+                sns.lineplot(ax=ax, data=df_preds, x='Time Step', y='Prediction',
+                             sort=False, marker='D', label='Mean Prediction')
 
             # Set x-axis tick marks
             '''
@@ -260,25 +261,6 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
             sns.set_style("whitegrid")
             fig, ax = plt.subplots(dpi=150, figsize=(8, 4.5))
 
-            if with_preds:
-                df_cis = pd.DataFrame.from_dict(ind_cis)
-
-                if month_year:
-                    df_cis['Time Step'] = pd.to_datetime(pred_range)
-                else:
-                    df_cis['Time Step'] = pred_range
-
-                sns.lineplot(ax=ax, data=df_cis, x='Time Step', y='Median',
-                        sort=False, marker='D', label='Median Prediction')
-                ax.fill_between(
-                    x=df_cis['Time Step'],
-                    y1=df_cis['Upper 95% CI'],
-                    y2=df_cis['Lower 95% CI'],
-                    alpha=0.2,
-                    color='blue',
-                    label='95% CI'
-                )
-
             if len(data_set[ind]) > 0:
                 df_data = pd.DataFrame.from_dict(data_set[ind])
 
@@ -298,14 +280,15 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
 
                 if df_data_grp['frequency'].max() == df_data_grp['frequency'].min():
                     # There are no coinciding data points
-                    sns.scatterplot(
+                    sns.lineplot(
                         ax=ax,
                         data=df_data_grp,
                         y='Data',
                         x='Time Step',
                         marker='o',
                         label='Data',
-                        color='red'
+                        color='red',
+                        alpha=0.3
                     )
                 else:
                     sns.scatterplot(
@@ -327,6 +310,25 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
                     ax.legend(handles, labels, handler_map={str: LegendTitle({'fontsize':
                         12})}, fancybox=True)
 
+
+            if with_preds:
+                df_cis = pd.DataFrame.from_dict(ind_cis)
+
+                if month_year:
+                    df_cis['Time Step'] = pd.to_datetime(pred_range)
+                else:
+                    df_cis['Time Step'] = pred_range
+
+                sns.lineplot(ax=ax, data=df_cis, x='Time Step', y='Median',
+                             sort=False, marker='D', label='Median Prediction')
+                ax.fill_between(
+                    x=df_cis['Time Step'],
+                    y1=df_cis['Upper 95% CI'],
+                    y2=df_cis['Lower 95% CI'],
+                    alpha=0.2,
+                    color='blue',
+                    label='95% CI'
+                )
 
             ind = ind.split('/')[-1]
             if with_preds:
@@ -410,10 +412,27 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
                         df_target_data['Time Step'] = df_target_data['Time Step'].apply(lambda ts:
                                                                                         data_range[int(ts)])
 
-                    sns.scatterplot(ax=ax_left, data=df_source_data, x='Time Step',
-                        y='Data', marker='x', color=color_left, label=f'{source}')
-                    sns.scatterplot(ax=ax_right, data=df_target_data, x='Time Step',
-                            y='Data', marker='x', color=color_right, label=f'{target}')
+                    # Aggregate multiple coinciding data points
+                    df_source_data['frequency'] = df_source_data['Time Step'].apply(lambda x: 1)
+                    df_source_data_grp = df_source_data.groupby(by=['Time Step', 'Data'], as_index=False).count()
+                    df_target_data['frequency'] = df_target_data['Time Step'].apply(lambda x: 1)
+                    df_target_data_grp = df_target_data.groupby(by=['Time Step', 'Data'], as_index=False).count()
+
+                    if df_source_data_grp['frequency'].max() == df_source_data_grp['frequency'].min():
+                        # There are no coinciding data points
+                        sns.lineplot(ax=ax_left, data=df_source_data_grp, x='Time Step',
+                            y='Data', marker='x', color=color_left, alpha=0.3, label=f'{source}')
+                    else:
+                        sns.scatterplot(ax=ax_left, data=df_source_data, x='Time Step',
+                                        y='Data', marker='x', color=color_left, label=f'{source}')
+
+                    if df_target_data_grp['frequency'].max() == df_target_data_grp['frequency'].min():
+                    # There are no coinciding data points
+                        sns.lineplot(ax=ax_right, data=df_target_data_grp, x='Time Step',
+                                y='Data', marker='x', color=color_right, alpha=0.3, label=f'{target}')
+                    else:
+                        sns.scatterplot(ax=ax_right, data=df_target_data, x='Time Step',
+                                        y='Data', marker='x', color=color_right, label=f'{target}')
 
                     # Legend
                     handles_left, labels_left = ax_left.get_legend_handles_labels()

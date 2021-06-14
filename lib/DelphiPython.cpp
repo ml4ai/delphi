@@ -189,6 +189,7 @@ PYBIND11_MODULE(DelphiPython, m) {
            "use_continuous"_a = true,
            "train_start_timestep"_a = 0,
            "train_timesteps"_a = -1,
+           "concept_periods"_a = unordered_map<string, int>(),
            "ext_concepts"_a =
                unordered_map<string, function<double(unsigned int, double)>>())
       .def("generate_prediction",

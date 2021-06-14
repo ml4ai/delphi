@@ -423,6 +423,9 @@ class AnalysisGraph {
   std::vector<Eigen::VectorXd> initial_latent_state_collection;
   std::vector<std::vector<double>> latent_mean_collection;
   std::vector<std::vector<double>> latent_std_collection;
+  // Access:
+  // [sample][node id]{partition --> (mean, std)}
+  std::vector<std::vector<std::unordered_map<int, std::pair<double, double>>>> latent_mean_std_collection;
 
   std::vector<Eigen::VectorXd> synthetic_latent_state_sequence;
   bool synthetic_data_experiment = false;
@@ -905,9 +908,27 @@ class AnalysisGraph {
    ============================================================================
   */
 
-  void generate_from_data_mean_and_std_gussian(double mean,
-                                               double std,
-                                               int num_timesteps);
+  void partition_data_and_calculate_mean_std_for_each_partition(
+      Node& n, std::vector<double>& latent_sequence);
+
+  void generate_from_data_mean_and_std_gussian(
+      double mean,
+      double std,
+      int num_timesteps,
+      std::unordered_map<int, std::pair<double, double>> partition_mean_std,
+      int period);
+
+  void generate_from_absolute_change(
+      int num_timesteps,
+      double initial_value,
+      std::vector<double> absolute_change_medians,
+      int period);
+
+  void generate_from_relative_change(
+      int num_timesteps,
+      double initial_value,
+      std::vector<double> absolute_change_medians,
+      int period);
 
   void generate_independent_node_latent_sequences(int samp, int num_timesteps);
 
@@ -1380,6 +1401,7 @@ class AnalysisGraph {
                    bool use_continuous = true,
                    int train_start_timestep = 0,
                    int train_timesteps = -1,
+                   std::unordered_map<std::string, int> concept_periods = {},
                    std::unordered_map
                        <std::string, std::function<double(unsigned int, double)>>
                    ext_concepts = {});

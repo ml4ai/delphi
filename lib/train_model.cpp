@@ -2,6 +2,7 @@
 #include "data.hpp"
 #include <tqdm.hpp>
 #include <range/v3/all.hpp>
+#include "dbg.h"
 
 using namespace std;
 using tq::trange;
@@ -51,6 +52,7 @@ void AnalysisGraph::run_train_model(int res,
                                 bool use_continuous,
                                 int train_start_timestep,
                                 int train_timesteps,
+                                unordered_map<string, int> concept_periods,
                                 unordered_map<string, function<double(unsigned int, double)>> ext_concepts
                                 ) {
     if (train_timesteps < 0) {
@@ -75,8 +77,25 @@ void AnalysisGraph::run_train_model(int res,
       }
     }
 
-    this->concept_sample_pool = vector<unsigned int>(train_vertices.begin(),
-                                                     train_vertices.end());
+    for (const auto & [ concept, period ] : concept_periods) {
+      try {
+        int vert_id = this->name_to_vertex.at(concept);
+        Node &n = (*this)[vert_id];
+        n.period = period;
+      }
+      catch (const std::out_of_range& oor) {
+        cout << "\nERROR: train_model - Concept << concept << is not in CAG!\n";
+      }
+    }
+
+    this->concept_sample_pool.clear();
+//    this->concept_sample_pool = vector<unsigned int>(train_vertices.begin(),
+//                                                     train_vertices.end());
+    for (int vert : train_vertices) {
+      if (this->independent_nodes.find(vert) == this->independent_nodes.end()) {
+        this->concept_sample_pool.push_back(vert);
+      }
+    }
 
     this->initialize_parameters(res, initial_beta, initial_derivative,
                                 use_heuristic, use_continuous);
@@ -100,11 +119,14 @@ void AnalysisGraph::run_train_model(int res,
 
       this->latent_mean_collection[i] = vector<double>(num_verts);
       this->latent_std_collection[i] = vector<double>(num_verts);
+      this->latent_mean_std_collection[i] = vector<
+                           unordered_map<int, pair<double, double>>>(num_verts);
 
       for (int v : this->node_indices()) {
         Node &n = (*this)[v];
         this->latent_mean_collection[i][v] = n.mean;
         this->latent_std_collection[i][v] = n.std;
+        this->latent_mean_std_collection[i][v] = n.partition_mean_std;
       }
     }
 

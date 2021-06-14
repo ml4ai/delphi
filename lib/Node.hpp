@@ -12,6 +12,17 @@ class Node {
   double mean = 0;
   double std = 1;
   std::vector<double> generated_latent_sequence = {};
+  int period = 1;
+  // Access:
+  //  {partition --> ([time step], [data value])}
+  std::unordered_map<int, std::pair<std::vector<int>, std::vector<double>>> partitioned_data = {};
+  std::unordered_map<int, std::pair<std::vector<int>, std::vector<double>>> partitioned_absolute_change = {};
+  std::unordered_map<int, std::pair<std::vector<int>, std::vector<double>>> partitioned_relative_change = {};
+  std::unordered_map<int, std::pair<double, double>> partition_mean_std = {};
+//  std::unordered_map<int, double> absolute_change_medians = {};
+//  std::unordered_map<int, double> relative_change_medians = {};
+  std::vector<double> absolute_change_medians = {};
+  std::vector<double> relative_change_medians = {};
   bool visited;
   LatentVar rv;
   std::string to_string() { return this->name; }

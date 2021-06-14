@@ -17,6 +17,30 @@ print(len(rain))
 # rain = [56.49,35.32,31.59,16.34,7.52,16.09,74.37,80.28,23.24,11.45,5.76,9.6,31.96,32.4,20.02,14.89,7.67,5.06,67.74,84.23,35.63,8.66,7.37,14.24]
 # temperature = [31.0215,29.8736,33.6469,35.6415,38.5646,38.3929,37.0828,35.7634,36.3652,34.8636,33.1313,31.7197,32.1485,31.574,33.1953,36.5846,38.1069,39.3582,36.7342,35.3044,35.1285,34.9057,32.3577,30.9242]
 
+def compute_partitioned_mean_std(data, period):
+    partitions = {}
+    means = []
+    std = []
+
+    for partition in range(period):
+        partitions[partition] = []
+        std.append(0)
+        means.append(0)
+
+    for idx, val in enumerate(data):
+        partitions[idx % period].append(val)
+
+    for partition, vals in partitions.items():
+        means[partition] = np.median(vals) #sum(vals) / len(vals)
+        std[partition] = np.std(vals)
+
+    print(partitions)
+    print(means)
+    print(std)
+    plt.plot(means)
+    plt.plot(std)
+    plt.show()
+
 def create_base_CAG(kde_kernels=4):
     statements = [
         (
@@ -86,12 +110,14 @@ if __name__ == "__main__":
                       use_continuous=False,
                       train_start_timestep=0,
                       train_timesteps=48,
+                      concept_periods={'rain': 12}
                       #ext_concepts={'rain': get_rain_derivative}
                       #ext_concepts={'test': lambda x, s : x*s }
                       )
 
     # try:
-    G.generate_prediction(49, 24)
+    # G.generate_prediction(49, 24)
+    G.generate_prediction(1, 70)
     # except AnalysisGraph.BadCausemosInputException as e:
     #     print(e)
     #     exit()
@@ -105,4 +131,4 @@ if __name__ == "__main__":
     print(pred_range[1:])
 
     dp.delphi_plotter(model_state, num_bins=400, rotation=45,
-            out_dir='plots', file_name_prefix='', save_csv=True)
+            out_dir='plots', file_name_prefix='', save_csv=False)

@@ -1,6 +1,7 @@
 #include "AnalysisGraph.hpp"
 #include <range/v3/all.hpp>
 #include <sqlite3.h>
+#include "dbg.h"
 
 using namespace std;
 using namespace delphi::utils;
@@ -41,11 +42,14 @@ void AnalysisGraph::initialize_parameters(int res,
     this->initial_latent_state_collection.clear();
     this->latent_mean_collection.clear();
     this->latent_std_collection.clear();
+    this->latent_mean_std_collection.clear();
 
     this->transition_matrix_collection = vector<Eigen::MatrixXd>(this->res);
     this->initial_latent_state_collection = vector<Eigen::VectorXd>(this->res);
     this->latent_mean_collection = vector<vector<double>>(this->res);
     this->latent_std_collection = vector<vector<double>>(this->res);
+    this->latent_mean_std_collection = vector<vector<
+                          unordered_map<int, pair<double, double>>>>(this->res);
 }
 
 void AnalysisGraph::init_betas_to(InitialBeta ib) {
@@ -225,15 +229,97 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
           // Set mean and standard deviation of the concept based on the mean
           // and the standard deviation of the first indicator attached to it.
           if (i == 0) {
-            n.mean = delphi::utils::mean(mean_sequence);
+              transform(mean_sequence.begin(), mean_sequence.end(),
+                        mean_sequence.begin(),
+                      [&](double v){return v / n.indicators[0].mean;});
 
-            if (mean_sequence.size() > 1) {
-              n.std = delphi::utils::standard_deviation(n.mean, mean_sequence)
-                      / (n.indicators[0].mean * n.indicators[0].mean);
-            }
+              vector<double> absolute_change = vector<double>(mean_sequence.size());
+              adjacent_difference(mean_sequence.begin(),
+                                  mean_sequence.end(),
+                                  absolute_change.begin());
 
-            // Scale the mean to latent space
-            n.mean /= n.indicators[0].mean;
+              vector<double> relative_change = vector<double>(mean_sequence.size() - 1);
+              transform(mean_sequence.begin(), mean_sequence.end() - 1,
+                        absolute_change.begin() + 1, relative_change.begin(),
+                        [&](double start_value, double abs_change){return abs_change / (start_value + 1);});
+
+//              dbg(absolute_change);
+//              dbg(mean_sequence);
+//              dbg(relative_change);
+//
+//              dbg(n.name);
+              for (int ts = 0; ts < ts_sequence.size(); ts++) {
+                int partition = ts % n.period;
+                n.partitioned_data[partition].first.push_back(ts_sequence[ts]);
+                n.partitioned_data[partition].second.push_back(mean_sequence[ts]);
+  //                                                               / n.indicators[0].mean);
+              }
+
+              for (int ts = 0; ts < relative_change.size(); ts++) {
+                int partition = ts % n.period;
+                n.partitioned_absolute_change[partition].first.push_back(ts_sequence[ts]);
+                n.partitioned_absolute_change[partition].second.push_back(absolute_change[ts + 1]);
+
+                n.partitioned_relative_change[partition].first.push_back(ts_sequence[ts]);
+                n.partitioned_relative_change[partition].second.push_back(mean_sequence[ts]);
+              }
+
+              vector<double> part_means_debug = vector<double>(n.period);
+              for (const auto & [ partition, data ] : n.partitioned_data) {
+  //                double partition_mean = delphi::utils::mean(n.partitioned_data[partition].second);
+                double partition_mean = delphi::utils::median(n.partitioned_data[partition].second);
+                double partition_std = 1;
+
+                if (n.partitioned_data[partition].second.size() > 1) {
+                  partition_std = delphi::utils::standard_deviation(partition_mean,
+                                                                    n.partitioned_data[partition].second);
+                }
+
+  //                n.partition_mean_std[partition] = make_pair(partition_mean, partition_std);
+                n.partition_mean_std[partition] = make_pair(partition_mean, 1);
+                part_means_debug[partition] = partition_mean;
+              }
+
+              n.absolute_change_medians = vector<double>(n.period);
+//              for (const auto & [ partition, data ] : n.partitioned_absolute_change) {
+//                double partition_median = delphi::utils::median(data.second);
+//                n.absolute_change_medians[partition] = partition_median;
+//              }
+              for (int partition = 0; partition < n.period; partition++) {
+                n.absolute_change_medians[partition] = n.partition_mean_std[(partition + 1) % n.period].first -
+                                                       n.partition_mean_std[partition].first;
+              }
+
+              n.relative_change_medians = vector<double>(n.period);
+              for (const auto & [ partition, data ] : n.partitioned_relative_change) {
+                double partition_median = delphi::utils::median(data.second);
+                n.relative_change_medians[partition] = partition_median;
+              }
+//              dbg(n.partitioned_data[0].second);
+//            dbg(part_means_debug);
+//            dbg(n.absolute_change_medians);
+//            dbg(n.relative_change_medians);
+//            dbg(delphi::utils::median({1}));
+//            dbg(delphi::utils::median({1, 2}));
+//            dbg(delphi::utils::median({1, 2, 3}));
+//            dbg(delphi::utils::median({1, 2, 3, 4}));
+//            dbg(delphi::utils::median({1, 2, 3, 4, 5}));
+//            dbg(delphi::utils::median({1, 2, 3, 4, 5, 6}));
+//            dbg(delphi::utils::median({1, 2, 3, 4, 5, 6, 7}));
+//            dbg(delphi::utils::median({1, 2, 3, 4, 5, 6, 7, 8}));
+//            vector<double> test = {8, 1, 2, 5, 3, 4, 6, 7, 9};
+//            dbg(delphi::utils::median(test));
+//            dbg(test);
+
+              n.mean = delphi::utils::mean(mean_sequence);
+
+              if (mean_sequence.size() > 1) {
+                n.std = delphi::utils::standard_deviation(n.mean, mean_sequence);
+//                        / (n.indicators[0].mean * n.indicators[0].mean);
+              }
+
+              // Scale the mean to latent space
+//              n.mean /= n.indicators[0].mean;
           }
       }
   }
@@ -249,9 +335,10 @@ AdjectiveResponseMap construct_adjective_response_map(
     size_t n_kernels
     ) {
   sqlite3* db = nullptr;
-  int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
+  sqlite3_open(getenv("DELPHI_DB"), &db);
+  int rc = sqlite3_errcode(db);
 
-  if (rc == 1)
+  if (rc != SQLITE_OK)
     throw "Could not open db\n";
 
   sqlite3_stmt* stmt = nullptr;
