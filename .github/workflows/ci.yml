@@ -47,16 +47,7 @@ jobs:
         python3 -m venv delphi_venv
         source delphi_venv/bin/activate
         pip install wheel
-<<<<<<< HEAD
-        pip install -e .[test]
-        mkdir build
-        cd ./build
-        cmake ..
-        cd ..
-        make
-        ./delphi_rest_api &
-        ./apps/test_cpp_rest_api.py
-=======
+
         mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o $DELPHI_DB
 
         # Install served from source
@@ -81,5 +72,3 @@ jobs:
         cd ../apps
         sudo chmod +x test_cpp_rest_api.py
         python3 ./test_cpp_rest_api.py
-
->>>>>>> 1da3640da859409a87e7a1890ac93a42bfea16c0
