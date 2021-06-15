@@ -70,6 +70,7 @@ jobs:
 
         # call out the database alias
         printf "Using database: $DELPHI_DB\n"
+        env
 
         # test the api
         cd ../apps
