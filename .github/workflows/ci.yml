@@ -23,7 +23,9 @@ jobs:
     - name: Continuous Integration
       env:
         DELPHI_DB: /tmp/delphi.db
+
       run: |
+        export PATH="$DELPHI_DB:$PATH"
         sudo apt-get update
         sudo apt-get install -y\
             libboost-all-dev\
