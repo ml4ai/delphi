@@ -73,5 +73,5 @@ jobs:
 
         # test the api
         cd ../apps
-        #        sudo chmod +x test_cpp_rest_api.py
-        python3 ./test_cpp_rest_api.py
+        # sudo chmod +x test_cpp_rest_api.py
+        #python3 ./test_cpp_rest_api.py
