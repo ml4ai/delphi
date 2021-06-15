@@ -22,7 +22,7 @@ jobs:
 
     - name: Continuous Integration
       env:
-        DELPHI_DB: /delphi/data/delphi.db
+        DELPHI_DB: /home/runner/work/delphi/data/delphi.db
       run: |
         sudo apt-get update
         sudo apt-get install -y\
