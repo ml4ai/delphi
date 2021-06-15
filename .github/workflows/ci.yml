@@ -68,7 +68,7 @@ jobs:
         sudo make -j `nproc` 
 
         # run the api as a background process
-        sudo ./delphi_rest_api &
+        ./delphi_rest_api &
 
         # call out the database alias
         printf "Using database: $DELPHI_DB\n"
