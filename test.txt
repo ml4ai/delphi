@@ -1,4 +1,0 @@
-
-Edit this file to get the CI to run on GitHub
-
-Running CI now
