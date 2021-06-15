@@ -38,9 +38,6 @@ vector<double> KDE::resample(int n_samples,
                              normal_distribution<double>& norm_dist) {
   vector<double> samples(n_samples);
 
-  // trap zero element case
-  if(n_samples == 0) return samples;
-
   for (int i : irange(0, n_samples)) {
     double element = select_random_element(dataset, gen, uni_dist);
 
