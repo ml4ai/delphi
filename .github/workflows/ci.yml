@@ -70,5 +70,4 @@ jobs:
 
         # test the api
         cd ../apps
-        python3 ./test_cpp_rest_api.py > test_output.txt
-        cat test_output.txt
+        python3 ./test_cpp_rest_api.py
