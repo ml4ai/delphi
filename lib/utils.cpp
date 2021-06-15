@@ -80,6 +80,22 @@ double median(const std::vector<double> &xs) {
     }
 }
 
+/**
+ * Returns the center absolute deviation of a vector of doubles.
+ * Based on:
+ * https://en.wikipedia.org/wiki/Median_absolute_deviation
+ */
+double median_absolute_deviation(const double center, const std::vector<double>& v)
+{
+  std::vector<double> abs_diff = std::vector<double>(v.size());
+
+  transform(v.begin(), v.end(),
+            abs_diff.begin(),
+            [&](double val){return abs(center - val);});
+
+  return median(abs_diff);
+}
+
 double log_normpdf(double x, double mean, double sd) {
   double var = pow(sd, 2);
   double log_denom = -0.5 * log(2 * M_PI) - log(sd);

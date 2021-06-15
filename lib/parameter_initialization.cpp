@@ -233,6 +233,72 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
                         mean_sequence.begin(),
                       [&](double v){return v / n.indicators[0].mean;});
 
+              for (int ts = 0; ts < ts_sequence.size(); ts++) {
+                int partition = ts % n.period;
+                n.partitioned_data[partition].first.push_back(ts_sequence[ts]);
+                n.partitioned_data[partition].second.push_back(mean_sequence[ts]);
+              }
+
+              double center;
+              n.centers = vector<double>(n.period + 1);
+              n.spreads = vector<double>(n.period);
+              for (const auto & [ partition, data ] : n.partitioned_data) {
+                  if (n.center_measure.compare("mean") == 0) {
+                      center = delphi::utils::median(n.partitioned_data[partition].second);
+                  } else {
+                      center = delphi::utils::median(n.partitioned_data[partition].second);
+                  }
+                  n.centers[partition] = center;
+
+                  double spread = 0;
+                  if (n.partitioned_data[partition].second.size() > 1) {
+                      if (n.center_measure.compare("mean") == 0) {
+                          spread = delphi::utils::standard_deviation(center,
+                                                                     n.partitioned_data[partition].second);
+                      } else {
+                          spread = delphi::utils::median_absolute_deviation(center,
+                                                                            n.partitioned_data[partition].second);
+                      }
+                  }
+                  n.spreads[partition] = spread;
+
+
+
+                  vector<double> part_means_debug = vector<double>(n.period);
+                  double partition_mean = delphi::utils::median(n.partitioned_data[partition].second);
+                  double partition_std = 1;
+
+                  if (n.partitioned_data[partition].second.size() > 1) {
+                    partition_std = delphi::utils::standard_deviation(partition_mean,
+                                                                      n.partitioned_data[partition].second);
+                  }
+
+    //                n.partition_mean_std[partition] = make_pair(partition_mean, partition_std);
+                  n.partition_mean_std[partition] = make_pair(partition_mean, 1);
+                  part_means_debug[partition] = partition_mean;
+              }
+
+
+              n.changes = vector<double>(n.centers.size(), 0.0);
+              n.centers[n.period] = n.centers[0];
+              if (n.model.compare("center") != 0) {
+                  // model == absolute_change
+                  adjacent_difference(
+                      n.centers.begin(), n.centers.end(), n.changes.begin());
+                  if (n.model.compare("relative_change") == 0) {
+                      transform(n.centers.begin(),
+                                n.centers.end() - 1,
+                                n.changes.begin() + 1,
+                                n.changes.begin() + 1,
+                                [&](double start_value, double abs_change) {
+                                  return abs_change / (start_value + 1);
+                                });
+                  }
+              }
+
+
+
+
               vector<double> absolute_change = vector<double>(mean_sequence.size());
               adjacent_difference(mean_sequence.begin(),
                                   mean_sequence.end(),
@@ -243,18 +309,6 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
                         absolute_change.begin() + 1, relative_change.begin(),
                         [&](double start_value, double abs_change){return abs_change / (start_value + 1);});
 
-//              dbg(absolute_change);
-//              dbg(mean_sequence);
-//              dbg(relative_change);
-//
-//              dbg(n.name);
-              for (int ts = 0; ts < ts_sequence.size(); ts++) {
-                int partition = ts % n.period;
-                n.partitioned_data[partition].first.push_back(ts_sequence[ts]);
-                n.partitioned_data[partition].second.push_back(mean_sequence[ts]);
-  //                                                               / n.indicators[0].mean);
-              }
-
               for (int ts = 0; ts < relative_change.size(); ts++) {
                 int partition = ts % n.period;
                 n.partitioned_absolute_change[partition].first.push_back(ts_sequence[ts]);
@@ -262,22 +316,6 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
 
                 n.partitioned_relative_change[partition].first.push_back(ts_sequence[ts]);
                 n.partitioned_relative_change[partition].second.push_back(mean_sequence[ts]);
-              }
-
-              vector<double> part_means_debug = vector<double>(n.period);
-              for (const auto & [ partition, data ] : n.partitioned_data) {
-  //                double partition_mean = delphi::utils::mean(n.partitioned_data[partition].second);
-                double partition_mean = delphi::utils::median(n.partitioned_data[partition].second);
-                double partition_std = 1;
-
-                if (n.partitioned_data[partition].second.size() > 1) {
-                  partition_std = delphi::utils::standard_deviation(partition_mean,
-                                                                    n.partitioned_data[partition].second);
-                }
-
-  //                n.partition_mean_std[partition] = make_pair(partition_mean, partition_std);
-                n.partition_mean_std[partition] = make_pair(partition_mean, 1);
-                part_means_debug[partition] = partition_mean;
               }
 
               n.absolute_change_medians = vector<double>(n.period);

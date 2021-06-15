@@ -23,6 +23,14 @@ class Node {
 //  std::unordered_map<int, double> relative_change_medians = {};
   std::vector<double> absolute_change_medians = {};
   std::vector<double> relative_change_medians = {};
+
+  std::vector<double> centers = {};
+  std::vector<double> spreads = {};
+  std::vector<double> changes = {};
+
+  std::string center_measure = "median"; // median or mean
+  std::string model = "center"; // center, absolute_change, relative_change
+
   bool visited;
   LatentVar rv;
   std::string to_string() { return this->name; }
