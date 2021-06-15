@@ -22,7 +22,7 @@ jobs:
 
     - name: Continuous Integration
       env:
-        DELPHI_DB: /tmp/delphi.db
+        DELPHI_DB: /home/runner/work/delphi/delphi.db
       run: |
         sudo apt-get update
         sudo apt-get install -y\
@@ -73,5 +73,4 @@ jobs:
 
         # test the api
         cd ../apps
-        # sudo chmod +x test_cpp_rest_api.py
-        #python3 ./test_cpp_rest_api.py
+        python3 ./test_cpp_rest_api.py
