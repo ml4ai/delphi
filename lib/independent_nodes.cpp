@@ -28,55 +28,69 @@ void AnalysisGraph::partition_data_and_calculate_mean_std_for_each_partition(
   }
 }
 
-void AnalysisGraph::generate_head_node_latent_sequence(int period,
-                                                       vector<double> centers,
-                                                       vector<double> spreads,
+void AnalysisGraph::generate_head_node_latent_sequence(Node &n,
                                                        int num_timesteps,
                                                        bool sample) {
     this->generated_latent_sequence = vector<double>(num_timesteps);
 
-    for (int ts = 0; ts < num_timesteps; ts++) {
-      int partition = ts % period;
+    if (n.model.compare("center") == 0) {
+        dbg("center");
+        for (int ts = 0; ts < num_timesteps; ts++) {
+            int partition = ts % n.period;
+            this->generated_latent_sequence[ts] = n.centers[partition];
+        }
+    } else if (n.model.compare("absolute_change") == 0) {
+        dbg("absolute_change");
+        this->generated_latent_sequence[0] = n.centers[0];
+        for (int ts = 0; ts < num_timesteps - 1; ts++) {
+            int partition = ts % n.period;
+            this->generated_latent_sequence[ts + 1] =
+                this->generated_latent_sequence[ts] + n.changes[partition + 1];
+        }
+    } else if (n.model.compare("relative_change") == 0) {
+        dbg("relative_change");
+        this->generated_latent_sequence[0] = n.centers[0];
+        for (int ts = 0; ts < num_timesteps - 1; ts++) {
+            int partition = ts % n.period;
+            this->generated_latent_sequence[ts + 1] =
+                this->generated_latent_sequence[ts] +
+                    n.changes[partition + 1] * (this->generated_latent_sequence[ts] + 1);
+          }
+    }
 
-      if (sample) {
-          this->generated_latent_sequence[ts] = centers[partition]
-                                                 + spreads[partition]
-                                                 * norm_dist(this->rand_num_generator);
-      } else {
-          this->generated_latent_sequence[ts] = centers[partition];
-      }
+    if (sample) {
+        for (int ts = 0; ts < num_timesteps; ts++) {
+            int partition = ts % n.period;
+            this->generated_latent_sequence[ts] +=
+                n.spreads[partition] * norm_dist(this->rand_num_generator);
+          }
     }
 }
 
-void AnalysisGraph::generate_head_node_latent_sequence_from_changes(int period,
-                                                                    double initial_value,
-                                                                    vector<double> spreads,
-                                                                    vector<double> changes,
-                                                                    string model,
+void AnalysisGraph::generate_head_node_latent_sequence_from_changes(Node &n,
                                                                     int num_timesteps,
                                                                     bool sample) {
     this->generated_latent_sequence = vector<double>(num_timesteps);
-
-    this->generated_latent_sequence[0] = initial_value;
+    this->generated_latent_sequence[0] = n.centers[0];
 
     for (int ts = 0; ts < num_timesteps - 1; ts++) {
-        int partition = ts % period;
+        int partition = ts % n.period;
 
-        if (model.compare("absolute_change") == 0) {
+        if (n.model.compare("absolute_change") == 0) {
             this->generated_latent_sequence[ts + 1] =
-                this->generated_latent_sequence[ts] + changes[partition + 1];
-        } else if (model.compare("relative_change") == 0) {
+                this->generated_latent_sequence[ts] + n.changes[partition + 1];
+        } else if (n.model.compare("relative_change") == 0) {
             this->generated_latent_sequence[ts + 1] =
-                this->generated_latent_sequence[ts] + changes[partition + 1]
+                this->generated_latent_sequence[ts] + n.changes[partition + 1]
                                                         * (this->generated_latent_sequence[ts] + 1);
         }
     }
 
     if (sample) {
         for (int ts = 0; ts < num_timesteps; ts++) {
-          int partition = ts % period;
+          int partition = ts % n.period;
           this->generated_latent_sequence[ts] +=
-              spreads[partition] * norm_dist(this->rand_num_generator);
+              n.spreads[partition] * norm_dist(this->rand_num_generator);
         }
     }
 }
@@ -155,11 +169,8 @@ void AnalysisGraph::generate_independent_node_latent_sequences(int samp, int num
 //        num_timesteps, n.partition_mean_std[0].first, change_medians, n.period);
 
 
-//    this->generate_head_node_latent_sequence(n.period, n.centers, n.spreads,
-//                                             n.changes, num_timesteps, false);
-    this->generate_head_node_latent_sequence_from_changes(n.period, n.centers[0],
-                                                  n.spreads, n.changes, n.model,
-                                                  num_timesteps, false);
+    this->generate_head_node_latent_sequence(n, num_timesteps, false);
+//    this->generate_head_node_latent_sequence_from_changes(n, num_timesteps, false);
 
 
     n.generated_latent_sequence.clear();

@@ -241,9 +241,10 @@ void AnalysisGraph::sample_from_proposal() {
     if (this->independent_nodes.find(concept) != this->independent_nodes.end()) {
       this->generated_concept = concept;
       Node &n = (*this)[this->generated_concept];
-      this->generate_from_data_mean_and_std_gussian(
-          n.mean, n.std, this->n_timesteps,
-          n.partition_mean_std, n.period);
+      this->generate_head_node_latent_sequence(n, this->n_timesteps, true);
+//      this->generate_from_data_mean_and_std_gussian(
+//          n.mean, n.std, this->n_timesteps,
+//          n.partition_mean_std, n.period);
     }
     else {
       // to change the derivative

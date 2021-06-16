@@ -911,17 +911,11 @@ class AnalysisGraph {
   void partition_data_and_calculate_mean_std_for_each_partition(
       Node& n, std::vector<double>& latent_sequence);
 
-  void generate_head_node_latent_sequence(int period,
-                                          std::vector<double> centers,
-                                          std::vector<double> spreads,
+  void generate_head_node_latent_sequence(Node &n,
                                           int num_timesteps,
                                           bool sample);
 
-  void generate_head_node_latent_sequence_from_changes(int period,
-                                                       double initial_value,
-                                                       std::vector<double> spreads,
-                                                       std::vector<double> changes,
-                                                       std::string model,
+  void generate_head_node_latent_sequence_from_changes(Node &n,
                                                        int num_timesteps,
                                                        bool sample);
 
