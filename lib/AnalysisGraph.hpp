@@ -911,6 +911,20 @@ class AnalysisGraph {
   void partition_data_and_calculate_mean_std_for_each_partition(
       Node& n, std::vector<double>& latent_sequence);
 
+  void generate_head_node_latent_sequence(int period,
+                                          std::vector<double> centers,
+                                          std::vector<double> spreads,
+                                          int num_timesteps,
+                                          bool sample);
+
+  void generate_head_node_latent_sequence_from_changes(int period,
+                                                       double initial_value,
+                                                       std::vector<double> spreads,
+                                                       std::vector<double> changes,
+                                                       std::string model,
+                                                       int num_timesteps,
+                                                       bool sample);
+
   void generate_from_data_mean_and_std_gussian(
       double mean,
       double std,

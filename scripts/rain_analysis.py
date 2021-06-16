@@ -118,7 +118,11 @@ def changes_analysis(data, plot_no, modifire, period=12):
 
     med_data = list(med_data)
     med_data.append(med_data[0])
+    med_data = np.array(med_data)
     med_data_absolute_change = np.diff(med_data)
+    med_data_relative_change = med_data_absolute_change / (med_data[0: -1] + 1)
+
+    print('\nrel change\n', list(med_data_relative_change))
 
     # print(list(med_data), '\n')
     # print(list(med_data_absolute_change), '\n')
@@ -142,6 +146,7 @@ def changes_analysis(data, plot_no, modifire, period=12):
     pred4 = [med_data[0]]
     pred5 = [med_data[0]]
     pred6 = [med_data[0]]
+    pred7 = [med_data[0]]
     # for ts in range(1, 48):
     for ts in range(1, len(scaled_data)):
         # for ts in range(1, 12):
@@ -151,6 +156,7 @@ def changes_analysis(data, plot_no, modifire, period=12):
         pred4.append(pred4[ts-1] + mean_absolute_change[partition])
         pred5.append(pred5[ts-1] + (pred5[ts-1] + 1) * med_relative_change[partition])
         pred6.append(pred2[ts-1] + med_absolute_change_0_centered[partition])
+        pred7.append(pred7[ts-1] + (pred7[ts-1] + 1) * med_data_relative_change[partition])
 
         pred3.append(med_data[ts % period])
 
@@ -160,10 +166,12 @@ def changes_analysis(data, plot_no, modifire, period=12):
     pred4 = np.array(pred4) * scaling_factor
     pred5 = np.array(pred5) * scaling_factor
     # pred6 = np.array(pred6) * scaling_factor
+    pred7 = np.array(pred7) * scaling_factor
 
     plt.plot(data, marker='o', label='data')
     plt.plot(pred3, marker='o', linewidth='8', label='partition - median', alpha=0.4)
     plt.plot(pred1, marker='o', label='partition - median - change between partitions')
+    plt.plot(pred7, marker='o', label='partition - median - relative change between partitions')
     plt.plot(pred2, marker='o', label='change between timesteps - partition - median')
     plt.plot(pred4, marker='o', label='change between timesteps - partition - mean')
     plt.plot(pred5, marker='o', label='relative change between timesteps - partition - median')

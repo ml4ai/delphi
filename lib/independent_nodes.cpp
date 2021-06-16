@@ -28,6 +28,59 @@ void AnalysisGraph::partition_data_and_calculate_mean_std_for_each_partition(
   }
 }
 
+void AnalysisGraph::generate_head_node_latent_sequence(int period,
+                                                       vector<double> centers,
+                                                       vector<double> spreads,
+                                                       int num_timesteps,
+                                                       bool sample) {
+    this->generated_latent_sequence = vector<double>(num_timesteps);
+
+    for (int ts = 0; ts < num_timesteps; ts++) {
+      int partition = ts % period;
+
+      if (sample) {
+          this->generated_latent_sequence[ts] = centers[partition]
+                                                 + spreads[partition]
+                                                 * norm_dist(this->rand_num_generator);
+      } else {
+          this->generated_latent_sequence[ts] = centers[partition];
+      }
+    }
+}
+
+void AnalysisGraph::generate_head_node_latent_sequence_from_changes(int period,
+                                                                    double initial_value,
+                                                                    vector<double> spreads,
+                                                                    vector<double> changes,
+                                                                    string model,
+                                                                    int num_timesteps,
+                                                                    bool sample) {
+    this->generated_latent_sequence = vector<double>(num_timesteps);
+
+    this->generated_latent_sequence[0] = initial_value;
+
+    for (int ts = 0; ts < num_timesteps - 1; ts++) {
+        int partition = ts % period;
+
+        if (model.compare("absolute_change") == 0) {
+            this->generated_latent_sequence[ts + 1] =
+                this->generated_latent_sequence[ts] + changes[partition + 1];
+        } else if (model.compare("relative_change") == 0) {
+            this->generated_latent_sequence[ts + 1] =
+                this->generated_latent_sequence[ts] + changes[partition + 1]
+                                                        * (this->generated_latent_sequence[ts] + 1);
+        }
+    }
+
+    if (sample) {
+        for (int ts = 0; ts < num_timesteps; ts++) {
+          int partition = ts % period;
+          this->generated_latent_sequence[ts] +=
+              spreads[partition] * norm_dist(this->rand_num_generator);
+        }
+    }
+}
+
 void AnalysisGraph::generate_from_data_mean_and_std_gussian(
     double mean,
     double std,
@@ -97,15 +150,23 @@ void AnalysisGraph::generate_independent_node_latent_sequences(int samp, int num
       partition_mean_std = n.partition_mean_std;
     }
 
-    change_medians = n.absolute_change_medians;
-    this->generate_from_absolute_change(
-        num_timesteps, n.partition_mean_std[0].first, change_medians, n.period);
+//    change_medians = n.absolute_change_medians;
+//    this->generate_from_absolute_change(
+//        num_timesteps, n.partition_mean_std[0].first, change_medians, n.period);
+
+
+//    this->generate_head_node_latent_sequence(n.period, n.centers, n.spreads,
+//                                             n.changes, num_timesteps, false);
+    this->generate_head_node_latent_sequence_from_changes(n.period, n.centers[0],
+                                                  n.spreads, n.changes, n.model,
+                                                  num_timesteps, false);
+
 
     n.generated_latent_sequence.clear();
     n.generated_latent_sequence = this->generated_latent_sequence;
 
-    this->generate_from_data_mean_and_std_gussian(
-        mean, std, num_timesteps, partition_mean_std, n.period);
+//    this->generate_from_data_mean_and_std_gussian(
+//        mean, std, num_timesteps, partition_mean_std, n.period);
 
 //    vector<double> difference = vector<double>(this->generated_latent_sequence.size());
 //    transform(n.generated_latent_sequence.begin(), n.generated_latent_sequence.end(),
