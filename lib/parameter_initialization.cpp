@@ -244,7 +244,7 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
               n.spreads = vector<double>(n.period);
               for (const auto & [ partition, data ] : n.partitioned_data) {
                   if (n.center_measure.compare("mean") == 0) {
-                      center = delphi::utils::median(n.partitioned_data[partition].second);
+                      center = delphi::utils::mean(n.partitioned_data[partition].second);
                   } else {
                       center = delphi::utils::median(n.partitioned_data[partition].second);
                   }
@@ -307,12 +307,11 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
               }
 
               // Compute partition centers
-              n.changes = vector<double>(n.period);
+              //n.changes = vector<double>(n.period + 1);
               for (const auto & [ partition, data ] : n.partitioned_absolute_change) {
                   double partition_median = delphi::utils::median(data.second);
                   n.changes[partition + 1] = partition_median;
               }
-              //n.relative_change_medians = vector<double>(n.period);
               //for (const auto & [ partition, data ] : n.partitioned_relative_change) {
               //    double partition_median = delphi::utils::median(data.second);
               //    n.changes[partition + 1] = partition_median;
