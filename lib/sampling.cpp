@@ -135,8 +135,6 @@ void AnalysisGraph::set_log_likelihood() {
       }
       this->current_latent_state = this->s0;
 
-//      this->update_independent_node_latent_state_with_generated_derivatives(
-//          0, this->generated_concept, this->generated_latent_sequence);
       this->update_latent_state_with_generated_derivatives(0);
 
       this->set_log_likelihood_helper(0);
@@ -145,8 +143,6 @@ void AnalysisGraph::set_log_likelihood() {
         this->current_latent_state =
             this->e_A_ts[this->observation_timestep_gaps[ts]]
             * this->current_latent_state;
-//        this->update_independent_node_latent_state_with_generated_derivatives(
-//            ts, this->generated_concept, this->generated_latent_sequence);
         this->update_latent_state_with_generated_derivatives(ts);
         this->set_log_likelihood_helper(ts);
       }
@@ -162,8 +158,6 @@ void AnalysisGraph::set_log_likelihood() {
               this->current_latent_state[2 * v + 1] = deriv_func(ts, ind.mean);
           }
 
-//          this->update_independent_node_latent_state_with_generated_derivatives(
-//              ts, this->generated_concept, this->generated_latent_sequence);
           this->update_latent_state_with_generated_derivatives(ts);
           set_log_likelihood_helper(ts);
           this->current_latent_state = this->A_original * this->current_latent_state;
@@ -190,21 +184,10 @@ void AnalysisGraph::sample_from_posterior() {
     if (this->generated_concept == -1) {
       this->revert_back_to_previous_state();
     }
-//    else {
-//        Node& n = (*this)[this->generated_concept];
-//        n.mean = delphi::utils::mean(this->generated_latent_sequence);
-//        n.std = delphi::utils::standard_deviation(
-//            n.mean, this->generated_latent_sequence);
-//        this->partition_data_and_calculate_mean_std_for_each_partition
-//            (n, this->generated_latent_sequence);
-//    }
   }
 //  else {
 //    if (this->generated_concept > -1) {
 //      Node& n = (*this)[this->generated_concept];
-//      n.mean = delphi::utils::mean(this->generated_latent_sequence);
-//      n.std = delphi::utils::standard_deviation(
-//          n.mean, this->generated_latent_sequence);
 //      this->partition_data_and_calculate_mean_std_for_each_partition
 //                                     (n, this->generated_latent_sequence);
 //    }
@@ -242,9 +225,6 @@ void AnalysisGraph::sample_from_proposal() {
       this->generated_concept = concept;
       Node &n = (*this)[this->generated_concept];
       this->generate_head_node_latent_sequence(n, this->n_timesteps, true);
-//      this->generate_from_data_mean_and_std_gussian(
-//          n.mean, n.std, this->n_timesteps,
-//          n.partition_mean_std, n.period);
     }
     else {
       // to change the derivative

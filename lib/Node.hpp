@@ -19,8 +19,6 @@ class Node {
   std::unordered_map<int, std::pair<std::vector<int>, std::vector<double>>> partitioned_absolute_change = {};
   std::unordered_map<int, std::pair<std::vector<int>, std::vector<double>>> partitioned_relative_change = {};
   std::unordered_map<int, std::pair<double, double>> partition_mean_std = {};
-//  std::unordered_map<int, double> absolute_change_medians = {};
-//  std::unordered_map<int, double> relative_change_medians = {};
   std::vector<double> absolute_change_medians = {};
   std::vector<double> relative_change_medians = {};
 

@@ -919,28 +919,9 @@ class AnalysisGraph {
                                                        int num_timesteps,
                                                        bool sample);
 
-  void generate_from_data_mean_and_std_gussian(
-      double mean,
-      double std,
-      int num_timesteps,
-      std::unordered_map<int, std::pair<double, double>> partition_mean_std,
-      int period);
+  void generate_head_node_latent_sequences(int samp, int num_timesteps);
 
-  void generate_from_absolute_change(
-      int num_timesteps,
-      double initial_value,
-      std::vector<double> absolute_change_medians,
-      int period);
-
-  void generate_from_relative_change(
-      int num_timesteps,
-      double initial_value,
-      std::vector<double> absolute_change_medians,
-      int period);
-
-  void generate_independent_node_latent_sequences(int samp, int num_timesteps);
-
-  void update_independent_node_latent_state_with_generated_derivatives(
+  void update_head_node_latent_state_with_generated_derivatives(
       int ts, int concept_id, std::vector<double>& latent_sequence);
 
   void update_latent_state_with_generated_derivatives(int ts);

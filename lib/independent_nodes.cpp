@@ -94,109 +94,29 @@ void AnalysisGraph::generate_head_node_latent_sequence_from_changes(Node &n,
         }
     }
 }
-
-void AnalysisGraph::generate_from_data_mean_and_std_gussian(
-    double mean,
-    double std,
-    int num_timesteps,
-    unordered_map<int, pair<double, double>> partition_mean_std,
-    int period) {
-  this->generated_latent_sequence = vector<double>(num_timesteps);
-
-  for (int ts = 0; ts < num_timesteps; ts++) {
-    int partition = ts % period;
-    this->generated_latent_sequence[ts] = partition_mean_std[partition].first;
-//                                       + partition_mean_std[partition].second
-//                                       * norm_dist(this->rand_num_generator);
-  }
-}
-
-void AnalysisGraph::generate_from_absolute_change(
-    int num_timesteps,
-    double initial_value,
-    vector<double> absolute_change_medians,
-    int period) {
-  this->generated_latent_sequence = vector<double>(num_timesteps);
-
-  this->generated_latent_sequence[0] = initial_value;
-
-  for (int ts = 0; ts < num_timesteps - 1; ts++) {
-    int partition = ts % period;
-    this->generated_latent_sequence[ts + 1] = this->generated_latent_sequence[ts] + absolute_change_medians[partition];
-  }
-}
-
-void AnalysisGraph::generate_from_relative_change(
-    int num_timesteps,
-    double initial_value,
-    vector<double> absolute_change_medians,
-    int period) {
-  this->generated_latent_sequence = vector<double>(num_timesteps);
-
-  this->generated_latent_sequence[0] = 1;
-
-  for (int ts = 1; ts < num_timesteps; ts++) {
-    int partition = ts % period;
-    this->generated_latent_sequence[ts] = this->generated_latent_sequence[ts - 1] +
-                                         (this->generated_latent_sequence[ts - 1] + 1) *
-                                              absolute_change_medians[partition];
-  }
-}
-
-void AnalysisGraph::generate_independent_node_latent_sequences(int samp, int num_timesteps) {
+void AnalysisGraph::generate_head_node_latent_sequences(int samp, int num_timesteps) {
   for (int v : this->independent_nodes) {
     Node &n = (*this)[v];
 
-    double mean;
-    double std;
     unordered_map<int, pair<double, double>> partition_mean_std;
-//    unordered_map<int, double> change_medians;
     vector<double> change_medians;
 
     if (samp > -1) {
-      mean = this->latent_mean_collection[samp][v];
-      std = this->latent_std_collection[samp][v];
       partition_mean_std = this->latent_mean_std_collection[samp][v];
     }
     else {
-      mean = n.mean;
-      std = n.std;
       partition_mean_std = n.partition_mean_std;
     }
-
-//    change_medians = n.absolute_change_medians;
-//    this->generate_from_absolute_change(
-//        num_timesteps, n.partition_mean_std[0].first, change_medians, n.period);
-
 
     this->generate_head_node_latent_sequence(n, num_timesteps, false);
 //    this->generate_head_node_latent_sequence_from_changes(n, num_timesteps, false);
 
-
     n.generated_latent_sequence.clear();
     n.generated_latent_sequence = this->generated_latent_sequence;
-
-//    this->generate_from_data_mean_and_std_gussian(
-//        mean, std, num_timesteps, partition_mean_std, n.period);
-
-//    vector<double> difference = vector<double>(this->generated_latent_sequence.size());
-//    transform(n.generated_latent_sequence.begin(), n.generated_latent_sequence.end(),
-//              this->generated_latent_sequence.begin(), difference.begin(),
-//              [&](double abs_change, double value){return abs_change - value;});
-//    dbg(n.name);
-//    dbg(this->generated_latent_sequence);
-//    dbg(n.generated_latent_sequence);
-//    dbg(difference);
-
-
-//    change_medians = n.relative_change_medians;
-//    this->generate_from_relative_change(
-//        num_timesteps, n.partition_mean_std[0].first, change_medians, n.period);
   }
 }
 
-void AnalysisGraph::
-    update_independent_node_latent_state_with_generated_derivatives(
+void AnalysisGraph::update_head_node_latent_state_with_generated_derivatives(
         int ts, int concept_id, vector<double>& latent_sequence) {
   if (concept_id > -1 && ts < latent_sequence.size() - 1) {
     this->current_latent_state[2 * concept_id + 1] = latent_sequence[ts + 1]
@@ -211,6 +131,7 @@ void AnalysisGraph::
 void AnalysisGraph::update_latent_state_with_generated_derivatives(int ts) {
   for (int v : this->independent_nodes) {
     Node &n = (*this)[v];
-    this->update_independent_node_latent_state_with_generated_derivatives(ts, v, n.generated_latent_sequence);
+    this->update_head_node_latent_state_with_generated_derivatives(
+        ts, v, n.generated_latent_sequence);
   }
 }
