@@ -22,8 +22,8 @@ The following are the prerequisites for Delphi:
    ```
 
    Then, point the environment variable `DELPHI_DB` to point to `delphi.db`.
-   
-   
+
+
 
 2. Install Delphi using pip:
   - If you are an _end-user_:
@@ -49,7 +49,7 @@ If you use the [Homebrew](https://brew.sh) package manager:
 
 ```bash
 brew install graphviz
-``` 
+```
 
 If you use Homebrew to install graphviz, you may need to install pygraphviz by pip, specifying paths to grab
 the necessary brew-based include and libs, as done below:
@@ -63,7 +63,7 @@ If you use [MacPorts](https://www.macports.org/install.php) package manager:
 
 ```bash
 sudo port install graphviz-devel
-``` 
+```
 
 Then install pygraphviz:
 
@@ -73,13 +73,13 @@ pip install --global-option=build_ext \
             --global-option="-I/opt/local/include/" \
             --global-option="-L/opt/local/lib/" \
             pygraphviz
-``` 
+```
 
 Once you have installed pygraphviz, the last step is:
 
 ```bash
 pip install -e .[test,docs]
-``` 
+```
 
 
 ### Debian
@@ -100,7 +100,7 @@ pip install -e .[test,docs]
 
 ### Building documentation
 
-(This requires you have performed the installation for developers, above.) 
+(This requires you have performed the installation for developers, above.)
 To build and view the documentation, run the following commands from the root of
 the repository:
 
@@ -117,7 +117,6 @@ open docs/_build/html/index.html
 (On a Linux system, replace `open` with `xdg-open`)
 
 
-
 ### Running C++ Served REST Framework
 
 ```bash
@@ -129,5 +128,3 @@ cmake .. && make -j
 ./delphi_rest_api
 
 ```
-
-
