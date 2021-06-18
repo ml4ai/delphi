@@ -7,7 +7,7 @@ BreakBeforeBraces: Custom
 BraceWrapping:
   BeforeElse: true
   BeforeCatch: true
-IndentWidth: 2
+IndentWidth: 4
 AccessModifierOffset: 0
 CommentPragmas:  '^\\.+'
 IndentCaseLabels: true
