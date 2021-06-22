@@ -46,67 +46,73 @@ void AnalysisGraph::generate_head_node_latent_sequence(int node_id,
                                                        bool sample,
                                                        int seq_no) {
     Node &n = (*this)[node_id];
-    this->generated_latent_sequence = vector<double>(num_timesteps);
+    this->generated_latent_sequence = vector<double>(num_timesteps, 0);
 
-    if (n.model.compare("center") == 0) {
-//        dbg("center");
+    if (!n.centers.empty()) {
+      if (n.model.compare("center") == 0) {
         for (int ts = 0; ts < num_timesteps; ts++) {
-            int partition = ts % n.period;
-            this->generated_latent_sequence[ts] = n.centers[partition];
+          int partition = ts % n.period;
+          this->generated_latent_sequence[ts] = n.centers[partition];
 
-            apply_constraint_at(ts, node_id);
+          apply_constraint_at(ts, node_id);
         }
-    } else if (n.model.compare("absolute_change") == 0) {
-//        dbg("absolute_change");
+      }
+      else if (n.model.compare("absolute_change") == 0) {
+        //        dbg("absolute_change");
         this->generated_latent_sequence[0] = n.centers[0];
         for (int ts = 0; ts < num_timesteps - 1; ts++) {
-            int partition = ts % n.period;
-            this->generated_latent_sequence[ts + 1] =
-                this->generated_latent_sequence[ts] + n.changes[partition + 1];
+          int partition = ts % n.period;
+          this->generated_latent_sequence[ts + 1] =
+              this->generated_latent_sequence[ts] + n.changes[partition + 1];
 
-            apply_constraint_at(ts + 1, node_id);
+          apply_constraint_at(ts + 1, node_id);
         }
-    } else if (n.model.compare("relative_change") == 0) {
-//        dbg("relative_change");
+      }
+      else if (n.model.compare("relative_change") == 0) {
+        //        dbg("relative_change");
         this->generated_latent_sequence[0] = n.centers[0];
         for (int ts = 0; ts < num_timesteps - 1; ts++) {
-            int partition = ts % n.period;
-            this->generated_latent_sequence[ts + 1] =
-                this->generated_latent_sequence[ts] +
-                    n.changes[partition + 1] * (this->generated_latent_sequence[ts] + 1);
+          int partition = ts % n.period;
+          this->generated_latent_sequence[ts + 1] =
+              this->generated_latent_sequence[ts] +
+              n.changes[partition + 1] *
+                  (this->generated_latent_sequence[ts] + 1);
 
-            apply_constraint_at(ts + 1, node_id);
+          apply_constraint_at(ts + 1, node_id);
         }
-    }
+      }
 
-    if (sample) {
+      if (sample) {
         for (int ts = 0; ts < num_timesteps; ts++) {
-            int partition = ts % n.period;
-            this->generated_latent_sequence[ts] +=
-                n.spreads[partition] * norm_dist(this->rand_num_generator);
-          }
-    } else {
+          int partition = ts % n.period;
+          this->generated_latent_sequence[ts] +=
+              n.spreads[partition] * norm_dist(this->rand_num_generator);
+        }
+      }
+      else {
         int sections = 5; // an odd number
         int half_sections = (sections - 1) / 2;
         int turn = seq_no % sections;
         for (int ts = 0; ts < num_timesteps; ts++) {
           int partition = ts % n.period;
-          this->generated_latent_sequence[ts] += (turn - half_sections) * n.spreads[partition];
+          this->generated_latent_sequence[ts] +=
+              (turn - half_sections) * n.spreads[partition];
           apply_constraint_at(ts, node_id);
         }
-    }
+      }
 
-    if (n.has_max) {
-      for (int ts = 0; ts < num_timesteps; ts++) {
-        if (this->generated_latent_sequence[ts] > n.max_val) {
-          this->generated_latent_sequence[ts] = n.max_val;
+      if (n.has_max) {
+        for (int ts = 0; ts < num_timesteps; ts++) {
+          if (this->generated_latent_sequence[ts] > n.max_val) {
+            this->generated_latent_sequence[ts] = n.max_val;
+          }
         }
       }
-    }
-    if (n.has_min) {
-      for (int ts = 0; ts < num_timesteps; ts++) {
-        if (this->generated_latent_sequence[ts] < n.min_val) {
-          this->generated_latent_sequence[ts] = n.min_val;
+      if (n.has_min) {
+        for (int ts = 0; ts < num_timesteps; ts++) {
+          if (this->generated_latent_sequence[ts] < n.min_val) {
+            this->generated_latent_sequence[ts] = n.min_val;
+          }
         }
       }
     }
