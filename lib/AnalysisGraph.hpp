@@ -394,6 +394,8 @@ class AnalysisGraph {
   // latent_state_constraints.at(time step)
   std::unordered_map<int, std::vector<std::pair<int, double>>>
       one_off_constraints;
+  std::unordered_map<int, std::vector<std::pair<int, double>>>
+      head_node_one_off_constraints;
   //
   // Implementing Perpetual constraints:
   // -------------------------------------------------------------------------
@@ -911,9 +913,12 @@ class AnalysisGraph {
   void partition_data_and_calculate_mean_std_for_each_partition(
       Node& n, std::vector<double>& latent_sequence);
 
-  void generate_head_node_latent_sequence(Node &n,
+  void apply_constraint_at(int ts, int node_id);
+
+  void generate_head_node_latent_sequence(int node_id,
                                           int num_timesteps,
-                                          bool sample);
+                                          bool sample,
+                                          int seq_no = 0);
 
   void generate_head_node_latent_sequence_from_changes(Node &n,
                                                        int num_timesteps,
@@ -1391,6 +1396,10 @@ class AnalysisGraph {
                    int train_start_timestep = 0,
                    int train_timesteps = -1,
                    std::unordered_map<std::string, int> concept_periods = {},
+                   std::unordered_map<std::string, std::string> concept_center_measures = {},
+                   std::unordered_map<std::string, std::string> concept_models = {},
+                   std::unordered_map<std::string, double> concept_min_vals = {},
+                   std::unordered_map<std::string, double> concept_max_vals = {},
                    std::unordered_map
                        <std::string, std::function<double(unsigned int, double)>>
                    ext_concepts = {});

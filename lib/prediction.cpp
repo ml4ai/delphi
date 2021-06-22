@@ -3,6 +3,7 @@
 #include <unsupported/Eigen/MatrixFunctions>
 #include <boost/range/adaptors.hpp>
 #include <tqdm.hpp>
+#include "dbg.h"
 
 using namespace std;
 using Eigen::VectorXd, Eigen::MatrixXd;
@@ -128,7 +129,7 @@ void AnalysisGraph::generate_latent_state_sequences(
           //                        s_t = e^{Ac * Δt } * s_{t-1}
           // When discrete  : s_t = Ad * s_{t-1}
           this->current_latent_state = A * this->predicted_latent_state_sequences[samp][ts - 1];
-          this->update_latent_state_with_generated_derivatives(ts);
+          this->update_latent_state_with_generated_derivatives(initial_prediction_step + ts);
           this->predicted_latent_state_sequences[samp][ts] = this->current_latent_state;
 
           // Set derivatives for frozen nodes
@@ -511,10 +512,6 @@ void AnalysisGraph::add_constraint(int step, string concept_name, string indicat
 
     Indicator& ind = n.indicators[ind_id];
 
-    if (!delphi::utils::in(this->one_off_constraints, step)) {
-        this->one_off_constraints[step] = vector<pair<int, double>>();
-    }
-
     // We have to clamp the latent state value corresponding to this
     // indicator such that the probability where the emission Gaussian
     // emitting the requested indicator value is the highest. For a
@@ -531,8 +528,22 @@ void AnalysisGraph::add_constraint(int step, string concept_name, string indicat
     //       comments)
     double latent_clamp_value = indicator_clamp_value / ind.get_mean();
 
-    this->one_off_constraints[step].push_back(
-                                    make_pair(concept_id, latent_clamp_value));
+    if (this->independent_nodes.find(concept_id) == this->independent_nodes.end()) {
+      if (!delphi::utils::in(this->one_off_constraints, step)) {
+        this->one_off_constraints[step] = vector<pair<int, double>>();
+      }
+
+      this->one_off_constraints[step].push_back(
+          make_pair(concept_id, latent_clamp_value));
+    } else {
+      step += this->pred_start_timestep;
+      if (!delphi::utils::in(this->head_node_one_off_constraints, step)) {
+        this->head_node_one_off_constraints[step] = vector<pair<int, double>>();
+      }
+
+      this->head_node_one_off_constraints[step].push_back(
+          make_pair(concept_id, latent_clamp_value));
+    }
 }
 
 /*
@@ -550,6 +561,8 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
                                               bool clamp_deri) {
   this->is_one_off_constraints = one_off;
   this->clamp_at_derivative = clamp_deri;
+  this->one_off_constraints.clear();
+  this->head_node_one_off_constraints.clear();
 
   for (auto [step, const_vec] : constraints) {
       for (auto constraint : const_vec) {
@@ -574,6 +587,11 @@ void AnalysisGraph::generate_prediction(int pred_start_timestep,
                                         bool clamp_deri) {
   this->is_one_off_constraints = one_off;
   this->clamp_at_derivative = clamp_deri;
+  this->one_off_constraints.clear();
+  this->head_node_one_off_constraints.clear();
+
+  this->pred_start_timestep = pred_start_timestep - 1;
+  this->pred_timesteps = pred_timesteps + 1;
 
   for (auto [step, const_vec] : constraints) {
     for (auto constraint : const_vec) {
@@ -584,9 +602,6 @@ void AnalysisGraph::generate_prediction(int pred_start_timestep,
       this->add_constraint(step, concept_name, indicator_name, value);
     }
   }
-
-  this->pred_start_timestep = pred_start_timestep - 1;
-  this->pred_timesteps = pred_timesteps + 1;
 
   this->generate_latent_state_sequences(this->pred_start_timestep);
   this->generate_observed_state_sequences();

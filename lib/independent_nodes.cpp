@@ -28,34 +28,55 @@ void AnalysisGraph::partition_data_and_calculate_mean_std_for_each_partition(
   }
 }
 
-void AnalysisGraph::generate_head_node_latent_sequence(Node &n,
+
+void AnalysisGraph::apply_constraint_at(int ts, int node_id) {
+  if (delphi::utils::in(this->head_node_one_off_constraints, ts)) {
+    vector<pair<int, double>> constraint_vec = this->head_node_one_off_constraints.at(ts);
+    for (auto node_const : constraint_vec) {
+      if (node_id == node_const.first) {
+        this->generated_latent_sequence[ts] = node_const.second;
+      }
+    }
+  }
+}
+
+
+void AnalysisGraph::generate_head_node_latent_sequence(int node_id,
                                                        int num_timesteps,
-                                                       bool sample) {
+                                                       bool sample,
+                                                       int seq_no) {
+    Node &n = (*this)[node_id];
     this->generated_latent_sequence = vector<double>(num_timesteps);
 
     if (n.model.compare("center") == 0) {
-        dbg("center");
+//        dbg("center");
         for (int ts = 0; ts < num_timesteps; ts++) {
             int partition = ts % n.period;
             this->generated_latent_sequence[ts] = n.centers[partition];
+
+            apply_constraint_at(ts, node_id);
         }
     } else if (n.model.compare("absolute_change") == 0) {
-        dbg("absolute_change");
+//        dbg("absolute_change");
         this->generated_latent_sequence[0] = n.centers[0];
         for (int ts = 0; ts < num_timesteps - 1; ts++) {
             int partition = ts % n.period;
             this->generated_latent_sequence[ts + 1] =
                 this->generated_latent_sequence[ts] + n.changes[partition + 1];
+
+            apply_constraint_at(ts + 1, node_id);
         }
     } else if (n.model.compare("relative_change") == 0) {
-        dbg("relative_change");
+//        dbg("relative_change");
         this->generated_latent_sequence[0] = n.centers[0];
         for (int ts = 0; ts < num_timesteps - 1; ts++) {
             int partition = ts % n.period;
             this->generated_latent_sequence[ts + 1] =
                 this->generated_latent_sequence[ts] +
                     n.changes[partition + 1] * (this->generated_latent_sequence[ts] + 1);
-          }
+
+            apply_constraint_at(ts + 1, node_id);
+        }
     }
 
     if (sample) {
@@ -64,8 +85,33 @@ void AnalysisGraph::generate_head_node_latent_sequence(Node &n,
             this->generated_latent_sequence[ts] +=
                 n.spreads[partition] * norm_dist(this->rand_num_generator);
           }
+    } else {
+        int sections = 5; // an odd number
+        int half_sections = (sections - 1) / 2;
+        int turn = seq_no % sections;
+        for (int ts = 0; ts < num_timesteps; ts++) {
+          int partition = ts % n.period;
+          this->generated_latent_sequence[ts] += (turn - half_sections) * n.spreads[partition];
+          apply_constraint_at(ts, node_id);
+        }
+    }
+
+    if (n.has_max) {
+      for (int ts = 0; ts < num_timesteps; ts++) {
+        if (this->generated_latent_sequence[ts] > n.max_val) {
+          this->generated_latent_sequence[ts] = n.max_val;
+        }
+      }
+    }
+    if (n.has_min) {
+      for (int ts = 0; ts < num_timesteps; ts++) {
+        if (this->generated_latent_sequence[ts] < n.min_val) {
+          this->generated_latent_sequence[ts] = n.min_val;
+        }
+      }
     }
 }
+
 
 void AnalysisGraph::generate_head_node_latent_sequence_from_changes(Node &n,
                                                                     int num_timesteps,
@@ -94,6 +140,8 @@ void AnalysisGraph::generate_head_node_latent_sequence_from_changes(Node &n,
         }
     }
 }
+
+
 void AnalysisGraph::generate_head_node_latent_sequences(int samp, int num_timesteps) {
   for (int v : this->independent_nodes) {
     Node &n = (*this)[v];
@@ -106,15 +154,17 @@ void AnalysisGraph::generate_head_node_latent_sequences(int samp, int num_timest
     }
     else {
       partition_mean_std = n.partition_mean_std;
+      samp = 0;
     }
 
-    this->generate_head_node_latent_sequence(n, num_timesteps, false);
+    this->generate_head_node_latent_sequence(v, num_timesteps, false, samp);
 //    this->generate_head_node_latent_sequence_from_changes(n, num_timesteps, false);
 
     n.generated_latent_sequence.clear();
     n.generated_latent_sequence = this->generated_latent_sequence;
   }
 }
+
 
 void AnalysisGraph::update_head_node_latent_state_with_generated_derivatives(
         int ts, int concept_id, vector<double>& latent_sequence) {
@@ -127,6 +177,7 @@ void AnalysisGraph::update_head_node_latent_state_with_generated_derivatives(
     }
   }
 }
+
 
 void AnalysisGraph::update_latent_state_with_generated_derivatives(int ts) {
   for (int v : this->independent_nodes) {

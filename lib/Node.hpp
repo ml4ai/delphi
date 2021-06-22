@@ -5,6 +5,7 @@
 #include "utils.hpp"
 #include "Indicator.hpp"
 #include "exceptions.hpp"
+#include <limits.h>
 
 class Node {
   public:
@@ -28,6 +29,11 @@ class Node {
 
   std::string center_measure = "median"; // median or mean
   std::string model = "center"; // center, absolute_change, relative_change
+
+  bool has_max = false;
+  bool has_min = false;
+  double max_val = std::numeric_limits<double>::max();
+  double min_val = std::numeric_limits<double>::min();
 
   bool visited;
   LatentVar rv;

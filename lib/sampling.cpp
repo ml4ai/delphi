@@ -223,8 +223,7 @@ void AnalysisGraph::sample_from_proposal() {
 
     if (this->independent_nodes.find(concept) != this->independent_nodes.end()) {
       this->generated_concept = concept;
-      Node &n = (*this)[this->generated_concept];
-      this->generate_head_node_latent_sequence(n, this->n_timesteps, true);
+      this->generate_head_node_latent_sequence(this->generated_concept, this->n_timesteps, true, 0);
     }
     else {
       // to change the derivative

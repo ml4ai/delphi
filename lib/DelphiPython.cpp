@@ -190,6 +190,10 @@ PYBIND11_MODULE(DelphiPython, m) {
            "train_start_timestep"_a = 0,
            "train_timesteps"_a = -1,
            "concept_periods"_a = unordered_map<string, int>(),
+           "concept_center_measures"_a = unordered_map<string, string>(),
+           "concept_models"_a = unordered_map<string, string>(),
+           "concept_min_vals"_a = unordered_map<string, double>(),
+           "concept_max_vals"_a = unordered_map<string, double>(),
            "ext_concepts"_a =
                unordered_map<string, function<double(unsigned int, double)>>())
       .def("generate_prediction",

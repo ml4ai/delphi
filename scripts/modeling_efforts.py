@@ -4,10 +4,10 @@ import pandas as pd
 import numpy as np
 
 df_temp = pd.read_csv('../data/mini_use_case/TerraClimateOromiaMonthlyMaxTemp.csv')
-temperature = df_temp['(deg C) Max Temperature (TerraClimate) at State, 1958-01-01 to 2019-12-31'].tolist()[:75]
+temperature = df_temp['(deg C) Max Temperature (TerraClimate) at State, 1958-01-01 to 2019-12-31'].tolist()[:72]
 
 df_rain = pd.read_csv('../data/mini_use_case/TerraClimateOromiaMontlhyPrecip.csv')
-rain = df_rain['(mm) Precipitation (TerraClimate) at State, 1958-01-01 to 2019-12-31'].tolist()[:75]
+rain = df_rain['(mm) Precipitation (TerraClimate) at State, 1958-01-01 to 2019-12-31'].tolist()[:72]
 print(len(temperature))
 print(len(rain))
 # exit()
@@ -49,8 +49,8 @@ def create_base_CAG(kde_kernels=4):
         )
     ]
 
-    data = {"rain": ("r", rain),
-            "temperature": ("t", temperature)
+    data = {"rain": ("Monthly Precipitation (mm)", rain),
+            "temperature": ("Monthly Max Temperature (F)", temperature)
             }
     G = AnalysisGraph.from_causal_fragments_with_data((statements, data), kde_kernels)
     return G
@@ -110,14 +110,17 @@ if __name__ == "__main__":
                       use_continuous=False,
                       train_start_timestep=0,
                       train_timesteps=48,
-                      concept_periods={'rain': 12}
+                      concept_periods={'rain': 12},
+                      concept_center_measures={'rain': "median"},  # mean, median
+                      concept_models={'rain': "center"},  # center, absolute_change, relative_change
+                      #concept_min_vals={'rain': 0}
                       #ext_concepts={'rain': get_rain_derivative}
                       #ext_concepts={'test': lambda x, s : x*s }
                       )
 
     # try:
     # G.generate_prediction(49, 24)
-    G.generate_prediction(1, 70)
+    G.generate_prediction(49, 23, constraints={12: [('rain', 'Monthly Precipitation (mm)', 120)]})
     # except AnalysisGraph.BadCausemosInputException as e:
     #     print(e)
     #     exit()

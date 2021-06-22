@@ -53,6 +53,10 @@ void AnalysisGraph::run_train_model(int res,
                                 int train_start_timestep,
                                 int train_timesteps,
                                 unordered_map<string, int> concept_periods,
+                                unordered_map<string, string> concept_center_measures,
+                                unordered_map<string, string> concept_models,
+                                unordered_map<string, double> concept_min_vals,
+                                unordered_map<string, double> concept_max_vals,
                                 unordered_map<string, function<double(unsigned int, double)>> ext_concepts
                                 ) {
     if (train_timesteps < 0) {
@@ -82,6 +86,52 @@ void AnalysisGraph::run_train_model(int res,
         int vert_id = this->name_to_vertex.at(concept);
         Node &n = (*this)[vert_id];
         n.period = period;
+      }
+      catch (const std::out_of_range& oor) {
+        cout << "\nERROR: train_model - Concept << concept << is not in CAG!\n";
+      }
+    }
+
+    for (const auto & [ concept, center_measure ] : concept_center_measures) {
+      try {
+        int vert_id = this->name_to_vertex.at(concept);
+        Node &n = (*this)[vert_id];
+        n.center_measure = center_measure;
+      }
+      catch (const std::out_of_range& oor) {
+        cout << "\nERROR: train_model - Concept << concept << is not in CAG!\n";
+      }
+    }
+
+    for (const auto & [ concept, model ] : concept_models) {
+      try {
+        int vert_id = this->name_to_vertex.at(concept);
+        Node &n = (*this)[vert_id];
+        n.model = model;
+      }
+      catch (const std::out_of_range& oor) {
+        cout << "\nERROR: train_model - Concept << concept << is not in CAG!\n";
+      }
+    }
+
+    for (const auto & [ concept, min_val ] : concept_min_vals) {
+      try {
+        int vert_id = this->name_to_vertex.at(concept);
+        Node &n = (*this)[vert_id];
+        n.min_val = min_val;
+        n.has_min = true;
+      }
+      catch (const std::out_of_range& oor) {
+        cout << "\nERROR: train_model - Concept << concept << is not in CAG!\n";
+      }
+    }
+
+    for (const auto & [ concept, max_val ] : concept_max_vals) {
+      try {
+        int vert_id = this->name_to_vertex.at(concept);
+        Node &n = (*this)[vert_id];
+        n.max_val = max_val;
+        n.has_max = true;
       }
       catch (const std::out_of_range& oor) {
         cout << "\nERROR: train_model - Concept << concept << is not in CAG!\n";

@@ -150,7 +150,8 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
     for box_plot in [True, False]:
         for ind, preds in predictions.items():
             sns.set_style("whitegrid")
-            fig, ax = plt.subplots(dpi=150, figsize=(8, 4.5))
+            fig, ax = plt.subplots(dpi=150, figsize=(10, 5))
+            plt.rcParams['font.size'] = 18
 
             df_preds = pd.DataFrame.from_dict(preds)
             df_preds= pd.melt(df_preds, value_vars=df_preds.columns,
@@ -236,6 +237,25 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
                 plt.title(f'Predictions\n{ind}')
             else:
                 plt.title(f'Mean Predictions and Data\n{ind}')
+
+            plt.ylabel(ind)
+            # plt.xlabel('Year/Month')
+            # plt.legend()
+
+            # xtics = []
+            # xlabels = []
+            # all_x = set(df_data['Time Step'])
+            # all_x.update(pred_range)
+            # all_x = list(all_x)
+            # all_x.sort()
+            # for x in all_x:
+            #     if x % 12 == 0:
+            #         xtics.append(x)
+            #         xlabels.append(f'{x // 12 + 1958}/{x % 12 + 1}')
+            #
+            # plt.xticks(xtics, xlabels)
+            plt.tight_layout()
+
             plt.tight_layout()
 
             if out_dir:
@@ -259,7 +279,8 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
     for with_preds in [True, False]:
         for ind, ind_cis in cis.items():
             sns.set_style("whitegrid")
-            fig, ax = plt.subplots(dpi=150, figsize=(8, 4.5))
+            fig, ax = plt.subplots(dpi=150, figsize=(10, 5))
+            plt.rcParams['font.size'] = 18
 
             if len(data_set[ind]) > 0:
                 df_data = pd.DataFrame.from_dict(data_set[ind])
@@ -319,6 +340,10 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
                 else:
                     df_cis['Time Step'] = pred_range
 
+                df_rmse = pd.merge(left=df_cis, right=df_data, on='Time Step')[['Time Step', 'Median', 'Data']]
+                df_rmse['se'] = df_rmse.apply(lambda row: (row['Median'] - row['Data']) ** 2, axis=1)
+                rmse = math.sqrt(sum(df_rmse['se']) / len(df_rmse['se']))
+
                 sns.lineplot(ax=ax, data=df_cis, x='Time Step', y='Median',
                              sort=False, marker='D', label='Median Prediction')
                 ax.fill_between(
@@ -332,9 +357,27 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
 
             ind = ind.split('/')[-1]
             if with_preds:
-                plt.title(f'Median Predictions and $95\%$ Credible Interval\n{ind}')
+                plt.title(f'Median Predictions and $95\%$ Credible Interval\n{ind} (RMSE: {rmse:0.2f})')
             else:
                 plt.title(f'{ind}\nData')
+
+            plt.ylabel(ind)
+            # plt.xlabel('Year/Month')
+            plt.legend()
+
+            # xtics = []
+            # xlabels = []
+            # all_x = set(df_data['Time Step'])
+            # all_x.update(pred_range)
+            # all_x = list(all_x)
+            # all_x.sort()
+            # for x in all_x:
+            #     if x % 12 == 0:
+            #         xtics.append(x)
+            #         xlabels.append(f'{x // 12 + 1958}/{x % 12 + 1}')
+            #
+            # plt.xticks(xtics, xlabels)
+            plt.tight_layout()
 
             if out_dir:
                 if with_preds:
