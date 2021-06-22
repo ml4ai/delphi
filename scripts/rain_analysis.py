@@ -218,6 +218,14 @@ def compute_partitioned_mean_std(data, period, plot_no, modifire='Rainfall'):
     plt.savefig(f'{out_dir}{plot_no}_Monthly_{modifire}_Distribution - box.png')
     plot_no += 1
     plt.close()
+    sns.scatterplot(data=df, x='Month', y=modifire)
+    plt.title(f'Monthly {modifire} Distribution')
+    ticks = [idx for idx in range(1, period + 1)]
+    plt.xticks(ticks, ticks)
+    plt.tight_layout()
+    plt.savefig(f'{out_dir}{plot_no}_Monthly_{modifire}_Distribution - points.png')
+    plot_no += 1
+    plt.close()
     sns.violinplot(data=df, x='Month', y=modifire, scale='count', bw=.15, inner='box')
     plt.title(f'Monthly {modifire} Distribution')
     plt.savefig(f'{out_dir}{plot_no}_Monthly_{modifire}_Distribution - violin.png')
