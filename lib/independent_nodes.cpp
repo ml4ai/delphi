@@ -89,7 +89,7 @@ void AnalysisGraph::generate_head_node_latent_sequence(int node_id,
               n.spreads[partition] * norm_dist(this->rand_num_generator);
         }
       }
-      else {
+      else if (seq_no > -1) {
         int sections = 5; // an odd number
         int half_sections = (sections - 1) / 2;
         int turn = seq_no % sections;
@@ -155,13 +155,15 @@ void AnalysisGraph::generate_head_node_latent_sequences(int samp, int num_timest
     unordered_map<int, pair<double, double>> partition_mean_std;
     vector<double> change_medians;
 
+    /*
     if (samp > -1) {
-      partition_mean_std = this->latent_mean_std_collection[samp][v];
+      //partition_mean_std = this->latent_mean_std_collection[samp][v];
     }
     else {
-      partition_mean_std = n.partition_mean_std;
+      //partition_mean_std = n.partition_mean_std;
       samp = 0;
     }
+     */
 
     this->generate_head_node_latent_sequence(v, num_timesteps, false, samp);
 //    this->generate_head_node_latent_sequence_from_changes(n, num_timesteps, false);

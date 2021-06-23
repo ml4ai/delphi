@@ -40,16 +40,16 @@ void AnalysisGraph::initialize_parameters(int res,
 
     this->transition_matrix_collection.clear();
     this->initial_latent_state_collection.clear();
-    this->latent_mean_collection.clear();
-    this->latent_std_collection.clear();
-    this->latent_mean_std_collection.clear();
+    //this->latent_mean_collection.clear();
+    //this->latent_std_collection.clear();
+    //this->latent_mean_std_collection.clear();
 
     this->transition_matrix_collection = vector<Eigen::MatrixXd>(this->res);
     this->initial_latent_state_collection = vector<Eigen::VectorXd>(this->res);
-    this->latent_mean_collection = vector<vector<double>>(this->res);
-    this->latent_std_collection = vector<vector<double>>(this->res);
-    this->latent_mean_std_collection = vector<vector<
-                          unordered_map<int, pair<double, double>>>>(this->res);
+    //this->latent_mean_collection = vector<vector<double>>(this->res);
+    //this->latent_std_collection = vector<vector<double>>(this->res);
+    //this->latent_mean_std_collection = vector<vector<
+    //                      unordered_map<int, pair<double, double>>>>(this->res);
 }
 
 void AnalysisGraph::init_betas_to(InitialBeta ib) {

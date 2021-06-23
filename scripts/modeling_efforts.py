@@ -37,9 +37,9 @@ def compute_partitioned_mean_std(data, period):
     print(partitions)
     print(means)
     print(std)
-    plt.plot(means)
-    plt.plot(std)
-    plt.show()
+    # plt.plot(means)
+    # plt.plot(std)
+    # plt.show()
 
 def create_base_CAG(kde_kernels=4):
     statements = [

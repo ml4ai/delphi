@@ -423,11 +423,11 @@ class AnalysisGraph {
 
   std::vector<Eigen::MatrixXd> transition_matrix_collection;
   std::vector<Eigen::VectorXd> initial_latent_state_collection;
-  std::vector<std::vector<double>> latent_mean_collection;
-  std::vector<std::vector<double>> latent_std_collection;
+  //std::vector<std::vector<double>> latent_mean_collection;
+  //std::vector<std::vector<double>> latent_std_collection;
   // Access:
   // [sample][node id]{partition --> (mean, std)}
-  std::vector<std::vector<std::unordered_map<int, std::pair<double, double>>>> latent_mean_std_collection;
+  //std::vector<std::vector<std::unordered_map<int, std::pair<double, double>>>> latent_mean_std_collection;
 
   std::vector<Eigen::VectorXd> synthetic_latent_state_sequence;
   bool synthetic_data_experiment = false;

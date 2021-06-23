@@ -38,6 +38,9 @@ void AnalysisGraph::generate_latent_state_sequences(
       // matrices.
       MatrixXd A;
 
+      this->generate_head_node_latent_sequences(
+          samp, initial_prediction_step + this->pred_timesteps);
+
       if (this->continuous) {
           // Here A = Ac = this->transition_matrix_collection[samp] (continuous)
 
@@ -61,8 +64,8 @@ void AnalysisGraph::generate_latent_state_sequences(
           // length Δt
           A = this->transition_matrix_collection[samp];
 
-          this->generate_head_node_latent_sequences(
-              samp, initial_prediction_step + this->pred_timesteps);
+          //this->generate_head_node_latent_sequences(
+          //    samp, initial_prediction_step + this->pred_timesteps);
 
           // Evolving the system till the initial_prediction_step
           this->current_latent_state = this->initial_latent_state_collection[samp];

@@ -167,6 +167,7 @@ void AnalysisGraph::run_train_model(int res,
         this->graph[e].sampled_thetas.push_back(this->graph[e].theta);
       }
 
+      /*
       this->latent_mean_collection[i] = vector<double>(num_verts);
       this->latent_std_collection[i] = vector<double>(num_verts);
       this->latent_mean_std_collection[i] = vector<
@@ -178,6 +179,7 @@ void AnalysisGraph::run_train_model(int res,
         this->latent_std_collection[i][v] = n.std;
         this->latent_mean_std_collection[i][v] = n.partition_mean_std;
       }
+      */
     }
 
     this->trained = true;
