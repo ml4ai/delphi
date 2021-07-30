@@ -26,6 +26,10 @@ void AnalysisGraph::train_model(int start_year,
   this->n_timesteps = this->calculate_num_timesteps(start_year, start_month,
                                                       end_year,   end_month);
 
+  this->observation_timestep_gaps.clear();
+  this->observation_timestep_gaps = vector<double>(this->n_timesteps, 1.0);
+  this->observation_timestep_gaps[0] = 0;
+
   if(this->n_timesteps > 0) {
       if (!synthetic_data_experiment && !causemos_call) {
           // Delphi is run locally using observation data from delphi.db
