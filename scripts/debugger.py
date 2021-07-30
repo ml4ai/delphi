@@ -114,9 +114,13 @@ if __name__ == "__main__":
          ""],
         ["../tests/data/delphi/causemos_create.json",                   # 8. Oldest test data
          "../tests/data/delphi/causemos_experiments_projection_input.json"],
+        ["../tests/data/delphi/create_model_rain--temperature--yield.json",    # 9. rain-temperature CAG
+         "../tests/data/delphi/experiments_rain--temperature--yield.json"],
+        ["../tests/data/delphi/create_model_rain--temperature.json",    # 10. rain-temperature CAG
+         "../tests/data/delphi/experiments_rain--temperature--yield.json"],
     ]
 
-    input_idx = 2
+    input_idx = 9
     causemos_create_model = json_inputs[input_idx][0]
     causemos_create_experiment = json_inputs[input_idx][1]
 
@@ -126,15 +130,17 @@ if __name__ == "__main__":
                         grounding_score_cutoff=0,
                         kde_kernels=10)
     #G = create_base_CAG('', 100)
+    G.set_random_seed(81)
 
     draw_CAG(G, 'plot_testing_CAG.png')
 
 
     print('\nTraining Model')
-    G.run_train_model(res=10,
-                      burn=100,
+    G.run_train_model(res=200,
+                      burn=1000,
                       initial_beta=InitialBeta.ZERO,
-                      initial_derivative=InitialDerivative.DERI_ZERO)
+                      initial_derivative=InitialDerivative.DERI_ZERO,
+                      use_continuous=True)
 
     try:
         preds = G.run_causemos_projection_experiment_from_json_file(
@@ -152,4 +158,4 @@ if __name__ == "__main__":
     print(pred_range[1:])
 
     dp.delphi_plotter(model_state, num_bins=400, rotation=45,
-            out_dir='plots', file_name_prefix='')
+            out_dir='plots', file_name_prefix='db', save_csv=False)

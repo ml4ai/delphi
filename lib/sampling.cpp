@@ -90,6 +90,7 @@ void AnalysisGraph::set_transition_matrix_from_betas() {
                                   this->observation_timestep_gaps.end())) {
       this->e_A_ts.insert(make_pair(gap, (this->A_original * gap).exp()));
     }
+    this->e_A_ts.insert(make_pair(1, this->A_original.exp()));
   }
 }
 
@@ -134,8 +135,28 @@ void AnalysisGraph::set_log_likelihood() {
         }
       }
       this->current_latent_state = this->s0;
+      int ts_monthly = 0;
 
-      this->update_latent_state_with_generated_derivatives(0);
+      for (int ts = 0; ts < this->n_timesteps; ts++) {
+
+        // Set derivatives for frozen nodes
+        for (const auto & [ v, deriv_func ] : this->external_concepts) {
+          const Indicator& ind = this->graph[v].indicators[0];
+          this->current_latent_state[2 * v + 1] = deriv_func(ts, ind.mean);
+        }
+
+        for (int ts_gap = 0; ts_gap < this->observation_timestep_gaps[ts]; ts_gap++) {
+          this->update_latent_state_with_generated_derivatives(ts_monthly,
+                                                               ts_monthly + 1);
+          this->current_latent_state =
+              this->e_A_ts[1] * this->current_latent_state;
+          ts_monthly++;
+        }
+        set_log_likelihood_helper(ts);
+      }
+
+      /*
+      this->update_latent_state_with_generated_derivatives(0, 1);
 
       this->set_log_likelihood_helper(0);
 
@@ -143,12 +164,14 @@ void AnalysisGraph::set_log_likelihood() {
         this->current_latent_state =
             this->e_A_ts[this->observation_timestep_gaps[ts]]
             * this->current_latent_state;
-        this->update_latent_state_with_generated_derivatives(ts);
+        this->update_latent_state_with_generated_derivatives(ts, ts + 1);
         this->set_log_likelihood_helper(ts);
       }
+      */
   } else {
       // Discretized version
       this->current_latent_state = this->s0;
+      int ts_monthly = 0;
 
       for (int ts = 0; ts < this->n_timesteps; ts++) {
 
@@ -158,9 +181,14 @@ void AnalysisGraph::set_log_likelihood() {
               this->current_latent_state[2 * v + 1] = deriv_func(ts, ind.mean);
           }
 
-          this->update_latent_state_with_generated_derivatives(ts);
+          for (int ts_gap = 0; ts_gap < this->observation_timestep_gaps[ts]; ts_gap++) {
+              this->update_latent_state_with_generated_derivatives(
+                ts_monthly, ts_monthly + 1);
+              this->current_latent_state =
+                  this->A_original * this->current_latent_state;
+              ts_monthly++;
+          }
           set_log_likelihood_helper(ts);
-          this->current_latent_state = this->A_original * this->current_latent_state;
       }
   }
 }

@@ -2,7 +2,6 @@
 #include "data.hpp"
 #include <tqdm.hpp>
 #include <range/v3/all.hpp>
-#include "dbg.h"
 
 using namespace std;
 using tq::trange;

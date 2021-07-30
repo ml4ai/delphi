@@ -290,7 +290,7 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
                             pd.to_datetime(data_range[int(ts)]))
                 else:
                     df_data['Time Step'] = df_data['Time Step'].apply(lambda ts:
-                                                                      data_range[int(ts)])
+                                                                      int(data_range[int(ts)]))
 
                 # Aggregate multiple coinciding data points
                 df_data['frequency'] = df_data['Time Step'].apply(lambda x: 1)
@@ -339,10 +339,15 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
                     df_cis['Time Step'] = pd.to_datetime(pred_range)
                 else:
                     df_cis['Time Step'] = pred_range
+                    df_cis['Time Step'] = df_cis['Time Step'].apply(lambda ts: int(ts))
 
-                df_rmse = pd.merge(left=df_cis, right=df_data, on='Time Step')[['Time Step', 'Median', 'Data']]
-                df_rmse['se'] = df_rmse.apply(lambda row: (row['Median'] - row['Data']) ** 2, axis=1)
-                rmse = math.sqrt(sum(df_rmse['se']) / len(df_rmse['se']))
+                rmse = -1
+                if len(data_set[ind]) > 0:
+                    df_rmse = pd.merge(left=df_cis, right=df_data, on='Time Step')[['Time Step', 'Median', 'Data']]
+
+                    if not df_rmse.empty:
+                        df_rmse['se'] = df_rmse.apply(lambda row: (row['Median'] - row['Data']) ** 2, axis=1)
+                        rmse = math.sqrt(sum(df_rmse['se']) / len(df_rmse['se']))
 
                 sns.lineplot(ax=ax, data=df_cis, x='Time Step', y='Median',
                              sort=False, marker='D', label='Median Prediction')
@@ -391,6 +396,122 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
                 plt.show()
             plt.close()
 
+
+    #############################################
+    # Plot predictions and data for the prediction range only
+    for ind, ind_cis in cis.items():
+        sns.set_style("whitegrid")
+        fig, ax = plt.subplots(dpi=150, figsize=(10, 5))
+        plt.rcParams['font.size'] = 18
+
+        df_cis = pd.DataFrame.from_dict(ind_cis)
+
+        if month_year:
+            df_cis['Time Step'] = pd.to_datetime(pred_range)
+        else:
+            df_cis['Time Step'] = pred_range
+            all_x = set(pred_range)
+
+        if len(data_set[ind]) > 0:
+            df_data = pd.DataFrame.from_dict(data_set[ind])
+
+            if month_year:
+                df_data['Time Step'] = df_data['Time Step'].apply(lambda ts:
+                                                                  pd.to_datetime(data_range[int(ts)]))
+            else:
+                df_data['Time Step'] = df_data['Time Step'].apply(lambda ts:
+                                                                  int(data_range[int(ts)]))
+                all_x.update(df_data['Time Step'])
+
+            df_data = pd.merge(left=df_data, right=df_cis, on='Time Step')[df_data.columns]
+
+            # Aggregate multiple coinciding data points
+            df_data['frequency'] = df_data['Time Step'].apply(lambda x: 1)
+            df_data_grp = df_data.groupby(by=['Time Step', 'Data'], as_index=False).count()
+
+            if month_year:
+                df_data_grp['Time Step'] = pd.to_datetime(df_data_grp['Time Step'])
+
+            if df_data_grp['frequency'].max() == df_data_grp['frequency'].min():
+                # There are no coinciding data points
+                sns.lineplot(
+                    ax=ax,
+                    data=df_data_grp,
+                    y='Data',
+                    x='Time Step',
+                    marker='o',
+                    label='Data',
+                    color='red',
+                    alpha=0.3
+                )
+            else:
+                sns.scatterplot(
+                    ax=ax,
+                    data=df_data_grp,
+                    y='Data',
+                    x='Time Step',
+                    marker='o',
+                    label='Data',
+                    hue=df_data_grp['frequency'].tolist(),
+                    palette='ch:r=-.8, l=.75',
+                    size=df_data_grp['frequency'].tolist(),
+                    sizes=(50, 250)
+                )
+
+                handles, labels = ax.get_legend_handles_labels()
+                handles.insert(2, 'Number of Data Points')
+                labels.insert(2, '')
+                ax.legend(handles, labels, handler_map={str: LegendTitle({'fontsize':
+                                                                              12})}, fancybox=True)
+
+
+            rmse = -1
+            if len(data_set[ind]) > 0:
+                df_rmse = pd.merge(left=df_cis, right=df_data, on='Time Step')[['Time Step', 'Median', 'Data']]
+
+                if not df_rmse.empty:
+                    df_rmse['se'] = df_rmse.apply(lambda row: (row['Median'] - row['Data']) ** 2, axis=1)
+                    rmse = math.sqrt(sum(df_rmse['se']) / len(df_rmse['se']))
+
+        sns.lineplot(ax=ax, data=df_cis, x='Time Step', y='Median',
+                     sort=False, marker='D', label='Median Prediction')
+        ax.fill_between(
+            x=df_cis['Time Step'],
+            y1=df_cis['Upper 95% CI'],
+            y2=df_cis['Lower 95% CI'],
+            alpha=0.2,
+            color='blue',
+            label='95% CI'
+        )
+
+        ind = ind.split('/')[-1]
+        plt.title(f'Median Predictions and $95\%$ Credible Interval\n{ind} (RMSE: {rmse:0.2f})')
+
+        plt.ylabel(ind)
+        plt.xlabel('Year/Month')
+        plt.legend()
+
+        # xtics = []
+        # xlabels = []
+        # all_x = list(all_x)
+        # all_x.sort()
+        # for x in all_x:
+        #     if x % 12 == 0:
+        #         xtics.append(x)
+        #         xlabels.append(f'{x // 12 + 1958}/{x % 12 + 1}')
+        #
+        # plt.xticks(xtics, xlabels, rotation=rotation)
+        plt.tight_layout()
+
+        if out_dir:
+            plt.savefig(f'{out_dir}/{file_name_prefix}{plot_num}_Predictions_Median_and_CI_{ind}_prediction_range.png')
+            if save_csv:
+                df_cis.to_csv(f'{out_dir}/{file_name_prefix}{plot_num}_Predictions_Median_and_CI_{ind}_prediction_range.csv', index=False)
+            plot_num += 1
+        else:
+            plt.show()
+        plt.close()
+#############################################
 
     # Plot predictions for pairs of indicators related by edges
     # from the summarized (median, upper and lower confidence

@@ -136,14 +136,16 @@ CompleteState AnalysisGraph::get_complete_state() {
     //for (int ts = 0; ts < this->n_timesteps; ts++) {
     for (int ts = 0; ts < this->observed_state_sequence.size(); ts++) {
         timestep += this->observation_timestep_gaps[ts];
-        data_range[ts] = this->train_start_epoch +
-                        timestep * this->modeling_period;
+        //data_range[ts] = this->train_start_epoch +
+        //                timestep * this->modeling_period;
+        data_range[ts] = timestep;
     }
 
     std::vector<double> prediction_range(this->pred_timesteps);
 
     for (int ts = 0; ts < this->pred_timesteps; ts++) {
-      prediction_range[ts] = this->train_start_epoch + (this->pred_start_timestep + ts * this->delta_t) * this->modeling_period;
+      //prediction_range[ts] = this->train_start_epoch + (this->pred_start_timestep + ts * this->delta_t) * this->modeling_period;
+      prediction_range[ts] = this->pred_start_timestep + ts * this->delta_t;
     }
 
     CredibleIntervals cis = get_credible_interval(predictions);

@@ -538,6 +538,8 @@ class AnalysisGraph {
                         long &frequent_gap,
                         int &highest_frequency);
 
+  void infer_concept_period(const ConceptIndicatorEpochs &concept_indicator_epochs);
+
   /**
    * Set the observed state sequence from the create model JSON input received
    * from the HMI.
@@ -567,7 +569,8 @@ class AnalysisGraph {
                           create-experiment
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-  std::pair<int, int> timestamp_to_year_month(long timestamp);
+  // Epoch --> (year, month, date)
+  std::tuple<int, int, int> timestamp_to_year_month_date(long timestamp);
 
   void extract_projection_constraints(
                                 const nlohmann::json &projection_constraints, long skip_steps);
@@ -927,9 +930,13 @@ class AnalysisGraph {
   void generate_head_node_latent_sequences(int samp, int num_timesteps);
 
   void update_head_node_latent_state_with_generated_derivatives(
-      int ts, int concept_id, std::vector<double>& latent_sequence);
+      int ts_current,
+      int ts_next,
+      int concept_id,
+      std::vector<double>& latent_sequence);
 
-  void update_latent_state_with_generated_derivatives(int ts);
+  void update_latent_state_with_generated_derivatives(int ts_current,
+                                                      int ts_next);
 
   /*
    ============================================================================

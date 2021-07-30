@@ -1,7 +1,6 @@
 // Modeling independent CAG nodes
 
 #include "AnalysisGraph.hpp"
-#include "dbg.h"
 
 using namespace std;
 
@@ -51,8 +50,10 @@ void AnalysisGraph::generate_head_node_latent_sequence(int node_id,
     if (!n.centers.empty()) {
       if (n.model.compare("center") == 0) {
         for (int ts = 0; ts < num_timesteps; ts++) {
-          int partition = ts % n.period;
-          this->generated_latent_sequence[ts] = n.centers[partition];
+          //int partition = ts % n.period;
+          //this->generated_latent_sequence[ts] = n.centers[partition];
+          int partition = ts % n.generated_monthly_latent_centers_for_a_year.size(); // (% 12)
+          this->generated_latent_sequence[ts] = n.generated_monthly_latent_centers_for_a_year[partition];
 
           apply_constraint_at(ts, node_id);
         }
@@ -84,19 +85,25 @@ void AnalysisGraph::generate_head_node_latent_sequence(int node_id,
 
       if (sample) {
         for (int ts = 0; ts < num_timesteps; ts++) {
-          int partition = ts % n.period;
+          //int partition = ts % n.period;
+          int partition = ts % n.generated_monthly_latent_spreads_for_a_year.size(); // (% 12)
           this->generated_latent_sequence[ts] +=
-              n.spreads[partition] * norm_dist(this->rand_num_generator);
+              n.generated_monthly_latent_spreads_for_a_year[partition] * norm_dist(this->rand_num_generator);
         }
       }
       else if (seq_no > -1) {
-        int sections = 5; // an odd number
-        int half_sections = (sections - 1) / 2;
-        int turn = seq_no % sections;
+        //int sections = 5; // an odd number
+        //int half_sections = (sections - 1) / 2;
+        //int turn = seq_no % sections;
+        double deviation = norm_dist(this->rand_num_generator);
+
         for (int ts = 0; ts < num_timesteps; ts++) {
-          int partition = ts % n.period;
+          //int partition = ts % n.period;
+          int partition = ts % n.generated_monthly_latent_spreads_for_a_year.size(); // (% 12)
+          //this->generated_latent_sequence[ts] +=
+          //    (turn - half_sections) * n.generated_monthly_latent_spreads_for_a_year[partition];
           this->generated_latent_sequence[ts] +=
-              (turn - half_sections) * n.spreads[partition];
+              n.generated_monthly_latent_spreads_for_a_year[partition] * deviation;
           apply_constraint_at(ts, node_id);
         }
       }
@@ -173,24 +180,26 @@ void AnalysisGraph::generate_head_node_latent_sequences(int samp, int num_timest
   }
 }
 
-
 void AnalysisGraph::update_head_node_latent_state_with_generated_derivatives(
-        int ts, int concept_id, vector<double>& latent_sequence) {
-  if (concept_id > -1 && ts < latent_sequence.size() - 1) {
-    this->current_latent_state[2 * concept_id + 1] = latent_sequence[ts + 1]
-                                                     - latent_sequence[ts];
+    int ts_current,
+    int ts_next,
+    int concept_id,
+    vector<double>& latent_sequence) {
+  if (concept_id > -1 && ts_current < latent_sequence.size() - 1) {
+    this->current_latent_state[2 * concept_id + 1] = latent_sequence[ts_next]
+                                                     - latent_sequence[ts_current];
 
-    if (ts == 0) {
+    if (ts_current == 0) {
       this->current_latent_state[2 * concept_id] = latent_sequence[0];
     }
   }
 }
 
-
-void AnalysisGraph::update_latent_state_with_generated_derivatives(int ts) {
+void AnalysisGraph::update_latent_state_with_generated_derivatives(
+    int ts_current, int ts_next) {
   for (int v : this->independent_nodes) {
     Node &n = (*this)[v];
     this->update_head_node_latent_state_with_generated_derivatives(
-        ts, v, n.generated_latent_sequence);
+        ts_current, ts_next, v, n.generated_latent_sequence);
   }
 }

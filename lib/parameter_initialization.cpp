@@ -1,7 +1,6 @@
 #include "AnalysisGraph.hpp"
 #include <range/v3/all.hpp>
 #include <sqlite3.h>
-#include "dbg.h"
 
 using namespace std;
 using namespace delphi::utils;
@@ -35,7 +34,9 @@ void AnalysisGraph::initialize_parameters(int res,
     this->set_transition_matrix_from_betas();
     this->derivative_prior_variance = 0.1;
     this->set_default_initial_state(initial_derivative);
-    this->generate_head_node_latent_sequences(-1, this->n_timesteps);
+    //this->generate_head_node_latent_sequences(-1, this->n_timesteps);
+    this->generate_head_node_latent_sequences(-1, accumulate(this->observation_timestep_gaps.begin() + 1,
+                                                             this->observation_timestep_gaps.end(), 0) + 1);
     this->set_log_likelihood();
 
     this->transition_matrix_collection.clear();
@@ -234,12 +235,18 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
                       [&](double v){return v / n.indicators[0].mean;});
 
               for (int ts = 0; ts < ts_sequence.size(); ts++) {
-                  int partition = ts % n.period;
+                  // TODO: I feel that this partitioning is worng. Should be corrected as:
+                  // First we convert the observation time steps for an indicator into a
+                  // zero based contiguous sequence and then take the modules
+                  // int((ts_sequence[ts] - ts_sequence[0]) * n.period / 12) % n.period
+                  //int partition = ts_sequence[ts] % n.period;
+                  int partition = int((ts_sequence[ts] - ts_sequence[0]) * n.period / 12) % n.period;
                   n.partitioned_data[partition].first.push_back(ts_sequence[ts]);
                   n.partitioned_data[partition].second.push_back(mean_sequence[ts]);
               }
 
               double center;
+              vector<int> filled_months;
               n.centers = vector<double>(n.period + 1);
               n.spreads = vector<double>(n.period);
               for (const auto & [ partition, data ] : n.partitioned_data) {
@@ -261,6 +268,64 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
                       }
                   }
                   n.spreads[partition] = spread;
+
+                  if (!n.partitioned_data[partition].first.empty()) {
+                      int month = n.partitioned_data[partition].first[0] % 12;
+                      n.generated_monthly_latent_centers_for_a_year[month] = center;
+                      n.generated_monthly_latent_spreads_for_a_year[month] = spread;
+                      filled_months.push_back(month);
+                  }
+              }
+
+              sort(filled_months.begin(), filled_months.end());
+
+              // Interpolate values for the missing months
+              if (filled_months.size() > 1) {
+                  for (int i = 0; i < filled_months.size(); i++) {
+                      int month_start = filled_months[i];
+                      int month_end = filled_months[(i + 1) % filled_months.size()];
+
+                      int num_missing_months = 0;
+                      if (month_end > month_start) {
+                          num_missing_months = month_end - month_start - 1;
+                      }
+                      else {
+                          num_missing_months = (11 - month_start) + month_end;
+                      }
+
+                      for (int month_missing = 1;
+                           month_missing <= num_missing_months;
+                           month_missing++) {
+                          n.generated_monthly_latent_centers_for_a_year
+                              [(month_start + month_missing) % 12] =
+                              ((num_missing_months - month_missing + 1) *
+                                   n.generated_monthly_latent_centers_for_a_year
+                                       [month_start] +
+                               (month_missing)*n
+                                   .generated_monthly_latent_centers_for_a_year
+                                       [month_end]) /
+                              (num_missing_months + 1);
+
+                          n.generated_monthly_latent_spreads_for_a_year
+                          [(month_start + month_missing) % 12] =
+                              ((num_missing_months - month_missing + 1) *
+                               n.generated_monthly_latent_spreads_for_a_year
+                               [month_start] +
+                               (month_missing)*n
+                                   .generated_monthly_latent_spreads_for_a_year
+                               [month_end]) /
+                              (num_missing_months + 1);
+                      }
+                  }
+              } else if (filled_months.size() == 1) {
+                  for (int month = 0; month < n.generated_monthly_latent_centers_for_a_year.size(); month++) {
+                      n.generated_monthly_latent_centers_for_a_year[month] =
+                          n.generated_monthly_latent_centers_for_a_year
+                          [filled_months[0]];
+                      n.generated_monthly_latent_spreads_for_a_year[month] =
+                          n.generated_monthly_latent_spreads_for_a_year
+                          [filled_months[0]];
+                 }
               }
 
               n.changes = vector<double>(n.centers.size(), 0.0);

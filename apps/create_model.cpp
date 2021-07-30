@@ -475,10 +475,13 @@ int main(int argc, char* argv[]) {
   };
 
 
+    cout << "Creating model\n";
     AnalysisGraph G = AnalysisGraph::from_causemos_json_file(
-      "../tests/data/delphi/create_model_input_2.json", 4);
+      "../tests/data/delphi/create_model_rain--temperature--yield.json", 0);
+    G.train_model();
     FormattedProjectionResult proj = G.run_causemos_projection_experiment_from_json_file(
-        "../tests/data/delphi/experiments_projection_input_2.json");
+        "../tests/data/delphi/experiments_rain--temperature--yield.json");
+  return(0);
 
   test_simple_path_construction();
   test_inference();
@@ -492,7 +495,6 @@ int main(int argc, char* argv[]) {
   test_merge();
   test_debug();
 
-  return(0);
     string result = G.serialize_to_json_string(false);
     G = AnalysisGraph::deserialize_from_json_string(result, false);
     proj = G.run_causemos_projection_experiment_from_json_file(

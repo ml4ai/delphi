@@ -80,4 +80,6 @@ double log_normpdf(double x, double mean, double sd);
 /** Load JSON data from a file */
 nlohmann::json load_json(std::string filename);
 
+/** Compute the number of months between two dates **/
+int months_between(std::tuple<int, int, int> earlier_date, std::tuple<int, int, int> latter_date);
 } // namespace delphi::utils

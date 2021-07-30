@@ -26,6 +26,8 @@ class Node {
   std::vector<double> centers = {};
   std::vector<double> spreads = {};
   std::vector<double> changes = {};
+  std::vector<double> generated_monthly_latent_centers_for_a_year = std::vector<double>(12, 0);
+  std::vector<double> generated_monthly_latent_spreads_for_a_year = std::vector<double>(12, 0);
 
   std::string center_measure = "median"; // median or mean
   std::string model = "center"; // center, absolute_change, relative_change

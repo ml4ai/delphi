@@ -110,4 +110,13 @@ nlohmann::json load_json(string filename) {
   return j;
 }
 
+/** Compute the number of months between two dates **/
+int months_between(tuple<int, int, int> earlier_date, tuple<int, int, int> latter_date) {
+  int earlier_year = get<0>(earlier_date);
+  int earlier_month = get<1>(earlier_date);
+  int latter_year = get<0>(latter_date);
+  int latter_month = get<1>(latter_date);
+
+  return 12 * (latter_year - earlier_year) + (latter_month - earlier_month);
+}
 } // namespace delphi::utils
