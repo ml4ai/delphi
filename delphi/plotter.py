@@ -38,9 +38,37 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
     if file_name_prefix:
         file_name_prefix += '_'
 
-    concept_indicators, edges, adjectives, polarities, edge_data, derivatives, data_range, data_set, pred_range, predictions, cis  = model_state
+    concept_indicators, edges, adjectives, polarities, edge_data, derivatives, data_range, data_set, pred_range, predictions, cis, log_likelihoods = model_state
 
     plot_num = 1
+
+    # Plot log likelihoods
+    sns.set_style("whitegrid")
+    fig, ax = plt.subplots(dpi=150, figsize=(10, 5))
+    plt.rcParams['font.size'] = 18
+
+    df_log_likelihood = pd.DataFrame({'Sample Number': list(range(len(log_likelihoods))), 'Log Likelihood': log_likelihoods})
+
+    sns.lineplot(
+        ax=ax,
+        data=df_log_likelihood,
+        y='Log Likelihood',
+        x='Sample Number',
+        color='red',
+    )
+    plt.title(f'Log Likelihood Progression Throughout Training')
+    plt.xlabel('Sample Number')
+    plt.ylabel('Log Likelihood')
+    plt.tight_layout()
+
+    if out_dir:
+        plt.savefig(f'{out_dir}/{file_name_prefix}{plot_num}_Log_Likelihoods.png')
+        if save_csv:
+            df_log_likelihood.to_csv(f'{out_dir}/{file_name_prefix}{plot_num}_Log_Likelihoods.csv', index=False)
+        plot_num += 1
+    else:
+        plt.show()
+    plt.close()
 
     # Plot theta prior and sample distributions
     for idx, thetas in enumerate(edge_data):

@@ -151,7 +151,9 @@ typedef std::tuple<
     //std::vector<std::string>,
     std::vector<double>,
     Predictions,
-    CredibleIntervals
+    CredibleIntervals,
+    // Log likelihoods
+    std::vector<double>
             > CompleteState;
 
 // Access
@@ -276,6 +278,7 @@ class AnalysisGraph {
 
   double log_likelihood = 0.0;
   double previous_log_likelihood = 0.0;
+  std::vector<double> log_likelihoods;
 
   // To decide whether to perturb a θ or a derivative
   // If coin_flip < coin_flip_thresh perturb θ else perturb derivative

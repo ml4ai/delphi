@@ -153,9 +153,13 @@ void AnalysisGraph::run_train_model(int res,
     this->initialize_parameters(res, initial_beta, initial_derivative,
                                 use_heuristic, use_continuous);
 
+    this->log_likelihoods.clear();
+    this->log_likelihoods = vector<double>(burn + this->res, 0);
+
     cout << "\nBurning " << burn << " samples out..." << endl;
     for (int i : trange(burn)) {
       this->sample_from_posterior();
+      this->log_likelihoods[i] = this->log_likelihood;
     }
 
     int num_verts = this->num_vertices();
@@ -170,6 +174,7 @@ void AnalysisGraph::run_train_model(int res,
         this->graph[e].sampled_thetas.push_back(this->graph[e].theta);
       }
 
+      this->log_likelihoods[burn + i] = this->log_likelihood;
       /*
       this->latent_mean_collection[i] = vector<double>(num_verts);
       this->latent_std_collection[i] = vector<double>(num_verts);
