@@ -38,6 +38,7 @@ void AnalysisGraph::initialize_parameters(int res,
     this->generate_head_node_latent_sequences(-1, accumulate(this->observation_timestep_gaps.begin() + 1,
                                                              this->observation_timestep_gaps.end(), 0) + 1);
     this->set_log_likelihood();
+    this->log_likelihood_MAP = this->log_likelihood;
 
     this->transition_matrix_collection.clear();
     this->initial_latent_state_collection.clear();

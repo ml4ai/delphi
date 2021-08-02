@@ -155,20 +155,33 @@ void AnalysisGraph::run_train_model(int res,
 
     this->log_likelihoods.clear();
     this->log_likelihoods = vector<double>(burn + this->res, 0);
+    this->MAP_sample_number = -1;
 
     cout << "\nBurning " << burn << " samples out..." << endl;
     for (int i : trange(burn)) {
       this->sample_from_posterior();
       this->log_likelihoods[i] = this->log_likelihood;
+
+      if (this->log_likelihood > this->log_likelihood_MAP) {
+          this->log_likelihood_MAP = this->log_likelihood;
+          this->transition_matrix_collection[this->res - 1] = this->A_original;
+          this->initial_latent_state_collection[this->res - 1] = this->s0;
+          this->log_likelihoods[burn + this->res - 1] = this->log_likelihood;
+      }
     }
 
-    int num_verts = this->num_vertices();
+    //int num_verts = this->num_vertices();
 
     cout << "\nSampling " << this->res << " samples from posterior..." << endl;
-    for (int i : trange(this->res)) {
+    for (int i : trange(this->res - 1)) {
       this->sample_from_posterior();
       this->transition_matrix_collection[i] = this->A_original;
       this->initial_latent_state_collection[i] = this->s0;
+
+      if (this->log_likelihood > this->log_likelihood_MAP) {
+        this->log_likelihood_MAP = this->log_likelihood;
+        this->MAP_sample_number = i;
+      }
 
       for (auto e : this->edges()) {
         this->graph[e].sampled_thetas.push_back(this->graph[e].theta);
@@ -188,6 +201,26 @@ void AnalysisGraph::run_train_model(int res,
         this->latent_mean_std_collection[i][v] = n.partition_mean_std;
       }
       */
+    }
+
+    if (this->MAP_sample_number > -1) {
+      this->sample_from_posterior();
+      this->transition_matrix_collection[this->res - 1] = this->A_original;
+      this->initial_latent_state_collection[this->res - 1] = this->s0;
+      this->log_likelihoods[burn + this->res - 1] = this->log_likelihood;
+
+      if (this->log_likelihood > this->log_likelihood_MAP) {
+        this->log_likelihood_MAP = this->log_likelihood;
+        this->MAP_sample_number = this->res - 1;
+      }
+
+      for (auto e : this->edges()) {
+        this->graph[e].sampled_thetas.push_back(this->graph[e].theta);
+      }
+
+      this->log_likelihoods[burn + this->res - 1] = this->log_likelihood;
+    } else {
+      this->MAP_sample_number = this->res - 1;
     }
 
     this->trained = true;

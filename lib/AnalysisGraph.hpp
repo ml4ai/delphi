@@ -278,6 +278,8 @@ class AnalysisGraph {
 
   double log_likelihood = 0.0;
   double previous_log_likelihood = 0.0;
+  double log_likelihood_MAP = 0.0;
+  int MAP_sample_number = -1;
   std::vector<double> log_likelihoods;
 
   // To decide whether to perturb a θ or a derivative
