@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.11)
 project(delphi)
 
 # Uncomment this line to generate debug code
-#set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Debug)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -11,9 +11,6 @@ set(Boost_NO_BOOST_CMAKE ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_FLAGS
     "${CMAKE_CXX_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden")
-
-# Include gdb flags
-set(CMAKE_BUILD_TYPE Debug)
 
 find_package(Graphviz)
 
