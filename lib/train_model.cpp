@@ -167,6 +167,7 @@ void AnalysisGraph::run_train_model(int res,
           this->transition_matrix_collection[this->res - 1] = this->A_original;
           this->initial_latent_state_collection[this->res - 1] = this->s0;
           this->log_likelihoods[burn + this->res - 1] = this->log_likelihood;
+          this->MAP_sample_number = this->res - 1;
       }
     }
 
@@ -203,13 +204,13 @@ void AnalysisGraph::run_train_model(int res,
       */
     }
 
-    if (this->MAP_sample_number > -1) {
+    if (this->MAP_sample_number < int(this->res) - 1) {
       this->sample_from_posterior();
       this->transition_matrix_collection[this->res - 1] = this->A_original;
       this->initial_latent_state_collection[this->res - 1] = this->s0;
       this->log_likelihoods[burn + this->res - 1] = this->log_likelihood;
 
-      if (this->log_likelihood > this->log_likelihood_MAP) {
+      if ((this->log_likelihood > this->log_likelihood_MAP) or (this->log_likelihood_MAP == -1)) {
         this->log_likelihood_MAP = this->log_likelihood;
         this->MAP_sample_number = this->res - 1;
       }
