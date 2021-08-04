@@ -151,5 +151,5 @@ CompleteState AnalysisGraph::get_complete_state() {
     CredibleIntervals cis = get_credible_interval(predictions);
 
     //return std::make_tuple(concept_indicators, edges, adjectives, polarities, thetas, derivatives, data_range, data_set, this->pred_range, predictions, cis);
-    return std::make_tuple(concept_indicators, edges, adjectives, polarities, thetas, derivatives, data_range, data_set, prediction_range, predictions, cis);
+    return std::make_tuple(concept_indicators, edges, adjectives, polarities, thetas, derivatives, data_range, data_set, prediction_range, predictions, cis, this->log_likelihoods);
 }

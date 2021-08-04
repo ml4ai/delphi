@@ -212,6 +212,7 @@ void AnalysisGraph::sample_from_posterior() {
     if (this->generated_concept == -1) {
       this->revert_back_to_previous_state();
     }
+    this->log_likelihood = this->previous_log_likelihood;
   }
 //  else {
 //    if (this->generated_concept > -1) {
@@ -314,9 +315,12 @@ double AnalysisGraph::calculate_delta_log_prior() {
       // When latent state at ts = 0 is 1, it makes the observation 0 the
       // highest probable value.
       // The standard deviation of ts = 0 latent state is set to 0.01
+      /*
       return (1 - this->generated_latent_sequence[0]) *
              (1 + this->generated_latent_sequence[0]) /
              (2 * 0.01);
+      */
+      return 0;
     }
   }
 }

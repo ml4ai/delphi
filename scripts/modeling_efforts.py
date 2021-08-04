@@ -132,7 +132,7 @@ if __name__ == "__main__":
     print('\n\nPlotting \n')
     model_state = G.get_complete_state()
 
-    concept_indicators, edges, adjectives, polarities, edge_data, derivatives, data_range, data_set, pred_range, predictions, cis  = model_state
+    concept_indicators, edges, adjectives, polarities, edge_data, derivatives, data_range, data_set, pred_range, predictions, cis, log_likelihoods  = model_state
 
     print(data_range)
     print(pred_range[1:])
