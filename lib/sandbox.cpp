@@ -56,7 +56,8 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
     for (auto& concept_arr : json_data["concepts"]) {
       // print("{0} \n", concept_arr.value()[0]);
       // this->add_node(get<1>(concept_arr[0]).get<int>());
-      this->add_node(concept_arr["concept"].get<string>());
+      int v = this->add_node(concept_arr["concept"].get<string>());
+      (*this)[v].period = concept_arr["period"].get<int>();
     }
     for (int v = 0; v < this->num_vertices(); v++) {
       Node& n = (*this)[v];
@@ -95,8 +96,12 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
     this->training_range.second.second = json_data["end_month"];
   }
   else {
-    for (auto& concept_name : json_data["concepts"]) {
-      this->add_node(concept_name);
+    //for (auto& concept_name : json_data["concepts"]) {
+    //  this->add_node(concept_name);
+    //}
+    for (int i = 0; i < json_data["concepts"].size(); i++) {
+      int v = this->add_node(json_data["concepts"][i]);
+      (*this)[v].period = json_data["periods"][i].get<int>();
     }
 
     for (int v = 0; v < this->num_vertices(); v++) {

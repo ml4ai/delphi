@@ -55,6 +55,7 @@ string AnalysisGraph::serialize_to_json_string(bool verbose) {
     // To go for a more compressed version of concepts where array index is the
     // concept id
     j["concepts"] = {};
+    j["periods"] = {};
 
     // Concept to indicator mapping. This is an array of array of objects
     // Outer array goes from 0 to this->num_vertices() - 1 and it is indexed by
@@ -70,7 +71,8 @@ string AnalysisGraph::serialize_to_json_string(bool verbose) {
         if (verbose) {
             j["concepts"].push_back(
                         {{"concept", n.name},
-                         {"cid", this->name_to_vertex.at(n.name)}});
+                         {"cid", this->name_to_vertex.at(n.name)},
+                         {"period", n.period}});
 
             for (Indicator &ind : n.indicators) {
                 j["conceptIndicators"][this->name_to_vertex.at(n.name)].push_back(
@@ -88,6 +90,7 @@ string AnalysisGraph::serialize_to_json_string(bool verbose) {
             // This is a more compressed way to store concept information where
             // array index keeps track of the concept id
             j["concepts"][this->name_to_vertex.at(n.name)] = n.name;
+            j["periods"][this->name_to_vertex.at(n.name)] = n.period;
 
             for (Indicator &ind : n.indicators) {
                 // This is a more compressed representation. We do not store iid
