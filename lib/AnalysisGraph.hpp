@@ -1511,6 +1511,18 @@ class AnalysisGraph {
       InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO,
       bool use_continuous = true);
 
+  static AnalysisGraph generate_random_CAG(unsigned int num_nodes,
+                                           unsigned int num_extra_edges = 0);
+
+  void generate_synthetic_data(unsigned int num_obs = 48);
+
+  void initialize_random_CAG(unsigned int kde_kernels,
+                             InitialBeta initial_beta,
+                             InitialDerivative initial_derivative,
+                             bool use_continuous);
+
+  void interpolate_missing_months(std::vector<int> &filled_months, Node &n);
+
   /*
    ============================================================================
    Public: Graph Visualization (in graphviz.cpp)
@@ -1571,4 +1583,11 @@ class AnalysisGraph {
   */
 
   void write_model_to_db(std::string model_id);
+
+  AdjectiveResponseMap construct_adjective_response_map(
+      std::mt19937 gen,
+      std::uniform_real_distribution<double>& uni_dist,
+      std::normal_distribution<double>& norm_dist,
+      size_t n_kernels
+  );
 };

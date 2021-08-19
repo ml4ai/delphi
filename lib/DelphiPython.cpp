@@ -66,6 +66,19 @@ PYBIND11_MODULE(DelphiPython, m) {
                   &AnalysisGraph::from_causal_fragments_with_data,
                   "cag_ind_data"_a,
                   "kde_kernels"_a = 5)
+      .def_static("generate_random_CAG",
+                  &AnalysisGraph::generate_random_CAG,
+                  "num_nodes"_a,
+                  "num_extra_edges"_a = 0)
+      .def("initialize_random_CAG",
+                  &AnalysisGraph::initialize_random_CAG,
+                  "kde_kernels"_a = 1000,
+                  "initial_beta"_a = InitialBeta::PRIOR,
+                  "initial_derivative"_a = InitialDerivative::DERI_PRIOR,
+                  "use_continuous"_a = false)
+      .def("generate_synthetic_data",
+                  &AnalysisGraph::generate_synthetic_data,
+                  "num_obs"_a = 48)
       .def("__len__", &AnalysisGraph::num_vertices)
       .def("__getitem__", [](AnalysisGraph& G, string name) { return G[name]; })
       .def("__getitem__",
