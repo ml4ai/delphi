@@ -169,24 +169,19 @@ AnalysisGraph AnalysisGraph::generate_random_CAG(unsigned int num_nodes,
   int polarity = 0;
   string source = "";
   string target = "";
+  int src_idx = 0;
 
-  for (int i = 1; i < num_nodes; i++) {
+  for (rand_node[1] = 1; rand_node[1] < num_nodes; rand_node[1]++) {
     rand_node.clear();
     sample(cag_nodes.begin(), cag_nodes.end(), rand_node.begin(), 1, G.rand_num_generator);
-    cag_nodes.push_back(i);
+    cag_nodes.push_back(rand_node[1]);
 
     sample(adjectives.begin(), adjectives.end(), rand_adjectives.begin(), 2, G.rand_num_generator);
     polarity = G.uni_dist(G.rand_num_generator) < 0.5 ? 1 : -1;
 
-    if (G.uni_dist(G.rand_num_generator) < 0.5) {
-//      print("{0} --> {1}\n", rand_node[0], i);
-      source = to_string(rand_node[0]);
-      target = to_string(i);
-    } else {
-//      print("{0} <-- {1}\n", rand_node[0], i);
-      source = to_string(i);
-      target = to_string(rand_node[0]);
-    }
+    src_idx = G.uni_dist(G.rand_num_generator) < 0.5? 0 : 1;
+    source = to_string(rand_node[src_idx]);
+    target = to_string(rand_node[1 - src_idx]);
 
     auto causal_fragment =
         CausalFragment({rand_adjectives[0], 1, source},
@@ -199,102 +194,32 @@ AnalysisGraph AnalysisGraph::generate_random_CAG(unsigned int num_nodes,
   pair<EdgeDescriptor, bool> edge;
 
   for (int _ = 0; _ < num_extra_edges; _++) {
-    rand_node.clear();
-    sample(cag_nodes.begin(), cag_nodes.end(), rand_node.begin(), 1, G.rand_num_generator);
-    sample(cag_nodes.begin(), cag_nodes.end(), rand_node.begin() + 1, 1, G.rand_num_generator);
-    edge = boost::edge(G.get_vertex_id(to_string(rand_node[0])),
-                                   G.get_vertex_id(to_string(rand_node[1])), G.graph);
-
-    while (edge.second or rand_node[0] == rand_node[1]) {
-      rand_node.clear();
-      sample(cag_nodes.begin(), cag_nodes.end(), rand_node.begin(), 1, G.rand_num_generator);
-      sample(cag_nodes.begin(), cag_nodes.end(), rand_node.begin() + 1, 1, G.rand_num_generator);
-      edge = boost::edge(G.get_vertex_id(to_string(rand_node[0])),
-                                     G.get_vertex_id(to_string(rand_node[1])), G.graph);
+//    sample(cag_nodes.begin(), cag_nodes.end(), rand_node.begin(), 2, G.rand_num_generator);
+//    src_idx = G.uni_dist(G.rand_num_generator) < 0.5? 0 : 1;
+//    source = to_string(rand_node[src_idx]);
+//    target = to_string(rand_node[1 - src_idx]);
+//    edge = boost::edge(G.get_vertex_id(source),
+//                       G.get_vertex_id(target), G.graph);
+    edge.second = true;
+    while (edge.second) {
+      sample(cag_nodes.begin(), cag_nodes.end(), rand_node.begin(), 2, G.rand_num_generator);
+      src_idx = G.uni_dist(G.rand_num_generator) < 0.5? 0 : 1;
+      source = to_string(rand_node[src_idx]);
+      target = to_string(rand_node[1 - src_idx]);
+      edge = boost::edge(G.get_vertex_id(source),
+                   G.get_vertex_id(target), G.graph);
     }
 
     sample(adjectives.begin(), adjectives.end(), rand_adjectives.begin(), 2, G.rand_num_generator);
     polarity = G.uni_dist(G.rand_num_generator) < 0.5 ? 1 : -1;
 
-//    print("{0} --> {1}\n", rand_node[0], rand_node[1]);
     auto causal_fragment =
-        CausalFragment({rand_adjectives[0], 1, to_string(rand_node[0])},
-                       {rand_adjectives[1], polarity, to_string(rand_node[1])});
+        CausalFragment({rand_adjectives[0], 1, source},
+                       {rand_adjectives[1], polarity, target});
     G.add_edge(causal_fragment);
   }
 
-  /*
-  G.set_default_initial_state(InitialDerivative::DERI_PRIOR);
-  G.set_res(1000);
-  G.construct_theta_pdfs();
-  G.init_betas_to(InitialBeta::PRIOR);
-  G.pred_timesteps = num_obs;
-  G.continuous = false;
-  G.find_all_paths();
-  G.set_transition_matrix_from_betas();
-  G.transition_matrix_collection.clear();
-  G.initial_latent_state_collection.clear();
-  // TODO: We are using this variable for two different purposes.
-  // create another variable.
-  G.res = 1;
-  G.transition_matrix_collection = vector<Eigen::MatrixXd>(G.res);
-  G.initial_latent_state_collection = vector<Eigen::VectorXd>(G.res);
-  G.transition_matrix_collection[0] = G.A_original;
-  G.initial_latent_state_collection[0] = G.s0;
-
-  vector<int> periods = {2, 3, 4, 6, 12};
-  vector<int> rand_period(1);
-  uniform_real_distribution<double> centers_dist(-100, 100);
-  int max_samples_per_period = 12;
-  for (int v : G.independent_nodes) {
-    Node& n = G[v];
-    //dbg(n.name);
-    sample(periods.begin(), periods.end(), rand_period.begin(), 1, G.rand_num_generator);
-    n.period = rand_period[0];
-    int gap_size = max_samples_per_period / n.period;
-    int offset = 0; // 0 <= offset < period
-    vector<int> filled_months;
-    //dbg(n.period);
-    for (int p = 0; p < n.period; p++) {
-      double center = centers_dist(G.rand_num_generator);
-      //dbg(center);
-      double spread = G.norm_dist(G.rand_num_generator) * 5;
-      //dbg(spread);
-      n.centers.push_back(center);
-      n.spreads.push_back(spread);
-      int month = offset + gap_size * p;
-      n.generated_monthly_latent_centers_for_a_year[month] = center;
-      //dbg(month);
-      n.generated_monthly_latent_spreads_for_a_year[month] = spread;
-      filled_months.push_back(month);
-   }
-    //dbg("filled");
-   G.interpolate_missing_months(filled_months, n);
-    print("{0} - {1}\n", n.name, n.period);
-  }
-
-  for (int v = 0; v < num_nodes; v++) {
-    Node& n = G[v];
-    n.add_indicator("ind_" + n.name, "synthetic");
-    n.mean = centers_dist(G.rand_num_generator);
-    while (n.mean == 0) {
-      n.mean = centers_dist(G.rand_num_generator);
-    }
-  }
-
-
-  //cout << "\n" << G.transition_matrix_collection[0] << "\n" << endl;
-  //cout << "\n" << G.initial_latent_state_collection[0] << "\n" << endl;
-
-  G.generate_latent_state_sequences(0);
-  G.generate_observed_state_sequences();
-
-  // Dummy values for visualization
-  for (auto e : G.edges()) {
-    G.graph[e].sampled_thetas = vector<double>(1, 0);
-  }
-  G.log_likelihoods = vector<double>(1, 0);
-*/
+  RNG::release_instance();
   return G;
 }
 
@@ -306,14 +231,17 @@ AnalysisGraph AnalysisGraph::generate_random_CAG(unsigned int num_nodes,
  * @param initial_derivative How to initialize derivatives
  * @param use_continuous Whether to use matrix exponential or not
  */
-void AnalysisGraph::initialize_random_CAG(unsigned int kde_kernels,
-                           InitialBeta initial_beta,
-                           InitialDerivative initial_derivative,
-                           bool use_continuous) {
+void AnalysisGraph::initialize_random_CAG(unsigned int num_obs,
+                                          unsigned int kde_kernels,
+                                          InitialBeta initial_beta,
+                                          InitialDerivative initial_derivative,
+                                          bool use_continuous) {
+  this->initialize_random_number_generator();
   this->set_default_initial_state(initial_derivative);
   this->set_res(kde_kernels);
   this->construct_theta_pdfs();
   this->init_betas_to(initial_beta);
+  this->pred_timesteps = num_obs + 1;
   this->continuous = use_continuous;
   this->find_all_paths();
   this->set_transition_matrix_from_betas();
@@ -329,35 +257,35 @@ void AnalysisGraph::initialize_random_CAG(unsigned int kde_kernels,
 }
 
 
-void AnalysisGraph::generate_synthetic_data(unsigned int num_obs) {
-  this->pred_timesteps = num_obs;
+void AnalysisGraph::generate_synthetic_data(unsigned int num_obs,
+                                            double noise_variance,
+                                            unsigned int kde_kernels,
+                                            InitialBeta initial_beta,
+                                            InitialDerivative initial_derivative,
+                                            bool use_continuous) {
+  this->initialize_random_CAG(num_obs, kde_kernels, initial_beta, initial_derivative, use_continuous);
   vector<int> periods = {2, 3, 4, 6, 12};
   vector<int> rand_period(1);
   uniform_real_distribution<double> centers_dist(-100, 100);
   int max_samples_per_period = 12;
   for (int v : this->independent_nodes) {
     Node& n = (*this)[v];
-    //dbg(n.name);
     sample(periods.begin(), periods.end(), rand_period.begin(), 1, this->rand_num_generator);
     n.period = rand_period[0];
     int gap_size = max_samples_per_period / n.period;
     int offset = 0; // 0 <= offset < period
     vector<int> filled_months;
-    //dbg(n.period);
     for (int p = 0; p < n.period; p++) {
       double center = centers_dist(this->rand_num_generator);
-      //dbg(center);
       double spread = this->norm_dist(this->rand_num_generator) * 5;
       //dbg(spread);
       n.centers.push_back(center);
       n.spreads.push_back(spread);
       int month = offset + gap_size * p;
       n.generated_monthly_latent_centers_for_a_year[month] = center;
-      //dbg(month);
       n.generated_monthly_latent_spreads_for_a_year[month] = spread;
       filled_months.push_back(month);
     }
-    //dbg("filled");
     this->interpolate_missing_months(filled_months, n);
     print("{0} - {1}\n", n.name, n.period);
   }
@@ -374,11 +302,42 @@ void AnalysisGraph::generate_synthetic_data(unsigned int num_obs) {
   this->generate_latent_state_sequences(0);
   this->generate_observed_state_sequences();
 
-  // Dummy values for visualization
-  for (auto e : this->edges()) {
-    this->graph[e].sampled_thetas = vector<double>(1, 0);
+  this->observed_state_sequence.clear();
+  this->observation_timestep_gaps.clear();
+  this->n_timesteps = num_obs;
+
+  // Access (concept is a vertex in the CAG)
+  // [ timestep ][ concept ][ indicator ][ observation ]
+  this->observed_state_sequence = ObservedStateSequence(this->n_timesteps);
+  this->observation_timestep_gaps = vector<double>(this->n_timesteps, 1);
+  this->observation_timestep_gaps[0] = 0;
+
+  int num_verts = this->num_vertices();
+  // Fill in observed state sequence
+  // NOTE: This code is very similar to the implementations in
+  // set_observed_state_sequence_from_data and get_observed_state_from_data
+  for (int ts = 0; ts < this->n_timesteps; ts++) {
+    this->observed_state_sequence[ts] = vector<vector<vector<double>>>(num_verts);
+
+    for (int v = 0; v < num_verts; v++) {
+      Node& n = (*this)[v];
+      this->observed_state_sequence[ts][v] = vector<vector<double>>(n.indicators.size());
+
+      for (int i = 0; i < n.indicators.size(); i++) {
+        this->observed_state_sequence[ts][v][i] = vector<double>();
+        this->observed_state_sequence[ts][v][i].push_back(
+            this->predicted_observed_state_sequences[0][ts + 1][v][i] +
+            noise_variance * this->norm_dist(this->rand_num_generator));
+      }
+    }
   }
-  this->log_likelihoods = vector<double>(1, 0);
+
+  // Dummy values for visualization
+  //  for (auto e : this->edges()) {
+  //    this->graph[e].sampled_thetas = vector<double>(1, 0);
+  //  }
+  //  this->log_likelihoods = vector<double>(1, 0);
+  RNG::release_instance();
 }
 
 void AnalysisGraph::interpolate_missing_months(vector<int> &filled_months, Node &n) {
@@ -432,5 +391,4 @@ void AnalysisGraph::interpolate_missing_months(vector<int> &filled_months, Node 
           [filled_months[0]];
     }
   }
-
 }

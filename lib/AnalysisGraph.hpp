@@ -1514,9 +1514,15 @@ class AnalysisGraph {
   static AnalysisGraph generate_random_CAG(unsigned int num_nodes,
                                            unsigned int num_extra_edges = 0);
 
-  void generate_synthetic_data(unsigned int num_obs = 48);
+  void generate_synthetic_data(unsigned int num_obs = 48,
+                               double noise_variance = 0.1,
+                               unsigned int kde_kernels = 1000,
+                               InitialBeta initial_beta = InitialBeta::PRIOR,
+                               InitialDerivative initial_derivative = InitialDerivative::DERI_PRIOR,
+                               bool use_continuous = false);
 
-  void initialize_random_CAG(unsigned int kde_kernels,
+  void initialize_random_CAG(unsigned int num_obs,
+                             unsigned int kde_kernels,
                              InitialBeta initial_beta,
                              InitialDerivative initial_derivative,
                              bool use_continuous);
