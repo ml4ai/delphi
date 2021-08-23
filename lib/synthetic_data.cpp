@@ -176,12 +176,12 @@ AnalysisGraph AnalysisGraph::generate_random_CAG(unsigned int num_nodes,
     sample(cag_nodes.begin(), cag_nodes.end(), rand_node.begin(), 1, G.rand_num_generator);
     cag_nodes.push_back(rand_node[1]);
 
-    sample(adjectives.begin(), adjectives.end(), rand_adjectives.begin(), 2, G.rand_num_generator);
-    polarity = G.uni_dist(G.rand_num_generator) < 0.5 ? 1 : -1;
-
     src_idx = G.uni_dist(G.rand_num_generator) < 0.5? 0 : 1;
     source = to_string(rand_node[src_idx]);
     target = to_string(rand_node[1 - src_idx]);
+
+    sample(adjectives.begin(), adjectives.end(), rand_adjectives.begin(), 2, G.rand_num_generator);
+    polarity = G.uni_dist(G.rand_num_generator) < 0.5 ? 1 : -1;
 
     auto causal_fragment =
         CausalFragment({rand_adjectives[0], 1, source},
@@ -194,12 +194,6 @@ AnalysisGraph AnalysisGraph::generate_random_CAG(unsigned int num_nodes,
   pair<EdgeDescriptor, bool> edge;
 
   for (int _ = 0; _ < num_extra_edges; _++) {
-//    sample(cag_nodes.begin(), cag_nodes.end(), rand_node.begin(), 2, G.rand_num_generator);
-//    src_idx = G.uni_dist(G.rand_num_generator) < 0.5? 0 : 1;
-//    source = to_string(rand_node[src_idx]);
-//    target = to_string(rand_node[1 - src_idx]);
-//    edge = boost::edge(G.get_vertex_id(source),
-//                       G.get_vertex_id(target), G.graph);
     edge.second = true;
     while (edge.second) {
       sample(cag_nodes.begin(), cag_nodes.end(), rand_node.begin(), 2, G.rand_num_generator);
@@ -331,12 +325,6 @@ void AnalysisGraph::generate_synthetic_data(unsigned int num_obs,
       }
     }
   }
-
-  // Dummy values for visualization
-  //  for (auto e : this->edges()) {
-  //    this->graph[e].sampled_thetas = vector<double>(1, 0);
-  //  }
-  //  this->log_likelihoods = vector<double>(1, 0);
   RNG::release_instance();
 }
 
