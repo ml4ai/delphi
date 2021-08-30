@@ -25,9 +25,11 @@ int main(int argc, char* argv[]) {
   int kde_kernels = 1000;
   double noise_variance = 16;
 
-  for (int nodes = min_nodes; nodes <= max_nodes; ++nodes) {
-    for (int extra_edges = 0; extra_edges <= max_extra_edges; ++extra_edges) {
-      for (int run = 1; run <= num_repeats; ++run) {
+  for (int run = 1; run <= num_repeats; ++run) {
+    cout << "Run: " << run << "\n";
+    for (int nodes = min_nodes; nodes <= max_nodes; ++nodes) {
+      cout << "\tNodes: " << nodes << "\n";
+      for (int extra_edges = 0; extra_edges <= max_extra_edges; ++extra_edges) {
         AnalysisGraph G1;
 
         durations.first.clear();
