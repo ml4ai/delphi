@@ -9,6 +9,8 @@
 #include <boost/range/iterator_range.hpp>
 #include <range/v3/all.hpp>
 
+#include <sqlite3.h>
+
 #include "graphviz_interface.hpp"
 
 #include "DiGraph.hpp"
@@ -1587,6 +1589,8 @@ class AnalysisGraph {
    Public: Database interactions (in database.cpp)
    ============================================================================
   */
+
+  sqlite3* open_delphi_db();
 
   void write_model_to_db(std::string model_id);
 

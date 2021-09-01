@@ -1,24 +1,39 @@
-#include <sqlite3.h>
 #include "AnalysisGraph.hpp"
 
 using namespace std;
 using namespace delphi::utils;
 
+sqlite3* AnalysisGraph::open_delphi_db() {
+  char* pPath;
+  pPath = getenv ("DELPHI_DB");
+  if (pPath == NULL) {
+    cout << "\n\nERROR: DELPHI_DB environment variable containing the path to delphi.db is not set!\n\n";
+    exit(1);
+  }
+
+  sqlite3* db = nullptr;
+  if (sqlite3_open_v2(getenv("DELPHI_DB"), &db, SQLITE_OPEN_READWRITE, NULL) != SQLITE_OK) {
+    cout << "\n\nERROR: delphi.db does not exist at " << pPath << endl;
+    cout << sqlite3_errmsg(db) << endl;
+    exit(1);
+  }
+
+  return db;
+}
+
 void AnalysisGraph::write_model_to_db(string model_id) {
   if (!model_id.empty()) {
-    sqlite3* db = nullptr;
-    int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
-    //int rc = sqlite3_open("/tmp/test.db", &db);
+    sqlite3* db = this->open_delphi_db();
 
-    if (rc != SQLITE_OK) {
-      cout << "Could not open db\n";
-      // throw "Could not open db\n";
+    if (db == nullptr) {
+      cout << "\n\nERROR: opening delphi.db" << endl;
+      exit(1);
     }
 
     char* zErrMsg = 0;
     string query = "replace into delphimodel values ('" + model_id + "', '" +
                    this->serialize_to_json_string(false) + "');";
-    rc = sqlite3_exec(db, query.c_str(), NULL, NULL, &zErrMsg);
+    int rc = sqlite3_exec(db, query.c_str(), NULL, NULL, &zErrMsg);
 
     if (rc != SQLITE_OK) {
       cout << "Could not write\n";
@@ -39,16 +54,22 @@ AdjectiveResponseMap AnalysisGraph::construct_adjective_response_map(
     normal_distribution<double>& norm_dist,
     size_t n_kernels
 ) {
-  sqlite3* db = nullptr;
-  sqlite3_open(getenv("DELPHI_DB"), &db);
-  int rc = sqlite3_errcode(db);
+  sqlite3* db = this->open_delphi_db();
 
-  if (rc != SQLITE_OK)
-    throw "Could not open db\n";
+  if (db == nullptr) {
+    cout << "\n\nERROR: opening delphi.db" << endl;
+    exit(1);
+  }
 
   sqlite3_stmt* stmt = nullptr;
   const char* query = "select * from gradableAdjectiveData";
-  rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+  int rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+
+  if (rc != SQLITE_OK) {
+    cout << "\n\nERROR: Could not execute query \"" << query << "\" on delphi.db" << endl;
+    cout << sqlite3_errmsg(db) << endl;
+    exit(1);
+  }
 
   AdjectiveResponseMap adjective_response_map;
 

@@ -19,24 +19,34 @@ vector<double> get_observations_for(string indicator,
   using fmt::print;
   using namespace fmt::literals;
 
-  sqlite3* db = nullptr;
-
-  vector<double> observations = {};
-
-  int rc;
-  rc = sqlite3_open(getenv("DELPHI_DB"), &db);
-  if (rc != SQLITE_OK) {
-    throw runtime_error("Could not open db. Do you have the DELPHI_DB "
-        "environment correctly set to point to the Delphi database?");
+  // TODO: Repeated code block
+  // An exact copy of the method AnalysisGraph::open_delphi_db()
+  // defined in database.cpp
+  // vvvvvvvvvvvvvvvvvvvvvvvvv
+  char* pPath;
+  pPath = getenv ("DELPHI_DB");
+  if (pPath == NULL) {
+    cout << "\n\nERROR: DELPHI_DB environment variable containing the path to delphi.db is not set!\n\n";
+    exit(1);
   }
 
+  sqlite3* db = nullptr;
+  if (sqlite3_open_v2(getenv("DELPHI_DB"), &db, SQLITE_OPEN_READWRITE, NULL) != SQLITE_OK) {
+    cout << "\n\nERROR: delphi.db does not exist at " << pPath << endl;
+    cout << sqlite3_errmsg(db) << endl;
+    exit(1);
+  }
+  // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // TODO: End repeated code block
+
+  vector<double> observations = {};
+  int rc;
   sqlite3_stmt* stmt = nullptr;
+  string check_q;
 
   string query =
       "select Unit, Value from indicator where `Variable` like '{}'"_format(
           indicator);
-
-  string check_q;
 
   if (!country.empty()) {
     check_q = "{0} and `Country` is '{1}'"_format(query, country);

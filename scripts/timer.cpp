@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
   double noise_variance = 16;
 
   for (int run = 1; run <= num_repeats; ++run) {
-    cout << "Run: " << run << "\n";
+    cout << "\n\nRun: " << run << "\n";
     for (int nodes = min_nodes; nodes <= max_nodes; ++nodes) {
       cout << "\tNodes: " << nodes << "\n";
       for (int extra_edges = 0; extra_edges <= max_extra_edges; ++extra_edges) {
