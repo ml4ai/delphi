@@ -3,7 +3,7 @@
 using namespace std;
 using namespace delphi::utils;
 
-sqlite3* AnalysisGraph::open_delphi_db() {
+sqlite3* AnalysisGraph::open_delphi_db(int mode) {
   char* pPath;
   pPath = getenv ("DELPHI_DB");
   if (pPath == NULL) {
@@ -12,7 +12,7 @@ sqlite3* AnalysisGraph::open_delphi_db() {
   }
 
   sqlite3* db = nullptr;
-  if (sqlite3_open_v2(getenv("DELPHI_DB"), &db, SQLITE_OPEN_READWRITE, NULL) != SQLITE_OK) {
+  if (sqlite3_open_v2(getenv("DELPHI_DB"), &db, mode, NULL) != SQLITE_OK) {
     cout << "\n\nERROR: delphi.db does not exist at " << pPath << endl;
     cout << sqlite3_errmsg(db) << endl;
     exit(1);
@@ -23,7 +23,7 @@ sqlite3* AnalysisGraph::open_delphi_db() {
 
 void AnalysisGraph::write_model_to_db(string model_id) {
   if (!model_id.empty()) {
-    sqlite3* db = this->open_delphi_db();
+    sqlite3* db = this->open_delphi_db(SQLITE_OPEN_READWRITE);
 
     if (db == nullptr) {
       cout << "\n\nERROR: opening delphi.db" << endl;
@@ -54,7 +54,7 @@ AdjectiveResponseMap AnalysisGraph::construct_adjective_response_map(
     normal_distribution<double>& norm_dist,
     size_t n_kernels
 ) {
-  sqlite3* db = this->open_delphi_db();
+  sqlite3* db = this->open_delphi_db(SQLITE_OPEN_READONLY);
 
   if (db == nullptr) {
     cout << "\n\nERROR: opening delphi.db" << endl;

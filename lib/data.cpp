@@ -31,7 +31,7 @@ vector<double> get_observations_for(string indicator,
   }
 
   sqlite3* db = nullptr;
-  if (sqlite3_open_v2(getenv("DELPHI_DB"), &db, SQLITE_OPEN_READWRITE, NULL) != SQLITE_OK) {
+  if (sqlite3_open_v2(getenv("DELPHI_DB"), &db, SQLITE_OPEN_READONLY, NULL) != SQLITE_OK) {
     cout << "\n\nERROR: delphi.db does not exist at " << pPath << endl;
     cout << sqlite3_errmsg(db) << endl;
     exit(1);

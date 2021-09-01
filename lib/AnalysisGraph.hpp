@@ -1590,7 +1590,7 @@ class AnalysisGraph {
    ============================================================================
   */
 
-  sqlite3* open_delphi_db();
+  sqlite3* open_delphi_db(int mode = SQLITE_OPEN_READONLY);
 
   void write_model_to_db(std::string model_id);
 
