@@ -16,7 +16,7 @@ find_package(Graphviz)
 
 include_directories(${GRAPHVIZ_INCLUDE_DIRS})
 # Add and link pybind11 modules
-find_package(Boost COMPONENTS graph REQUIRED)
+find_package(Boost COMPONENTS graph program_options REQUIRED)
 include_directories(lib)
 include_directories(external)
 include_directories(${Boost_INCLUDE_DIR})
@@ -101,7 +101,7 @@ add_executable(timer
         scripts/timer.cpp
         lib/Timer.hpp
         lib/CSVWriter.hpp)
-target_link_libraries(timer PRIVATE Delphi Eigen3::Eigen)
+target_link_libraries(timer PRIVATE Delphi Eigen3::Eigen ${Boost_LIBRARIES})
 
 #add_executable(pybind_tester_driver apps/pybind_tester_driver.cpp)
 
