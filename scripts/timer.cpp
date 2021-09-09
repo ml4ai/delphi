@@ -1,7 +1,6 @@
 #include "AnalysisGraph.hpp"
 #include "Timer.hpp"
 #include "CSVWriter.hpp"
-#include "dbg.h"
 #include <boost/program_options.hpp>
 
 using namespace std;

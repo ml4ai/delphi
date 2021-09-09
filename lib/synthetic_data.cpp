@@ -3,7 +3,6 @@
 #include <boost/range/algorithm.hpp>
 #include <boost/range/adaptors.hpp>
 #include <sqlite3.h>
-#include "dbg.h"
 #include <unistd.h>
 
 using namespace std;
@@ -272,7 +271,6 @@ void AnalysisGraph::generate_synthetic_data(unsigned int num_obs,
     for (int p = 0; p < n.period; p++) {
       double center = centers_dist(this->rand_num_generator);
       double spread = this->norm_dist(this->rand_num_generator) * 5;
-      //dbg(spread);
       n.centers.push_back(center);
       n.spreads.push_back(spread);
       int month = offset + gap_size * p;
