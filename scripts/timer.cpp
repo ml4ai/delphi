@@ -32,14 +32,10 @@ int main(int argc, char* argv[]) {
     store(parse_command_line(argc, argv, desc), vm);
     notify(vm);
 
-    if (vm.count("help"))
+    if (vm.count("help")) {
       std::cout << desc << '\n';
-    else if (vm.count("age"))
-      std::cout << "Age: " << vm["age"].as<int>() << '\n';
-    else if (vm.count("pi"))
-      std::cout << "Pi: " << vm["pi"].as<float>() << '\n';
-    std::cout << "min-nodes: " << vm["min-nodes"].as<int>() << '\n';
-    //std::cout << ": " << vm[""].as<int>() << '\n';
+      return(0);
+    }
   }
   catch (const error &ex)
   {
