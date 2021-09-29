@@ -47,7 +47,7 @@ template <class F, class V> vector<V> lmap(F f, vector<V> vec) {
 /**
  * Returns the square of a number.
  */
-double sqr(double x);
+inline double sqr(double x) {return x * x};
 
 /**
  * Returns the sum of a vector of doubles.
