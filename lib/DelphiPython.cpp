@@ -160,6 +160,7 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def("delete_all_indicators",
            &AnalysisGraph::delete_all_indicators,
            "concept"_a)
+      /*
       .def("test_inference_with_synthetic_data",
            &AnalysisGraph::test_inference_with_synthetic_data,
            "start_year"_a = 2015,
@@ -175,6 +176,7 @@ PYBIND11_MODULE(DelphiPython, m) {
            "initial_beta"_a = InitialBeta::HALF,
            "initial_derivative"_a = InitialDerivative::DERI_ZERO,
            "use_continuous"_a = true)
+      */
       .def("train_model",
            &AnalysisGraph::train_model,
            "start_year"_a = 2012,

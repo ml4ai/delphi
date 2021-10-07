@@ -1003,12 +1003,12 @@ class AnalysisGraph {
    ============================================================================
   */
 
-  void set_random_initial_latent_state();
+  //void set_random_initial_latent_state();
 
-  void generate_synthetic_latent_state_sequence();
+  //void generate_synthetic_latent_state_sequence();
 
-  void
-  generate_synthetic_observed_state_sequence_from_synthetic_latent_state_sequence();
+  //void
+  //generate_synthetic_observed_state_sequence_from_synthetic_latent_state_sequence();
 
   // TODO: Need testing
   /**
@@ -1023,8 +1023,8 @@ class AnalysisGraph {
    * @return Observed state std::vector. Observed state for each indicator for
    * each vertex. Indexed by: [ vertex id ][ indicator id ]
    */
-  std::vector<std::vector<double>>
-  sample_observed_state(Eigen::VectorXd latent_state);
+  //std::vector<std::vector<double>>
+  //sample_observed_state(Eigen::VectorXd latent_state);
 
   /*
    ============================================================================
@@ -1497,6 +1497,7 @@ class AnalysisGraph {
    ============================================================================
   */
 
+  /*
   std::pair<PredictedObservedStateSequence, Prediction>
   test_inference_with_synthetic_data(
       int start_year = 2015,
@@ -1512,6 +1513,7 @@ class AnalysisGraph {
       InitialBeta initial_beta = InitialBeta::HALF,
       InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO,
       bool use_continuous = true);
+      */
 
   static AnalysisGraph generate_random_CAG(unsigned int num_nodes,
                                            unsigned int num_extra_edges = 0);

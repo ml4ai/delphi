@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
     ("res,r", value<int>()->default_value(1000), "Number of samples to retain.")
     ("kernels,k", value<int>()->default_value(1000), "The number of KDE kernels to be used when creating prior distributions for betas.")
     ("noise-variance,v", value<int>()->default_value(16), "Variance of the emission distribution when generating data.")
-    ("output-file,o", value<string>()->default_value("timing2"), "Output file name. Creates if not exist. Appends otherwise.")
+    ("output-file,o", value<string>()->default_value("timing"), "Output file name. Creates if not exist. Appends otherwise.")
     ("check-config,c", bool_switch(&check), "Check the timing configuration.");
 
     store(parse_command_line(argc, argv, desc), vm);
@@ -55,7 +55,8 @@ int main(int argc, char* argv[]) {
   int res = vm["res"].as<int>();
   int kde_kernels = vm["kernels"].as<int>();
   double noise_variance = vm["noise-variance"].as<int>();
-  string output_file = vm["output-file"].as<string>() + ".csv";
+  string output_file = vm["output-file"].as<string>() + "_" + to_string(min_nodes) + "-" + to_string(max_nodes) + ".csv";
+  cout << "The output is stored in: " << output_file << endl;
 
   std::pair<std::vector<std::string>, std::vector<long>> durations;
   CSVWriter writer(output_file);
@@ -65,7 +66,7 @@ int main(int argc, char* argv[]) {
   for (int run = 1; run <= num_repeats; ++run) {
     cout << "\n\nRun: " << run << "\n";
     for (int nodes = min_nodes; nodes <= max_nodes; nodes = (nodes < 16? nodes + 1 : lround(nodes * multiplicative_factor + additive_factor))) {
-      int max_extra_edges = ceil((nodes - 1) * (nodes - 1) * frac_extra_edges);
+      int max_extra_edges = nodes - 1; //ceil((nodes - 1) * (nodes - 1) * frac_extra_edges);
       for (int extra_edges = 0; extra_edges <= max_extra_edges; extra_edges = (extra_edges < 16? extra_edges + 1 : extra_edges * 2)) {
         cout << "\n\tNodes: " << nodes << "  \tExtra edges: " << extra_edges << "\n";
         if (check) {

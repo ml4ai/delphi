@@ -16,7 +16,7 @@ using fmt::print;
  Private: Synthetic Data Experiment
  ============================================================================
 */
-
+/*
 void AnalysisGraph::set_random_initial_latent_state() {
   int num_verts = this->num_vertices();
 
@@ -91,14 +91,14 @@ AnalysisGraph::sample_observed_state(VectorXd latent_state) {
 
   return observed_state;
 }
-
+*/
 
 /*
  ============================================================================
  Public: Synthetic data experiment
  ============================================================================
 */
-
+/*
 pair<PredictedObservedStateSequence, Prediction>
 AnalysisGraph::test_inference_with_synthetic_data(int start_year,
                                                   int start_month,
@@ -147,7 +147,7 @@ AnalysisGraph::test_inference_with_synthetic_data(int start_year,
   RNG::release_instance();
   synthetic_data_experiment = false;
 }
-
+*/
 
 AnalysisGraph AnalysisGraph::generate_random_CAG(unsigned int num_nodes,
                                                  unsigned int num_extra_edges) {
