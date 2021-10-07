@@ -1003,29 +1003,6 @@ class AnalysisGraph {
    ============================================================================
   */
 
-  //void set_random_initial_latent_state();
-
-  //void generate_synthetic_latent_state_sequence();
-
-  //void
-  //generate_synthetic_observed_state_sequence_from_synthetic_latent_state_sequence();
-
-  // TODO: Need testing
-  /**
-   * Sample observed state std::vector.
-   * This is the implementation of the emission function.
-   *
-   * @param latent_state: Latent state std::vector.
-   *                      This has 2 * number of vertices in the CAG.
-   *                      Even indices track the state of each vertex.
-   *                      Odd indices track the state of the derivative.
-   *
-   * @return Observed state std::vector. Observed state for each indicator for
-   * each vertex. Indexed by: [ vertex id ][ indicator id ]
-   */
-  //std::vector<std::vector<double>>
-  //sample_observed_state(Eigen::VectorXd latent_state);
-
   /*
    ============================================================================
    Private: Graph Visualization (in graphviz.cpp)
@@ -1496,24 +1473,6 @@ class AnalysisGraph {
    Public: Synthetic data experiment (in synthetic_data.cpp)
    ============================================================================
   */
-
-  /*
-  std::pair<PredictedObservedStateSequence, Prediction>
-  test_inference_with_synthetic_data(
-      int start_year = 2015,
-      int start_month = 1,
-      int end_year = 2015,
-      int end_month = 12,
-      int res = 100,
-      int burn = 900,
-      std::string country = "South Sudan",
-      std::string state = "",
-      std::string county = "",
-      std::map<std::string, std::string> units = {},
-      InitialBeta initial_beta = InitialBeta::HALF,
-      InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO,
-      bool use_continuous = true);
-      */
 
   static AnalysisGraph generate_random_CAG(unsigned int num_nodes,
                                            unsigned int num_extra_edges = 0);
