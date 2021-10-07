@@ -59,7 +59,6 @@ void AnalysisGraph::generate_head_node_latent_sequence(int node_id,
         }
       }
       else if (n.model.compare("absolute_change") == 0) {
-        //        dbg("absolute_change");
         this->generated_latent_sequence[0] = n.centers[0];
         for (int ts = 0; ts < num_timesteps - 1; ts++) {
           int partition = ts % n.period;
@@ -70,7 +69,6 @@ void AnalysisGraph::generate_head_node_latent_sequence(int node_id,
         }
       }
       else if (n.model.compare("relative_change") == 0) {
-        //        dbg("relative_change");
         this->generated_latent_sequence[0] = n.centers[0];
         for (int ts = 0; ts < num_timesteps - 1; ts++) {
           int partition = ts % n.period;

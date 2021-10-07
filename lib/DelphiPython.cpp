@@ -66,6 +66,18 @@ PYBIND11_MODULE(DelphiPython, m) {
                   &AnalysisGraph::from_causal_fragments_with_data,
                   "cag_ind_data"_a,
                   "kde_kernels"_a = 5)
+      .def_static("generate_random_CAG",
+                  &AnalysisGraph::generate_random_CAG,
+                  "num_nodes"_a,
+                  "num_extra_edges"_a = 0)
+      .def("generate_synthetic_data",
+                  &AnalysisGraph::generate_synthetic_data,
+                  "num_obs"_a = 48,
+                  "noise_variance"_a = 0.1,
+                  "kde_kernels"_a = 1000,
+                  "initial_beta"_a = InitialBeta::PRIOR,
+                  "initial_derivative"_a = InitialDerivative::DERI_PRIOR,
+                  "use_continuous"_a = false)
       .def("__len__", &AnalysisGraph::num_vertices)
       .def("__getitem__", [](AnalysisGraph& G, string name) { return G[name]; })
       .def("__getitem__",
@@ -148,21 +160,6 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def("delete_all_indicators",
            &AnalysisGraph::delete_all_indicators,
            "concept"_a)
-      .def("test_inference_with_synthetic_data",
-           &AnalysisGraph::test_inference_with_synthetic_data,
-           "start_year"_a = 2015,
-           "start_month"_a = 1,
-           "end_year"_a = 2015,
-           "end_month"_a = 12,
-           "res"_a = 100,
-           "burn"_a = 900,
-           "country"_a = "South Sudan",
-           "state"_a = "",
-           "county"_a = "",
-           py::arg("units") = map<std::string, std::string>{},
-           "initial_beta"_a = InitialBeta::HALF,
-           "initial_derivative"_a = InitialDerivative::DERI_ZERO,
-           "use_continuous"_a = true)
       .def("train_model",
            &AnalysisGraph::train_model,
            "start_year"_a = 2012,

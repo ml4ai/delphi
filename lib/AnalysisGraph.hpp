@@ -9,6 +9,8 @@
 #include <boost/range/iterator_range.hpp>
 #include <range/v3/all.hpp>
 
+#include <sqlite3.h>
+
 #include "graphviz_interface.hpp"
 
 #include "DiGraph.hpp"
@@ -1001,29 +1003,6 @@ class AnalysisGraph {
    ============================================================================
   */
 
-  void set_random_initial_latent_state();
-
-  void generate_synthetic_latent_state_sequence();
-
-  void
-  generate_synthetic_observed_state_sequence_from_synthetic_latent_state_sequence();
-
-  // TODO: Need testing
-  /**
-   * Sample observed state std::vector.
-   * This is the implementation of the emission function.
-   *
-   * @param latent_state: Latent state std::vector.
-   *                      This has 2 * number of vertices in the CAG.
-   *                      Even indices track the state of each vertex.
-   *                      Odd indices track the state of the derivative.
-   *
-   * @return Observed state std::vector. Observed state for each indicator for
-   * each vertex. Indexed by: [ vertex id ][ indicator id ]
-   */
-  std::vector<std::vector<double>>
-  sample_observed_state(Eigen::VectorXd latent_state);
-
   /*
    ============================================================================
    Private: Graph Visualization (in graphviz.cpp)
@@ -1495,21 +1474,23 @@ class AnalysisGraph {
    ============================================================================
   */
 
-  std::pair<PredictedObservedStateSequence, Prediction>
-  test_inference_with_synthetic_data(
-      int start_year = 2015,
-      int start_month = 1,
-      int end_year = 2015,
-      int end_month = 12,
-      int res = 100,
-      int burn = 900,
-      std::string country = "South Sudan",
-      std::string state = "",
-      std::string county = "",
-      std::map<std::string, std::string> units = {},
-      InitialBeta initial_beta = InitialBeta::HALF,
-      InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO,
-      bool use_continuous = true);
+  static AnalysisGraph generate_random_CAG(unsigned int num_nodes,
+                                           unsigned int num_extra_edges = 0);
+
+  void generate_synthetic_data(unsigned int num_obs = 48,
+                               double noise_variance = 0.1,
+                               unsigned int kde_kernels = 1000,
+                               InitialBeta initial_beta = InitialBeta::PRIOR,
+                               InitialDerivative initial_derivative = InitialDerivative::DERI_PRIOR,
+                               bool use_continuous = false);
+
+  void initialize_random_CAG(unsigned int num_obs,
+                             unsigned int kde_kernels,
+                             InitialBeta initial_beta,
+                             InitialDerivative initial_derivative,
+                             bool use_continuous);
+
+  void interpolate_missing_months(std::vector<int> &filled_months, Node &n);
 
   /*
    ============================================================================
@@ -1570,5 +1551,14 @@ class AnalysisGraph {
    ============================================================================
   */
 
+  sqlite3* open_delphi_db(int mode = SQLITE_OPEN_READONLY);
+
   void write_model_to_db(std::string model_id);
+
+  AdjectiveResponseMap construct_adjective_response_map(
+      std::mt19937 gen,
+      std::uniform_real_distribution<double>& uni_dist,
+      std::normal_distribution<double>& norm_dist,
+      size_t n_kernels
+  );
 };
