@@ -1133,11 +1133,13 @@ class AnalysisGraph {
 
   /*
    ============================================================================
-   Private: Model serialization (in serialize.cpp)
+   Public: Model serialization (in serialize.cpp)
    ============================================================================
   */
 
   std::string serialize_to_json_string(bool verbose = true);
+
+  void export_create_model_json_string();
 
   static AnalysisGraph deserialize_from_json_string(std::string json_string, bool verbose = true);
 
