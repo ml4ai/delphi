@@ -245,8 +245,8 @@ class AnalysisGraph {
   // Maps each β to all the transition matrix cells that are dependent on it.
   std::multimap<std::pair<int, int>, std::pair<int, int>> beta2cell;
 
-  std::unordered_set<int> dependent_nodes = {};
-  std::unordered_set<int> independent_nodes = {};
+  std::unordered_set<int> body_nodes = {};
+  std::unordered_set<int> head_nodes = {};
   std::vector<double> generated_latent_sequence;
   int generated_concept;
 
@@ -916,7 +916,7 @@ class AnalysisGraph {
 
   /*
    ============================================================================
-   Private: Modeling independent nodes (in independent_nodes.cpp)
+   Private: Modeling head nodes (in head_nodes.cpp)
    ============================================================================
   */
 

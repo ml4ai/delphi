@@ -77,7 +77,7 @@ add_library(Delphi
   lib/format_output.cpp
   lib/database.cpp
   #lib/PybindTester.hpp
-  lib/independent_nodes.cpp
+  lib/head_nodes.cpp
   lib/Timer.hpp)
 
 target_link_libraries(Delphi

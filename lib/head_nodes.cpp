@@ -154,7 +154,7 @@ void AnalysisGraph::generate_head_node_latent_sequence_from_changes(Node &n,
 
 
 void AnalysisGraph::generate_head_node_latent_sequences(int samp, int num_timesteps) {
-  for (int v : this->independent_nodes) {
+  for (int v : this->head_nodes) {
     Node &n = (*this)[v];
 
     unordered_map<int, pair<double, double>> partition_mean_std;
@@ -195,7 +195,7 @@ void AnalysisGraph::update_head_node_latent_state_with_generated_derivatives(
 
 void AnalysisGraph::update_latent_state_with_generated_derivatives(
     int ts_current, int ts_next) {
-  for (int v : this->independent_nodes) {
+  for (int v : this->head_nodes) {
     Node &n = (*this)[v];
     this->update_head_node_latent_state_with_generated_derivatives(
         ts_current, ts_next, v, n.generated_latent_sequence);

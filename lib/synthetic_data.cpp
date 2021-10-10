@@ -135,7 +135,7 @@ void AnalysisGraph::generate_synthetic_data(unsigned int num_obs,
   vector<int> rand_period(1);
   uniform_real_distribution<double> centers_dist(-100, 100);
   int max_samples_per_period = 12;
-  for (int v : this->independent_nodes) {
+  for (int v : this->head_nodes) {
     Node& n = (*this)[v];
     sample(periods.begin(), periods.end(), rand_period.begin(), 1, this->rand_num_generator);
     n.period = rand_period[0];
