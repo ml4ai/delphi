@@ -98,7 +98,7 @@ target_link_libraries(create_model PRIVATE Delphi Eigen3::Eigen)
 add_executable(sandbox_tester apps/sandbox_tester.cpp)
 target_link_libraries(sandbox_tester PRIVATE Delphi Eigen3::Eigen)
 add_executable(timer
-        scripts/timer.cpp
+        apps/timer.cpp
         lib/Timer.hpp
         lib/CSVWriter.hpp)
 target_link_libraries(timer PRIVATE Delphi Eigen3::Eigen ${Boost_LIBRARIES})
