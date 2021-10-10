@@ -69,10 +69,14 @@ def create_base_CAG(causemos_create_model,
                     grounding_score_cutoff=0,
                     kde_kernels=4):
     if causemos_create_model:
-        G = AnalysisGraph.from_causemos_json_file(causemos_create_model,
-                                                  belief_score_cutoff,
-                                                  grounding_score_cutoff,
-                                                  kde_kernels)
+        if causemos_create_model == "synthetic":
+            G = AnalysisGraph.generate_random_CAG(4, 1)
+            G.generate_synthetic_data(24, 16.0, 100, InitialBeta.PRIOR, InitialDerivative.DERI_PRIOR, False)
+        else:
+            G = AnalysisGraph.from_causemos_json_file(causemos_create_model,
+                                                      belief_score_cutoff,
+                                                      grounding_score_cutoff,
+                                                      kde_kernels)
     else:
         statements = [
             (
@@ -118,6 +122,7 @@ if __name__ == "__main__":
          "../tests/data/delphi/experiments_rain--temperature--yield.json"],
         ["../tests/data/delphi/create_model_rain--temperature.json",    # 10. rain-temperature CAG
          "../tests/data/delphi/experiments_rain--temperature--yield.json"],
+        ["synthetic", "synthetic"]                                      # 11. synthetic
     ]
 
     input_idx = 9
@@ -136,18 +141,22 @@ if __name__ == "__main__":
 
 
     print('\nTraining Model')
+    use_continuous = False if causemos_create_model == "synthetic" else True
     G.run_train_model(res=200,
                       burn=1000,
                       initial_beta=InitialBeta.ZERO,
                       initial_derivative=InitialDerivative.DERI_ZERO,
-                      use_continuous=True)
+                      use_continuous=use_continuous)
 
-    try:
-        preds = G.run_causemos_projection_experiment_from_json_file(
-                filename=causemos_create_experiment)
-    except AnalysisGraph.BadCausemosInputException as e:
-        print(e)
-        exit()
+    if causemos_create_model == "synthetic":
+        G.generate_prediction(1, 24)
+    else:
+        try:
+            preds = G.run_causemos_projection_experiment_from_json_file(
+                    filename=causemos_create_experiment)
+        except AnalysisGraph.BadCausemosInputException as e:
+            print(e)
+            exit()
 
     print('\n\nPlotting \n')
     model_state = G.get_complete_state()
