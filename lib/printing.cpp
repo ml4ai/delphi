@@ -20,12 +20,12 @@ void AnalysisGraph::print_nodes() {
   });
 
   print("Independent nodes\n");
-  for (int v : this->independent_nodes) {
+  for (int v : this->head_nodes) {
     cout << v << "         " << this->graph[v].name << endl;
   }
 
   print("Dependent nodes\n");
-  for (int v : this->dependent_nodes) {
+  for (int v : this->body_nodes) {
     cout << v << "         " << this->graph[v].name << endl;
   }
 }

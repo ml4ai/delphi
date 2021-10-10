@@ -109,25 +109,50 @@ def generate_full_LDS(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl):
     '''
         dx * L * spl = 2 * pi / (m - 1)
     '''
-    # A_sinusoidal = la.expm(A_sinusoidal * (np.pi / 2)) # only when m = 5
     A_sinusoidal = la.expm(A_sinusoidal * dx * L * spl)
     #print(A_sin.shape)
     dim = 2 + A_sinusoidal.shape[0]
     A = np.zeros((dim, dim))
     A[0][0] = 1
     A[1:1 + A_sinusoidal.shape[0], 1:1 + A_sinusoidal.shape[0]] = A_sinusoidal
-    A[1 + A_sinusoidal.shape[0]][0] = 1
+    A[1 + A_sinusoidal.shape[0]][0] = C0 / 2
     A[np.ix_([1 + A_sinusoidal.shape[0]], np.arange(1, dim - 1, 2))] = D
     A[np.ix_([1 + A_sinusoidal.shape[0]], np.arange(2, dim - 1, 2))] = C
     # print(A)
 
     s0 = np.zeros((dim, 1))
-    s0[0][0] = C0 / 2
+    s0[0][0] = 1
     s0[1:1 + A_sinusoidal.shape[0], 0] = s0_sinusoidal.T
-    s0[-1][0] = np.matmul(A, s0)[-1][0]
-    s0[1:1 + A_sinusoidal.shape[0], 0] = np.matmul(A_sinusoidal, s0_sinusoidal)[:, 0] #s0_sin.T
+    # s0[-1][0] = np.matmul(A, s0)[-1][0]
+    # s0[1:1 + A_sinusoidal.shape[0], 0] = np.matmul(A_sinusoidal, s0_sinusoidal)[:, 0] #s0_sin.T
+    s0 = np.matmul(A, s0)
+
     #print(s0[1:1+A_sin.shape[0], 0])
     # print(s0)
+
+    return A, s0
+
+
+def generate_full_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl):
+    dim = 4 + A_sinusoidal.shape[0]
+    A = np.zeros((dim, dim))
+    # A[0][0] = 1
+    A[2:2 + A_sinusoidal.shape[0], 2:2 + A_sinusoidal.shape[0]] = A_sinusoidal
+    # A[2 + A_sinusoidal.shape[0]][0] = 1
+    A[np.ix_([2 + A_sinusoidal.shape[0]], np.arange(2, dim - 2, 2))] = D
+    A[np.ix_([2 + A_sinusoidal.shape[0]], np.arange(3, dim - 2, 2))] = C
+    # print(A)
+
+    s0 = np.zeros((dim, 1))
+    s0[0][0] = C0 / 2
+    s0[2:2 + A_sinusoidal.shape[0], 0] = s0_sinusoidal.T
+    # s0[-2][0] = np.matmul(A, s0)[-2][0]
+    # s0[2:2 + A_sinusoidal.shape[0], 0] = np.matmul(A_sinusoidal, s0_sinusoidal)[:, 0] #s0_sin.T
+    #print(s0[1:1+A_sin.shape[0], 0])
+    # print(s0)
+
+    A = la.expm(A * dx * L * spl)
+    # print(A)
 
     return A, s0
 
@@ -238,5 +263,9 @@ C0, C, D = generate_fourier_coefficients_from_LDS_sinusoidals(x, f, dx, componen
 # print(D)
 
 A, s0 = generate_full_LDS(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl)
+# print(A[-1, :])
+# A1, s01 = generate_full_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl)
+# print(A1[-2:-1, :])
+# exit()
 fourier_curve_from_trig_functions(C0_trig, C_trig, D_trig, x, L)
 fourier_curve_from_LDS(A, s0, 15, L, m)

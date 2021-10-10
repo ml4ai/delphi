@@ -562,7 +562,7 @@ void AnalysisGraph::add_constraint(int step, string concept_name, string indicat
     //       comments)
     double latent_clamp_value = indicator_clamp_value / ind.get_mean();
 
-    if (this->independent_nodes.find(concept_id) == this->independent_nodes.end()) {
+    if (this->head_nodes.find(concept_id) == this->head_nodes.end()) {
       if (!delphi::utils::in(this->one_off_constraints, step)) {
         this->one_off_constraints[step] = vector<pair<int, double>>();
       }

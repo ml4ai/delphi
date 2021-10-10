@@ -233,6 +233,8 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def("serialize_to_json_string",
            &AnalysisGraph::serialize_to_json_string,
            "verbose"_a = true)
+      .def("export_create_model_json_string",
+           &AnalysisGraph::export_create_model_json_string)
       .def("get_complete_state",
            &AnalysisGraph::get_complete_state)
       .def("write_model_to_db",

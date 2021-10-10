@@ -250,7 +250,7 @@ void AnalysisGraph::sample_from_proposal() {
     int concept = this->concept_sample_pool[this->uni_disc_dist(this->rand_num_generator)];
     this->changed_derivative = 2 * concept + 1;
 
-    if (this->independent_nodes.find(concept) != this->independent_nodes.end()) {
+    if (this->head_nodes.find(concept) != this->head_nodes.end()) {
       this->generated_concept = concept;
       this->generate_head_node_latent_sequence(this->generated_concept, this->n_timesteps, true, 0);
     }

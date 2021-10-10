@@ -145,7 +145,7 @@ void AnalysisGraph::run_train_model(int res,
 //    this->concept_sample_pool = vector<unsigned int>(train_vertices.begin(),
 //                                                     train_vertices.end());
     for (int vert : train_vertices) {
-      if (this->independent_nodes.find(vert) == this->independent_nodes.end()) {
+      if (this->head_nodes.find(vert) == this->head_nodes.end()) {
         this->concept_sample_pool.push_back(vert);
       }
     }

@@ -231,3 +231,12 @@ string AnalysisGraph::serialize_to_json_string(bool verbose) {
 
     return j.dump(4);
 }
+
+void AnalysisGraph::export_create_model_json_string() {
+  nlohmann::json j;
+  j["id"] = this->id;
+  j["statements"] = {};
+  j["statements"].push_back({{"belief", 1}});
+  j["conceptIndicators"] = {};
+  cout << j.dump(4) << endl;
+}
