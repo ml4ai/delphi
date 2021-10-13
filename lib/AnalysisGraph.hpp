@@ -1197,6 +1197,8 @@ class AnalysisGraph {
 
   Eigen::VectorXd& get_initial_latent_state() { return this->s0; };
 
+  double get_MAP_log_likelihood() { return this->log_likelihood_MAP; };
+
   /*
    ============================================================================
    Public: Graph Building (in graph_building.cpp)

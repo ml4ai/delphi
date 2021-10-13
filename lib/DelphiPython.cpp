@@ -83,6 +83,7 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def("__getitem__",
            [](AnalysisGraph& G, int node_index) { return G[node_index]; })
       .def("get_res", &AnalysisGraph::get_res)
+      .def("get_MAP_log_likelihood", &AnalysisGraph::get_MAP_log_likelihood)
       .def("get_subgraph_for_concept",
            &AnalysisGraph::get_subgraph_for_concept,
            "concept"_a,
