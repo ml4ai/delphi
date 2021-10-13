@@ -23,23 +23,25 @@ df_before.rename(columns={'MAP_ll': 'MAP_ll_before'}, inplace=True)
 df_after = pd.read_csv(sys.argv[2])
 df_after.rename(columns={'MAP_ll': 'MAP_ll_after'}, inplace=True)
 
+x = 'MAP LL Difference'
 df_diff = pd.merge(left=df_before, right=df_after, on=['Model', 'Seed'])
-df_diff['MAP LL Difference'] = df_diff['MAP_ll_before'] - df_diff['MAP_ll_after']
+df_diff[x] = df_diff['MAP_ll_before'] - df_diff['MAP_ll_after']
 
 # Plot log likelihoods
 sns.set_style("whitegrid")
 fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, dpi=150, figsize=(8, 4.5))
 plt.rcParams['font.size'] = 12
 
-sns.histplot(df_diff, x='MAP LL Difference', element='step',
+sns.histplot(df_diff, x=x, element='step',
              color=(0.25, 0.875, 0.8125, 0.5), ax=ax1, stat='probability')
 
-df_diff_grp = df_diff.groupby(by=['MAP LL Difference'], as_index=False).count()
+df_diff_grp = df_diff.groupby(by=[x], as_index=False).count()
 df_diff_grp.rename(columns={'Seed': 'Frequency'}, inplace=True)
-sns.barplot(x=df_diff_grp['MAP LL Difference'], y=df_diff_grp['Frequency'],
+sns.barplot(x=df_diff_grp[x], y=df_diff_grp['Frequency'],
             color=(0.9375, 0.5, 0.5), ax=ax2)
 
-plt.suptitle('MAP Estimate Log Likelihood Difference\nBefore and After a Code Change')
+plt.suptitle(f'MAP Estimate Log Likelihood Difference\nBefore and After a Code Change:\
+ $(\mu = {df_diff_grp[x].mean():.2f}, \sigma = {df_diff_grp[x].std()})$')
 ax1.set_title('Probability Distribution')
 ax2.set_title('Bar Plot')
 ax1.set_xlabel('MAP Estimate Log Likelihood Difference')
