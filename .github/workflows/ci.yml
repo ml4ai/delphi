@@ -54,12 +54,6 @@ jobs:
         sudo make -j `nproc` install
         cd ../..
 
-        # build the api
-        sudo mkdir build
-        cd build
-        sudo cmake ..
-        sudo make -j `nproc`
-
         # world modelers testing
         sudo python3 -m venv delphi_venv
         source delphi_venv/bin/activate
@@ -68,6 +62,12 @@ jobs:
         sudo pip install -e .[test]
         sudo make test_wm
 
+
+        # build the delpi REST API
+        sudo mkdir build
+        cd build
+        sudo cmake ..
+        sudo make -j `nproc`
 
         # run the api as a background process
         ./delphi_rest_api &
