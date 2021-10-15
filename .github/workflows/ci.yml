@@ -61,12 +61,12 @@ jobs:
         sudo make -j `nproc`
 
         # world modelers testing
-        python3 -m venv delphi_venv
-        source delphi_venv/bin/activate
-        mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o $DELPHI_DB
-        pip install wheel
-        pip install -e .[test]
-                make test_wm
+        sudo python3 -m venv delphi_venv
+        sudo source delphi_venv/bin/activate
+        sudo mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o $DELPHI_DB
+        sudo pip install wheel
+        sudo pip install -e .[test]
+        sudo make test_wm
 
 
         # run the api as a background process
