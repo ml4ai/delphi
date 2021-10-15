@@ -46,7 +46,7 @@ jobs:
 
 
         # Install served from source
-        echo "Install served from source"
+        echo "### Install served from source"
         pwd
         sudo git clone https://github.com/meltwater/served
         cd served
@@ -57,19 +57,25 @@ jobs:
         cd ../..
 
         # world modelers testing
-        echo "world modelers testing"
+        echo "### world modelers testing"
         pwd
 
+        echo "sudo python3 -m venv delphi_venv"
         sudo python3 -m venv delphi_venv
+        echo "source delphi_venv/bin/activate"
         source delphi_venv/bin/activate
+        echo "sudo mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o $DELPHI_DB"
         sudo mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o $DELPHI_DB
+        echo "sudo pip install wheel"
         sudo pip install wheel
+        echo "sudo pip install -e .[test]"
         sudo pip install -e .[test]
+        echo "sudo make test_wm"
         sudo make test_wm
 
 
         # build the delpi REST API
-        echo "build the delpi REST API"
+        echo "### build the delpi REST API"
         pwd
         sudo mkdir build
         cd build
