@@ -61,14 +61,19 @@ jobs:
         pwd
 
         echo "### sudo python3 -m venv delphi_venv"
+        pwd
         sudo python3 -m venv delphi_venv
         echo "### source delphi_venv/bin/activate"
+        pwd
         source delphi_venv/bin/activate
         echo "### sudo mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o $DELPHI_DB"
+        pwd
         sudo mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o $DELPHI_DB
         echo "### sudo pip install wheel"
+        pwd
         sudo pip install wheel
         echo "### sudo pip install -e .[test]"
+        pwd
         sudo pip install -e .[test]
         echo "### sudo make test_wm"
         pwd
