@@ -49,8 +49,8 @@ jobs:
         python3 -m venv delphi_venv
         source delphi_venv/bin/activate
         mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o $DELPHI_DB
-        pip install wheel
-        pip install -e .[test]
+        #pip install wheel
+        #pip install -e .[test]
         #        make test_wm
 
         # Install served from source
