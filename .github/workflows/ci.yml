@@ -62,7 +62,7 @@ jobs:
 
         # world modelers testing
         sudo python3 -m venv delphi_venv
-        sudo source delphi_venv/bin/activate
+        source delphi_venv/bin/activate
         sudo mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o $DELPHI_DB
         sudo pip install wheel
         sudo pip install -e .[test]
