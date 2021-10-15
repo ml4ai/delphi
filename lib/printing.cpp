@@ -18,6 +18,16 @@ void AnalysisGraph::print_nodes() {
   for_each(this->node_indices(), [&](int v) {
     cout << v << "         " << this->graph[v].name << endl;
   });
+
+  print("Independent nodes\n");
+  for (int v : this->head_nodes) {
+    cout << v << "         " << this->graph[v].name << endl;
+  }
+
+  print("Dependent nodes\n");
+  for (int v : this->body_nodes) {
+    cout << v << "         " << this->graph[v].name << endl;
+  }
 }
 
 void AnalysisGraph::print_edges() {

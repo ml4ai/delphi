@@ -5,10 +5,38 @@
 #include "utils.hpp"
 #include "Indicator.hpp"
 #include "exceptions.hpp"
+#include <limits.h>
 
 class Node {
   public:
   std::string name = "";
+  double mean = 0;
+  double std = 1;
+  std::vector<double> generated_latent_sequence = {};
+  int period = 1;
+  // Access:
+  //  {partition --> ([time step], [data value])}
+  std::unordered_map<int, std::pair<std::vector<int>, std::vector<double>>> partitioned_data = {};
+  std::unordered_map<int, std::pair<std::vector<int>, std::vector<double>>> partitioned_absolute_change = {};
+  std::unordered_map<int, std::pair<std::vector<int>, std::vector<double>>> partitioned_relative_change = {};
+  std::unordered_map<int, std::pair<double, double>> partition_mean_std = {};
+  std::vector<double> absolute_change_medians = {};
+  std::vector<double> relative_change_medians = {};
+
+  std::vector<double> centers = {};
+  std::vector<double> spreads = {};
+  std::vector<double> changes = {};
+  std::vector<double> generated_monthly_latent_centers_for_a_year = std::vector<double>(12, 0);
+  std::vector<double> generated_monthly_latent_spreads_for_a_year = std::vector<double>(12, 0);
+
+  std::string center_measure = "median"; // median or mean
+  std::string model = "center"; // center, absolute_change, relative_change
+
+  bool has_max = false;
+  bool has_min = false;
+  double max_val = std::numeric_limits<double>::max();
+  double min_val = std::numeric_limits<double>::min();
+
   bool visited;
   LatentVar rv;
   std::string to_string() { return this->name; }

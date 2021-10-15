@@ -54,12 +54,46 @@ double standard_deviation(const double mean, const std::vector<double>& v)
  * Returns the median of a vector of doubles.
  */
 double median(const std::vector<double> &xs) {
-  using namespace boost::accumulators;
-  accumulator_set<double, features<tag::median>> acc;
-  for (auto x : xs) {
-    acc(x);
-  }
-  return boost::accumulators::median(acc);
+    if (xs.size() > 100) {
+        using namespace boost::accumulators;
+        accumulator_set<double, features<tag::median>> acc;
+        //  accumulator_set<double,
+        //      features<tag::median(with_p_square_cumulative_distribution) >>
+        //      acc ( p_square_cumulative_distribution_num_cells = xs.size() );
+
+        for (auto x : xs) {
+          acc(x);
+        }
+
+        return boost::accumulators::median(acc);
+    } else {
+        vector<double> x_copy(xs);
+        sort(x_copy.begin(), x_copy.end());
+        int num_els = x_copy.size();
+        int mid = num_els / 2;
+        if (num_els % 2 == 0) {
+            return (x_copy[mid - 1] +  x_copy[mid]) / 2;
+        }
+        else {
+            return x_copy[mid];
+        }
+    }
+}
+
+/**
+ * Returns the center absolute deviation of a vector of doubles.
+ * Based on:
+ * https://en.wikipedia.org/wiki/Median_absolute_deviation
+ */
+double median_absolute_deviation(const double center, const std::vector<double>& v)
+{
+  std::vector<double> abs_diff = std::vector<double>(v.size());
+
+  transform(v.begin(), v.end(),
+            abs_diff.begin(),
+            [&](double val){return abs(center - val);});
+
+  return median(abs_diff);
 }
 
 double log_normpdf(double x, double mean, double sd) {
@@ -76,4 +110,13 @@ nlohmann::json load_json(string filename) {
   return j;
 }
 
+/** Compute the number of months between two dates **/
+int months_between(tuple<int, int, int> earlier_date, tuple<int, int, int> latter_date) {
+  int earlier_year = get<0>(earlier_date);
+  int earlier_month = get<1>(earlier_date);
+  int latter_year = get<0>(latter_date);
+  int latter_month = get<1>(latter_date);
+
+  return 12 * (latter_year - earlier_year) + (latter_month - earlier_month);
+}
 } // namespace delphi::utils

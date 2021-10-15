@@ -3,6 +3,7 @@
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/functional.h>
 
 #include "AnalysisGraph.hpp"
 #include "exceptions.hpp"
@@ -61,11 +62,28 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def_static("from_causal_fragments",
                   &AnalysisGraph::from_causal_fragments,
                   "causal_fragments"_a)
+      .def_static("from_causal_fragments_with_data",
+                  &AnalysisGraph::from_causal_fragments_with_data,
+                  "cag_ind_data"_a,
+                  "kde_kernels"_a = 5)
+      .def_static("generate_random_CAG",
+                  &AnalysisGraph::generate_random_CAG,
+                  "num_nodes"_a,
+                  "num_extra_edges"_a = 0)
+      .def("generate_synthetic_data",
+                  &AnalysisGraph::generate_synthetic_data,
+                  "num_obs"_a = 48,
+                  "noise_variance"_a = 0.1,
+                  "kde_kernels"_a = 1000,
+                  "initial_beta"_a = InitialBeta::PRIOR,
+                  "initial_derivative"_a = InitialDerivative::DERI_PRIOR,
+                  "use_continuous"_a = false)
       .def("__len__", &AnalysisGraph::num_vertices)
       .def("__getitem__", [](AnalysisGraph& G, string name) { return G[name]; })
       .def("__getitem__",
            [](AnalysisGraph& G, int node_index) { return G[node_index]; })
       .def("get_res", &AnalysisGraph::get_res)
+      .def("get_MAP_log_likelihood", &AnalysisGraph::get_MAP_log_likelihood)
       .def("get_subgraph_for_concept",
            &AnalysisGraph::get_subgraph_for_concept,
            "concept"_a,
@@ -143,21 +161,6 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def("delete_all_indicators",
            &AnalysisGraph::delete_all_indicators,
            "concept"_a)
-      .def("test_inference_with_synthetic_data",
-           &AnalysisGraph::test_inference_with_synthetic_data,
-           "start_year"_a = 2015,
-           "start_month"_a = 1,
-           "end_year"_a = 2015,
-           "end_month"_a = 12,
-           "res"_a = 100,
-           "burn"_a = 900,
-           "country"_a = "South Sudan",
-           "state"_a = "",
-           "county"_a = "",
-           py::arg("units") = map<std::string, std::string>{},
-           "initial_beta"_a = InitialBeta::HALF,
-           "initial_derivative"_a = InitialDerivative::DERI_ZERO,
-           "use_continuous"_a = true)
       .def("train_model",
            &AnalysisGraph::train_model,
            "start_year"_a = 2012,
@@ -181,13 +184,33 @@ PYBIND11_MODULE(DelphiPython, m) {
            "initial_beta"_a = InitialBeta::ZERO,
            "initial_derivative"_a = InitialDerivative::DERI_ZERO,
            "use_heuristic"_a = false,
-           "use_continuous"_a = true)
+           "use_continuous"_a = true,
+           "train_start_timestep"_a = 0,
+           "train_timesteps"_a = -1,
+           "concept_periods"_a = unordered_map<string, int>(),
+           "concept_center_measures"_a = unordered_map<string, string>(),
+           "concept_models"_a = unordered_map<string, string>(),
+           "concept_min_vals"_a = unordered_map<string, double>(),
+           "concept_max_vals"_a = unordered_map<string, double>(),
+           "ext_concepts"_a =
+               unordered_map<string, function<double(unsigned int, double)>>())
       .def("generate_prediction",
-           &AnalysisGraph::generate_prediction,
+           static_cast<Prediction (AnalysisGraph::*)
+                           (int, int, int, int, ConstraintSchedule, bool, bool)>
+           (&AnalysisGraph::generate_prediction),
            "start_year"_a,
            "start_month"_a,
            "end_year"_a,
            "end_month"_a,
+           "constraints"_a = ConstraintSchedule(),
+           "one_off"_a = true,
+           "clamp_deri"_a = true)
+      .def("generate_prediction",
+           static_cast<void (AnalysisGraph::*)
+                           (int, int, ConstraintSchedule, bool, bool)>
+           (&AnalysisGraph::generate_prediction),
+           "pred_start_timestep"_a,
+           "pred_timesteps"_a,
            "constraints"_a = ConstraintSchedule(),
            "one_off"_a = true,
            "clamp_deri"_a = true)
@@ -211,6 +234,8 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def("serialize_to_json_string",
            &AnalysisGraph::serialize_to_json_string,
            "verbose"_a = true)
+      .def("export_create_model_json_string",
+           &AnalysisGraph::export_create_model_json_string)
       .def("get_complete_state",
            &AnalysisGraph::get_complete_state)
       .def("write_model_to_db",

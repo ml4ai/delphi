@@ -69,9 +69,17 @@ double standard_deviation(const double mean, const std::vector<double> &v);
  */
 double median(const std::vector<double> &xs);
 
+
+/**
+ * Returns the median absolute deviation of a vector of doubles.
+ */
+double median_absolute_deviation(const double center, const std::vector<double>& v);
+
 double log_normpdf(double x, double mean, double sd);
 
 /** Load JSON data from a file */
 nlohmann::json load_json(std::string filename);
 
+/** Compute the number of months between two dates **/
+int months_between(std::tuple<int, int, int> earlier_date, std::tuple<int, int, int> latter_date);
 } // namespace delphi::utils
