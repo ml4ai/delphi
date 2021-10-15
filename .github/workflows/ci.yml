@@ -60,17 +60,17 @@ jobs:
         echo "### world modelers testing"
         pwd
 
-        echo "sudo python3 -m venv delphi_venv"
+        echo "### sudo python3 -m venv delphi_venv"
         sudo python3 -m venv delphi_venv
-        echo "source delphi_venv/bin/activate"
+        echo "### source delphi_venv/bin/activate"
         source delphi_venv/bin/activate
-        echo "sudo mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o $DELPHI_DB"
+        echo "### sudo mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o $DELPHI_DB"
         sudo mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o $DELPHI_DB
-        echo "sudo pip install wheel"
+        echo "### sudo pip install wheel"
         sudo pip install wheel
-        echo "sudo pip install -e .[test]"
+        echo "### sudo pip install -e .[test]"
         sudo pip install -e .[test]
-        echo "sudo make test_wm"
+        echo "### sudo make test_wm"
         sudo make test_wm
 
 
