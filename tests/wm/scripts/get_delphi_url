@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Author: Joseph Astier
+
+# Return either the local or remote delphi URL so all scripts hit the same target
+
+# uncomment for remote endpoint on gauss
+#printf "http://ivilab.org/delphi-api"
+
+# uncomment for use on local machine
+printf "http://localhost:8123"
+
