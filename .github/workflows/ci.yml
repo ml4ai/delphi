@@ -76,6 +76,7 @@ jobs:
         pwd
         sudo pip install -e .[test]
         echo "### sudo make test_wm"
+        cd ..
         pwd
         sudo make test_wm
 
