@@ -46,7 +46,31 @@ jobs:
 
         python3 -m venv delphi_venv
         source delphi_venv/bin/activate
-        mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o $DELPHI_DB
         pip install wheel
-        pip install -e .[test]
-        make test_wm
+
+        mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o $DELPHI_DB
+
+        # Install served from source
+        sudo git clone https://github.com/meltwater/served
+        cd served
+        sudo mkdir build
+        cd build
+        sudo cmake ..
+        sudo make -j `nproc` install
+        cd ../..
+
+        # build the api
+        sudo mkdir build
+        cd build
+        sudo cmake ..
+        sudo make -j `nproc`
+
+        # run the api as a background process
+        ./delphi_rest_api &
+
+        # test the api
+        cd ../apps
+        python3 ./test_cpp_rest_api.py
+
+        #pip install -e .[test]
+        #make test_wm
