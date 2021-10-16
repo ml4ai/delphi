@@ -44,58 +44,15 @@ jobs:
             librange-v3-dev\
             nlohmann-json3-dev
 
-
-        # Install served from source
-        echo "### Install served from source"
-        pwd
-        sudo git clone https://github.com/meltwater/served
-        cd served
-        sudo mkdir build
-        cd build
-        sudo cmake ..
-        sudo make -j `nproc` install
-        cd ../..
-
-        # world modelers testing
-        echo "### world modelers testing"
+        echo "### Building WM"
         pwd
 
-        echo "### sudo python3 -m venv delphi_venv"
-        pwd
         sudo python3 -m venv delphi_venv
-        echo "### source delphi_venv/bin/activate"
-        pwd
         source delphi_venv/bin/activate
-        echo "### sudo mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o $DELPHI_DB"
-        pwd
         sudo mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o $DELPHI_DB
-        echo "### sudo pip install wheel"
-        pwd
         sudo pip install wheel
-        echo "### sudo pip install -e .[test]"
-        pwd
         sudo pip install -e .[test]
-        echo "### sudo make test_wm"
-        cd ..
-        pwd
         sudo make test_wm
 
-
-        # build the delpi REST API
-        echo "### build the delpi REST API"
+        echo "### Done building WM"
         pwd
-        sudo mkdir build
-        cd build
-        sudo cmake ..
-        sudo make -j `nproc`
-
-        # run the api as a background process
-        ./delphi_rest_api &
-
-        # test the delphi REST API using python
-        cd ../apps
-        python3 ./test_cpp_rest_api.py
-
-        # test the delphi with Bash scripts
-        cd ../tests/wm/scripts
-        ./get_system_status 
