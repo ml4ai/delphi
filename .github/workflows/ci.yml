@@ -51,8 +51,8 @@ jobs:
         cd served
         mkdir build
         cd build
-        cmake ..
-        make -j `nproc` install
+        sudo cmake ..
+        sudo make -j `nproc` install
         cd ../..
 
         echo "### Done Building Served from source"
