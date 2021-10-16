@@ -50,7 +50,7 @@ add_library(Delphi
     lib/DatabaseHelper.hpp
     lib/data.cpp
     lib/data.hpp
-    #lib/DelphiPython.cpp
+    lib/DelphiPython.cpp
     lib/DiGraph.hpp
     lib/Edge.hpp
     lib/exceptions.hpp
