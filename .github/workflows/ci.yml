@@ -44,6 +44,18 @@ jobs:
             librange-v3-dev\
             nlohmann-json3-dev
 
+        echo "### Building Served from source"
+        pwd
+
+        sudo git clone https://github.com/meltwater/served
+        cd served
+        mkdir build
+        cd build
+        cmake ..
+        make -j `nproc` install
+        cd ../..
+
+        echo "### Done Building Served from source"
         echo "### Building WM"
         pwd
 
