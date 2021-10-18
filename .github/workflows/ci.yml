@@ -46,14 +46,9 @@ jobs:
 
 
         pwd
+        ls
         echo "### Building pytest from source"
         sudo /usr/bin/python -m pip install pytest
-        cd ..
-        pwd
-        ls
-        cd ..
-        pwd
-        ls
         #sudo ./scripts/install_pybind11_from_source
 
 
