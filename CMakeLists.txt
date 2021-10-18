@@ -31,9 +31,6 @@ option(BUILD_PYTHON_BINDINGS "Build Python bindings" ON)
 # Optional building of Python bindings using Pybind11
 if(BUILD_PYTHON_BINDINGS)
 
-    sudo /usr/bin/python -m pip install pytest
-    sudo ./install_pybind11_from_source
-
     find_package(pybind11 CONFIG REQUIRED)
     message(STATUS "Found pybind11 v${pybind11_VERSION}: ${pybind11_INCLUDE_DIRS}")
     find_package(Python3 REQUIRED)
