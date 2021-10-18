@@ -47,7 +47,9 @@ jobs:
         pwd
         echo "### Building pybind11 from source"
         sudo /usr/bin/python -m pip install pytest
-        sudo ../scripts/install_pybind11_from_source
+        cd ../scripts
+        sudo ./install_pybind11_from_source
+        cd ../delphi
         echo "### Done Building pybind11 from source"
 
         pwd
