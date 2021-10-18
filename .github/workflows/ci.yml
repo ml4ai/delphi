@@ -60,6 +60,25 @@ jobs:
         cd ../..
 
         pwd
+        echo "### Building REST API"
+                # build the delpi REST API
+        sudo mkdir build
+        cd build
+        sudo cmake ..
+        sudo make -j `nproc`
+
+        # run the api as a background process
+        ./delphi_rest_api &
+
+        # test the delphi REST API using python
+        cd ../apps
+        python3 ./test_cpp_rest_api.py
+
+        # test the delphi with Bash scripts
+        cd ../tests/wm/scripts
+        ./get_system_status
+
+        pwd
         echo "### Building WM"
         sudo python3 -m venv delphi_venv
         source delphi_venv/bin/activate
@@ -68,5 +87,3 @@ jobs:
         sudo pip install -e .[test]
         #        sudo make test_wm
 
-        pwd
-        echo "### Done"
