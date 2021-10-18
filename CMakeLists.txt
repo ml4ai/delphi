@@ -26,7 +26,7 @@ find_package(Eigen3 REQUIRED NO_MODULE)
 find_package(fmt REQUIRED)
 find_package(nlohmann_json REQUIRED)
 
-option(BUILD_PYTHON_BINDINGS "Build Python bindings" OFF)
+option(BUILD_PYTHON_BINDINGS "Build Python bindings" ON)
 
 # Optional building of Python bindings using Pybind11
 if(BUILD_PYTHON_BINDINGS)
