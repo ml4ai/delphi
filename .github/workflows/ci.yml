@@ -46,15 +46,11 @@ jobs:
 
 
         pwd
-        ls
-        echo "### Building pytest from source"
+        echo "### Installing pytest"
         sudo /usr/bin/python -m pip install pytest
-        #sudo ./scripts/install_pybind11_from_source
-
 
         pwd
         echo "### Building Served from source"
-
         sudo git clone https://github.com/meltwater/served
         cd served
         sudo mkdir build
@@ -65,13 +61,12 @@ jobs:
 
         pwd
         echo "### Building WM"
-
         sudo python3 -m venv delphi_venv
         source delphi_venv/bin/activate
         sudo mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o $DELPHI_DB
         sudo pip install wheel
         sudo pip install -e .[test]
-        sudo make test_wm
+        #        sudo make test_wm
 
-        echo "### Done"
         pwd
+        echo "### Done"
