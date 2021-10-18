@@ -51,7 +51,10 @@ jobs:
         cd ..
         pwd
         ls
-        sudo ./scripts/install_pybind11_from_source
+        cd ..
+        pwd
+        ls
+        #sudo ./scripts/install_pybind11_from_source
 
 
         pwd
