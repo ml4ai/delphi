@@ -72,7 +72,7 @@ jobs:
 
         # test the delphi REST API using python
         cd ../apps
-        python3 ./test_cpp_rest_api.py
+        #        python3 ./test_cpp_rest_api.py
 
         # test the delphi with Bash scripts
         cd ../tests/wm/scripts
