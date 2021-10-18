@@ -44,8 +44,14 @@ jobs:
             librange-v3-dev\
             nlohmann-json3-dev
 
-        echo "### Building Served from source"
         pwd
+        echo "### Building pybind11 from source"
+        sudo /usr/bin/python -m pip install pytest
+        sudo ../scripts/install_pybind11_from_source
+        echo "### Done Building pybind11 from source"
+
+        pwd
+        echo "### Building Served from source"
 
         sudo git clone https://github.com/meltwater/served
         cd served
@@ -56,8 +62,8 @@ jobs:
         cd ../..
 
         echo "### Done Building Served from source"
-        echo "### Building WM"
         pwd
+        echo "### Building WM"
 
         sudo python3 -m venv delphi_venv
         source delphi_venv/bin/activate
