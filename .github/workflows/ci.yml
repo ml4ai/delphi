@@ -60,13 +60,15 @@ jobs:
         cd ../..
 
         pwd
-        echo "### Building REST API"
-                # build the delpi REST API
+        echo "### Building the Delphi REST API"
+        # build the delpi REST API
         sudo mkdir build
         cd build
         sudo cmake ..
         sudo make -j `nproc`
 
+        pwd
+        echo "### Running the Delphi REST API"
         # run the api as a background process
         ./delphi_rest_api &
 
@@ -77,6 +79,7 @@ jobs:
         # test the delphi with Bash scripts
         cd ../tests/wm/scripts
         ./get_system_status
+        cd ../../../
 
         pwd
         echo "### Building WM"
