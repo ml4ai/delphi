@@ -39,18 +39,12 @@ jobs:
             libgraphviz-dev\
             libsqlite3-dev\
             libeigen3-dev\
+            pytest\
             pybind11-dev\
             libfmt-dev\
             librange-v3-dev\
             nlohmann-json3-dev
 
-        pwd
-        echo "### Building pybind11 from source"
-        sudo /usr/bin/python -m pip install pytest
-        cd ../scripts
-        sudo ./install_pybind11_from_source
-        cd ../delphi
-        echo "### Done Building pybind11 from source"
 
         pwd
         echo "### Building Served from source"
