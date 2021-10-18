@@ -39,11 +39,16 @@ jobs:
             libgraphviz-dev\
             libsqlite3-dev\
             libeigen3-dev\
-            pytest\
             pybind11-dev\
             libfmt-dev\
             librange-v3-dev\
             nlohmann-json3-dev
+
+
+        pwd
+        echo "### Building pytest from source"
+        sudo /usr/bin/python -m pip install pytest
+        sudo install_pybind11_from_source
 
 
         pwd
@@ -57,7 +62,6 @@ jobs:
         sudo make -j `nproc` install
         cd ../..
 
-        echo "### Done Building Served from source"
         pwd
         echo "### Building WM"
 
@@ -68,5 +72,5 @@ jobs:
         sudo pip install -e .[test]
         sudo make test_wm
 
-        echo "### Done building WM"
+        echo "### Done"
         pwd
