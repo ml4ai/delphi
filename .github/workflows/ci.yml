@@ -44,6 +44,17 @@ jobs:
             librange-v3-dev\
             nlohmann-json3-dev
 
+        pwd
+        echo "### Building Served from source"
+        curl -O https://github.com/meltwater/served/archive/refs/tags/v1.6.0.tar.gz
+        tar -xzf v1.6.0.tar.gz
+        pushd served-1.6.0
+          mkdir build
+          cd build
+          cmake ..
+          sudo make -j `nproc` install
+        popd
+
         # Download delphi.db
         sudo mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o $DELPHI_DB
         echo "DELPHI_DB = $DELPHI_DB"
@@ -66,16 +77,6 @@ jobs:
         pwd
         echo "### Building and running Python tests"
 
-        pwd
-        echo "### Building Served from source"
-        curl -O https://github.com/meltwater/served/archive/refs/tags/v1.6.0.tar.gz
-        tar -xzf v1.6.0.tar.gz
-        pushd served-1.6.0
-          mkdir build
-          cd build
-          cmake ..
-          sudo make -j `nproc` install
-        popd
 
         pwd
         echo "### Building the Delphi REST API"
