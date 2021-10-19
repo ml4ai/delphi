@@ -1,10 +1,9 @@
-#include "AnalysisGraph.hpp"
+#include "AnalysisGraph.hpp" 
 
 using namespace std;
 using namespace delphi::utils;
 using delphi::utils::mean;
 using Eigen::VectorXd;
-
 /*
  ============================================================================
  Private: Training by MCMC Sampling
@@ -193,12 +192,11 @@ void AnalysisGraph::set_log_likelihood() {
   }
 }
 
-void AnalysisGraph::sample_from_posterior() {
+void AnalysisGraph::sample_from_posterior() { 
   // Sample a new transition matrix from the proposal distribution
-  this->sample_from_proposal();
-
+  this->sample_from_proposal();   
   double delta_log_prior = this->calculate_delta_log_prior();
-
+    
   this->set_log_likelihood();
   double delta_log_likelihood =
       this->log_likelihood - this->previous_log_likelihood;
@@ -221,6 +219,8 @@ void AnalysisGraph::sample_from_posterior() {
 //                                     (n, this->generated_latent_sequence);
 //    }
 //  }
+  auto final = high_resolution_clock :: now(); 
+  auto d = duration_cast<microseconds>(final - s1);
 }
 
 void AnalysisGraph::sample_from_proposal() {
@@ -294,10 +294,13 @@ double AnalysisGraph::calculate_delta_log_prior() {
   if (this->coin_flip < this->coin_flip_thresh) {
     // A θ has been sampled
     KDE& kde = this->graph[this->previous_theta.first].kde;
-
+    double logpdf_new = kde.logpdf(this->graph[this->previous_theta.first].theta);
+    double logpdf_prev = this -> previous_logpdf.second;
+    this -> previous_logpdf.second = logpdf_new;
+    return logpdf_new - logpdf_prev;
     // We have to return: log( p( θ_new )) - log( p( θ_old ))
-    return kde.logpdf(this->graph[this->previous_theta.first].theta) -
-           kde.logpdf(this->previous_theta.second);
+    // return kde.logpdf(this->graph[this->previous_theta.first].theta) -
+    //       kde.logpdf(this->previous_theta.second);
   }
   else {
     if (this->generated_concept == -1) {

@@ -291,6 +291,9 @@ class AnalysisGraph {
   // We need this to revert the system to the previous state if the proposal
   // gets rejected.
   std::pair<EdgeDescriptor, double> previous_theta;
+  
+  // Do the same with log prior
+  std::pair<EdgeDescriptor, double> previous_logpdf;
 
   // Remember the old derivative and the concept we perturbed the derivative
   int changed_derivative = 0;
