@@ -274,14 +274,14 @@ int main(int argc, const char* argv[]) {
     /* Utility function to query tables of interest */
     mux.handle("/check_data")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
-        cout << "/progress" << endl; 
+        cout << "/check_data" << endl; 
 	res << "Delphi REST API 'check_data' called.";
     });
 
     /* Allow users to stop computation of a running job */
     mux.handle("/stop_computation")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
-        cout << "/progress" << endl; 
+        cout << "/stop_computation" << endl; 
 	res << "Delphi REST API 'stop_computation' called.";
     });
 
