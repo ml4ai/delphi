@@ -4,9 +4,9 @@
 
 # Check the computation progress of a model or experiment.
 
-printf "Testing Delphi REST API progress function:\n"
+printf "Testing Delphi REST API stop computation function:\n"
 
-endpoint="/progress"
+endpoint="/stop_computation"
 login="-u me:ivilab4fun"
 url=$(./get_delphi_url)
 

@@ -264,13 +264,20 @@ int main(int argc, const char* argv[]) {
         cout << "CI mode detected" << endl;
     }
 
-    /* Allow users to check if the REST API is running */
+    /* Allow users to check the progress of a running job */
     mux.handle("/progress")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
         cout << "/progress" << endl; 
 	res << "Delphi REST API 'progress' called.";
     });
 
+
+    /* Allow users to stop computation of a running job */
+    mux.handle("/stop_computation")
+        .get([&sqlite3DB](served::response& res, const served::request& req) {
+        cout << "/progress" << endl; 
+	res << "Delphi REST API 'stop_computation' called.";
+    });
 
     /* Allow users to check if the REST API is running */
     mux.handle("/status")

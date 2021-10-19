@@ -2,7 +2,7 @@
 
 # Author: Joseph Astier
 
-# Return either the local or remote delphi URL so all scripts hit the same target
+# Return either the local or remote delphi URL. 
 
 # uncomment for remote endpoint on gauss
 #printf "http://ivilab.org/delphi-api"
