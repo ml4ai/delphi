@@ -35,6 +35,11 @@ Files
 .. toctree::
    :maxdepth: 5
 
+   file_lib_CSVWriter.hpp.rst
+
+.. toctree::
+   :maxdepth: 5
+
    file_lib_data.cpp.rst
 
 .. toctree::
@@ -101,6 +106,11 @@ Files
    :maxdepth: 5
 
    file_lib_graphviz_interface.hpp.rst
+
+.. toctree::
+   :maxdepth: 5
+
+   file_lib_head_nodes.cpp.rst
 
 .. toctree::
    :maxdepth: 5
@@ -191,6 +201,11 @@ Files
    :maxdepth: 5
 
    file_lib_synthetic_data.cpp.rst
+
+.. toctree::
+   :maxdepth: 5
+
+   file_lib_Timer.hpp.rst
 
 .. toctree::
    :maxdepth: 5

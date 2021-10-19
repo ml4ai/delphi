@@ -63,6 +63,11 @@ Classes and Structs
 .. toctree::
    :maxdepth: 5
 
+   classCSVWriter.rst
+
+.. toctree::
+   :maxdepth: 5
+
    classEdge.rst
 
 .. toctree::
@@ -128,6 +133,11 @@ Classes and Structs
 .. toctree::
    :maxdepth: 5
 
+   classTimer.rst
+
+.. toctree::
+   :maxdepth: 5
+
    classTran__Mat__Cell.rst
 
 Enums
@@ -157,11 +167,6 @@ Functions
    :maxdepth: 5
 
    function_AnalysisGraph_8hpp_1ace16d595b9131cdc3064439ffc89f1bb.rst
-
-.. toctree::
-   :maxdepth: 5
-
-   function_parameter__initialization_8cpp_1aeffb8079c6943251b4a6ca2fdb2008e9.rst
 
 .. toctree::
    :maxdepth: 5
@@ -227,6 +232,21 @@ Functions
    :maxdepth: 5
 
    function_utils_8cpp_1ae428d52963e445053bb7c74e5f736d7f.rst
+
+.. toctree::
+   :maxdepth: 5
+
+   function_utils_8cpp_1ac952c30af8cfbacd0a58a73113d0789b.rst
+
+.. toctree::
+   :maxdepth: 5
+
+   function_utils_8cpp_1a7098ce710f9d380630e83ae2cd93a1e0.rst
+
+.. toctree::
+   :maxdepth: 5
+
+   function_utils_8hpp_1adcd0a1ab80ad4308ce298be143a7a0f6.rst
 
 .. toctree::
    :maxdepth: 5
@@ -314,7 +334,12 @@ Typedefs
 .. toctree::
    :maxdepth: 5
 
-   typedef_AnalysisGraph_8hpp_1adcc3d3c12bba3a7217da74508e48f6a1.rst
+   typedef_AnalysisGraph_8hpp_1ace7cbf88a246ca127c1349c336044fd6.rst
+
+.. toctree::
+   :maxdepth: 5
+
+   typedef_AnalysisGraph_8hpp_1a08f635ca77ee45266c9c28af799c9b10.rst
 
 .. toctree::
    :maxdepth: 5

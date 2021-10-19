@@ -1,0 +1,76 @@
+
+.. _program_listing_file_lib_CSVWriter.hpp:
+
+Program Listing for File CSVWriter.hpp
+======================================
+
+|exhale_lsh| :ref:`Return to documentation for file <file_lib_CSVWriter.hpp>` (``lib/CSVWriter.hpp``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. code-block:: cpp
+
+   //
+   // Created by Varun on 9/23/2017.
+   // https://thispointer.com/how-to-write-data-in-a-csv-file-in-c/
+   // Remy van Elst on 6/16/2019
+   // https://raymii.org/s/snippets/Cpp_create_and_write_to_a_csv_file.html
+   //
+   
+   #ifndef DELPHI_CSVWRITER_HPP
+   #define DELPHI_CSVWRITER_HPP
+   
+   
+   #include <iostream>
+   #include <fstream>
+   #include <vector>
+   #include <set>
+   #include <iterator>
+   #include <string>
+   #include <algorithm>
+   #include <mutex>
+   
+   /*
+    * A class to create and write data in a csv file.
+    */
+   class CSVWriter
+       {
+     std::string fileName;
+     std::string delimeter;
+     int linesCount;
+     std::mutex logMutex;
+         public:
+         CSVWriter(std::string filename, std::string delm = ",") :
+         fileName(filename), delimeter(delm), linesCount(0)
+         {}
+         /*
+          * Member function to store a range as comma seperated value
+          */
+         template<typename T>
+         void write_row(T first, T last);
+       };
+   /*
+    * This Function accepts a range and appends all the elements in the range
+    * to the last row, seperated by delimeter (Default is comma)
+    */
+   template<typename T>
+   void CSVWriter::write_row(T first, T last)
+   {
+     std::lock_guard<std::mutex> csvLock(logMutex);
+     std::fstream file;
+     // Open the file in truncate mode if first line else in Append Mode
+     file.open(fileName, std::ios::out | (linesCount ? std::ios::app : std::ios::trunc));
+     // Iterate over the range and add each lement to file seperated by delimeter.
+     for (; first != last; )
+     {
+       file << *first;
+       if (++first != last)
+         file << delimeter;
+     }
+     file << "\n";
+     linesCount++;
+     // Close the file
+     file.close();
+   };
+   
+   #endif // DELPHI_CSVWRITER_HPP

@@ -14,6 +14,7 @@ Files
 - :ref:`file_lib_AnalysisGraph.hpp`
 - :ref:`file_lib_causemos_integration.cpp`
 - :ref:`file_lib_constructors.cpp`
+- :ref:`file_lib_CSVWriter.hpp`
 - :ref:`file_lib_data.cpp`
 - :ref:`file_lib_data.hpp`
 - :ref:`file_lib_database.cpp`
@@ -28,6 +29,7 @@ Files
 - :ref:`file_lib_graphviz.cpp`
 - :ref:`file_lib_graphviz_interface.cpp`
 - :ref:`file_lib_graphviz_interface.hpp`
+- :ref:`file_lib_head_nodes.cpp`
 - :ref:`file_lib_Indicator.cpp`
 - :ref:`file_lib_Indicator.hpp`
 - :ref:`file_lib_indicator_manipulation.cpp`
@@ -46,6 +48,7 @@ Files
 - :ref:`file_lib_sandbox.cpp`
 - :ref:`file_lib_subgraphs.cpp`
 - :ref:`file_lib_synthetic_data.cpp`
+- :ref:`file_lib_Timer.hpp`
 - :ref:`file_lib_to_json.cpp`
 - :ref:`file_lib_train_model.cpp`
 - :ref:`file_lib_Tran_Mat_Cell.cpp`

@@ -66,8 +66,12 @@ Program Listing for File utils.hpp
    
    double median(const std::vector<double> &xs);
    
+   
+   double median_absolute_deviation(const double center, const std::vector<double>& v);
+   
    double log_normpdf(double x, double mean, double sd);
    
    nlohmann::json load_json(std::string filename);
    
+   int months_between(std::tuple<int, int, int> earlier_date, std::tuple<int, int, int> latter_date);
    } // namespace delphi::utils

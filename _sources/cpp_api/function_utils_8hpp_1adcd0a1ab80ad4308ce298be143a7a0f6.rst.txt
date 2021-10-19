@@ -1,0 +1,13 @@
+.. _exhale_function_utils_8hpp_1adcd0a1ab80ad4308ce298be143a7a0f6:
+
+Function delphi::utils::months_between(std::tuple<int, int, int>, std::tuple<int, int, int>)
+============================================================================================
+
+- Defined in :ref:`file_lib_utils.hpp`
+
+
+Function Documentation
+----------------------
+
+
+.. doxygenfunction:: delphi::utils::months_between(std::tuple<int, int, int>, std::tuple<int, int, int>)

@@ -31,8 +31,6 @@ Includes
 
 - ``AnalysisGraph.hpp`` (:ref:`file_lib_AnalysisGraph.hpp`)
 
-- ``sqlite3.h``
-
 
 
 

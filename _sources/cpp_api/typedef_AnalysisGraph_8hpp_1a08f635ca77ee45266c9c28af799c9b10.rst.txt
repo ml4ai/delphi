@@ -1,0 +1,13 @@
+.. _exhale_typedef_AnalysisGraph_8hpp_1a08f635ca77ee45266c9c28af799c9b10:
+
+Typedef ConceptIndicatorAlignedData
+===================================
+
+- Defined in :ref:`file_lib_AnalysisGraph.hpp`
+
+
+Typedef Documentation
+---------------------
+
+
+.. doxygentypedef:: ConceptIndicatorAlignedData

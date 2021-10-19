@@ -31,7 +31,15 @@ Includes
 
 - ``AnalysisGraph.hpp`` (:ref:`file_lib_AnalysisGraph.hpp`)
 
+- ``boost/range/adaptors.hpp``
+
+- ``boost/range/algorithm.hpp``
+
 - ``range/v3/all.hpp``
+
+- ``sqlite3.h``
+
+- ``unistd.h``
 
 
 

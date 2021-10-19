@@ -1,0 +1,16 @@
+.. _exhale_class_classTimer:
+
+Class Timer
+===========
+
+- Defined in :ref:`file_lib_Timer.hpp`
+
+
+Class Documentation
+-------------------
+
+
+.. doxygenclass:: Timer
+   :members:
+   :protected-members:
+   :undoc-members:

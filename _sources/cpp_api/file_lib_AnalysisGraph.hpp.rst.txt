@@ -51,6 +51,8 @@ Includes
 
 - ``range/v3/all.hpp``
 
+- ``sqlite3.h``
+
 - ``unsupported/Eigen/MatrixFunctions``
 
 
@@ -76,6 +78,8 @@ Included By
 - :ref:`file_lib_graph_utils.cpp`
 
 - :ref:`file_lib_graphviz.cpp`
+
+- :ref:`file_lib_head_nodes.cpp`
 
 - :ref:`file_lib_indicator_manipulation.cpp`
 
@@ -135,7 +139,9 @@ Typedefs
 
 - :ref:`exhale_typedef_AnalysisGraph_8hpp_1a799e0a513577f0ce8c4f929c7a4bd902`
 
-- :ref:`exhale_typedef_AnalysisGraph_8hpp_1adcc3d3c12bba3a7217da74508e48f6a1`
+- :ref:`exhale_typedef_AnalysisGraph_8hpp_1ace7cbf88a246ca127c1349c336044fd6`
+
+- :ref:`exhale_typedef_AnalysisGraph_8hpp_1a08f635ca77ee45266c9c28af799c9b10`
 
 - :ref:`exhale_typedef_AnalysisGraph_8hpp_1ae033d0887562104547675d966873a1c2`
 

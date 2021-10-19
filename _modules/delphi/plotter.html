@@ -1,75 +1,36 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
-  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>delphi.plotter &mdash; delphi  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/collapsible-lists/css/tree_view.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/collapsible-lists/css/tree_view.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
         <script src="../../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
-    
-    <script type="text/javascript" src="../../_static/js/theme.js"></script>
-
-    
+    <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../../index.html" class="icon icon-home"> delphi
-          
-
-          
-            
             <img src="../../_static/delphi_logo.png" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -77,19 +38,8 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../index.html">Home</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../model.html">The Delphi model</a></li>
@@ -100,69 +50,30 @@
 <li class="toctree-l1"><a class="reference internal" href="../../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../index.html">delphi</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="../index.html">Module code</a> &raquo;</li>
-        
       <li>delphi.plotter</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <h1>Source code for delphi.plotter</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">pathlib</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -204,9 +115,37 @@
     <span class="k">if</span> <span class="n">file_name_prefix</span><span class="p">:</span>
         <span class="n">file_name_prefix</span> <span class="o">+=</span> <span class="s1">&#39;_&#39;</span>
 
-    <span class="n">concept_indicators</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">adjectives</span><span class="p">,</span> <span class="n">polarities</span><span class="p">,</span> <span class="n">edge_data</span><span class="p">,</span> <span class="n">derivatives</span><span class="p">,</span> <span class="n">data_range</span><span class="p">,</span> <span class="n">data_set</span><span class="p">,</span> <span class="n">pred_range</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">cis</span>  <span class="o">=</span> <span class="n">model_state</span>
+    <span class="n">concept_indicators</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">adjectives</span><span class="p">,</span> <span class="n">polarities</span><span class="p">,</span> <span class="n">edge_data</span><span class="p">,</span> <span class="n">derivatives</span><span class="p">,</span> <span class="n">data_range</span><span class="p">,</span> <span class="n">data_set</span><span class="p">,</span> <span class="n">pred_range</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">cis</span><span class="p">,</span> <span class="n">log_likelihoods</span> <span class="o">=</span> <span class="n">model_state</span>
 
     <span class="n">plot_num</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1"># Plot log likelihoods</span>
+    <span class="n">sns</span><span class="o">.</span><span class="n">set_style</span><span class="p">(</span><span class="s2">&quot;whitegrid&quot;</span><span class="p">)</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;font.size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">18</span>
+
+    <span class="n">df_log_likelihood</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;Sample Number&#39;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">log_likelihoods</span><span class="p">))),</span> <span class="s1">&#39;Log Likelihood&#39;</span><span class="p">:</span> <span class="n">log_likelihoods</span><span class="p">})</span>
+
+    <span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span>
+        <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">df_log_likelihood</span><span class="p">,</span>
+        <span class="n">y</span><span class="o">=</span><span class="s1">&#39;Log Likelihood&#39;</span><span class="p">,</span>
+        <span class="n">x</span><span class="o">=</span><span class="s1">&#39;Sample Number&#39;</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Log Likelihood Progression Throughout Training&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Sample Number&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Log Likelihood&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">out_dir</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">out_dir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">file_name_prefix</span><span class="si">}{</span><span class="n">plot_num</span><span class="si">}</span><span class="s1">_Log_Likelihoods.png&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">save_csv</span><span class="p">:</span>
+            <span class="n">df_log_likelihood</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">out_dir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">file_name_prefix</span><span class="si">}{</span><span class="n">plot_num</span><span class="si">}</span><span class="s1">_Log_Likelihoods.csv&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">plot_num</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
     <span class="c1"># Plot theta prior and sample distributions</span>
     <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">thetas</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">edge_data</span><span class="p">):</span>
@@ -316,7 +255,8 @@
     <span class="k">for</span> <span class="n">box_plot</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">]:</span>
         <span class="k">for</span> <span class="n">ind</span><span class="p">,</span> <span class="n">preds</span> <span class="ow">in</span> <span class="n">predictions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">sns</span><span class="o">.</span><span class="n">set_style</span><span class="p">(</span><span class="s2">&quot;whitegrid&quot;</span><span class="p">)</span>
-            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">))</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;font.size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">18</span>
 
             <span class="n">df_preds</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">preds</span><span class="p">)</span>
             <span class="n">df_preds</span><span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span><span class="n">df_preds</span><span class="p">,</span> <span class="n">value_vars</span><span class="o">=</span><span class="n">df_preds</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
@@ -333,9 +273,6 @@
                 <span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df_preds</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;Time Step&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;Prediction&#39;</span><span class="p">)</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">(),</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df_preds</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;Time Step&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;Prediction&#39;</span><span class="p">,</span>
-                             <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Mean Prediction&#39;</span><span class="p">)</span>
-
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_set</span><span class="p">[</span><span class="n">ind</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">df_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data_set</span><span class="p">[</span><span class="n">ind</span><span class="p">])</span>
 
@@ -355,14 +292,15 @@
 
                     <span class="k">if</span> <span class="n">df_data_grp</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">==</span> <span class="n">df_data_grp</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">():</span>
                         <span class="c1"># There are no coinciding data points</span>
-                        <span class="n">sns</span><span class="o">.</span><span class="n">scatterplot</span><span class="p">(</span>
+                        <span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span>
                             <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
                             <span class="n">data</span><span class="o">=</span><span class="n">df_data_grp</span><span class="p">,</span>
                             <span class="n">y</span><span class="o">=</span><span class="s1">&#39;Data&#39;</span><span class="p">,</span>
                             <span class="n">x</span><span class="o">=</span><span class="s1">&#39;Time Step&#39;</span><span class="p">,</span>
                             <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span>
                             <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Data&#39;</span><span class="p">,</span>
-                            <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span>
+                            <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span>
+                            <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span>
                         <span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">sns</span><span class="o">.</span><span class="n">scatterplot</span><span class="p">(</span>
@@ -384,6 +322,9 @@
                         <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">handler_map</span><span class="o">=</span><span class="p">{</span><span class="nb">str</span><span class="p">:</span> <span class="n">LegendTitle</span><span class="p">({</span><span class="s1">&#39;fontsize&#39;</span><span class="p">:</span>
                             <span class="mi">12</span><span class="p">})},</span> <span class="n">fancybox</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
+                <span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df_preds</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;Time Step&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;Prediction&#39;</span><span class="p">,</span>
+                             <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Mean Prediction&#39;</span><span class="p">)</span>
+
             <span class="c1"># Set x-axis tick marks</span>
             <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">            dates = set(data_range).union(set(pred_range))</span>
@@ -401,6 +342,25 @@
                 <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Predictions</span><span class="se">\n</span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Mean Predictions and Data</span><span class="se">\n</span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+            <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span>
+            <span class="c1"># plt.xlabel(&#39;Year/Month&#39;)</span>
+            <span class="c1"># plt.legend()</span>
+
+            <span class="c1"># xtics = []</span>
+            <span class="c1"># xlabels = []</span>
+            <span class="c1"># all_x = set(df_data[&#39;Time Step&#39;])</span>
+            <span class="c1"># all_x.update(pred_range)</span>
+            <span class="c1"># all_x = list(all_x)</span>
+            <span class="c1"># all_x.sort()</span>
+            <span class="c1"># for x in all_x:</span>
+            <span class="c1">#     if x % 12 == 0:</span>
+            <span class="c1">#         xtics.append(x)</span>
+            <span class="c1">#         xlabels.append(f&#39;{x // 12 + 1958}/{x % 12 + 1}&#39;)</span>
+            <span class="c1">#</span>
+            <span class="c1"># plt.xticks(xtics, xlabels)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
             <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 
             <span class="k">if</span> <span class="n">out_dir</span><span class="p">:</span>
@@ -424,26 +384,8 @@
     <span class="k">for</span> <span class="n">with_preds</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">]:</span>
         <span class="k">for</span> <span class="n">ind</span><span class="p">,</span> <span class="n">ind_cis</span> <span class="ow">in</span> <span class="n">cis</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">sns</span><span class="o">.</span><span class="n">set_style</span><span class="p">(</span><span class="s2">&quot;whitegrid&quot;</span><span class="p">)</span>
-            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">))</span>
-
-            <span class="k">if</span> <span class="n">with_preds</span><span class="p">:</span>
-                <span class="n">df_cis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">ind_cis</span><span class="p">)</span>
-
-                <span class="k">if</span> <span class="n">month_year</span><span class="p">:</span>
-                    <span class="n">df_cis</span><span class="p">[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">pred_range</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">df_cis</span><span class="p">[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pred_range</span>
-
-                <span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df_cis</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;Time Step&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;Median&#39;</span><span class="p">,</span>
-                        <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Median Prediction&#39;</span><span class="p">)</span>
-                <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span>
-                    <span class="n">x</span><span class="o">=</span><span class="n">df_cis</span><span class="p">[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">],</span>
-                    <span class="n">y1</span><span class="o">=</span><span class="n">df_cis</span><span class="p">[</span><span class="s1">&#39;Upper 95% CI&#39;</span><span class="p">],</span>
-                    <span class="n">y2</span><span class="o">=</span><span class="n">df_cis</span><span class="p">[</span><span class="s1">&#39;Lower 95% CI&#39;</span><span class="p">],</span>
-                    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
-                    <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span>
-                    <span class="n">label</span><span class="o">=</span><span class="s1">&#39;95% CI&#39;</span>
-                <span class="p">)</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;font.size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">18</span>
 
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_set</span><span class="p">[</span><span class="n">ind</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">df_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data_set</span><span class="p">[</span><span class="n">ind</span><span class="p">])</span>
@@ -453,7 +395,7 @@
                             <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">data_range</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">ts</span><span class="p">)]))</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">df_data</span><span class="p">[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_data</span><span class="p">[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">ts</span><span class="p">:</span>
-                                                                      <span class="n">data_range</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">ts</span><span class="p">)])</span>
+                                                                      <span class="nb">int</span><span class="p">(</span><span class="n">data_range</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">ts</span><span class="p">)]))</span>
 
                 <span class="c1"># Aggregate multiple coinciding data points</span>
                 <span class="n">df_data</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_data</span><span class="p">[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">1</span><span class="p">)</span>
@@ -464,14 +406,15 @@
 
                 <span class="k">if</span> <span class="n">df_data_grp</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">==</span> <span class="n">df_data_grp</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">():</span>
                     <span class="c1"># There are no coinciding data points</span>
-                    <span class="n">sns</span><span class="o">.</span><span class="n">scatterplot</span><span class="p">(</span>
+                    <span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span>
                         <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
                         <span class="n">data</span><span class="o">=</span><span class="n">df_data_grp</span><span class="p">,</span>
                         <span class="n">y</span><span class="o">=</span><span class="s1">&#39;Data&#39;</span><span class="p">,</span>
                         <span class="n">x</span><span class="o">=</span><span class="s1">&#39;Time Step&#39;</span><span class="p">,</span>
                         <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span>
                         <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Data&#39;</span><span class="p">,</span>
-                        <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span>
+                        <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span>
+                        <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span>
                     <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">sns</span><span class="o">.</span><span class="n">scatterplot</span><span class="p">(</span>
@@ -494,11 +437,57 @@
                         <span class="mi">12</span><span class="p">})},</span> <span class="n">fancybox</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 
+            <span class="k">if</span> <span class="n">with_preds</span><span class="p">:</span>
+                <span class="n">df_cis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">ind_cis</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">month_year</span><span class="p">:</span>
+                    <span class="n">df_cis</span><span class="p">[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">pred_range</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">df_cis</span><span class="p">[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pred_range</span>
+                    <span class="n">df_cis</span><span class="p">[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_cis</span><span class="p">[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">ts</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">ts</span><span class="p">))</span>
+
+                <span class="n">rmse</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_set</span><span class="p">[</span><span class="n">ind</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">df_rmse</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="n">df_cis</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">df_data</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;Time Step&#39;</span><span class="p">)[[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">,</span> <span class="s1">&#39;Median&#39;</span><span class="p">,</span> <span class="s1">&#39;Data&#39;</span><span class="p">]]</span>
+
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">df_rmse</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                        <span class="n">df_rmse</span><span class="p">[</span><span class="s1">&#39;se&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_rmse</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;Median&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Data&#39;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="n">rmse</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">df_rmse</span><span class="p">[</span><span class="s1">&#39;se&#39;</span><span class="p">])</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_rmse</span><span class="p">[</span><span class="s1">&#39;se&#39;</span><span class="p">]))</span>
+
+                <span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df_cis</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;Time Step&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;Median&#39;</span><span class="p">,</span>
+                             <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Median Prediction&#39;</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span>
+                    <span class="n">x</span><span class="o">=</span><span class="n">df_cis</span><span class="p">[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">],</span>
+                    <span class="n">y1</span><span class="o">=</span><span class="n">df_cis</span><span class="p">[</span><span class="s1">&#39;Upper 95% CI&#39;</span><span class="p">],</span>
+                    <span class="n">y2</span><span class="o">=</span><span class="n">df_cis</span><span class="p">[</span><span class="s1">&#39;Lower 95% CI&#39;</span><span class="p">],</span>
+                    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="s1">&#39;95% CI&#39;</span>
+                <span class="p">)</span>
+
             <span class="n">ind</span> <span class="o">=</span> <span class="n">ind</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">with_preds</span><span class="p">:</span>
-                <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Median Predictions and $95\%$ Credible Interval</span><span class="se">\n</span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Median Predictions and $95\%$ Credible Interval</span><span class="se">\n</span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s1"> (RMSE: </span><span class="si">{</span><span class="n">rmse</span><span class="si">:</span><span class="s1">0.2f</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="se">\n</span><span class="s1">Data&#39;</span><span class="p">)</span>
+
+            <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span>
+            <span class="c1"># plt.xlabel(&#39;Year/Month&#39;)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+            <span class="c1"># xtics = []</span>
+            <span class="c1"># xlabels = []</span>
+            <span class="c1"># all_x = set(df_data[&#39;Time Step&#39;])</span>
+            <span class="c1"># all_x.update(pred_range)</span>
+            <span class="c1"># all_x = list(all_x)</span>
+            <span class="c1"># all_x.sort()</span>
+            <span class="c1"># for x in all_x:</span>
+            <span class="c1">#     if x % 12 == 0:</span>
+            <span class="c1">#         xtics.append(x)</span>
+            <span class="c1">#         xlabels.append(f&#39;{x // 12 + 1958}/{x % 12 + 1}&#39;)</span>
+            <span class="c1">#</span>
+            <span class="c1"># plt.xticks(xtics, xlabels)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 
             <span class="k">if</span> <span class="n">out_dir</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">with_preds</span><span class="p">:</span>
@@ -512,6 +501,122 @@
                 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
+
+    <span class="c1">#############################################</span>
+    <span class="c1"># Plot predictions and data for the prediction range only</span>
+    <span class="k">for</span> <span class="n">ind</span><span class="p">,</span> <span class="n">ind_cis</span> <span class="ow">in</span> <span class="n">cis</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">sns</span><span class="o">.</span><span class="n">set_style</span><span class="p">(</span><span class="s2">&quot;whitegrid&quot;</span><span class="p">)</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;font.size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">18</span>
+
+        <span class="n">df_cis</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">ind_cis</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">month_year</span><span class="p">:</span>
+            <span class="n">df_cis</span><span class="p">[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">pred_range</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">df_cis</span><span class="p">[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pred_range</span>
+            <span class="n">all_x</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">pred_range</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_set</span><span class="p">[</span><span class="n">ind</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">df_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data_set</span><span class="p">[</span><span class="n">ind</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="n">month_year</span><span class="p">:</span>
+                <span class="n">df_data</span><span class="p">[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_data</span><span class="p">[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">ts</span><span class="p">:</span>
+                                                                  <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">data_range</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">ts</span><span class="p">)]))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">df_data</span><span class="p">[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_data</span><span class="p">[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">ts</span><span class="p">:</span>
+                                                                  <span class="nb">int</span><span class="p">(</span><span class="n">data_range</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">ts</span><span class="p">)]))</span>
+                <span class="n">all_x</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">df_data</span><span class="p">[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">])</span>
+
+            <span class="n">df_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="n">df_data</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">df_cis</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;Time Step&#39;</span><span class="p">)[</span><span class="n">df_data</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+
+            <span class="c1"># Aggregate multiple coinciding data points</span>
+            <span class="n">df_data</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_data</span><span class="p">[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">df_data_grp</span> <span class="o">=</span> <span class="n">df_data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">,</span> <span class="s1">&#39;Data&#39;</span><span class="p">],</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">month_year</span><span class="p">:</span>
+                <span class="n">df_data_grp</span><span class="p">[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df_data_grp</span><span class="p">[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="n">df_data_grp</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">==</span> <span class="n">df_data_grp</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">():</span>
+                <span class="c1"># There are no coinciding data points</span>
+                <span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span>
+                    <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+                    <span class="n">data</span><span class="o">=</span><span class="n">df_data_grp</span><span class="p">,</span>
+                    <span class="n">y</span><span class="o">=</span><span class="s1">&#39;Data&#39;</span><span class="p">,</span>
+                    <span class="n">x</span><span class="o">=</span><span class="s1">&#39;Time Step&#39;</span><span class="p">,</span>
+                    <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Data&#39;</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span>
+                    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sns</span><span class="o">.</span><span class="n">scatterplot</span><span class="p">(</span>
+                    <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+                    <span class="n">data</span><span class="o">=</span><span class="n">df_data_grp</span><span class="p">,</span>
+                    <span class="n">y</span><span class="o">=</span><span class="s1">&#39;Data&#39;</span><span class="p">,</span>
+                    <span class="n">x</span><span class="o">=</span><span class="s1">&#39;Time Step&#39;</span><span class="p">,</span>
+                    <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Data&#39;</span><span class="p">,</span>
+                    <span class="n">hue</span><span class="o">=</span><span class="n">df_data_grp</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                    <span class="n">palette</span><span class="o">=</span><span class="s1">&#39;ch:r=-.8, l=.75&#39;</span><span class="p">,</span>
+                    <span class="n">size</span><span class="o">=</span><span class="n">df_data_grp</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                    <span class="n">sizes</span><span class="o">=</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">250</span><span class="p">)</span>
+                <span class="p">)</span>
+
+                <span class="n">handles</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_legend_handles_labels</span><span class="p">()</span>
+                <span class="n">handles</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;Number of Data Points&#39;</span><span class="p">)</span>
+                <span class="n">labels</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">handler_map</span><span class="o">=</span><span class="p">{</span><span class="nb">str</span><span class="p">:</span> <span class="n">LegendTitle</span><span class="p">({</span><span class="s1">&#39;fontsize&#39;</span><span class="p">:</span>
+                                                                              <span class="mi">12</span><span class="p">})},</span> <span class="n">fancybox</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+            <span class="n">rmse</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_set</span><span class="p">[</span><span class="n">ind</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">df_rmse</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="n">df_cis</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">df_data</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;Time Step&#39;</span><span class="p">)[[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">,</span> <span class="s1">&#39;Median&#39;</span><span class="p">,</span> <span class="s1">&#39;Data&#39;</span><span class="p">]]</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">df_rmse</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                    <span class="n">df_rmse</span><span class="p">[</span><span class="s1">&#39;se&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_rmse</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;Median&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Data&#39;</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">rmse</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">df_rmse</span><span class="p">[</span><span class="s1">&#39;se&#39;</span><span class="p">])</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_rmse</span><span class="p">[</span><span class="s1">&#39;se&#39;</span><span class="p">]))</span>
+
+        <span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df_cis</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;Time Step&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;Median&#39;</span><span class="p">,</span>
+                     <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Median Prediction&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">df_cis</span><span class="p">[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">],</span>
+            <span class="n">y1</span><span class="o">=</span><span class="n">df_cis</span><span class="p">[</span><span class="s1">&#39;Upper 95% CI&#39;</span><span class="p">],</span>
+            <span class="n">y2</span><span class="o">=</span><span class="n">df_cis</span><span class="p">[</span><span class="s1">&#39;Lower 95% CI&#39;</span><span class="p">],</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s1">&#39;95% CI&#39;</span>
+        <span class="p">)</span>
+
+        <span class="n">ind</span> <span class="o">=</span> <span class="n">ind</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Median Predictions and $95\%$ Credible Interval</span><span class="se">\n</span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s1"> (RMSE: </span><span class="si">{</span><span class="n">rmse</span><span class="si">:</span><span class="s1">0.2f</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Year/Month&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+        <span class="c1"># xtics = []</span>
+        <span class="c1"># xlabels = []</span>
+        <span class="c1"># all_x = list(all_x)</span>
+        <span class="c1"># all_x.sort()</span>
+        <span class="c1"># for x in all_x:</span>
+        <span class="c1">#     if x % 12 == 0:</span>
+        <span class="c1">#         xtics.append(x)</span>
+        <span class="c1">#         xlabels.append(f&#39;{x // 12 + 1958}/{x % 12 + 1}&#39;)</span>
+        <span class="c1">#</span>
+        <span class="c1"># plt.xticks(xtics, xlabels, rotation=rotation)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">out_dir</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">out_dir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">file_name_prefix</span><span class="si">}{</span><span class="n">plot_num</span><span class="si">}</span><span class="s1">_Predictions_Median_and_CI_</span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s1">_prediction_range.png&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">save_csv</span><span class="p">:</span>
+                <span class="n">df_cis</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">out_dir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">file_name_prefix</span><span class="si">}{</span><span class="n">plot_num</span><span class="si">}</span><span class="s1">_Predictions_Median_and_CI_</span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s1">_prediction_range.csv&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">plot_num</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="c1">#############################################</span>
 
     <span class="c1"># Plot predictions for pairs of indicators related by edges</span>
     <span class="c1"># from the summarized (median, upper and lower confidence</span>
@@ -576,10 +681,27 @@
                         <span class="n">df_target_data</span><span class="p">[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_target_data</span><span class="p">[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">ts</span><span class="p">:</span>
                                                                                         <span class="n">data_range</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">ts</span><span class="p">)])</span>
 
-                    <span class="n">sns</span><span class="o">.</span><span class="n">scatterplot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax_left</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df_source_data</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;Time Step&#39;</span><span class="p">,</span>
-                        <span class="n">y</span><span class="o">=</span><span class="s1">&#39;Data&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color_left</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-                    <span class="n">sns</span><span class="o">.</span><span class="n">scatterplot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax_right</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df_target_data</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;Time Step&#39;</span><span class="p">,</span>
-                            <span class="n">y</span><span class="o">=</span><span class="s1">&#39;Data&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color_right</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="c1"># Aggregate multiple coinciding data points</span>
+                    <span class="n">df_source_data</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_source_data</span><span class="p">[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="n">df_source_data_grp</span> <span class="o">=</span> <span class="n">df_source_data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">,</span> <span class="s1">&#39;Data&#39;</span><span class="p">],</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+                    <span class="n">df_target_data</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_target_data</span><span class="p">[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="n">df_target_data_grp</span> <span class="o">=</span> <span class="n">df_target_data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Time Step&#39;</span><span class="p">,</span> <span class="s1">&#39;Data&#39;</span><span class="p">],</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+
+                    <span class="k">if</span> <span class="n">df_source_data_grp</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">==</span> <span class="n">df_source_data_grp</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">():</span>
+                        <span class="c1"># There are no coinciding data points</span>
+                        <span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax_left</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df_source_data_grp</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;Time Step&#39;</span><span class="p">,</span>
+                            <span class="n">y</span><span class="o">=</span><span class="s1">&#39;Data&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color_left</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">sns</span><span class="o">.</span><span class="n">scatterplot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax_left</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df_source_data</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;Time Step&#39;</span><span class="p">,</span>
+                                        <span class="n">y</span><span class="o">=</span><span class="s1">&#39;Data&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color_left</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">df_target_data_grp</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">==</span> <span class="n">df_target_data_grp</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">():</span>
+                    <span class="c1"># There are no coinciding data points</span>
+                        <span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax_right</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df_target_data_grp</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;Time Step&#39;</span><span class="p">,</span>
+                                <span class="n">y</span><span class="o">=</span><span class="s1">&#39;Data&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color_right</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">sns</span><span class="o">.</span><span class="n">scatterplot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax_right</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df_target_data</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;Time Step&#39;</span><span class="p">,</span>
+                                        <span class="n">y</span><span class="o">=</span><span class="s1">&#39;Data&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color_right</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
                     <span class="c1"># Legend</span>
                     <span class="n">handles_left</span><span class="p">,</span> <span class="n">labels_left</span> <span class="o">=</span> <span class="n">ax_left</span><span class="o">.</span><span class="n">get_legend_handles_labels</span><span class="p">()</span>
@@ -669,46 +791,30 @@
 </pre></div>
 
            </div>
-           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2018, Adarsh.
-
-    </p>
+    <p>&#169; Copyright 2018, Adarsh.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

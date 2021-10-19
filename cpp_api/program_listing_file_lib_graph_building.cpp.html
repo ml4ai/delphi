@@ -1,75 +1,37 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>Program Listing for File graph_building.cpp &mdash; delphi  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/collapsible-lists/css/tree_view.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/collapsible-lists/css/tree_view.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
         <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../index.html" class="icon icon-home"> delphi
-          
-
-          
-            
             <img src="../_static/delphi_logo.png" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -77,19 +39,8 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../model.html">The Delphi model</a></li>
@@ -100,392 +51,359 @@
 <li class="toctree-l1"><a class="reference internal" href="../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">delphi</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
       <li>Program Listing for File graph_building.cpp</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
             <a href="../_sources/cpp_api/program_listing_file_lib_graph_building.cpp.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="program-listing-for-file-graph-building-cpp">
-<span id="program-listing-file-lib-graph-building-cpp"></span><h1>Program Listing for File graph_building.cpp<a class="headerlink" href="#program-listing-for-file-graph-building-cpp" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="program-listing-for-file-graph-building-cpp">
+<span id="program-listing-file-lib-graph-building-cpp"></span><h1>Program Listing for File graph_building.cpp<a class="headerlink" href="#program-listing-for-file-graph-building-cpp" title="Permalink to this headline"></a></h1>
 <p>↰ <a class="reference internal" href="file_lib_graph_building.cpp.html#file-lib-graph-building-cpp"><span class="std std-ref">Return to documentation for file</span></a> (<code class="docutils literal notranslate"><span class="pre">lib/graph_building.cpp</span></code>)</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;AnalysisGraph.hpp&quot;</span><span class="cp"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;AnalysisGraph.hpp&quot;</span><span class="cp"></span>
 
-<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
-<span class="k">using</span> <span class="k">namespace</span> <span class="n">delphi</span><span class="o">::</span><span class="n">utils</span><span class="p">;</span>
-<span class="k">using</span> <span class="n">fmt</span><span class="o">::</span><span class="n">print</span><span class="p">;</span>
-<span class="k">using</span> <span class="k">namespace</span> <span class="n">fmt</span><span class="o">::</span><span class="n">literals</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">std</span><span class="p">;</span><span class="w"></span>
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">delphi</span><span class="o">::</span><span class="nn">utils</span><span class="p">;</span><span class="w"></span>
+<span class="k">using</span><span class="w"> </span><span class="n">fmt</span><span class="o">::</span><span class="n">print</span><span class="p">;</span><span class="w"></span>
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">fmt</span><span class="o">::</span><span class="nn">literals</span><span class="p">;</span><span class="w"></span>
 
 
 <span class="cm">/*</span>
 <span class="cm"> ============================================================================</span>
 <span class="cm"> Public: Graph Building</span>
 <span class="cm"> ============================================================================</span>
-<span class="cm">*/</span>
+<span class="cm">*/</span><span class="w"></span>
 
-<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">add_node</span><span class="p">(</span><span class="n">string</span> <span class="k">concept</span><span class="p">)</span> <span class="p">{</span>
-  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">in</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">name_to_vertex</span><span class="p">,</span> <span class="k">concept</span><span class="p">))</span> <span class="p">{</span>
-    <span class="kt">int</span> <span class="n">v</span> <span class="o">=</span> <span class="n">boost</span><span class="o">::</span><span class="n">add_vertex</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">);</span>
-    <span class="k">this</span><span class="o">-&gt;</span><span class="n">name_to_vertex</span><span class="p">[</span><span class="k">concept</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="p">;</span>
-    <span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">v</span><span class="p">].</span><span class="n">name</span> <span class="o">=</span> <span class="k">concept</span><span class="p">;</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">AnalysisGraph::add_node</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="k">concept</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">in</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">name_to_vertex</span><span class="p">,</span><span class="w"> </span><span class="k">concept</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">boost</span><span class="o">::</span><span class="n">add_vertex</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">name_to_vertex</span><span class="p">[</span><span class="k">concept</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">v</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">v</span><span class="p">].</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">concept</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">head_nodes</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">v</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
 
-<span class="kt">bool</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">add_edge</span><span class="p">(</span><span class="n">CausalFragment</span> <span class="n">causal_fragment</span><span class="p">)</span> <span class="p">{</span>
-  <span class="n">Event</span> <span class="n">subject</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="n">causal_fragment</span><span class="p">.</span><span class="n">first</span><span class="p">);</span>
-  <span class="n">Event</span> <span class="n">object</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="n">causal_fragment</span><span class="p">.</span><span class="n">second</span><span class="p">);</span>
+<span class="w">  </span><span class="k">return</span><span class="w">  </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">name_to_vertex</span><span class="p">[</span><span class="k">concept</span><span class="p">];</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-  <span class="n">string</span> <span class="n">subj_name</span> <span class="o">=</span> <span class="n">subject</span><span class="p">.</span><span class="n">concept_name</span><span class="p">;</span>
-  <span class="n">string</span> <span class="n">obj_name</span> <span class="o">=</span> <span class="n">object</span><span class="p">.</span><span class="n">concept_name</span><span class="p">;</span>
+<span class="kt">bool</span><span class="w"> </span><span class="nf">AnalysisGraph::add_edge</span><span class="p">(</span><span class="n">CausalFragment</span><span class="w"> </span><span class="n">causal_fragment</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">Event</span><span class="w"> </span><span class="n">subject</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Event</span><span class="p">(</span><span class="n">causal_fragment</span><span class="p">.</span><span class="n">first</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">Event</span><span class="w"> </span><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Event</span><span class="p">(</span><span class="n">causal_fragment</span><span class="p">.</span><span class="n">second</span><span class="p">);</span><span class="w"></span>
 
-  <span class="k">if</span> <span class="p">(</span><span class="n">subj_name</span><span class="p">.</span><span class="n">compare</span><span class="p">(</span><span class="n">obj_name</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// Guard against self loops</span>
-    <span class="c1">// Add the nodes to the graph if they are not in it already</span>
-    <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_node</span><span class="p">(</span><span class="n">subj_name</span><span class="p">);</span>
-    <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_node</span><span class="p">(</span><span class="n">obj_name</span><span class="p">);</span>
+<span class="w">  </span><span class="n">string</span><span class="w"> </span><span class="n">subj_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">subject</span><span class="p">.</span><span class="n">concept_name</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="n">string</span><span class="w"> </span><span class="n">obj_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">object</span><span class="p">.</span><span class="n">concept_name</span><span class="p">;</span><span class="w"></span>
 
-    <span class="k">auto</span> <span class="p">[</span><span class="n">e</span><span class="p">,</span> <span class="n">exists</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_edge</span><span class="p">(</span><span class="n">subj_name</span><span class="p">,</span> <span class="n">obj_name</span><span class="p">);</span>
-    <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">evidence</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">Statement</span><span class="p">{</span><span class="n">subject</span><span class="p">,</span> <span class="n">object</span><span class="p">});</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">subj_name</span><span class="p">.</span><span class="n">compare</span><span class="p">(</span><span class="n">obj_name</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// Guard against self loops</span>
+<span class="w">    </span><span class="c1">// Add the nodes to the graph if they are not in it already</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">subj_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">add_node</span><span class="p">(</span><span class="n">subj_name</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">obj_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">add_node</span><span class="p">(</span><span class="n">obj_name</span><span class="p">);</span><span class="w"></span>
 
-    <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
-  <span class="p">}</span>
-  <span class="k">else</span> <span class="p">{</span>
-    <span class="n">print</span><span class="p">(</span><span class="s">&quot;AnalysisGraph::add_edge</span><span class="se">\n</span><span class="s">&quot;</span>
-          <span class="s">&quot;</span><span class="se">\t</span><span class="s">WARNING: Prevented adding a self loop for the concept {}</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span>
-          <span class="n">subj_name</span><span class="p">);</span>
-    <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="c1">// Object is a dependent node</span>
+<span class="w">    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">body_nodes</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">obj_id</span><span class="p">);</span><span class="w"></span>
 
-<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">add_edge</span><span class="p">(</span><span class="n">CausalFragmentCollection</span> <span class="n">causal_fragments</span><span class="p">)</span> <span class="p">{</span>
-  <span class="n">EventCollection</span> <span class="n">subjects</span> <span class="o">=</span> <span class="n">causal_fragments</span><span class="p">.</span><span class="n">first</span><span class="p">;</span>
-  <span class="n">EventCollection</span> <span class="n">objects</span> <span class="o">=</span> <span class="n">causal_fragments</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
-  <span class="n">string</span> <span class="n">subj_name</span> <span class="o">=</span> <span class="n">get</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">(</span><span class="n">subjects</span><span class="p">);</span>
-  <span class="n">string</span> <span class="n">obj_name</span> <span class="o">=</span> <span class="n">get</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">(</span><span class="n">objects</span><span class="p">);</span>
-  <span class="kt">int</span> <span class="n">num_subj</span> <span class="o">=</span> <span class="n">get</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">(</span><span class="n">subjects</span><span class="p">).</span><span class="n">size</span><span class="p">();</span>
-  <span class="kt">int</span> <span class="n">num_obj</span> <span class="o">=</span> <span class="n">get</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">(</span><span class="n">objects</span><span class="p">).</span><span class="n">size</span><span class="p">();</span>
+<span class="w">    </span><span class="c1">// If Object had been an independent node, it no linger is</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">head_nodes</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">obj_id</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">head_nodes</span><span class="p">.</span><span class="n">end</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">head_nodes</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">obj_id</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-  <span class="k">if</span> <span class="p">(</span><span class="n">subj_name</span><span class="p">.</span><span class="n">compare</span><span class="p">(</span><span class="n">obj_name</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// Guard against self loops</span>
-    <span class="c1">// Add the nodes to the graph if they are not in it already</span>
-    <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_node</span><span class="p">(</span><span class="n">subj_name</span><span class="p">);</span>
-    <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_node</span><span class="p">(</span><span class="n">obj_name</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// If Subject was not a dependent node, it is independent</span>
+<span class="c1">//    if (this-&gt;body_nodes.find(subj_id) == this-&gt;body_nodes.end()) {</span>
+<span class="c1">//      this-&gt;head_nodes.insert(subj_id);</span>
+<span class="c1">//    }</span>
 
-    <span class="k">auto</span> <span class="p">[</span><span class="n">e</span><span class="p">,</span> <span class="n">exists</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_edge</span><span class="p">(</span><span class="n">subj_name</span><span class="p">,</span> <span class="n">obj_name</span><span class="p">);</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="p">[</span><span class="n">e</span><span class="p">,</span><span class="w"> </span><span class="n">exists</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">add_edge</span><span class="p">(</span><span class="n">subj_name</span><span class="p">,</span><span class="w"> </span><span class="n">obj_name</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">evidence</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">Statement</span><span class="p">{</span><span class="n">subject</span><span class="p">,</span><span class="w"> </span><span class="n">object</span><span class="p">});</span><span class="w"></span>
 
-    <span class="n">string</span> <span class="n">subject_adj</span><span class="p">;</span>
-    <span class="n">string</span> <span class="n">object_adj</span> <span class="p">;</span>
-    <span class="kt">int</span> <span class="n">subject_pol</span><span class="p">;</span>
-    <span class="kt">int</span> <span class="n">object_pol</span><span class="p">;</span>
-    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">stmt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">stmt</span> <span class="o">&lt;</span> <span class="n">max</span><span class="p">(</span><span class="n">num_subj</span><span class="p">,</span> <span class="n">num_obj</span><span class="p">);</span> <span class="n">stmt</span><span class="o">++</span><span class="p">){</span>
-      <span class="k">if</span><span class="p">(</span><span class="n">stmt</span> <span class="o">&lt;</span> <span class="n">num_subj</span><span class="p">){</span>
-        <span class="n">subject_adj</span> <span class="o">=</span> <span class="n">get</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">(</span><span class="n">subjects</span><span class="p">)[</span><span class="n">stmt</span><span class="p">]</span> <span class="p">;</span>
-        <span class="n">subject_pol</span> <span class="o">=</span> <span class="n">get</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">(</span><span class="n">subjects</span><span class="p">)[</span><span class="n">stmt</span><span class="p">];</span>
-      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-        <span class="n">subject_adj</span> <span class="o">=</span> <span class="s">&quot;None&quot;</span><span class="p">;</span>
-        <span class="n">subject_pol</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-      <span class="p">}</span>
-      <span class="k">if</span><span class="p">(</span><span class="n">stmt</span> <span class="o">&lt;</span> <span class="n">num_obj</span><span class="p">){</span>
-        <span class="n">object_adj</span> <span class="o">=</span> <span class="n">get</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">(</span><span class="n">objects</span><span class="p">)[</span><span class="n">stmt</span><span class="p">]</span> <span class="p">;</span>
-        <span class="n">object_pol</span> <span class="o">=</span> <span class="n">get</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">(</span><span class="n">objects</span><span class="p">)[</span><span class="n">stmt</span><span class="p">];</span>
-      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-        <span class="n">object_adj</span> <span class="o">=</span> <span class="s">&quot;None&quot;</span><span class="p">;</span>
-        <span class="n">object_pol</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-      <span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">print</span><span class="p">(</span><span class="s">&quot;AnalysisGraph::add_edge</span><span class="se">\n</span><span class="s">&quot;</span><span class="w"></span>
+<span class="w">          </span><span class="s">&quot;</span><span class="se">\t</span><span class="s">WARNING: Prevented adding a self loop for the concept {}</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">          </span><span class="n">subj_name</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-      <span class="n">Event</span> <span class="n">subject</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="n">subject_adj</span><span class="p">,</span> <span class="n">subject_pol</span><span class="p">,</span> <span class="n">subj_name</span><span class="p">);</span>
-      <span class="n">Event</span> <span class="n">object</span>  <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="n">object_adj</span><span class="p">,</span> <span class="n">object_pol</span><span class="p">,</span> <span class="n">obj_name</span><span class="p">);</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">AnalysisGraph::add_edge</span><span class="p">(</span><span class="n">CausalFragmentCollection</span><span class="w"> </span><span class="n">causal_fragments</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">EventCollection</span><span class="w"> </span><span class="n">subjects</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">causal_fragments</span><span class="p">.</span><span class="n">first</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="n">EventCollection</span><span class="w"> </span><span class="n">objects</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">causal_fragments</span><span class="p">.</span><span class="n">second</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="n">string</span><span class="w"> </span><span class="n">subj_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">(</span><span class="n">subjects</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">string</span><span class="w"> </span><span class="n">obj_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">(</span><span class="n">objects</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">num_subj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">(</span><span class="n">subjects</span><span class="p">).</span><span class="n">size</span><span class="p">();</span><span class="w"></span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">num_obj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">(</span><span class="n">objects</span><span class="p">).</span><span class="n">size</span><span class="p">();</span><span class="w"></span>
 
-      <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">evidence</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">Statement</span><span class="p">{</span><span class="n">subject</span><span class="p">,</span> <span class="n">object</span><span class="p">});</span>
-    <span class="p">}</span>
-  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-    <span class="n">print</span><span class="p">(</span><span class="s">&quot;AnalysisGraph::add_edge</span><span class="se">\n</span><span class="s">&quot;</span>
-    <span class="s">&quot;</span><span class="se">\t</span><span class="s">WARNING: Prevented adding a self loop for the concept {}</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span>
-    <span class="n">subj_name</span><span class="p">);</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">subj_name</span><span class="p">.</span><span class="n">compare</span><span class="p">(</span><span class="n">obj_name</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// Guard against self loops</span>
+<span class="w">    </span><span class="c1">// Add the nodes to the graph if they are not in it already</span>
+<span class="w">    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">add_node</span><span class="p">(</span><span class="n">subj_name</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">add_node</span><span class="p">(</span><span class="n">obj_name</span><span class="p">);</span><span class="w"></span>
 
-<span class="n">pair</span><span class="o">&lt;</span><span class="n">EdgeDescriptor</span><span class="p">,</span> <span class="kt">bool</span><span class="o">&gt;</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">add_edge</span><span class="p">(</span><span class="kt">int</span> <span class="n">source</span><span class="p">,</span> <span class="kt">int</span> <span class="n">target</span><span class="p">)</span> <span class="p">{</span>
-  <span class="c1">// In Boost Graph Library, we are using vecS as the OutEdgeList,</span>
-  <span class="c1">// So, we have to check whether an edge exists from source to target before</span>
-  <span class="c1">// adding to prevent adding multiple edges between them in the same direction.</span>
-  <span class="n">pair</span><span class="o">&lt;</span><span class="n">EdgeDescriptor</span><span class="p">,</span> <span class="kt">bool</span><span class="o">&gt;</span> <span class="n">edge</span> <span class="o">=</span> <span class="n">boost</span><span class="o">::</span><span class="n">edge</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">);</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="p">[</span><span class="n">e</span><span class="p">,</span><span class="w"> </span><span class="n">exists</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">add_edge</span><span class="p">(</span><span class="n">subj_name</span><span class="p">,</span><span class="w"> </span><span class="n">obj_name</span><span class="p">);</span><span class="w"></span>
 
-  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">edge</span><span class="p">.</span><span class="n">second</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">edge</span> <span class="o">=</span> <span class="n">boost</span><span class="o">::</span><span class="n">add_edge</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">);</span>
-  <span class="p">}</span>
+<span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">subject_adj</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">object_adj</span><span class="w"> </span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">subject_pol</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">object_pol</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">stmt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">stmt</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">max</span><span class="p">(</span><span class="n">num_subj</span><span class="p">,</span><span class="w"> </span><span class="n">num_obj</span><span class="p">);</span><span class="w"> </span><span class="n">stmt</span><span class="o">++</span><span class="p">){</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">stmt</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">num_subj</span><span class="p">){</span><span class="w"></span>
+<span class="w">        </span><span class="n">subject_adj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">(</span><span class="n">subjects</span><span class="p">)[</span><span class="n">stmt</span><span class="p">]</span><span class="w"> </span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">subject_pol</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">(</span><span class="n">subjects</span><span class="p">)[</span><span class="n">stmt</span><span class="p">];</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">subject_adj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;None&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">subject_pol</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">stmt</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">num_obj</span><span class="p">){</span><span class="w"></span>
+<span class="w">        </span><span class="n">object_adj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">(</span><span class="n">objects</span><span class="p">)[</span><span class="n">stmt</span><span class="p">]</span><span class="w"> </span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">object_pol</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">(</span><span class="n">objects</span><span class="p">)[</span><span class="n">stmt</span><span class="p">];</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">object_adj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;None&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">object_pol</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
 
-  <span class="k">return</span> <span class="n">edge</span><span class="p">;</span>
-<span class="p">}</span>
+<span class="w">      </span><span class="n">Event</span><span class="w"> </span><span class="n">subject</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Event</span><span class="p">(</span><span class="n">subject_adj</span><span class="p">,</span><span class="w"> </span><span class="n">subject_pol</span><span class="p">,</span><span class="w"> </span><span class="n">subj_name</span><span class="p">);</span><span class="w"></span>
+<span class="w">      </span><span class="n">Event</span><span class="w"> </span><span class="n">object</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">Event</span><span class="p">(</span><span class="n">object_adj</span><span class="p">,</span><span class="w"> </span><span class="n">object_pol</span><span class="p">,</span><span class="w"> </span><span class="n">obj_name</span><span class="p">);</span><span class="w"></span>
 
-<span class="n">pair</span><span class="o">&lt;</span><span class="n">EdgeDescriptor</span><span class="p">,</span> <span class="kt">bool</span><span class="o">&gt;</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">add_edge</span><span class="p">(</span><span class="kt">int</span> <span class="n">source</span><span class="p">,</span> <span class="n">string</span> <span class="n">target</span><span class="p">)</span> <span class="p">{</span>
-  <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_edge</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">target</span><span class="p">));</span>
-<span class="p">}</span>
+<span class="w">      </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">evidence</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">Statement</span><span class="p">{</span><span class="n">subject</span><span class="p">,</span><span class="w"> </span><span class="n">object</span><span class="p">});</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">print</span><span class="p">(</span><span class="s">&quot;AnalysisGraph::add_edge</span><span class="se">\n</span><span class="s">&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;</span><span class="se">\t</span><span class="s">WARNING: Prevented adding a self loop for the concept {}</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">subj_name</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="n">pair</span><span class="o">&lt;</span><span class="n">EdgeDescriptor</span><span class="p">,</span> <span class="kt">bool</span><span class="o">&gt;</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">add_edge</span><span class="p">(</span><span class="n">string</span> <span class="n">source</span><span class="p">,</span> <span class="kt">int</span> <span class="n">target</span><span class="p">)</span> <span class="p">{</span>
-  <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_edge</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">source</span><span class="p">),</span> <span class="n">target</span><span class="p">);</span>
-<span class="p">}</span>
+<span class="n">pair</span><span class="o">&lt;</span><span class="n">EdgeDescriptor</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="o">&gt;</span><span class="w"> </span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">add_edge</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">target</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// In Boost Graph Library, we are using vecS as the OutEdgeList,</span>
+<span class="w">  </span><span class="c1">// So, we have to check whether an edge exists from source to target before</span>
+<span class="w">  </span><span class="c1">// adding to prevent adding multiple edges between them in the same direction.</span>
+<span class="w">  </span><span class="n">pair</span><span class="o">&lt;</span><span class="n">EdgeDescriptor</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="o">&gt;</span><span class="w"> </span><span class="n">edge</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">boost</span><span class="o">::</span><span class="n">edge</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">target</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">);</span><span class="w"></span>
 
-<span class="n">pair</span><span class="o">&lt;</span><span class="n">EdgeDescriptor</span><span class="p">,</span> <span class="kt">bool</span><span class="o">&gt;</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">add_edge</span><span class="p">(</span><span class="n">string</span> <span class="n">source</span><span class="p">,</span>
-                                                   <span class="n">string</span> <span class="n">target</span><span class="p">)</span> <span class="p">{</span>
-  <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">add_edge</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">source</span><span class="p">),</span>
-                         <span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">target</span><span class="p">));</span>
-<span class="p">}</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">edge</span><span class="p">.</span><span class="n">second</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">edge</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">boost</span><span class="o">::</span><span class="n">add_edge</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">target</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// Object is a dependent node</span>
+<span class="w">    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">body_nodes</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">target</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// If Object had been an independent node, it no linger is</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">head_nodes</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">target</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">head_nodes</span><span class="p">.</span><span class="n">end</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">head_nodes</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">target</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">edge</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="n">pair</span><span class="o">&lt;</span><span class="n">EdgeDescriptor</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="o">&gt;</span><span class="w"> </span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">add_edge</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="n">target</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">add_edge</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">target</span><span class="p">));</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="n">pair</span><span class="o">&lt;</span><span class="n">EdgeDescriptor</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="o">&gt;</span><span class="w"> </span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">add_edge</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">target</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">add_edge</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">source</span><span class="p">),</span><span class="w"> </span><span class="n">target</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="n">pair</span><span class="o">&lt;</span><span class="n">EdgeDescriptor</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="o">&gt;</span><span class="w"> </span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">add_edge</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">source</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                   </span><span class="n">string</span><span class="w"> </span><span class="n">target</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">add_edge</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">source</span><span class="p">),</span><span class="w"></span>
+<span class="w">                         </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">target</span><span class="p">));</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
 <span class="cm">/*</span>
 <span class="cm"> * The refactoring of the remove_node() method was buggy.</span>
 <span class="cm"> * It caused AnalysisGraph to crash.</span>
 <span class="cm"> * I replaced it with the previous implementation</span>
-<span class="cm">*/</span>
-<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">remove_node</span><span class="p">(</span><span class="n">string</span> <span class="k">concept</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">auto</span> <span class="n">node_to_remove</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">name_to_vertex</span><span class="p">.</span><span class="n">extract</span><span class="p">(</span><span class="k">concept</span><span class="p">);</span>
+<span class="cm">*/</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">remove_node</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="k">concept</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">node_to_remove</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">name_to_vertex</span><span class="p">.</span><span class="n">extract</span><span class="p">(</span><span class="k">concept</span><span class="p">);</span><span class="w"></span>
 
-      <span class="k">if</span> <span class="p">(</span><span class="n">node_to_remove</span><span class="p">)</span> <span class="c1">// Concept is in the CAG</span>
-      <span class="p">{</span>
-        <span class="c1">// Note: This is an overloaded private method that takes in a vertex id</span>
-        <span class="k">this</span><span class="o">-&gt;</span><span class="n">remove_node</span><span class="p">(</span><span class="n">node_to_remove</span><span class="p">.</span><span class="n">mapped</span><span class="p">());</span>
-      <span class="p">}</span>
-      <span class="k">else</span> <span class="c1">// The concept is not in the graph</span>
-      <span class="p">{</span>
-        <span class="k">throw</span> <span class="nf">out_of_range</span><span class="p">(</span><span class="s">&quot;Concept </span><span class="se">\&quot;</span><span class="s">{}</span><span class="se">\&quot;</span><span class="s"> not in CAG!&quot;</span><span class="n">_format</span><span class="p">(</span><span class="k">concept</span><span class="p">));</span>
-      <span class="p">}</span>
-<span class="p">}</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">node_to_remove</span><span class="p">)</span><span class="w"> </span><span class="c1">// Concept is in the CAG</span>
+<span class="w">      </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Note: This is an overloaded private method that takes in a vertex id</span>
+<span class="w">        </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">remove_node</span><span class="p">(</span><span class="n">node_to_remove</span><span class="p">.</span><span class="n">mapped</span><span class="p">());</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">      </span><span class="k">else</span><span class="w"> </span><span class="c1">// The concept is not in the graph</span>
+<span class="w">      </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="n">out_of_range</span><span class="p">(</span><span class="s">&quot;Concept </span><span class="se">\&quot;</span><span class="s">{}</span><span class="se">\&quot;</span><span class="s"> not in CAG!&quot;</span><span class="n">_format</span><span class="p">(</span><span class="k">concept</span><span class="p">));</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">remove_nodes</span><span class="p">(</span><span class="n">unordered_set</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">concepts</span><span class="p">)</span> <span class="p">{</span>
-  <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">invalid_concepts</span><span class="p">;</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">remove_nodes</span><span class="p">(</span><span class="n">unordered_set</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">concepts</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">invalid_concepts</span><span class="p">;</span><span class="w"></span>
 
-  <span class="k">for</span> <span class="p">(</span><span class="n">string</span> <span class="k">concept</span> <span class="o">:</span> <span class="n">concepts</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">auto</span> <span class="n">node_to_remove</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">name_to_vertex</span><span class="p">.</span><span class="n">extract</span><span class="p">(</span><span class="k">concept</span><span class="p">);</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="k">concept</span> <span class="o">:</span><span class="w"> </span><span class="n">concepts</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">node_to_remove</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">name_to_vertex</span><span class="p">.</span><span class="n">extract</span><span class="p">(</span><span class="k">concept</span><span class="p">);</span><span class="w"></span>
 
-    <span class="c1">// Concept is in the CAG</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">node_to_remove</span><span class="p">)</span> <span class="p">{</span>
-      <span class="c1">// Note: This is an overlaoded private method that takes in a vertex id</span>
-      <span class="k">this</span><span class="o">-&gt;</span><span class="n">remove_node</span><span class="p">(</span><span class="n">node_to_remove</span><span class="p">.</span><span class="n">mapped</span><span class="p">());</span>
-    <span class="p">}</span>
-    <span class="k">else</span> <span class="c1">// Concept is not in the CAG</span>
-    <span class="p">{</span>
-      <span class="n">invalid_concepts</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="k">concept</span><span class="p">);</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
+<span class="w">    </span><span class="c1">// Concept is in the CAG</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">node_to_remove</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="c1">// Note: This is an overlaoded private method that takes in a vertex id</span>
+<span class="w">      </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">remove_node</span><span class="p">(</span><span class="n">node_to_remove</span><span class="p">.</span><span class="n">mapped</span><span class="p">());</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="c1">// Concept is not in the CAG</span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="n">invalid_concepts</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="k">concept</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
 
-  <span class="k">if</span> <span class="p">(</span><span class="n">invalid_concepts</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-    <span class="c1">// There were some invalid concepts</span>
-    <span class="n">print</span><span class="p">(</span><span class="s">&quot;AnalysisGraph::remove_nodes()</span><span class="se">\n</span><span class="s">&quot;</span>
-          <span class="s">&quot;</span><span class="se">\t</span><span class="s">The following concepts were not present in the CAG!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-    <span class="k">for</span> <span class="p">(</span><span class="n">string</span> <span class="nl">invalid_concept</span> <span class="p">:</span> <span class="n">invalid_concepts</span><span class="p">)</span> <span class="p">{</span>
-      <span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\t\t</span><span class="s">&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">invalid_concept</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">invalid_concepts</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// There were some invalid concepts</span>
+<span class="w">    </span><span class="n">print</span><span class="p">(</span><span class="s">&quot;AnalysisGraph::remove_nodes()</span><span class="se">\n</span><span class="s">&quot;</span><span class="w"></span>
+<span class="w">          </span><span class="s">&quot;</span><span class="se">\t</span><span class="s">The following concepts were not present in the CAG!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="nl">invalid_concept</span> <span class="p">:</span><span class="w"> </span><span class="n">invalid_concepts</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\t\t</span><span class="s">&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">invalid_concept</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">remove_edge</span><span class="p">(</span><span class="n">string</span> <span class="n">src</span><span class="p">,</span> <span class="n">string</span> <span class="n">tgt</span><span class="p">)</span> <span class="p">{</span>
-  <span class="c1">// Remove the edge</span>
-  <span class="n">boost</span><span class="o">::</span><span class="n">remove_edge</span><span class="p">(</span>
-      <span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">src</span><span class="p">),</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">tgt</span><span class="p">),</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">);</span>
-<span class="p">}</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">remove_edge</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="n">tgt</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// Remove the edge</span>
+<span class="w">  </span><span class="n">boost</span><span class="o">::</span><span class="n">remove_edge</span><span class="p">(</span><span class="w"></span>
+<span class="w">      </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">src</span><span class="p">),</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">tgt</span><span class="p">),</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="kt">void</span> <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">remove_edges</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="n">string</span><span class="o">&gt;&gt;</span> <span class="n">edges</span><span class="p">)</span> <span class="p">{</span>
-  <span class="n">vector</span><span class="o">&lt;</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">edge_ids</span> <span class="o">=</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="n">edges</span><span class="p">.</span><span class="n">size</span><span class="p">());</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">remove_edges</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">string</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">edges</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">vector</span><span class="o">&lt;</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">edge_ids</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vector</span><span class="o">&lt;</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="n">edges</span><span class="p">.</span><span class="n">size</span><span class="p">());</span><span class="w"></span>
 
-  <span class="n">set</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">invalid_sources</span><span class="p">;</span>
-  <span class="n">set</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">invalid_targets</span><span class="p">;</span>
-  <span class="n">set</span><span class="o">&lt;</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="n">string</span><span class="o">&gt;&gt;</span> <span class="n">invalid_edges</span><span class="p">;</span>
+<span class="w">  </span><span class="n">set</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">invalid_sources</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="n">set</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">invalid_targets</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="n">set</span><span class="o">&lt;</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">string</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">invalid_edges</span><span class="p">;</span><span class="w"></span>
 
-  <span class="n">std</span><span class="o">::</span><span class="n">transform</span><span class="p">(</span><span class="n">edges</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span>
-                 <span class="n">edges</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span>
-                 <span class="n">edge_ids</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span>
-                 <span class="p">[</span><span class="k">this</span><span class="p">](</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="n">string</span><span class="o">&gt;</span> <span class="n">edge</span><span class="p">)</span> <span class="p">{</span>
-                   <span class="kt">int</span> <span class="n">src_id</span><span class="p">;</span>
-                   <span class="kt">int</span> <span class="n">tgt_id</span><span class="p">;</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">transform</span><span class="p">(</span><span class="n">edges</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"></span>
+<span class="w">                 </span><span class="n">edges</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="w"></span>
+<span class="w">                 </span><span class="n">edge_ids</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"></span>
+<span class="w">                 </span><span class="p">[</span><span class="k">this</span><span class="p">](</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">edge</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                   </span><span class="kt">int</span><span class="w"> </span><span class="n">src_id</span><span class="p">;</span><span class="w"></span>
+<span class="w">                   </span><span class="kt">int</span><span class="w"> </span><span class="n">tgt_id</span><span class="p">;</span><span class="w"></span>
 
-                   <span class="c1">// Flag invalid source vertices</span>
-                   <span class="k">try</span> <span class="p">{</span>
-                     <span class="n">src_id</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">edge</span><span class="p">.</span><span class="n">first</span><span class="p">);</span>
-                   <span class="p">}</span>
-                   <span class="k">catch</span> <span class="p">(</span><span class="k">const</span> <span class="n">out_of_range</span><span class="o">&amp;</span> <span class="n">oor</span><span class="p">)</span> <span class="p">{</span>
-                     <span class="n">src_id</span> <span class="o">=</span> <span class="mi">-1</span><span class="p">;</span>
-                   <span class="p">}</span>
+<span class="w">                   </span><span class="c1">// Flag invalid source vertices</span>
+<span class="w">                   </span><span class="k">try</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                     </span><span class="n">src_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">edge</span><span class="p">.</span><span class="n">first</span><span class="p">);</span><span class="w"></span>
+<span class="w">                   </span><span class="p">}</span><span class="w"></span>
+<span class="w">                   </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">out_of_range</span><span class="o">&amp;</span><span class="w"> </span><span class="n">oor</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                     </span><span class="n">src_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"></span>
+<span class="w">                   </span><span class="p">}</span><span class="w"></span>
 
-                   <span class="c1">// Flag invalid target vertices</span>
-                   <span class="k">try</span> <span class="p">{</span>
-                     <span class="n">tgt_id</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">edge</span><span class="p">.</span><span class="n">second</span><span class="p">);</span>
-                   <span class="p">}</span>
-                   <span class="k">catch</span> <span class="p">(</span><span class="k">const</span> <span class="n">out_of_range</span><span class="o">&amp;</span> <span class="n">oor</span><span class="p">)</span> <span class="p">{</span>
-                     <span class="n">tgt_id</span> <span class="o">=</span> <span class="mi">-1</span><span class="p">;</span>
-                   <span class="p">}</span>
+<span class="w">                   </span><span class="c1">// Flag invalid target vertices</span>
+<span class="w">                   </span><span class="k">try</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                     </span><span class="n">tgt_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">get_vertex_id</span><span class="p">(</span><span class="n">edge</span><span class="p">.</span><span class="n">second</span><span class="p">);</span><span class="w"></span>
+<span class="w">                   </span><span class="p">}</span><span class="w"></span>
+<span class="w">                   </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">out_of_range</span><span class="o">&amp;</span><span class="w"> </span><span class="n">oor</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                     </span><span class="n">tgt_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"></span>
+<span class="w">                   </span><span class="p">}</span><span class="w"></span>
 
-                   <span class="c1">// Flag invalid edges</span>
-                   <span class="k">if</span> <span class="p">(</span><span class="n">src_id</span> <span class="o">!=</span> <span class="mi">-1</span> <span class="o">&amp;&amp;</span> <span class="n">tgt_id</span> <span class="o">!=</span> <span class="mi">-1</span><span class="p">)</span> <span class="p">{</span>
-                     <span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">edge_id</span> <span class="o">=</span> <span class="n">make_pair</span><span class="p">(</span><span class="n">src_id</span><span class="p">,</span> <span class="n">tgt_id</span><span class="p">);</span>
+<span class="w">                   </span><span class="c1">// Flag invalid edges</span>
+<span class="w">                   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">src_id</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">-1</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">tgt_id</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                     </span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">edge_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_pair</span><span class="p">(</span><span class="n">src_id</span><span class="p">,</span><span class="w"> </span><span class="n">tgt_id</span><span class="p">);</span><span class="w"></span>
 
-                     <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">in</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">beta2cell</span><span class="p">,</span> <span class="n">edge_id</span><span class="p">))</span> <span class="p">{</span>
-                       <span class="n">src_id</span> <span class="o">=</span> <span class="mi">-2</span><span class="p">;</span>
-                     <span class="p">}</span>
-                   <span class="p">}</span>
+<span class="w">                     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">in</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">beta2cell</span><span class="p">,</span><span class="w"> </span><span class="n">edge_id</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                       </span><span class="n">src_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-2</span><span class="p">;</span><span class="w"></span>
+<span class="w">                     </span><span class="p">}</span><span class="w"></span>
+<span class="w">                   </span><span class="p">}</span><span class="w"></span>
 
-                   <span class="k">return</span> <span class="n">make_pair</span><span class="p">(</span><span class="n">src_id</span><span class="p">,</span> <span class="n">tgt_id</span><span class="p">);</span>
-                 <span class="p">});</span>
+<span class="w">                   </span><span class="k">return</span><span class="w"> </span><span class="n">make_pair</span><span class="p">(</span><span class="n">src_id</span><span class="p">,</span><span class="w"> </span><span class="n">tgt_id</span><span class="p">);</span><span class="w"></span>
+<span class="w">                 </span><span class="p">});</span><span class="w"></span>
 
-  <span class="kt">bool</span> <span class="n">has_invalid_sources</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
-  <span class="kt">bool</span> <span class="n">has_invalid_targets</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
-  <span class="kt">bool</span> <span class="n">has_invalid_edges</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="n">has_invalid_sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="n">has_invalid_targets</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="n">has_invalid_edges</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"></span>
 
-  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">e</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">e</span> <span class="o">&lt;</span> <span class="n">edge_ids</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">e</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kt">bool</span> <span class="n">valid_edge</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">edge_ids</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="w"> </span><span class="n">e</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">valid_edge</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">edge_ids</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">first</span> <span class="o">==</span> <span class="mi">-1</span><span class="p">)</span> <span class="p">{</span>
-      <span class="n">invalid_sources</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">edges</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">first</span><span class="p">);</span>
-      <span class="n">valid_edge</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
-      <span class="n">has_invalid_sources</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">edge_ids</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">first</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="n">invalid_sources</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">edges</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">first</span><span class="p">);</span><span class="w"></span>
+<span class="w">      </span><span class="n">valid_edge</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"></span>
+<span class="w">      </span><span class="n">has_invalid_sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">edge_ids</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">second</span> <span class="o">==</span> <span class="mi">-1</span><span class="p">)</span> <span class="p">{</span>
-      <span class="n">invalid_targets</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">edges</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">second</span><span class="p">);</span>
-      <span class="n">valid_edge</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
-      <span class="n">has_invalid_targets</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">edge_ids</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">second</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="n">invalid_targets</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">edges</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">second</span><span class="p">);</span><span class="w"></span>
+<span class="w">      </span><span class="n">valid_edge</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"></span>
+<span class="w">      </span><span class="n">has_invalid_targets</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">edge_ids</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">first</span> <span class="o">==</span> <span class="mi">-2</span><span class="p">)</span> <span class="p">{</span>
-      <span class="n">invalid_edges</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">edges</span><span class="p">[</span><span class="n">e</span><span class="p">]);</span>
-      <span class="n">valid_edge</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
-      <span class="n">has_invalid_edges</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">edge_ids</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">first</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-2</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="n">invalid_edges</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">edges</span><span class="p">[</span><span class="n">e</span><span class="p">]);</span><span class="w"></span>
+<span class="w">      </span><span class="n">valid_edge</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"></span>
+<span class="w">      </span><span class="n">has_invalid_edges</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">valid_edge</span><span class="p">)</span> <span class="p">{</span>
-      <span class="c1">// Remove the edge</span>
-      <span class="n">boost</span><span class="o">::</span><span class="n">remove_edge</span><span class="p">(</span><span class="n">edge_ids</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">first</span><span class="p">,</span> <span class="n">edge_ids</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">second</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">);</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">valid_edge</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="c1">// Remove the edge</span>
+<span class="w">      </span><span class="n">boost</span><span class="o">::</span><span class="n">remove_edge</span><span class="p">(</span><span class="n">edge_ids</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">first</span><span class="p">,</span><span class="w"> </span><span class="n">edge_ids</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">second</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
 
-  <span class="k">if</span> <span class="p">(</span><span class="n">has_invalid_sources</span> <span class="o">||</span> <span class="n">has_invalid_targets</span> <span class="o">||</span> <span class="n">has_invalid_edges</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">print</span><span class="p">(</span><span class="s">&quot;AnalysisGraph::remove_edges&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">has_invalid_sources</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">has_invalid_targets</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">has_invalid_edges</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">print</span><span class="p">(</span><span class="s">&quot;AnalysisGraph::remove_edges&quot;</span><span class="p">);</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">has_invalid_sources</span><span class="p">)</span> <span class="p">{</span>
-      <span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">Following source vertexes are not in the CAG!&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
-      <span class="k">for</span> <span class="p">(</span><span class="n">string</span> <span class="nl">invalid_src</span> <span class="p">:</span> <span class="n">invalid_sources</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\t\t</span><span class="s">&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">invalid_src</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
-      <span class="p">}</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">has_invalid_sources</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Following source vertexes are not in the CAG!&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
+<span class="w">      </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="nl">invalid_src</span> <span class="p">:</span><span class="w"> </span><span class="n">invalid_sources</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\t\t</span><span class="s">&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">invalid_src</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">has_invalid_targets</span><span class="p">)</span> <span class="p">{</span>
-      <span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">Following target vertexes are not in the CAG!&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
-      <span class="k">for</span> <span class="p">(</span><span class="n">string</span> <span class="nl">invalid_tgt</span> <span class="p">:</span> <span class="n">invalid_targets</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\t\t</span><span class="s">&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">invalid_tgt</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
-      <span class="p">}</span>
-    <span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">has_invalid_targets</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Following target vertexes are not in the CAG!&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
+<span class="w">      </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="nl">invalid_tgt</span> <span class="p">:</span><span class="w"> </span><span class="n">invalid_targets</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\t\t</span><span class="s">&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">invalid_tgt</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
-    <span class="k">if</span> <span class="p">(</span><span class="n">has_invalid_edges</span><span class="p">)</span> <span class="p">{</span>
-      <span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">Following edges are not in the CAG!&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
-      <span class="k">for</span> <span class="p">(</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="n">string</span><span class="o">&gt;</span> <span class="nl">invalid_edge</span> <span class="p">:</span> <span class="n">invalid_edges</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\t\t</span><span class="s">&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">invalid_edge</span><span class="p">.</span><span class="n">first</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; --to-&gt; &quot;</span>
-             <span class="o">&lt;&lt;</span> <span class="n">invalid_edge</span><span class="p">.</span><span class="n">second</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
-      <span class="p">}</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">has_invalid_edges</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Following edges are not in the CAG!&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
+<span class="w">      </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="nl">invalid_edge</span> <span class="p">:</span><span class="w"> </span><span class="n">invalid_edges</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\t\t</span><span class="s">&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">invalid_edge</span><span class="p">.</span><span class="n">first</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; --to-&gt; &quot;</span><span class="w"></span>
+<span class="w">             </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">invalid_edge</span><span class="p">.</span><span class="n">second</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-</div>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2018, Adarsh.
-
-    </p>
+    <p>&#169; Copyright 2018, Adarsh.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

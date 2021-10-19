@@ -1,7 +1,7 @@
 .. _exhale_function_AnalysisGraph_8hpp_1ace16d595b9131cdc3064439ffc89f1bb:
 
-Function construct_adjective_response_map(size_t)
-=================================================
+Function construct_adjective_response_map
+=========================================
 
 - Defined in :ref:`file_lib_AnalysisGraph.hpp`
 

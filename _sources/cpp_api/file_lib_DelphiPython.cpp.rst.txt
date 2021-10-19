@@ -35,6 +35,8 @@ Includes
 
 - ``pybind11/eigen.h``
 
+- ``pybind11/functional.h``
+
 - ``pybind11/numpy.h``
 
 - ``pybind11/operators.h``
