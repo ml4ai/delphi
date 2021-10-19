@@ -265,6 +265,14 @@ int main(int argc, const char* argv[]) {
     }
 
     /* Allow users to check if the REST API is running */
+    mux.handle("/progress")
+        .get([&sqlite3DB](served::response& res, const served::request& req) {
+        cout << "/progress" << endl; 
+	res << "Delphi REST API 'progress' called.";
+    });
+
+
+    /* Allow users to check if the REST API is running */
     mux.handle("/status")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
         cout << "/status" << endl; 
