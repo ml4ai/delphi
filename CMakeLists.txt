@@ -36,34 +36,33 @@ endif()
 find_package(SQLite3 REQUIRED)
 
 add_library(Delphi
-    lib/causemos_integration.cpp
-    lib/constructors.cpp
-    lib/database.cpp
-    lib/DatabaseHelper.cpp
-    lib/data.cpp
-    lib/format_output.cpp
-    lib/graph_building.cpp
-    lib/graph_modification.cpp
-    lib/graph_utils.cpp
-    lib/graphviz.cpp
-    lib/graphviz_interface.cpp
-    lib/head_nodes.cpp
-    lib/Indicator.cpp
-    lib/indicator_manipulation.cpp
-    lib/KDE.cpp
-    lib/parameter_initialization.cpp
-    lib/prediction.cpp
-    lib/printing.cpp
-    lib/Random_Variables.cpp
-    lib/rng.cpp
-    lib/sampling.cpp
-    lib/sandbox.cpp
-    lib/subgraphs.cpp
-    lib/synthetic_data.cpp
-    lib/to_json.cpp
-    lib/train_model.cpp
-    lib/Tran_Mat_Cell.cpp
-    lib/utils.cpp
+  lib/parameter_initialization.cpp
+  lib/to_json.cpp
+  lib/data.cpp
+  lib/graphviz_interface.cpp
+  lib/graphviz.cpp
+  lib/KDE.cpp
+  lib/Random_Variables.cpp
+  lib/rng.cpp
+  lib/train_model.cpp
+  lib/Tran_Mat_Cell.cpp
+  lib/utils.cpp
+  lib/Indicator.cpp
+  lib/subgraphs.cpp
+  lib/constructors.cpp
+  lib/causemos_integration.cpp
+  lib/sampling.cpp
+  lib/prediction.cpp
+  lib/synthetic_data.cpp
+  lib/graph_building.cpp
+  lib/graph_modification.cpp
+  lib/graph_utils.cpp
+  lib/printing.cpp
+  lib/indicator_manipulation.cpp
+  lib/sandbox.cpp
+  lib/format_output.cpp
+  lib/database.cpp
+  lib/head_nodes.cpp
 )
 
 target_link_libraries(Delphi
@@ -90,8 +89,6 @@ if(BUILD_PYTHON_BINDINGS)
         COMMAND rm -rf ${PROJECT_SOURCE_DIR}/delphi/cpp/DelphiPython*
         COMMAND cp DelphiPython* ${PROJECT_SOURCE_DIR}/delphi/cpp/
     )
-
-#add_executable(pybind_tester_driver apps/pybind_tester_driver.cpp)
 
 endif()
 
