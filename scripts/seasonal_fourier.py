@@ -58,8 +58,8 @@ def generate_fourier_coefficients_from_full_blown_LDS_sinusoidals(x, f, dx, comp
 
     C0 = np.sum(f * np.ones_like(x)) * dx
 
-    f0 = C0/2
-    f0_dot = 0
+    # f0 = C0/2
+    # f0_dot = 0
 
     for k in range(components):
         cos_nx = sinusoidals[4 * k + 2, :]
@@ -69,7 +69,8 @@ def generate_fourier_coefficients_from_full_blown_LDS_sinusoidals(x, f, dx, comp
         D[k] = np.sum(f * sin_nx) * dx
 
         # f0 += C[k] * cos_nx[0] + D[k] * sin_nx[0]
-        f0 += C[k] * sinusoidals[4 * k + 2, :][0] + D[k] * sinusoidals[4 * k, :][0]
+        # f0 += C[k] * sinusoidals[4 * k + 2, :][0] + D[k] * sinusoidals[4 * k, :][0]
+        # f0_dot += C[k] * sinusoidals[4 * k + 3, :][0] + D[k] * sinusoidals[4 * k + 1, :][0]
 
     return C0, C, D
 
@@ -83,7 +84,7 @@ def generate_full_full_blown_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C,
     # A[0][0] = 1
     A[2:2 + A_sinusoidal.shape[0], 2:2 + A_sinusoidal.shape[0]] = A_sinusoidal
     A[2 + A_sinusoidal.shape[0]][0] = 0
-    A[np.ix_([-2], np.arange(3, dim - 4, 4))] = D # -2 = 2 + A_sinusoidal.shape[0]
+    A[np.ix_([-2], np.arange(3, dim - 4, 4))] = D  # -2 = 2 + A_sinusoidal.shape[0]
     A[np.ix_([-2], np.arange(5, dim - 2, 4))] = C
 
     for component in np.arange(components):
@@ -110,7 +111,7 @@ def generate_full_full_blown_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C,
     return A, s0
 
 
-def fourier_curve_from_full_blown_LDS(A, s0, C0, num_pred, L, num_datapoints):
+def fourier_curve_from_full_blown_LDS(A, s0, num_pred, L, num_datapoints):
     curves = np.zeros((len(s0), num_pred))
     curves[:, 0] = s0[:, 0]
     for t in range(1, num_pred):
@@ -125,6 +126,7 @@ def fourier_curve_from_full_blown_LDS(A, s0, C0, num_pred, L, num_datapoints):
     plt.legend()
     plt.show()
 
+
 # Have to update this similar to generate_sinusoidal_curves() to be used in the current pipeline
 def generate_sinusoidal_curves_from_full_blown_LDS(A, s0, x):
     points = np.zeros((len(s0), len(x)))
@@ -132,6 +134,7 @@ def generate_sinusoidal_curves_from_full_blown_LDS(A, s0, x):
         points[:, idx] = np.matmul(la.expm(A * t), s0)[:, 0]
 
     return points
+
 
 '''
 components = 2
@@ -361,6 +364,6 @@ else:
 
 fourier_curve_from_trig_functions(C0_trig, C_trig, D_trig, x, L)
 if full_blown:
-    fourier_curve_from_full_blown_LDS(A, s0, C0, 15, L, m)
+    fourier_curve_from_full_blown_LDS(A, s0, 15, L, m)
 else:
     fourier_curve_from_LDS(A, s0, 15, L, m)
