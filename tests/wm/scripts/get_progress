@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Author: Joseph Astier
+
+# Check the computation progress of a model or experiment.
+
+printf "Testing Delphi REST API status:\n"
+
+endpoint="/progress"
+login="-u me:ivilab4fun"
+url=$(./get_delphi_url)
+
+call="curl $login -s $url$endpoint"
+
+echo $($call)
