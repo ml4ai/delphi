@@ -275,6 +275,11 @@ int main(int argc, const char* argv[]) {
     mux.handle("/check_data")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
         cout << "/check_data" << endl; 
+
+	// query the database
+	sqlite3_stmt* stmt = nullptr;
+	string query = "SELECT table_name FROM dba_tables";
+//	int rc = sqlite3_prepare_v2(sqlite3DB, query.c_str(), -1, &stmt, NULL);
 	res << "Delphi REST API 'check_data' called.";
     });
 
