@@ -66,10 +66,10 @@ jobs:
         source delphi_venv/bin/activate
 
         # Install wheel
-        sudo pip install wheel
+        pip install wheel
 
         # Install delphi in editable mode
-        sudo pip install -e .[test]
+        pip install -e .[test]
 
         # Run the Python WM test suite
         make test_wm
