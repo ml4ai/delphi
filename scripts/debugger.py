@@ -69,10 +69,14 @@ def create_base_CAG(causemos_create_model,
                     grounding_score_cutoff=0,
                     kde_kernels=4):
     if causemos_create_model:
-        G = AnalysisGraph.from_causemos_json_file(causemos_create_model,
-                                                  belief_score_cutoff,
-                                                  grounding_score_cutoff,
-                                                  kde_kernels)
+        if causemos_create_model == "synthetic":
+            G = AnalysisGraph.generate_random_CAG(4, 1)
+            G.generate_synthetic_data(24, 16.0, 100, InitialBeta.PRIOR, InitialDerivative.DERI_PRIOR, False)
+        else:
+            G = AnalysisGraph.from_causemos_json_file(causemos_create_model,
+                                                      belief_score_cutoff,
+                                                      grounding_score_cutoff,
+                                                      kde_kernels)
     else:
         statements = [
             (
@@ -114,9 +118,14 @@ if __name__ == "__main__":
          ""],
         ["../tests/data/delphi/causemos_create.json",                   # 8. Oldest test data
          "../tests/data/delphi/causemos_experiments_projection_input.json"],
+        ["../tests/data/delphi/create_model_rain--temperature--yield.json",    # 9. rain-temperature CAG
+         "../tests/data/delphi/experiments_rain--temperature--yield.json"],
+        ["../tests/data/delphi/create_model_rain--temperature.json",    # 10. rain-temperature CAG
+         "../tests/data/delphi/experiments_rain--temperature--yield.json"],
+        ["synthetic", "synthetic"]                                      # 11. synthetic
     ]
 
-    input_idx = 2
+    input_idx = 9
     causemos_create_model = json_inputs[input_idx][0]
     causemos_create_experiment = json_inputs[input_idx][1]
 
@@ -126,30 +135,36 @@ if __name__ == "__main__":
                         grounding_score_cutoff=0,
                         kde_kernels=10)
     #G = create_base_CAG('', 100)
+    G.set_random_seed(81)
 
     draw_CAG(G, 'plot_testing_CAG.png')
 
 
     print('\nTraining Model')
-    G.run_train_model(res=10,
-                      burn=100,
+    use_continuous = False if causemos_create_model == "synthetic" else True
+    G.run_train_model(res=200,
+                      burn=1000,
                       initial_beta=InitialBeta.ZERO,
-                      initial_derivative=InitialDerivative.DERI_ZERO)
+                      initial_derivative=InitialDerivative.DERI_ZERO,
+                      use_continuous=use_continuous)
 
-    try:
-        preds = G.run_causemos_projection_experiment_from_json_file(
-                filename=causemos_create_experiment)
-    except AnalysisGraph.BadCausemosInputException as e:
-        print(e)
-        exit()
+    if causemos_create_model == "synthetic":
+        G.generate_prediction(1, 24)
+    else:
+        try:
+            preds = G.run_causemos_projection_experiment_from_json_file(
+                    filename=causemos_create_experiment)
+        except AnalysisGraph.BadCausemosInputException as e:
+            print(e)
+            exit()
 
     print('\n\nPlotting \n')
     model_state = G.get_complete_state()
 
-    concept_indicators, edges, adjectives, polarities, edge_data, derivatives, data_range, data_set, pred_range, predictions, cis  = model_state
+    concept_indicators, edges, adjectives, polarities, edge_data, derivatives, data_range, data_set, pred_range, predictions, cis, log_likelihoods = model_state
 
     print(data_range)
     print(pred_range[1:])
 
     dp.delphi_plotter(model_state, num_bins=400, rotation=45,
-            out_dir='plots', file_name_prefix='')
+            out_dir='plots', file_name_prefix='db', save_csv=False)

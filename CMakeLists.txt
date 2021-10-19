@@ -106,7 +106,6 @@ target_include_directories(create_model PRIVATE ${Boost_INCLUDE_DIR} lib externa
 
 add_executable(sandbox_tester apps/sandbox_tester.cpp)
 target_link_libraries(sandbox_tester PRIVATE Delphi Eigen3::Eigen)
-target_include_directories(sandbox_tester PRIVATE ${Boost_INCLUDE_DIR} lib external ${GRAPHVIZ_INCLUDE_DIRS})
 
 # Timer program
 add_executable(timer
