@@ -90,6 +90,7 @@ void AnalysisGraph::set_transition_matrix_from_betas() {
                                   this->observation_timestep_gaps.end())) {
       this->e_A_ts.insert(make_pair(gap, (this->A_original * gap).exp()));
     }
+    this->e_A_ts.insert(make_pair(1, this->A_original.exp()));
   }
 }
 
@@ -134,21 +135,60 @@ void AnalysisGraph::set_log_likelihood() {
         }
       }
       this->current_latent_state = this->s0;
-      set_log_likelihood_helper(0);
+      int ts_monthly = 0;
+
+      for (int ts = 0; ts < this->n_timesteps; ts++) {
+
+        // Set derivatives for frozen nodes
+        for (const auto & [ v, deriv_func ] : this->external_concepts) {
+          const Indicator& ind = this->graph[v].indicators[0];
+          this->current_latent_state[2 * v + 1] = deriv_func(ts, ind.mean);
+        }
+
+        for (int ts_gap = 0; ts_gap < this->observation_timestep_gaps[ts]; ts_gap++) {
+          this->update_latent_state_with_generated_derivatives(ts_monthly,
+                                                               ts_monthly + 1);
+          this->current_latent_state =
+              this->e_A_ts[1] * this->current_latent_state;
+          ts_monthly++;
+        }
+        set_log_likelihood_helper(ts);
+      }
+
+      /*
+      this->update_latent_state_with_generated_derivatives(0, 1);
+
+      this->set_log_likelihood_helper(0);
 
       for (int ts = 1; ts < this->n_timesteps; ts++) {
         this->current_latent_state =
             this->e_A_ts[this->observation_timestep_gaps[ts]]
             * this->current_latent_state;
-        set_log_likelihood_helper(ts);
+        this->update_latent_state_with_generated_derivatives(ts, ts + 1);
+        this->set_log_likelihood_helper(ts);
       }
+      */
   } else {
       // Discretized version
       this->current_latent_state = this->s0;
+      int ts_monthly = 0;
 
       for (int ts = 0; ts < this->n_timesteps; ts++) {
+
+          // Set derivatives for frozen nodes
+          for (const auto & [ v, deriv_func ] : this->external_concepts) {
+              const Indicator& ind = this->graph[v].indicators[0];
+              this->current_latent_state[2 * v + 1] = deriv_func(ts, ind.mean);
+          }
+
+          for (int ts_gap = 0; ts_gap < this->observation_timestep_gaps[ts]; ts_gap++) {
+              this->update_latent_state_with_generated_derivatives(
+                ts_monthly, ts_monthly + 1);
+              this->current_latent_state =
+                  this->A_original * this->current_latent_state;
+              ts_monthly++;
+          }
           set_log_likelihood_helper(ts);
-          this->current_latent_state = this->A_original * this->current_latent_state;
       }
   }
 }
@@ -169,13 +209,24 @@ void AnalysisGraph::sample_from_posterior() {
 
   if (acceptance_probability < this->uni_dist(this->rand_num_generator)) {
     // Reject the sample
-    this->revert_back_to_previous_state();
+    if (this->generated_concept == -1) {
+      this->revert_back_to_previous_state();
+    }
+    this->log_likelihood = this->previous_log_likelihood;
   }
+//  else {
+//    if (this->generated_concept > -1) {
+//      Node& n = (*this)[this->generated_concept];
+//      this->partition_data_and_calculate_mean_std_for_each_partition
+//                                     (n, this->generated_latent_sequence);
+//    }
+//  }
 }
 
 void AnalysisGraph::sample_from_proposal() {
   // Flip a coin and decide whether to perturb a θ or a derivative
   this->coin_flip = this->uni_dist(this->rand_num_generator);
+  this->generated_concept = -1;
 
   if (this->coin_flip < this->coin_flip_thresh) {
     // Randomly pick an edge ≡ θ
@@ -195,11 +246,20 @@ void AnalysisGraph::sample_from_proposal() {
     this->update_transition_matrix_cells(e[0]);
   }
   else {
-    // Randomly select a concept to change the derivative
-    this->changed_derivative =
-        2 * this->uni_disc_dist(this->rand_num_generator) + 1;
-    this->previous_derivative = this->s0[this->changed_derivative];
-    this->s0[this->changed_derivative] += this->norm_dist(this->rand_num_generator);
+    // Randomly select a concept
+    int concept = this->concept_sample_pool[this->uni_disc_dist(this->rand_num_generator)];
+    this->changed_derivative = 2 * concept + 1;
+
+    if (this->head_nodes.find(concept) != this->head_nodes.end()) {
+      this->generated_concept = concept;
+      this->generate_head_node_latent_sequence(this->generated_concept, this->n_timesteps, true, 0);
+    }
+    else {
+      // to change the derivative
+      this->previous_derivative = this->s0[this->changed_derivative];
+      this->s0[this->changed_derivative] +=
+          this->norm_dist(this->rand_num_generator);
+    }
   }
 }
 
@@ -240,14 +300,28 @@ double AnalysisGraph::calculate_delta_log_prior() {
            kde.logpdf(this->previous_theta.second);
   }
   else {
-    // A derivative  has been sampled
-    // We assume the prior for derivative is N(0, 0.1)
-    // We have to return: log( p(ẋ_new )) - log( p( ẋ_old ))
-    // After some mathematical simplifications we can derive
-    // (ẋ_old - ẋ_new)(ẋ_old + ẋ_new) / 2σ²
-    return (this->previous_derivative - this->s0[this->changed_derivative])
-           * (this->previous_derivative + this->s0[this->changed_derivative])
-           / (2 * this->derivative_prior_variance);
+    if (this->generated_concept == -1) {
+      // A derivative  has been sampled
+      // We assume the prior for derivative is N(0, 0.1)
+      // We have to return: log( p(ẋ_new )) - log( p( ẋ_old ))
+      // After some mathematical simplifications we can derive
+      // (ẋ_old - ẋ_new)(ẋ_old + ẋ_new) / 2σ²
+      return (this->previous_derivative - this->s0[this->changed_derivative]) *
+             (this->previous_derivative + this->s0[this->changed_derivative]) /
+             (2 * this->derivative_prior_variance);
+    }
+    else {
+      // A derivative sequence for an independent node has been generated
+      // When latent state at ts = 0 is 1, it makes the observation 0 the
+      // highest probable value.
+      // The standard deviation of ts = 0 latent state is set to 0.01
+      /*
+      return (1 - this->generated_latent_sequence[0]) *
+             (1 + this->generated_latent_sequence[0]) /
+             (2 * 0.01);
+      */
+      return 0;
+    }
   }
 }
 

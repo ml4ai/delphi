@@ -38,9 +38,37 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
     if file_name_prefix:
         file_name_prefix += '_'
 
-    concept_indicators, edges, adjectives, polarities, edge_data, derivatives, data_range, data_set, pred_range, predictions, cis  = model_state
+    concept_indicators, edges, adjectives, polarities, edge_data, derivatives, data_range, data_set, pred_range, predictions, cis, log_likelihoods = model_state
 
     plot_num = 1
+
+    # Plot log likelihoods
+    sns.set_style("whitegrid")
+    fig, ax = plt.subplots(dpi=150, figsize=(10, 5))
+    plt.rcParams['font.size'] = 18
+
+    df_log_likelihood = pd.DataFrame({'Sample Number': list(range(len(log_likelihoods))), 'Log Likelihood': log_likelihoods})
+
+    sns.lineplot(
+        ax=ax,
+        data=df_log_likelihood,
+        y='Log Likelihood',
+        x='Sample Number',
+        color='red',
+    )
+    plt.title(f'Log Likelihood Progression Throughout Training')
+    plt.xlabel('Sample Number')
+    plt.ylabel('Log Likelihood')
+    plt.tight_layout()
+
+    if out_dir:
+        plt.savefig(f'{out_dir}/{file_name_prefix}{plot_num}_Log_Likelihoods.png')
+        if save_csv:
+            df_log_likelihood.to_csv(f'{out_dir}/{file_name_prefix}{plot_num}_Log_Likelihoods.csv', index=False)
+        plot_num += 1
+    else:
+        plt.show()
+    plt.close()
 
     # Plot theta prior and sample distributions
     for idx, thetas in enumerate(edge_data):
@@ -150,7 +178,8 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
     for box_plot in [True, False]:
         for ind, preds in predictions.items():
             sns.set_style("whitegrid")
-            fig, ax = plt.subplots(dpi=150, figsize=(8, 4.5))
+            fig, ax = plt.subplots(dpi=150, figsize=(10, 5))
+            plt.rcParams['font.size'] = 18
 
             df_preds = pd.DataFrame.from_dict(preds)
             df_preds= pd.melt(df_preds, value_vars=df_preds.columns,
@@ -167,9 +196,6 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
                 sns.boxplot(ax=ax, data=df_preds, x='Time Step', y='Prediction')
                 ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
             else:
-                sns.lineplot(ax=ax, data=df_preds, x='Time Step', y='Prediction',
-                             sort=False, marker='D', label='Mean Prediction')
-
                 if len(data_set[ind]) > 0:
                     df_data = pd.DataFrame.from_dict(data_set[ind])
 
@@ -189,14 +215,15 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
 
                     if df_data_grp['frequency'].max() == df_data_grp['frequency'].min():
                         # There are no coinciding data points
-                        sns.scatterplot(
+                        sns.lineplot(
                             ax=ax,
                             data=df_data_grp,
                             y='Data',
                             x='Time Step',
                             marker='o',
                             label='Data',
-                            color='red'
+                            color='red',
+                            alpha=0.3
                         )
                     else:
                         sns.scatterplot(
@@ -218,6 +245,9 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
                         ax.legend(handles, labels, handler_map={str: LegendTitle({'fontsize':
                             12})}, fancybox=True)
 
+                sns.lineplot(ax=ax, data=df_preds, x='Time Step', y='Prediction',
+                             sort=False, marker='D', label='Mean Prediction')
+
             # Set x-axis tick marks
             '''
             dates = set(data_range).union(set(pred_range))
@@ -235,6 +265,25 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
                 plt.title(f'Predictions\n{ind}')
             else:
                 plt.title(f'Mean Predictions and Data\n{ind}')
+
+            plt.ylabel(ind)
+            # plt.xlabel('Year/Month')
+            # plt.legend()
+
+            # xtics = []
+            # xlabels = []
+            # all_x = set(df_data['Time Step'])
+            # all_x.update(pred_range)
+            # all_x = list(all_x)
+            # all_x.sort()
+            # for x in all_x:
+            #     if x % 12 == 0:
+            #         xtics.append(x)
+            #         xlabels.append(f'{x // 12 + 1958}/{x % 12 + 1}')
+            #
+            # plt.xticks(xtics, xlabels)
+            plt.tight_layout()
+
             plt.tight_layout()
 
             if out_dir:
@@ -258,26 +307,8 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
     for with_preds in [True, False]:
         for ind, ind_cis in cis.items():
             sns.set_style("whitegrid")
-            fig, ax = plt.subplots(dpi=150, figsize=(8, 4.5))
-
-            if with_preds:
-                df_cis = pd.DataFrame.from_dict(ind_cis)
-
-                if month_year:
-                    df_cis['Time Step'] = pd.to_datetime(pred_range)
-                else:
-                    df_cis['Time Step'] = pred_range
-
-                sns.lineplot(ax=ax, data=df_cis, x='Time Step', y='Median',
-                        sort=False, marker='D', label='Median Prediction')
-                ax.fill_between(
-                    x=df_cis['Time Step'],
-                    y1=df_cis['Upper 95% CI'],
-                    y2=df_cis['Lower 95% CI'],
-                    alpha=0.2,
-                    color='blue',
-                    label='95% CI'
-                )
+            fig, ax = plt.subplots(dpi=150, figsize=(10, 5))
+            plt.rcParams['font.size'] = 18
 
             if len(data_set[ind]) > 0:
                 df_data = pd.DataFrame.from_dict(data_set[ind])
@@ -287,7 +318,7 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
                             pd.to_datetime(data_range[int(ts)]))
                 else:
                     df_data['Time Step'] = df_data['Time Step'].apply(lambda ts:
-                                                                      data_range[int(ts)])
+                                                                      int(data_range[int(ts)]))
 
                 # Aggregate multiple coinciding data points
                 df_data['frequency'] = df_data['Time Step'].apply(lambda x: 1)
@@ -298,14 +329,15 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
 
                 if df_data_grp['frequency'].max() == df_data_grp['frequency'].min():
                     # There are no coinciding data points
-                    sns.scatterplot(
+                    sns.lineplot(
                         ax=ax,
                         data=df_data_grp,
                         y='Data',
                         x='Time Step',
                         marker='o',
                         label='Data',
-                        color='red'
+                        color='red',
+                        alpha=0.3
                     )
                 else:
                     sns.scatterplot(
@@ -328,11 +360,57 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
                         12})}, fancybox=True)
 
 
+            if with_preds:
+                df_cis = pd.DataFrame.from_dict(ind_cis)
+
+                if month_year:
+                    df_cis['Time Step'] = pd.to_datetime(pred_range)
+                else:
+                    df_cis['Time Step'] = pred_range
+                    df_cis['Time Step'] = df_cis['Time Step'].apply(lambda ts: int(ts))
+
+                rmse = -1
+                if len(data_set[ind]) > 0:
+                    df_rmse = pd.merge(left=df_cis, right=df_data, on='Time Step')[['Time Step', 'Median', 'Data']]
+
+                    if not df_rmse.empty:
+                        df_rmse['se'] = df_rmse.apply(lambda row: (row['Median'] - row['Data']) ** 2, axis=1)
+                        rmse = math.sqrt(sum(df_rmse['se']) / len(df_rmse['se']))
+
+                sns.lineplot(ax=ax, data=df_cis, x='Time Step', y='Median',
+                             sort=False, marker='D', label='Median Prediction')
+                ax.fill_between(
+                    x=df_cis['Time Step'],
+                    y1=df_cis['Upper 95% CI'],
+                    y2=df_cis['Lower 95% CI'],
+                    alpha=0.2,
+                    color='blue',
+                    label='95% CI'
+                )
+
             ind = ind.split('/')[-1]
             if with_preds:
-                plt.title(f'Median Predictions and $95\%$ Credible Interval\n{ind}')
+                plt.title(f'Median Predictions and $95\%$ Credible Interval\n{ind} (RMSE: {rmse:0.2f})')
             else:
                 plt.title(f'{ind}\nData')
+
+            plt.ylabel(ind)
+            # plt.xlabel('Year/Month')
+            plt.legend()
+
+            # xtics = []
+            # xlabels = []
+            # all_x = set(df_data['Time Step'])
+            # all_x.update(pred_range)
+            # all_x = list(all_x)
+            # all_x.sort()
+            # for x in all_x:
+            #     if x % 12 == 0:
+            #         xtics.append(x)
+            #         xlabels.append(f'{x // 12 + 1958}/{x % 12 + 1}')
+            #
+            # plt.xticks(xtics, xlabels)
+            plt.tight_layout()
 
             if out_dir:
                 if with_preds:
@@ -346,6 +424,122 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
                 plt.show()
             plt.close()
 
+
+    #############################################
+    # Plot predictions and data for the prediction range only
+    for ind, ind_cis in cis.items():
+        sns.set_style("whitegrid")
+        fig, ax = plt.subplots(dpi=150, figsize=(10, 5))
+        plt.rcParams['font.size'] = 18
+
+        df_cis = pd.DataFrame.from_dict(ind_cis)
+
+        if month_year:
+            df_cis['Time Step'] = pd.to_datetime(pred_range)
+        else:
+            df_cis['Time Step'] = pred_range
+            all_x = set(pred_range)
+
+        if len(data_set[ind]) > 0:
+            df_data = pd.DataFrame.from_dict(data_set[ind])
+
+            if month_year:
+                df_data['Time Step'] = df_data['Time Step'].apply(lambda ts:
+                                                                  pd.to_datetime(data_range[int(ts)]))
+            else:
+                df_data['Time Step'] = df_data['Time Step'].apply(lambda ts:
+                                                                  int(data_range[int(ts)]))
+                all_x.update(df_data['Time Step'])
+
+            df_data = pd.merge(left=df_data, right=df_cis, on='Time Step')[df_data.columns]
+
+            # Aggregate multiple coinciding data points
+            df_data['frequency'] = df_data['Time Step'].apply(lambda x: 1)
+            df_data_grp = df_data.groupby(by=['Time Step', 'Data'], as_index=False).count()
+
+            if month_year:
+                df_data_grp['Time Step'] = pd.to_datetime(df_data_grp['Time Step'])
+
+            if df_data_grp['frequency'].max() == df_data_grp['frequency'].min():
+                # There are no coinciding data points
+                sns.lineplot(
+                    ax=ax,
+                    data=df_data_grp,
+                    y='Data',
+                    x='Time Step',
+                    marker='o',
+                    label='Data',
+                    color='red',
+                    alpha=0.3
+                )
+            else:
+                sns.scatterplot(
+                    ax=ax,
+                    data=df_data_grp,
+                    y='Data',
+                    x='Time Step',
+                    marker='o',
+                    label='Data',
+                    hue=df_data_grp['frequency'].tolist(),
+                    palette='ch:r=-.8, l=.75',
+                    size=df_data_grp['frequency'].tolist(),
+                    sizes=(50, 250)
+                )
+
+                handles, labels = ax.get_legend_handles_labels()
+                handles.insert(2, 'Number of Data Points')
+                labels.insert(2, '')
+                ax.legend(handles, labels, handler_map={str: LegendTitle({'fontsize':
+                                                                              12})}, fancybox=True)
+
+
+            rmse = -1
+            if len(data_set[ind]) > 0:
+                df_rmse = pd.merge(left=df_cis, right=df_data, on='Time Step')[['Time Step', 'Median', 'Data']]
+
+                if not df_rmse.empty:
+                    df_rmse['se'] = df_rmse.apply(lambda row: (row['Median'] - row['Data']) ** 2, axis=1)
+                    rmse = math.sqrt(sum(df_rmse['se']) / len(df_rmse['se']))
+
+        sns.lineplot(ax=ax, data=df_cis, x='Time Step', y='Median',
+                     sort=False, marker='D', label='Median Prediction')
+        ax.fill_between(
+            x=df_cis['Time Step'],
+            y1=df_cis['Upper 95% CI'],
+            y2=df_cis['Lower 95% CI'],
+            alpha=0.2,
+            color='blue',
+            label='95% CI'
+        )
+
+        ind = ind.split('/')[-1]
+        plt.title(f'Median Predictions and $95\%$ Credible Interval\n{ind} (RMSE: {rmse:0.2f})')
+
+        plt.ylabel(ind)
+        plt.xlabel('Year/Month')
+        plt.legend()
+
+        # xtics = []
+        # xlabels = []
+        # all_x = list(all_x)
+        # all_x.sort()
+        # for x in all_x:
+        #     if x % 12 == 0:
+        #         xtics.append(x)
+        #         xlabels.append(f'{x // 12 + 1958}/{x % 12 + 1}')
+        #
+        # plt.xticks(xtics, xlabels, rotation=rotation)
+        plt.tight_layout()
+
+        if out_dir:
+            plt.savefig(f'{out_dir}/{file_name_prefix}{plot_num}_Predictions_Median_and_CI_{ind}_prediction_range.png')
+            if save_csv:
+                df_cis.to_csv(f'{out_dir}/{file_name_prefix}{plot_num}_Predictions_Median_and_CI_{ind}_prediction_range.csv', index=False)
+            plot_num += 1
+        else:
+            plt.show()
+        plt.close()
+#############################################
 
     # Plot predictions for pairs of indicators related by edges
     # from the summarized (median, upper and lower confidence
@@ -410,10 +604,27 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
                         df_target_data['Time Step'] = df_target_data['Time Step'].apply(lambda ts:
                                                                                         data_range[int(ts)])
 
-                    sns.scatterplot(ax=ax_left, data=df_source_data, x='Time Step',
-                        y='Data', marker='x', color=color_left, label=f'{source}')
-                    sns.scatterplot(ax=ax_right, data=df_target_data, x='Time Step',
-                            y='Data', marker='x', color=color_right, label=f'{target}')
+                    # Aggregate multiple coinciding data points
+                    df_source_data['frequency'] = df_source_data['Time Step'].apply(lambda x: 1)
+                    df_source_data_grp = df_source_data.groupby(by=['Time Step', 'Data'], as_index=False).count()
+                    df_target_data['frequency'] = df_target_data['Time Step'].apply(lambda x: 1)
+                    df_target_data_grp = df_target_data.groupby(by=['Time Step', 'Data'], as_index=False).count()
+
+                    if df_source_data_grp['frequency'].max() == df_source_data_grp['frequency'].min():
+                        # There are no coinciding data points
+                        sns.lineplot(ax=ax_left, data=df_source_data_grp, x='Time Step',
+                            y='Data', marker='x', color=color_left, alpha=0.3, label=f'{source}')
+                    else:
+                        sns.scatterplot(ax=ax_left, data=df_source_data, x='Time Step',
+                                        y='Data', marker='x', color=color_left, label=f'{source}')
+
+                    if df_target_data_grp['frequency'].max() == df_target_data_grp['frequency'].min():
+                    # There are no coinciding data points
+                        sns.lineplot(ax=ax_right, data=df_target_data_grp, x='Time Step',
+                                y='Data', marker='x', color=color_right, alpha=0.3, label=f'{target}')
+                    else:
+                        sns.scatterplot(ax=ax_right, data=df_target_data, x='Time Step',
+                                        y='Data', marker='x', color=color_right, label=f'{target}')
 
                     # Legend
                     handles_left, labels_left = ax_left.get_legend_handles_labels()

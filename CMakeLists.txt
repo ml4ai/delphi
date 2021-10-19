@@ -16,7 +16,7 @@ find_package(Graphviz)
 
 include_directories(${GRAPHVIZ_INCLUDE_DIRS})
 # Add and link pybind11 modules
-find_package(Boost COMPONENTS graph REQUIRED)
+find_package(Boost COMPONENTS graph program_options REQUIRED)
 include_directories(lib)
 include_directories(external)
 include_directories(${Boost_INCLUDE_DIR})
@@ -77,7 +77,8 @@ add_library(Delphi
   lib/format_output.cpp
   lib/database.cpp
   #lib/PybindTester.hpp
-)
+  lib/head_nodes.cpp
+  lib/Timer.hpp)
 
 target_link_libraries(Delphi
                       PRIVATE ${Boost_LIBRARIES}
@@ -96,6 +97,11 @@ add_executable(create_model apps/create_model.cpp)
 target_link_libraries(create_model PRIVATE Delphi Eigen3::Eigen)
 add_executable(sandbox_tester apps/sandbox_tester.cpp)
 target_link_libraries(sandbox_tester PRIVATE Delphi Eigen3::Eigen)
+add_executable(timer
+        apps/timer.cpp
+        lib/Timer.hpp
+        lib/CSVWriter.hpp)
+target_link_libraries(timer PRIVATE Delphi Eigen3::Eigen ${Boost_LIBRARIES})
 
 #add_executable(pybind_tester_driver apps/pybind_tester_driver.cpp)
 

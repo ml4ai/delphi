@@ -9,6 +9,8 @@
 #include <boost/range/iterator_range.hpp>
 #include <range/v3/all.hpp>
 
+#include <sqlite3.h>
+
 #include "graphviz_interface.hpp"
 
 #include "DiGraph.hpp"
@@ -49,6 +51,11 @@ typedef std::vector<std::vector<std::vector<double>>>
 typedef std::pair<std::tuple<std::string, int, std::string>,
                   std::tuple<std::string, int, std::string>>
     CausalFragment;
+
+// { concept_name --> (ind_name, [obs_0, obs_1, ... ])}
+typedef std::unordered_map<std::string,
+                           std::pair<std::string, std::vector<double>>>
+    ConceptIndicatorAlignedData;
 
 typedef std::tuple<std::vector<std::string>, std::vector<int>, std::string>
     EventCollection;
@@ -146,7 +153,9 @@ typedef std::tuple<
     //std::vector<std::string>,
     std::vector<double>,
     Predictions,
-    CredibleIntervals
+    CredibleIntervals,
+    // Log likelihoods
+    std::vector<double>
             > CompleteState;
 
 // Access
@@ -236,6 +245,11 @@ class AnalysisGraph {
   // Maps each β to all the transition matrix cells that are dependent on it.
   std::multimap<std::pair<int, int>, std::pair<int, int>> beta2cell;
 
+  std::unordered_set<int> body_nodes = {};
+  std::unordered_set<int> head_nodes = {};
+  std::vector<double> generated_latent_sequence;
+  int generated_concept;
+
   /*
    ============================================================================
    Sampler Related Variables
@@ -258,11 +272,17 @@ class AnalysisGraph {
   std::unordered_map<double, Eigen::MatrixXd> e_A_ts;
   long modeling_period = 1; // Number of epochs per one modeling timestep
 
+  std::unordered_map<int, std::function<double(unsigned int, double)>> external_concepts;
+  std::vector<unsigned int> concept_sample_pool;
+
   double t = 0.0;
   double delta_t = 1.0;
 
   double log_likelihood = 0.0;
   double previous_log_likelihood = 0.0;
+  double log_likelihood_MAP = 0.0;
+  int MAP_sample_number = -1;
+  std::vector<double> log_likelihoods;
 
   // To decide whether to perturb a θ or a derivative
   // If coin_flip < coin_flip_thresh perturb θ else perturb derivative
@@ -381,6 +401,8 @@ class AnalysisGraph {
   // latent_state_constraints.at(time step)
   std::unordered_map<int, std::vector<std::pair<int, double>>>
       one_off_constraints;
+  std::unordered_map<int, std::vector<std::pair<int, double>>>
+      head_node_one_off_constraints;
   //
   // Implementing Perpetual constraints:
   // -------------------------------------------------------------------------
@@ -408,6 +430,11 @@ class AnalysisGraph {
 
   std::vector<Eigen::MatrixXd> transition_matrix_collection;
   std::vector<Eigen::VectorXd> initial_latent_state_collection;
+  //std::vector<std::vector<double>> latent_mean_collection;
+  //std::vector<std::vector<double>> latent_std_collection;
+  // Access:
+  // [sample][node id]{partition --> (mean, std)}
+  //std::vector<std::vector<std::unordered_map<int, std::pair<double, double>>>> latent_mean_std_collection;
 
   std::vector<Eigen::VectorXd> synthetic_latent_state_sequence;
   bool synthetic_data_experiment = false;
@@ -518,6 +545,8 @@ class AnalysisGraph {
                         long &frequent_gap,
                         int &highest_frequency);
 
+  void infer_concept_period(const ConceptIndicatorEpochs &concept_indicator_epochs);
+
   /**
    * Set the observed state sequence from the create model JSON input received
    * from the HMI.
@@ -547,7 +576,8 @@ class AnalysisGraph {
                           create-experiment
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-  std::pair<int, int> timestamp_to_year_month(long timestamp);
+  // Epoch --> (year, month, date)
+  std::tuple<int, int, int> timestamp_to_year_month_date(long timestamp);
 
   void extract_projection_constraints(
                                 const nlohmann::json &projection_constraints, long skip_steps);
@@ -883,6 +913,38 @@ class AnalysisGraph {
 
   void revert_back_to_previous_state();
 
+
+  /*
+   ============================================================================
+   Private: Modeling head nodes (in head_nodes.cpp)
+   ============================================================================
+  */
+
+  void partition_data_and_calculate_mean_std_for_each_partition(
+      Node& n, std::vector<double>& latent_sequence);
+
+  void apply_constraint_at(int ts, int node_id);
+
+  void generate_head_node_latent_sequence(int node_id,
+                                          int num_timesteps,
+                                          bool sample,
+                                          int seq_no = 0);
+
+  void generate_head_node_latent_sequence_from_changes(Node &n,
+                                                       int num_timesteps,
+                                                       bool sample);
+
+  void generate_head_node_latent_sequences(int samp, int num_timesteps);
+
+  void update_head_node_latent_state_with_generated_derivatives(
+      int ts_current,
+      int ts_next,
+      int concept_id,
+      std::vector<double>& latent_sequence);
+
+  void update_latent_state_with_generated_derivatives(int ts_current,
+                                                      int ts_next);
+
   /*
    ============================================================================
    Private: Prediction (in prediction.cpp)
@@ -940,29 +1002,6 @@ class AnalysisGraph {
    Private: Synthetic Data Experiment (in synthetic_data.cpp)
    ============================================================================
   */
-
-  void set_random_initial_latent_state();
-
-  void generate_synthetic_latent_state_sequence();
-
-  void
-  generate_synthetic_observed_state_sequence_from_synthetic_latent_state_sequence();
-
-  // TODO: Need testing
-  /**
-   * Sample observed state std::vector.
-   * This is the implementation of the emission function.
-   *
-   * @param latent_state: Latent state std::vector.
-   *                      This has 2 * number of vertices in the CAG.
-   *                      Even indices track the state of each vertex.
-   *                      Odd indices track the state of the derivative.
-   *
-   * @return Observed state std::vector. Observed state for each indicator for
-   * each vertex. Indexed by: [ vertex id ][ indicator id ]
-   */
-  std::vector<std::vector<double>>
-  sample_observed_state(Eigen::VectorXd latent_state);
 
   /*
    ============================================================================
@@ -1037,6 +1076,11 @@ class AnalysisGraph {
   static AnalysisGraph
   from_causal_fragments(std::vector<CausalFragment> causal_fragments);
 
+  static AnalysisGraph
+  from_causal_fragments_with_data(std::pair<std::vector<CausalFragment>,
+                                  ConceptIndicatorAlignedData> cag_ind_data,
+                                  int kde_kernels = 5);
+
   /** From internal string representation output by to_json_string */
   static AnalysisGraph from_json_string(std::string);
 
@@ -1089,11 +1133,13 @@ class AnalysisGraph {
 
   /*
    ============================================================================
-   Private: Model serialization (in serialize.cpp)
+   Public: Model serialization (in serialize.cpp)
    ============================================================================
   */
 
   std::string serialize_to_json_string(bool verbose = true);
+
+  void export_create_model_json_string();
 
   static AnalysisGraph deserialize_from_json_string(std::string json_string, bool verbose = true);
 
@@ -1151,13 +1197,15 @@ class AnalysisGraph {
 
   Eigen::VectorXd& get_initial_latent_state() { return this->s0; };
 
+  double get_MAP_log_likelihood() { return this->log_likelihood_MAP; };
+
   /*
    ============================================================================
    Public: Graph Building (in graph_building.cpp)
    ============================================================================
   */
 
-  void add_node(std::string concept);
+  int add_node(std::string concept);
 
   bool add_edge(CausalFragment causal_fragment);
   void add_edge(CausalFragmentCollection causal_fragments);
@@ -1335,6 +1383,23 @@ class AnalysisGraph {
                    bool use_continuous = true);
 
   void run_train_model(int res = 200,
+                   int burn = 10000,
+                   InitialBeta initial_beta = InitialBeta::ZERO,
+                   InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO,
+                   bool use_heuristic = false,
+                   bool use_continuous = true,
+                   int train_start_timestep = 0,
+                   int train_timesteps = -1,
+                   std::unordered_map<std::string, int> concept_periods = {},
+                   std::unordered_map<std::string, std::string> concept_center_measures = {},
+                   std::unordered_map<std::string, std::string> concept_models = {},
+                   std::unordered_map<std::string, double> concept_min_vals = {},
+                   std::unordered_map<std::string, double> concept_max_vals = {},
+                   std::unordered_map
+                       <std::string, std::function<double(unsigned int, double)>>
+                   ext_concepts = {});
+
+  void run_train_model_2(int res = 200,
                        int burn = 10000,
                        InitialBeta initial_beta = InitialBeta::ZERO,
                        InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO,
@@ -1382,9 +1447,16 @@ class AnalysisGraph {
                                  int end_year,
                                  int end_month,
                                  ConstraintSchedule constraints =
-                                                        ConstraintSchedule(),
+                                 ConstraintSchedule(),
                                  bool one_off = true,
                                  bool clamp_deri = true);
+
+  void generate_prediction(int pred_start_timestep,
+                           int pred_timesteps,
+                           ConstraintSchedule constraints =
+                           ConstraintSchedule(),
+                           bool one_off = true,
+                           bool clamp_deri = true);
 
   /**
    * this->generate_prediction() must be called before calling this method.
@@ -1406,21 +1478,23 @@ class AnalysisGraph {
    ============================================================================
   */
 
-  std::pair<PredictedObservedStateSequence, Prediction>
-  test_inference_with_synthetic_data(
-      int start_year = 2015,
-      int start_month = 1,
-      int end_year = 2015,
-      int end_month = 12,
-      int res = 100,
-      int burn = 900,
-      std::string country = "South Sudan",
-      std::string state = "",
-      std::string county = "",
-      std::map<std::string, std::string> units = {},
-      InitialBeta initial_beta = InitialBeta::HALF,
-      InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO,
-      bool use_continuous = true);
+  static AnalysisGraph generate_random_CAG(unsigned int num_nodes,
+                                           unsigned int num_extra_edges = 0);
+
+  void generate_synthetic_data(unsigned int num_obs = 48,
+                               double noise_variance = 0.1,
+                               unsigned int kde_kernels = 1000,
+                               InitialBeta initial_beta = InitialBeta::PRIOR,
+                               InitialDerivative initial_derivative = InitialDerivative::DERI_PRIOR,
+                               bool use_continuous = false);
+
+  void initialize_random_CAG(unsigned int num_obs,
+                             unsigned int kde_kernels,
+                             InitialBeta initial_beta,
+                             InitialDerivative initial_derivative,
+                             bool use_continuous);
+
+  void interpolate_missing_months(std::vector<int> &filled_months, Node &n);
 
   /*
    ============================================================================
@@ -1481,5 +1555,14 @@ class AnalysisGraph {
    ============================================================================
   */
 
+  sqlite3* open_delphi_db(int mode = SQLITE_OPEN_READONLY);
+
   void write_model_to_db(std::string model_id);
+
+  AdjectiveResponseMap construct_adjective_response_map(
+      std::mt19937 gen,
+      std::uniform_real_distribution<double>& uni_dist,
+      std::normal_distribution<double>& norm_dist,
+      size_t n_kernels
+  );
 };

@@ -11,6 +11,7 @@
 using namespace std;
 using namespace delphi::utils;
 using namespace fmt::literals;
+using fmt::print;
 
 /*
 ============================================================================
@@ -227,8 +228,10 @@ vector<long> AnalysisGraph::infer_modeling_period(
     vector<double> observation_timesteps(epochs_sorted.size());
     transform(epochs_sorted.begin(), epochs_sorted.end(), observation_timesteps.begin(),
              [&](long epoch) {
-                return this->epoch_to_timestep(epoch, this->train_start_epoch,
-                                               this->modeling_period);
+                 //return this->epoch_to_timestep(epoch, this->train_start_epoch,
+                 //                               this->modeling_period);
+                 return this->epoch_to_timestep(epoch, 0,
+                                                this->modeling_period);
               });
 
     this->observation_timestep_gaps.clear();
@@ -239,6 +242,123 @@ vector<long> AnalysisGraph::infer_modeling_period(
 
     return epochs_sorted;
 }
+
+
+void AnalysisGraph::infer_concept_period(const ConceptIndicatorEpochs &concept_indicator_epochs) {
+  double milliseconds_per_day = 24 * 60 * 60 * 1000.0;
+  int min_days_global = INT32_MAX;
+  int start_day = INT32_MAX;
+  this->modeling_period = 1;
+
+  for (int concept_id = 0; concept_id < concept_indicator_epochs.size();
+       concept_id++) {
+    vector<long> ind_epochs = concept_indicator_epochs[concept_id];
+    sort(ind_epochs.begin(), ind_epochs.end());
+
+    vector<long> ind_days(ind_epochs.size());
+    transform(ind_epochs.begin(), ind_epochs.end(), ind_days.begin(),
+              [&](long epoch) {
+                return round(epoch / milliseconds_per_day);
+              });
+
+    vector<tuple<int, int, int>> year_month_dates(ind_epochs.size());
+    transform(ind_epochs.begin(), ind_epochs.end(),
+        year_month_dates.begin(),
+              [&](long epoch) {
+                return this->timestamp_to_year_month_date(epoch);
+              });
+
+    vector<int> gaps_in_months(year_month_dates.size() - 1);
+
+    int shortest_monthly_gap_ind = INT32_MAX;
+    for (int ts = 0; ts < year_month_dates.size() - 1; ts++) {
+      int months = delphi::utils::months_between(year_month_dates[ts], year_month_dates[ts + 1]);
+      gaps_in_months[ts] = months;
+
+      if (months < shortest_monthly_gap_ind) {
+        shortest_monthly_gap_ind = months;
+      }
+    }
+
+//    vector<long> gaps(ind_epochs.size());
+//    adjacent_difference(ind_epochs.begin(), ind_epochs.end(), gaps.begin());
+//
+//    vector<int> days_between(gaps.size() - 1);
+//    transform(gaps.begin() + 1, gaps.end(), days_between.begin(),
+//              [&](long gap) {
+//                return round(gap / milliseconds_per_day);
+//              });
+    vector<int> days_between(ind_days.size());
+    adjacent_difference(ind_days.begin(), ind_days.end(), days_between.begin());
+
+    int min_days = INT32_MAX;
+//    for (int days : days_between) {
+//      if (days < min_days) {
+//        min_days = days;
+//      }
+//    }
+    for (int idx = 1; idx < days_between.size(); idx++) {
+      int days = days_between[idx];
+      if (days < min_days) {
+        min_days = days;
+      }
+    }
+
+    if (ind_days[0] < start_day) {
+      start_day = ind_days[0];
+    }
+
+    if (min_days < min_days_global) {
+      min_days_global = min_days;
+    }
+
+    int period = 1;
+    if (min_days == 1) {
+      // Daily
+      period = 365;
+    } else if (min_days == 7) {
+      // Weekly
+      period = 52;
+    } else if (28 <= min_days && min_days <= 31) {
+      // Monthly
+      period = 12;
+    } else if (59 <= min_days && min_days <= 62) {
+      // 2 Months
+      period = 6;
+    } else if (89 <= min_days && min_days <= 92) {
+      // 3 Months
+      period = 4;
+    } else if (120 <= min_days && min_days <= 123) {
+      // 4 Months
+      period = 3;
+    } else if (181 <= min_days && min_days <= 184) {
+      // 6 Months
+      period = 2;
+    }
+    /*
+    else if (365 <= min_days && min_days <= 366) {
+      // Yearly
+    }
+    else if (730 <= min_days && min_days <= 731) {
+      // 2 Years
+    } else if (1095 <= min_days && min_days <= 1096) {
+      // 3 Years
+    } else if (1460 <= min_days && min_days <= 1461) {
+      // 4 Years
+    } else if (1825 <= min_days && min_days <= 1827) {
+      // 5 Years
+    }
+    */
+    this->graph[concept_id].period = period;
+    this->modeling_period = lcm(this->modeling_period, period);
+
+    for (auto yyyy_mm_dd : year_month_dates) {
+      cout << "(" << get<0>(yyyy_mm_dd) << "-" << get<1>(yyyy_mm_dd) << "-" << get<2>(yyyy_mm_dd) << "), ";
+    }
+    cout << endl;
+  }
+}
+
 
 /**
  * Set the observed state sequence from the create model JSON input received
@@ -277,7 +397,57 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
     this->n_timesteps = 0;
     vector<long> epochs_sorted;
 
+    unordered_map<int, unordered_set<long>> monthly_to_epoch;
+
     if (this->train_start_epoch <= this->train_end_epoch) {
+        // Convert epochs to months making train_start_epoch = 0
+        tuple<int, int, int> train_start_date = this->timestamp_to_year_month_date(this->train_start_epoch);
+        tuple<int, int, int> train_end_date = this->timestamp_to_year_month_date(this->train_end_epoch);
+
+        for (int v = 0; v < num_verts; v++) {
+            int shortest_monthly_gap_ind = INT32_MAX;
+            for (int obs = 0; obs < concept_indicator_epochs[v].size(); obs++) {
+                long epoch = concept_indicator_epochs[v][obs];
+                tuple<int, int, int> obs_date = this->timestamp_to_year_month_date(epoch);
+                int month = delphi::utils::months_between(train_start_date, obs_date);
+                concept_indicator_epochs[v][obs] = month;
+
+                monthly_to_epoch[month].insert(epoch);
+
+                // TODO: There are cases this period estimation goes wrong. Need revision.
+                // e.g. observation months: 1, 3, 5, 8, 10, 12
+                // The good solution is to get the gcd of all the observation gaps for a indicator
+                if (obs > 0) {
+                    int gap = concept_indicator_epochs[v][obs] -
+                              concept_indicator_epochs[v][obs - 1];
+                    if (gap < shortest_monthly_gap_ind) {
+                        shortest_monthly_gap_ind = gap;
+                    }
+                }
+            }
+
+            int period = 1;
+            if (shortest_monthly_gap_ind == 1) {
+              // Monthly
+              period = 12;
+            } else if (shortest_monthly_gap_ind == 2) {
+              // 2 Months
+              period = 6;
+            } else if (shortest_monthly_gap_ind == 3) {
+              // 3 Months
+              period = 4;
+            } else if (shortest_monthly_gap_ind == 4) {
+              // 4 Months
+              period = 3;
+            } else if (shortest_monthly_gap_ind == 6) {
+              // 6 Months
+              period = 2;
+            }
+            this->graph[v].period = period;
+        }
+//        cout << "Inferring periods\n";
+//        this->infer_concept_period(concept_indicator_epochs);
+
         // Some training data has been provided
         epochs_sorted = this->infer_modeling_period(concept_indicator_epochs,
                                                     shortest_gap,
@@ -307,12 +477,15 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
             for (int i = 0; i < n.indicators.size(); i++) {
                 this->observed_state_sequence[ts][v][i] = vector<double>();
 
-                pair<multimap<long, double>::iterator,
-                     multimap<long, double>::iterator> obs =
-                    concept_indicator_data[v][i].equal_range(epochs_sorted[ts]);
+                for (long epochs_in_ts : monthly_to_epoch[epochs_sorted[ts]]) {
+                    pair<multimap<long, double>::iterator,
+                         multimap<long, double>::iterator>
+                        obs = concept_indicator_data[v][i].equal_range(epochs_in_ts);
 
-                for(auto it = obs.first; it != obs.second; it++) {
-                    this->observed_state_sequence[ts][v][i].push_back(it->second);
+                    for (auto it = obs.first; it != obs.second; it++) {
+                      this->observed_state_sequence[ts][v][i].push_back(
+                          it->second);
+                    }
                 }
             }
         }
@@ -449,7 +622,8 @@ void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data,
                       create-experiment (private)
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-std::pair<int, int> AnalysisGraph::timestamp_to_year_month(long timestamp) {
+std::tuple<int, int, int>
+AnalysisGraph::timestamp_to_year_month_date(long timestamp) {
     // The HMI uses milliseconds. So they multiply time-stamps by 1000.
     // Before converting them back to year and month, we have to divide
     // by 1000.
@@ -460,8 +634,13 @@ std::pair<int, int> AnalysisGraph::timestamp_to_year_month(long timestamp) {
     struct tm *ptm = gmtime(&timestamp);
     int year = 1900 + ptm->tm_year;
     int month = 1 + ptm->tm_mon;
+    int date = ptm->tm_mday;
 
-    return make_pair(year, month);
+    if (date > 1) {
+      print("* * * * *   WARNING: Observation timestamp {0}-{1}-{2} does not adhere to the protocol!\n", year, month, date);
+    }
+
+    return make_tuple(year, month, date);
 }
 
 void AnalysisGraph::extract_projection_constraints(
@@ -541,12 +720,23 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(
       this->delta_t = 1;
       this->pred_timesteps++;
     } else {
+      /*
       this->pred_start_timestep = this->epoch_to_timestep(
           proj_start_epoch, this->train_start_epoch, this->modeling_period);
       double pred_end_timestep = this->epoch_to_timestep(
           proj_end_epoch, this->train_start_epoch, this->modeling_period);
       this->delta_t = (pred_end_timestep - this->pred_start_timestep) /
                       (this->pred_timesteps - 1.0);
+      */
+      tuple<int, int, int> train_start_date = this->timestamp_to_year_month_date(this->train_start_epoch);
+      tuple<int, int, int> pred_start_date = this->timestamp_to_year_month_date(proj_start_epoch);
+      this->pred_start_timestep = delphi::utils::months_between(train_start_date, pred_start_date);
+      this->delta_t = 1;
+
+      tuple<int, int, int> pred_end_date = this->timestamp_to_year_month_date(proj_end_epoch);
+      //int num_pred_months = delphi::utils::months_between(pred_start_date, pred_end_date);
+      //cout << "(" << get<0>(pred_end_date) << "-" << get<1>(pred_end_date) << "-" << get<2>(pred_end_date) << "), ";
+      //cout << "(" << get<0>(pred_start_date) << "-" << get<1>(pred_start_date) << "-" << get<2>(pred_start_date) << "), ";
 
       // To help clamping we predict one additional timestep
       this->pred_timesteps++;
@@ -562,10 +752,12 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(
         */
       }
 
+      /*
       if (this->pred_start_timestep > pred_end_timestep) {
         throw BadCausemosInputException(
             "Projection end epoch is before projection start epoch");
       }
+       */
     }
 
     this->extract_projection_constraints(projection_parameters["constraints"], skip_steps);

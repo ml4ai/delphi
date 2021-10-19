@@ -37,23 +37,59 @@ void AnalysisGraph::generate_latent_state_sequences(
       // matrices.
       MatrixXd A;
 
+      this->generate_head_node_latent_sequences(
+          samp, initial_prediction_step + this->pred_timesteps);
+
       if (this->continuous) {
-          // Here A = Ac = this->transition_matrix_collection[samp] (continuous)
+//          // Here A = Ac = this->transition_matrix_collection[samp] (continuous)
+//
+//          // Evolving the system till the initial_prediction_step
+//          A = (this->transition_matrix_collection[samp] *
+//                   initial_prediction_step).exp();
+//
+//          this->predicted_latent_state_sequences[samp][0] =
+//                               A * this->initial_latent_state_collection[samp];
+//
+//          // After jumping to time step ips - 1, we take one step of length Δt
+//          // at a time.
+//          // So compute the transition matrix for a single step.
+//          // Computing the matrix exponential for a Δt time step.
+//          // By default we are using Δt = 1
+//          // A = e^{Ac * Δt)
+//          A = (this->transition_matrix_collection[samp] * this->delta_t).exp();
+
+          /////////////////
+          A = this->transition_matrix_collection[samp].exp();
 
           // Evolving the system till the initial_prediction_step
-          A = (this->transition_matrix_collection[samp] *
-                   initial_prediction_step).exp();
+          this->current_latent_state = this->initial_latent_state_collection[samp];
 
-          this->predicted_latent_state_sequences[samp][0] =
-                               A * this->initial_latent_state_collection[samp];
+          for (int ts = 0; ts < initial_prediction_step; ts++) {
+            this->update_latent_state_with_generated_derivatives(ts, ts + 1);
 
-          // After jumping to time step ips - 1, we take one step of length Δt
-          // at a time.
-          // So compute the transition matrix for a single step.
-          // Computing the matrix exponential for a Δt time step.
-          // By default we are using Δt = 1
-          // A = e^{Ac * Δt)
-          A = (this->transition_matrix_collection[samp] * this->delta_t).exp();
+            // Set derivatives for frozen nodes
+            for (const auto & [ v, deriv_func ] : this->external_concepts) {
+              const Indicator& ind = this->graph[v].indicators[0];
+              this->current_latent_state[2 * v + 1] = deriv_func(ts, ind.mean);
+            }
+
+            this->current_latent_state = A * this->current_latent_state;
+          }
+          //this->update_latent_state_with_generated_derivatives(0, initial_prediction_step);
+          //this->current_latent_state = A * this->current_latent_state;
+
+          this->update_latent_state_with_generated_derivatives(
+              initial_prediction_step, initial_prediction_step + 1);
+
+          // Set derivatives for frozen nodes
+          for (const auto & [ v, deriv_func ] : this->external_concepts) {
+            const Indicator& ind = this->graph[v].indicators[0];
+            this->current_latent_state[2 * v + 1] =
+                deriv_func(initial_prediction_step, ind.mean);
+          }
+
+          this->predicted_latent_state_sequences[samp][0] = this->current_latent_state;
+          /////////////////
       } else {
           // Here A = Ad = this->transition_matrix_collection[samp] (discrete)
           // This is the discrete transition matrix to take a single step of
@@ -61,9 +97,31 @@ void AnalysisGraph::generate_latent_state_sequences(
           A = this->transition_matrix_collection[samp];
 
           // Evolving the system till the initial_prediction_step
-          this->predicted_latent_state_sequences[samp][0] =
-                              A.pow(initial_prediction_step) *
-                                  this->initial_latent_state_collection[samp];
+          this->current_latent_state = this->initial_latent_state_collection[samp];
+
+          for (int ts = 0; ts < initial_prediction_step; ts++) {
+            this->update_latent_state_with_generated_derivatives(ts, ts + 1);
+
+            // Set derivatives for frozen nodes
+            for (const auto & [ v, deriv_func ] : this->external_concepts) {
+              const Indicator& ind = this->graph[v].indicators[0];
+              this->current_latent_state[2 * v + 1] = deriv_func(ts, ind.mean);
+            }
+
+            this->current_latent_state = A * this->current_latent_state;
+          }
+
+          this->update_latent_state_with_generated_derivatives(
+              initial_prediction_step, initial_prediction_step + 1);
+
+          // Set derivatives for frozen nodes
+          for (const auto & [ v, deriv_func ] : this->external_concepts) {
+            const Indicator& ind = this->graph[v].indicators[0];
+            this->current_latent_state[2 * v + 1] =
+                                  deriv_func(initial_prediction_step, ind.mean);
+          }
+
+          this->predicted_latent_state_sequences[samp][0] = this->current_latent_state;
       }
 
       // Clear out perpetual constraints residual from previous sample
@@ -103,8 +161,17 @@ void AnalysisGraph::generate_latent_state_sequences(
           //                  The actual line of code represents,
           //                        s_t = e^{Ac * Δt } * s_{t-1}
           // When discrete  : s_t = Ad * s_{t-1}
-          this->predicted_latent_state_sequences[samp][ts] =
-              A * this->predicted_latent_state_sequences[samp][ts - 1];
+          this->current_latent_state = A * this->predicted_latent_state_sequences[samp][ts - 1];
+          this->update_latent_state_with_generated_derivatives(
+              initial_prediction_step + ts, initial_prediction_step + ts + 1);
+          this->predicted_latent_state_sequences[samp][ts] = this->current_latent_state;
+
+          // Set derivatives for frozen nodes
+          for (const auto & [ v, deriv_func ] : this->external_concepts) {
+            const Indicator& ind = this->graph[v].indicators[0];
+            this->predicted_latent_state_sequences[samp][ts][2 * v + 1] =
+                            deriv_func(initial_prediction_step + ts, ind.mean);
+          }
 
           if (this->clamp_at_derivative ) {
               if (ts == this->rest_derivative_clamp_ts) {
@@ -479,10 +546,6 @@ void AnalysisGraph::add_constraint(int step, string concept_name, string indicat
 
     Indicator& ind = n.indicators[ind_id];
 
-    if (!delphi::utils::in(this->one_off_constraints, step)) {
-        this->one_off_constraints[step] = vector<pair<int, double>>();
-    }
-
     // We have to clamp the latent state value corresponding to this
     // indicator such that the probability where the emission Gaussian
     // emitting the requested indicator value is the highest. For a
@@ -499,8 +562,22 @@ void AnalysisGraph::add_constraint(int step, string concept_name, string indicat
     //       comments)
     double latent_clamp_value = indicator_clamp_value / ind.get_mean();
 
-    this->one_off_constraints[step].push_back(
-                                    make_pair(concept_id, latent_clamp_value));
+    if (this->head_nodes.find(concept_id) == this->head_nodes.end()) {
+      if (!delphi::utils::in(this->one_off_constraints, step)) {
+        this->one_off_constraints[step] = vector<pair<int, double>>();
+      }
+
+      this->one_off_constraints[step].push_back(
+          make_pair(concept_id, latent_clamp_value));
+    } else {
+      step += this->pred_start_timestep;
+      if (!delphi::utils::in(this->head_node_one_off_constraints, step)) {
+        this->head_node_one_off_constraints[step] = vector<pair<int, double>>();
+      }
+
+      this->head_node_one_off_constraints[step].push_back(
+          make_pair(concept_id, latent_clamp_value));
+    }
 }
 
 /*
@@ -518,6 +595,8 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
                                               bool clamp_deri) {
   this->is_one_off_constraints = one_off;
   this->clamp_at_derivative = clamp_deri;
+  this->one_off_constraints.clear();
+  this->head_node_one_off_constraints.clear();
 
   for (auto [step, const_vec] : constraints) {
       for (auto constraint : const_vec) {
@@ -533,6 +612,33 @@ Prediction AnalysisGraph::generate_prediction(int start_year,
 
   return make_tuple(
       this->training_range, this->pred_range, this->format_prediction_result());
+}
+
+void AnalysisGraph::generate_prediction(int pred_start_timestep,
+                                        int pred_timesteps,
+                                        ConstraintSchedule constraints,
+                                        bool one_off,
+                                        bool clamp_deri) {
+  this->is_one_off_constraints = one_off;
+  this->clamp_at_derivative = clamp_deri;
+  this->one_off_constraints.clear();
+  this->head_node_one_off_constraints.clear();
+
+  this->pred_start_timestep = pred_start_timestep - 1;
+  this->pred_timesteps = pred_timesteps + 1;
+
+  for (auto [step, const_vec] : constraints) {
+    for (auto constraint : const_vec) {
+      string concept_name = get<0>(constraint);
+      string indicator_name = get<1>(constraint);
+      double value = get<2>(constraint);
+
+      this->add_constraint(step, concept_name, indicator_name, value);
+    }
+  }
+
+  this->generate_latent_state_sequences(this->pred_start_timestep);
+  this->generate_observed_state_sequences();
 }
 
 vector<vector<double>> AnalysisGraph::prediction_to_array(string indicator) {
