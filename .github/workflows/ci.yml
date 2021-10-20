@@ -44,50 +44,53 @@ jobs:
             librange-v3-dev\
             nlohmann-json3-dev
 
-
-        pwd
-        echo "### Installing pytest"
-        sudo /usr/bin/python -m pip install pytest
-
         pwd
         echo "### Building Served from source"
-        sudo git clone https://github.com/meltwater/served
-        cd served
-        sudo mkdir build
-        cd build
-        sudo cmake ..
-        sudo make -j `nproc` install
-        cd ../..
+        curl -LO https://github.com/meltwater/served/archive/refs/tags/v1.6.0.tar.gz
+        tar -xzf v1.6.0.tar.gz
+        pushd served-1.6.0
+          mkdir build
+          cd build
+          cmake ..
+          sudo make -j `nproc` install
+        popd
+
+        # Download delphi.db
+        mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o $DELPHI_DB
+        echo "DELPHI_DB = $DELPHI_DB"
+
+        # Create a virtual environment
+        python3 -m venv delphi_venv
+
+        # Activate the virtual environment
+        source delphi_venv/bin/activate
+
+        # Install wheel
+        pip install wheel
+
+        # Install delphi in editable mode
+        pip install -e .[test]
+
+        # Run the Python WM test suite
+        make test_wm
+
+        pwd
+        echo "### Building and running Python tests"
+
 
         pwd
         echo "### Building the Delphi REST API"
-        # build the delpi REST API
-        sudo mkdir build
-        cd build
-        sudo cmake ..
-        sudo make -j `nproc`
+        # Build the Delphi REST API server program
+        pushd build
+          cmake ..
+          make -j `nproc` delphi_rest_api
 
-        pwd
-        echo "### Running the Delphi REST API"
-        # run the api as a background process
-        ./delphi_rest_api &
+          echo "### Running the Delphi REST API"
+          # Run the api as a background process
+          ./delphi_rest_api &
+        popd
 
-        # test the delphi REST API using python
-        cd ../apps
-        #        python3 ./test_cpp_rest_api.py
-
-        # test the delphi with Bash scripts
-        cd ../tests/wm/scripts
-        ./get_system_status
-        cd ../../../
-
-        pwd
-        echo "### Building WM"
-        echo "DELPHI_DB = $DELPHI_DB"
-        sudo python3 -m venv delphi_venv
-        source delphi_venv/bin/activate
-        sudo mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o $DELPHI_DB
-        sudo pip install wheel
-        sudo pip install -e .[test]
-        # sudo make test_wm
-
+        # Test the Delphi with Bash scripts
+        pushd tests/wm/scripts
+          ./get_system_status
+        popd
