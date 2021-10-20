@@ -148,7 +148,7 @@ void AnalysisGraph::run_train_model(int res,
       if (this->independent_nodes.find(vert) == this->independent_nodes.end()) {
         this->concept_sample_pool.push_back(vert);
       }
-    }
+    }  
 
     this->initialize_parameters(res, initial_beta, initial_derivative,
                                 use_heuristic, use_continuous);
@@ -156,7 +156,7 @@ void AnalysisGraph::run_train_model(int res,
     this->log_likelihoods.clear();
     this->log_likelihoods = vector<double>(burn + this->res, 0);
     this->MAP_sample_number = -1;
-
+    
     cout << "\nBurning " << burn << " samples out..." << endl;
     for (int i : trange(burn)) {
       this->sample_from_posterior();

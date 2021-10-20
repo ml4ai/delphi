@@ -219,8 +219,6 @@ void AnalysisGraph::sample_from_posterior() {
 //                                     (n, this->generated_latent_sequence);
 //    }
 //  }
-  auto final = high_resolution_clock :: now(); 
-  auto d = duration_cast<microseconds>(final - s1);
 }
 
 void AnalysisGraph::sample_from_proposal() {
