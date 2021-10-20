@@ -567,11 +567,6 @@ class AnalysisGraph {
   void
   set_observed_state_sequence_from_json_dict(const nlohmann::json &json_indicators);
 
-  /** Construct an AnalysisGraph object from JSON exported by CauseMos. */
-  void from_causemos_json_dict(const nlohmann::json &json_data,
-                               double belief_score_cutoff,
-                               double grounding_score_cutoff);
-
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                           create-experiment
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -1035,6 +1030,12 @@ class AnalysisGraph {
   // Get the sampling resolution.
   size_t get_res();
 
+
+  // there may be a better place in this file for this prototype
+  /** Construct an AnalysisGraph object from JSON exported by CauseMos. */
+  void from_causemos_json_dict(const nlohmann::json &json_data,
+                               double belief_score_cutoff,
+                               double grounding_score_cutoff);
 
   /*
    ============================================================================

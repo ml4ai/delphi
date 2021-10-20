@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Author: Joseph Astier
+
+# Test if there is a delphi_rest_api process running 
+
+printf "Testing Delphi REST API status:\n"
+
+endpoint="/status"
+login="-u me:ivilab4fun"
+url=$(./get_delphi_url)
+
+call="curl $login -s $url$endpoint"
+
+echo $($call)

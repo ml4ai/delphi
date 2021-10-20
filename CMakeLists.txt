@@ -14,53 +14,39 @@ set(CMAKE_CXX_FLAGS
 
 find_package(Graphviz)
 
-include_directories(${GRAPHVIZ_INCLUDE_DIRS})
 # Add and link pybind11 modules
 find_package(Boost COMPONENTS graph program_options REQUIRED)
-include_directories(lib)
-include_directories(external)
-include_directories(${Boost_INCLUDE_DIR})
 
 find_package(range-v3 REQUIRED)
 find_package(Eigen3 REQUIRED NO_MODULE)
 find_package(fmt REQUIRED)
 find_package(nlohmann_json REQUIRED)
-find_package(pybind11 CONFIG REQUIRED)
-message(STATUS "Found pybind11 v${pybind11_VERSION}: ${pybind11_INCLUDE_DIRS}")
 
+option(BUILD_PYTHON_BINDINGS "Build Python bindings" ON)
 
-find_package(Python3 REQUIRED)
+# Optional building of Python bindings using Pybind11
+if(BUILD_PYTHON_BINDINGS)
+    find_package(pybind11 CONFIG REQUIRED)
+    message(STATUS "Found pybind11 v${pybind11_VERSION}: ${pybind11_INCLUDE_DIRS}")
+    find_package(Python3 REQUIRED)
+    set(PYBIND11_PYTHON_VERSION "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
+    set(PYBIND11_CPP_STANDARD -std=c++17)
+endif()
 
-set(PYBIND11_PYTHON_VERSION "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
-set(PYBIND11_CPP_STANDARD -std=c++17)
-
-file(GLOB SRC_FILES ${PROJECT_SOURCE_DIR}/lib/*.cpp)
 find_package(SQLite3 REQUIRED)
 
 add_library(Delphi
-  lib/AnalysisGraph.hpp
   lib/parameter_initialization.cpp
   lib/to_json.cpp
   lib/data.cpp
-  lib/data.hpp
-  lib/DiGraph.hpp
   lib/graphviz_interface.cpp
-  lib/graphviz_interface.hpp
   lib/graphviz.cpp
   lib/KDE.cpp
-  lib/KDE.hpp
   lib/Random_Variables.cpp
-  lib/Random_Variables.hpp
   lib/rng.cpp
-  lib/rng.hpp
   lib/train_model.cpp
-  lib/Tran_Mat_Cell.hpp
   lib/Tran_Mat_Cell.cpp
   lib/utils.cpp
-  lib/utils.hpp
-  lib/Node.hpp
-  lib/Edge.hpp
-  lib/Indicator.hpp
   lib/Indicator.cpp
   lib/subgraphs.cpp
   lib/constructors.cpp
@@ -76,9 +62,9 @@ add_library(Delphi
   lib/sandbox.cpp
   lib/format_output.cpp
   lib/database.cpp
-  #lib/PybindTester.hpp
+  lib/DatabaseHelper.cpp
   lib/head_nodes.cpp
-  lib/Timer.hpp)
+)
 
 target_link_libraries(Delphi
                       PRIVATE ${Boost_LIBRARIES}
@@ -88,28 +74,48 @@ target_link_libraries(Delphi
                               Eigen3::Eigen
                               ${GRAPHVIZ_LIBS})
 target_link_libraries(Delphi INTERFACE range-v3)
+target_include_directories(Delphi PRIVATE ${GRAPHVIZ_INCLUDE_DIRS} lib external)
 
-pybind11_add_module(DelphiPython MODULE NO_EXTRAS lib/DelphiPython.cpp)
-target_link_libraries(DelphiPython PRIVATE Delphi Eigen3::Eigen)
+if(BUILD_PYTHON_BINDINGS)
+
+    pybind11_add_module(DelphiPython MODULE NO_EXTRAS lib/DelphiPython.cpp)
+    target_link_libraries(DelphiPython PRIVATE Delphi Eigen3::Eigen)
+    target_include_directories(DelphiPython PRIVATE ${GRAPHVIZ_INCLUDE_DIRS})
+    add_custom_command(TARGET DelphiPython POST_BUILD
+        COMMAND echo ""
+        COMMAND echo "Copying..."
+        COMMAND ls DelphiPython*
+        COMMAND echo "to ${PROJECT_SOURCE_DIR}/delphi/cpp/"
+        COMMAND echo ""
+        COMMAND rm -rf ${PROJECT_SOURCE_DIR}/delphi/cpp/DelphiPython*
+        COMMAND cp DelphiPython* ${PROJECT_SOURCE_DIR}/delphi/cpp/
+    )
+
+endif()
+
+# Find the served library
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(SERVED REQUIRED IMPORTED_TARGET served)
 
 # Executables
 add_executable(create_model apps/create_model.cpp)
 target_link_libraries(create_model PRIVATE Delphi Eigen3::Eigen)
+target_include_directories(create_model PRIVATE ${Boost_INCLUDE_DIR} lib external ${GRAPHVIZ_INCLUDE_DIRS})
+
+## Sandbox tester
 add_executable(sandbox_tester apps/sandbox_tester.cpp)
 target_link_libraries(sandbox_tester PRIVATE Delphi Eigen3::Eigen)
+target_include_directories(sandbox_tester PRIVATE lib ${GRAPHVIZ_INCLUDE_DIRS})
+
+## Timer program
 add_executable(timer
         apps/timer.cpp
         lib/Timer.hpp
         lib/CSVWriter.hpp)
 target_link_libraries(timer PRIVATE Delphi Eigen3::Eigen ${Boost_LIBRARIES})
+target_include_directories(timer PRIVATE ${Boost_INCLUDE_DIR} lib external ${GRAPHVIZ_INCLUDE_DIRS})
 
-#add_executable(pybind_tester_driver apps/pybind_tester_driver.cpp)
-
-add_custom_command(TARGET DelphiPython POST_BUILD
-    COMMAND echo ""
-    COMMAND echo "Copying..."
-    COMMAND ls DelphiPython*
-    COMMAND echo "to ${PROJECT_SOURCE_DIR}/delphi/cpp/"
-    COMMAND echo ""
-    COMMAND rm -rf ${PROJECT_SOURCE_DIR}/delphi/cpp/DelphiPython*
-    COMMAND cp DelphiPython* ${PROJECT_SOURCE_DIR}/delphi/cpp/)
+# Build the REST API program
+add_executable(delphi_rest_api apps/delphi_rest_api.cpp)
+target_link_libraries(delphi_rest_api PRIVATE Delphi PkgConfig::SERVED Eigen3::Eigen pthread)
+target_include_directories(delphi_rest_api PRIVATE ${Boost_INCLUDE_DIR} lib external ${GRAPHVIZ_INCLUDE_DIRS})
