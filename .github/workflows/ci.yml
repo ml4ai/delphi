@@ -56,11 +56,11 @@ jobs:
         popd
 
         # Download delphi.db
-        sudo mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o $DELPHI_DB
+        mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o $DELPHI_DB
         echo "DELPHI_DB = $DELPHI_DB"
 
         # Create a virtual environment
-        sudo python3 -m venv delphi_venv
+        python3 -m venv delphi_venv
 
         # Activate the virtual environment
         source delphi_venv/bin/activate
