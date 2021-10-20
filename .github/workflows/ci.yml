@@ -54,6 +54,7 @@ jobs:
           cmake ..
           sudo make -j `nproc` install
         popd
+       
 
         # Download delphi.db
         mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o $DELPHI_DB
