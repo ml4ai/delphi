@@ -81,7 +81,6 @@ jobs:
         pwd
         echo "### Building the Delphi REST API"
         # Build the Delphi REST API server program
-        mkdir build
         pushd build
           cmake ..
           make -j `nproc` delphi_rest_api
