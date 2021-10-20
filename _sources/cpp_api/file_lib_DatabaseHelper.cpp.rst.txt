@@ -1,0 +1,55 @@
+
+.. _file_lib_DatabaseHelper.cpp:
+
+File DatabaseHelper.cpp
+=======================
+
+|exhale_lsh| :ref:`Parent directory <dir_lib>` (``lib``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. contents:: Contents
+   :local:
+   :backlinks: none
+
+Definition (``lib/DatabaseHelper.cpp``)
+---------------------------------------
+
+
+.. toctree::
+   :maxdepth: 1
+
+   program_listing_file_lib_DatabaseHelper.cpp.rst
+
+
+
+
+
+Includes
+--------
+
+
+- ``DatabaseHelper.hpp`` (:ref:`file_lib_DatabaseHelper.hpp`)
+
+- ``iostream``
+
+- ``nlohmann/json.hpp``
+
+
+
+
+
+
+Functions
+---------
+
+
+- :ref:`exhale_function_DatabaseHelper_8cpp_1a11795553ffda6a92d45cb7e29b8eb308`
+
+
+Typedefs
+--------
+
+
+- :ref:`exhale_typedef_DatabaseHelper_8cpp_1ab701e3ac61a85b337ec5c1abaad6742d`
+

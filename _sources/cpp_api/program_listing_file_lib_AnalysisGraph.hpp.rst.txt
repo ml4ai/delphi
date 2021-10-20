@@ -480,10 +480,6 @@ Program Listing for File AnalysisGraph.hpp
      void
      set_observed_state_sequence_from_json_dict(const nlohmann::json &json_indicators);
    
-     void from_causemos_json_dict(const nlohmann::json &json_data,
-                                  double belief_score_cutoff,
-                                  double grounding_score_cutoff);
-   
                /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                              create-experiment
                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -813,6 +809,11 @@ Program Listing for File AnalysisGraph.hpp
      // Get the sampling resolution.
      size_t get_res();
    
+   
+     // there may be a better place in this file for this prototype
+     void from_causemos_json_dict(const nlohmann::json &json_data,
+                                  double belief_score_cutoff,
+                                  double grounding_score_cutoff);
    
      /*
       ============================================================================

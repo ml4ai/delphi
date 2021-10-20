@@ -68,6 +68,11 @@ Classes and Structs
 .. toctree::
    :maxdepth: 5
 
+   classDatabase.rst
+
+.. toctree::
+   :maxdepth: 5
+
    classEdge.rst
 
 .. toctree::
@@ -162,6 +167,11 @@ Enums
 Functions
 *********
 
+
+.. toctree::
+   :maxdepth: 5
+
+   function_DatabaseHelper_8cpp_1a11795553ffda6a92d45cb7e29b8eb308.rst
 
 .. toctree::
    :maxdepth: 5
@@ -430,6 +440,11 @@ Typedefs
    :maxdepth: 5
 
    typedef_AnalysisGraph_8hpp_1a5a14f2b593dcb692730ad2c3f18ec3fd.rst
+
+.. toctree::
+   :maxdepth: 5
+
+   typedef_DatabaseHelper_8cpp_1ab701e3ac61a85b337ec5c1abaad6742d.rst
 
 .. toctree::
    :maxdepth: 5

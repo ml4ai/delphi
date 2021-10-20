@@ -1,0 +1,56 @@
+
+.. _file_lib_DatabaseHelper.hpp:
+
+File DatabaseHelper.hpp
+=======================
+
+|exhale_lsh| :ref:`Parent directory <dir_lib>` (``lib``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. contents:: Contents
+   :local:
+   :backlinks: none
+
+Definition (``lib/DatabaseHelper.hpp``)
+---------------------------------------
+
+
+.. toctree::
+   :maxdepth: 1
+
+   program_listing_file_lib_DatabaseHelper.hpp.rst
+
+
+
+
+
+Includes
+--------
+
+
+- ``nlohmann/json.hpp``
+
+- ``range/v3/all.hpp``
+
+- ``sqlite3.h``
+
+- ``vector``
+
+
+
+Included By
+-----------
+
+
+- :ref:`file_lib_DatabaseHelper.cpp`
+
+
+
+
+Classes
+-------
+
+
+- :ref:`exhale_class_classDatabase`
+

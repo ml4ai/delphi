@@ -55,6 +55,16 @@ Files
 .. toctree::
    :maxdepth: 5
 
+   file_lib_DatabaseHelper.cpp.rst
+
+.. toctree::
+   :maxdepth: 5
+
+   file_lib_DatabaseHelper.hpp.rst
+
+.. toctree::
+   :maxdepth: 5
+
    file_lib_DelphiPython.cpp.rst
 
 .. toctree::

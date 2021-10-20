@@ -548,10 +548,6 @@
 <span class="w">  </span><span class="kt">void</span><span class="w"></span>
 <span class="w">  </span><span class="nf">set_observed_state_sequence_from_json_dict</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="w"> </span><span class="o">&amp;</span><span class="n">json_indicators</span><span class="p">);</span><span class="w"></span>
 
-<span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">from_causemos_json_dict</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="w"> </span><span class="o">&amp;</span><span class="n">json_data</span><span class="p">,</span><span class="w"></span>
-<span class="w">                               </span><span class="kt">double</span><span class="w"> </span><span class="n">belief_score_cutoff</span><span class="p">,</span><span class="w"></span>
-<span class="w">                               </span><span class="kt">double</span><span class="w"> </span><span class="n">grounding_score_cutoff</span><span class="p">);</span><span class="w"></span>
-
 <span class="w">            </span><span class="cm">/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
 <span class="cm">                          create-experiment</span>
 <span class="cm">            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/</span><span class="w"></span>
@@ -881,6 +877,11 @@
 <span class="w">  </span><span class="c1">// Get the sampling resolution.</span>
 <span class="w">  </span><span class="kt">size_t</span><span class="w"> </span><span class="nf">get_res</span><span class="p">();</span><span class="w"></span>
 
+
+<span class="w">  </span><span class="c1">// there may be a better place in this file for this prototype</span>
+<span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">from_causemos_json_dict</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="w"> </span><span class="o">&amp;</span><span class="n">json_data</span><span class="p">,</span><span class="w"></span>
+<span class="w">                               </span><span class="kt">double</span><span class="w"> </span><span class="n">belief_score_cutoff</span><span class="p">,</span><span class="w"></span>
+<span class="w">                               </span><span class="kt">double</span><span class="w"> </span><span class="n">grounding_score_cutoff</span><span class="p">);</span><span class="w"></span>
 
 <span class="w">  </span><span class="cm">/*</span>
 <span class="cm">   ============================================================================</span>

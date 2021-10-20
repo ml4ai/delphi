@@ -33,6 +33,10 @@ Includes
 
 - ``Node.hpp`` (:ref:`file_lib_Node.hpp`)
 
+- ``boost/range/adaptor/filtered.hpp``
+
+- ``boost/range/adaptor/transformed.hpp``
+
 - ``boost/range/algorithm/for_each.hpp``
 
 - ``range/v3/all.hpp``

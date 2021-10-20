@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Program Listing for File DatabaseHelper.cpp &mdash; delphi  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> delphi
+            <img src="../_static/delphi_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html">}</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library_root.html">C++ API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">delphi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Program Listing for File DatabaseHelper.cpp</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/cpp_api/program_listing_file_lib_DatabaseHelper.cpp.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="program-listing-for-file-databasehelper-cpp">
+<span id="program-listing-file-lib-databasehelper-cpp"></span><h1>Program Listing for File DatabaseHelper.cpp<a class="headerlink" href="#program-listing-for-file-databasehelper-cpp" title="Permalink to this headline"></a></h1>
+<p>↰ <a class="reference internal" href="file_lib_DatabaseHelper.cpp.html#file-lib-databasehelper-cpp"><span class="std std-ref">Return to documentation for file</span></a> (<code class="docutils literal notranslate"><span class="pre">lib/DatabaseHelper.cpp</span></code>)</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;DatabaseHelper.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;nlohmann/json.hpp&gt;</span><span class="cp"></span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">std</span><span class="p">;</span><span class="w"></span>
+<span class="k">using</span><span class="w"> </span><span class="n">json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="p">;</span><span class="w"></span>
+
+<span class="cm">/*</span>
+<span class="cm">    Database class constructor to open sqlite3 connection</span>
+<span class="cm">*/</span><span class="w"></span>
+<span class="n">Database</span><span class="o">::</span><span class="n">Database</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sqlite3_open</span><span class="p">(</span><span class="n">getenv</span><span class="p">(</span><span class="s">&quot;DELPHI_DB&quot;</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">db</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Show an error message</span>
+<span class="w">        </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;DB Error: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">sqlite3_errmsg</span><span class="p">(</span><span class="n">db</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Close the connection</span>
+<span class="w">        </span><span class="n">sqlite3_close</span><span class="p">(</span><span class="n">db</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Return an error</span>
+<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="s">&quot;Could not open db</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="n">Database</span><span class="o">::~</span><span class="n">Database</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">sqlite3_close</span><span class="p">(</span><span class="n">db</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="c1">// Create a callback function</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">callback</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">NotUsed</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="o">**</span><span class="w"> </span><span class="n">argv</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="o">**</span><span class="w"> </span><span class="n">azColName</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// Return successful</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="cm">/*</span>
+<span class="cm">    Query to select/read one column and return a vector of string filled with</span>
+<span class="cm">   the column value of any table Query format: SELECT &lt;column_name&gt; from</span>
+<span class="cm">   &lt;table_name&gt;; SELECT &lt;column_name&gt; from &lt;table_name&gt;  WHERE</span>
+<span class="cm">   &lt;where_column_name&gt; = &lt;where_value&gt; ;</span>
+
+<span class="cm">*/</span><span class="w"></span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Database</span><span class="o">::</span><span class="n">read_column_text</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">query</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">matches</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">sqlite3_stmt</span><span class="o">*</span><span class="w"> </span><span class="n">stmt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sqlite3_prepare_v2</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">query</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">stmt</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">((</span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sqlite3_step</span><span class="p">(</span><span class="n">stmt</span><span class="p">))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">SQLITE_ROW</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">matches</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">string</span><span class="p">(</span><span class="w"></span>
+<span class="w">            </span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">sqlite3_column_text</span><span class="p">(</span><span class="n">stmt</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">))));</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">sqlite3_finalize</span><span class="p">(</span><span class="n">stmt</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">stmt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">matches</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="cm">/*</span>
+<span class="cm">    Select/read one column and all rows of any table</span>
+<span class="cm">    Query format:</span>
+<span class="cm">        SELECT &lt;column_name&gt; from &lt;table_name&gt;;</span>
+
+<span class="cm">*/</span><span class="w"></span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Database</span><span class="o">::</span><span class="n">read_column_text_query</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">table_name</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                </span><span class="n">string</span><span class="w"> </span><span class="n">column_name</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;SELECT &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">column_name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; from &#39;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">table_name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;&#39; ;&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">matches</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">read_column_text</span><span class="p">(</span><span class="n">query</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">matches</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="cm">/*</span>
+<span class="cm">    Select/read one column and all rows of any table with where conditioned</span>
+<span class="cm">   column and its value passed as parameters Query format: SELECT &lt;column_name&gt;</span>
+<span class="cm">   from &lt;table_name&gt;  WHERE  &lt;where_column_name&gt; = &lt;where_value&gt; ;</span>
+
+<span class="cm">*/</span><span class="w"></span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Database</span><span class="o">::</span><span class="n">read_column_text_query_where</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">table_name</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                      </span><span class="n">string</span><span class="w"> </span><span class="n">column_name</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                      </span><span class="n">string</span><span class="w"> </span><span class="n">where_column_name</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                      </span><span class="n">string</span><span class="w"> </span><span class="n">where_value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;SELECT &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">column_name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; from &#39;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">table_name</span><span class="w"> </span><span class="o">+</span><span class="w"></span>
+<span class="w">                   </span><span class="s">&quot;&#39;  WHERE &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">where_column_name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; = &#39;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">where_value</span><span class="w"> </span><span class="o">+</span><span class="w"></span>
+<span class="w">                   </span><span class="s">&quot;&#39; ;&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">matches</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">read_column_text</span><span class="p">(</span><span class="n">query</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">matches</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="cm">/*</span>
+<span class="cm">    Select/read all column and 1 rows of delphimodel table</span>
+<span class="cm">*/</span><span class="w"></span>
+<span class="n">json</span><span class="w"> </span><span class="n">Database</span><span class="o">::</span><span class="n">select_delphimodel_row</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">modelId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">json</span><span class="w"> </span><span class="n">matches</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">sqlite3_stmt</span><span class="o">*</span><span class="w"> </span><span class="n">stmt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">        </span><span class="s">&quot;SELECT * from delphimodel WHERE id=&#39;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">modelId</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;&#39;  LIMIT 1;&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sqlite3_prepare_v2</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">query</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">stmt</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">((</span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sqlite3_step</span><span class="p">(</span><span class="n">stmt</span><span class="p">))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">SQLITE_ROW</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">matches</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">            </span><span class="n">string</span><span class="p">(</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">sqlite3_column_text</span><span class="p">(</span><span class="n">stmt</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)));</span><span class="w"></span>
+<span class="w">        </span><span class="n">matches</span><span class="p">[</span><span class="s">&quot;model&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">            </span><span class="n">string</span><span class="p">(</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">sqlite3_column_text</span><span class="p">(</span><span class="n">stmt</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)));</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">sqlite3_finalize</span><span class="p">(</span><span class="n">stmt</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">stmt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">matches</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="cm">/*</span>
+<span class="cm">    Select/read all column and 1 rows of causemosasyncexperimentresult table</span>
+<span class="cm">*/</span><span class="w"></span>
+<span class="n">json</span><span class="w"> </span><span class="n">Database</span><span class="o">::</span><span class="n">select_causemosasyncexperimentresult_row</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">modelId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">json</span><span class="w"> </span><span class="n">matches</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">sqlite3_stmt</span><span class="o">*</span><span class="w"> </span><span class="n">stmt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;SELECT * from causemosasyncexperimentresult WHERE id=&#39;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"></span>
+<span class="w">                   </span><span class="n">modelId</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;&#39; LIMIT 1;&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sqlite3_prepare_v2</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">query</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">stmt</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">((</span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sqlite3_step</span><span class="p">(</span><span class="n">stmt</span><span class="p">))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">SQLITE_ROW</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">matches</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">            </span><span class="n">string</span><span class="p">(</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">sqlite3_column_text</span><span class="p">(</span><span class="n">stmt</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)));</span><span class="w"></span>
+<span class="w">        </span><span class="n">matches</span><span class="p">[</span><span class="s">&quot;status&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">            </span><span class="n">string</span><span class="p">(</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">sqlite3_column_text</span><span class="p">(</span><span class="n">stmt</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)));</span><span class="w"></span>
+<span class="w">        </span><span class="n">matches</span><span class="p">[</span><span class="s">&quot;experimentType&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">            </span><span class="n">string</span><span class="p">(</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">sqlite3_column_text</span><span class="p">(</span><span class="n">stmt</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)));</span><span class="w"></span>
+<span class="w">        </span><span class="n">matches</span><span class="p">[</span><span class="s">&quot;results&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">            </span><span class="n">string</span><span class="p">(</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">sqlite3_column_text</span><span class="p">(</span><span class="n">stmt</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)));</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">sqlite3_finalize</span><span class="p">(</span><span class="n">stmt</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">stmt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">matches</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="cm">/*</span>
+<span class="cm">    Execute insert query string on any table</span>
+<span class="cm">*/</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="n">Database</span><span class="o">::</span><span class="n">insert</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">insert_query</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">zErrMsg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sqlite3_exec</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">insert_query</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span><span class="w"> </span><span class="n">callback</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">zErrMsg</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="cm">/*</span>
+<span class="cm">    Execute insert/replace query string on delphimodel table for 1 row</span>
+<span class="cm">*/</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="n">Database</span><span class="o">::</span><span class="n">insert_into_delphimodel</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="n">model</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">        </span><span class="s">&quot;INSERT OR REPLACE INTO delphimodel (&#39;id&#39;, &#39;model&#39;) VALUES (&#39;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">+</span><span class="w"></span>
+<span class="w">        </span><span class="s">&quot;&#39;, &#39;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">model</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;&#39;);&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">insert</span><span class="p">(</span><span class="n">query</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="cm">/*</span>
+<span class="cm">    Execute insert/replace query string on causemosasyncexperimentresult table</span>
+<span class="cm">   for 1 row</span>
+<span class="cm">*/</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="n">Database</span><span class="o">::</span><span class="n">insert_into_causemosasyncexperimentresult</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                         </span><span class="n">string</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                         </span><span class="n">string</span><span class="w"> </span><span class="n">experimentType</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                         </span><span class="n">string</span><span class="w"> </span><span class="n">results</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;INSERT OR REPLACE INTO causemosasyncexperimentresult &quot;</span><span class="w"></span>
+<span class="w">                   </span><span class="s">&quot;(&#39;id&#39;, &#39;status&#39;, &#39;experimentType&#39;, &#39;results&#39;) VALUES (&#39;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"></span>
+<span class="w">                   </span><span class="n">id</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;&#39;, &#39;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;&#39;, &#39;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">experimentType</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;&#39;, &#39;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"></span>
+<span class="w">                   </span><span class="n">results</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;&#39;); &quot;</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">insert</span><span class="p">(</span><span class="n">query</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="cm">/*</span>
+<span class="cm">    Execute update query string on any table for 1 column with where condition</span>
+<span class="cm">*/</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="n">Database</span><span class="o">::</span><span class="n">update_row</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">table_name</span><span class="p">,</span><span class="w"></span>
+<span class="w">                          </span><span class="n">string</span><span class="w"> </span><span class="n">column_name</span><span class="p">,</span><span class="w"></span>
+<span class="w">                          </span><span class="n">string</span><span class="w"> </span><span class="n">value</span><span class="p">,</span><span class="w"></span>
+<span class="w">                          </span><span class="n">string</span><span class="w"> </span><span class="n">where_column_name</span><span class="p">,</span><span class="w"></span>
+<span class="w">                          </span><span class="n">string</span><span class="w"> </span><span class="n">where_value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">update_table_query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;UPDATE &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">table_name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; SET &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">column_name</span><span class="w"> </span><span class="o">+</span><span class="w"></span>
+<span class="w">                                </span><span class="s">&quot; = &#39;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;&#39; WHERE &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"></span>
+<span class="w">                                </span><span class="n">where_column_name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; = &#39;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">where_value</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;&#39;;&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sqlite3_exec</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">update_table_query</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span><span class="w"> </span><span class="n">callback</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="cm">/*</span>
+<span class="cm">    Execute update query string on any table for 1 column with where condition</span>
+<span class="cm">*/</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="n">Database</span><span class="o">::</span><span class="n">delete_rows</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">table_name</span><span class="p">,</span><span class="w"></span>
+<span class="w">                           </span><span class="n">string</span><span class="w"> </span><span class="n">where_column_name</span><span class="p">,</span><span class="w"></span>
+<span class="w">                           </span><span class="n">string</span><span class="w"> </span><span class="n">where_value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">delete_table_query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;DELETE FROM  &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">table_name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; WHERE &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"></span>
+<span class="w">                                </span><span class="n">where_column_name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; = &#39;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">where_value</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;&#39;;&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sqlite3_exec</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">delete_table_query</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span><span class="w"> </span><span class="n">callback</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Adarsh.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

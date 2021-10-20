@@ -1,0 +1,13 @@
+.. _exhale_function_DatabaseHelper_8cpp_1a11795553ffda6a92d45cb7e29b8eb308:
+
+Function callback
+=================
+
+- Defined in :ref:`file_lib_DatabaseHelper.cpp`
+
+
+Function Documentation
+----------------------
+
+
+.. doxygenfunction:: callback(void *, int, char **, char **)

@@ -1,0 +1,16 @@
+.. _exhale_class_classDatabase:
+
+Class Database
+==============
+
+- Defined in :ref:`file_lib_DatabaseHelper.hpp`
+
+
+Class Documentation
+-------------------
+
+
+.. doxygenclass:: Database
+   :members:
+   :protected-members:
+   :undoc-members:
