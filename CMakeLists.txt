@@ -62,6 +62,7 @@ add_library(Delphi
   lib/sandbox.cpp
   lib/format_output.cpp
   lib/database.cpp
+  lib/DatabaseHelper.cpp
   lib/head_nodes.cpp
 )
 
@@ -101,10 +102,12 @@ add_executable(create_model apps/create_model.cpp)
 target_link_libraries(create_model PRIVATE Delphi Eigen3::Eigen)
 target_include_directories(create_model PRIVATE ${Boost_INCLUDE_DIR} lib external ${GRAPHVIZ_INCLUDE_DIRS})
 
+## Sandbox tester
 add_executable(sandbox_tester apps/sandbox_tester.cpp)
 target_link_libraries(sandbox_tester PRIVATE Delphi Eigen3::Eigen)
+target_include_directories(sandbox_tester PRIVATE lib ${GRAPHVIZ_INCLUDE_DIRS})
 
-# Timer program
+## Timer program
 add_executable(timer
         apps/timer.cpp
         lib/Timer.hpp
