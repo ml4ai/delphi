@@ -46,14 +46,26 @@ jobs:
 
         pwd
         echo "### Building Served from source"
-        curl -LO https://github.com/meltwater/served/archive/refs/tags/v1.6.0.tar.gz
-        tar -xzf v1.6.0.tar.gz
-        pushd served-1.6.0
-          mkdir build
-          cd build
-          cmake ..
-          sudo make -j `nproc` install
-        popd
+        #        curl -LO https://github.com/meltwater/served/archive/refs/tags/v1.6.0.tar.gz
+        #        tar -xzf v1.6.0.tar.gz
+        #        pushd served-1.6.0
+        #          mkdir build
+        #          cd build
+        #          cmake ..
+        #          sudo make -j `nproc` install
+        #        popd
+       
+
+        # Install served from source
+        sudo git clone https://github.com/meltwater/served
+        cd served
+        sudo mkdir build
+        cd build
+        sudo cmake ..
+        sudo make -j `nproc` install
+        cd ../..
+
+
 
         # Download delphi.db
         mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o $DELPHI_DB
