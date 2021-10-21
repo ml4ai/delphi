@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# Author: Joseph Astier
+
+# Test the 'create-model' method of the delphi_rest_api 
+
+# input file should have an "id" JSON field
+
+# EXAMPLE:
+# curl -u me:ivilab4fun -X POST http://localhost:8123/delphi/create-model -d @causemos_create-model.json
+
+inputFile=$1
+
+# make sure user entered a filename
+if [[ $inputFile == "" ]]; then
+
+	echo "Please specify a filename."
+	echo "Usage: $0 filename"
+
+else
+	# make sure file has an "id" JSON field
+	id=$('jq' -r '.id' < $inputFile)
+
+	if [[ $id == "null" ]]; then
+		echo "please specify an input file with a valid 'id' field"
+	else
+		echo "Creating model id: $id"
+		login="-u me:ivilab4fun"
+		url=$(./get_delphi_url)
+		endpoint="/delphi/create-model"
+		call="curl -s $login -X POST $url$endpoint -d @$inputFile"
+
+		response=$($call)
+		state= printf "$response" | jq -r '.status'
+		printf "$state" # this will be "training" if the command succeeded.
+
+		# Loop until the model is done with training by checking status
+		#
+		# if [[ $state != "ready" ]]; then
+		# 	until [[ $(./get_model_status $id) == "ready" ]]; do
+		# 	sleep 3 
+		# 	done;
+		# fi
+		# echo "ready"
+
+	fi
+fi

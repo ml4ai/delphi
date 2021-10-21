@@ -35,6 +35,16 @@ jobs:
             libgraphviz-dev\
             doxygen
 
+        # install Served (this must come before any 'pip' calls)
+        curl -LO https://github.com/meltwater/served/archive/refs/tags/v1.6.0.tar.gz
+        tar -xzf v1.6.0.tar.gz
+        pushd served-1.6.0
+          mkdir build
+          cd build
+          cmake ..
+          sudo make -j `nproc` install
+        popd
+
         python3 -m venv delphi_venv
         source delphi_venv/bin/activate
         pip install wheel
@@ -43,6 +53,7 @@ jobs:
           make apidocs
           make html
         popd > /dev/null
+
 
     - name: Deploy docs to ml4ai.github.io/delphi
       uses: peaceiris/actions-gh-pages@v3
