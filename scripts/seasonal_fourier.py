@@ -216,7 +216,7 @@ def generate_fourier_coefficients_from_LDS_sinusoidals(x, f, dx, components, sin
         cos_nx = sinusoidals[2 * k + 1, :]
         sin_nx = sinusoidals[2 * k, :]
 
-        C[k] = np.sum(f * cos_nx) * dx / (k+1)**2  # Inner product
+        C[k] = np.sum(f * cos_nx) * dx / (k+1)#**2  # Inner product
         D[k] = np.sum(f * sin_nx) * dx
 
     return C0, C, D
@@ -227,13 +227,19 @@ def generate_full_LDS(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl):
         dx * L * spl = 2 * pi / (m - 1)
     '''
     A_sinusoidal = la.expm(A_sinusoidal * dx * L * spl)
-    dim = 2 + A_sinusoidal.shape[0]
+    dim = 3 + A_sinusoidal.shape[0]
     A = np.zeros((dim, dim))
     A[0][0] = 1
     A[1:1 + A_sinusoidal.shape[0], 1:1 + A_sinusoidal.shape[0]] = A_sinusoidal
     A[1 + A_sinusoidal.shape[0]][0] = C0 / 2
-    A[np.ix_([1 + A_sinusoidal.shape[0]], np.arange(1, dim - 1, 2))] = D
-    A[np.ix_([1 + A_sinusoidal.shape[0]], np.arange(2, dim - 1, 2))] = C
+    A[np.ix_([-2], np.arange(1, dim - 2, 2))] = D  # -2 = 1 + A_sinusoidal.shape[0]
+    A[np.ix_([-1], np.arange(2, dim - 1, 2))] = D  # -1 = 2 + A_sinusoidal.shape[0]
+
+    for i, Ci in enumerate(C):
+        i2 = i * 2
+        ip1 = i + 1
+        A[-2][i2 + 2] = Ci / (i + 1)
+        A[-1][i2 + 1] = -ip1 * Ci
 
     s0 = np.zeros((dim, 1))
     s0[0][0] = 1
@@ -246,17 +252,30 @@ def generate_full_LDS(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl):
 def generate_full_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl):
     dim = 4 + A_sinusoidal.shape[0]
     A = np.zeros((dim, dim))
-    # A[0][0] = 1
     A[2:2 + A_sinusoidal.shape[0], 2:2 + A_sinusoidal.shape[0]] = A_sinusoidal
-    # A[2 + A_sinusoidal.shape[0]][0] = 1
-    A[np.ix_([2 + A_sinusoidal.shape[0]], np.arange(2, dim - 2, 2))] = D
-    A[np.ix_([2 + A_sinusoidal.shape[0]], np.arange(3, dim - 2, 2))] = C
+
+    A[np.ix_([-2], np.arange(3, dim - 1, 2))] = D  # -2 = 2 + A_sinusoidal.shape[0]
+
+    ft_coef = np.zeros(dim)
+    ft_coef[0] = C0 / 2  # 1#
+    ft_coef[np.arange(2, dim - 2, 2)] = D
+
+    for i, Ci in enumerate(C):
+        i2 = i * 2
+        ip1 = i + 1
+        A[-2][i2 + 2] = -ip1 * Ci
+
+        A[-1][i2 + 2] = -(ip1 ** 2) * D[i]
+        A[-1][i2 + 3] = -ip1 * Ci
+
+        ft_coef[i2 + 3] = Ci / (i + 1)
 
     s0 = np.zeros((dim, 1))
-    s0[0][0] = C0 / 2
+    s0[0][0] = 1#C0 / 2
     s0[2:2 + A_sinusoidal.shape[0], 0] = s0_sinusoidal.T
-    # s0[-2][0] = np.matmul(A, s0)[-2][0]
-    # s0[2:2 + A_sinusoidal.shape[0], 0] = np.matmul(A_sinusoidal, s0_sinusoidal)[:, 0] #s0_sin.T
+
+    s0[-2][0] = np.matmul(ft_coef, s0)   # f(t0)
+    s0[-1][0] = np.matmul(A[-2, :], s0)  # \dot f(t0)
 
     A = la.expm(A * dx * L * spl)
 
@@ -285,7 +304,9 @@ def fourier_curve_from_LDS(A, s0, num_pred, L, num_datapoints):
         curves[:, t] = np.matmul(A, curves[:, t - 1])
 
     x = np.arange(0, num_pred) * 2 * L / (num_datapoints) - L
-    sns.lineplot(x=x, y=curves[-1, :], label='LDS', marker='o', color='r', linewidth=2)
+    sns.lineplot(x=x, y=curves[-2, :], label='LDS value', marker='o', color='r', linewidth=2)
+    sns.lineplot(x=x, y=curves[-1, :], label='LDS derivative', marker='o', color='b', linewidth=0.5)
+    sns.lineplot(x=x[: -1], y=np.diff(curves[-2, :]), label='diff', marker='o', color='g', linewidth=0.5)
 
     plt.legend()
     plt.show()
@@ -361,6 +382,7 @@ if full_blown:
     # A, s0 = generate_full_full_blown_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0_trig, C_trig, D_trig, dx, L, spl)
 else:
     A, s0 = generate_full_LDS(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl)
+    # A, s0 = generate_full_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl)
 
 fourier_curve_from_trig_functions(C0_trig, C_trig, D_trig, x, L)
 if full_blown:
