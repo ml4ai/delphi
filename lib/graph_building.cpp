@@ -17,7 +17,7 @@ int AnalysisGraph::add_node(string concept) {
     int v = boost::add_vertex(this->graph);
     this->name_to_vertex[concept] = v;
     (*this)[v].name = concept;
-    this->independent_nodes.insert(v);
+    this->head_nodes.insert(v);
   }
 
   return  this->name_to_vertex[concept];
@@ -36,16 +36,16 @@ bool AnalysisGraph::add_edge(CausalFragment causal_fragment) {
     int obj_id = this->add_node(obj_name);
 
     // Object is a dependent node
-    this->dependent_nodes.insert(obj_id);
+    this->body_nodes.insert(obj_id);
 
     // If Object had been an independent node, it no linger is
-    if (this->independent_nodes.find(obj_id) != this->independent_nodes.end()) {
-      this->independent_nodes.erase(obj_id);
+    if (this->head_nodes.find(obj_id) != this->head_nodes.end()) {
+      this->head_nodes.erase(obj_id);
     }
 
     // If Subject was not a dependent node, it is independent
-//    if (this->dependent_nodes.find(subj_id) == this->dependent_nodes.end()) {
-//      this->independent_nodes.insert(subj_id);
+//    if (this->body_nodes.find(subj_id) == this->body_nodes.end()) {
+//      this->head_nodes.insert(subj_id);
 //    }
 
     auto [e, exists] = this->add_edge(subj_name, obj_name);
@@ -118,11 +118,11 @@ pair<EdgeDescriptor, bool> AnalysisGraph::add_edge(int source, int target) {
     edge = boost::add_edge(source, target, this->graph);
 
     // Object is a dependent node
-    this->dependent_nodes.insert(target);
+    this->body_nodes.insert(target);
 
     // If Object had been an independent node, it no linger is
-    if (this->independent_nodes.find(target) != this->independent_nodes.end()) {
-      this->independent_nodes.erase(target);
+    if (this->head_nodes.find(target) != this->head_nodes.end()) {
+      this->head_nodes.erase(target);
     }
   }
 

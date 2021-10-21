@@ -42,14 +42,14 @@ void AnalysisGraph::delete_all_indicators(string concept) {
 
 void AnalysisGraph::map_concepts_to_indicators(int n_indicators,
                                                string country) {
-  sqlite3* db = nullptr;
-  int rc = sqlite3_open(getenv("DELPHI_DB"), &db);
-  if (rc != SQLITE_OK) {
-    throw runtime_error(
-        "Could not open db. Do you have the DELPHI_DB "
-        "environment correctly set to point to the Delphi database?");
+  sqlite3* db = this->open_delphi_db(SQLITE_OPEN_READONLY);
+
+  if (db == nullptr) {
+    cout << "\n\nERROR: opening delphi.db" << endl;
+    exit(1);
   }
 
+  int rc;
   sqlite3_stmt* stmt = nullptr;
   string query_base = "select Indicator from concept_to_indicator_mapping ";
   string query;

@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Author: Joseph Astier
+
+# Query a model status from the delphi REST API
+#
+
+modelId=$1
+
+if [[ $modelId == "" ]]; then
+
+        echo "please specify a Model ID"
+	echo "Usage:  $0 model_ID"
+
+else
+	login="-u me:ivilab4fun"
+	endpoint="/delphi/models/$modelId"
+	url=$(./get_delphi_url)
+
+	call="curl $login -s $url$endpoint"
+	result=$($call)
+
+        echo $result | 'jq' -r '.status'
+fi

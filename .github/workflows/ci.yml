@@ -44,9 +44,54 @@ jobs:
             librange-v3-dev\
             nlohmann-json3-dev
 
-        python3 -m venv delphi_venv
-        source delphi_venv/bin/activate
+        pwd
+        echo "### Building Served from source"
+        curl -LO https://github.com/meltwater/served/archive/refs/tags/v1.6.0.tar.gz
+        tar -xzf v1.6.0.tar.gz
+        pushd served-1.6.0
+          mkdir build
+          cd build
+          cmake ..
+          sudo make -j `nproc` install
+        popd
+       
+
+        # Download delphi.db
         mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o $DELPHI_DB
+        echo "DELPHI_DB = $DELPHI_DB"
+
+        # Create a virtual environment
+        python3 -m venv delphi_venv
+
+        # Activate the virtual environment
+        source delphi_venv/bin/activate
+
+        # Install wheel
         pip install wheel
+
+        # Install delphi in editable mode
         pip install -e .[test]
+
+        # Run the Python WM test suite
         make test_wm
+
+        pwd
+        echo "### Building and running Python tests"
+
+
+        pwd
+        echo "### Building the Delphi REST API"
+        # Build the Delphi REST API server program
+        pushd build
+          cmake ..
+          make -j `nproc` delphi_rest_api
+
+          echo "### Running the Delphi REST API"
+          # Run the api as a background process
+          ./delphi_rest_api &
+        popd
+
+        # Test the Delphi with Bash scripts
+        pushd tests/wm/scripts
+          ./get_system_status
+        popd

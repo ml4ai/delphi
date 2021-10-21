@@ -228,6 +228,7 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
               // To avoid division by zero error later on
               ind.set_mean(0.0001);
           }
+<<<<<<< HEAD
 
           // Set mean and standard deviation of the concept based on the mean
           // and the standard deviation of the first indicator attached to it.
@@ -402,50 +403,6 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
   }
 }
 
-/**
- * This is a helper function used by construct_theta_pdfs()
- */
-AdjectiveResponseMap construct_adjective_response_map(
-    mt19937 gen,
-    uniform_real_distribution<double>& uni_dist,
-    normal_distribution<double>& norm_dist,
-    size_t n_kernels
-    ) {
-  sqlite3* db = nullptr;
-  sqlite3_open(getenv("DELPHI_DB"), &db);
-  int rc = sqlite3_errcode(db);
-
-  if (rc != SQLITE_OK)
-    throw "Could not open db\n";
-
-  sqlite3_stmt* stmt = nullptr;
-  const char* query = "select * from gradableAdjectiveData";
-  rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
-
-  AdjectiveResponseMap adjective_response_map;
-
-  while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-    string adjective =
-        string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2)));
-    double response = sqlite3_column_double(stmt, 6);
-    if (!in(adjective_response_map, adjective)) {
-      adjective_response_map[adjective] = {response};
-    }
-    else {
-      adjective_response_map[adjective].push_back(response);
-    }
-  }
-
-  for (auto& [k, v] : adjective_response_map) {
-    v = KDE(v).resample(n_kernels, gen, uni_dist, norm_dist);
-  }
-  sqlite3_finalize(stmt);
-  sqlite3_close(db);
-  stmt = nullptr;
-  db = nullptr;
-  return adjective_response_map;
-}
-
 void AnalysisGraph::construct_theta_pdfs() {
 
   // The choice of sigma_X and sigma_Y is somewhat arbitrary here - we need to
@@ -453,7 +410,7 @@ void AnalysisGraph::construct_theta_pdfs() {
   double sigma_X = 1.0;
   double sigma_Y = 1.0;
   AdjectiveResponseMap adjective_response_map =
-      construct_adjective_response_map(
+      this->construct_adjective_response_map(
           this->rand_num_generator, this->uni_dist, this->norm_dist, this->res);
   vector<double> marginalized_responses;
   for (auto [adjective, responses] : adjective_response_map) {

@@ -738,8 +738,6 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(
       //int num_pred_months = delphi::utils::months_between(pred_start_date, pred_end_date);
       //cout << "(" << get<0>(pred_end_date) << "-" << get<1>(pred_end_date) << "-" << get<2>(pred_end_date) << "), ";
       //cout << "(" << get<0>(pred_start_date) << "-" << get<1>(pred_start_date) << "-" << get<2>(pred_start_date) << "), ";
-      //dbg(this->pred_timesteps);
-      //dbg(num_pred_months);
 
       // To help clamping we predict one additional timestep
       this->pred_timesteps++;
