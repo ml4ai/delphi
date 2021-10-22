@@ -28,6 +28,18 @@ def generate_x(L, num_points):
     return x
 
 
+def get_magnitudes(C, D):
+    mag = np.zeros(len(C))
+    vec = np.zeros(2)
+
+    for i, Ci in enumerate(C):
+        vec[0] = Ci
+        vec[1] = D[i]
+        mag[i] = np.sqrt(np.dot(vec, vec))
+
+    return mag
+
+
 # Full blown LDS vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 def generate_sinusoidal_generating_full_blown_LDS(components):
     comp4 = components * 4
@@ -111,13 +123,13 @@ def generate_full_full_blown_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C,
     return A, s0
 
 
-def fourier_curve_from_full_blown_LDS(A, s0, num_pred, L, num_datapoints):
+def fourier_curve_from_full_blown_LDS(A, s0, num_pred, L, num_datapoints, step_length):
     curves = np.zeros((len(s0), num_pred))
     curves[:, 0] = s0[:, 0]
     for t in range(1, num_pred):
         curves[:, t] = np.matmul(A, curves[:, t - 1])
 
-    x = np.arange(0, num_pred) * 2 * L / (num_datapoints) - L
+    x = np.arange(0, num_pred * step_length, step_length) * 2 * L / (num_datapoints) - L
 
     sns.lineplot(x=x, y=curves[-2, :], label='LDS value', marker='o', color='r', linewidth=2)
     sns.lineplot(x=x, y=curves[-1, :], label='LDS derivative', marker='o', color='b', linewidth=0.5)
@@ -166,7 +178,7 @@ def generate_sinusoidal_generating_LDS(components, start_angle):
         A[i2p1][i2  ] = -((ip1) ** 2)
         s0[i2p1][0] = ip1 * np.cos(ip1 * np.pi)  #(-1)**(ip1)*ip1#-ip1
 
-    return (A, s0)
+    return A, s0
 
 
 def generate_sinusoidal_curves(A, s0, dx, num_points, L):
@@ -176,6 +188,7 @@ def generate_sinusoidal_curves(A, s0, dx, num_points, L):
 
     for t in range(1, num_points):
         sin_t[:, t] = np.matmul(A, sin_t[:, t - 1])
+        # sin_t[:, t] = np.matmul(la.expm(A * t * dx * L), s0)[:, 0]
 
     return A, sin_t
 
@@ -297,19 +310,111 @@ def fourier_curve_from_trig_functions(C0, C, D, x, L):
     sns.lineplot(x=x, y=fFS, label='Trig function', linewidth=3, color='k')
 
 
-def fourier_curve_from_LDS(A, s0, num_pred, L, num_datapoints):
+def fourier_curve_from_LDS(A, s0, num_pred, L, num_datapoints, step_length):
     curves = np.zeros((len(s0), num_pred))
     curves[:, 0] = s0[:, 0]
     for t in range(1, num_pred):
         curves[:, t] = np.matmul(A, curves[:, t - 1])
 
-    x = np.arange(0, num_pred) * 2 * L / (num_datapoints) - L
+    x = np.arange(0, num_pred * step_length, step_length) * 2 * L / (num_datapoints) - L
     sns.lineplot(x=x, y=curves[-2, :], label='LDS value', marker='o', color='r', linewidth=2)
     sns.lineplot(x=x, y=curves[-1, :], label='LDS derivative', marker='o', color='b', linewidth=0.5)
     sns.lineplot(x=x[: -1], y=np.diff(curves[-2, :]), label='diff', marker='o', color='g', linewidth=0.5)
 
     plt.legend()
     plt.show()
+
+
+
+# vvvvvvvvvvvvvvvvvvvv Estimating Fourier coefficients using least squares vvvvvvvvvvvvvvvvvvvvv
+
+# Partitioning data into bins within a period
+def partition_data_according_to_period(data, timesteps, period=12):
+    partitions = {}
+    means = []
+
+    for partition in range(period):
+        partitions[partition] = []
+        means.append(0)
+
+    for idx, val in enumerate(data):
+        partitions[timesteps[idx] % period].append(val)
+
+    for partition, vals in partitions.items():
+        means[partition] = sum(vals) / len(vals)
+
+    return means, partitions
+
+
+def compute_fourier_coefficients_from_least_square_optimization(binned_data, num_data, components, L):
+    # binned_data = {0: [100], 1: [100], 2: [200], 3: [150], 4: [140]}  # [100, 100, 200, 150, 140]
+    components2p1 = 2 * components + 1
+    num_bins = len(binned_data) + 1
+    tot_data_points = num_data + len(binned_data[0]) # Total number of data points in all the bins + the number of data points in bin 0
+
+    x = generate_x(L, num_bins)
+
+    # print(num_bins)
+    # print(x)
+
+    trig_sinus = generate_sinusoidal_curves_from_trig_functions(x, components, num_bins, L)
+    # print(trig_sinus)
+
+    U = np.zeros((tot_data_points, components2p1))
+    y = np.zeros((tot_data_points, 1))
+
+    U[:, 0] = 0.5
+
+    row = 0
+    for idx in range(num_bins):
+        bin = idx % (num_bins - 1)
+        # print(bin)
+
+        for data_point in binned_data[bin]:
+            y[row, 0] = data_point
+            U[np.ix_([row], np.arange(1, components2p1))] = trig_sinus[:, bin].T
+            row += 1
+
+    # print(U)
+    # print(y)
+
+    x, residuals, rank, s = np.linalg.lstsq(U, y, rcond=None)
+    #print(x)
+    # print(residuals)
+    # print(rank)
+    # print(s)
+    '''
+    [[276.   ]
+     [  3.461]
+     [ 43.597]
+     [-14.213]
+     [  2.798]
+     [-14.213]
+     [ -2.798]]
+    '''
+
+    C0 = x[0, 0]
+    C = x.T[np.ix_([0], np.arange(2, components2p1, 2))][0]
+    D = x.T[np.ix_([0], np.arange(1, components2p1 - 1, 2))][0]
+
+    return C0, C, D
+
+'''
+data = [100, 100, 200, 150, 140]
+timesteps = [0, 1, 2, 3, 4]
+period = 5
+num_data = len(data)
+bin_means, binned_data = partition_data_according_to_period(data, timesteps, period)
+# print(binned_data)
+components = 3
+L = np.pi
+compute_fourier_coefficients_from_least_square_optimizatio(binned_data=binned_data,
+                                                           num_data=num_data,
+                                                           components=components,
+                                                           L=L)
+exit()
+'''
+# ^^^^^^^^^^^^^^^^^^^ Estimating Fourier coefficients using least squares ^^^^^^^^^^^^^^^^^^^^^
 
 
 # Define domain
@@ -319,11 +424,16 @@ spl = 1000
 # Periodic data sequence
 # data = [0, 0, 1, 0, 0]
 data = [100, 100, 200, 150, 140]
+timesteps = [0, 1, 2, 3, 4]
+num_data = len(data)
+period = 5
+
+bin_means, binned_data = partition_data_according_to_period(data, timesteps, period)
 
 # Number of data points
-m = len(data)  # => number of line segments = m-1 = 4
+m = len(bin_means)  # => number of line segments = m-1 = 4
 
-f = linear_interpolate_data_sequence(data, spl)
+f = linear_interpolate_data_sequence(bin_means, spl)
 
 # Total number of samples
 tns = len(f)  # spl * (m - 1)
@@ -347,6 +457,7 @@ fFS = C0 / 2
 
 components = 5
 
+least_sq = False
 full_blown = True
 
 if full_blown:
@@ -356,6 +467,7 @@ if full_blown:
     # A_fun, sinusoidals = generate_sinusoidal_curves_from_full_blown_LDS(A_sinusoidal, s0_sinusoidal, x)
 else:
     A_sinusoidal, s0_sinusoidal = generate_sinusoidal_generating_LDS(components, x[0])
+
 A_fun, sinusoidals = generate_sinusoidal_curves(A_sinusoidal, s0_sinusoidal, dx, len(f), L)
 '''
 trig_sinus = generate_sinusoidal_curves_from_trig_functions(x, components, len(f), L)
@@ -372,20 +484,54 @@ exit()
 '''
 
 C0_trig, C_trig, D_trig = generate_fourier_coefficients_from_trig_functions(x, f, dx, components, L)
-if full_blown:
-    C0, C, D = generate_fourier_coefficients_from_full_blown_LDS_sinusoidals(x, f, dx, components, sinusoidals)
+if least_sq:
+    C0, C, D = compute_fourier_coefficients_from_least_square_optimization(binned_data=binned_data,
+                                                                           num_data=num_data,
+                                                                           components=components,
+                                                                           L=L)
+    print(C0)
+    print(C)
+    print(D)
+    # exit()
 else:
-    C0, C, D = generate_fourier_coefficients_from_LDS_sinusoidals(x, f, dx, components, sinusoidals)
+    if full_blown:
+        C0, C, D = generate_fourier_coefficients_from_full_blown_LDS_sinusoidals(x, f, dx, components, sinusoidals)
+    else:
+        C0, C, D = generate_fourier_coefficients_from_LDS_sinusoidals(x, f, dx, components, sinusoidals)
+
+magnitudes = get_magnitudes(C, D)
+print(magnitudes)
+# print(C0)
+# print(C)
+# print(D)
+# C0 = 276.
+# C = [43.597, 2.798, -2.798]
+# D = [3.461, -14.213, -14.213]
+'''
+[[276.   ]
+ [  3.461]
+ [ 43.597]
+ [-14.213]
+ [  2.798]
+ [-14.213]
+ [ -2.798]]
+'''
+# exit()
+
+# How many spl's to advance the LDS
+num_full_spls_to_predict = 15
+prediction_step_length = 0.5
+points_to_predict = int(np.ceil(num_full_spls_to_predict / prediction_step_length))
 
 if full_blown:
-    A, s0 = generate_full_full_blown_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl)
-    # A, s0 = generate_full_full_blown_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0_trig, C_trig, D_trig, dx, L, spl)
+    A, s0 = generate_full_full_blown_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl * prediction_step_length)
+    # A, s0 = generate_full_full_blown_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0_trig, C_trig, D_trig, dx, L, spl * prediction_step_length)
 else:
-    A, s0 = generate_full_LDS(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl)
-    # A, s0 = generate_full_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl)
+    # A, s0 = generate_full_LDS(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl * prediction_step_length)
+    A, s0 = generate_full_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl * prediction_step_length)
 
 fourier_curve_from_trig_functions(C0_trig, C_trig, D_trig, x, L)
 if full_blown:
-    fourier_curve_from_full_blown_LDS(A, s0, 15, L, m)
+    fourier_curve_from_full_blown_LDS(A, s0, points_to_predict, L, m, prediction_step_length)
 else:
-    fourier_curve_from_LDS(A, s0, 15, L, m)
+    fourier_curve_from_LDS(A, s0, points_to_predict, L, m, prediction_step_length)
