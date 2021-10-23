@@ -12,7 +12,7 @@ namespace delphi::utils {
 /**
  * Returns the square of a number.
  */
-double sqr(double x) { return x * x; }
+// double sqr(double x) { return x * x; }
 
 /**
  * Returns the sum of a vector of doubles.
