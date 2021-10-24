@@ -46,7 +46,7 @@ def plot_predictions_with_data_distributions(LDS_pred, num_pred, df_binned, pred
         plt.show()
 
 
-def plot_all(x_2pi, gtf, trig_pred, LDS_pred, num_pred, df_binned, L, num_datapoints, step_length, title='', plot_derivatives=False, file_name=''):
+def plot_all(x_2pi, gtf, trig_pred, LDS_pred, num_pred, L, num_datapoints, step_length, title='', plot_derivatives=False, file_name=''):
     name = 'Accent'
     cmap = get_cmap('tab10')
     colors = cmap.colors
@@ -63,8 +63,9 @@ def plot_all(x_2pi, gtf, trig_pred, LDS_pred, num_pred, df_binned, L, num_datapo
     sns.lineplot(x=x_pred_LDS, y=LDS_pred[-2, :], label='LDS value', marker='o', color='r', linewidth=2)
 
     if plot_derivatives:
-        sns.lineplot(x=x_pred_LDS, y=LDS_pred[-1, :], label='LDS derivative', marker='o', color='b', linewidth=0.5)
-        sns.lineplot(x=x_pred_LDS[: -1], y=np.diff(LDS_pred[-2, :]), label='diff( LDS value )', marker='o', color='g', linewidth=0.5)
+        x_pred_LDS += (x_pred_LDS[1] - x_pred_LDS[0]) / 2
+        sns.lineplot(x=x_pred_LDS[: -1], y=LDS_pred[-1, : -1], label='LDS derivative', marker='o', color='y', alpha=0.5, linewidth=0.5)
+        sns.lineplot(x=x_pred_LDS[: -1], y=np.diff(LDS_pred[-2, :]), label='diff( LDS value )', marker='o', color='r', alpha=0.5, linewidth=0.5)
 
     plt.title(title)
     plt.tight_layout()
@@ -161,18 +162,18 @@ def generate_full_full_blown_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C,
         dx * L * spl = 2 * pi / (m - 1)
     '''
     dim = 4 + A_sinusoidal.shape[0]
-    A = np.zeros((dim, dim))
+    A_base = np.zeros((dim, dim))
     # A[0][0] = 1
-    A[2:2 + A_sinusoidal.shape[0], 2:2 + A_sinusoidal.shape[0]] = A_sinusoidal
-    A[2 + A_sinusoidal.shape[0]][0] = 0
-    A[np.ix_([-2], np.arange(3, dim - 4, 4))] = D  # -2 = 2 + A_sinusoidal.shape[0]
-    A[np.ix_([-2], np.arange(5, dim - 2, 4))] = C
+    A_base[2:2 + A_sinusoidal.shape[0], 2:2 + A_sinusoidal.shape[0]] = A_sinusoidal
+    A_base[2 + A_sinusoidal.shape[0]][0] = 0
+    A_base[np.ix_([-2], np.arange(3, dim - 4, 4))] = D  # -2 = 2 + A_sinusoidal.shape[0]
+    A_base[np.ix_([-2], np.arange(5, dim - 2, 4))] = C
 
     for component in np.arange(components):
         components4 = component * 4
         componentsp1 = component + 1
-        A[-1][components4 + 2] = -(componentsp1 ** 2) * D[component]
-        A[-1][components4 + 4] = -(componentsp1 ** 2) * C[component]
+        A_base[-1][components4 + 2] = -(componentsp1 ** 2) * D[component]
+        A_base[-1][components4 + 4] = -(componentsp1 ** 2) * C[component]
 
     s0 = np.zeros((dim, 1))
     s0[0][0] = 1  # C0 / 2
@@ -184,11 +185,11 @@ def generate_full_full_blown_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C,
     ft_coef[np.arange(4, dim - 3, 4)] = C
 
     s0[-2][0] = np.matmul(ft_coef, s0)   # f(t0)
-    s0[-1][0] = np.matmul(A[-2, :], s0)  # \dot f(t0)
+    s0[-1][0] = np.matmul(A_base[-2, :], s0)  # \dot f(t0)
 
-    A = la.expm(A * dx * L * spl)
+    A = la.expm(A_base * dx * L * spl)
 
-    return A, s0
+    return A_base, A, s0
 
 
 def generate_sinusoidal_curves_from_full_blown_LDS(A, s0, x):
@@ -335,10 +336,10 @@ def generate_full_LDS(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl):
 
 def generate_full_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl):
     dim = 4 + A_sinusoidal.shape[0]
-    A = np.zeros((dim, dim))
-    A[2:2 + A_sinusoidal.shape[0], 2:2 + A_sinusoidal.shape[0]] = A_sinusoidal
+    A_base = np.zeros((dim, dim))
+    A_base[2:2 + A_sinusoidal.shape[0], 2:2 + A_sinusoidal.shape[0]] = A_sinusoidal
 
-    A[np.ix_([-2], np.arange(3, dim - 1, 2))] = D  # -2 = 2 + A_sinusoidal.shape[0]
+    A_base[np.ix_([-2], np.arange(3, dim - 1, 2))] = D  # -2 = 2 + A_sinusoidal.shape[0]
 
     ft_coef = np.zeros(dim)
     ft_coef[0] = C0 / 2  # 1#
@@ -347,10 +348,10 @@ def generate_full_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, 
     for i, Ci in enumerate(C):
         i2 = i * 2
         ip1 = i + 1
-        A[-2][i2 + 2] = -ip1 * Ci
+        A_base[-2][i2 + 2] = -ip1 * Ci
 
-        A[-1][i2 + 2] = -(ip1 ** 2) * D[i]
-        A[-1][i2 + 3] = -ip1 * Ci
+        A_base[-1][i2 + 2] = -(ip1 ** 2) * D[i]
+        A_base[-1][i2 + 3] = -ip1 * Ci
 
         ft_coef[i2 + 3] = Ci / (i + 1)
 
@@ -359,11 +360,11 @@ def generate_full_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, 
     s0[2:2 + A_sinusoidal.shape[0], 0] = s0_sinusoidal.T
 
     s0[-2][0] = np.matmul(ft_coef, s0)   # f(t0)
-    s0[-1][0] = np.matmul(A[-2, :], s0)  # \dot f(t0)
+    s0[-1][0] = np.matmul(A_base[-2, :], s0)  # \dot f(t0)
 
-    A = la.expm(A * dx * L * spl)
+    A = la.expm(A_base * dx * L * spl)
 
-    return A, s0
+    return A_base, A, s0
 
 
 def fourier_curve_from_trig_functions(C0, C, D, x, L):
@@ -388,6 +389,14 @@ def fourier_curve_from_LDS(A, s0, num_pred):
         curves[:, t] = np.matmul(A, curves[:, t - 1])
 
     return curves[np.r_[-2:0], :]
+
+
+def fourier_curve_from_LDS_with_more_points(A, s0, x):
+    curves = np.zeros((len(s0), len(x)))
+    for idx, t in enumerate(x - x[0]):
+        curves[:, idx] = np.matmul(la.expm(A * t), s0)[:, 0]
+
+    return curves[-2, :]
 
 
 # vvvvvvvvvvvvvvvvvvvv Estimating Fourier coefficients using least squares vvvvvvvvvvvvvvvvvvvvv
@@ -553,19 +562,19 @@ print(magnitudes)
 # print(D)
 
 # How many spl's to advance the LDS
-num_full_spls_to_predict = 12
+num_full_spls_to_predict = 13
 prediction_step_length = 1
 num_points_to_predict = int(np.ceil(num_full_spls_to_predict / prediction_step_length))
 
 if full_blown:
-    A, s0 = generate_full_full_blown_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl * prediction_step_length)
+    A_base, A, s0 = generate_full_full_blown_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl * prediction_step_length)
     title = 'Full Blown LDS Predictions'
 else:
     # A, s0 = generate_full_LDS(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl * prediction_step_length)
-    A, s0 = generate_full_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl * prediction_step_length)
+    A_base, A, s0 = generate_full_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl * prediction_step_length)
     title = 'Compact LDS Predictions'
 
-plot_derivatives = False
+plot_derivatives = True
 
 if plot_derivatives:
     title += ' and Derivatives'
@@ -578,10 +587,11 @@ elif least_sq:
     title += '\nLeast SQ'
 
 LDS_pred = fourier_curve_from_LDS(A, s0, num_points_to_predict)
+f = fourier_curve_from_LDS_with_more_points(A_base, s0, x)
 
 trig_pred = fourier_curve_from_trig_functions(C0_trig, C_trig, D_trig, x, L)
 
-plot_all(x, f, trig_pred, LDS_pred, num_points_to_predict, df_binned, L, m, prediction_step_length, title, plot_derivatives, '')
+plot_all(x, f, trig_pred, LDS_pred, num_points_to_predict, L, m, prediction_step_length, title, plot_derivatives, '')
 # plot_predictions_with_data_distributions(LDS_pred, num_points_to_predict, df_binned, prediction_step_length,
 #                                          type='violin', title='Predictions with Data Distributions', file_name='')
 # sinus_df = sinusoidals_to_df(x, sinusoidals, components)
