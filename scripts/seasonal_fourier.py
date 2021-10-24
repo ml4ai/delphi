@@ -218,7 +218,7 @@ def generate_full_full_blown_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C,
 # Have to update this similar to generate_sinusoidal_curves() to be used in the current pipeline
 def generate_sinusoidal_curves_from_full_blown_LDS(A, s0, x):
     points = np.zeros((len(s0), len(x)))
-    for idx, t in enumerate(x):
+    for idx, t in enumerate(x - x[0]):
         points[:, idx] = np.matmul(la.expm(A * t), s0)[:, 0]
 
     return points
@@ -295,18 +295,36 @@ def generate_fourier_coefficients_from_trig_functions(x, f, dx, components, L):
     return C0, C, D
 
 
-def generate_fourier_coefficients_from_LDS_sinusoidals(x, f, dx, components, sinusoidals):
+def generate_fourier_coefficients_from_LDS_sinusoidals(x, f, dx, components, sinusoidals, full_blown=False):
     C = np.zeros(components)
     D = np.zeros(components)
 
     C0 = np.sum(f * np.ones_like(x)) * dx
 
-    for k in range(components):
-        cos_nx = sinusoidals[2 * k + 1, :]
-        sin_nx = sinusoidals[2 * k, :]
+    if full_blown:
+        multiplier = 4
+        offset = 2
+    else:
+        multiplier = 2
+        offset = 1
 
-        C[k] = np.sum(f * cos_nx) * dx / (k+1)#**2  # Inner product
+    # f0 = C0/2
+    # f0_dot = 0
+
+    for k in range(components):
+        cos_nx = sinusoidals[multiplier * k + offset, :]
+        sin_nx = sinusoidals[multiplier * k, :]
+
+        if full_blown:
+            C[k] = np.sum(f * cos_nx) * dx  # Inner product
+        else:
+            C[k] = np.sum(f * cos_nx) * dx / (k+1)  # **2  # Inner product
+
         D[k] = np.sum(f * sin_nx) * dx
+
+        # f0 += C[k] * cos_nx[0] + D[k] * sin_nx[0]
+        # f0 += C[k] * sinusoidals[4 * k + 2, :][0] + D[k] * sinusoidals[4 * k, :][0]
+        # f0_dot += C[k] * sinusoidals[4 * k + 3, :][0] + D[k] * sinusoidals[4 * k + 1, :][0]
 
     return C0, C, D
 
@@ -560,15 +578,12 @@ if least_sq:
                                                                            num_data=num_data,
                                                                            components=components,
                                                                            L=L)
-    print(C0)
-    print(C)
-    print(D)
-    # exit()
 else:
     if full_blown:
-        C0, C, D = generate_fourier_coefficients_from_full_blown_LDS_sinusoidals(x, f, dx, components, sinusoidals)
+        # C0, C, D = generate_fourier_coefficients_from_full_blown_LDS_sinusoidals(x, f, dx, components, sinusoidals)
+        C0, C, D = generate_fourier_coefficients_from_LDS_sinusoidals(x, f, dx, components, sinusoidals, full_blown=True)
     else:
-        C0, C, D = generate_fourier_coefficients_from_LDS_sinusoidals(x, f, dx, components, sinusoidals)
+        C0, C, D = generate_fourier_coefficients_from_LDS_sinusoidals(x, f, dx, components, sinusoidals, full_blown=False)
 
 magnitudes = get_magnitudes(C, D)
 print(magnitudes)
