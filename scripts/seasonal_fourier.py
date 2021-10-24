@@ -173,7 +173,6 @@ def generate_full_full_blown_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C,
         componentsp1 = component + 1
         A[-1][components4 + 2] = -(componentsp1 ** 2) * D[component]
         A[-1][components4 + 4] = -(componentsp1 ** 2) * C[component]
-    # print(A)
 
     s0 = np.zeros((dim, 1))
     s0[0][0] = 1  # C0 / 2
@@ -192,7 +191,6 @@ def generate_full_full_blown_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C,
     return A, s0
 
 
-# Have to update this similar to generate_sinusoidal_curves() to be used in the current pipeline
 def generate_sinusoidal_curves_from_full_blown_LDS(A, s0, x):
     points = np.zeros((len(s0), len(x)))
     for idx, t in enumerate(x - x[0]):
@@ -422,7 +420,6 @@ def partition_data_according_to_period(data, timesteps, period=12, L=np.pi):
 
 
 def compute_fourier_coefficients_from_least_square_optimization(binned_data, num_data, components, L):
-    # binned_data = {0: [100], 1: [100], 2: [200], 3: [150], 4: [140]}  # [100, 100, 200, 150, 140]
     components2p1 = 2 * components + 1
     num_bins = len(binned_data) + 1
     tot_data_points = num_data + len(binned_data[0]) # Total number of data points in all the bins + the number of data points in bin 0
@@ -454,19 +451,10 @@ def compute_fourier_coefficients_from_least_square_optimization(binned_data, num
     # print(y)
 
     x, residuals, rank, s = np.linalg.lstsq(U, y, rcond=None)
-    #print(x)
+    # print(x)
     # print(residuals)
     # print(rank)
     # print(s)
-    '''
-    [[276.   ]
-     [  3.461]
-     [ 43.597]
-     [-14.213]
-     [  2.798]
-     [-14.213]
-     [ -2.798]]
-    '''
 
     C0 = x[0, 0]
     C = x.T[np.ix_([0], np.arange(2, components2p1, 2))][0]
@@ -530,9 +518,6 @@ full_blown = False
 
 if full_blown:
     A_sinusoidal, s0_sinusoidal = generate_sinusoidal_generating_full_blown_LDS(components)
-
-    # Have to update generate_sinusoidal_curves_from_full_blown_LDS() to be used this way
-    # A_fun, sinusoidals = generate_sinusoidal_curves_from_full_blown_LDS(A_sinusoidal, s0_sinusoidal, x)
 else:
     A_sinusoidal, s0_sinusoidal = generate_sinusoidal_generating_LDS(components, x[0])
 
@@ -566,19 +551,6 @@ print(magnitudes)
 # print(C0)
 # print(C)
 # print(D)
-# C0 = 276.
-# C = [43.597, 2.798, -2.798]
-# D = [3.461, -14.213, -14.213]
-'''
-[[276.   ]
- [  3.461]
- [ 43.597]
- [-14.213]
- [  2.798]
- [-14.213]
- [ -2.798]]
-'''
-# exit()
 
 # How many spl's to advance the LDS
 num_full_spls_to_predict = 12
@@ -587,7 +559,6 @@ num_points_to_predict = int(np.ceil(num_full_spls_to_predict / prediction_step_l
 
 if full_blown:
     A, s0 = generate_full_full_blown_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl * prediction_step_length)
-    # A, s0 = generate_full_full_blown_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0_trig, C_trig, D_trig, dx, L, spl * prediction_step_length)
     title = 'Full Blown LDS Predictions'
 else:
     # A, s0 = generate_full_LDS(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl * prediction_step_length)
