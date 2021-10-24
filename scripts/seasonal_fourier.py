@@ -156,29 +156,6 @@ def generate_sinusoidal_generating_full_blown_LDS(components):
     return A, s0
 
 
-def generate_fourier_coefficients_from_full_blown_LDS_sinusoidals(x, f, dx, components, sinusoidals):
-    C = np.zeros(components)
-    D = np.zeros(components)
-
-    C0 = np.sum(f * np.ones_like(x)) * dx
-
-    # f0 = C0/2
-    # f0_dot = 0
-
-    for k in range(components):
-        cos_nx = sinusoidals[4 * k + 2, :]
-        sin_nx = sinusoidals[4 * k, :]
-
-        C[k] = np.sum(f * cos_nx) * dx  # Inner product
-        D[k] = np.sum(f * sin_nx) * dx
-
-        # f0 += C[k] * cos_nx[0] + D[k] * sin_nx[0]
-        # f0 += C[k] * sinusoidals[4 * k + 2, :][0] + D[k] * sinusoidals[4 * k, :][0]
-        # f0_dot += C[k] * sinusoidals[4 * k + 3, :][0] + D[k] * sinusoidals[4 * k + 1, :][0]
-
-    return C0, C, D
-
-
 def generate_full_full_blown_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl):
     '''
         dx * L * spl = 2 * pi / (m - 1)
@@ -302,9 +279,11 @@ def generate_fourier_coefficients_from_LDS_sinusoidals(x, f, dx, components, sin
     C0 = np.sum(f * np.ones_like(x)) * dx
 
     if full_blown:
+        print('Computing Fourier coefficients using the FULL BLOWN LDS')
         multiplier = 4
         offset = 2
     else:
+        print('Computing Fourier coefficients using the COMPACT LDS')
         multiplier = 2
         offset = 1
 
@@ -579,11 +558,8 @@ if least_sq:
                                                                            components=components,
                                                                            L=L)
 else:
-    if full_blown:
-        # C0, C, D = generate_fourier_coefficients_from_full_blown_LDS_sinusoidals(x, f, dx, components, sinusoidals)
-        C0, C, D = generate_fourier_coefficients_from_LDS_sinusoidals(x, f, dx, components, sinusoidals, full_blown=True)
-    else:
-        C0, C, D = generate_fourier_coefficients_from_LDS_sinusoidals(x, f, dx, components, sinusoidals, full_blown=False)
+    # When full_blown = True, this uses the full blown LDS version. Otherwise the compact LDS version
+    C0, C, D = generate_fourier_coefficients_from_LDS_sinusoidals(x, f, dx, components, sinusoidals, full_blown)
 
 magnitudes = get_magnitudes(C, D)
 print(magnitudes)
