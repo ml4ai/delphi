@@ -46,7 +46,7 @@ def plot_predictions_with_data_distributions(LDS_pred, num_pred, df_binned, pred
         plt.show()
 
 
-def plot_all(x_2pi, gtf, trig_pred, LDS_pred, num_pred, L, num_datapoints, step_length, title='', plot_derivatives=False, file_name=''):
+def plot_according_to_2pi_domain(x_2pi, gtf, continuous_pred, LDS_pred, num_pred, L, num_datapoints, step_length, title='', plot_derivatives=False, file_name=''):
     name = 'Accent'
     cmap = get_cmap('tab10')
     colors = cmap.colors
@@ -58,13 +58,13 @@ def plot_all(x_2pi, gtf, trig_pred, LDS_pred, num_pred, L, num_datapoints, step_
     # x_2pi += L
 
     sns.lineplot(x=x_2pi, y=gtf, color='y', linewidth=4, label='Original function')
-    sns.lineplot(x=x_2pi, y=trig_pred, label='Trig function', linewidth=3, color='k')
+    sns.lineplot(x=x_2pi, y=continuous_pred, label='Trig function', linewidth=3, color='k')
 
     sns.lineplot(x=x_pred_LDS, y=LDS_pred[-2, :], label='LDS value', marker='o', color='r', linewidth=2)
 
     if plot_derivatives:
         x_pred_LDS += (x_pred_LDS[1] - x_pred_LDS[0]) / 2
-        sns.lineplot(x=x_pred_LDS[: -1], y=LDS_pred[-1, : -1], label='LDS derivative', marker='o', color='y', alpha=0.5, linewidth=0.5)
+        sns.lineplot(x=x_pred_LDS[: -1], y=LDS_pred[-1, : -1], label='LDS derivative', marker='o', color='k', alpha=0.5, linewidth=0.5)
         sns.lineplot(x=x_pred_LDS[: -1], y=np.diff(LDS_pred[-2, :]), label='diff( LDS value )', marker='o', color='r', alpha=0.5, linewidth=0.5)
 
     plt.title(title)
@@ -134,7 +134,7 @@ def get_magnitudes(C, D):
 
 
 # Full blown LDS vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-def generate_sinusoidal_generating_full_blown_LDS(components):
+def assemble_sinusoidal_generating_full_blown_LDS(components):
     comp4 = components * 4
     A = np.zeros((comp4, comp4))
     s0 = np.zeros((comp4, 1))
@@ -157,7 +157,7 @@ def generate_sinusoidal_generating_full_blown_LDS(components):
     return A, s0
 
 
-def generate_full_full_blown_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl):
+def assemble_complete_full_blown_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl):
     '''
         dx * L * spl = 2 * pi / (m - 1)
     '''
@@ -218,7 +218,7 @@ exit()
 # Full blown LDS ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
-def generate_sinusoidal_generating_LDS(components, start_angle):
+def assemble_sinusoidal_generating_compact_LDS(components, start_angle):
     comp2 = components * 2
     A = np.zeros((comp2, comp2))
     s0 = np.zeros((comp2, 1))
@@ -255,7 +255,7 @@ def generate_sinusoidal_curves_from_trig_functions(x, components, num_points, L)
     return sin_t
 
 
-def generate_fourier_coefficients_from_trig_functions(x, f, dx, components, L):
+def compute_fourier_coefficients_from_trig_functions(x, f, dx, components, L):
     C = np.zeros(components)
     D = np.zeros(components)
 
@@ -271,7 +271,7 @@ def generate_fourier_coefficients_from_trig_functions(x, f, dx, components, L):
     return C0, C, D
 
 
-def generate_fourier_coefficients_from_LDS_sinusoidals(x, f, dx, components, sinusoidals, full_blown=False):
+def compute_fourier_coefficients_from_LDS_sinusoidals(x, f, dx, components, sinusoidals, full_blown=False):
     C = np.zeros(components)
     D = np.zeros(components)
 
@@ -307,7 +307,7 @@ def generate_fourier_coefficients_from_LDS_sinusoidals(x, f, dx, components, sin
     return C0, C, D
 
 
-def generate_full_LDS(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl):
+def assemble_complete_compact_LDS(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl):
     '''
         dx * L * spl = 2 * pi / (m - 1)
     '''
@@ -334,7 +334,7 @@ def generate_full_LDS(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl):
     return A, s0
 
 
-def generate_full_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl):
+def assemble_complete_compact_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl):
     dim = 4 + A_sinusoidal.shape[0]
     A_base = np.zeros((dim, dim))
     A_base[2:2 + A_sinusoidal.shape[0], 2:2 + A_sinusoidal.shape[0]] = A_sinusoidal
@@ -526,9 +526,9 @@ least_sq = True
 full_blown = False
 
 if full_blown:
-    A_sinusoidal, s0_sinusoidal = generate_sinusoidal_generating_full_blown_LDS(components)
+    A_sinusoidal, s0_sinusoidal = assemble_sinusoidal_generating_full_blown_LDS(components)
 else:
-    A_sinusoidal, s0_sinusoidal = generate_sinusoidal_generating_LDS(components, x[0])
+    A_sinusoidal, s0_sinusoidal = assemble_sinusoidal_generating_compact_LDS(components, x[0])
 
 A_fun, sinusoidals = generate_sinusoidal_curves(A_sinusoidal, s0_sinusoidal, dx, len(f), L)
 '''
@@ -545,7 +545,7 @@ plt.show()
 exit()
 '''
 
-C0_trig, C_trig, D_trig = generate_fourier_coefficients_from_trig_functions(x, f, dx, components, L)
+C0_trig, C_trig, D_trig = compute_fourier_coefficients_from_trig_functions(x, f, dx, components, L)
 if least_sq:
     C0, C, D = compute_fourier_coefficients_from_least_square_optimization(binned_data=binned_data,
                                                                            num_data=num_data,
@@ -553,7 +553,7 @@ if least_sq:
                                                                            L=L)
 else:
     # When full_blown = True, this uses the full blown LDS version. Otherwise the compact LDS version
-    C0, C, D = generate_fourier_coefficients_from_LDS_sinusoidals(x, f, dx, components, sinusoidals, full_blown)
+    C0, C, D = compute_fourier_coefficients_from_LDS_sinusoidals(x, f, dx, components, sinusoidals, full_blown)
 
 magnitudes = get_magnitudes(C, D)
 print(magnitudes)
@@ -567,11 +567,11 @@ prediction_step_length = 1
 num_points_to_predict = int(np.ceil(num_full_spls_to_predict / prediction_step_length))
 
 if full_blown:
-    A_base, A, s0 = generate_full_full_blown_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl * prediction_step_length)
+    A_base, A, s0 = assemble_complete_full_blown_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl * prediction_step_length)
     title = 'Full Blown LDS Predictions'
 else:
-    # A, s0 = generate_full_LDS(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl * prediction_step_length)
-    A_base, A, s0 = generate_full_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl * prediction_step_length)
+    # A, s0 = assemble_complete_compact_LDS(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl * prediction_step_length)
+    A_base, A, s0 = assemble_complete_compact_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C, D, dx, L, spl * prediction_step_length)
     title = 'Compact LDS Predictions'
 
 plot_derivatives = True
@@ -587,11 +587,11 @@ elif least_sq:
     title += '\nLeast SQ'
 
 LDS_pred = fourier_curve_from_LDS(A, s0, num_points_to_predict)
-f = fourier_curve_from_LDS_with_more_points(A_base, s0, x)
+LDS_continuous_pred = fourier_curve_from_LDS_with_more_points(A_base, s0, x)
 
-trig_pred = fourier_curve_from_trig_functions(C0_trig, C_trig, D_trig, x, L)
+# trig_pred = fourier_curve_from_trig_functions(C0_trig, C_trig, D_trig, x, L)
 
-plot_all(x, f, trig_pred, LDS_pred, num_points_to_predict, L, m, prediction_step_length, title, plot_derivatives, '')
+plot_according_to_2pi_domain(x, f, LDS_continuous_pred, LDS_pred, num_points_to_predict, L, m, prediction_step_length, title, plot_derivatives, '')
 # plot_predictions_with_data_distributions(LDS_pred, num_points_to_predict, df_binned, prediction_step_length,
 #                                          type='violin', title='Predictions with Data Distributions', file_name='')
 # sinus_df = sinusoidals_to_df(x, sinusoidals, components)
