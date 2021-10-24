@@ -215,15 +215,6 @@ def generate_full_full_blown_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C,
     return A, s0
 
 
-def fourier_curve_from_full_blown_LDS(A, s0, num_pred, L, num_datapoints, step_length):
-    curves = np.zeros((len(s0), num_pred))
-    curves[:, 0] = s0[:, 0]
-    for t in range(1, num_pred):
-        curves[:, t] = np.matmul(A, curves[:, t - 1])
-
-    return curves[np.r_[-2:0], :]
-
-
 # Have to update this similar to generate_sinusoidal_curves() to be used in the current pipeline
 def generate_sinusoidal_curves_from_full_blown_LDS(A, s0, x):
     points = np.zeros((len(s0), len(x)))
@@ -395,7 +386,7 @@ def fourier_curve_from_trig_functions(C0, C, D, x, L):
     return fFS
 
 
-def fourier_curve_from_LDS(A, s0, num_pred, L, num_datapoints, step_length):
+def fourier_curve_from_LDS(A, s0, num_pred):
     curves = np.zeros((len(s0), num_pred))
     curves[:, 0] = s0[:, 0]
     for t in range(1, num_pred):
@@ -624,16 +615,12 @@ elif prediction_step_length < 1:
 elif least_sq:
     title += '\nLeast SQ'
 
-if full_blown:
-    LDS_pred = fourier_curve_from_full_blown_LDS(A, s0, num_points_to_predict, L, m, prediction_step_length)
-else:
-    LDS_pred = fourier_curve_from_LDS(A, s0, num_points_to_predict, L, m, prediction_step_length)
+LDS_pred = fourier_curve_from_LDS(A, s0, num_points_to_predict)
 
 trig_pred = fourier_curve_from_trig_functions(C0_trig, C_trig, D_trig, x, L)
 
-
 plot_all(x, f, trig_pred, LDS_pred, num_points_to_predict, df_binned, L, m, prediction_step_length, title, plot_derivatives, '')
-plot_predictions_with_data_distributions(LDS_pred, num_points_to_predict, df_binned, prediction_step_length,
-                                         type='violin', title='Predictions with Data Distributions', file_name='')
+# plot_predictions_with_data_distributions(LDS_pred, num_points_to_predict, df_binned, prediction_step_length,
+#                                          type='violin', title='Predictions with Data Distributions', file_name='')
 # sinus_df = sinusoidals_to_df(x, sinusoidals, components)
 # plot_sinusoidals(sinus_df, period)
