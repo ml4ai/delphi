@@ -76,6 +76,32 @@ def plot_all(x_2pi, gtf, trig_pred, LDS_pred, num_pred, df_binned, L, num_datapo
         plt.show()
 
 
+def plot_sinusoidals(sinus_df, period):
+    x_highlight = generate_x(L, period + 1)
+    g = sns.FacetGrid(sinus_df, col='Type', row='Frequency', margin_titles=True)
+    g.map(sns.lineplot, 'Angle', 'Value')
+    axes = g.axes
+    for ax_row in axes:
+        for ax_col in ax_row:
+            for start in np.arange(0, period, 2):
+                ax_col.axvspan(x_highlight[start], x_highlight[start + 1], color="green", alpha=0.3)
+    g.set_titles(col_template='{col_name}', row_template='$\omega = {row_name}$')
+    plt.show()
+
+
+def sinusoidals_to_df(x, sinusoidals, components):
+    sinus = []
+    for comp in range(components):
+        freq = comp + 1
+        for i, s in enumerate(sinusoidals[2 * comp, :]):
+            sinus.append({'Type': 'sin', 'Frequency': freq, 'Angle': x[i], 'Value': s})
+        for i, c in enumerate(sinusoidals[2 * comp + 1, :] / freq):
+            sinus.append({'Type': 'cos', 'Frequency': freq, 'Angle': x[i], 'Value': c})
+
+    sinus_df = pd.DataFrame(sinus)
+    return sinus_df
+
+
 def discretize_line(y1, y2, spl):
     dx = 1 / (spl)
     x = np.arange(0, 1, dx)
@@ -194,14 +220,6 @@ def fourier_curve_from_full_blown_LDS(A, s0, num_pred, L, num_datapoints, step_l
     curves[:, 0] = s0[:, 0]
     for t in range(1, num_pred):
         curves[:, t] = np.matmul(A, curves[:, t - 1])
-
-    # x = np.arange(0, num_pred * step_length, step_length) * 2 * L / (num_datapoints) - L
-    # sns.lineplot(x=x, y=curves[-2, :], label='LDS value', marker='o', color='r', linewidth=2)
-    # sns.lineplot(x=x, y=curves[-1, :], label='LDS derivative', marker='o', color='b', linewidth=0.5)
-    # sns.lineplot(x=x[: -1], y=np.diff(curves[-2, :]), label='diff', marker='o', color='g', linewidth=0.5)
-    #
-    # plt.legend()
-    # plt.show()
 
     return curves[np.r_[-2:0], :]
 
@@ -374,7 +392,6 @@ def fourier_curve_from_trig_functions(C0, C, D, x, L):
         # ax.plot(x, sin_nx, '-')
         # ax.plot(x, cos_nx, '-')
 
-    # sns.lineplot(x=x, y=fFS, label='Trig function', linewidth=3, color='k')
     return fFS
 
 
@@ -383,14 +400,6 @@ def fourier_curve_from_LDS(A, s0, num_pred, L, num_datapoints, step_length):
     curves[:, 0] = s0[:, 0]
     for t in range(1, num_pred):
         curves[:, t] = np.matmul(A, curves[:, t - 1])
-
-    # x = np.arange(0, num_pred * step_length, step_length) * 2 * L / (num_datapoints) - L
-    # sns.lineplot(x=x, y=curves[-2, :], label='LDS value', marker='o', color='r', linewidth=2)
-    # sns.lineplot(x=x, y=curves[-1, :], label='LDS derivative', marker='o', color='b', linewidth=0.5)
-    # sns.lineplot(x=x[: -1], y=np.diff(curves[-2, :]), label='diff', marker='o', color='g', linewidth=0.5)
-    #
-    # plt.legend()
-    # plt.show()
 
     return curves[np.r_[-2:0], :]
 
@@ -477,21 +486,6 @@ def compute_fourier_coefficients_from_least_square_optimization(binned_data, num
 
     return C0, C, D
 
-'''
-data = [100, 100, 200, 150, 140]
-timesteps = [0, 1, 2, 3, 4]
-period = 5
-num_data = len(data)
-bin_means, binned_data = partition_data_according_to_period(data, timesteps, period)
-# print(binned_data)
-components = 3
-L = np.pi
-compute_fourier_coefficients_from_least_square_optimizatio(binned_data=binned_data,
-                                                           num_data=num_data,
-                                                           components=components,
-                                                           L=L)
-exit()
-'''
 # ^^^^^^^^^^^^^^^^^^^ Estimating Fourier coefficients using least squares ^^^^^^^^^^^^^^^^^^^^^
 
 
@@ -537,13 +531,6 @@ dx = 2 / (tns - 1)
 x = generate_x(L, len(f))  # L * np.arange(-1, 1, dx)
 dxs = np.diff(x)
 
-# fig, ax = plt.subplots()
-# sns.lineplot(x=x, y=f, color='y', linewidth=4, label='Original function')
-# name = 'Accent'
-# cmap = get_cmap('tab10')
-# colors = cmap.colors
-# ax.set_prop_cycle(color=colors)
-
 # Compute Fourier series
 C0 = np.sum(f * np.ones_like(x)) * dx
 fFS = C0 / 2
@@ -562,35 +549,6 @@ else:
     A_sinusoidal, s0_sinusoidal = generate_sinusoidal_generating_LDS(components, x[0])
 
 A_fun, sinusoidals = generate_sinusoidal_curves(A_sinusoidal, s0_sinusoidal, dx, len(f), L)
-
-
-def sinusoidals_to_df(x, sinusoidals, components):
-    sinus = []
-    for comp in range(components):
-        freq = comp + 1
-        for i, s in enumerate(sinusoidals[2 * comp, :]):
-            sinus.append({'Type': 'sin', 'Frequency': freq, 'Angle': x[i], 'Value': s})
-        for i, c in enumerate(sinusoidals[2 * comp + 1, :] / freq):
-            sinus.append({'Type': 'cos', 'Frequency': freq, 'Angle': x[i], 'Value': c})
-
-    sinus_df = pd.DataFrame(sinus)
-    return sinus_df
-
-
-def plot_sinusoidals(sinus_df, period):
-    x_highlight = generate_x(L, period + 1)
-    g = sns.FacetGrid(sinus_df, col='Type', row='Frequency', margin_titles=True)
-    g.map(sns.lineplot, 'Angle', 'Value')
-    axes = g.axes
-    for ax_row in axes:
-        for ax_col in ax_row:
-            for start in np.arange(0, period, 2):
-                ax_col.axvspan(x_highlight[start], x_highlight[start + 1], color="green", alpha=0.3)
-    g.set_titles(col_template='{col_name}', row_template='$\omega = {row_name}$')
-    plt.show()
-# sinus_df = sinusoidals_to_df(x, sinusoidals, components)
-# plot_sinusoidals(sinus_df, period)
-# exit()
 '''
 trig_sinus = generate_sinusoidal_curves_from_trig_functions(x, components, len(f), L)
 for k in range(components):
@@ -675,4 +633,7 @@ trig_pred = fourier_curve_from_trig_functions(C0_trig, C_trig, D_trig, x, L)
 
 
 plot_all(x, f, trig_pred, LDS_pred, num_points_to_predict, df_binned, L, m, prediction_step_length, title, plot_derivatives, '')
-# plot_predictions_with_data_distributions(LDS_pred, num_points_to_predict, df_binned, prediction_step_length, type='violin', title='', file_name='')
+plot_predictions_with_data_distributions(LDS_pred, num_points_to_predict, df_binned, prediction_step_length,
+                                         type='violin', title='Predictions with Data Distributions', file_name='')
+# sinus_df = sinusoidals_to_df(x, sinusoidals, components)
+# plot_sinusoidals(sinus_df, period)
