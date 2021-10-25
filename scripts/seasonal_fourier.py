@@ -12,7 +12,7 @@ sns.set_style("whitegrid")
 np.set_printoptions(precision=3, linewidth=100)  #, formatter={'float': '{: 0.3f}'.format})
 
 
-def plot_predictions_with_data_distributions(LDS_pred, num_pred, df_binned, prediction_step_length, type='violin', title='', file_name=''):
+def plot_predictions_with_data_distributions(LDS_pred, num_pred, df_binned, df_bin_centers, center_measure, components, prediction_step_length, type='violin', title='', file_name=''):
     name = 'Accent'
     cmap = get_cmap('tab10')
     colors = cmap.colors
@@ -23,19 +23,20 @@ def plot_predictions_with_data_distributions(LDS_pred, num_pred, df_binned, pred
     x_pred_LDS = [f'{x}' for x in np.arange(1, num_pred + 1)]
 
     if prediction_step_length == 1:
-
         if type == 'violin':
             sns.violinplot(data=df_binned, x='Observation Point str', y='Observation')  # , color='skyblue')
         elif type == 'box':
             sns.boxplot(data=df_binned, x='Observation Point str', y='Observation')
 
         sns.swarmplot(data=df_binned, x='Observation Point str', y='Observation', color="k", alpha=0.8, s=3)
+        sns.lineplot(x=df_bin_centers['Bin Point str'], y=df_bin_centers[center_measure], color='b', linewidth=2, label=center_measure, marker='D')
     else:
         print('***** WARNING: Cannot produce distribution plots for prediction step sizes other than 1 *****')
         title = '***** WARNING: prediction step sizes $\\neq$ 1 *****\nDistributions Cannot be aligned with Predictions'
 
     sns.lineplot(x=x_pred_LDS, y=LDS_pred[-2, :], label='LDS value', marker='o', color='r', linewidth=2)
 
+    title += f' $(k = {components})$'
     plt.title(title)
     plt.tight_layout()
     plt.legend()
@@ -46,7 +47,7 @@ def plot_predictions_with_data_distributions(LDS_pred, num_pred, df_binned, pred
         plt.show()
 
 
-def plot_according_to_2pi_domain(x_2pi, gtf, continuous_pred, LDS_pred, num_pred, L, num_datapoints, step_length, title='', plot_derivatives=False, file_name=''):
+def plot_according_to_2pi_domain(x_2pi, df_bin_centers, center_measure, continuous_pred, LDS_pred, num_pred, L, num_datapoints, step_length, title='', plot_derivatives=False, file_name=''):
     name = 'Accent'
     cmap = get_cmap('tab10')
     colors = cmap.colors
@@ -57,16 +58,17 @@ def plot_according_to_2pi_domain(x_2pi, gtf, continuous_pred, LDS_pred, num_pred
     x_pred_LDS = np.arange(0, num_pred * step_length, step_length) * 2 * L / (num_datapoints) - L
     # x_2pi += L
 
-    sns.lineplot(x=x_2pi, y=gtf, color='y', linewidth=4, label='Original function')
-    sns.lineplot(x=x_2pi, y=continuous_pred, label='Trig function', linewidth=3, color='k')
+    sns.lineplot(x=df_bin_centers['Bin Point num'], y=df_bin_centers[center_measure], color='y', linewidth=15, label=center_measure, marker='D', alpha=0.8)
+    sns.lineplot(x=x_2pi, y=continuous_pred, label='LDS ($\delta t \ll$)', linewidth=3, color='k')
 
-    sns.lineplot(x=x_pred_LDS, y=LDS_pred[-2, :], label='LDS value', marker='o', color='r', linewidth=2)
+    sns.lineplot(x=x_pred_LDS, y=LDS_pred[-2, :], label=f'LDS ($\delta t = {step_length}$)', marker='o', color='r', linewidth=2)
 
     if plot_derivatives:
-        x_pred_LDS += (x_pred_LDS[1] - x_pred_LDS[0]) / 2
+        # x_pred_LDS += (x_pred_LDS[1] - x_pred_LDS[0]) / 2
+        sns.lineplot(x=x_pred_LDS[: -1], y=np.diff(LDS_pred[-2, :]), label=f'diff( LDS ($\delta t = {step_length}$) )', marker='o', color='r', alpha=0.5, linewidth=0.5)
         sns.lineplot(x=x_pred_LDS[: -1], y=LDS_pred[-1, : -1], label='LDS derivative', marker='o', color='k', alpha=0.5, linewidth=0.5)
-        sns.lineplot(x=x_pred_LDS[: -1], y=np.diff(LDS_pred[-2, :]), label='diff( LDS value )', marker='o', color='r', alpha=0.5, linewidth=0.5)
 
+    plt.xticks(df_bin_centers['Bin Point num'], range(1, 1 + len(df_bin_centers['Bin Point num'])))
     plt.title(title)
     plt.tight_layout()
     plt.legend()
@@ -77,8 +79,10 @@ def plot_according_to_2pi_domain(x_2pi, gtf, continuous_pred, LDS_pred, num_pred
         plt.show()
 
 
-def plot_sinusoidals(sinus_df, period):
+def plot_sinusoidals(sinus_df, period, file_name=''):
+    fig, ax = plt.subplots(dpi=250, figsize=(24, 6.75))
     x_highlight = generate_x(L, period + 1)
+    sns.set(rc={"lines.linewidth": 0.7})
     g = sns.FacetGrid(sinus_df, col='Type', row='Frequency', margin_titles=True)
     g.map(sns.lineplot, 'Angle', 'Value')
     axes = g.axes
@@ -86,8 +90,16 @@ def plot_sinusoidals(sinus_df, period):
         for ax_col in ax_row:
             for start in np.arange(0, period, 2):
                 ax_col.axvspan(x_highlight[start], x_highlight[start + 1], color="green", alpha=0.3)
+                l = ax_col.get_lines()[0]  # get the relevant Line2D object
+                # l.set_linewidth(0.7)
+                l.set_color('r')
     g.set_titles(col_template='{col_name}', row_template='$\omega = {row_name}$')
-    plt.show()
+
+    plt.xticks(x_highlight, range(1, 1 + len(x_highlight)))
+    if file_name:
+        plt.savefig(file_name)
+    else:
+        plt.show()
 
 
 def sinusoidals_to_df(x, sinusoidals, components):
@@ -405,13 +417,17 @@ def fourier_curve_from_LDS_with_more_points(A, s0, x):
 def partition_data_according_to_period(data, timesteps, period=12, L=np.pi):
     partitions = {}
     means = []
+    medians = []
     observation_point_with_in_a_period_str = []
     observation_point_with_in_a_period_num = []
-    observation_point_with_in_2pi = generate_x(L, period + 1) + L
+    bin_location_with_in_a_period_str = []
+    bin_location_with_in_a_period_num = []
+    observation_point_with_in_2pi = generate_x(L, period + 1)  # + L
 
     for partition in range(period):
         partitions[partition] = []
         means.append(0)
+        medians.append(0)
 
     for idx, val in enumerate(data):
         observation_point = timesteps[idx] % period
@@ -420,12 +436,19 @@ def partition_data_according_to_period(data, timesteps, period=12, L=np.pi):
         observation_point_with_in_a_period_str.append(f'{observation_point + 1}')
 
     for partition, vals in partitions.items():
-        means[partition] = sum(vals) / len(vals)
+        means[partition] = np.mean(vals)
+        medians[partition] = np.median(vals)
+        bin_location_with_in_a_period_num.append(observation_point_with_in_2pi[partition])
+        bin_location_with_in_a_period_str.append(f'{partition + 1}')
 
     df_binned = pd.DataFrame({'Observation Point str': observation_point_with_in_a_period_str,
                               'Observation Point num': observation_point_with_in_a_period_num,
                               'Observation': data})
-    return means, partitions, df_binned
+    df_bin_centers = pd.DataFrame({'Bin Point str': bin_location_with_in_a_period_str,
+                                   'Bin Point num': bin_location_with_in_a_period_num,
+                                   'Bin Mean': means, 'Bin Median': medians})
+
+    return df_bin_centers, partitions, df_binned
 
 
 def compute_fourier_coefficients_from_least_square_optimization(binned_data, num_data, components, L):
@@ -496,12 +519,14 @@ num_data = len(data)
 
 L = np.pi
 
-bin_means, binned_data, df_binned = partition_data_according_to_period(data, timesteps, period, L)
+df_bin_centers, binned_data, df_binned = partition_data_according_to_period(data, timesteps, period, L)
+
+center_measure = 'Bin Mean'  # 'Bin Median'  #
 
 # Number of data points
-m = len(bin_means)  # => number of line segments = m-1 = 4
+m = len(df_bin_centers[center_measure])  # => number of line segments = m-1 = 4
 
-f = linear_interpolate_data_sequence(bin_means, spl)
+f = linear_interpolate_data_sequence(df_bin_centers[center_measure], spl)
 '''
 # Experiment: Use spl based interpolated data in the least square estimation of Fourier coefficients
 # Preparing data
@@ -521,6 +546,9 @@ C0 = np.sum(f * np.ones_like(x)) * dx
 fFS = C0 / 2
 
 components = 4
+file_name = ''
+# for components in range(1, 13):
+#     file_name = f'{2 * (components - 0) + 0}_k-{components}'
 
 least_sq = True
 full_blown = False
@@ -585,14 +613,15 @@ elif prediction_step_length < 1:
     title += '\nIntermediate Points'
 elif least_sq:
     title += '\nLeast SQ'
+title += f' $(k = {components})$'
 
 LDS_pred = fourier_curve_from_LDS(A, s0, num_points_to_predict)
 LDS_continuous_pred = fourier_curve_from_LDS_with_more_points(A_base, s0, x)
 
 # trig_pred = fourier_curve_from_trig_functions(C0_trig, C_trig, D_trig, x, L)
 
-plot_according_to_2pi_domain(x, f, LDS_continuous_pred, LDS_pred, num_points_to_predict, L, m, prediction_step_length, title, plot_derivatives, '')
-# plot_predictions_with_data_distributions(LDS_pred, num_points_to_predict, df_binned, prediction_step_length,
-#                                          type='violin', title='Predictions with Data Distributions', file_name='')
+plot_according_to_2pi_domain(x, df_bin_centers, center_measure, LDS_continuous_pred, LDS_pred, num_points_to_predict, L, m, prediction_step_length, title, plot_derivatives, file_name=file_name)
+# plot_predictions_with_data_distributions(LDS_pred, num_points_to_predict, df_binned, df_bin_centers, center_measure, components, prediction_step_length,
+#                                          type='violin', title='Predictions with Data Distributions', file_name=file_name)
 # sinus_df = sinusoidals_to_df(x, sinusoidals, components)
-# plot_sinusoidals(sinus_df, period)
+# plot_sinusoidals(sinus_df, period, file_name='sine_pallet.pdf')
