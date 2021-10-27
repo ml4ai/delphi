@@ -496,6 +496,150 @@ def compute_fourier_coefficients_from_least_square_optimization(binned_data, num
 
 # ^^^^^^^^^^^^^^^^^^^ Estimating Fourier coefficients using least squares ^^^^^^^^^^^^^^^^^^^^^
 
+# vvvvvvvvvvvvvvvvvvvv Finding the best k vvvvvvvvvvvvvvvvvvvvv
+
+def train_validate_test_split(data, timesteps, period):
+    train = 32 * period
+    validate = train + 20 * period
+    train_data = data[:train]
+    train_timesteps = timesteps[:train]
+    validate_data = data[train: validate]
+    validate_timesteps = timesteps[train: validate]
+    test_data = data[validate:]
+    test_timesteps = timesteps[validate:]
+
+    return train_data, train_timesteps, validate_data, validate_timesteps, test_data, test_timesteps
+
+
+def compute_rmse(pred, binned_test_data):
+    binned_errors = {}
+    bin_total_squared_errors = np.zeros(int(len(binned_test_data) / 2))
+    bin_between_total_squared_errors = np.zeros(int(len(binned_test_data) / 2))
+    bin_wise_rmse = np.zeros(len(binned_test_data))
+    bin_tot_test_data = 0
+    bin_between_tot_test_data = 0
+
+    for bin, vals in binned_test_data.items():
+        binned_errors[bin] = np.array(vals) - pred[bin]
+        # print(bin)
+        # print(pred[bin])
+        # print(vals)
+        # print(binned_errors[bin])
+        # print()
+
+    for bin, errors in binned_errors.items():
+        if bin % 2 == 0:
+            bin_total_squared_errors[int(bin / 2)] = np.dot(errors, errors)
+            bin_tot_test_data += len(errors)
+            bin_wise_rmse[bin] = np.sqrt(bin_total_squared_errors[int(bin / 2)] / len(errors))
+        else:
+            bin_between_total_squared_errors[int((bin - 1) / 2)] = np.dot(errors, errors)
+            bin_between_tot_test_data += len(errors)
+            bin_wise_rmse[bin] = np.sqrt(bin_between_total_squared_errors[int((bin - 1) / 2)] / len(errors))
+
+    bin_rmse = np.sqrt(np.sum(bin_total_squared_errors) / bin_tot_test_data)
+    bin_between_rmse = np.sqrt(np.sum(bin_between_total_squared_errors) / bin_between_tot_test_data)
+
+    # print(bin_rmse)
+    # print(bin_wise_rmse)
+
+    return bin_rmse, bin_between_rmse, bin_wise_rmse
+
+
+def linear_interpolate_mid_point(data):
+    mid = (data[:-1] + data[1:]) / 2
+    # print(data)
+    # print(mid)
+    tot_len = len(data) + len(mid)
+    data_interpolated = np.zeros(tot_len)
+    data_interpolated[np.arange(0, tot_len, 2)] = data
+    data_interpolated[np.arange(1, tot_len - 1, 2)] = mid
+    # print(data_interpolated)
+    # print(len(data))
+    # print(len(mid))
+
+    return data_interpolated
+
+
+def find_best_k(data, timesteps, period, L):
+    file_name = ''
+    center_measure = 'Bin Mean'
+    spl = 1
+    dx = 2 / period
+
+    num_full_spls_to_predict = period
+    prediction_step_length = 0.5
+    num_points_to_predict = int(np.ceil(num_full_spls_to_predict / prediction_step_length))
+
+    train_data, train_timesteps, validate_data, validate_timesteps, test_data, test_timesteps = train_validate_test_split(data, timesteps, period)
+    # train_data = data
+    # train_timesteps = timesteps
+
+    num_data = len(train_data)
+
+    train_df_bin_centers, train_binned_data, train_df_binned = partition_data_according_to_period(train_data, train_timesteps, period, L)
+
+    m = len(train_df_bin_centers[center_measure])  # => number of line segments = m-1 = 4
+    f = linear_interpolate_data_sequence(train_df_bin_centers[center_measure], spl=10)
+    x = generate_x(L, len(f))
+
+    validate_data = linear_interpolate_mid_point(validate_data)
+    validate_timesteps = np.arange(len(validate_timesteps) * 2 - 1)
+    validate_df_bin_centers, validate_binned_data, validate_df_binned = partition_data_according_to_period(validate_data, validate_timesteps, period * 2, L)
+
+    highest_frequency = 11  # int(period / 2)
+    bin_rmses = np.zeros(highest_frequency)
+    bin_between_rmses = np.zeros(highest_frequency)
+    rmses_train = np.zeros(highest_frequency)
+    bin_wise_rmses = []
+
+    for components in range(1, highest_frequency + 1):
+        print(components)
+        A_sinusoidal, s0_sinusoidal = assemble_sinusoidal_generating_compact_LDS(components, train_data[0])
+        C0, C, D = compute_fourier_coefficients_from_least_square_optimization(binned_data=train_binned_data,
+                                                                               num_data=num_data,
+                                                                               components=components,
+                                                                               L=L)
+        A_base, A, s0 = assemble_complete_compact_LDS_for_mat_exp(A_sinusoidal, s0_sinusoidal, C0, C, D, dx=dx, L=L,
+                                                                  spl=spl * prediction_step_length)
+        LDS_pred = fourier_curve_from_LDS(A, s0, num_points_to_predict)
+        LDS_continuous_pred = fourier_curve_from_LDS_with_more_points(A_base, s0, x)
+
+        # print(len(LDS_pred[0]))
+        # print(len(validate_df_bin_centers[center_measure]))
+        bin_rmses[components - 1], bin_between_rmses[components - 1], bin_wise_rmses_for_components = compute_rmse(LDS_pred[0], validate_binned_data)
+        # rmses_train[components - 1], _ = compute_rmse(LDS_pred[0], train_binned_data)
+        for b in range(period * 2):
+            bin_wise_rmses.append({'Components': components,
+                                   'Bin': b,
+                                   'Error': bin_wise_rmses_for_components[b]})
+
+        # plot_according_to_2pi_domain(x, train_df_bin_centers, center_measure, LDS_continuous_pred, LDS_pred,
+        #                              num_points_to_predict, L, m, prediction_step_length, 'Test Title',
+        #                              plot_derivatives=False, file_name=file_name)
+        # plot_predictions_with_data_distributions(LDS_pred, num_points_to_predict, validate_df_binned, validate_df_bin_centers,
+        #                                          center_measure, components, prediction_step_length=1, type='violin',
+        #                                          title='Predictions with Data Distributions', file_name=file_name)
+        # plt.show()
+        # plt.close()
+
+    sns.lineplot(x=range(1, highest_frequency + 1), y=bin_rmses, label='Validation RMSE for bins')
+    sns.lineplot(x=range(1, highest_frequency + 1), y=bin_between_rmses, label='Validation RMSE between bins')
+    # sns.lineplot(x=range(1, highest_frequency + 1), y=rmses_train, label='Train RMSE')
+    plt.show()
+    plt.close()
+
+    df_bin_wise_rmses = pd.DataFrame(bin_wise_rmses)
+    df_bin_wise_rmses['Bin'] = df_bin_wise_rmses['Bin'].apply(lambda b: b / 2)
+    # sns.lineplot(data=df_bin_wise_rmses, x='Components', y='Error', hue='Bin')
+    g = sns.FacetGrid(df_bin_wise_rmses, col='Bin', margin_titles=False, sharey=False, col_wrap=6)
+    g.map(sns.lineplot, 'Components', 'Error')
+
+    plt.show()
+    plt.close()
+
+# ^^^^^^^^^^^^^^^^^^^ Finding the best k ^^^^^^^^^^^^^^^^^^^^^
+
 
 # Define domain
 # samples per line segment
@@ -504,7 +648,7 @@ spl = 1000
 # Periodic data sequence
 df_rain = pd.read_csv('../data/mini_use_case/TerraClimateOromiaMontlhyPrecip.csv')
 rain = np.array(df_rain['(mm) Precipitation (TerraClimate) at State, 1958-01-01 to 2019-12-31'].tolist())
-months = list(range(len(rain)))
+months = np.array(range(len(rain)))
 
 # data = [0, 0, 1, 0, 0]
 # data = [100, 100, 200, 150, 140]
@@ -515,9 +659,12 @@ data = rain
 timesteps = months
 period = 12
 
-num_data = len(data)
-
 L = np.pi
+
+find_best_k(data, timesteps, period, L)
+exit()
+
+num_data = len(data)
 
 df_bin_centers, binned_data, df_binned = partition_data_according_to_period(data, timesteps, period, L)
 
