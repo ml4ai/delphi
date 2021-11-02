@@ -4,12 +4,23 @@ import pandas as pd
 import seaborn as sns
 from matplotlib.cm import get_cmap
 import scipy.linalg as la
+from scipy import stats
 
 plt.rcParams['figure.figsize'] = [8, 8]
-plt.rcParams.update({'font.size': 12})
+plt.rcParams.update({'font.size': 8})
 sns.set_style("whitegrid")
 
 np.set_printoptions(precision=3, linewidth=100)  #, formatter={'float': '{: 0.3f}'.format})
+
+
+def linear_interpolate_mid_point(data):
+    mid = (data[:-1] + data[1:]) / 2
+    tot_len = len(data) + len(mid)
+    data_interpolated = np.zeros(tot_len)
+    data_interpolated[np.arange(0, tot_len, 2)] = data
+    data_interpolated[np.arange(1, tot_len - 1, 2)] = mid
+
+    return data_interpolated
 
 
 def plot_predictions_with_data_distributions(LDS_pred, num_pred, df_binned, df_bin_centers, center_measure, components, prediction_step_length, type='violin', title='', file_name=''):
@@ -17,19 +28,32 @@ def plot_predictions_with_data_distributions(LDS_pred, num_pred, df_binned, df_b
     cmap = get_cmap('tab10')
     colors = cmap.colors
 
-    fig, ax = plt.subplots(dpi=250, figsize=(12, 6.75))
+    # fig, ax = plt.subplots(dpi=250, figsize=(12, 6.75))
+    fig, ax = plt.subplots(dpi=250, figsize=(6.75, 2.5))
     ax.set_prop_cycle(color=colors)
 
     x_pred_LDS = [f'{x}' for x in np.arange(1, num_pred + 1)]
 
+    # Preparing x axis to plot in between bins. Just a hack to generate some plots to paper
+    df_binned['Observation Point str'] = df_binned['Observation Point str']\
+        .apply(lambda bin: f'{(int(bin) - 1) / 2 + 1}' if int(bin) % 2 == 0 else f'{int((int(bin) - 1) / 2 + 1)}')
+
     if prediction_step_length == 1:
         if type == 'violin':
-            sns.violinplot(data=df_binned, x='Observation Point str', y='Observation')  # , color='skyblue')
+            #  24: width=1.2
+            sns.violinplot(data=df_binned, x='Observation Point str', y='Observation', linewidth=1, width=0.8, color='lemonchiffon', alpha=1)
         elif type == 'box':
             sns.boxplot(data=df_binned, x='Observation Point str', y='Observation')
 
-        sns.swarmplot(data=df_binned, x='Observation Point str', y='Observation', color="k", alpha=0.8, s=3)
-        sns.lineplot(x=df_bin_centers['Bin Point str'], y=df_bin_centers[center_measure], color='b', linewidth=2, label=center_measure, marker='D')
+        # 12: s=3
+        sns.swarmplot(data=df_binned, x='Observation Point str', y='Observation', color="k", alpha=0.8, s=2)
+
+        ax.fill_between(df_bin_centers['Bin Point str'], df_bin_centers[center_measure] - df_bin_centers['Bin StD'],
+                        df_bin_centers[center_measure] + df_bin_centers['Bin StD'], color='orangered', alpha=0.3, label='Standard Deviation')
+        # ax.fill_between(df_bin_centers['Bin Point str'], df_bin_centers['Bin Median'] - df_bin_centers['Bin MAD'],
+        #                 df_bin_centers['Bin Median'] + df_bin_centers['Bin MAD'], color='b', alpha=0.3, label='Median Abolute Error')
+        # sns.lineplot(x=df_bin_centers['Bin Point str'], y=df_bin_centers['Bin Median'], color='b', linewidth=1, label='Bin Median', alpha=1, marker='o')
+        sns.lineplot(x=df_bin_centers['Bin Point str'], y=df_bin_centers[center_measure], color='orangered', linewidth=1, label=center_measure, marker='D')
     else:
         print('***** WARNING: Cannot produce distribution plots for prediction step sizes other than 1 *****')
         title = '***** WARNING: prediction step sizes $\\neq$ 1 *****\nDistributions Cannot be aligned with Predictions'
@@ -37,7 +61,10 @@ def plot_predictions_with_data_distributions(LDS_pred, num_pred, df_binned, df_b
     sns.lineplot(x=x_pred_LDS, y=LDS_pred[-2, :], label='LDS value', marker='o', color='r', linewidth=2)
 
     title += f' $(k = {components})$'
-    plt.title(title)
+    # plt.title(title)
+    # plt.xticks([f'{b}' for b in np.arange(1, 1 + len(df_bin_centers['Bin Point num'])) / 2 + 0.5])
+    plt.xlabel('Month')
+    plt.ylabel('Rainfall (mm)')
     plt.tight_layout()
     plt.legend()
 
@@ -52,24 +79,46 @@ def plot_according_to_2pi_domain(x_2pi, df_bin_centers, center_measure, continuo
     cmap = get_cmap('tab10')
     colors = cmap.colors
 
-    fig, ax = plt.subplots(dpi=250, figsize=(12, 6.75))
+    # fig, ax = plt.subplots(dpi=250, figsize=(12, 6.75))
+    fig, ax = plt.subplots(dpi=250, figsize=(6.75, 2.5))
     ax.set_prop_cycle(color=colors)
 
     x_pred_LDS = np.arange(0, num_pred * step_length, step_length) * 2 * L / (num_datapoints) - L
     # x_2pi += L
 
-    sns.lineplot(x=df_bin_centers['Bin Point num'], y=df_bin_centers[center_measure], color='y', linewidth=15, label=center_measure, marker='D', alpha=0.8)
-    sns.lineplot(x=x_2pi, y=continuous_pred, label='LDS ($\delta t \ll$)', linewidth=3, color='k')
+    x = list(df_bin_centers['Bin Point num'])
+    x += [2 * x[-1] - x[-2]]
+    y = list(df_bin_centers[center_measure])
+    y += [y[0]]
+    # y_median = list(df_bin_centers['Bin Median'])
+    # y_median += [y_median[0]]
 
-    sns.lineplot(x=x_pred_LDS, y=LDS_pred[-2, :], label=f'LDS ($\delta t = {step_length}$)', marker='o', color='r', linewidth=2)
+    x_LDS = list(x_pred_LDS)
+    x_LDS += [2 * x_LDS[-1] - x_LDS[-2]]
+    y_LDS = list(LDS_pred[-2, :])
+    y_LDS += [y_LDS[0]]
+
+    # sns.lineplot(x=df_bin_centers['Bin Point num'], y=df_bin_centers[center_measure], color='y', linewidth=3, label=center_measure, marker='D', alpha=0.8)
+    sns.lineplot(x=x, y=y, color='y', linewidth=3, label=center_measure, marker='D', alpha=0.8)
+    # sns.lineplot(x=x, y=y_median, color='g', linewidth=1.5, label='Bin Median', marker='*', markersize=7, alpha=0.8)
+    sns.lineplot(x=x_2pi, y=continuous_pred, label='LDS ($\delta t \ll$)', linewidth=2, color='k')
+
+    # sns.lineplot(x=x_pred_LDS, y=LDS_pred[-2, :], label=f'LDS ($\delta t = {step_length}$)', marker='o', color='r', linewidth=1)
+    sns.lineplot(x=x_LDS, y=y_LDS, label=f'LDS ($\delta t = {step_length}$)', marker='o', color='r', linewidth=1)
 
     if plot_derivatives:
         # x_pred_LDS += (x_pred_LDS[1] - x_pred_LDS[0]) / 2
         sns.lineplot(x=x_pred_LDS[: -1], y=np.diff(LDS_pred[-2, :]), label=f'diff( LDS ($\delta t = {step_length}$) )', marker='o', color='r', alpha=0.5, linewidth=0.5)
         sns.lineplot(x=x_pred_LDS[: -1], y=LDS_pred[-1, : -1], label='LDS derivative', marker='o', color='k', alpha=0.5, linewidth=0.5)
 
-    plt.xticks(df_bin_centers['Bin Point num'], range(1, 1 + len(df_bin_centers['Bin Point num'])))
-    plt.title(title)
+    xticks = [f'{(bin - 1) / 2 + 1}' if bin % 2 == 0 else f'{int((bin - 1) / 2 + 1)}' for bin in list(range(1, 1 + len(df_bin_centers['Bin Point num']))) + [1]]
+    # plt.xticks(df_bin_centers['Bin Point num'], range(1, 1 + len(df_bin_centers['Bin Point num'])))
+    # plt.xticks(x, list(range(1, 1 + len(df_bin_centers['Bin Point num']))) + [1])
+    plt.xticks(x, xticks)
+
+    # plt.title(title)
+    plt.xlabel('Month')
+    plt.ylabel('Rainfall (mm)')
     plt.tight_layout()
     plt.legend()
 
@@ -417,7 +466,9 @@ def fourier_curve_from_LDS_with_more_points(A, s0, x):
 def partition_data_according_to_period(data, timesteps, period=12, L=np.pi):
     partitions = {}
     means = []
+    stds = np.zeros(period)
     medians = []
+    mads = np.zeros(period)
     observation_point_with_in_a_period_str = []
     observation_point_with_in_a_period_num = []
     bin_location_with_in_a_period_str = []
@@ -437,7 +488,9 @@ def partition_data_according_to_period(data, timesteps, period=12, L=np.pi):
 
     for partition, vals in partitions.items():
         means[partition] = np.mean(vals)
+        stds[partition] = np.std(vals)
         medians[partition] = np.median(vals)
+        mads[partition] = stats.median_abs_deviation(vals)
         bin_location_with_in_a_period_num.append(observation_point_with_in_2pi[partition])
         bin_location_with_in_a_period_str.append(f'{partition + 1}')
 
@@ -446,7 +499,8 @@ def partition_data_according_to_period(data, timesteps, period=12, L=np.pi):
                               'Observation': data})
     df_bin_centers = pd.DataFrame({'Bin Point str': bin_location_with_in_a_period_str,
                                    'Bin Point num': bin_location_with_in_a_period_num,
-                                   'Bin Mean': means, 'Bin Median': medians})
+                                   'Bin Mean': means, 'Bin Median': medians,
+                                   'Bin StD': stds, 'Bin MAD': mads})
 
     return df_bin_centers, partitions, df_binned
 
@@ -511,9 +565,16 @@ def train_validate_test_split(data, timesteps, period):
     return train_data, train_timesteps, validate_data, validate_timesteps, test_data, test_timesteps
 
 
-def compute_rmse(pred, binned_test_data):
+def compute_rmse(pred, binned_test_data, prediction_locations=2):
+    """
+    :param pred:
+    :param binned_test_data:
+    :param prediction_locations: When 1 predictions are only at bin locations. When 2 there are predictions
+                                 in between bins in addition
+    :return:
+    """
     binned_errors = {}
-    bin_total_squared_errors = np.zeros(int(len(binned_test_data) / 2))
+    bin_total_squared_errors = np.zeros(int(len(binned_test_data) / prediction_locations))
     bin_between_total_squared_errors = np.zeros(int(len(binned_test_data) / 2))
     bin_wise_rmse = np.zeros(len(binned_test_data))
     bin_tot_test_data = 0
@@ -521,44 +582,24 @@ def compute_rmse(pred, binned_test_data):
 
     for bin, vals in binned_test_data.items():
         binned_errors[bin] = np.array(vals) - pred[bin]
-        # print(bin)
-        # print(pred[bin])
-        # print(vals)
-        # print(binned_errors[bin])
-        # print()
 
     for bin, errors in binned_errors.items():
-        if bin % 2 == 0:
-            bin_total_squared_errors[int(bin / 2)] = np.dot(errors, errors)
+        if bin % prediction_locations == 0:
+            bin_total_squared_errors[int(bin / prediction_locations)] = np.dot(errors, errors)
             bin_tot_test_data += len(errors)
-            bin_wise_rmse[bin] = np.sqrt(bin_total_squared_errors[int(bin / 2)] / len(errors))
+            bin_wise_rmse[bin] = np.sqrt(bin_total_squared_errors[int(bin / prediction_locations)] / len(errors))
         else:
             bin_between_total_squared_errors[int((bin - 1) / 2)] = np.dot(errors, errors)
             bin_between_tot_test_data += len(errors)
             bin_wise_rmse[bin] = np.sqrt(bin_between_total_squared_errors[int((bin - 1) / 2)] / len(errors))
 
-    bin_rmse = np.sqrt(np.sum(bin_total_squared_errors) / bin_tot_test_data)
-    bin_between_rmse = np.sqrt(np.sum(bin_between_total_squared_errors) / bin_between_tot_test_data)
+    bin_total_se = np.sum(bin_total_squared_errors)
+    bin_between_total_se = np.sum(bin_between_total_squared_errors)
+    bin_rmse = np.sqrt(bin_total_se / bin_tot_test_data)
+    bin_between_rmse = np.sqrt(bin_between_total_se / bin_between_tot_test_data)
+    combined_rmse = np.sqrt((bin_total_se + bin_between_total_se) / (bin_tot_test_data + bin_between_tot_test_data))
 
-    # print(bin_rmse)
-    # print(bin_wise_rmse)
-
-    return bin_rmse, bin_between_rmse, bin_wise_rmse
-
-
-def linear_interpolate_mid_point(data):
-    mid = (data[:-1] + data[1:]) / 2
-    # print(data)
-    # print(mid)
-    tot_len = len(data) + len(mid)
-    data_interpolated = np.zeros(tot_len)
-    data_interpolated[np.arange(0, tot_len, 2)] = data
-    data_interpolated[np.arange(1, tot_len - 1, 2)] = mid
-    # print(data_interpolated)
-    # print(len(data))
-    # print(len(mid))
-
-    return data_interpolated
+    return bin_rmse, bin_between_rmse, combined_rmse, bin_wise_rmse
 
 
 def find_best_k(data, timesteps, period, L):
@@ -570,6 +611,9 @@ def find_best_k(data, timesteps, period, L):
     num_full_spls_to_predict = period
     prediction_step_length = 0.5
     num_points_to_predict = int(np.ceil(num_full_spls_to_predict / prediction_step_length))
+
+    prediction_locations = 1 / prediction_step_length
+    period_validation = period * int(prediction_locations)
 
     train_data, train_timesteps, validate_data, validate_timesteps, test_data, test_timesteps = train_validate_test_split(data, timesteps, period)
     # train_data = data
@@ -583,15 +627,49 @@ def find_best_k(data, timesteps, period, L):
     f = linear_interpolate_data_sequence(train_df_bin_centers[center_measure], spl=10)
     x = generate_x(L, len(f))
 
-    validate_data = linear_interpolate_mid_point(validate_data)
-    validate_timesteps = np.arange(len(validate_timesteps) * 2 - 1)
-    validate_df_bin_centers, validate_binned_data, validate_df_binned = partition_data_according_to_period(validate_data, validate_timesteps, period * 2, L)
+    if prediction_locations == 2:
+        validate_data = linear_interpolate_mid_point(validate_data)
+        validate_timesteps = np.arange(len(validate_timesteps) * 2 - 1)
 
-    highest_frequency = 11  # int(period / 2)
+        # test_data = np.array([1,2,3,4,5,6,7,8,9,10,11,12,1,2,3,4,5,6,7,8,9,10,11,12])
+        # means = np.array([1,2,3,4,5,6,7,8,9,10,11,12])
+        # test_timesteps = np.array(range(24))
+        test_data = linear_interpolate_mid_point(test_data)
+        test_timesteps = np.arange(len(test_timesteps) * 2 - 1)
+
+        naive_mean_predictions = np.zeros(len(train_df_bin_centers['Bin Mean']) + 1)
+        naive_median_predictions = np.zeros(len(train_df_bin_centers['Bin Median']) + 1)
+
+        naive_mean_predictions[:-1] = np.array(train_df_bin_centers['Bin Mean'])
+        naive_median_predictions[:-1] = np.array(train_df_bin_centers['Bin Median'])
+
+        naive_mean_predictions[-1] = train_df_bin_centers['Bin Mean'][0]
+        naive_median_predictions[-1] = train_df_bin_centers['Bin Median'][0]
+
+        naive_mean_predictions = linear_interpolate_mid_point(naive_mean_predictions)[:-1]
+        naive_median_predictions = linear_interpolate_mid_point(naive_median_predictions)
+    else:
+        naive_mean_predictions = train_df_bin_centers['Bin Mean']
+        naive_median_predictions = train_df_bin_centers['Bin Median']
+
+    validate_df_bin_centers, validate_binned_data, validate_df_binned = partition_data_according_to_period(validate_data, validate_timesteps, period_validation, L)
+    test_df_bin_centers, test_binned_data, test_df_binned = partition_data_according_to_period(test_data, test_timesteps, period_validation, L)
+
+    naive_mean_bin_rmses, naive_mean_bin_between_rmses, naive_mean_combined_rmse, _ = compute_rmse(naive_mean_predictions, test_binned_data, prediction_locations=prediction_locations)
+    naive_median_bin_rmses, naive_median_bin_between_rmses, naive_median_combined_rmse, _ = compute_rmse(naive_median_predictions, test_binned_data, prediction_locations=prediction_locations)
+    print(f'RMSE Naive Bin Means  : \n\tBin     : {naive_mean_bin_rmses:.2f}\n\tBetween : {naive_mean_bin_between_rmses:.2f}\n\tCombined: {naive_mean_combined_rmse:.2f}')
+    print(f'RMSE Naive Bin Medians  : \n\tBin     : {naive_median_bin_rmses:.2f}\n\tBetween : {naive_median_bin_between_rmses:.2f}\n\tCombined: {naive_median_combined_rmse:.2f}')
+    # return
+
+    highest_frequency = int(period / 2)
     bin_rmses = np.zeros(highest_frequency)
     bin_between_rmses = np.zeros(highest_frequency)
-    rmses_train = np.zeros(highest_frequency)
+    combined_rmses = np.zeros(highest_frequency)
     bin_wise_rmses = []
+
+    test_bin_rmses = np.zeros(highest_frequency)
+    test_bin_between_rmses = np.zeros(highest_frequency)
+    test_combined_rmses = np.zeros(highest_frequency)
 
     for components in range(1, highest_frequency + 1):
         print(components)
@@ -605,38 +683,62 @@ def find_best_k(data, timesteps, period, L):
         LDS_pred = fourier_curve_from_LDS(A, s0, num_points_to_predict)
         LDS_continuous_pred = fourier_curve_from_LDS_with_more_points(A_base, s0, x)
 
-        # print(len(LDS_pred[0]))
-        # print(len(validate_df_bin_centers[center_measure]))
-        bin_rmses[components - 1], bin_between_rmses[components - 1], bin_wise_rmses_for_components = compute_rmse(LDS_pred[0], validate_binned_data)
-        # rmses_train[components - 1], _ = compute_rmse(LDS_pred[0], train_binned_data)
-        for b in range(period * 2):
+        bin_rmses[components - 1], bin_between_rmses[components - 1], combined_rmses[components - 1], bin_wise_rmses_for_components = compute_rmse(LDS_pred[0], validate_binned_data, prediction_locations=prediction_locations)
+        test_bin_rmses[components - 1], test_bin_between_rmses[components - 1], test_combined_rmses[components - 1], test_bin_wise_rmses_for_components = compute_rmse(LDS_pred[0], test_binned_data, prediction_locations=prediction_locations)
+
+        for b in range(period_validation):
             bin_wise_rmses.append({'Components': components,
                                    'Bin': b,
                                    'Error': bin_wise_rmses_for_components[b]})
 
-        # plot_according_to_2pi_domain(x, train_df_bin_centers, center_measure, LDS_continuous_pred, LDS_pred,
+        # plot_according_to_2pi_domain(x, test_df_bin_centers, center_measure, LDS_continuous_pred, LDS_pred,
         #                              num_points_to_predict, L, m, prediction_step_length, 'Test Title',
-        #                              plot_derivatives=False, file_name=file_name)
-        # plot_predictions_with_data_distributions(LDS_pred, num_points_to_predict, validate_df_binned, validate_df_bin_centers,
+        #                              plot_derivatives=False, file_name=f'{components}_2pi.pdf')
+        # plt.close()
+        # # plot_predictions_with_data_distributions(LDS_pred, num_points_to_predict, validate_df_binned, validate_df_bin_centers,
+        # #                                          center_measure, components, prediction_step_length=1, type='violin',
+        # #                                          title='Predictions with Data Distributions', file_name=f'{components}_dist.pdf')
+        # plot_predictions_with_data_distributions(LDS_pred, num_points_to_predict, test_df_binned, train_df_bin_centers,
         #                                          center_measure, components, prediction_step_length=1, type='violin',
-        #                                          title='Predictions with Data Distributions', file_name=file_name)
-        # plt.show()
+        #                                          title='Predictions with Data Distributions', file_name=f'{components}_dist.pdf')
         # plt.close()
 
-    sns.lineplot(x=range(1, highest_frequency + 1), y=bin_rmses, label='Validation RMSE for bins')
-    sns.lineplot(x=range(1, highest_frequency + 1), y=bin_between_rmses, label='Validation RMSE between bins')
-    # sns.lineplot(x=range(1, highest_frequency + 1), y=rmses_train, label='Train RMSE')
-    plt.show()
+    # return
+    print('\n-----------------------')
+    print(f'k\tBin\t\tBetween Bin\tCombined')
+    print('-----------------------')
+    for components in range(1, highest_frequency + 1):
+        print(f'{components}\t{test_bin_rmses[components - 1]:.2f}\t{test_bin_between_rmses[components - 1]:.2f}\t{test_combined_rmses[components - 1]:.2f}')
+    print('-----------------------\n')
+
+    fig, ax = plt.subplots(dpi=250, figsize=(3.25, 2))
+    # fig, ax = plt.subplots(dpi=250, figsize=(20, 15))
+    zoom = 3
+    sns.lineplot(x=range(zoom, highest_frequency + 1), y=bin_rmses[zoom - 1:], marker='o', markersize=5, label='RMSE for bins')
+    if prediction_locations == 2:
+        sns.lineplot(x=range(zoom, highest_frequency + 1), y=bin_between_rmses[zoom - 1:], marker='o', markersize=5, label='RMSE for between bins', color='r')
+        sns.lineplot(x=range(zoom, highest_frequency + 1), y=combined_rmses[zoom - 1:], label='RMSE combined', color='g')
+
+    plt.xticks(range(zoom, highest_frequency + 1))
+    # plt.title('Validation Set RMSE')
+    plt.xlabel('Highest Frequency ($k$)')
+    plt.ylabel('RMSE')
+    plt.tight_layout()
+    # plt.show()
+    plt.savefig('rmse_all.pdf')
     plt.close()
 
     df_bin_wise_rmses = pd.DataFrame(bin_wise_rmses)
-    df_bin_wise_rmses['Bin'] = df_bin_wise_rmses['Bin'].apply(lambda b: b / 2)
-    # sns.lineplot(data=df_bin_wise_rmses, x='Components', y='Error', hue='Bin')
-    g = sns.FacetGrid(df_bin_wise_rmses, col='Bin', margin_titles=False, sharey=False, col_wrap=6)
-    g.map(sns.lineplot, 'Components', 'Error')
+    if prediction_locations == 2:
+        df_bin_wise_rmses['Bin'] = df_bin_wise_rmses['Bin'].apply(lambda b: b / 2)
 
-    plt.show()
-    plt.close()
+    # fig, ax = plt.subplots(dpi=250, figsize=(12, 6.75))
+    # sns.lineplot(data=df_bin_wise_rmses, x='Components', y='Error', hue='Bin')
+    # g = sns.FacetGrid(df_bin_wise_rmses, col='Bin', margin_titles=False, sharey=False, col_wrap=6)
+    # g.map(sns.lineplot, 'Components', 'Error')
+
+    # plt.show()
+    # plt.close()
 
 # ^^^^^^^^^^^^^^^^^^^ Finding the best k ^^^^^^^^^^^^^^^^^^^^^
 
@@ -661,12 +763,13 @@ period = 12
 
 L = np.pi
 
-find_best_k(data, timesteps, period, L)
-exit()
-
 num_data = len(data)
 
-df_bin_centers, binned_data, df_binned = partition_data_according_to_period(data, timesteps, period, L)
+train_data, train_timesteps, validate_data, validate_timesteps, test_data, test_timesteps = train_validate_test_split(data, timesteps, period)
+df_bin_centers, binned_data, df_binned = partition_data_according_to_period(train_data, train_timesteps, period, L)
+
+find_best_k(data, timesteps, period, L)
+exit()
 
 center_measure = 'Bin Mean'  # 'Bin Median'  #
 
@@ -693,7 +796,7 @@ C0 = np.sum(f * np.ones_like(x)) * dx
 fFS = C0 / 2
 
 components = 4
-file_name = ''
+file_name = f'dist_{components}.pdf'
 # for components in range(1, 13):
 #     file_name = f'{2 * (components - 0) + 0}_k-{components}'
 
