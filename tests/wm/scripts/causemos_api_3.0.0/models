@@ -14,7 +14,7 @@ if [[ $modelId == "" ]]; then
 
 else
 	login="-u me:ivilab4fun"
-	endpoint="/delphi/models/$modelId"
+	endpoint="/models/$modelId"
 	url=$(./get_delphi_url)
 
 	call="curl $login -s $url$endpoint"
