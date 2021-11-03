@@ -468,7 +468,7 @@ int main(int argc, const char* argv[]) {
              Adarsh
             */
             size_t kde_kernels = 1000;
-            int sampling_resolution = 1000, burn = 10000;
+            int sampling_resolution = 200, burn = 10000;
             if (getenv("CI")) {
 	        cout << "CI mode detected" << endl;
                 // When running in a continuous integration run, we set the
@@ -487,7 +487,7 @@ int main(int argc, const char* argv[]) {
             }
 
             AnalysisGraph G;
-            G.set_res(kde_kernels);
+            G.set_n_kde_kernels(kde_kernels);
             G.from_causemos_json_dict(json_data, 0, 0);
 
             sqlite3DB->insert_into_delphimodel(

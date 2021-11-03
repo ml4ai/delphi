@@ -410,7 +410,7 @@ void AnalysisGraph::construct_theta_pdfs() {
   double sigma_Y = 1.0;
   AdjectiveResponseMap adjective_response_map =
       this->construct_adjective_response_map(
-          this->rand_num_generator, this->uni_dist, this->norm_dist, this->res);
+          this->rand_num_generator, this->uni_dist, this->norm_dist, this->n_kde_kernels);
   vector<double> marginalized_responses;
   for (auto [adjective, responses] : adjective_response_map) {
     for (auto response : responses) {
@@ -419,7 +419,7 @@ void AnalysisGraph::construct_theta_pdfs() {
   }
 
   marginalized_responses = KDE(marginalized_responses)
-                               .resample(this->res,
+                               .resample(this->n_kde_kernels,
                                          this->rand_num_generator,
                                          this->uni_dist,
                                          this->norm_dist);
