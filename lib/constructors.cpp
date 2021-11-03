@@ -122,7 +122,7 @@ AnalysisGraph::from_causal_fragments_with_data(pair<vector<CausalFragment>,
                                                int kde_kernels) {
   AnalysisGraph G = from_causal_fragments(cag_ind_data.first);
 
-  G.set_res(kde_kernels);
+  G.n_kde_kernels = kde_kernels;
 
   G.observed_state_sequence.clear();
   G.n_timesteps = 0;
@@ -251,6 +251,7 @@ AnalysisGraph::AnalysisGraph(const AnalysisGraph& rhs) {
   this->id = rhs.id;
   this->data_heuristic = rhs.data_heuristic;
   this->res = rhs.res;
+  this->n_kde_kernels = rhs.n_kde_kernels;
 
   for_each(rhs.node_indices(), [&](int v) {
     Node node_rhs = rhs.graph[v];

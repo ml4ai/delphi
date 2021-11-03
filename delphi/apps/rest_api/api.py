@@ -53,7 +53,7 @@ def createNewModel():
         # TODO - we might want to set the default sampling resolution with some
         # kind of heuristic, based on the number of nodes and edges. - Adarsh
         kde_kernels = 1000
-        sampling_resolution = 1000
+        sampling_resolution = 200
         burn = 10000
 
     data = json.loads(request.data)
