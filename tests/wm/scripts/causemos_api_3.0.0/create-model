@@ -2,7 +2,7 @@
 
 # Author: Joseph Astier
 
-# Test the 'create-model' method of the delphi_rest_api 
+# Test the 'create-model' method of the delphi_rest_api CauseMos 3.0.0 API
 
 # input file should have an "id" JSON field
 

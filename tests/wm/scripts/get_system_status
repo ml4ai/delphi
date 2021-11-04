@@ -11,5 +11,9 @@ login="-u me:ivilab4fun"
 url=$(./get_delphi_url)
 
 call="curl $login -s $url$endpoint"
+echo "Call:"
+echo $call
 
-echo $($call)
+response=$($call)
+echo "Response:"
+echo $response

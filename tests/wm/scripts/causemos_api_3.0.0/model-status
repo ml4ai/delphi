@@ -2,8 +2,7 @@
 
 # Author: Joseph Astier
 
-# Query a model status from the delphi REST API
-#
+# Query a model status from the delphi REST API using the CauseMos 3.0.0 API
 
 modelId=$1
 
@@ -22,3 +21,4 @@ else
 
         echo $result | 'jq' -r '.status'
 fi
+

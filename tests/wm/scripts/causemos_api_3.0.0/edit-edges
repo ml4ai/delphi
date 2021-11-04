@@ -2,29 +2,31 @@
 
 # Author: Joseph Astier
 
-# Query a model status from the delphi REST API
+# Edit model edges using the CauseMos 3.0.0 API
 #
 
 # Model ID, e.g. "XYZ"
 modelId=$1
 
-# Experiment definition file
+# model edges file
 filename=$2
 
 if [[ $modelId == "" ]] || [[ $filename == "" ]]; then
 
-	echo "Please specify a model ID and a filename"
+	echo "Please specify a model ID and a model edges filename"
 	echo "Usage:  $0 model_ID filename"
 
 else
 	login="-u me:ivilab4fun"
 	url=$(./get_delphi_url)
-	endpoint="/delphi/models/$modelId/experiments"
+	endpoint="/models/$modelId/edit-edges"
+
 	call="curl -s $login -X POST $url$endpoint -d @$filename"
+        echo "Call:"
+        echo $call
 
-	response=$($call)
-	experimentId= echo $response | jq -r '.experimentId'
+        response=$($call)
+        echo "Response:"
+        echo $response
 
-	# show results
-	echo $experimentId
 fi
