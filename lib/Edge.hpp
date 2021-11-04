@@ -67,6 +67,13 @@ class Edge {
   double theta = std::atan(1);
   std::vector<double> sampled_thetas;
 
+  // The current log(p(θ))
+  double logpdf_theta = 0;
+
+  void compute_logpdf_theta() {
+    this->logpdf_theta = this->kde.logpdf(this->theta);
+  }
+
   void change_polarity(int subject_polarity, int object_polarity) {
     for (Statement stmt : evidence) {
       stmt.subject.polarity = subject_polarity;

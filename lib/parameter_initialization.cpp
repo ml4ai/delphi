@@ -65,6 +65,7 @@ void AnalysisGraph::init_betas_to(InitialBeta ib) {
     for (EdgeDescriptor e : this->edges()) {
       // β = tan(0.0) = 0
       this->graph[e].theta = 0.0;
+      this->graph[e].compute_logpdf_theta();
     }
     break;
   case InitialBeta::ONE:
@@ -72,22 +73,26 @@ void AnalysisGraph::init_betas_to(InitialBeta ib) {
       // θ = atan(1) = Π/4
       // β = tan(atan(1)) = 1
       this->graph[e].theta = std::atan(1);
+      this->graph[e].compute_logpdf_theta();
     }
     break;
   case InitialBeta::HALF:
     for (EdgeDescriptor e : this->edges()) {
       // β = tan(atan(0.5)) = 0.5
       this->graph[e].theta = std::atan(0.5);
+      this->graph[e].compute_logpdf_theta();
     }
     break;
   case InitialBeta::MEAN:
     for (EdgeDescriptor e : this->edges()) {
       this->graph[e].theta = this->graph[e].kde.mu;
+      this->graph[e].compute_logpdf_theta();
     }
     break;
   case InitialBeta::MEDIAN:
       for (EdgeDescriptor e : this->edges()) {
         this->graph[e].theta = median(this->graph[e].kde.dataset);
+        this->graph[e].compute_logpdf_theta();
       }
       break;
     case InitialBeta::PRIOR:
@@ -95,6 +100,7 @@ void AnalysisGraph::init_betas_to(InitialBeta ib) {
         this->graph[e].theta = this->graph[e].kde.resample(
             1, this->rand_num_generator,
             this->uni_dist, this->norm_dist)[0];
+        this->graph[e].compute_logpdf_theta();
       }
       break;
   case InitialBeta::RANDOM:
@@ -103,6 +109,7 @@ void AnalysisGraph::init_betas_to(InitialBeta ib) {
       // Multiplying by 2 scales the range to [0, 2]
       // Subtracting 1 moves the range to [-1, 1]
       this->graph[e].theta = this->uni_dist(this->rand_num_generator) * 2 - 1;
+      this->graph[e].compute_logpdf_theta();
     }
     break;
   }
