@@ -310,11 +310,14 @@ int main(int argc, const char* argv[]) {
      */
     mux.handle("create-model")
         .post([&sqlite3DB](served::response& response, const served::request& req) {
-
             cout << "create-model" << endl;
 
-
             nlohmann::json json_data = nlohmann::json::parse(req.body());
+
+	    string modelId = json_data.value("id","model ID not found");
+
+            cout << "Model ID: " << modelId << endl;
+
 
             /* dump the input file to screen */
 	    // cout << json_data.dump() << endl;
@@ -364,6 +367,7 @@ int main(int argc, const char* argv[]) {
                                              sampling_resolution,
                                              burn);
                 executor_create_model.detach();
+		cout << "Training model " << modelId << endl;
             }
             catch (std::exception& e) {
                 cout << "Error: unable to start training process" << endl;
@@ -382,53 +386,37 @@ int main(int argc, const char* argv[]) {
             return strresult;
         });
 
-
     /* openApi 3.0.0
-     * Get the status of an existing model
-     */
-    mux.handle("/models/{modelId}")
+         """ Fetch experiment results"""
+         Get asynchronous response while the experiment is being trained from
+         causemosasyncexperimentresult table
+
+         NOTE: I saw some weird behavior when we request results for an invalid
+         experiment ID just after running an experiment. The trained model
+       seemed to be not saved to the database. The model got re-trained from
+       scratch on a subsequent experiment after the initial experiment and the
+       invalid experiment result request. When I added a sleep between the
+       initial create experiment and the invalid result request this re-training
+       did not occur.
+    */
+    mux.handle("/models/{modelId}/experiments/{experimentId}")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
-            string modelId = req.params["modelID"];
-            json query_result = sqlite3DB->select_delphimodel_row(modelId);
-
-            if (query_result.empty()) {
-                json ret_exp;
-                ret_exp["status"] = "invalid model id";
-                res << ret_exp.dump();
-                return;
-            }
-
-            cout << "/models/" << modelId << endl;
-
-            string model = query_result["model"];
-
-            AnalysisGraph G;
-            G = G.deserialize_from_json_string(model, false);
-            auto response =
-                nlohmann::json::parse(G.generate_create_model_response());
-
-            res << response.dump();
-        });
-
-    /* openApi 3.0.0
-     * Get the training progress for a model.   
-     * TODO This needs a field that is incremented as training progresses. 
-     */
-    mux.handle("/models/{modelId}/training-progress")
-        .get([&sqlite3DB](served::response& res, const served::request& req) {
+            cout << "/models/{modelId}/experiments/{experimentId}" << endl;
             json result = sqlite3DB->select_causemosasyncexperimentresult_row(
-                req.params["modelID"]);
+                req.params["experimentId"]);
             if (result.empty()) {
-                // model ID not in database. 
+                // experimentID not in database. Should be an incorrect
+                // experimentID
+                result["experimentType"] = "UNKNOWN";
+                result["status"] = "invalid experiment id";
+                result["results"] = "";
             }
-            result["modelId"] = req.params["modelID"];
+            result["modelId"] = req.params["modelId"];
+            result["experimentId"] = req.params["experimentId"];
 
             res << result.dump();
-	    res << "training-progress not implemented";
         });
 
-    served::net::server server("127.0.0.1", "8123", mux);
-    server.run(10);
 
     /* openApi 3.0.0
        Post a new causemos asynchronous experiment by creating
@@ -437,8 +425,11 @@ int main(int argc, const char* argv[]) {
     */
     mux.handle("/models/{modelId}/experiments")
         .post([&sqlite3DB](served::response& res, const served::request& req) {
+
+            cout << "/models/{modelId}/experiments" << endl;
+
             auto request_body = nlohmann::json::parse(req.body());
-            string modelId = req.params["modelID"];
+            string modelId = req.params["modelId"];
 
             json query_result = sqlite3DB->select_delphimodel_row(modelId);
 
@@ -487,40 +478,31 @@ int main(int argc, const char* argv[]) {
             }
 
             json ret_exp;
+            ret_exp["modelId"] = modelId;
             ret_exp["experimentId"] = experiment_id;
-            res << ret_exp.dump();
             return ret_exp;
         });
 
     /* openApi 3.0.0
-         """ Fetch experiment results"""
-         Get asynchronous response while the experiment is being trained from
-         causemosasyncexperimentresult table
-
-         NOTE: I saw some weird behavior when we request results for an invalid
-         experiment ID just after running an experiment. The trained model
-       seemed to be not saved to the database. The model got re-trained from
-       scratch on a subsequent experiment after the initial experiment and the
-       invalid experiment result request. When I added a sleep between the
-       initial create experiment and the invalid result request this re-training
-       did not occur.
-    */
-    mux.handle("/models/{modelId}/experiments/{experimentID}")
+     * Get the training progress for a model.   
+     * TODO This needs a field that is incremented as training progresses. 
+     */
+    mux.handle("/models/{modelId}/training-progress")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
+
+	    cout << "/models/{modelId}/training-progress" << endl;
+
             json result = sqlite3DB->select_causemosasyncexperimentresult_row(
-                req.params["experimentID"]);
+                req.params["modelId"]);
             if (result.empty()) {
-                // experimentID not in database. Should be an incorrect
-                // experimentID
-                result["experimentType"] = "UNKNOWN";
-                result["status"] = "invalid experiment id";
-                result["results"] = "";
+                // model ID not in database. 
             }
-            result["modelId"] = req.params["modelID"];
-            result["experimentId"] = req.params["experimentID"];
+            result["modelId"] = req.params["modelId"];
 
             res << result.dump();
+	    res << "training-progress not implemented";
         });
+
 
     /* openApi 3.0.0
      * Post edge indicators for this model
@@ -528,12 +510,13 @@ int main(int argc, const char* argv[]) {
      */
     mux.handle("/models/{modelId}/edit-indicators")
         .post([&sqlite3DB](served::response& res, const served::request& req) {
+	    cout << "/models/{modelId}/edit-indicators" << endl;
             json result = sqlite3DB->select_causemosasyncexperimentresult_row(
-                req.params["modelID"]);
+                req.params["modelId"]);
             if (result.empty()) {
                 // model ID not in database. 
             }
-            result["modelId"] = req.params["modelID"];
+            result["modelId"] = req.params["modelId"];
 
             res << result.dump();
 	    res << "edit-indicators not implemented";
@@ -546,17 +529,56 @@ int main(int argc, const char* argv[]) {
      */
     mux.handle("/models/{modelId}/edit-edges")
         .post([&sqlite3DB](served::response& res, const served::request& req) {
+	    cout << "/models/{modelId}/edit-edges" << endl;
             json result = sqlite3DB->select_causemosasyncexperimentresult_row(
-                req.params["modelID"]);
+                req.params["modelId"]);
             if (result.empty()) {
                 // model ID not in database. 
             }
-            result["modelId"] = req.params["modelID"];
+            result["modelId"] = req.params["modelId"];
 
             res << result.dump();
-	    res << "edit-edges not implemented";
+	    res << "\nedit-edges not implemented";
         });
 
+
+    /* openApi 3.0.0
+     * Get the status of an existing model
+     */
+    mux.handle("/models/{modelId}")
+        .get([&sqlite3DB](served::response& res, const served::request& req) {
+
+            cout << "/models/{modelId}" << endl;
+
+            string modelId = req.params["modelId"];
+
+	    cout << "Checking status of model: " << modelId << endl;
+
+            json query_result = sqlite3DB->select_delphimodel_row(modelId);
+
+            if (query_result.empty()) {
+                json ret_exp;
+                ret_exp["status"] = "invalid model id";
+                res << ret_exp.dump();
+                return;
+            }
+
+            string model = query_result["model"];
+
+            AnalysisGraph G;
+            G = G.deserialize_from_json_string(model, false);
+            auto response =
+                nlohmann::json::parse(G.generate_create_model_response());
+
+	    string status = response.value("status","Could not read status");
+
+	    cout << status << endl;
+
+            res << status;
+        });
+
+    served::net::server server("127.0.0.1", "8123", mux);
+    server.run(10);
 
     return (EXIT_SUCCESS);
 }
