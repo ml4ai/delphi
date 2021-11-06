@@ -17,8 +17,11 @@ else
 	url=$(./get_delphi_url)
 
 	call="curl $login -s $url$endpoint"
-	result=$($call)
+        echo "Call:"
+        echo $call
 
-        echo $result | 'jq' -r '.status'
+        response=$($call)
+        echo "Response:"
+        echo $response
 fi
 
