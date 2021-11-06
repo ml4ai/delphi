@@ -39,17 +39,8 @@ else
                 echo "Response:"
                 echo $response
 
+		# status will be "training" if the command succeeded.
 		state= printf "$response" | jq -r '.status'
-		printf "$state" # this will be "training" if the command succeeded.
-
-		# Loop until the model is done with training by checking status
-		#
-		# if [[ $state != "ready" ]]; then
-		# 	until [[ $(./get_model_status $id) == "ready" ]]; do
-		# 	sleep 3 
-		# 	done;
-		# fi
-		# echo "ready"
-
+		printf "$state"
 	fi
 fi
