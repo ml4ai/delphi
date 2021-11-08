@@ -1,5 +1,6 @@
 #include "utils.hpp"
 #include <cmath>
+#include <ctime>
 #include <fstream>
 #include <boost/range/numeric.hpp>
 #include <boost/accumulators/accumulators.hpp>
@@ -118,5 +119,24 @@ int months_between(tuple<int, int, int> earlier_date, tuple<int, int, int> latte
   int latter_month = get<1>(latter_date);
 
   return 12 * (latter_year - earlier_year) + (latter_month - earlier_month);
+}
+
+std::string get_timestamp() {
+  time_t now = time(0);
+
+  struct tm *ptm = localtime(&now);
+  int year = 1900 + ptm->tm_year;
+  int month = 1 + ptm->tm_mon;
+  int date = ptm->tm_mday;
+  int hour = ptm->tm_hour;
+  int minute = ptm->tm_min;
+  int second = ptm->tm_sec;
+
+  return to_string(year) + "-" +
+         to_string(month) + "-" +
+         to_string(date) + "_" +
+         to_string(hour) + "." +
+         to_string(minute) + "." +
+         to_string(second);
 }
 } // namespace delphi::utils

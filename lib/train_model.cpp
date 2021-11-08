@@ -3,6 +3,12 @@
 #include <tqdm.hpp>
 #include <range/v3/all.hpp>
 
+#ifdef TIME
+  #include "utils.hpp"
+  #include "Timer.hpp"
+  #include "CSVWriter.hpp"
+#endif
+
 using namespace std;
 using tq::trange;
 
@@ -157,9 +163,39 @@ void AnalysisGraph::run_train_model(int res,
     this->log_likelihoods = vector<double>(burn + this->res, 0);
     this->MAP_sample_number = -1;
 
+    #ifdef TIME
+      int n_nodes = this->num_nodes();
+      int n_edges = this->num_edges();
+      pair<std::vector<std::string>, std::vector<long>> durations;
+      string filename = string("training_loop_timing_") +
+                        to_string(n_nodes) + "-" +
+                        to_string(n_edges) + "_" +
+                        delphi::utils::get_timestamp() + ".csv";
+      CSVWriter writer(filename);
+      vector<string> headings = {"Nodes", "Edges", "MCMC Wall", "MCMC CPU", "Sample Type"};
+      writer.write_row(headings.begin(), headings.end());
+      cout << filename << endl;
+    #endif
+
     cout << "\nBurning " << burn << " samples out..." << endl;
     for (int i : trange(burn)) {
-      this->sample_from_posterior();
+       {
+          #ifdef TIME
+            durations.first.clear();
+            durations.second.clear();
+            durations.first.push_back("Nodes");
+            durations.second.push_back(n_nodes);
+            durations.first.push_back("Edges");
+            durations.second.push_back(n_edges);
+            Timer t = Timer("train", durations);
+          #endif
+          this->sample_from_posterior();
+      }
+      #ifdef TIME
+        durations.first.push_back("sample type");
+        durations.second.push_back(this->coin_flip < this->coin_flip_thresh? 1 : 0);
+        writer.write_row(durations.second.begin(), durations.second.end());
+      #endif
       this->log_likelihoods[i] = this->log_likelihood;
 
       if (this->log_likelihood > this->log_likelihood_MAP) {
@@ -175,7 +211,23 @@ void AnalysisGraph::run_train_model(int res,
 
     cout << "\nSampling " << this->res << " samples from posterior..." << endl;
     for (int i : trange(this->res - 1)) {
-      this->sample_from_posterior();
+      {
+        #ifdef TIME
+                durations.first.clear();
+                durations.second.clear();
+                durations.first.push_back("Nodes");
+                durations.second.push_back(n_nodes);
+                durations.first.push_back("Edges");
+                durations.second.push_back(n_edges);
+                Timer t = Timer("train", durations);
+        #endif
+        this->sample_from_posterior();
+      }
+      #ifdef TIME
+            durations.first.push_back("sample type");
+            durations.second.push_back(this->coin_flip < this->coin_flip_thresh? 1 : 0);
+            writer.write_row(durations.second.begin(), durations.second.end());
+      #endif
       this->transition_matrix_collection[i] = this->A_original;
       this->initial_latent_state_collection[i] = this->s0;
 

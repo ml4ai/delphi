@@ -55,12 +55,13 @@ int main(int argc, char* argv[]) {
   int res = vm["res"].as<int>();
   int kde_kernels = vm["kernels"].as<int>();
   double noise_variance = vm["noise-variance"].as<int>();
-  string output_file = vm["output-file"].as<string>() + "_" + to_string(min_nodes) + "-" + to_string(max_nodes) + ".csv";
+  string output_file = vm["output-file"].as<string>() + "_" + to_string(min_nodes) + "-" + to_string(max_nodes) + "_" +
+                        delphi::utils::get_timestamp() + ".csv";
   cout << "The output is stored in: " << output_file << endl;
 
   std::pair<std::vector<std::string>, std::vector<long>> durations;
   CSVWriter writer(output_file);
-  vector<string> headings = {"Runs", "Nodes", "Edges", "Create", "Train", "Predict"};
+  vector<string> headings = {"Runs", "Nodes", "Edges", "Create (Wall)", "Create (CPU)", "Train (Wall)", "Train (CPU)", "Predict (Wall)", "Predict (CPU)"};
   writer.write_row(headings.begin(), headings.end());
 
   for (int run = 1; run <= num_repeats; ++run) {
