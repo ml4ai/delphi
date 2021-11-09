@@ -268,7 +268,7 @@ int main(int argc, const char* argv[]) {
     /* Allow users to stop computation of a running job */
     mux.handle("/stop_computation")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
-        cout << "/stop_computation" << endl; 
+        cout << "ENDPOINT: /stop_computation" << endl; 
 	res << "Delphi REST API 'stop_computation' called.";
     });
 
@@ -288,7 +288,7 @@ int main(int argc, const char* argv[]) {
     /* Test the served response timing */
     mux.handle("/delphi/database/profiler")
         .post([&sqlite3DB](served::response& res, const served::request& req) {
-        cout << "/delphi/database/profiler" << endl;
+        cout << "ENDPOINT: /delphi/database/profiler" << endl;
 
         Profiler* profiler = new Profiler();
         profiler->test();  // validate instantiation
@@ -310,13 +310,25 @@ int main(int argc, const char* argv[]) {
      */
     mux.handle("create-model")
         .post([&sqlite3DB](served::response& response, const served::request& req) {
-            cout << "create-model" << endl;
+            cout << "ENDPOINT: create-model" << endl;
 
             nlohmann::json json_data = nlohmann::json::parse(req.body());
 
-	    string modelId = json_data.value("id","model ID not found");
+	    // Find the id field, stop now if not foud.
+	    string failEarly = "model ID not found";
+	    string modelId = json_data.value("id",failEarly);
+	    if(modelId == failEarly) {
+	      cout << "Could not find 'id' field in input" << endl;
+              json ret_exp;
+              ret_exp["status"] = failEarly;
+              response << ret_exp.dump();
+              return ret_exp.dump(); 
+	    }
 
             cout << "Model ID: " << modelId << endl;
+
+	    // commented out for CI bug hunt, TODO: must be uncommented for production.
+	    //sqlite3DB->init_training_status(modelId); 
 
 
             /* dump the input file to screen */
@@ -371,11 +383,10 @@ int main(int argc, const char* argv[]) {
             }
             catch (std::exception& e) {
                 cout << "Error: unable to start training process" << endl;
-
-                json ret_exp;
-                ret_exp["status"] = "server error: training";
-                response << ret_exp.dump();
-                return ret_exp.dump();
+		json no_train;
+                no_train["status"] = "server error: training";
+                response << no_train.dump();
+                return no_train.dump();
             }
 
             // response << response_json.dump();
@@ -401,7 +412,7 @@ int main(int argc, const char* argv[]) {
     */
     mux.handle("/models/{modelId}/experiments/{experimentId}")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
-            cout << "/models/{modelId}/experiments/{experimentId}" << endl;
+            cout << "ENDPOINT: /models/{modelId}/experiments/{experimentId}" << endl;
             json result = sqlite3DB->select_causemosasyncexperimentresult_row(
                 req.params["experimentId"]);
             if (result.empty()) {
@@ -426,13 +437,12 @@ int main(int argc, const char* argv[]) {
     mux.handle("/models/{modelId}/experiments")
         .post([&sqlite3DB](served::response& res, const served::request& req) {
 
-            cout << "/models/{modelId}/experiments" << endl;
+            cout << "ENDPOINT: /models/{modelId}/experiments" << endl;
 
             auto request_body = nlohmann::json::parse(req.body());
-            string modelId = req.params["modelId"];
+	    string modelId = req.params["modelId"]; // should catch if not found
 
             json query_result = sqlite3DB->select_delphimodel_row(modelId);
-
             if (query_result.empty()) {
                 json ret_exp;
                 ret_exp["experimentId"] = "invalid model id";
@@ -484,23 +494,33 @@ int main(int argc, const char* argv[]) {
         });
 
     /* openApi 3.0.0
-     * Get the training progress for a model.   
-     * TODO This needs a field that is incremented as training progresses. 
+     * Query the training progress for a model.   
      */
     mux.handle("/models/{modelId}/training-progress")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
 
-	    cout << "/models/{modelId}/training-progress" << endl;
+	    cout << "ENDPOINT: /models/{modelId}/training-progress" << endl;
 
-            json result = sqlite3DB->select_causemosasyncexperimentresult_row(
-                req.params["modelId"]);
-            if (result.empty()) {
-                // model ID not in database. 
+	    string modelId = req.params["modelId"]; // should catch missing
+
+	    /*  commented out for CI bughunt.  TODO uncomment for production
+            json query_result = sqlite3DB->select_training_status(modelId);
+            if (query_result.empty()) {
+	        string error = "training progress not found for id: " + modelId;
+                json ret_exp;
+                ret_exp["modelId"] = error;
+                res << ret_exp.dump();
+		return;
             }
-            result["modelId"] = req.params["modelId"];
 
-            res << result.dump();
-	    res << "training-progress not implemented";
+            res << query_result.dump();
+	    */
+
+	    // used for CI bughunt.  TODO: Delete for production
+	    json bughunt_exp;
+            bughunt_exp["modelId"] = modelId;
+            bughunt_exp["progress"] = "Not implented";
+	    res << bughunt_exp.dump();
         });
 
 
@@ -510,16 +530,17 @@ int main(int argc, const char* argv[]) {
      */
     mux.handle("/models/{modelId}/edit-indicators")
         .post([&sqlite3DB](served::response& res, const served::request& req) {
-	    cout << "/models/{modelId}/edit-indicators" << endl;
-            json result = sqlite3DB->select_causemosasyncexperimentresult_row(
-                req.params["modelId"]);
+	    cout << "ENDPOINT: /models/{modelId}/edit-indicators" << endl;
+	    string modelId = req.params["modelId"]; // should catch if not found
+            json result = sqlite3DB->select_causemosasyncexperimentresult_row(modelId);
+
             if (result.empty()) {
                 // model ID not in database. 
             }
-            result["modelId"] = req.params["modelId"];
+            result["modelId"] = modelId;
+            result["serverError"] = "edit-indicators not implemented";
 
             res << result.dump();
-	    res << "edit-indicators not implemented";
         });
 
 
@@ -529,16 +550,35 @@ int main(int argc, const char* argv[]) {
      */
     mux.handle("/models/{modelId}/edit-edges")
         .post([&sqlite3DB](served::response& res, const served::request& req) {
-	    cout << "/models/{modelId}/edit-edges" << endl;
-            json result = sqlite3DB->select_causemosasyncexperimentresult_row(
-                req.params["modelId"]);
+	    cout << "ENDPOINT: /models/{modelId}/edit-edges" << endl;
+	    string modelId = req.params["modelId"]; // should catch if not found
+            json result = sqlite3DB->select_causemosasyncexperimentresult_row(modelId);
             if (result.empty()) {
                 // model ID not in database. 
             }
-            result["modelId"] = req.params["modelId"];
+            result["modelId"] = modelId;
+            result["serverError"] = "edit-edges not implemented";
 
             res << result.dump();
-	    res << "\nedit-edges not implemented";
+        });
+
+    mux.handle("/models/{modelId}/training-stop")
+        .get([&sqlite3DB](served::response& res, const served::request& req) {
+	    cout << "ENDPOINT: /models/{modelId}/training-stop" << endl;
+	    string modelId = req.params["modelId"]; // should catch if not found
+            if (modelId.empty()) {
+	        string error = "model ID not found: ";
+                json ret_exp;
+                ret_exp["modelId"] = error;
+                res << ret_exp.dump();
+		return;
+                // model ID not in database. 
+            }
+            json ret_exp;
+            ret_exp["modelId"] = modelId;
+            ret_exp["serverError"] = "training-stop not implemented";
+
+            res << ret_exp.dump();
         });
 
 
@@ -548,7 +588,7 @@ int main(int argc, const char* argv[]) {
     mux.handle("/models/{modelId}")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
 
-            cout << "/models/{modelId}" << endl;
+            cout << "ENDPOINT: /models/{modelId}" << endl;
 
             string modelId = req.params["modelId"];
 
@@ -574,7 +614,7 @@ int main(int argc, const char* argv[]) {
 
 	    cout << status << endl;
 
-            res << status;
+            res << response.dump();
         });
 
     served::net::server server("127.0.0.1", "8123", mux);
