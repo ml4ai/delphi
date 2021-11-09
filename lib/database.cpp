@@ -28,12 +28,12 @@ sqlite3* AnalysisGraph::open_delphi_db(int mode) {
 // should probably go in ModelStatus.cpp
 void AnalysisGraph::write_training_status_to_db() {
 
-  char progress[100];
-
-  sprintf(progress, "%4.2f", this->training_progress);
   string model_id = this->id;
-
   if (!model_id.empty()) {
+    char progress[100];
+
+    sprintf(progress, "%4.2f", this->training_progress);
+
     sqlite3* db = this->open_delphi_db(SQLITE_OPEN_READWRITE);
 
     if (db == nullptr) {
