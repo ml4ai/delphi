@@ -188,6 +188,7 @@ class AnalysisGraph {
 
   DiGraph graph;
 
+
   // Handle to the random number generator singleton object
   RNG* rng_instance = nullptr;
 
@@ -255,6 +256,10 @@ class AnalysisGraph {
    Sampler Related Variables
    ============================================================================
   */
+
+  // keep track of how far along the model is in training.
+  // This number is an approximation. Range is [0.0, 1.0]
+  float training_progress = 0.0;
 
   // Keep track whether the model is trained.
   // Used to check whether there is a trained model before calling
@@ -445,6 +450,14 @@ class AnalysisGraph {
                                                   (in causemos_integration.cpp)
    ============================================================================
   */
+
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                            training-progress
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+	public:
+  void write_training_status_to_db();
+	private:
 
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                             create-model
@@ -767,6 +780,7 @@ class AnalysisGraph {
    ============================================================================
   */
 
+
   /**
    * Set the observed state sequence for a given time range from data.
    * The sequence includes both ends of the range.
@@ -853,7 +867,6 @@ class AnalysisGraph {
   void init_betas_to(InitialBeta ib = InitialBeta::MEAN);
 
   void construct_theta_pdfs();
-
 
   /*
    ============================================================================
@@ -1096,6 +1109,13 @@ class AnalysisGraph {
   */
 
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                            training-progress
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+  bool get_trained();
+  float get_training_progress();
+
+
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                             create-model
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -1121,6 +1141,7 @@ class AnalysisGraph {
    * errors into this response.
    */
   std::string generate_create_model_response();
+
 
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                           create-experiment
