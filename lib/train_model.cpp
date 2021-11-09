@@ -1,10 +1,15 @@
 #include "AnalysisGraph.hpp"
+#include "TrainingStatus.hpp"
 #include "data.hpp"
 #include <tqdm.hpp>
 #include <range/v3/all.hpp>
+#include <nlohmann/json.hpp>
+
 
 using namespace std;
 using tq::trange;
+using json = nlohmann::json;
+
 
 void AnalysisGraph::train_model(int start_year,
                                 int start_month,
@@ -47,6 +52,25 @@ void AnalysisGraph::train_model(int start_year,
   }
 }
 
+
+std::string progress_to_json(float progress) {
+
+  json ret_exp;
+  ret_exp["training_progress"] = progress;
+
+  return ret_exp.dump();
+}
+
+
+bool AnalysisGraph::get_trained(){
+  return this->trained;
+}
+
+
+float AnalysisGraph::get_training_progress(){
+  return this->training_progress;
+}
+
 void AnalysisGraph::run_train_model(int res,
                                 int burn,
                                 InitialBeta initial_beta,
@@ -62,6 +86,15 @@ void AnalysisGraph::run_train_model(int res,
                                 unordered_map<string, double> concept_max_vals,
                                 unordered_map<string, function<double(unsigned int, double)>> ext_concepts
                                 ) {
+
+    cout << "train_model.cpp.run_train_model" << endl;
+
+    TrainingStatus ts(this);
+
+    float training_step = 1.0 / (res + burn);
+
+    this->training_progress = 0;
+
     if (train_timesteps < 0) {
       this->n_timesteps = this->observed_state_sequence.size();
     }
@@ -159,6 +192,9 @@ void AnalysisGraph::run_train_model(int res,
 
     cout << "\nBurning " << burn << " samples out..." << endl;
     for (int i : trange(burn)) {
+
+      this->training_progress += training_step;
+
       this->sample_from_posterior();
       this->log_likelihoods[i] = this->log_likelihood;
 
@@ -175,6 +211,9 @@ void AnalysisGraph::run_train_model(int res,
 
     cout << "\nSampling " << this->res << " samples from posterior..." << endl;
     for (int i : trange(this->res - 1)) {
+
+      this->training_progress += training_step;
+
       this->sample_from_posterior();
       this->transition_matrix_collection[i] = this->A_original;
       this->initial_latent_state_collection[i] = this->s0;
@@ -225,6 +264,8 @@ void AnalysisGraph::run_train_model(int res,
     }
 
     this->trained = true;
+    this->training_progress= 1.0;
+    write_training_status_to_db(); // finalize values
     RNG::release_instance();
 }
 
@@ -235,6 +276,7 @@ void AnalysisGraph::run_train_model_2(int res,
                                     bool use_heuristic,
                                     bool use_continuous
                                     ) {
+
 
     this->initialize_parameters(res, initial_beta, initial_derivative,
                               use_heuristic, use_continuous);
@@ -258,7 +300,6 @@ void AnalysisGraph::run_train_model_2(int res,
     this->trained = true;
     RNG::release_instance();
 }
-
 
 
 /*
