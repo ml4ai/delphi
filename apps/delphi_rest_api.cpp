@@ -327,8 +327,7 @@ int main(int argc, const char* argv[]) {
 
             cout << "Model ID: " << modelId << endl;
 
-	    // commented out for CI bug hunt, TODO: must be uncommented for production.
-	    //sqlite3DB->init_training_status(modelId); 
+	    sqlite3DB->init_training_status(modelId); 
 
 
             /* dump the input file to screen */
@@ -502,8 +501,6 @@ int main(int argc, const char* argv[]) {
 	    cout << "ENDPOINT: /models/{modelId}/training-progress" << endl;
 
 	    string modelId = req.params["modelId"]; // should catch missing
-
-	    /*  commented out for CI bughunt.  TODO uncomment for production
             json query_result = sqlite3DB->select_training_status(modelId);
             if (query_result.empty()) {
 	        string error = "training progress not found for id: " + modelId;
@@ -512,15 +509,7 @@ int main(int argc, const char* argv[]) {
                 res << ret_exp.dump();
 		return;
             }
-
             res << query_result.dump();
-	    */
-
-	    // used for CI bughunt.  TODO: Delete for production
-	    json bughunt_exp;
-            bughunt_exp["modelId"] = modelId;
-            bughunt_exp["progress"] = "Not implented";
-	    res << bughunt_exp.dump();
         });
 
 
