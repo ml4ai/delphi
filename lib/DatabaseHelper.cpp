@@ -82,6 +82,57 @@ vector<string> Database::read_column_text_query_where(string table_name,
     return matches;
 }
 
+
+
+// create the table if we need it.
+void Database::init_training_status(string modelId) {
+  string name = "trainingstatus";
+  string row1 = "id TEXT PRIMARY KEY";
+  string row2 = "progress REAL NOT NULL";
+  string rows = row1 + "," + row2;
+
+  string query = "CREATE TABLE IF NOT EXISTS " + name + " (" + rows + ");";
+
+  cout << "DatabaseHelper.cpp.init_training_status" << endl;
+  cout << "Query: " << query << endl;
+
+  sqlite3_stmt* stmt = nullptr;
+  int prep = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
+  if(prep == SQLITE_OK) {
+    int exec = sqlite3_step(stmt);	  
+    if(exec == SQLITE_DONE) {
+      cout << "Table created successfully" << endl;
+    } else {      
+      cout << "Table was not created" << endl;
+    }
+  } else {
+    cout << "statement preparation failed" << endl;
+  }
+  sqlite3_finalize(stmt);
+  stmt = nullptr;
+}
+
+
+/*
+    Select/read all column and 1 rows of trainingprogress table
+*/
+json Database::select_training_status(string modelId) {
+    json matches;
+    sqlite3_stmt* stmt = nullptr;
+    string query =
+        "SELECT * from trainingstatus WHERE id='" + modelId + "'  LIMIT 1;";
+    int rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        matches["id"] =
+            string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
+        matches["progress"] =
+            string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
+    }
+    sqlite3_finalize(stmt);
+    stmt = nullptr;
+    return matches;
+}
+
 /*
     Select/read all column and 1 rows of delphimodel table
 */
