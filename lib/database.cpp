@@ -25,38 +25,6 @@ sqlite3* AnalysisGraph::open_delphi_db(int mode) {
 }
 
 
-// should probably go in ModelStatus.cpp
-void AnalysisGraph::write_training_status_to_db() {
-
-  string model_id = this->id;
-  if (!model_id.empty()) {
-    char progress[100];
-
-    sprintf(progress, "%4.2f", this->training_progress);
-
-    sqlite3* db = this->open_delphi_db(SQLITE_OPEN_READWRITE);
-
-    if (db == nullptr) {
-      cout << "\n\nERROR: opening delphi.db" << endl;
-      exit(1);
-    }
-
-    char* zErrMsg = 0;
-    string query = "replace into trainingstatus values ('" + model_id + "', '" +
-                    progress + "');";
-    int rc = sqlite3_exec(db, query.c_str(), NULL, NULL, &zErrMsg);
-
-    if (rc != SQLITE_OK) {
-      cout << "Could not write\n";
-      cout << zErrMsg << endl;
-    }
-
-    sqlite3_close(db);
-    db = nullptr;
-  }
-}
-
-
 void AnalysisGraph::write_model_to_db(string model_id) {
   if (!model_id.empty()) {
     sqlite3* db = this->open_delphi_db(SQLITE_OPEN_READWRITE);
