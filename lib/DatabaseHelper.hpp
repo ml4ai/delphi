@@ -29,11 +29,7 @@ class Database {
 
   nlohmann::json select_delphimodel_row(std::string modelId);
 
-  nlohmann::json select_training_status(std::string modelId);
-
   nlohmann::json select_causemosasyncexperimentresult_row(std::string modelId);
-
-  void init_training_status(std::string modelId);
 
   void insert(std::string insert_query);
 
