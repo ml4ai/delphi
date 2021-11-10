@@ -86,12 +86,16 @@ vector<string> Database::read_column_text_query_where(string table_name,
 
 // create the table if we need it.
 void Database::init_training_status(string modelId) {
-  string name = "trainingstatus";
-  string row1 = "id TEXT PRIMARY KEY";
-  string row2 = "progress REAL NOT NULL";
-  string rows = row1 + "," + row2;
-
-  string query = "CREATE TABLE IF NOT EXISTS " + name + " (" + rows + ");";
+  string table = "training_status";
+  string r0 = "id TEXT PRIMARY KEY, ";
+  string r1 = "progress REAL NOT NULL, ";
+  string r2 = "trained BOOL NOT NULL, ";
+  string r3 = "stopped BOOL NOT NULL, ";
+  string r4 = "log_likelihood REAL NOT NULL, ";
+  string r5 = "log_likelihood_previous REAL NOT NULL, ";
+  string r6 = "log_likelihood_map REAL NOT NULL";
+  string rows = r0 + r1 + r2 + r3 + r4 + r5 + r6;
+  string query = "CREATE TABLE IF NOT EXISTS " + table + " (" + rows + ");";
 
   cout << "DatabaseHelper.cpp.init_training_status" << endl;
   cout << "Query: " << query << endl;
@@ -127,6 +131,16 @@ json Database::select_training_status(string modelId) {
             string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
         matches["progress"] =
             string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
+        matches["trained"] =
+            string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2)));
+        matches["stopped"] =
+            string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3)));
+        matches["log_likelihood"] =
+            string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4)));
+        matches["log_likelihood_previous"] =
+            string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 5)));
+        matches["log_likelihood_map"] =
+            string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 6)));
     }
     sqlite3_finalize(stmt);
     stmt = nullptr;
