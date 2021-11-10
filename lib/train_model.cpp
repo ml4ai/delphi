@@ -53,21 +53,23 @@ void AnalysisGraph::train_model(int start_year,
 }
 
 
-std::string progress_to_json(float progress) {
-
-  json ret_exp;
-  ret_exp["training_progress"] = progress;
-
-  return ret_exp.dump();
-}
-
-
 bool AnalysisGraph::get_trained(){
   return this->trained;
 }
-
+bool AnalysisGraph::get_stopped(){
+  return this->stopped;
+}
 float AnalysisGraph::get_training_progress(){
   return this->training_progress;
+}
+double AnalysisGraph::get_log_likelihood(){
+  return this-> log_likelihood;
+}
+double AnalysisGraph::get_previous_log_likelihood(){
+  return this-> previous_log_likelihood;
+}
+double AnalysisGraph::get_log_likelihood_MAP(){
+  return this-> log_likelihood_MAP;
 }
 
 void AnalysisGraph::run_train_model(int res,
@@ -88,7 +90,8 @@ void AnalysisGraph::run_train_model(int res,
 
     cout << "train_model.cpp.run_train_model" << endl;
 
-    TrainingStatus ts(this);
+    TrainingStatus ts;
+    ts.start_monitoring(this);
 
     float training_step = 1.0 / (res + burn);
 
@@ -264,7 +267,8 @@ void AnalysisGraph::run_train_model(int res,
 
     this->trained = true;
     this->training_progress= 1.0;
-    this->write_training_status_to_db();
+    ts.stop_monitoring();
+    ts.write_to_db();
     RNG::release_instance();
 }
 

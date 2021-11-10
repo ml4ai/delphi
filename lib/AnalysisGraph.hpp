@@ -257,15 +257,17 @@ class AnalysisGraph {
    ============================================================================
   */
 
-  // keep track of how far along the model is in training.
-  // This number is an approximation. Range is [0.0, 1.0]
-  float training_progress = 0.0;
+  // keep track of training progress
+  float training_progress = 0.0;  // Range is [0.0, 1.0]
 
-  // Keep track whether the model is trained.
-  // Used to check whether there is a trained model before calling
-  // generate_prediction()
+  // model is completely trained
   bool trained = false;
 
+  // training was stopped by user input
+  bool stopped = false;
+
+  // Used to check whether there is a trained model before calling
+  // generate_prediction()
   int n_timesteps = 0;
   int pred_timesteps = 0;
   std::pair<std::pair<int, int>, std::pair<int, int>> training_range;
@@ -454,10 +456,6 @@ class AnalysisGraph {
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                             training-progress
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-	public:
-  void write_training_status_to_db();
-	private:
 
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                             create-model
@@ -1111,9 +1109,12 @@ class AnalysisGraph {
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                             training-progress
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-  bool get_trained();
   float get_training_progress();
-
+  bool get_trained();
+  bool get_stopped();
+  double get_log_likelihood();
+  double get_previous_log_likelihood();
+  double get_log_likelihood_MAP();
 
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                             create-model
