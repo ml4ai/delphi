@@ -66,7 +66,6 @@ bool AnalysisGraph::get_trained(){
   return this->trained;
 }
 
-
 float AnalysisGraph::get_training_progress(){
   return this->training_progress;
 }
@@ -89,7 +88,7 @@ void AnalysisGraph::run_train_model(int res,
 
     cout << "train_model.cpp.run_train_model" << endl;
 
-    TrainingStatus* ts = new TrainingStatus(this);
+    TrainingStatus ts(this);
 
     float training_step = 1.0 / (res + burn);
 
@@ -265,7 +264,7 @@ void AnalysisGraph::run_train_model(int res,
 
     this->trained = true;
     this->training_progress= 1.0;
-    delete(ts);
+    this->write_training_status_to_db();
     RNG::release_instance();
 }
 
