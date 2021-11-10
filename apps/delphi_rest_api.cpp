@@ -347,9 +347,9 @@ int main(int argc, const char* argv[]) {
 	        cout << "CI mode detected" << endl;
                 // When running in a continuous integration run, we set the
                 // sampling resolution to be small to prevent timeouts.
-                kde_kernels = 5;
-                sampling_resolution = 5;
-                burn = 5;
+                kde_kernels = 400;
+                sampling_resolution = 400;
+                burn = 1000;
             }
             else if (getenv("DELPHI_N_SAMPLES")) {
                 // We also enable setting the sampling resolution through the
