@@ -1,5 +1,6 @@
 #include "AnalysisGraph.hpp"
 #include "DatabaseHelper.hpp"
+#include "TrainingStatus.hpp"
 #include <assert.h>
 #include <ctime>
 #include <boost/graph/graph_traits.hpp>
@@ -251,6 +252,9 @@ int main(int argc, const char* argv[]) {
     Database* sqlite3DB = new Database();
     Experiment* experiment = new Experiment();
 
+    TrainingStatus ts;
+    ts.init_db();
+
     served::multiplexer mux;
 
 
@@ -326,9 +330,6 @@ int main(int argc, const char* argv[]) {
 	    }
 
             cout << "Model ID: " << modelId << endl;
-
-	    sqlite3DB->init_training_status(modelId); 
-
 
             /* dump the input file to screen */
 	    // cout << json_data.dump() << endl;
@@ -497,11 +498,12 @@ int main(int argc, const char* argv[]) {
      */
     mux.handle("/models/{modelId}/training-progress")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
+            TrainingStatus ts;
 
 	    cout << "ENDPOINT: /models/{modelId}/training-progress" << endl;
 
 	    string modelId = req.params["modelId"]; // should catch missing
-            json query_result = sqlite3DB->select_training_status(modelId);
+            json query_result = ts.read_from_db(modelId);
             if (query_result.empty()) {
 	        string error = "training progress not found for id: " + modelId;
                 json ret_exp;
