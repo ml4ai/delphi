@@ -382,10 +382,10 @@ int main(int argc, const char* argv[]) {
             }
             catch (std::exception& e) {
                 cout << "Error: unable to start training process" << endl;
-		json no_train;
-                no_train["status"] = "server error: training";
-                response << no_train.dump();
-                return no_train.dump();
+		json error;
+                error["status"] = "server error: training";
+                response << error.dump();
+                return error.dump();
             }
 
             // response << response_json.dump();
@@ -419,7 +419,7 @@ int main(int argc, const char* argv[]) {
                 // experimentID
                 result["experimentType"] = "UNKNOWN";
                 result["status"] = "invalid experiment id";
-                result["results"] = "";
+                result["results"] = "";  // TODO see if it's safe to remove this 
             }
             result["modelId"] = req.params["modelId"];
             result["experimentId"] = req.params["experimentId"];
