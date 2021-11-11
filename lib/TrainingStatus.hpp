@@ -29,6 +29,5 @@ class TrainingStatus {
   void init_db();
   void start_monitoring(AnalysisGraph* ag);
   void stop_monitoring();
-  string read_from_db(string modelId);
-  nlohmann::json select_training_status(string modelId);
+  nlohmann::json read_from_db(string modelId);
 };

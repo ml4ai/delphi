@@ -509,9 +509,10 @@ int main(int argc, const char* argv[]) {
                 json ret_exp;
                 ret_exp["modelId"] = error;
                 res << ret_exp.dump();
-		return;
+		return ret_exp.dump();
             }
-            res << query_result.dump();
+	    res << query_result.dump();
+	    return query_result.dump();
         });
 
 

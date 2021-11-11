@@ -117,7 +117,7 @@ bool TrainingStatus::write_to_db() {
 /*
     Select/read all column and 1 rows of trainingprogress table
 */
-string TrainingStatus::read_from_db(string modelId) {
+json TrainingStatus::read_from_db(string modelId) {
   cout << "TrainingStatus::read_from_db()" << endl;
 
   json matches;
@@ -151,7 +151,7 @@ string TrainingStatus::read_from_db(string modelId) {
   stmt = nullptr;
   db = nullptr;
   cout << "MATCHES: " << matches.dump() << endl;
-  return matches.dump();
+  return matches;
 }
 
 // create the table if we need it.
