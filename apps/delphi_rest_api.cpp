@@ -24,43 +24,6 @@ using json = nlohmann::json;
     =====================
 */
 
-
-// find computational bottlenecks
-class Profiler {
-    public:
-
-	// let the user know the class has been instantiated
-	static void test(){
-            cout << "Profiler running\n";
-	}
-
-        // Test how long it takes to get an arbitrary model created
-        static int initTiming(
-	    Database* sqlite3DB,
-            const served::request& request
-	) {
-	    cout << "ProfileExperiment.initTiming\n";
-
-	    // let the compiler figure out the datatype particulars
-            auto request_body = nlohmann::json::parse(request.body());
-
-	    // These are set, they are not the profile data
-            double startTime = request_body["experimentParam"]["startTime"];
-            double endTime = request_body["experimentParam"]["endTime"];
-
-	    return endTime-startTime;
-	}
-
-	// watch resources
-	~Profiler() {
-            cout << "Profiler destructor\n";
-	}
-
-     private:
-	int n_iterations = 0;  // should be set by input
-};
-
-
 class Experiment {
     public:
     /* a function to generate numpy's linspace */
@@ -289,25 +252,6 @@ int main(int argc, const char* argv[]) {
     });
 
 
-    /* Test the served response timing */
-    mux.handle("/delphi/database/profiler")
-        .post([&sqlite3DB](served::response& res, const served::request& req) {
-        cout << "ENDPOINT: /delphi/database/profiler" << endl;
-
-        Profiler* profiler = new Profiler();
-        profiler->test();  // validate instantiation
-
-        json ret_exp;
-
-	delete profiler;
-
-        return ret_exp;
-    });
-
-
-
-
-
 
     /* openApi 3.0.0 
      * Post a new Delphi model. 
@@ -509,10 +453,8 @@ int main(int argc, const char* argv[]) {
                 json ret_exp;
                 ret_exp["modelId"] = error;
                 res << ret_exp.dump();
-		return ret_exp.dump();
             }
 	    res << query_result.dump();
-	    return query_result.dump();
         });
 
 
