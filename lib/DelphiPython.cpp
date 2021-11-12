@@ -259,7 +259,7 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def("profile_prediction",
            &AnalysisGraph::profile_prediction,
            "run"_a = 1,
-           "pred_timesteps"_ = 24,
+           "pred_timesteps"_a = 24,
            "file_name_prefix"_a = "prediction_timing");
 
   py::class_<RV>(m, "RV")
