@@ -65,7 +65,6 @@ add_library(Delphi
   lib/DatabaseHelper.cpp
   lib/head_nodes.cpp
   lib/TrainingStatus.cpp
-  lib/DelphiConnect.cpp
 )
 
 target_link_libraries(Delphi
