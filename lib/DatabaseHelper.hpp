@@ -27,6 +27,8 @@ class Database {
                                std::string where_column_name,
                                std::string where_value);
 
+  nlohmann::json select_training_status_row(std::string modelId);
+
   nlohmann::json select_delphimodel_row(std::string modelId);
 
   nlohmann::json select_causemosasyncexperimentresult_row(std::string modelId);
