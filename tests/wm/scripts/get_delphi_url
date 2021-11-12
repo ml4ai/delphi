@@ -5,8 +5,8 @@
 # Return either the local or remote delphi URL. 
 
 # uncomment for remote endpoint on gauss
-#printf "http://ivilab.org/delphi-api"
+printf "http://ivilab.org/delphi-api"
 
 # uncomment for use on local machine
-printf "http://localhost:8123"
+#printf "http://localhost:8123"
 
