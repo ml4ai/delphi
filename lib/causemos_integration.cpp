@@ -822,7 +822,7 @@ AnalysisGraph AnalysisGraph::from_causemos_json_string(string json_string,
                                                        int kde_kernels
                                                        ) {
   AnalysisGraph G;
-  G.set_res(kde_kernels);
+  G.n_kde_kernels = kde_kernels;
 
   auto json_data = nlohmann::json::parse(json_string);
   G.from_causemos_json_dict(json_data, belief_score_cutoff, grounding_score_cutoff);
@@ -835,7 +835,7 @@ AnalysisGraph AnalysisGraph::from_causemos_json_file(string filename,
                                                      int kde_kernels
                                                      ) {
   AnalysisGraph G;
-  G.set_res(kde_kernels);
+  G.n_kde_kernels = kde_kernels;
 
   auto json_data = load_json(filename);
   G.from_causemos_json_dict(json_data, belief_score_cutoff, grounding_score_cutoff);

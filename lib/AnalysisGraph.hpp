@@ -208,6 +208,9 @@ class AnalysisGraph {
   // Sampling resolution
   size_t res;
 
+  // Number of KDE kernels
+  size_t n_kde_kernels = 1000;
+
   /*
    ============================================================================
    Meta Data Structures
@@ -1037,6 +1040,10 @@ class AnalysisGraph {
 
   // Set the sampling resolution.
   void set_res(size_t res);
+
+  // Set the number of KDE kernels.
+  void set_n_kde_kernels(size_t kde_kernels)
+      {this->n_kde_kernels = kde_kernels;};
 
   // Get the sampling resolution.
   size_t get_res();
