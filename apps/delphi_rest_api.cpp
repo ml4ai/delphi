@@ -218,6 +218,8 @@ int main(int argc, const char* argv[]) {
     TrainingStatus ts;
     ts.init_db();
 
+
+
     served::multiplexer mux;
 
 
@@ -232,17 +234,9 @@ int main(int argc, const char* argv[]) {
     }
 
 
-    /* Allow users to stop computation of a running job */
-    mux.handle("/stop_computation")
-        .get([&sqlite3DB](served::response& res, const served::request& req) {
-        cout << "ENDPOINT: /stop_computation" << endl; 
-	res << "Delphi REST API 'stop_computation' called.";
-    });
-
     /* Allow users to check if the REST API is running */
     mux.handle("/status")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
-        cout << "/status" << endl; 
 
         if (getenv("CI")) {
 	    res << "The Delphi REST API is running in CI mode.";
@@ -258,7 +252,6 @@ int main(int argc, const char* argv[]) {
      */
     mux.handle("create-model")
         .post([&sqlite3DB](served::response& response, const served::request& req) {
-            cout << "ENDPOINT: create-model" << endl;
 
             nlohmann::json json_data = nlohmann::json::parse(req.body());
 
@@ -272,8 +265,6 @@ int main(int argc, const char* argv[]) {
               response << ret_exp.dump();
               return ret_exp.dump(); 
 	    }
-
-            cout << "Model ID: " << modelId << endl;
 
             /* dump the input file to screen */
 	    // cout << json_data.dump() << endl;
@@ -356,7 +347,6 @@ int main(int argc, const char* argv[]) {
     */
     mux.handle("/models/{modelId}/experiments/{experimentId}")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
-            cout << "ENDPOINT: /models/{modelId}/experiments/{experimentId}" << endl;
             json result = sqlite3DB->select_causemosasyncexperimentresult_row(
                 req.params["experimentId"]);
             if (result.empty()) {
@@ -381,8 +371,6 @@ int main(int argc, const char* argv[]) {
     mux.handle("/models/{modelId}/experiments")
         .post([&sqlite3DB](served::response& res, const served::request& req) {
 
-            cout << "ENDPOINT: /models/{modelId}/experiments" << endl;
-
             auto request_body = nlohmann::json::parse(req.body());
 	    string modelId = req.params["modelId"]; // should catch if not found
 
@@ -395,8 +383,6 @@ int main(int argc, const char* argv[]) {
             }
 
             string model = query_result["model"];
-
-	    cout << "Model: " << model << endl;
 
             bool trained = nlohmann::json::parse(model)["trained"];
 
@@ -444,17 +430,23 @@ int main(int argc, const char* argv[]) {
         .get([&sqlite3DB](served::response& res, const served::request& req) {
             TrainingStatus ts;
 
-	    cout << "ENDPOINT: /models/{modelId}/training-progress" << endl;
-
 	    string modelId = req.params["modelId"]; // should catch missing
-            json query_result = ts.read_from_db(modelId);
-            if (query_result.empty()) {
-	        string error = "training progress not found for id: " + modelId;
-                json ret_exp;
-                ret_exp["modelId"] = error;
-                res << ret_exp.dump();
-            }
-	    res << query_result.dump();
+	    string query_return = ts.read_from_db(modelId);
+
+	    if(query_return.empty()) {
+              json error;
+              error["id"] = modelId;
+              error["status"] = "No training status data found";
+	      res << error.dump();
+	      return;
+	    }
+
+	    json cols = json::parse(query_return);
+	    string status = cols["status"];
+
+	    json output = json::parse(status);
+
+            res << output.dump();
         });
 
 
@@ -464,7 +456,9 @@ int main(int argc, const char* argv[]) {
      */
     mux.handle("/models/{modelId}/edit-indicators")
         .post([&sqlite3DB](served::response& res, const served::request& req) {
-	    cout << "ENDPOINT: /models/{modelId}/edit-indicators" << endl;
+
+	    string message = "The edit-indicators endpoint is not implemented for Delphi, since Delphi (as it is currently implemented) needs to retrain the whole model on every indicator change. This might change in the future, but for now, the way to update an existing model is to use the create-model API endpoint.";
+
 	    string modelId = req.params["modelId"]; // should catch if not found
             json result = sqlite3DB->select_causemosasyncexperimentresult_row(modelId);
 
@@ -472,7 +466,7 @@ int main(int argc, const char* argv[]) {
                 // model ID not in database. 
             }
             result["modelId"] = modelId;
-            result["serverError"] = "edit-indicators not implemented";
+            result["serverMessage"] = message;
 
             res << result.dump();
         });
@@ -484,21 +478,25 @@ int main(int argc, const char* argv[]) {
      */
     mux.handle("/models/{modelId}/edit-edges")
         .post([&sqlite3DB](served::response& res, const served::request& req) {
-	    cout << "ENDPOINT: /models/{modelId}/edit-edges" << endl;
+
+            string message = "Edit-edges: Currently implemented as a NOP.  It will soon have the semantics of changing the prior distribution of the rate of change of the target node with respect to the source node expressed in terms of angles.";
+
 	    string modelId = req.params["modelId"]; // should catch if not found
             json result = sqlite3DB->select_causemosasyncexperimentresult_row(modelId);
             if (result.empty()) {
                 // model ID not in database. 
             }
             result["modelId"] = modelId;
-            result["serverError"] = "edit-edges not implemented";
+            result["serverMessage"] = message;
 
             res << result.dump();
         });
 
     mux.handle("/models/{modelId}/training-stop")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
-	    cout << "ENDPOINT: /models/{modelId}/training-stop" << endl;
+
+	    string message = "training-stop not implemented";
+
 	    string modelId = req.params["modelId"]; // should catch if not found
             if (modelId.empty()) {
 	        string error = "model ID not found: ";
@@ -508,9 +506,10 @@ int main(int argc, const char* argv[]) {
 		return;
                 // model ID not in database. 
             }
+
             json ret_exp;
             ret_exp["modelId"] = modelId;
-            ret_exp["serverError"] = "training-stop not implemented";
+            ret_exp["serverMessage"] = message;
 
             res << ret_exp.dump();
         });
@@ -522,11 +521,7 @@ int main(int argc, const char* argv[]) {
     mux.handle("/models/{modelId}")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
 
-            cout << "ENDPOINT: /models/{modelId}" << endl;
-
             string modelId = req.params["modelId"];
-
-	    cout << "Checking status of model: " << modelId << endl;
 
             json query_result = sqlite3DB->select_delphimodel_row(modelId);
 
@@ -543,10 +538,6 @@ int main(int argc, const char* argv[]) {
             G = G.deserialize_from_json_string(model, false);
             auto response =
                 nlohmann::json::parse(G.generate_create_model_response());
-
-	    string status = response.value("status","Could not read status");
-
-	    cout << status << endl;
 
             res << response.dump();
         });
