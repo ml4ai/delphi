@@ -55,33 +55,39 @@ int main(int argc, char* argv[]) {
   int res = vm["res"].as<int>();
   int kde_kernels = vm["kernels"].as<int>();
   double noise_variance = vm["noise-variance"].as<int>();
-  string output_file = vm["output-file"].as<string>() + "_" + to_string(min_nodes) + "-" + to_string(max_nodes) + "_" +
-                        delphi::utils::get_timestamp() + ".csv";
-  cout << "The output is stored in: " << output_file << endl;
+  string output_file_prefix = vm["output-file"].as<string>() + "_";
+//  string output_file = vm["output-file"].as<string>() + "_" + to_string(min_nodes) + "-" + to_string(max_nodes) + "_" +
+//                        delphi::utils::get_timestamp() + ".csv";
+//  cout << "The output is stored in: " << output_file << endl;
+//
+//  std::pair<std::vector<std::string>, std::vector<long>> durations;
+//  CSVWriter writer(output_file);
+//  vector<string> headings = {"Runs", "Nodes", "Edges", "Create (Wall)", "Create (CPU)", "Train (Wall)", "Train (CPU)", "Predict (Wall)", "Predict (CPU)"};
+//  writer.write_row(headings.begin(), headings.end());
 
-  std::pair<std::vector<std::string>, std::vector<long>> durations;
-  CSVWriter writer(output_file);
-  vector<string> headings = {"Runs", "Nodes", "Edges", "Create (Wall)", "Create (CPU)", "Train (Wall)", "Train (CPU)", "Predict (Wall)", "Predict (CPU)"};
-  writer.write_row(headings.begin(), headings.end());
+  int node_jump = 4;
 
   for (int run = 1; run <= num_repeats; ++run) {
     cout << "\n\nRun: " << run << "\n";
-    for (int nodes = min_nodes; nodes <= max_nodes; nodes = (nodes < 16? nodes + 1 : lround(nodes * multiplicative_factor + additive_factor))) {
+    //for (int nodes = min_nodes; nodes <= max_nodes; nodes = (nodes < 16? nodes + 1 : lround(nodes * multiplicative_factor + additive_factor))) {
+    for (int nodes = min_nodes; nodes <= max_nodes; nodes += node_jump) {
       int max_extra_edges = nodes - 1; //ceil((nodes - 1) * (nodes - 1) * frac_extra_edges);
-      for (int extra_edges = 0; extra_edges <= max_extra_edges; extra_edges = (extra_edges < 16? extra_edges + 1 : extra_edges * 2)) {
+      int edge_jump = int(max_extra_edges / node_jump);
+      //for (int extra_edges = 0; extra_edges <= max_extra_edges; extra_edges = (extra_edges < 16? extra_edges + 1 : extra_edges * 2)) {
+      for (int extra_edges = 0; extra_edges <= max_extra_edges; extra_edges += edge_jump) {
         cout << "\n\tNodes: " << nodes << "  \tExtra edges: " << extra_edges << "\n";
         if (check) {
           continue;
         }
         AnalysisGraph G1;
 
-        durations.first.clear();
-        durations.second.clear();
-        durations.first = {"Runs", "Nodes", "Edges"};
-        durations.second = {run, nodes, nodes - 1 + extra_edges};
+//        durations.first.clear();
+//        durations.second.clear();
+//        durations.first = {"Runs", "Nodes", "Edges"};
+//        durations.second = {run, nodes, nodes - 1 + extra_edges};
 
-        {
-          Timer t = Timer("create", durations);
+//        {
+//          Timer t = Timer("create", durations);
           G1 = AnalysisGraph::generate_random_CAG(nodes, extra_edges);
           G1.generate_synthetic_data(num_obs,
                                      noise_variance,
@@ -89,20 +95,25 @@ int main(int argc, char* argv[]) {
                                      InitialBeta::PRIOR,
                                      InitialDerivative::DERI_PRIOR,
                                      false);
-        }
-        {
-          Timer t = Timer("train", durations);
-          G1.run_train_model(res,
-                             burn,
-                             InitialBeta::ZERO,
-                             InitialDerivative::DERI_ZERO,
-                             false);
-        }
-        {
-          Timer t = Timer("predict", durations);
-          G1.generate_prediction(1, pred_timesteps);
-        }
-        writer.write_row(durations.second.begin(), durations.second.end());
+//        }
+        G1.initialize_profiler(res, kde_kernels);
+        G1.profile_mcmc(run, output_file_prefix + "mcmc");
+        G1.profile_kde(run, output_file_prefix + "kde");
+        G1.profile_prediction(run, pred_timesteps, output_file_prefix + "prediction");
+//        exit(0);
+//        {
+//          Timer t = Timer("Train", durations);
+//          G1.run_train_model(res,
+//                             burn,
+//                             InitialBeta::ZERO,
+//                             InitialDerivative::DERI_ZERO,
+//                             false);
+//        }
+//        {
+//          Timer t = Timer("Predict", durations);
+//          G1.generate_prediction(1, pred_timesteps);
+//        }
+//        writer.write_row(durations.second.begin(), durations.second.end());
       }
     }
   }

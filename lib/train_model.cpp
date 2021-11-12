@@ -167,7 +167,7 @@ void AnalysisGraph::run_train_model(int res,
       int n_nodes = this->num_nodes();
       int n_edges = this->num_edges();
       pair<std::vector<std::string>, std::vector<long>> durations;
-      string filename = string("training_loop_timing_") +
+      string filename = string("mcmc_timing_embeded") +
                         to_string(n_nodes) + "-" +
                         to_string(n_edges) + "_" +
                         delphi::utils::get_timestamp() + ".csv";
@@ -219,12 +219,12 @@ void AnalysisGraph::run_train_model(int res,
                 durations.second.push_back(n_nodes);
                 durations.first.push_back("Edges");
                 durations.second.push_back(n_edges);
-                Timer t = Timer("train", durations);
+                Timer t = Timer("Train", durations);
         #endif
         this->sample_from_posterior();
       }
       #ifdef TIME
-            durations.first.push_back("sample type");
+            durations.first.push_back("Sample Type");
             durations.second.push_back(this->coin_flip < this->coin_flip_thresh? 1 : 0);
             writer.write_row(durations.second.begin(), durations.second.end());
       #endif
