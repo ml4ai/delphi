@@ -37,7 +37,7 @@ else
 
                 response=$($call)
                 echo "Response:"
-                echo $response
+                echo $response | jq
 
 		# status will be "training" if the command succeeded.
 		state= printf "$response" | jq -r '.status'

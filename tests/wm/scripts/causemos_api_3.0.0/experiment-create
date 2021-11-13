@@ -29,5 +29,5 @@ else
 
         response=$($call)
         echo "Response:"
-        echo $response
+        echo $response | jq
 fi
