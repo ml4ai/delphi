@@ -15,20 +15,22 @@ TrainingStatus::TrainingStatus(){
 }
 
 TrainingStatus::~TrainingStatus(){
-  stop_monitoring();
+  stop_updating_db();
 }
 
+/* Start the thread that posts the status to the datbase */
 void TrainingStatus::scheduler()
 {
   while(!ag->get_trained()){
     this_thread::sleep_for(std::chrono::seconds(1));
     if(pThread != nullptr) {
-      write_to_db();
+      update_db();
     }
   }
 }
 
-void TrainingStatus::start_monitoring(AnalysisGraph *ag){
+/* Begin posting training status updates to the database on a regular interval */
+void TrainingStatus::start_updating_db(AnalysisGraph *ag){
   this->ag = ag;
 
   if(pThread == nullptr) {
@@ -36,7 +38,8 @@ void TrainingStatus::start_monitoring(AnalysisGraph *ag){
   }
 }
 
-void TrainingStatus::stop_monitoring(){
+/* Stop posting training status updates to the database */
+void TrainingStatus::stop_updating_db(){
     if (pThread != nullptr)
     {
         if(pThread->joinable()) {
@@ -47,13 +50,22 @@ void TrainingStatus::stop_monitoring(){
     pThread = nullptr;
 }
 
-void TrainingStatus::write_to_db() {
+/* set the "stopped" field to true */
+string TrainingStatus::stop_training(string modelId){
+  cout << "TrainingStatus::stop_training()" << endl;
+  json status;
+  status["id"] = modelId;
+  status["status"] = "Endpoint 'training-stop' not yet implemented.";
+  return status.dump();
+}
 
+/* write out the status as a string for the database */
+json TrainingStatus::compose_status() {
+  cout << "TrainingStatus::compose_status()" << endl;
+  json status;
   if (ag != nullptr) {
     string model_id = ag->id;
     if(!model_id.empty()) {
-	  
-      json status;
       status["id"] = model_id;
       status["progress"] = ag->get_training_progress();
       status["trained"] = ag->get_trained();
@@ -61,22 +73,40 @@ void TrainingStatus::write_to_db() {
       status["log_likelihood"] = ag->get_log_likelihood();
       status["log_likelihood_previous"] = ag->get_previous_log_likelihood();
       status["log_likelihood_map"] = ag->get_log_likelihood_MAP();
-
-      string query = "REPLACE INTO " + table + " VALUES ('" + model_id  + "', '" + status.dump() +  "');";
-
-
-      database->insert(query);
     }
+  }
+  return status;
+}
+
+void TrainingStatus::update_db() {
+  cout << "TrainingStatus::update_db()" << endl;
+  json status = compose_status();
+  write_to_db(status);
+}
+
+/* write the model training status to the database */
+void TrainingStatus::write_to_db(json status) {
+  cout << "TrainingStatus::write_to_db()" << endl;
+  if(!status.empty()) {
+    string id = status.value("id", "");
+    string dump = status.dump();
+    string query 
+      = "REPLACE INTO " + table + " VALUES ('" + id + "', '" + dump +  "');";
+    cout << "QUERY: " << query << endl;
+    database->insert(query);
   }
 }
 
+/* Read the model training status from the database */
 string TrainingStatus::read_from_db(string modelId) {
   return database->select_training_status_row(modelId).dump();
 }
 
-// create the table if we need it.
+/* create the table if we need it.  */
 void TrainingStatus::init_db() {
-  string query = "CREATE TABLE IF NOT EXISTS " + table + " (id TEXT PRIMARY KEY, status TEXT NOT NULL);";
+  string query = "CREATE TABLE IF NOT EXISTS " 
+    + table 
+    + " (id TEXT PRIMARY KEY, status TEXT NOT NULL);";
 
   database->insert(query);
 }

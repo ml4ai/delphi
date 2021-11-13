@@ -91,7 +91,7 @@ void AnalysisGraph::run_train_model(int res,
     cout << "train_model.cpp.run_train_model" << endl;
 
     TrainingStatus ts;
-    ts.start_monitoring(this);
+    ts.start_updating_db(this);
 
     float training_step = 1.0 / (res + burn);
 
@@ -267,8 +267,7 @@ void AnalysisGraph::run_train_model(int res,
 
     this->trained = true;
     this->training_progress= 1.0;
-    ts.stop_monitoring();
-    ts.write_to_db();
+    ts.stop_updating_db();
     RNG::release_instance();
 }
 
