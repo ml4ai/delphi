@@ -466,7 +466,7 @@ int main(int argc, const char* argv[]) {
                 // model ID not in database. 
             }
             result["modelId"] = modelId;
-            result["serverMessage"] = message;
+            result["status"] = message;
 
             res << result.dump();
         });
@@ -487,7 +487,7 @@ int main(int argc, const char* argv[]) {
                 // model ID not in database. 
             }
             result["modelId"] = modelId;
-            result["serverMessage"] = message;
+            result["status"] = message;
 
             res << result.dump();
         });
@@ -495,23 +495,21 @@ int main(int argc, const char* argv[]) {
     mux.handle("/models/{modelId}/training-stop")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
 
-	    string message = "training-stop not implemented";
+            TrainingStatus ts;
+	    string modelId = req.params["modelId"]; // should catch missing
 
-	    string modelId = req.params["modelId"]; // should catch if not found
-            if (modelId.empty()) {
-	        string error = "model ID not found: ";
-                json ret_exp;
-                ret_exp["modelId"] = error;
-                res << ret_exp.dump();
-		return;
-                // model ID not in database. 
+            string query_return = ts.stop_training(modelId);
+
+            if(query_return.empty()) {
+              json error;
+              error["id"] = modelId;
+              error["status"] = "No training status data found";
+              res << error.dump();
+              return;
             }
 
-            json ret_exp;
-            ret_exp["modelId"] = modelId;
-            ret_exp["serverMessage"] = message;
+            res << query_return;
 
-            res << ret_exp.dump();
         });
 
 
