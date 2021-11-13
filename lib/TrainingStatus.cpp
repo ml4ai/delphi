@@ -103,7 +103,7 @@ void TrainingStatus::write_to_db(json status) {
 
 /* Read the model training status from the database */
 string TrainingStatus::read_from_db(string modelId) {
-  return database->select_training_status_row(modelId).dump();
+  return database->select_row(table, modelId, "status").dump();
 }
 
 /* create the table if we need it.  */
