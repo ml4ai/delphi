@@ -67,7 +67,7 @@ json TrainingStatus::compose_status() {
       status["id"] = model_id;
       status["progress"] = ag->get_training_progress();
       status["trained"] = ag->get_trained();
-      status["stopped"] = ag->get_stopped();
+//      status["stopped"] = ag->get_stopped();  do not report until implemented
       status["log_likelihood"] = ag->get_log_likelihood();
       status["log_likelihood_previous"] = ag->get_previous_log_likelihood();
       status["log_likelihood_map"] = ag->get_log_likelihood_MAP();
@@ -76,6 +76,15 @@ json TrainingStatus::compose_status() {
   return status;
 }
 
+/* drop our table and create it again.  */
+void TrainingStatus::clear_db() {
+  string query = "DROP TABLE " + table + ";";
+  database->insert(query);
+  init_db();
+}
+
+
+/* write the current status to our table */
 void TrainingStatus::update_db() {
   json status = compose_status();
   write_to_db(status);
