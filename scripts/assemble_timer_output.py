@@ -7,20 +7,31 @@ plt.rcParams['figure.figsize'] = [20, 10]
 plt.rcParams.update({'font.size': 18, 'figure.dpi': 150})
 sns.set(rc={"lines.linewidth": 0.7})
 
+out_dir = 'plots/timing_dist/'
+if out_dir:
+    out_path = Path(out_dir)
+    if not out_path.is_dir():
+        print(f'\nMaking output directory: {out_dir}')
+        out_path.mkdir(parents=True, exist_ok=True)
+
 
 def plot_micro_timing_min_cag_distributions(df_mcmc_and_kde, measurement='Wall Clock Time (ns)', line=True, separate=True):
     min_cag = df_mcmc_and_kde['Edges'] == (df_mcmc_and_kde['Nodes'] - 1)
     df_min_cag = df_mcmc_and_kde[min_cag]
 
+    plot_no = 1
     if line:
-        sns.lineplot(data=df_min_cag, x='Nodes', y='Time Wall', hue='Sample Type', marker='o', linewidth=2)
+        sns.lineplot(data=df_min_cag, x='Nodes', y=measurement, hue='Sample Type', marker='o', linewidth=2)
         plt.title('Micro Timing for Minimum Size CAGs', size=16)
         plt.tight_layout()
+        file_name_modifier = 'line'
     else:
         if separate:
             g = sns.FacetGrid(df_min_cag, col='Sample Type', row='Nodes', hue='Sample Type', sharex='col', margin_titles=True)
+            file_name_modifier = 'dist_sep'
         else:
             g = sns.FacetGrid(df_min_cag, row='Nodes', hue='Sample Type', sharex='col', margin_titles=True)
+            file_name_modifier = 'dist_comb'
 
         g.map(sns.histplot, measurement)
 
@@ -36,6 +47,8 @@ def plot_micro_timing_min_cag_distributions(df_mcmc_and_kde, measurement='Wall C
 
         g.add_legend()
 
+    # plt.savefig(f'{out_dir}_min_cag_{file_name_modifier}.png')
+    plot_no += 1
     plt.show()
     plt.close()
 
@@ -43,11 +56,14 @@ def plot_micro_timing_min_cag_distributions(df_mcmc_and_kde, measurement='Wall C
 def plot_micro_timing_distributions(df_mcmc_and_kde, measurement='Wall Clock Time (ns)', separate=True):
     df_nodes = df_mcmc_and_kde.groupby(by=['Nodes'], as_index=False)
 
+    plot_no = 1
     for nodes, df_node in df_nodes:
         if separate:
-            g = sns.FacetGrid(df_node, col='Sample Type', row='Edges', hue='Sample Type', sharex='col', margin_titles=True)
+            g = sns.FacetGrid(df_node, col='Sample Type', row='Edges', hue='Sample Type', sharex='col', sharey='row', margin_titles=True)
+            file_name_modifier = 'sep'
         else:
-            g = sns.FacetGrid(df_node, row='Edges', hue='Sample Type', sharex='col', margin_titles=True)
+            g = sns.FacetGrid(df_node, row='Edges', hue='Sample Type', sharex='col', sharey='row', margin_titles=True)
+            file_name_modifier = 'comb'
 
         g.map(sns.histplot, measurement)
 
@@ -63,6 +79,8 @@ def plot_micro_timing_distributions(df_mcmc_and_kde, measurement='Wall Clock Tim
 
         g.add_legend()
         # plt.tight_layout()
+        # plt.savefig(f'{out_dir}{plot_no}_{file_name_modifier}_{nodes}.png')
+        plot_no += 1
         plt.show()
         plt.close()
 
@@ -175,11 +193,11 @@ for timing_type in timing_types:
     if timing_type == 'mcmc':
         dfs[-1]['Sample Type'] = dfs[-1]['Sample Type'].apply(lambda st: '$\\theta$' if st == 1 else 'Derivative')
     elif timing_type == 'kde':
-        dfs[-1]['Sample Type'] = 'KDE'
+        # dfs[-1]['Sample Type'] = 'KDE'
+        dfs[-1]['Sample Type'] = dfs[-1]['Sample Type'].apply(lambda st: 'KDE' if st == 10 else 'Mat Exp' if st == 11 else 'Upd Mat')
 
 measurements = ['Wall Clock Time (ns)', 'CPU Time (ns)']
-plot_micro_timing_distributions(pd.concat([dfs[0], dfs[1]]), measurement=measurements[1])
-# plot_micro_timing_min_cag_distributions(pd.concat([dfs[0], dfs[1]]))
-# print(dfs[2])
+plot_micro_timing_distributions(pd.concat([dfs[0], dfs[1]]), measurement=measurements[1], separate=True)
+# plot_micro_timing_min_cag_distributions(pd.concat([dfs[0], dfs[1]]), measurement=measurements[1], line=False, separate=False)
 # plot_prediction_timing_min_cag(dfs[2])
 # plot_prediction_timing_distributions(dfs[2])

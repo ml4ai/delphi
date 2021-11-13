@@ -79,7 +79,9 @@ void AnalysisGraph::profile_kde(int run, string file_name_prefix) {
     int n_nodes = this->num_nodes();
     int n_edges = this->num_edges();
 
-    pair<std::vector<std::string>, std::vector<long>> durations;
+    pair<std::vector<std::string>, std::vector<long>> durations_kde;
+    pair<std::vector<std::string>, std::vector<long>> durations_me;
+    pair<std::vector<std::string>, std::vector<long>> durations_uptm;
 
     string filename = file_name_prefix + "_" +
                       to_string(n_nodes) + "-" +
@@ -108,19 +110,51 @@ void AnalysisGraph::profile_kde(int run, string file_name_prefix) {
         KDE& kde = this->graph[e[0]].kde;
 
         {
-            durations.first.clear();
-            durations.second.clear();
-            durations.first = {"Run", "Nodes", "Edges", "KDE Kernels"};
-            durations.second = {run,n_nodes, n_edges, long(this->n_kde_kernels)};
-            Timer t = Timer("KDE", durations);
+          durations_uptm.first.clear();
+          durations_uptm.second.clear();
+          durations_uptm.first = {"Run", "Nodes", "Edges", "KDE Kernels"};
+          durations_uptm.second = {run,n_nodes, n_edges, long(this->n_kde_kernels)};
+          Timer t = Timer("UPTM", durations_uptm);
+
+          this->update_transition_matrix_cells(e[0]);
+        }
+
+        durations_uptm.first.push_back("Sample Type");
+        durations_uptm.second.push_back(12);
+
+        writer.write_row(durations_uptm.second.begin(), durations_uptm.second.end());
+
+        {
+            durations_kde.first.clear();
+            durations_kde.second.clear();
+            durations_kde.first = {"Run", "Nodes", "Edges", "KDE Kernels"};
+            durations_kde.second = {run,n_nodes, n_edges, long(this->n_kde_kernels)};
+            Timer t = Timer("KDE", durations_kde);
 
             kde.logpdf(this->graph[e[0]].theta);
         }
 
-        durations.first.push_back("Sample Type");
-        durations.second.push_back(10);
+        durations_kde.first.push_back("Sample Type");
+        durations_kde.second.push_back(10);
 
-        writer.write_row(durations.second.begin(), durations.second.end());
+        writer.write_row(durations_kde.second.begin(), durations_kde.second.end());
+
+        {
+            durations_me.first.clear();
+            durations_me.second.clear();
+            durations_me.first = {"Run", "Nodes", "Edges", "KDE Kernels"};
+            durations_me.second = {run,n_nodes, n_edges, long(this->n_kde_kernels)};
+            Timer t = Timer("ME", durations_me);
+
+            for (auto [gap, mat] : this->e_A_ts) {
+                this->e_A_ts[gap] = (this->A_original * gap).exp();
+            }
+        }
+
+        durations_me.first.push_back("Sample Type");
+        durations_me.second.push_back(11);
+
+        writer.write_row(durations_me.second.begin(), durations_me.second.end());
     }
     cout << endl;
     RNG::release_instance();
