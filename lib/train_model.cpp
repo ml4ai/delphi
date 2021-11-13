@@ -88,8 +88,6 @@ void AnalysisGraph::run_train_model(int res,
                                 unordered_map<string, function<double(unsigned int, double)>> ext_concepts
                                 ) {
 
-    cout << "train_model.cpp.run_train_model" << endl;
-
     TrainingStatus ts;
     ts.start_updating_db(this);
 
