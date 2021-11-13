@@ -52,7 +52,6 @@ void TrainingStatus::stop_updating_db(){
 
 /* set the "stopped" field to true */
 string TrainingStatus::stop_training(string modelId){
-  cout << "TrainingStatus::stop_training()" << endl;
   json status;
   status["id"] = modelId;
   status["status"] = "Endpoint 'training-stop' not yet implemented.";
@@ -61,7 +60,6 @@ string TrainingStatus::stop_training(string modelId){
 
 /* write out the status as a string for the database */
 json TrainingStatus::compose_status() {
-  cout << "TrainingStatus::compose_status()" << endl;
   json status;
   if (ag != nullptr) {
     string model_id = ag->id;
@@ -79,20 +77,17 @@ json TrainingStatus::compose_status() {
 }
 
 void TrainingStatus::update_db() {
-  cout << "TrainingStatus::update_db()" << endl;
   json status = compose_status();
   write_to_db(status);
 }
 
 /* write the model training status to the database */
 void TrainingStatus::write_to_db(json status) {
-  cout << "TrainingStatus::write_to_db()" << endl;
   if(!status.empty()) {
     string id = status.value("id", "");
     string dump = status.dump();
     string query 
       = "REPLACE INTO " + table + " VALUES ('" + id + "', '" + dump +  "');";
-    cout << "QUERY: " << query << endl;
     database->insert(query);
   }
 }
