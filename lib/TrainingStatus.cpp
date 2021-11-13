@@ -77,7 +77,7 @@ json TrainingStatus::compose_status() {
 }
 
 /* drop our table and create it again.  */
-void TrainingStatus::clear_db() {
+void TrainingStatus::rebuild_db() {
   string query = "DROP TABLE " + table + ";";
   database->insert(query);
   init_db();

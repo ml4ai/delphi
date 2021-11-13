@@ -24,7 +24,7 @@ class TrainingStatus {
   TrainingStatus();
   ~TrainingStatus();
   void init_db();
-  void clear_db();
+  void rebuild_db();
   void update_db();
   void start_updating_db(AnalysisGraph* ag);
   void stop_updating_db();
