@@ -2,11 +2,13 @@
 #include "AnalysisGraph.hpp"
 #include "DatabaseHelper.hpp"
 #include "TrainingStatus.hpp"
+#include "utils.hpp"
 #include <thread>
 #include <chrono>
 #include <nlohmann/json.hpp>
 
 using namespace std;
+using namespace delphi::utils;
 using json = nlohmann::json;
 
 
@@ -32,7 +34,7 @@ void TrainingStatus::scheduler()
 /* Begin posting training status updates to the database on a regular interval */
 void TrainingStatus::start_updating_db(AnalysisGraph *ag){
   this->ag = ag;
-
+  update_db();
   if(pThread == nullptr) {
     pThread = new thread(&TrainingStatus::scheduler, this);
   }
@@ -65,7 +67,8 @@ json TrainingStatus::compose_status() {
     string model_id = ag->id;
     if(!model_id.empty()) {
       status["id"] = model_id;
-      status["progress"] = ag->get_training_progress();
+      status["progress"] =
+	delphi::utils::round_n(ag->get_training_progress(), 2);
       status["trained"] = ag->get_trained();
 //      status["stopped"] = ag->get_stopped();  do not report until implemented
       status["log_likelihood"] = ag->get_log_likelihood();
