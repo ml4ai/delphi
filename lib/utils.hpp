@@ -45,6 +45,11 @@ template <class F, class V> vector<V> lmap(F f, vector<V> vec) {
 }
 
 /**
+ * Returns the value rounded to n places past the decimal.
+ */
+double round_n(double value, int n);
+
+/**
  * Returns the square of a number.
  */
 double sqr(double x);
