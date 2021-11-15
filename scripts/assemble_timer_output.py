@@ -179,25 +179,43 @@ def analyze_micro_timing_data(df, mcmc_timing=False):
             plt.show()
             plt.close()
 
-timing_file_folder_path = 'timing/'
+
+def assemble_micro_timing_output_files_into_df(file_name_filter, timing_type_column, timing_type_remap):
+    timing_files = timing_file_folder.glob(f'*{file_name_filter}*')
+
+    df = pd.concat(map(pd.read_csv, timing_files), ignore_index=True)
+
+    df['CPU Time (ms)'] = df['CPU Time (ns)'].apply(lambda ms: ms / 1000000.0)
+
+    df[timing_type_column] = df[timing_type_column].apply(lambda timing_type: timing_type_remap.get(timing_type, timing_type))
+
+    return df
+
+
+timing_file_folder_path = 'timing_before_after_kde_double_use/'
 timing_types = ['mcmc', 'kde', 'prediction']
+timing_types2 = {'mcmc': {0: 'Derivative', 1: '$\\theta$'}, 'kde': {10: 'KDE', 11: 'Upd Mat'}}
+timing_types2 = {'after_mcmc': {0: 'After Derivative', 1: 'After $\\theta$'}, 'before_mcmc': {0: 'Before Derivative', 1: 'Before $\\theta$'}}
 dfs = []
 
 timing_file_folder = Path(timing_file_folder_path)
 
-for timing_type in timing_types:
-    timing_files = timing_file_folder.glob(f'*{timing_type}*')
+for file_name_filter, timing_type_remap in timing_types2.items():
+    dfs.append(assemble_micro_timing_output_files_into_df(file_name_filter, 'Sample Type', timing_type_remap))
+# for timing_type in timing_types:
+#
+#     timing_files = timing_file_folder.glob(f'*{timing_type}*')
+#
+#     dfs.append(pd.concat(map(pd.read_csv, timing_files), ignore_index=True))
+#
+#     if timing_type == 'mcmc':
+#         dfs[-1]['Sample Type'] = dfs[-1]['Sample Type'].apply(lambda st: '$\\theta$' if st == 1 else 'Derivative')
+#     elif timing_type == 'kde':
+#         # dfs[-1]['Sample Type'] = 'KDE'
+#         dfs[-1]['Sample Type'] = dfs[-1]['Sample Type'].apply(lambda st: 'KDE' if st == 10 else 'Mat Exp' if st == 11 else 'Upd Mat')
 
-    dfs.append(pd.concat(map(pd.read_csv, timing_files), ignore_index=True))
-
-    if timing_type == 'mcmc':
-        dfs[-1]['Sample Type'] = dfs[-1]['Sample Type'].apply(lambda st: '$\\theta$' if st == 1 else 'Derivative')
-    elif timing_type == 'kde':
-        # dfs[-1]['Sample Type'] = 'KDE'
-        dfs[-1]['Sample Type'] = dfs[-1]['Sample Type'].apply(lambda st: 'KDE' if st == 10 else 'Mat Exp' if st == 11 else 'Upd Mat')
-
-measurements = ['Wall Clock Time (ns)', 'CPU Time (ns)']
-plot_micro_timing_distributions(pd.concat([dfs[0], dfs[1]]), measurement=measurements[1], separate=True)
-# plot_micro_timing_min_cag_distributions(pd.concat([dfs[0], dfs[1]]), measurement=measurements[1], line=False, separate=False)
+measurements = ['Wall Clock Time (ns)', 'CPU Time (ns)', 'CPU Time (ms)']
+plot_micro_timing_distributions(pd.concat([dfs[0], dfs[1]]), measurement=measurements[2], separate=False)
+# plot_micro_timing_min_cag_distributions(pd.concat([dfs[0], dfs[1]]), measurement=measurements[2], line=False, separate=False)
 # plot_prediction_timing_min_cag(dfs[2])
 # plot_prediction_timing_distributions(dfs[2])
