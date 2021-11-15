@@ -85,7 +85,6 @@ class Experiment {
             result["status"] = "failed";
         else {
             result["status"] = "completed";
-
             vector<double> timesteps_nparr =
                 linspace(startTime, endTime, numTimesteps);
 
@@ -96,42 +95,31 @@ class Experiment {
                 about-statistical-courses/research-methods-and-statistics/chapter-8-content-8
             */
             int n = G.get_res();
-
             int lower_rank = (int)((n - 1.96 * sqrt(n)) / 2);
             int upper_rank = (int)((2 + n + 1.96 * sqrt(n)) / 2);
-
             lower_rank = lower_rank < 0 ? 0 : lower_rank;
             upper_rank = upper_rank >= n ? n - 1 : upper_rank;
-
             unordered_map<string, vector<string>> res_data;
             res_data["data"] = {};
             result["results"] = res_data;
-
-            for (const auto& [conceptname, timestamp_sample_matrix] :
-                 causemos_experiment_result) {
+            for (const auto& [conceptname, timestamp_sample_matrix] : 
+	    causemos_experiment_result) {
                 json data_dict;
                 data_dict["concept"] = conceptname;
                 data_dict["values"] = vector<json>{};
-
                 for (int i = 0; i < timestamp_sample_matrix.size(); i++) {
-
                     vector<double> time_step = timestamp_sample_matrix[i];
                     sort(time_step.begin(), time_step.end());
                     int l = time_step.size() / 2;
                     double median_value = 0;
-                    if (time_step.size())
-                        median_value =
-                            time_step.size() % 2
-                                ? time_step[l]
-                                : (time_step[l] + time_step[l - 1]) / 2;
-
+                    if (time_step.size()) median_value = time_step.size() % 2 ? 
+                        time_step[l] : (time_step[l] + time_step[l - 1]) / 2;
                     double lower_limit = time_step[lower_rank];
                     double upper_limit = time_step[upper_rank];
-
 		    json tseries;
 		    tseries["timestamp"] = timesteps_nparr[i];
-		    tseries["values"] = vector<double>{lower_limit, median_value,upper_limit};
-
+		    tseries["values"] = time_step;
+//	                vector<double>{lower_limit, median_value,upper_limit};
                     data_dict["values"].push_back(tseries);
                 }
                 result["results"]["data"].push_back(data_dict);
@@ -231,7 +219,14 @@ int main(int argc, const char* argv[]) {
         } else {
 	    res << "The Delphi REST API is running.";
 	}
+
+
+	// debug feature not for production
+	sqlite3DB->show();
+
+
     });
+
 
     /* openApi 3.0.0 
      * Post a new Delphi model. 
@@ -359,7 +354,7 @@ int main(int argc, const char* argv[]) {
             output["experimentId"] = experimentId;
             output["experimentType"] = query_result["experimentType"];
             output["status"] = query_result["status"];
-//            output["progressPercentage"] = -0.99;
+//            output["progressPercentage"] = "Not yet implemented";
             output["results"] = results["data"];
 
             res << output.dump();
@@ -420,7 +415,7 @@ int main(int argc, const char* argv[]) {
             }
 
             json ret_exp;
-            ret_exp["modelId"] = modelId;
+//            ret_exp["modelId"] = modelId;  API only calls for experiment ID
             ret_exp["experimentId"] = experiment_id;
 	    res << ret_exp.dump();
             return ret_exp;
