@@ -219,12 +219,6 @@ int main(int argc, const char* argv[]) {
         } else {
 	    res << "The Delphi REST API is running.";
 	}
-
-
-	// debug feature not for production
-	sqlite3DB->show();
-
-
     });
 
 
