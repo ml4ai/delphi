@@ -102,20 +102,19 @@ class Experiment {
 
             lower_rank = lower_rank < 0 ? 0 : lower_rank;
             upper_rank = upper_rank >= n ? n - 1 : upper_rank;
+
             unordered_map<string, vector<string>> res_data;
             res_data["data"] = {};
-
             result["results"] = res_data;
 
             for (const auto& [conceptname, timestamp_sample_matrix] :
                  causemos_experiment_result) {
                 json data_dict;
                 data_dict["concept"] = conceptname;
-                data_dict["values"] = vector<unordered_map<string, double>>{};
-                unordered_map<string, vector<double>> m{
-                    {"upper", vector<double>{}}, {"lower", vector<double>{}}};
-                data_dict["confidenceInterval"] = m;
+                data_dict["values"] = vector<json>{};
+
                 for (int i = 0; i < timestamp_sample_matrix.size(); i++) {
+
                     vector<double> time_step = timestamp_sample_matrix[i];
                     sort(time_step.begin(), time_step.end());
                     int l = time_step.size() / 2;
@@ -129,18 +128,11 @@ class Experiment {
                     double lower_limit = time_step[lower_rank];
                     double upper_limit = time_step[upper_rank];
 
-                    unordered_map<string, double> value_dict = {
-                        {"timestamp", timesteps_nparr[i]},
-                        {"value", median_value}};
+		    json tseries;
+		    tseries["timestamp"] = timesteps_nparr[i];
+		    tseries["values"] = vector<double>{lower_limit, median_value,upper_limit};
 
-                    data_dict["values"].push_back(value_dict);
-                    value_dict["value"] = lower_limit;
-                    data_dict["confidenceInterval"]["lower"].push_back(
-                        value_dict);
-
-                    value_dict["value"] = upper_limit;
-                    data_dict["confidenceInterval"]["upper"].push_back(
-                        value_dict);
+                    data_dict["values"].push_back(tseries);
                 }
                 result["results"]["data"].push_back(data_dict);
             }
@@ -209,19 +201,16 @@ class Experiment {
     }
 };
 
+
 int main(int argc, const char* argv[]) {
     cout << "Delphi REST API running!" << endl;
 
     Database* sqlite3DB = new Database();
     Experiment* experiment = new Experiment();
-
     TrainingStatus ts;
-    ts.init_db();
-
-
-
     served::multiplexer mux;
 
+    ts.init_db();
 
     /* what's the time? */
     time_t startTime = time(0);
@@ -233,7 +222,6 @@ int main(int argc, const char* argv[]) {
         cout << "CI mode detected" << endl;
     }
 
-
     /* Allow users to check if the REST API is running */
     mux.handle("/status")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
@@ -244,8 +232,6 @@ int main(int argc, const char* argv[]) {
 	    res << "The Delphi REST API is running.";
 	}
     });
-
-
 
     /* openApi 3.0.0 
      * Post a new Delphi model. 
@@ -347,21 +333,37 @@ int main(int argc, const char* argv[]) {
     */
     mux.handle("/models/{modelId}/experiments/{experimentId}")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
-            json result = sqlite3DB->select_causemosasyncexperimentresult_row(
-                req.params["experimentId"]);
-            if (result.empty()) {
-                // experimentID not in database. Should be an incorrect
-                // experimentID
-                result["experimentType"] = "UNKNOWN";
-                result["status"] = "invalid experiment id";
-                result["results"] = "";  // TODO see if it's safe to remove this 
+
+            string modelId = req.params["modelId"];
+            string experimentId = req.params["experimentId"];
+
+            json query_result = 
+              sqlite3DB->select_causemosasyncexperimentresult_row(experimentId);
+
+            if (query_result.empty()) {  // experimentID not in database.
+                json error;
+                error["modelId"] = modelId;
+                error["experimentId"] = experimentId;
+                error["experimentType"] = "UNKNOWN";
+                error["status"] = "invalid experiment id";
+                error["results"] = "Not found";
+                res << error.dump();
+                return;
             }
-            result["modelId"] = req.params["modelId"];
-            result["experimentId"] = req.params["experimentId"];
 
-            res << result.dump();
+            string resultstr = query_result["results"];
+            json results = json::parse(resultstr);
+
+            json output;
+            output["modelId"] = modelId;
+            output["experimentId"] = experimentId;
+            output["experimentType"] = query_result["experimentType"];
+            output["status"] = query_result["status"];
+//            output["progressPercentage"] = -0.99;
+            output["results"] = results["data"];
+
+            res << output.dump();
         });
-
 
     /* openApi 3.0.0
        Post a new causemos asynchronous experiment by creating
@@ -420,6 +422,7 @@ int main(int argc, const char* argv[]) {
             json ret_exp;
             ret_exp["modelId"] = modelId;
             ret_exp["experimentId"] = experiment_id;
+	    res << ret_exp.dump();
             return ret_exp;
         });
 
@@ -446,7 +449,14 @@ int main(int argc, const char* argv[]) {
 
 	    json output = json::parse(status);
 
-            res << output.dump();
+            // the API only calls for the training status value, so really this should
+            // only be the value itself, e.g. output["progressPercentage"].dump(), but
+            // the specification also calls for application/json content, so we send a
+            // JSON structure with only that field.
+            json foo;
+            foo["progressPercentage"] = output["progressPercentage"];
+
+            res << foo.dump();
         });
 
 
@@ -470,7 +480,6 @@ int main(int argc, const char* argv[]) {
 
             res << result.dump();
         });
-
 
     /* openApi 3.0.0
      * Post edge edits for this model
@@ -512,7 +521,6 @@ int main(int argc, const char* argv[]) {
 
         });
 
-
     /* openApi 3.0.0
      * Get the status of an existing model
      */
@@ -520,7 +528,6 @@ int main(int argc, const char* argv[]) {
         .get([&sqlite3DB](served::response& res, const served::request& req) {
 
             string modelId = req.params["modelId"];
-
             json query_result = sqlite3DB->select_delphimodel_row(modelId);
 
             if (query_result.empty()) {
