@@ -31,7 +31,11 @@ Includes
 
 - ``AnalysisGraph.hpp`` (:ref:`file_lib_AnalysisGraph.hpp`)
 
+- ``TrainingStatus.hpp`` (:ref:`file_lib_TrainingStatus.hpp`)
+
 - ``data.hpp`` (:ref:`file_lib_data.hpp`)
+
+- ``nlohmann/json.hpp``
 
 - ``range/v3/all.hpp``
 
@@ -40,4 +44,11 @@ Includes
 
 
 
+
+
+Typedefs
+--------
+
+
+- :ref:`exhale_typedef_train__model_8cpp_1ab701e3ac61a85b337ec5c1abaad6742d`
 

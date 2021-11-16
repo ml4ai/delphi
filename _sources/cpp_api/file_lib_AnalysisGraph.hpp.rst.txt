@@ -101,6 +101,8 @@ Included By
 
 - :ref:`file_lib_train_model.cpp`
 
+- :ref:`file_lib_TrainingStatus.cpp`
+
 
 
 

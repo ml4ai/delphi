@@ -143,6 +143,11 @@ Classes and Structs
 .. toctree::
    :maxdepth: 5
 
+   classTrainingStatus.rst
+
+.. toctree::
+   :maxdepth: 5
+
    classTran__Mat__Cell.rst
 
 Enums
@@ -262,6 +267,11 @@ Functions
    :maxdepth: 5
 
    function_utils_8hpp_1a87276512fe3002f663e6b24b77b4a711.rst
+
+.. toctree::
+   :maxdepth: 5
+
+   function_utils_8cpp_1ae842ea8ed7501a712ce0ea54a8f559f0.rst
 
 .. toctree::
    :maxdepth: 5
@@ -444,7 +454,27 @@ Typedefs
 .. toctree::
    :maxdepth: 5
 
+   typedef_database_8cpp_1ab701e3ac61a85b337ec5c1abaad6742d.rst
+
+.. toctree::
+   :maxdepth: 5
+
    typedef_DatabaseHelper_8cpp_1ab701e3ac61a85b337ec5c1abaad6742d.rst
+
+.. toctree::
+   :maxdepth: 5
+
+   typedef_train__model_8cpp_1ab701e3ac61a85b337ec5c1abaad6742d.rst
+
+.. toctree::
+   :maxdepth: 5
+
+   typedef_TrainingStatus_8cpp_1ab701e3ac61a85b337ec5c1abaad6742d.rst
+
+.. toctree::
+   :maxdepth: 5
+
+   typedef_TrainingStatus_8hpp_1ab701e3ac61a85b337ec5c1abaad6742d.rst
 
 .. toctree::
    :maxdepth: 5

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Program Listing for File AnalysisGraph.hpp &mdash; delphi  documentation</title>
@@ -265,6 +265,7 @@
 
 <span class="w">  </span><span class="n">DiGraph</span><span class="w"> </span><span class="n">graph</span><span class="p">;</span><span class="w"></span>
 
+
 <span class="w">  </span><span class="c1">// Handle to the random number generator singleton object</span>
 <span class="w">  </span><span class="n">RNG</span><span class="o">*</span><span class="w"> </span><span class="n">rng_instance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span><span class="w"></span>
 
@@ -283,6 +284,9 @@
 
 <span class="w">  </span><span class="c1">// Sampling resolution</span>
 <span class="w">  </span><span class="kt">size_t</span><span class="w"> </span><span class="n">res</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">  </span><span class="c1">// Number of KDE kernels</span>
+<span class="w">  </span><span class="kt">size_t</span><span class="w"> </span><span class="n">n_kde_kernels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1000</span><span class="p">;</span><span class="w"></span>
 
 <span class="w">  </span><span class="cm">/*</span>
 <span class="cm">   ============================================================================</span>
@@ -333,10 +337,15 @@
 <span class="cm">   ============================================================================</span>
 <span class="cm">  */</span><span class="w"></span>
 
-<span class="w">  </span><span class="c1">// Keep track whether the model is trained.</span>
+<span class="w">  </span><span class="c1">// keep track of training progress</span>
+<span class="w">  </span><span class="kt">float</span><span class="w"> </span><span class="n">training_progress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w">  </span><span class="c1">// Range is [0.0, 1.0]</span>
+
 <span class="w">  </span><span class="c1">// Used to check whether there is a trained model before calling</span>
 <span class="w">  </span><span class="c1">// generate_prediction()</span>
 <span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="n">trained</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">  </span><span class="c1">// training was stopped by user input</span>
+<span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="n">stopped</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"></span>
 
 <span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">n_timesteps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">pred_timesteps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
@@ -522,6 +531,10 @@
 <span class="cm">                                                  (in causemos_integration.cpp)</span>
 <span class="cm">   ============================================================================</span>
 <span class="cm">  */</span><span class="w"></span>
+
+<span class="w">            </span><span class="cm">/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="cm">                            training-progress</span>
+<span class="cm">            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/</span><span class="w"></span>
 
 <span class="w">            </span><span class="cm">/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
 <span class="cm">                            create-model</span>
@@ -716,6 +729,7 @@
 <span class="cm">   ============================================================================</span>
 <span class="cm">  */</span><span class="w"></span>
 
+
 <span class="w">  </span><span class="kt">void</span><span class="w"></span>
 <span class="w">  </span><span class="n">set_observed_state_sequence_from_data</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;South Sudan&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">                                        </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="w"></span>
@@ -745,7 +759,6 @@
 <span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">init_betas_to</span><span class="p">(</span><span class="n">InitialBeta</span><span class="w"> </span><span class="n">ib</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">InitialBeta</span><span class="o">::</span><span class="n">MEAN</span><span class="p">);</span><span class="w"></span>
 
 <span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">construct_theta_pdfs</span><span class="p">();</span><span class="w"></span>
-
 
 <span class="w">  </span><span class="cm">/*</span>
 <span class="cm">   ============================================================================</span>
@@ -874,6 +887,10 @@
 <span class="w">  </span><span class="c1">// Set the sampling resolution.</span>
 <span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">set_res</span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">res</span><span class="p">);</span><span class="w"></span>
 
+<span class="w">  </span><span class="c1">// Set the number of KDE kernels.</span>
+<span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">set_n_kde_kernels</span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">kde_kernels</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="p">{</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">n_kde_kernels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kde_kernels</span><span class="p">;};</span><span class="w"></span>
+
 <span class="w">  </span><span class="c1">// Get the sampling resolution.</span>
 <span class="w">  </span><span class="kt">size_t</span><span class="w"> </span><span class="nf">get_res</span><span class="p">();</span><span class="w"></span>
 
@@ -927,6 +944,16 @@
 <span class="cm">  */</span><span class="w"></span>
 
 <span class="w">            </span><span class="cm">/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="cm">                            training-progress</span>
+<span class="cm">            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/</span><span class="w"></span>
+<span class="w">  </span><span class="kt">float</span><span class="w"> </span><span class="nf">get_training_progress</span><span class="p">();</span><span class="w"></span>
+<span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="nf">get_trained</span><span class="p">();</span><span class="w"></span>
+<span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="nf">get_stopped</span><span class="p">();</span><span class="w"></span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="nf">get_log_likelihood</span><span class="p">();</span><span class="w"></span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="nf">get_previous_log_likelihood</span><span class="p">();</span><span class="w"></span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="nf">get_log_likelihood_MAP</span><span class="p">();</span><span class="w"></span>
+
+<span class="w">            </span><span class="cm">/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
 <span class="cm">                            create-model</span>
 <span class="cm">            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/</span><span class="w"></span>
 
@@ -941,6 +968,7 @@
 <span class="w">                                               </span><span class="kt">int</span><span class="w"> </span><span class="n">kde_kernels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">);</span><span class="w"></span>
 
 <span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="nf">generate_create_model_response</span><span class="p">();</span><span class="w"></span>
+
 
 <span class="w">            </span><span class="cm">/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
 <span class="cm">                          create-experiment</span>

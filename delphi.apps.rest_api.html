@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>delphi.apps.rest_api package &mdash; delphi  documentation</title>
@@ -115,7 +115,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="delphi.apps.rest_api.api.getExperimentResults">
-<span class="sig-name descname"><span class="pre">getExperimentResults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modelID</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">experimentID</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/apps/rest_api/api.html#getExperimentResults"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delphi.apps.rest_api.api.getExperimentResults" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">getExperimentResults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modelID</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">experimentID</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/apps/rest_api/api.html#getExperimentResults"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delphi.apps.rest_api.api.getExperimentResults" title="Permalink to this definition"></a></dt>
 <dd><p>Fetch experiment results</p>
 </dd></dl>
 
@@ -130,7 +130,7 @@
 <span id="delphi-apps-rest-api-models-module"></span><h2>delphi.apps.rest_api.models module<a class="headerlink" href="#module-delphi.apps.rest_api.models" title="Permalink to this headline"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="delphi.apps.rest_api.models.JsonEncodedList">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">JsonEncodedList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/apps/rest_api/models.html#JsonEncodedList"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delphi.apps.rest_api.models.JsonEncodedList" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">JsonEncodedList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/apps/rest_api/models.html#JsonEncodedList"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delphi.apps.rest_api.models.JsonEncodedList" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.sql.type_api.TypeDecorator</span></code></p>
 <p>Enables list storage by encoding and decoding on the fly.</p>
 <dl class="py attribute">
@@ -143,18 +143,16 @@
 <dt class="sig sig-object py" id="delphi.apps.rest_api.models.JsonEncodedList.process_bind_param">
 <span class="sig-name descname"><span class="pre">process_bind_param</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dialect</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/apps/rest_api/models.html#JsonEncodedList.process_bind_param"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delphi.apps.rest_api.models.JsonEncodedList.process_bind_param" title="Permalink to this definition"></a></dt>
 <dd><p>Receive a bound parameter value to be converted.</p>
-<p>Subclasses override this method to return the
-value that should be passed along to the underlying
-<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeEngine</span></code> object, and from there to the
-DBAPI <code class="docutils literal notranslate"><span class="pre">execute()</span></code> method.</p>
+<p>Custom subclasses of <code class="xref py py-class docutils literal notranslate"><span class="pre">_types.TypeDecorator</span></code> should override
+this method to provide custom behaviors for incoming data values.
+This method is called at <strong>statement execution time</strong> and is passed
+the literal Python data value which is to be associated with a bound
+parameter in the statement.</p>
 <p>The operation could be anything desired to perform custom
 behavior, such as transforming or serializing data.
 This could also be used as a hook for validating logic.</p>
-<p>This operation should be designed with the reverse operation
-in mind, which would be the process_result_value method of
-this class.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>value</strong> – Data to operate upon, of any type expected by
 this method in the subclass.  Can be <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
@@ -162,24 +160,27 @@ this method in the subclass.  Can be <code class="docutils literal notranslate">
 </ul>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><span class="xref std std-ref">types_typedecorator</span></p>
+<p><code class="xref py py-meth docutils literal notranslate"><span class="pre">_types.TypeDecorator.process_result_value()</span></code></p>
+</aside>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="delphi.apps.rest_api.models.JsonEncodedList.process_result_value">
 <span class="sig-name descname"><span class="pre">process_result_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dialect</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/apps/rest_api/models.html#JsonEncodedList.process_result_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delphi.apps.rest_api.models.JsonEncodedList.process_result_value" title="Permalink to this definition"></a></dt>
 <dd><p>Receive a result-row column value to be converted.</p>
-<p>Subclasses should implement this method to operate on data
-fetched from the database.</p>
-<p>Subclasses override this method to return the
-value that should be passed back to the application,
-given a value that is already processed by
-the underlying <code class="xref py py-class docutils literal notranslate"><span class="pre">TypeEngine</span></code> object, originally
-from the DBAPI cursor method <code class="docutils literal notranslate"><span class="pre">fetchone()</span></code> or similar.</p>
+<p>Custom subclasses of <code class="xref py py-class docutils literal notranslate"><span class="pre">_types.TypeDecorator</span></code> should override
+this method to provide custom behaviors for data values
+being received in result rows coming from the database.
+This method is called at <strong>result fetching time</strong> and is passed
+the literal Python data value that’s extracted from a database result
+row.</p>
 <p>The operation could be anything desired to perform custom
-behavior, such as transforming or serializing data.
-This could also be used as a hook for validating logic.</p>
+behavior, such as transforming or deserializing data.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>value</strong> – Data to operate upon, of any type expected by
 this method in the subclass.  Can be <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
@@ -187,15 +188,18 @@ this method in the subclass.  Can be <code class="docutils literal notranslate">
 </ul>
 </dd>
 </dl>
-<p>This operation should be designed to be reversible by
-the “process_bind_param” method of this class.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><span class="xref std std-ref">types_typedecorator</span></p>
+<p><code class="xref py py-meth docutils literal notranslate"><span class="pre">_types.TypeDecorator.process_bind_param()</span></code></p>
+</aside>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="delphi.apps.rest_api.models.JsonEncodedDict">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">JsonEncodedDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/apps/rest_api/models.html#JsonEncodedDict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delphi.apps.rest_api.models.JsonEncodedDict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">JsonEncodedDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/apps/rest_api/models.html#JsonEncodedDict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delphi.apps.rest_api.models.JsonEncodedDict" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.sql.type_api.TypeDecorator</span></code></p>
 <p>Enables JsonEncodedDict storage by encoding and decoding on the fly.</p>
 <dl class="py attribute">
@@ -208,18 +212,16 @@ the “process_bind_param” method of this class.</p>
 <dt class="sig sig-object py" id="delphi.apps.rest_api.models.JsonEncodedDict.process_bind_param">
 <span class="sig-name descname"><span class="pre">process_bind_param</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dialect</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/apps/rest_api/models.html#JsonEncodedDict.process_bind_param"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delphi.apps.rest_api.models.JsonEncodedDict.process_bind_param" title="Permalink to this definition"></a></dt>
 <dd><p>Receive a bound parameter value to be converted.</p>
-<p>Subclasses override this method to return the
-value that should be passed along to the underlying
-<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeEngine</span></code> object, and from there to the
-DBAPI <code class="docutils literal notranslate"><span class="pre">execute()</span></code> method.</p>
+<p>Custom subclasses of <code class="xref py py-class docutils literal notranslate"><span class="pre">_types.TypeDecorator</span></code> should override
+this method to provide custom behaviors for incoming data values.
+This method is called at <strong>statement execution time</strong> and is passed
+the literal Python data value which is to be associated with a bound
+parameter in the statement.</p>
 <p>The operation could be anything desired to perform custom
 behavior, such as transforming or serializing data.
 This could also be used as a hook for validating logic.</p>
-<p>This operation should be designed with the reverse operation
-in mind, which would be the process_result_value method of
-this class.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>value</strong> – Data to operate upon, of any type expected by
 this method in the subclass.  Can be <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
@@ -227,24 +229,27 @@ this method in the subclass.  Can be <code class="docutils literal notranslate">
 </ul>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><span class="xref std std-ref">types_typedecorator</span></p>
+<p><code class="xref py py-meth docutils literal notranslate"><span class="pre">_types.TypeDecorator.process_result_value()</span></code></p>
+</aside>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="delphi.apps.rest_api.models.JsonEncodedDict.process_result_value">
 <span class="sig-name descname"><span class="pre">process_result_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dialect</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/apps/rest_api/models.html#JsonEncodedDict.process_result_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delphi.apps.rest_api.models.JsonEncodedDict.process_result_value" title="Permalink to this definition"></a></dt>
 <dd><p>Receive a result-row column value to be converted.</p>
-<p>Subclasses should implement this method to operate on data
-fetched from the database.</p>
-<p>Subclasses override this method to return the
-value that should be passed back to the application,
-given a value that is already processed by
-the underlying <code class="xref py py-class docutils literal notranslate"><span class="pre">TypeEngine</span></code> object, originally
-from the DBAPI cursor method <code class="docutils literal notranslate"><span class="pre">fetchone()</span></code> or similar.</p>
+<p>Custom subclasses of <code class="xref py py-class docutils literal notranslate"><span class="pre">_types.TypeDecorator</span></code> should override
+this method to provide custom behaviors for data values
+being received in result rows coming from the database.
+This method is called at <strong>result fetching time</strong> and is passed
+the literal Python data value that’s extracted from a database result
+row.</p>
 <p>The operation could be anything desired to perform custom
-behavior, such as transforming or serializing data.
-This could also be used as a hook for validating logic.</p>
+behavior, such as transforming or deserializing data.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>value</strong> – Data to operate upon, of any type expected by
 this method in the subclass.  Can be <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
@@ -252,15 +257,18 @@ this method in the subclass.  Can be <code class="docutils literal notranslate">
 </ul>
 </dd>
 </dl>
-<p>This operation should be designed to be reversible by
-the “process_bind_param” method of this class.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><span class="xref std std-ref">types_typedecorator</span></p>
+<p><code class="xref py py-meth docutils literal notranslate"><span class="pre">_types.TypeDecorator.process_bind_param()</span></code></p>
+</aside>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="delphi.apps.rest_api.models.Serializable">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Serializable</span></span><a class="reference internal" href="_modules/delphi/apps/rest_api/models.html#Serializable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delphi.apps.rest_api.models.Serializable" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Serializable</span></span><a class="reference internal" href="_modules/delphi/apps/rest_api/models.html#Serializable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delphi.apps.rest_api.models.Serializable" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="delphi.apps.rest_api.models.Serializable.deserialize">
@@ -269,14 +277,14 @@ the “process_bind_param” method of this class.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="delphi.apps.rest_api.models.Serializable.deserialize_list">
-<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">deserialize_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/apps/rest_api/models.html#Serializable.deserialize_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delphi.apps.rest_api.models.Serializable.deserialize_list" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">deserialize_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/apps/rest_api/models.html#Serializable.deserialize_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delphi.apps.rest_api.models.Serializable.deserialize_list" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="delphi.apps.rest_api.models.DelphiModel">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">DelphiModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/apps/rest_api/models.html#DelphiModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delphi.apps.rest_api.models.DelphiModel" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DelphiModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/apps/rest_api/models.html#DelphiModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delphi.apps.rest_api.models.DelphiModel" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.orm.decl_api.Model</span></code>, <a class="reference internal" href="#delphi.apps.rest_api.models.Serializable" title="delphi.apps.rest_api.models.Serializable"><code class="xref py py-class docutils literal notranslate"><span class="pre">delphi.apps.rest_api.models.Serializable</span></code></a></p>
 <p>Delphi AnalysisGraph Model</p>
 <dl class="py attribute">
@@ -293,7 +301,7 @@ the “process_bind_param” method of this class.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="delphi.apps.rest_api.models.ExperimentResult">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">ExperimentResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/apps/rest_api/models.html#ExperimentResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delphi.apps.rest_api.models.ExperimentResult" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ExperimentResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/apps/rest_api/models.html#ExperimentResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delphi.apps.rest_api.models.ExperimentResult" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.orm.decl_api.Model</span></code>, <a class="reference internal" href="#delphi.apps.rest_api.models.Serializable" title="delphi.apps.rest_api.models.Serializable"><code class="xref py py-class docutils literal notranslate"><span class="pre">delphi.apps.rest_api.models.Serializable</span></code></a></p>
 <p>Notional model of experiment results</p>
 <dl class="py attribute">
@@ -310,7 +318,7 @@ the “process_bind_param” method of this class.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="delphi.apps.rest_api.models.CauseMosAsyncExperimentResult">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">CauseMosAsyncExperimentResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/apps/rest_api/models.html#CauseMosAsyncExperimentResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delphi.apps.rest_api.models.CauseMosAsyncExperimentResult" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">CauseMosAsyncExperimentResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/apps/rest_api/models.html#CauseMosAsyncExperimentResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delphi.apps.rest_api.models.CauseMosAsyncExperimentResult" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#delphi.apps.rest_api.models.ExperimentResult" title="delphi.apps.rest_api.models.ExperimentResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">delphi.apps.rest_api.models.ExperimentResult</span></code></a></p>
 <p>Placeholder docstring for class CauseMosAsyncExperimentResult.</p>
 <dl class="py attribute">

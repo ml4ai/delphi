@@ -1,0 +1,13 @@
+.. _exhale_function_utils_8cpp_1ae842ea8ed7501a712ce0ea54a8f559f0:
+
+Function delphi::utils::round_n
+===============================
+
+- Defined in :ref:`file_lib_utils.cpp`
+
+
+Function Documentation
+----------------------
+
+
+.. doxygenfunction:: delphi::utils::round_n(double, int)

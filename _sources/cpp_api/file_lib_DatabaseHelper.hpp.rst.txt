@@ -45,6 +45,10 @@ Included By
 
 - :ref:`file_lib_DatabaseHelper.cpp`
 
+- :ref:`file_lib_TrainingStatus.hpp`
+
+- :ref:`file_lib_TrainingStatus.cpp`
+
 
 
 

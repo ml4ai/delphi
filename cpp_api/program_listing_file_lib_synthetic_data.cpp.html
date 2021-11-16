@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Program Listing for File synthetic_data.cpp &mdash; delphi  documentation</title>
@@ -177,7 +177,7 @@
 <span class="w">                                          </span><span class="kt">bool</span><span class="w"> </span><span class="n">use_continuous</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">  </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">initialize_random_number_generator</span><span class="p">();</span><span class="w"></span>
 <span class="w">  </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">set_default_initial_state</span><span class="p">(</span><span class="n">initial_derivative</span><span class="p">);</span><span class="w"></span>
-<span class="w">  </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">set_res</span><span class="p">(</span><span class="n">kde_kernels</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">n_kde_kernels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kde_kernels</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">construct_theta_pdfs</span><span class="p">();</span><span class="w"></span>
 <span class="w">  </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">init_betas_to</span><span class="p">(</span><span class="n">initial_beta</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_timesteps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">num_obs</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>

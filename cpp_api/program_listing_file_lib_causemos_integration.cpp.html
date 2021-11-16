@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Program Listing for File causemos_integration.cpp &mdash; delphi  documentation</title>
@@ -881,7 +881,7 @@
 <span class="w">                                                       </span><span class="kt">int</span><span class="w"> </span><span class="n">kde_kernels</span><span class="w"></span>
 <span class="w">                                                       </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">  </span><span class="n">AnalysisGraph</span><span class="w"> </span><span class="n">G</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="n">G</span><span class="p">.</span><span class="n">set_res</span><span class="p">(</span><span class="n">kde_kernels</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">G</span><span class="p">.</span><span class="n">n_kde_kernels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kde_kernels</span><span class="p">;</span><span class="w"></span>
 
 <span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">json_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span><span class="n">json_string</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="n">G</span><span class="p">.</span><span class="n">from_causemos_json_dict</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span><span class="w"> </span><span class="n">belief_score_cutoff</span><span class="p">,</span><span class="w"> </span><span class="n">grounding_score_cutoff</span><span class="p">);</span><span class="w"></span>
@@ -894,7 +894,7 @@
 <span class="w">                                                     </span><span class="kt">int</span><span class="w"> </span><span class="n">kde_kernels</span><span class="w"></span>
 <span class="w">                                                     </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">  </span><span class="n">AnalysisGraph</span><span class="w"> </span><span class="n">G</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="n">G</span><span class="p">.</span><span class="n">set_res</span><span class="p">(</span><span class="n">kde_kernels</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">G</span><span class="p">.</span><span class="n">n_kde_kernels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kde_kernels</span><span class="p">;</span><span class="w"></span>
 
 <span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">json_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">load_json</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="n">G</span><span class="p">.</span><span class="n">from_causemos_json_dict</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span><span class="w"> </span><span class="n">belief_score_cutoff</span><span class="p">,</span><span class="w"> </span><span class="n">grounding_score_cutoff</span><span class="p">);</span><span class="w"></span>

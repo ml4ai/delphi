@@ -1,0 +1,13 @@
+.. _exhale_typedef_database_8cpp_1ab701e3ac61a85b337ec5c1abaad6742d:
+
+Typedef json
+============
+
+- Defined in :ref:`file_lib_database.cpp`
+
+
+Typedef Documentation
+---------------------
+
+
+.. doxygentypedef:: json

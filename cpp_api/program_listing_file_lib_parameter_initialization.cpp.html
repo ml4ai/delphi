@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Program Listing for File parameter_initialization.cpp &mdash; delphi  documentation</title>
@@ -487,7 +487,7 @@
 <span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">sigma_Y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="n">AdjectiveResponseMap</span><span class="w"> </span><span class="n">adjective_response_map</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
 <span class="w">      </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">construct_adjective_response_map</span><span class="p">(</span><span class="w"></span>
-<span class="w">          </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">rand_num_generator</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">uni_dist</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">norm_dist</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">res</span><span class="p">);</span><span class="w"></span>
+<span class="w">          </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">rand_num_generator</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">uni_dist</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">norm_dist</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">n_kde_kernels</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">marginalized_responses</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="p">[</span><span class="n">adjective</span><span class="p">,</span><span class="w"> </span><span class="n">responses</span><span class="p">]</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">adjective_response_map</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="nl">response</span> <span class="p">:</span><span class="w"> </span><span class="n">responses</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -496,7 +496,7 @@
 <span class="w">  </span><span class="p">}</span><span class="w"></span>
 
 <span class="w">  </span><span class="n">marginalized_responses</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">KDE</span><span class="p">(</span><span class="n">marginalized_responses</span><span class="p">)</span><span class="w"></span>
-<span class="w">                               </span><span class="p">.</span><span class="n">resample</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">res</span><span class="p">,</span><span class="w"></span>
+<span class="w">                               </span><span class="p">.</span><span class="n">resample</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">n_kde_kernels</span><span class="p">,</span><span class="w"></span>
 <span class="w">                                         </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">rand_num_generator</span><span class="p">,</span><span class="w"></span>
 <span class="w">                                         </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">uni_dist</span><span class="p">,</span><span class="w"></span>
 <span class="w">                                         </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">norm_dist</span><span class="p">);</span><span class="w"></span>

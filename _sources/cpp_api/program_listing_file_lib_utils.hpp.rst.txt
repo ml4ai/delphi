@@ -56,6 +56,8 @@ Program Listing for File utils.hpp
      return transformed_vector;
    }
    
+   double round_n(double value, int n);
+   
    double sqr(double x);
    
    double sum(const std::vector<double> &v);

@@ -1,0 +1,16 @@
+.. _exhale_class_classTrainingStatus:
+
+Class TrainingStatus
+====================
+
+- Defined in :ref:`file_lib_TrainingStatus.hpp`
+
+
+Class Documentation
+-------------------
+
+
+.. doxygenclass:: TrainingStatus
+   :members:
+   :protected-members:
+   :undoc-members:

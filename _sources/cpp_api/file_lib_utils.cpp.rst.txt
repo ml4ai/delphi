@@ -71,6 +71,8 @@ Functions
 
 - :ref:`exhale_function_utils_8cpp_1a7098ce710f9d380630e83ae2cd93a1e0`
 
+- :ref:`exhale_function_utils_8cpp_1ae842ea8ed7501a712ce0ea54a8f559f0`
+
 - :ref:`exhale_function_utils_8cpp_1abfdecb988b94bbc23cbeaba6fe83bca3`
 
 - :ref:`exhale_function_utils_8cpp_1a5d1afe8edbb69bc5c25fb26fae559b77`

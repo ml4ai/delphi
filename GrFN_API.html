@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GroundedFunctionNetwork API &mdash; delphi  documentation</title>
@@ -108,7 +108,7 @@ information about computational relationships between variables in code.</p>
 comparison</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="delphi.GrFN.networks.GroundedFunctionNetwork">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">GroundedFunctionNetwork</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">G</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scope_tree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/GrFN/networks.html#GroundedFunctionNetwork"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delphi.GrFN.networks.GroundedFunctionNetwork" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GroundedFunctionNetwork</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">G</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scope_tree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/delphi/GrFN/networks.html#GroundedFunctionNetwork"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delphi.GrFN.networks.GroundedFunctionNetwork" title="Permalink to this definition"></a></dt>
 <dd><p>Representation of a GrFN model as a DiGraph with a set of input nodes and
 currently a single output. The DiGraph is composed of variable nodes and
 function nodes. Function nodes store an actual Python function with the
@@ -124,10 +124,6 @@ node.</p>
 <section id="constructors">
 <h2>Constructors<a class="headerlink" href="#constructors" title="Permalink to this headline"></a></h2>
 <table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/delphi.GrFN.networks.GroundedFunctionNetwork.from_fortran_src.html#delphi.GrFN.networks.GroundedFunctionNetwork.from_fortran_src" title="delphi.GrFN.networks.GroundedFunctionNetwork.from_fortran_src"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GroundedFunctionNetwork.from_fortran_src</span></code></a>(...)</p></td>
 <td><p>Create a GroundedFunctionNetwork instance from a string with raw Fortran code.</p></td>
@@ -147,10 +143,6 @@ node.</p>
 <section id="export">
 <h2>Export<a class="headerlink" href="#export" title="Permalink to this headline"></a></h2>
 <table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/delphi.GrFN.networks.GroundedFunctionNetwork.to_CAG.html#delphi.GrFN.networks.GroundedFunctionNetwork.to_CAG" title="delphi.GrFN.networks.GroundedFunctionNetwork.to_CAG"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GroundedFunctionNetwork.to_CAG</span></code></a>()</p></td>
 <td><p>Export to a Causal Analysis Graph (CAG) PyGraphviz AGraph object.</p></td>
@@ -161,10 +153,6 @@ node.</p>
 <section id="execution">
 <h2>Execution<a class="headerlink" href="#execution" title="Permalink to this headline"></a></h2>
 <table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/delphi.GrFN.networks.GroundedFunctionNetwork.run.html#delphi.GrFN.networks.GroundedFunctionNetwork.run" title="delphi.GrFN.networks.GroundedFunctionNetwork.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GroundedFunctionNetwork.run</span></code></a>(inputs)</p></td>
 <td><p>Executes the GrFN over a particular set of inputs and returns the result.</p></td>
@@ -175,10 +163,6 @@ node.</p>
 <section id="model-analysis">
 <h2>Model Analysis<a class="headerlink" href="#model-analysis" title="Permalink to this headline"></a></h2>
 <table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 </tbody>
 </table>
@@ -186,18 +170,10 @@ node.</p>
 <section id="sensitivity-analysis">
 <h2>Sensitivity Analysis<a class="headerlink" href="#sensitivity-analysis" title="Permalink to this headline"></a></h2>
 <table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 </tbody>
 </table>
 <table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="generated/delphi.GrFN.networks.ForwardInfluenceBlanket.run.html#delphi.GrFN.networks.ForwardInfluenceBlanket.run" title="delphi.GrFN.networks.ForwardInfluenceBlanket.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ForwardInfluenceBlanket.run</span></code></a>(inputs, covers)</p></td>
 <td><p>Executes the FIB over a particular set of inputs and returns the result. :param inputs: Input set where keys are the names of input nodes in the                GrFN and each key points to a set of input values (or just one).</p></td>

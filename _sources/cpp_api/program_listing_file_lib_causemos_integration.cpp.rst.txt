@@ -813,7 +813,7 @@ Program Listing for File causemos_integration.cpp
                                                           int kde_kernels
                                                           ) {
      AnalysisGraph G;
-     G.set_res(kde_kernels);
+     G.n_kde_kernels = kde_kernels;
    
      auto json_data = nlohmann::json::parse(json_string);
      G.from_causemos_json_dict(json_data, belief_score_cutoff, grounding_score_cutoff);
@@ -826,7 +826,7 @@ Program Listing for File causemos_integration.cpp
                                                         int kde_kernels
                                                         ) {
      AnalysisGraph G;
-     G.set_res(kde_kernels);
+     G.n_kde_kernels = kde_kernels;
    
      auto json_data = load_json(filename);
      G.from_causemos_json_dict(json_data, belief_score_cutoff, grounding_score_cutoff);

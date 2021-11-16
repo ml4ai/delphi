@@ -21,6 +21,11 @@ Program Listing for File utils.cpp
    
    namespace delphi::utils {
    
+   double round_n(double x, int places) {
+     double n = pow(10.0, places);
+     return (double)((int)(x * n + 0.5))/n; 
+   }
+   
    double sqr(double x) { return x * x; }
    
    double sum(const std::vector<double> &v) { return boost::accumulate(v, 0.0); }

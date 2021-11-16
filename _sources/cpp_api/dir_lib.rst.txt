@@ -53,6 +53,8 @@ Files
 - :ref:`file_lib_Timer.hpp`
 - :ref:`file_lib_to_json.cpp`
 - :ref:`file_lib_train_model.cpp`
+- :ref:`file_lib_TrainingStatus.cpp`
+- :ref:`file_lib_TrainingStatus.hpp`
 - :ref:`file_lib_Tran_Mat_Cell.cpp`
 - :ref:`file_lib_Tran_Mat_Cell.hpp`
 - :ref:`file_lib_utils.cpp`

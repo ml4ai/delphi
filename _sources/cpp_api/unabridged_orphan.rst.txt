@@ -230,6 +230,16 @@ Files
 .. toctree::
    :maxdepth: 5
 
+   file_lib_TrainingStatus.cpp.rst
+
+.. toctree::
+   :maxdepth: 5
+
+   file_lib_TrainingStatus.hpp.rst
+
+.. toctree::
+   :maxdepth: 5
+
    file_lib_Tran_Mat_Cell.cpp.rst
 
 .. toctree::
