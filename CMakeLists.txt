@@ -10,7 +10,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(Boost_NO_BOOST_CMAKE ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden")
+    "${CMAKE_CXX_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden -pthread -g")
 
 find_package(Graphviz)
 
@@ -64,6 +64,7 @@ add_library(Delphi
   lib/database.cpp
   lib/DatabaseHelper.cpp
   lib/head_nodes.cpp
+  lib/TrainingStatus.cpp
 )
 
 target_link_libraries(Delphi

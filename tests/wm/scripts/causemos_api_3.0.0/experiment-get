@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Author: Joseph Astier
+
+# Query an experiment result using the CauseMos 3.0.0 API
+#
+
+modelId=$1
+experimentId=$2
+
+if [[ $modelId == "" ]] || [[ $experimentId == "" ]]; then
+
+        echo "Please specify a model ID and an experiment ID"
+        echo "Usage:  $0 model_ID experiment_ID"
+
+else
+        login="-u me:ivilab4fun"
+	endpoint="/models/$modelId/experiments/$experimentId"
+	url=$(./get_delphi_url)
+
+	call="curl $login -s $url$endpoint"
+	echo "Call:"
+        echo $call
+
+        response=$($call)
+        echo "Response:"
+        echo $response | jq
+fi
