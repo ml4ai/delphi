@@ -103,11 +103,9 @@ class Experiment {
                 data_dict["concept"] = conceptname;
                 data_dict["values"] = vector<json>{};
                 for (int i = 0; i < timestamp_sample_matrix.size(); i++) {
-                    vector<double> time_step = timestamp_sample_matrix[i];
-                    sort(time_step.begin(), time_step.end());
 		    json time_series;
 		    time_series["timestamp"] = timesteps_nparr[i];
-		    time_series["values"] = time_step;
+		    time_series["values"] = timestamp_sample_matrix[i];
                     data_dict["values"].push_back(time_series);
                 }
                 result["results"]["data"].push_back(data_dict);
