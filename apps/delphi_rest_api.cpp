@@ -103,9 +103,10 @@ class Experiment {
                 data_dict["concept"] = conceptname;
                 data_dict["values"] = vector<json>{};
                 for (int i = 0; i < timestamp_sample_matrix.size(); i++) {
+	            vector<double> time_step = timestamp_sample_matrix[i];
 		    json time_series;
 		    time_series["timestamp"] = timesteps_nparr[i];
-		    time_series["values"] = timestamp_sample_matrix[i];
+		    time_series["values"] = time_step;
                     data_dict["values"].push_back(time_series);
                 }
                 result["results"]["data"].push_back(data_dict);
@@ -422,6 +423,7 @@ int main(int argc, const char* argv[]) {
 	    json cols = json::parse(query_return);
 	    string status = cols["status"];
 
+	    // contains full debug struct
 	    json output = json::parse(status);
 
             // the API only calls for the training status value, so really this should
