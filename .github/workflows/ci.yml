@@ -69,6 +69,9 @@ jobs:
         # Install wheel
         pip install wheel
 
+        # Install a version of pyparsing to fix a CI bug
+        pip install pyparsing==2.4.7
+
         # Install delphi in editable mode
         pip install -e .[test]
 
