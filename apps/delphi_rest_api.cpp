@@ -242,7 +242,6 @@ int main(int argc, const char* argv[]) {
             size_t kde_kernels = 1000;
             int sampling_resolution = 1000, burn = 10000;
             if (getenv("CI")) {
-	        cout << "CI mode detected" << endl;
                 // When running in a continuous integration run, we set the
                 // sampling resolution to be small to prevent timeouts.
                 kde_kernels = 400;
