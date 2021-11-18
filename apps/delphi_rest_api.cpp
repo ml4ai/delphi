@@ -87,13 +87,6 @@ class Experiment {
             result["status"] = "completed";
             vector<double> timesteps_nparr =
                 linspace(startTime, endTime, numTimesteps);
-
-            /*
-                The calculation of the 95% confidence interval about the median
-               is taken from:
-                https://www.ucl.ac.uk/child-health/short-courses-events/ \
-                about-statistical-courses/research-methods-and-statistics/chapter-8-content-8
-            */
             unordered_map<string, vector<string>> res_data;
             res_data["data"] = {};
             result["results"] = res_data;
