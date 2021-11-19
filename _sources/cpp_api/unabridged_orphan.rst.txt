@@ -170,6 +170,11 @@ Files
 .. toctree::
    :maxdepth: 5
 
+   file_lib_profiler.cpp.rst
+
+.. toctree::
+   :maxdepth: 5
+
    file_lib_PybindTester.hpp.rst
 
 .. toctree::

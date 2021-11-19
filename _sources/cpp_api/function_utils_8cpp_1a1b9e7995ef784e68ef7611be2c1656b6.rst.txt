@@ -1,0 +1,13 @@
+.. _exhale_function_utils_8cpp_1a1b9e7995ef784e68ef7611be2c1656b6:
+
+Function delphi::utils::get_timestamp
+=====================================
+
+- Defined in :ref:`file_lib_utils.cpp`
+
+
+Function Documentation
+----------------------
+
+
+.. doxygenfunction:: delphi::utils::get_timestamp()

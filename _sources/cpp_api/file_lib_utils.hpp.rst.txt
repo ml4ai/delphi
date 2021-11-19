@@ -59,6 +59,8 @@ Included By
 
 - :ref:`file_lib_data.cpp`
 
+- :ref:`file_lib_profiler.cpp`
+
 - :ref:`file_lib_sandbox.cpp`
 
 - :ref:`file_lib_subgraphs.cpp`

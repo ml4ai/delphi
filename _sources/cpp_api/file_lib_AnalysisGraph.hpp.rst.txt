@@ -89,6 +89,8 @@ Included By
 
 - :ref:`file_lib_printing.cpp`
 
+- :ref:`file_lib_profiler.cpp`
+
 - :ref:`file_lib_sampling.cpp`
 
 - :ref:`file_lib_sandbox.cpp`

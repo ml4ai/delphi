@@ -19,15 +19,17 @@ Functions
 
 - :ref:`exhale_function_utils_8hpp_1a0a0aa5172fe4f4e88b93897f583d7876`
 
+- :ref:`exhale_function_utils_8cpp_1a1b9e7995ef784e68ef7611be2c1656b6`
+
 - :ref:`exhale_function_utils_8hpp_1ae3b02c41d056ce293fe76375cc507300`
 
 - :ref:`exhale_function_utils_8hpp_1af175d4b6e57d4c5da386df3368820002`
 
 - :ref:`exhale_function_utils_8hpp_1a9c267fceec97b3e1de1541325267a590`
 
-- :ref:`exhale_function_utils_8cpp_1af3db7708c72021920c9f76b82058db46`
-
 - :ref:`exhale_function_utils_8hpp_1a20dedc59789fac7a584b05141573e609`
+
+- :ref:`exhale_function_utils_8cpp_1af3db7708c72021920c9f76b82058db46`
 
 - :ref:`exhale_function_utils_8cpp_1aa96442924e4380d2588414804ec9bb1d`
 

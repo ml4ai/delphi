@@ -37,6 +37,8 @@ Includes
 
 - ``cmath``
 
+- ``ctime``
+
 - ``fstream``
 
 - ``utils.hpp`` (:ref:`file_lib_utils.hpp`)
@@ -58,6 +60,8 @@ Namespaces
 Functions
 ---------
 
+
+- :ref:`exhale_function_utils_8cpp_1a1b9e7995ef784e68ef7611be2c1656b6`
 
 - :ref:`exhale_function_utils_8cpp_1af3db7708c72021920c9f76b82058db46`
 

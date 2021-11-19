@@ -211,6 +211,11 @@ Functions
 .. toctree::
    :maxdepth: 5
 
+   function_utils_8cpp_1a1b9e7995ef784e68ef7611be2c1656b6.rst
+
+.. toctree::
+   :maxdepth: 5
+
    function_utils_8hpp_1ae3b02c41d056ce293fe76375cc507300.rst
 
 .. toctree::

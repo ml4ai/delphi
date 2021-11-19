@@ -76,4 +76,6 @@ Program Listing for File utils.hpp
    nlohmann::json load_json(std::string filename);
    
    int months_between(std::tuple<int, int, int> earlier_date, std::tuple<int, int, int> latter_date);
+   
+   std::string get_timestamp();
    } // namespace delphi::utils

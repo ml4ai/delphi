@@ -41,6 +41,7 @@ Files
 - :ref:`file_lib_parameter_initialization.cpp`
 - :ref:`file_lib_prediction.cpp`
 - :ref:`file_lib_printing.cpp`
+- :ref:`file_lib_profiler.cpp`
 - :ref:`file_lib_PybindTester.hpp`
 - :ref:`file_lib_Random_Variables.cpp`
 - :ref:`file_lib_Random_Variables.hpp`
