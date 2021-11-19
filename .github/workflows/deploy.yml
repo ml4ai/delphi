@@ -48,6 +48,11 @@ jobs:
         python3 -m venv delphi_venv
         source delphi_venv/bin/activate
         pip install wheel
+
+        # Install a specific version of pyparsing to fix a CI bug
+        # See https://github.com/pypa/packaging/pull/480
+        pip install pyparsing==2.4.7
+
         pip install -e .[docs]
         pushd docs > /dev/null
           make apidocs
