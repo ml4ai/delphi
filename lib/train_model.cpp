@@ -12,6 +12,12 @@
   #include "CSVWriter.hpp"
 #endif
 
+#ifdef TIME
+  #include "utils.hpp"
+  #include "Timer.hpp"
+  #include "CSVWriter.hpp"
+#endif
+
 using namespace std;
 using tq::trange;
 using json = nlohmann::json;
@@ -329,7 +335,6 @@ void AnalysisGraph::run_train_model_2(int res,
                                     bool use_continuous
                                     ) {
 
-
     this->initialize_parameters(res, initial_beta, initial_derivative,
                               use_heuristic, use_continuous);
 
@@ -352,6 +357,7 @@ void AnalysisGraph::run_train_model_2(int res,
     this->trained = true;
     RNG::release_instance();
 }
+
 
 
 /*

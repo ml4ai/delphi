@@ -298,10 +298,12 @@ class AnalysisGraph {
   double coin_flip = 0;
   double coin_flip_thresh = 0.5;
 
-  // Remember the old θ and the edge where we perturbed the θ.
+  // Remember the old θ, logpdf(θ) and the edge where we perturbed the θ.
   // We need this to revert the system to the previous state if the proposal
   // gets rejected.
-  std::pair<EdgeDescriptor, double> previous_theta;
+  // Access:
+  //        edge, θ, logpdf(θ)
+  std::tuple<EdgeDescriptor, double, double> previous_theta;
 
   // Remember the old derivative and the concept we perturbed the derivative
   int changed_derivative = 0;
