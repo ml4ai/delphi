@@ -103,6 +103,26 @@ json Database::select_delphimodel_row(string modelId) {
 }
 
 /*
+    Select the row in the table that matches the modelId
+*/
+json Database::select_row(string table, string modelId, string output_field) {
+    json matches;
+    sqlite3_stmt* stmt = nullptr;
+    string query =
+        "SELECT * from " + table + " WHERE id='" + modelId + "'  LIMIT 1;";
+    int rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        matches["id"] =
+            string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
+        matches[output_field] =
+            string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
+    }
+    sqlite3_finalize(stmt);
+    stmt = nullptr;
+    return matches;
+}
+
+/*
     Select/read all column and 1 rows of causemosasyncexperimentresult table
 */
 json Database::select_causemosasyncexperimentresult_row(string modelId) {

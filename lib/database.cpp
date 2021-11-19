@@ -1,7 +1,10 @@
 #include "AnalysisGraph.hpp"
+#include <nlohmann/json.hpp>
 
 using namespace std;
 using namespace delphi::utils;
+using json = nlohmann::json;
+
 
 sqlite3* AnalysisGraph::open_delphi_db(int mode) {
   char* pPath;
@@ -20,6 +23,7 @@ sqlite3* AnalysisGraph::open_delphi_db(int mode) {
 
   return db;
 }
+
 
 void AnalysisGraph::write_model_to_db(string model_id) {
   if (!model_id.empty()) {
