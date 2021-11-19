@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Author: Joseph Astier
+#
+# CauseMos 3.0.0 API endpoint: "/models/{modelId}/experiments"
+#
+# Create a new experiment with the passed-in definition file.
+# The ID of the new experiment, or an error message, is returned.
+
+# Model ID, e.g. "XYZ"
+modelId=$1
+
+# Experiment definition JSON file
+filename=$2
+
+if [[ $modelId == "" ]] || [[ $filename == "" ]]; then
+
+        echo "Please specify a model ID and experiment definition filename"
+        echo "Usage:  $0 model_ID filename"
+
+else
+        login="-u me:ivilab4fun"
+        url=$(./get_delphi_url)
+        endpoint="/models/$modelId/experiments"
+
+        call="curl -s $login -X POST $url$endpoint -d @$filename"
+        echo "Call:"
+        echo $call
+
+        response=$($call)
+        echo "Response:"
+        echo $response | jq
+fi

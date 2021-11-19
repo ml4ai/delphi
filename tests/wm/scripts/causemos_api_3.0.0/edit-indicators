@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Author: Joseph Astier
+
+# Edit model indicators using the CauseMos 3.0.0 API
+#
+
+# Model ID, e.g. "XYZ"
+modelId=$1
+
+# Model indicators file
+filename=$2
+
+if [[ $modelId == "" ]] || [[ $filename == "" ]]; then
+
+	echo "Please specify a model ID and a model indicators filename"
+	echo "Usage:  $0 model_ID filename"
+
+else
+	login="-u me:ivilab4fun"
+	url=$(./get_delphi_url)
+	endpoint="/models/$modelId/edit-indicators"
+
+	call="curl -s $login -X POST $url$endpoint -d @$filename"
+	echo "Call:"
+	echo $call
+
+	response=$($call)
+	echo "Response:"
+	echo $response | jq
+fi

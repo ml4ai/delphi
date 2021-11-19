@@ -2,7 +2,7 @@
 
 # Author: Joseph Astier
 
-# Query a model status from the delphi REST API
+# Query a model status using CauseMos OpenAPI 3.0.0
 #
 
 modelId=$1
@@ -14,11 +14,14 @@ if [[ $modelId == "" ]]; then
 
 else
 	login="-u me:ivilab4fun"
-	endpoint="/delphi/models/$modelId"
+	endpoint="/models/$modelId/training-stop"
 	url=$(./get_delphi_url)
 
 	call="curl $login -s $url$endpoint"
-	result=$($call)
+	echo "Call:"
+        echo $call
 
-        echo $result | 'jq' -r '.status'
+        response=$($call)
+        echo "Response:"
+        echo $response
 fi

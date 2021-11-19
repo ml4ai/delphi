@@ -188,6 +188,7 @@ class AnalysisGraph {
 
   DiGraph graph;
 
+
   // Handle to the random number generator singleton object
   RNG* rng_instance = nullptr;
 
@@ -259,10 +260,15 @@ class AnalysisGraph {
    ============================================================================
   */
 
-  // Keep track whether the model is trained.
+  // keep track of training progress
+  float training_progress = 0.0;  // Range is [0.0, 1.0]
+
   // Used to check whether there is a trained model before calling
   // generate_prediction()
   bool trained = false;
+
+  // training was stopped by user input
+  bool stopped = false;
 
   int n_timesteps = 0;
   int pred_timesteps = 0;
@@ -448,6 +454,10 @@ class AnalysisGraph {
                                                   (in causemos_integration.cpp)
    ============================================================================
   */
+
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                            training-progress
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                             create-model
@@ -770,6 +780,7 @@ class AnalysisGraph {
    ============================================================================
   */
 
+
   /**
    * Set the observed state sequence for a given time range from data.
    * The sequence includes both ends of the range.
@@ -856,7 +867,6 @@ class AnalysisGraph {
   void init_betas_to(InitialBeta ib = InitialBeta::MEAN);
 
   void construct_theta_pdfs();
-
 
   /*
    ============================================================================
@@ -1103,6 +1113,16 @@ class AnalysisGraph {
   */
 
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                            training-progress
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+  float get_training_progress();
+  bool get_trained();
+  bool get_stopped();
+  double get_log_likelihood();
+  double get_previous_log_likelihood();
+  double get_log_likelihood_MAP();
+
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                             create-model
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -1128,6 +1148,7 @@ class AnalysisGraph {
    * errors into this response.
    */
   std::string generate_create_model_response();
+
 
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                           create-experiment

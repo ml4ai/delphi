@@ -11,6 +11,14 @@ using namespace std;
 namespace delphi::utils {
 
 /**
+ * Returns the value rounded to n places past the decimal
+ */
+double round_n(double x, int places) {
+  double n = pow(10.0, places);
+  return (double)((int)(x * n + 0.5))/n; 
+}
+
+/**
  * Returns the square of a number.
  */
 double sqr(double x) { return x * x; }
