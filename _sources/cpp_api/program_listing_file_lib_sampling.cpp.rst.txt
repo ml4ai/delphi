@@ -248,12 +248,13 @@ Program Listing for File sampling.cpp
        sample(
            edge_it.begin(), edge_it.end(), e.begin(), 1, this->rand_num_generator);
    
-       // Remember the previous θ
-       this->previous_theta = make_pair(e[0], this->graph[e[0]].theta);
+       // Remember the previous θ and logpdf(θ)
+       this->previous_theta = make_tuple(e[0], this->graph[e[0]].theta, this->graph[e[0]].logpdf_theta);
    
-       // Perturb the θ
+       // Perturb the θ and compute the new logpdf(θ)
        // TODO: Check whether this perturbation is accurate
        this->graph[e[0]].theta += this->norm_dist(this->rand_num_generator);
+       this->graph[e[0]].compute_logpdf_theta();
    
        this->update_transition_matrix_cells(e[0]);
      }
@@ -305,11 +306,13 @@ Program Listing for File sampling.cpp
    double AnalysisGraph::calculate_delta_log_prior() {
      if (this->coin_flip < this->coin_flip_thresh) {
        // A θ has been sampled
-       KDE& kde = this->graph[this->previous_theta.first].kde;
+       // KDE& kde = this->graph[get<0>(this->previous_theta)].kde;
    
        // We have to return: log( p( θ_new )) - log( p( θ_old ))
-       return kde.logpdf(this->graph[this->previous_theta.first].theta) -
-              kde.logpdf(this->previous_theta.second);
+       //    return kde.logpdf(this->graph[this->previous_theta.first].theta) -
+       //           kde.logpdf(this->previous_theta.second);
+       return this->graph[get<0>(this->previous_theta)].logpdf_theta -
+              get<2>(this->previous_theta);
      }
      else {
        if (this->generated_concept == -1) {
@@ -342,12 +345,15 @@ Program Listing for File sampling.cpp
    
      if (this->coin_flip < this->coin_flip_thresh) {
        // A θ has been sampled
-       this->graph[this->previous_theta.first].theta = this->previous_theta.second;
+       EdgeDescriptor perturbed_edge = get<0>(this->previous_theta);
+   
+       this->graph[perturbed_edge].theta = get<1>(this->previous_theta);
+       this->graph[perturbed_edge].logpdf_theta = get<2>(this->previous_theta);
    
        // Reset the transition matrix cells that were changed
        // TODO: Can we change the transition matrix only when the sample is
        // accepted?
-       this->update_transition_matrix_cells(this->previous_theta.first);
+       this->update_transition_matrix_cells(perturbed_edge);
      }
      else {
        // A derivative  has been sampled

@@ -24,6 +24,12 @@ Program Listing for File train_model.cpp
      #include "CSVWriter.hpp"
    #endif
    
+   #ifdef TIME
+     #include "utils.hpp"
+     #include "Timer.hpp"
+     #include "CSVWriter.hpp"
+   #endif
+   
    using namespace std;
    using tq::trange;
    using json = nlohmann::json;
@@ -341,7 +347,6 @@ Program Listing for File train_model.cpp
                                        bool use_continuous
                                        ) {
    
-   
        this->initialize_parameters(res, initial_beta, initial_derivative,
                                  use_heuristic, use_continuous);
    
@@ -364,6 +369,7 @@ Program Listing for File train_model.cpp
        this->trained = true;
        RNG::release_instance();
    }
+   
    
    
    /*
