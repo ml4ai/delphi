@@ -22,6 +22,13 @@ find_package(Eigen3 REQUIRED NO_MODULE)
 find_package(fmt REQUIRED)
 find_package(nlohmann_json REQUIRED)
 
+# To micro benchmark the MCMC loop compile as:
+# cmake -DTIME=ON ..
+option(TIME "Micro benchmark the MCMC loop" OFF)
+if (TIME)
+    add_definitions(-DTIME)
+endif()
+
 option(BUILD_PYTHON_BINDINGS "Build Python bindings" ON)
 
 # Optional building of Python bindings using Pybind11
@@ -65,7 +72,7 @@ add_library(Delphi
   lib/DatabaseHelper.cpp
   lib/head_nodes.cpp
   lib/TrainingStatus.cpp
-)
+  lib/profiler.cpp)
 
 target_link_libraries(Delphi
                       PRIVATE ${Boost_LIBRARIES}

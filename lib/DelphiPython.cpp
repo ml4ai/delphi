@@ -240,7 +240,27 @@ PYBIND11_MODULE(DelphiPython, m) {
            &AnalysisGraph::get_complete_state)
       .def("write_model_to_db",
            &AnalysisGraph::write_model_to_db,
-           "model_id"_a);
+           "model_id"_a)
+      .def("initialize_profiler",
+           &AnalysisGraph::initialize_profiler,
+           "res"_a = 100,
+           "kde_kernels"_a = 1000,
+           "initial_beta"_a = InitialBeta::ZERO,
+           "initial_derivative"_a = InitialDerivative::DERI_ZERO,
+           "use_continuous"_a = true)
+      .def("profile_mcmc",
+           &AnalysisGraph::profile_mcmc,
+           "run"_a = 1,
+           "file_name_prefix"_a = "mcmc_timing")
+      .def("profile_kde",
+           &AnalysisGraph::profile_kde,
+           "run"_a = 1,
+           "file_name_prefix"_a = "kde_timing")
+      .def("profile_prediction",
+           &AnalysisGraph::profile_prediction,
+           "run"_a = 1,
+           "pred_timesteps"_a = 24,
+           "file_name_prefix"_a = "prediction_timing");
 
   py::class_<RV>(m, "RV")
       .def(py::init<std::string>())

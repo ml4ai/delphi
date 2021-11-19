@@ -1594,4 +1594,22 @@ class AnalysisGraph {
       std::normal_distribution<double>& norm_dist,
       size_t n_kernels
   );
+
+  /*
+   ============================================================================
+   Public: Profiling Delphi (in profiler.cpp)
+   ============================================================================
+  */
+
+  void initialize_profiler(int res = 100,
+                           int kde_kernels = 1000,
+                           InitialBeta initial_beta = InitialBeta::ZERO,
+                           InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO,
+                           bool use_continuous = true);
+
+  void profile_mcmc(int run = 1, std::string file_name_prefix = "mcmc_timing");
+
+  void profile_kde(int run = 1, std::string file_name_prefix = "kde_timing");
+
+  void profile_prediction(int run = 1, int pred_timesteps = 24, std::string file_name_prefix = "prediction_timing");
 };
