@@ -28,11 +28,20 @@ RUN apt-get update \
       libeigen3-dev \
       pybind11-dev \
       libfmt-dev \
-      librange-v3-dev 
+      librange-v3-dev \
+      nlohmann-json3-dev
       
 
 
-RUN apt-get -y install nlohmann-json3-dev
+RUN curl -LO https://github.com/meltwater/served/archive/refs/tags/v1.6.0.tar.gz; \
+      tar -xzf v1.6.0.tar.gz; \
+      cd served-1.6.0; \
+           mkdir build; \
+           cd build; \
+           cmake ..; \
+           make -j `nproc` install; \
+      cd ..
+
 
 COPY . /delphi
 WORKDIR /delphi
