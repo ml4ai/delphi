@@ -28,7 +28,9 @@ RUN apt-get update \
       libeigen3-dev \
       pybind11-dev \
       libfmt-dev \
-      librange-v3-dev
+      librange-v3-dev 
+      
+
 
 RUN apt-get -y install nlohmann-json3-dev
 
@@ -38,5 +40,5 @@ WORKDIR /delphi
 RUN python3 -m venv $VIRTUAL_ENV
 
 RUN mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o data/delphi.db
-RUN . $VIRTUAL_ENV/bin/activate && pip install wheel && pip install -e .
+RUN . $VIRTUAL_ENV/bin/activate && pip install wheel && pip install pyparsing==2.4.7 && pip install -e .
 CMD delphi_rest_api
