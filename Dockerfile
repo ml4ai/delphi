@@ -54,4 +54,4 @@ RUN make clean; \
       make -j `nproc`; 
 
 # start the delphi_rest_api
-ENTRYPOINT ./build/delphi_rest_api -h host.docker.internal -p 1883
+ENTRYPOINT ./build/delphi_rest_api 
