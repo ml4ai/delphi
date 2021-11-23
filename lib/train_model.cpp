@@ -206,7 +206,7 @@ void AnalysisGraph::run_train_model(int res,
       int n_nodes = this->num_nodes();
       int n_edges = this->num_edges();
       pair<std::vector<std::string>, std::vector<long>> durations;
-      string filename = string("mcmc_timing_embeded") +
+      string filename = string("mcmc_timing_embeded_") +
                         to_string(n_nodes) + "-" +
                         to_string(n_edges) + "_" +
                         delphi::utils::get_timestamp() + ".csv";
@@ -282,7 +282,7 @@ void AnalysisGraph::run_train_model(int res,
       }
 
       for (auto e : this->edges()) {
-        this->graph[e].sampled_thetas.push_back(this->graph[e].theta);
+        this->graph[e].sampled_thetas.push_back(this->graph[e].get_theta());
       }
 
       this->log_likelihoods[burn + i] = this->log_likelihood;
@@ -313,7 +313,7 @@ void AnalysisGraph::run_train_model(int res,
       }
 
       for (auto e : this->edges()) {
-        this->graph[e].sampled_thetas.push_back(this->graph[e].theta);
+        this->graph[e].sampled_thetas.push_back(this->graph[e].get_theta());
       }
 
       this->log_likelihoods[burn + this->res - 1] = this->log_likelihood;
@@ -350,7 +350,7 @@ void AnalysisGraph::run_train_model_2(int res,
         this->initial_latent_state_collection[i] = this->s0;
 
         for (auto e : this->edges()) {
-          this->graph[e].sampled_thetas.push_back(this->graph[e].theta);
+          this->graph[e].sampled_thetas.push_back(this->graph[e].get_theta());
         }
     }
 

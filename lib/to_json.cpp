@@ -153,7 +153,9 @@ string AnalysisGraph::serialize_to_json_string(bool verbose) {
                                 {"target", name_to_vertex.at(target.name)},
                                 {"kernels", this->edge(e).kde.dataset},
                                 {"evidence", evidence},
-                                {"thetas", this->edge(e).sampled_thetas}});
+                                {"thetas", this->edge(e).sampled_thetas},
+                                {"log_prior_hist", this->edge(e).kde.log_prior_hist},
+                                {"n_bins", this->edge(e).kde.n_bins}});
         }
         else {
             // This is a more compressed version of edges. We do not utilize space
@@ -163,7 +165,9 @@ string AnalysisGraph::serialize_to_json_string(bool verbose) {
                                             name_to_vertex.at(target.name),
                                             this->edge(e).kde.dataset,
                                             evidence,
-                                            this->edge(e).sampled_thetas));
+                                            this->edge(e).sampled_thetas,
+                                            this->edge(e).kde.log_prior_hist,
+                                            this->edge(e).kde.n_bins));
         }
     }
 

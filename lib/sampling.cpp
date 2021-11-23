@@ -237,11 +237,11 @@ void AnalysisGraph::sample_from_proposal() {
         edge_it.begin(), edge_it.end(), e.begin(), 1, this->rand_num_generator);
 
     // Remember the previous θ and logpdf(θ)
-    this->previous_theta = make_tuple(e[0], this->graph[e[0]].theta, this->graph[e[0]].logpdf_theta);
+    this->previous_theta = make_tuple(e[0], this->graph[e[0]].get_theta(), this->graph[e[0]].logpdf_theta);
 
     // Perturb the θ and compute the new logpdf(θ)
     // TODO: Check whether this perturbation is accurate
-    this->graph[e[0]].theta += this->norm_dist(this->rand_num_generator);
+    this->graph[e[0]].set_theta(this->graph[e[0]].get_theta() + this->norm_dist(this->rand_num_generator));
     this->graph[e[0]].compute_logpdf_theta();
 
     this->update_transition_matrix_cells(e[0]);
@@ -335,7 +335,7 @@ void AnalysisGraph::revert_back_to_previous_state() {
     // A θ has been sampled
     EdgeDescriptor perturbed_edge = get<0>(this->previous_theta);
 
-    this->graph[perturbed_edge].theta = get<1>(this->previous_theta);
+    this->graph[perturbed_edge].set_theta(get<1>(this->previous_theta));
     this->graph[perturbed_edge].logpdf_theta = get<2>(this->previous_theta);
 
     // Reset the transition matrix cells that were changed

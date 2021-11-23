@@ -44,9 +44,15 @@ double sample_from_normal(double mu, double sd);
 class KDE {
   public:
   KDE(){};
-  std::vector<double> dataset;
+  std::vector<double> dataset = {};
+  std::vector<double> log_prior_hist = {};
+  double delta_theta = 1;
+  int n_bins = 1;
   double bw; // bandwidth
   KDE(std::vector<double>);
+  KDE(std::vector<double>, int n_bins);
+  void set_num_bins(int n_bins);
+  int theta_to_bin(double theta);
 
   // TODO: Made this public just to initialize β.
   // Not sure this is the correct way to do it.
