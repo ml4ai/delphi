@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Class AnalysisGraph &mdash; delphi  documentation</title>
@@ -452,12 +452,6 @@
 <dt class="sig sig-object cpp" id="_CPPv4N13AnalysisGraph19generate_predictionEiiii18ConstraintSchedulebb">
 <span id="_CPPv3N13AnalysisGraph19generate_predictionEiiii18ConstraintSchedulebb"></span><span id="_CPPv2N13AnalysisGraph19generate_predictionEiiii18ConstraintSchedulebb"></span><span id="AnalysisGraph::generate_prediction__i.i.i.i.ConstraintSchedule.b.b"></span><span class="target" id="classAnalysisGraph_1a0c564b3150b6512543ebddd95ccaeb90"></span><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ad53d6ceb41e62dda55bf3e1cdbdc0f25.html#_CPPv410Prediction" title="Prediction"><span class="n"><span class="pre">Prediction</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">generate_prediction</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">start_year</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">start_month</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">end_year</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">end_month</span></span>, <a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ad475b246ca409a6fc2b24b6ebfad5db8.html#_CPPv418ConstraintSchedule" title="ConstraintSchedule"><span class="n"><span class="pre">ConstraintSchedule</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">constraints</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="typedef_AnalysisGraph_8hpp_1ad475b246ca409a6fc2b24b6ebfad5db8.html#_CPPv418ConstraintSchedule" title="ConstraintSchedule"><span class="n"><span class="pre">ConstraintSchedule</span></span></a><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">)</span></span>, <span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">one_off</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">true</span></span>, <span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">clamp_deri</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">true</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13AnalysisGraph19generate_predictionEiiii18ConstraintSchedulebb" title="Permalink to this definition"></a><br /></dt>
 <dd><p>Given a trained model, generate this-&gt;res number of predicted observed state sequences.</p>
-<p><dl class="field-list simple">
-<dt class="field-odd">return<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Predicted observed state (indicator value) sequence for the prediction period including start and end time points. This is a tuple. The first element is a std::vector of std::strings with labels for each time point predicted (year-month). The second element contains predicted values. Access it as: [ sample number ][ time point ][ vertex name ][ indicator name ] </p>
-</dd>
-</dl>
-</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -466,6 +460,9 @@
 <li><p><strong>end_year</strong> – : End year of the prediction </p></li>
 <li><p><strong>end_month</strong> – : End month of the prediction</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Predicted observed state (indicator value) sequence for the prediction period including start and end time points. This is a tuple. The first element is a std::vector of std::strings with labels for each time point predicted (year-month). The second element contains predicted values. Access it as: [ sample number ][ time point ][ vertex name ][ indicator name ] </p>
 </dd>
 </dl>
 </dd></dl>
@@ -479,15 +476,12 @@
 <dt class="sig sig-object cpp" id="_CPPv4N13AnalysisGraph19prediction_to_arrayENSt6stringE">
 <span id="_CPPv3N13AnalysisGraph19prediction_to_arrayENSt6stringE"></span><span id="_CPPv2N13AnalysisGraph19prediction_to_arrayENSt6stringE"></span><span id="AnalysisGraph::prediction_to_array__ss"></span><span class="target" id="classAnalysisGraph_1a08af0fef8765e3e1b9b12681aeb65db1"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">prediction_to_array</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">indicator</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13AnalysisGraph19prediction_to_arrayENSt6stringE" title="Permalink to this definition"></a><br /></dt>
 <dd><p>this-&gt;<a class="reference internal" href="#classAnalysisGraph_1a0c564b3150b6512543ebddd95ccaeb90"><span class="std std-ref">generate_prediction()</span></a> must be called before calling this method. Outputs raw predictions for a given indicator that were generated by <a class="reference internal" href="#classAnalysisGraph_1a0c564b3150b6512543ebddd95ccaeb90"><span class="std std-ref">generate_prediction()</span></a>. Each column is a time step and the rows are the samples for that time step.</p>
-<p><dl class="field-list simple">
-<dt class="field-odd">return<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A (this-&gt;res, x this-&gt;pred_timesteps) dimension 2D array (std::vector of std::vectors) </p>
-</dd>
-</dl>
-</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>indicator</strong> – A std::string representing the indicator variable for which we want predictions. </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A (this-&gt;res, x this-&gt;pred_timesteps) dimension 2D array (std::vector of std::vectors) </p>
 </dd>
 </dl>
 </dd></dl>
