@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  delphi:
+    image: delphi:latest
+    container_name: delphi
+    volumes:
+        - ./data:/delphi/data
+    working_dir: /delphi
+    network_mode: host
+    ports:
+      - "8123:8123"
+    entrypoint: ./build/delphi_rest_api
