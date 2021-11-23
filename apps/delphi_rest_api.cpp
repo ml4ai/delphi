@@ -176,7 +176,7 @@ int main(int argc, const char* argv[]) {
     string host;
     int port;
     desc.add_options()
-        ("help", "produce help message")
+        ("help,h", "produce help message")
         ("host", po::value<string>(&host)->default_value("localhost"), "Set host")
         ("port", po::value<int>(&port)->default_value(8123), "Set port");
 
@@ -189,13 +189,6 @@ int main(int argc, const char* argv[]) {
         return 1;
     }
 
-    if (vm.count("compression")) {
-        cout << "Compression level was set to " << vm["compression"].as<int>()
-             << ".\n";
-    }
-    else {
-        cout << "Compression level was not set.\n";
-    }
     cout << "Delphi REST API running!" << endl;
 
     Database* sqlite3DB = new Database();

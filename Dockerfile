@@ -10,6 +10,7 @@ ENV MODEL_FILES=/delphi/data/source_model_files
 
 RUN apt-get update \
     && apt-get -y --no-install-recommends install \
+      ca-certificates \
       build-essential \
       libboost-all-dev \
       pkg-config \
@@ -28,14 +29,14 @@ RUN apt-get update \
       nlohmann-json3-dev
 
 # build served from source
-RUN curl -LO https://github.com/meltwater/served/archive/refs/tags/v1.6.0.tar.gz; \
-      tar -xzf v1.6.0.tar.gz; \
-      cd served-1.6.0; \
-           mkdir build; \
-           cd build; \
-           cmake ..; \
-           make -j `nproc` install; \
-      cd ..
+RUN curl -LO https://github.com/meltwater/served/archive/refs/tags/v1.6.0.tar.gz \
+    && tar -xzf v1.6.0.tar.gz \
+    && cd served-1.6.0 \
+    &&       mkdir build \
+    &&       cd build \
+    &&       cmake .. \
+    &&       make -j `nproc` install \
+    && cd ..
 
 COPY . /delphi
 WORKDIR /delphi
@@ -43,11 +44,8 @@ WORKDIR /delphi
 RUN mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o data/delphi.db
 
 # build delphi_rest_api
-RUN mkdir build; \
-      cd build; \
-      cmake .. -DBUILD_PYTHON_BINDINGS=OFF; \
-      make -j `nproc` delphi_rest_api; \
-      cd ..
-
-# start the delphi_rest_api
-ENTRYPOINT ./build/delphi_rest_api 
+RUN mkdir build \
+    && cd build \
+    && cmake .. -DBUILD_PYTHON_BINDINGS=OFF \
+    && make -j `nproc` delphi_rest_api \
+    && cd ..
