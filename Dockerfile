@@ -50,4 +50,10 @@ RUN python3 -m venv $VIRTUAL_ENV
 
 RUN mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o data/delphi.db
 RUN . $VIRTUAL_ENV/bin/activate && pip install wheel && pip install pyparsing==2.4.7 && pip install -e .
-CMD delphi_rest_api
+
+run make clean; \
+      cd build; \
+      cmake ..; \
+      make -j `nproc`; 
+
+CMD ./build/delphi_rest_api
