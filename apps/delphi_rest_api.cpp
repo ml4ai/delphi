@@ -2,11 +2,12 @@
 #include "DatabaseHelper.hpp"
 #include "TrainingStatus.hpp"
 #include <assert.h>
-#include <ctime>
 #include <boost/graph/graph_traits.hpp>
+#include <boost/program_options.hpp>
 #include <boost/uuid/uuid.hpp>            // uuid class
 #include <boost/uuid/uuid_generators.hpp> // generators
 #include <boost/uuid/uuid_io.hpp>         // streaming operators etc.
+#include <ctime>
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <range/v3/all.hpp>
@@ -17,6 +18,7 @@
 
 using namespace std;
 using json = nlohmann::json;
+namespace po = boost::program_options;
 
 /*
     =====================
@@ -25,7 +27,7 @@ using json = nlohmann::json;
 */
 
 class Experiment {
-    public:
+  public:
     /* a function to generate numpy's linspace */
     static vector<double> linspace(double start, double end, double num) {
         vector<double> linspaced;
@@ -90,15 +92,15 @@ class Experiment {
             unordered_map<string, vector<string>> res_data;
             res_data["data"] = {};
             result["results"] = res_data;
-            for (const auto& [conceptname, timestamp_sample_matrix] : 
-	    causemos_experiment_result) {
+            for (const auto& [conceptname, timestamp_sample_matrix] :
+                 causemos_experiment_result) {
                 json data_dict;
                 data_dict["concept"] = conceptname;
                 data_dict["values"] = vector<json>{};
                 for (int i = 0; i < timestamp_sample_matrix.size(); i++) {
-		    json time_series;
-		    time_series["timestamp"] = timesteps_nparr[i];
-		    time_series["values"] = timestamp_sample_matrix[i];
+                    json time_series;
+                    time_series["timestamp"] = timesteps_nparr[i];
+                    time_series["values"] = timestamp_sample_matrix[i];
                     data_dict["values"].push_back(time_series);
                 }
                 result["results"]["data"].push_back(data_dict);
@@ -168,8 +170,26 @@ class Experiment {
     }
 };
 
-
 int main(int argc, const char* argv[]) {
+    // Declare the supported options.
+    po::options_description desc("Allowed options");
+    string host;
+    int port;
+    desc.add_options()("help,h", "produce help message")(
+        "host",
+        po::value<string>(&host)->default_value("localhost"),
+        "Set host")(
+        "port", po::value<int>(&port)->default_value(8123), "Set port");
+
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
+
+    if (vm.count("help")) {
+        cout << desc << "\n";
+        return 1;
+    }
+
     cout << "Delphi REST API running!" << endl;
 
     Database* sqlite3DB = new Database();
@@ -190,38 +210,37 @@ int main(int argc, const char* argv[]) {
     }
 
     /* Allow users to check if the REST API is running */
-    mux.handle("/status")
-        .get([&sqlite3DB](served::response& res, const served::request& req) {
+    mux.handle("/status").get(
+        [&sqlite3DB](served::response& res, const served::request& req) {
+            if (getenv("CI")) {
+                res << "The Delphi REST API is running in CI mode.";
+            }
+            else {
+                res << "The Delphi REST API is running.";
+            }
+        });
 
-        if (getenv("CI")) {
-	    res << "The Delphi REST API is running in CI mode.";
-        } else {
-	    res << "The Delphi REST API is running.";
-	}
-    });
-
-
-    /* openApi 3.0.0 
-     * Post a new Delphi model. 
+    /* openApi 3.0.0
+     * Post a new Delphi model.
      */
     mux.handle("create-model")
-        .post([&sqlite3DB](served::response& response, const served::request& req) {
-
+        .post([&sqlite3DB](served::response& response,
+                           const served::request& req) {
             nlohmann::json json_data = nlohmann::json::parse(req.body());
 
-	    // Find the id field, stop now if not foud.
-	    string failEarly = "model ID not found";
-	    string modelId = json_data.value("id",failEarly);
-	    if(modelId == failEarly) {
-	      cout << "Could not find 'id' field in input" << endl;
-              json ret_exp;
-              ret_exp["status"] = failEarly;
-              response << ret_exp.dump();
-              return ret_exp.dump(); 
-	    }
+            // Find the id field, stop now if not foud.
+            string failEarly = "model ID not found";
+            string modelId = json_data.value("id", failEarly);
+            if (modelId == failEarly) {
+                cout << "Could not find 'id' field in input" << endl;
+                json ret_exp;
+                ret_exp["status"] = failEarly;
+                response << ret_exp.dump();
+                return ret_exp.dump();
+            }
 
             /* dump the input file to screen */
-	    // cout << json_data.dump() << endl;
+            // cout << json_data.dump() << endl;
 
             /*
              If neither "CI" or "DELPHI_N_SAMPLES" is set, we default to a
@@ -267,11 +286,11 @@ int main(int argc, const char* argv[]) {
                                              sampling_resolution,
                                              burn);
                 executor_create_model.detach();
-		cout << "Training model " << modelId << endl;
+                cout << "Training model " << modelId << endl;
             }
             catch (std::exception& e) {
                 cout << "Error: unable to start training process" << endl;
-		json error;
+                json error;
                 error["status"] = "server error: training";
                 response << error.dump();
                 return error.dump();
@@ -300,14 +319,14 @@ int main(int argc, const char* argv[]) {
     */
     mux.handle("/models/{modelId}/experiments/{experimentId}")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
-
             string modelId = req.params["modelId"];
             string experimentId = req.params["experimentId"];
 
-            json query_result = 
-              sqlite3DB->select_causemosasyncexperimentresult_row(experimentId);
+            json query_result =
+                sqlite3DB->select_causemosasyncexperimentresult_row(
+                    experimentId);
 
-            if (query_result.empty()) {  // experimentID not in database.
+            if (query_result.empty()) { // experimentID not in database.
                 json error;
                 error["modelId"] = modelId;
                 error["experimentId"] = experimentId;
@@ -326,7 +345,7 @@ int main(int argc, const char* argv[]) {
             output["experimentId"] = experimentId;
             output["experimentType"] = query_result["experimentType"];
             output["status"] = query_result["status"];
-//            output["progressPercentage"] = "Not yet implemented";
+            //            output["progressPercentage"] = "Not yet implemented";
             output["results"] = results["data"];
 
             res << output.dump();
@@ -339,9 +358,8 @@ int main(int argc, const char* argv[]) {
     */
     mux.handle("/models/{modelId}/experiments")
         .post([&sqlite3DB](served::response& res, const served::request& req) {
-
             auto request_body = nlohmann::json::parse(req.body());
-	    string modelId = req.params["modelId"]; // should catch if not found
+            string modelId = req.params["modelId"]; // should catch if not found
 
             json query_result = sqlite3DB->select_delphimodel_row(modelId);
             if (query_result.empty()) {
@@ -387,46 +405,47 @@ int main(int argc, const char* argv[]) {
             }
 
             json ret_exp;
-//            ret_exp["modelId"] = modelId;  API only calls for experiment ID
+            //            ret_exp["modelId"] = modelId;  API only calls for
+            //            experiment ID
             ret_exp["experimentId"] = experiment_id;
-	    res << ret_exp.dump();
+            res << ret_exp.dump();
             return ret_exp;
         });
 
     /* openApi 3.0.0
-     * Query the training progress for a model.   
+     * Query the training progress for a model.
      */
     mux.handle("/models/{modelId}/training-progress")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
             TrainingStatus ts;
 
-	    string modelId = req.params["modelId"]; // should catch missing
-	    string query_return = ts.read_from_db(modelId);
+            string modelId = req.params["modelId"]; // should catch missing
+            string query_return = ts.read_from_db(modelId);
 
-	    if(query_return.empty()) {
-              json error;
-              error["id"] = modelId;
-              error["status"] = "No training status data found";
-	      res << error.dump();
-	      return;
-	    }
+            if (query_return.empty()) {
+                json error;
+                error["id"] = modelId;
+                error["status"] = "No training status data found";
+                res << error.dump();
+                return;
+            }
 
-	    json cols = json::parse(query_return);
-	    string status = cols["status"];
+            json cols = json::parse(query_return);
+            string status = cols["status"];
 
-	    // contains full debug struct
-	    json output = json::parse(status);
+            // contains full debug struct
+            json output = json::parse(status);
 
-            // the API only calls for the training status value, so really this should
-            // only be the value itself, e.g. output["progressPercentage"].dump(), but
-            // the specification also calls for application/json content, so we send a
-            // JSON structure with only that field.
+            // the API only calls for the training status value, so really this
+            // should only be the value itself, e.g.
+            // output["progressPercentage"].dump(), but the specification also
+            // calls for application/json content, so we send a JSON structure
+            // with only that field.
             json foo;
             foo["progressPercentage"] = output["progressPercentage"];
 
             res << foo.dump();
         });
-
 
     /* openApi 3.0.0
      * Post edge indicators for this model
@@ -434,14 +453,19 @@ int main(int argc, const char* argv[]) {
      */
     mux.handle("/models/{modelId}/edit-indicators")
         .post([&sqlite3DB](served::response& res, const served::request& req) {
+            string message =
+                "The edit-indicators endpoint is not implemented for Delphi, "
+                "since Delphi (as it is currently implemented) needs to "
+                "retrain the whole model on every indicator change. This might "
+                "change in the future, but for now, the way to update an "
+                "existing model is to use the create-model API endpoint.";
 
-	    string message = "The edit-indicators endpoint is not implemented for Delphi, since Delphi (as it is currently implemented) needs to retrain the whole model on every indicator change. This might change in the future, but for now, the way to update an existing model is to use the create-model API endpoint.";
-
-	    string modelId = req.params["modelId"]; // should catch if not found
-            json result = sqlite3DB->select_causemosasyncexperimentresult_row(modelId);
+            string modelId = req.params["modelId"]; // should catch if not found
+            json result =
+                sqlite3DB->select_causemosasyncexperimentresult_row(modelId);
 
             if (result.empty()) {
-                // model ID not in database. 
+                // model ID not in database.
             }
             result["modelId"] = modelId;
             result["status"] = message;
@@ -455,13 +479,17 @@ int main(int argc, const char* argv[]) {
      */
     mux.handle("/models/{modelId}/edit-edges")
         .post([&sqlite3DB](served::response& res, const served::request& req) {
+            string message =
+                "Edit-edges: Currently implemented as a NOP.  It will soon "
+                "have the semantics of changing the prior distribution of the "
+                "rate of change of the target node with respect to the source "
+                "node expressed in terms of angles.";
 
-            string message = "Edit-edges: Currently implemented as a NOP.  It will soon have the semantics of changing the prior distribution of the rate of change of the target node with respect to the source node expressed in terms of angles.";
-
-	    string modelId = req.params["modelId"]; // should catch if not found
-            json result = sqlite3DB->select_causemosasyncexperimentresult_row(modelId);
+            string modelId = req.params["modelId"]; // should catch if not found
+            json result =
+                sqlite3DB->select_causemosasyncexperimentresult_row(modelId);
             if (result.empty()) {
-                // model ID not in database. 
+                // model ID not in database.
             }
             result["modelId"] = modelId;
             result["status"] = message;
@@ -471,22 +499,20 @@ int main(int argc, const char* argv[]) {
 
     mux.handle("/models/{modelId}/training-stop")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
-
             TrainingStatus ts;
-	    string modelId = req.params["modelId"]; // should catch missing
+            string modelId = req.params["modelId"]; // should catch missing
 
             string query_return = ts.stop_training(modelId);
 
-            if(query_return.empty()) {
-              json error;
-              error["id"] = modelId;
-              error["status"] = "No training status data found";
-              res << error.dump();
-              return;
+            if (query_return.empty()) {
+                json error;
+                error["id"] = modelId;
+                error["status"] = "No training status data found";
+                res << error.dump();
+                return;
             }
 
             res << query_return;
-
         });
 
     /* openApi 3.0.0
@@ -494,7 +520,6 @@ int main(int argc, const char* argv[]) {
      */
     mux.handle("/models/{modelId}")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
-
             string modelId = req.params["modelId"];
             json query_result = sqlite3DB->select_delphimodel_row(modelId);
 
@@ -515,7 +540,7 @@ int main(int argc, const char* argv[]) {
             res << response.dump();
         });
 
-    served::net::server server("127.0.0.1", "8123", mux);
+    served::net::server server(host, to_string(port), mux);
     server.run(10);
 
     return (EXIT_SUCCESS);

@@ -1,14 +1,19 @@
 #!/bin/bash
 
-# Author: Joseph Astier
+# Authors: Joseph Astier, Adarsh Pyarelal
 
-# Test if there is a delphi_rest_api process running 
+# Set the ROOT environment variable, assuming that the directory structure
+# mirrors that of the git repository.
+ROOT="$(cd "$( dirname "${BASH_SOURCE[0]}" )/../../../" >/dev/null 2>&1 && pwd)"
+export ROOT
+
+# Test if there is a delphi_rest_api process running
 
 printf "Testing Delphi REST API status:\n"
 
 endpoint="/status"
 login="-u me:ivilab4fun"
-url=$(./get_delphi_url)
+url=$(. $ROOT/tests/wm/scripts/get_delphi_url)
 
 call="curl $login -s $url$endpoint"
 echo "Call:"
