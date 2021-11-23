@@ -3,6 +3,7 @@
 #include "TrainingStatus.hpp"
 #include <assert.h>
 #include <boost/graph/graph_traits.hpp>
+#include <boost/program_options.hpp>
 #include <boost/uuid/uuid.hpp>            // uuid class
 #include <boost/uuid/uuid_generators.hpp> // generators
 #include <boost/uuid/uuid_io.hpp>         // streaming operators etc.
@@ -17,6 +18,7 @@
 
 using namespace std;
 using json = nlohmann::json;
+namespace po = boost::program_options;
 
 /*
     =====================
@@ -169,6 +171,31 @@ class Experiment {
 };
 
 int main(int argc, const char* argv[]) {
+    // Declare the supported options.
+    po::options_description desc("Allowed options");
+    string host;
+    int port;
+    desc.add_options()
+        ("help", "produce help message")
+        ("host", po::value<string>(&host)->default_value("localhost"), "Set host")
+        ("port", po::value<int>(&port)->default_value(8123), "Set port");
+
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
+
+    if (vm.count("help")) {
+        cout << desc << "\n";
+        return 1;
+    }
+
+    if (vm.count("compression")) {
+        cout << "Compression level was set to " << vm["compression"].as<int>()
+             << ".\n";
+    }
+    else {
+        cout << "Compression level was not set.\n";
+    }
     cout << "Delphi REST API running!" << endl;
 
     Database* sqlite3DB = new Database();
@@ -522,7 +549,7 @@ int main(int argc, const char* argv[]) {
             res << response.dump();
         });
 
-    served::net::server server("127.0.0.1", "8123", mux);
+    served::net::server server(host, to_string(port), mux);
     server.run(10);
 
     return (EXIT_SUCCESS);
