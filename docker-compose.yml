@@ -4,6 +4,7 @@ services:
   delphi:
     image: delphi:latest
     container_name: delphi
+    build: .
     volumes:
         - ./data:/delphi/data
     working_dir: /delphi
