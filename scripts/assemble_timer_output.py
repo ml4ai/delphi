@@ -50,9 +50,9 @@ def plot_micro_timing_min_cag_distributions(df_mcmc_and_kde, measurement='Wall C
 
         g.add_legend()
 
-    # plt.savefig(f'{out_dir}_min_cag_{file_name_modifier}.png')
+    plt.savefig(f'{out_dir}_min_cag_{file_name_modifier}_xx_prior_hist.png')
     plot_no += 1
-    plt.show()
+    # plt.show()
     plt.close()
 
 
@@ -236,10 +236,10 @@ def assemble_micro_timing_output_files_into_df(file_name_filter, timing_type_col
     return df
 
 
-timing_file_folder_path = 'timing_2021-11-12/'
+timing_file_folder_path = 'timing_2021-11-23_edge_prior_hist/'
 timing_types = ['mcmc', 'kde', 'prediction']
 timing_types2 = {'mcmc': {0: 'Derivative', 1: '$\\theta$'}, 'kde': {10: 'KDE', 11: 'Upd Mat'}}
-timing_types2 = {'micro_mcmc': {0: 'Before Derivative', 1: 'Before $\\theta$'}, 'after_kde_mcmc': {0: 'After Derivative', 1: 'After $\\theta$'}}
+timing_types2 = {'micro_mcmc': {0: 'Before Derivative', 1: 'Before $\\theta$'}, 'prior_hist': {0: 'After Derivative', 1: 'After $\\theta$'}}
 dfs = []
 
 timing_file_folder = Path(timing_file_folder_path)
@@ -304,7 +304,7 @@ df_after_summary.to_csv('after_summary.csv')
 
 
 dfs[0]['Sample Type'] = dfs[0]['Sample Type'].apply(lambda timing_type: timing_types2['micro_mcmc'].get(timing_type, timing_type))
-dfs[1]['Sample Type'] = dfs[1]['Sample Type'].apply(lambda timing_type: timing_types2['after_kde_mcmc'].get(timing_type, timing_type))
+dfs[1]['Sample Type'] = dfs[1]['Sample Type'].apply(lambda timing_type: timing_types2['prior_hist'].get(timing_type, timing_type))
 
 measurements = ['Wall Clock Time (ns)', 'CPU Time (ns)', 'CPU Time (ms)', '% Speedup (Median CPU Time)']
 # plot_micro_timing_distributions(pd.concat([dfs[0], dfs[1]]), measurement=measurements[2], separate=False)
