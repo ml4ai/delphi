@@ -175,10 +175,11 @@ int main(int argc, const char* argv[]) {
     po::options_description desc("Allowed options");
     string host;
     int port;
-    desc.add_options()
-        ("help,h", "produce help message")
-        ("host", po::value<string>(&host)->default_value("localhost"), "Set host")
-        ("port", po::value<int>(&port)->default_value(8123), "Set port");
+    desc.add_options()("help,h", "produce help message")(
+        "host",
+        po::value<string>(&host)->default_value("localhost"),
+        "Set host")(
+        "port", po::value<int>(&port)->default_value(8123), "Set port");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -454,13 +455,10 @@ int main(int argc, const char* argv[]) {
         .post([&sqlite3DB](served::response& res, const served::request& req) {
             string message =
                 "The edit-indicators endpoint is not implemented for Delphi, "
-                "since "
-                "Delphi (as it is currently implemented) needs to retrain the "
-                "whole model on every indicator change. This might change in "
-                "the "
-                "future, but for now, the way to update an existing model is "
-                "to "
-                "use the create-model API endpoint.";
+                "since Delphi (as it is currently implemented) needs to "
+                "retrain the whole model on every indicator change. This might "
+                "change in the future, but for now, the way to update an "
+                "existing model is to use the create-model API endpoint.";
 
             string modelId = req.params["modelId"]; // should catch if not found
             json result =
