@@ -45,8 +45,8 @@ RUN mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -
 # build delphi_rest_api
 RUN make clean; \
       cd build; \
-      cmake ..; \
-      make -j `nproc`; 
+      cmake .. -DBUILD_PYTHON_BINDINGS=OFF; \
+      make -j `nproc` delphi_rest_api; 
 
 # start the delphi_rest_api
 ENTRYPOINT ./build/delphi_rest_api 
