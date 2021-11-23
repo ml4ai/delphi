@@ -18,14 +18,11 @@ RUN apt-get update \
       git \
       tar \
       wget \
-      python3-dev \
-      python3-venv \
       doxygen \
       graphviz \
       libgraphviz-dev \
       libsqlite3-dev \
       libeigen3-dev \
-      pybind11-dev \
       libfmt-dev \
       librange-v3-dev \
       nlohmann-json3-dev
@@ -43,9 +40,7 @@ RUN curl -LO https://github.com/meltwater/served/archive/refs/tags/v1.6.0.tar.gz
 COPY . /delphi
 WORKDIR /delphi
 
-RUN python3 -m venv $VIRTUAL_ENV
 RUN mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o data/delphi.db
-RUN . $VIRTUAL_ENV/bin/activate && pip install wheel && pip install pyparsing==2.4.7 && pip install -e .
 
 # build delphi_rest_api
 RUN make clean; \
@@ -54,4 +49,4 @@ RUN make clean; \
       make -j `nproc`; 
 
 # start the delphi_rest_api
-CMD ./build/delphi_rest_api
+ENTRYPOINT ./build/delphi_rest_api 
