@@ -41,11 +41,10 @@ RUN curl -LO https://github.com/meltwater/served/archive/refs/tags/v1.6.0.tar.gz
 COPY . /delphi
 WORKDIR /delphi
 
-RUN mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o data/delphi.db
-
 # build delphi_rest_api
-RUN mkdir build \
-    && cd build \
-    && cmake .. -DBUILD_PYTHON_BINDINGS=OFF \
-    && make -j `nproc` delphi_rest_api \
-    && cd ..
+RUN mkdir -p data \ 
+  && mkdir build \
+  && cd build \
+  && cmake .. -DBUILD_PYTHON_BINDINGS=OFF \
+  && make -j `nproc` delphi_rest_api \
+  && cd ..
