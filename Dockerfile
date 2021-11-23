@@ -43,10 +43,11 @@ WORKDIR /delphi
 RUN mkdir -p data && curl http://vanga.sista.arizona.edu/delphi_data/delphi.db -o data/delphi.db
 
 # build delphi_rest_api
-RUN make clean; \
+RUN mkdir build; \
       cd build; \
       cmake .. -DBUILD_PYTHON_BINDINGS=OFF; \
-      make -j `nproc` delphi_rest_api; 
+      make -j `nproc` delphi_rest_api; \
+      cd ..
 
 # start the delphi_rest_api
 ENTRYPOINT ./build/delphi_rest_api 
