@@ -251,12 +251,12 @@ int main(int argc, const char* argv[]) {
              Adarsh
             */
             size_t kde_kernels = 1000;
-            int sampling_resolution = 1000, burn = 10000;
+            int sampling_resolution = 100; // in all cases
+	    int burn = 10000;
             if (getenv("CI")) {
                 // When running in a continuous integration run, we set the
                 // sampling resolution to be small to prevent timeouts.
                 kde_kernels = 400;
-                sampling_resolution = 400;
                 burn = 1000;
             }
             else if (getenv("DELPHI_N_SAMPLES")) {
@@ -264,7 +264,6 @@ int main(int argc, const char* argv[]) {
                 // environment variable "DELPHI_N_SAMPLES", for development and
                 // testing purposes.
                 kde_kernels = (size_t)stoul(getenv("DELPHI_N_SAMPLES"));
-                sampling_resolution = 100;
                 burn = 100;
             }
 
