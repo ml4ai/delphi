@@ -72,7 +72,8 @@ add_library(Delphi
   lib/DatabaseHelper.cpp
   lib/head_nodes.cpp
   lib/TrainingStatus.cpp
-  lib/profiler.cpp)
+  lib/profiler.cpp
+  lib/CSVWriter.hpp)
 
 target_link_libraries(Delphi
                       PRIVATE ${Boost_LIBRARIES}

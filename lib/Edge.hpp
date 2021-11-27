@@ -81,6 +81,7 @@ class Edge {
       this->theta = theta - M_PI;
     } else {
       std::cout << "\n\n\t**********ERROR: Edge.hpp - theta outside range coded for processing!!**********\n\n";
+      std::cout << theta << std::endl;
     }
   }
 

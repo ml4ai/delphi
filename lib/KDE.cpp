@@ -36,10 +36,14 @@ KDE::KDE(std::vector<double> v) : dataset(v) {
 
 KDE::KDE(vector<double> thetas, int n_bins)  : n_bins(n_bins) {
   this->dataset = thetas;
+  this->mu = mean(thetas);
   double small_count = 0.00001; // To avoid log(0)
   this->log_prior_hist = vector<double>(n_bins, small_count);
   this->delta_theta = M_PI / n_bins;
 //  this->delta_theta = 2.0 / n_bins;
+
+  int highest_freq = 0;
+  int highest_freq_bin = 0;
 
 //  int bin_lo = n_bins - 1;
 //  int bin_hi = 0;
@@ -57,6 +61,11 @@ KDE::KDE(vector<double> thetas, int n_bins)  : n_bins(n_bins) {
 
 //    dbg(bin);
     this->log_prior_hist[bin] += 1;
+
+    if (highest_freq < this->log_prior_hist[bin]) {
+      highest_freq = this->log_prior_hist[bin];
+      highest_freq_bin = bin;
+    }
   }
 //  dbg(log_prior_hist);
 //  dbg(bin_lo);
@@ -64,6 +73,8 @@ KDE::KDE(vector<double> thetas, int n_bins)  : n_bins(n_bins) {
 
 //  if (bin_lo != bin_hi && bin_lo != (bin_hi + 1) % n_bins)
 
+  this->most_probable_theta = highest_freq_bin * this->delta_theta +
+                              this->delta_theta / 2;
   double n_points = thetas.size() + small_count * n_bins;
 
   for (double & count : this->log_prior_hist) {

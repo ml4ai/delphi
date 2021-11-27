@@ -1,5 +1,9 @@
 #include "AnalysisGraph.hpp"
 
+#ifdef TIME
+  #include "Timer.hpp"
+#endif
+
 using namespace std;
 using namespace delphi::utils;
 using delphi::utils::mean;
@@ -130,30 +134,59 @@ void AnalysisGraph::set_log_likelihood() {
         // A θ has been sampled
         // Precalculate all the transition matrices required to advance the system
         // from one timestep to the next.
-        for (auto [gap, mat] : this->e_A_ts) {
-          this->e_A_ts[gap] = (this->A_original * gap).exp();
+        {
+          #ifdef TIME
+              this->mcmc_part_duration.second.clear();
+              this->mcmc_part_duration.second.push_back(this->timing_run_number);
+              this->mcmc_part_duration.second.push_back(this->num_nodes());
+              this->mcmc_part_duration.second.push_back(this->num_edges());
+              Timer t_part = Timer("ME", this->mcmc_part_duration);
+          #endif
+          for (auto [gap, mat] : this->e_A_ts) {
+            this->e_A_ts[gap] = (this->A_original * gap).exp();
+          }
         }
+        #ifdef TIME
+          this->mcmc_part_duration.second.push_back(11);
+          this->writer.write_row(this->mcmc_part_duration.second.begin(),
+                                 this->mcmc_part_duration.second.end());
+        #endif
       }
       this->current_latent_state = this->s0;
       int ts_monthly = 0;
 
-      for (int ts = 0; ts < this->n_timesteps; ts++) {
+      {
+        #ifdef TIME
+          this->mcmc_part_duration.second.clear();
+          this->mcmc_part_duration.second.push_back(this->timing_run_number);
+          this->mcmc_part_duration.second.push_back(this->num_nodes());
+          this->mcmc_part_duration.second.push_back(this->num_edges());
+          Timer t_part = Timer("Log Likelihood", this->mcmc_part_duration);
+        #endif
+        for (int ts = 0; ts < this->n_timesteps; ts++) {
 
-        // Set derivatives for frozen nodes
-        for (const auto & [ v, deriv_func ] : this->external_concepts) {
-          const Indicator& ind = this->graph[v].indicators[0];
-          this->current_latent_state[2 * v + 1] = deriv_func(ts, ind.mean);
-        }
+          // Set derivatives for frozen nodes
+          for (const auto& [v, deriv_func] : this->external_concepts) {
+            const Indicator& ind = this->graph[v].indicators[0];
+            this->current_latent_state[2 * v + 1] = deriv_func(ts, ind.mean);
+          }
 
-        for (int ts_gap = 0; ts_gap < this->observation_timestep_gaps[ts]; ts_gap++) {
-          this->update_latent_state_with_generated_derivatives(ts_monthly,
-                                                               ts_monthly + 1);
-          this->current_latent_state =
-              this->e_A_ts[1] * this->current_latent_state;
-          ts_monthly++;
+          for (int ts_gap = 0; ts_gap < this->observation_timestep_gaps[ts];
+               ts_gap++) {
+            this->update_latent_state_with_generated_derivatives(
+                ts_monthly, ts_monthly + 1);
+            this->current_latent_state =
+                this->e_A_ts[1] * this->current_latent_state;
+            ts_monthly++;
+          }
+          set_log_likelihood_helper(ts);
         }
-        set_log_likelihood_helper(ts);
       }
+      #ifdef TIME
+        this->mcmc_part_duration.second.push_back(13);
+        this->writer.write_row(this->mcmc_part_duration.second.begin(),
+                               this->mcmc_part_duration.second.end());
+      #endif
 
       /*
       this->update_latent_state_with_generated_derivatives(0, 1);
@@ -242,9 +275,37 @@ void AnalysisGraph::sample_from_proposal() {
     // Perturb the θ and compute the new logpdf(θ)
     // TODO: Check whether this perturbation is accurate
     this->graph[e[0]].set_theta(this->graph[e[0]].get_theta() + this->norm_dist(this->rand_num_generator));
-    this->graph[e[0]].compute_logpdf_theta();
+    {
+      #ifdef TIME
+        this->mcmc_part_duration.second.clear();
+        this->mcmc_part_duration.second.push_back(this->timing_run_number);
+        this->mcmc_part_duration.second.push_back(this->num_nodes());
+        this->mcmc_part_duration.second.push_back(this->num_edges());
+        Timer t_part = Timer("KDE", this->mcmc_part_duration);
+      #endif
+      this->graph[e[0]].compute_logpdf_theta();
+    }
+    #ifdef TIME
+      this->mcmc_part_duration.second.push_back(10);
+      this->writer.write_row(this->mcmc_part_duration.second.begin(),
+                             this->mcmc_part_duration.second.end());
+    #endif
 
-    this->update_transition_matrix_cells(e[0]);
+    {
+      #ifdef TIME
+        this->mcmc_part_duration.second.clear();
+        this->mcmc_part_duration.second.push_back(this->timing_run_number);
+        this->mcmc_part_duration.second.push_back(this->num_nodes());
+        this->mcmc_part_duration.second.push_back(this->num_edges());
+        Timer t_part = Timer("UPTM", this->mcmc_part_duration);
+      #endif
+      this->update_transition_matrix_cells(e[0]);
+    }
+    #ifdef TIME
+      this->mcmc_part_duration.second.push_back(12);
+      this->writer.write_row(this->mcmc_part_duration.second.begin(),
+                             this->mcmc_part_duration.second.end());
+    #endif
   }
   else {
     // Randomly select a concept

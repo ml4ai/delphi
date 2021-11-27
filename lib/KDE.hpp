@@ -56,7 +56,8 @@ class KDE {
 
   // TODO: Made this public just to initialize β.
   // Not sure this is the correct way to do it.
-  double mu;
+  double mu = 0;
+  double most_probable_theta = 0;
 
   std::vector<double> resample(int n_samples,
                                std::mt19937& rng,

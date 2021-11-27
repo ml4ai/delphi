@@ -18,6 +18,10 @@
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
 
+#ifdef TIME
+  #include "CSVWriter.hpp"
+#endif
+
 const double tuning_param = 1.0;
 
 enum InitialBeta { ZERO, ONE, HALF, MEAN, MEDIAN, PRIOR, RANDOM };
@@ -185,6 +189,14 @@ AdjectiveResponseMap construct_adjective_response_map(size_t n_kernels);
 class AnalysisGraph {
 
   private:
+  #ifdef TIME
+    std::pair<std::vector<std::string>, std::vector<long>> durations;
+    std::pair<std::vector<std::string>, std::vector<long>> mcmc_part_duration;
+    CSVWriter writer;
+    std::string timing_file_prefix = "";
+    int timing_run_number = 0;
+  #endif
+
   // True only when Delphi is run through the CauseMos HMI.
   bool causemos_call = false;
 
@@ -1616,4 +1628,21 @@ class AnalysisGraph {
   void profile_kde(int run = 1, std::string file_name_prefix = "kde_timing");
 
   void profile_prediction(int run = 1, int pred_timesteps = 24, std::string file_name_prefix = "prediction_timing");
+
+#ifdef TIME
+  void set_timing_file_prefix(std::string tfp) {this->timing_file_prefix = tfp;}
+  void create_mcmc_part_timing_file()
+  {
+      std::string filename = this->timing_file_prefix + "embeded_" +
+                              std::to_string(this->num_nodes()) + "-" +
+                              std::to_string(this->num_nodes()) + "_" +
+                              std::to_string(this->timing_run_number) + "_" +
+                              delphi::utils::get_timestamp() + ".csv";
+      this->writer = CSVWriter(filename);
+      std::vector<std::string> headings = {"Run", "Nodes", "Edges", "Wall Clock Time (ns)", "CPU Time (ns)", "Sample Type"};
+      writer.write_row(headings.begin(), headings.end());
+//      cout << filename << endl;
+  }
+  void set_timing_run_number(int run) {this->timing_run_number = run;}
+#endif
 };

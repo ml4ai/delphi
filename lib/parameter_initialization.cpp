@@ -97,18 +97,15 @@ void AnalysisGraph::init_betas_to(InitialBeta ib) {
       break;
     case InitialBeta::PRIOR:
       for (EdgeDescriptor e : this->edges()) {
-        this->graph[e].set_theta(this->graph[e].kde.resample(
-            1, this->rand_num_generator,
-            this->uni_dist, this->norm_dist)[0]);
+        this->graph[e].set_theta(this->graph[e].kde.most_probable_theta);
         this->graph[e].compute_logpdf_theta();
       }
       break;
   case InitialBeta::RANDOM:
     for (EdgeDescriptor e : this->edges()) {
       // this->uni_dist() gives a random number in range [0, 1]
-      // Multiplying by 2 scales the range to [0, 2]
-      // Subtracting 1 moves the range to [-1, 1]
-      this->graph[e].set_theta(this->uni_dist(this->rand_num_generator) * 2 - 1);
+      // Multiplying by M_PI scales the range to [0, M_PI]
+      this->graph[e].set_theta(this->uni_dist(this->rand_num_generator) * M_PI);
       this->graph[e].compute_logpdf_theta();
     }
     break;
