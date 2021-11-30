@@ -170,6 +170,36 @@ class Experiment {
     }
 };
 
+
+// declare if CI is running, model creation will be shorter
+std::string getStatus() {
+
+    char buf[200];
+    time_t t;
+    struct tm *now;
+    const char* fmt = "%F %T";
+
+    t = time(NULL);
+    now = gmtime(&t);
+    if (now == NULL) {
+        perror("gmtime error");
+        exit(EXIT_FAILURE);
+    }
+
+    if (strftime(buf, sizeof(buf), fmt, now) == 0) {
+        fprintf(stderr, "strftime returned 0");
+        exit(EXIT_FAILURE);
+    }
+
+    return getenv("CI") ? 
+        (string)"The Delphi REST API was started in CI mode at UTC " + buf: 
+	(string)"The Delphi REST API was started at UTC " + buf;
+}
+
+// the status only has to be generated once.
+string status = getStatus();
+
+
 int main(int argc, const char* argv[]) {
     // Declare the supported options.
     po::options_description desc("Allowed options");
@@ -186,11 +216,9 @@ int main(int argc, const char* argv[]) {
     po::notify(vm);
 
     if (vm.count("help")) {
-        cout << desc << "\n";
+        cout << desc << endl;
         return 1;
     }
-
-    cout << "Delphi REST API running!" << endl;
 
     Database* sqlite3DB = new Database();
     Experiment* experiment = new Experiment();
@@ -199,25 +227,14 @@ int main(int argc, const char* argv[]) {
 
     ts.init_db();
 
-    /* what's the time? */
-    time_t startTime = time(0);
-    char* startTimeStr = ctime(&startTime);
-    cout << "Start time (MST): " << startTimeStr;
-
-    /* declare if CI is running, model creation will be shorter */
-    if (getenv("CI")) {
-        cout << "CI mode detected" << endl;
-    }
+    // report status on startup
+    cout << status << endl;
 
     /* Allow users to check if the REST API is running */
     mux.handle("/status").get(
         [&sqlite3DB](served::response& res, const served::request& req) {
-            if (getenv("CI")) {
-                res << "The Delphi REST API is running in CI mode.";
-            }
-            else {
-                res << "The Delphi REST API is running.";
-            }
+	    // report status on request
+	    res << status;
         });
 
     /* openApi 3.0.0
