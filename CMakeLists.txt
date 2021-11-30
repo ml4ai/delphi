@@ -14,6 +14,10 @@ set(CMAKE_CXX_FLAGS
 
 find_package(Graphviz)
 
+# Add MacOs Boost targets
+SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "/opt/local/libexec/boost/1.76/include/boost/")
+SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "/opt/local/libexec/boost/1.76/lib")
+
 # Add and link pybind11 modules
 find_package(Boost COMPONENTS graph program_options REQUIRED)
 
