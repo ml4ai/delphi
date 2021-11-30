@@ -14,7 +14,7 @@ set(CMAKE_CXX_FLAGS
 
 find_package(Graphviz)
 
-# Add MacOs Boost targets
+# Add MacOs Boost directories
 SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "/opt/local/libexec/boost/1.76/include/boost")
 SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "/opt/local/libexec/boost/1.76/lib")
 
