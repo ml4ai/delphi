@@ -68,7 +68,7 @@ Program Listing for File Tran_Mat_Cell.cpp
        for (int v = 0; v < this->paths[p].size() - 1; v++) {
          auto edg = edge(paths[p][v], paths[p][v + 1], CAG);
          // β = tan(θ)
-         double beta = tan(CAG[edg.first].theta);
+         double beta = tan(CAG[edg.first].get_theta());
    
          this->products[p] *= beta; //+= 1;
        }

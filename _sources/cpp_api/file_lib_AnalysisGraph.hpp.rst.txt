@@ -143,7 +143,7 @@ Typedefs
 
 - :ref:`exhale_typedef_AnalysisGraph_8hpp_1a799e0a513577f0ce8c4f929c7a4bd902`
 
-- :ref:`exhale_typedef_AnalysisGraph_8hpp_1ace7cbf88a246ca127c1349c336044fd6`
+- :ref:`exhale_typedef_AnalysisGraph_8hpp_1a683f27f17f9f10eb9b8f1862b4c73021`
 
 - :ref:`exhale_typedef_AnalysisGraph_8hpp_1a08f635ca77ee45266c9c28af799c9b10`
 
@@ -185,7 +185,7 @@ Typedefs
 
 - :ref:`exhale_typedef_AnalysisGraph_8hpp_1a00179ade6124924791133959845df913`
 
-- :ref:`exhale_typedef_AnalysisGraph_8hpp_1a1edc1451b1f58fcac963271eafb8e55e`
+- :ref:`exhale_typedef_AnalysisGraph_8hpp_1aa21ce81d18eca36ef148eaa839bba96d`
 
 
 Variables
