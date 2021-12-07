@@ -451,6 +451,9 @@ void AnalysisGraph::construct_theta_pdfs() {
       }
     }
 
+    // TODO: Using n_kde_kernels is a quick hack. Should define another
+    // variable like n_bins to make the number of bins independent from the
+    // number of kernels
     this->graph[e].kde = KDE(all_thetas, this->n_kde_kernels);
 //    this->graph[e].kde.dataset = all_thetas;
   }

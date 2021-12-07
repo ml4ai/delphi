@@ -7,7 +7,6 @@
 #include <boost/range/numeric.hpp>
 #include <random>
 #include <math.h>
-//#include "dbg.h"
 
 using namespace std;
 using namespace delphi::utils;
@@ -40,7 +39,6 @@ KDE::KDE(vector<double> thetas, int n_bins)  : n_bins(n_bins) {
   double small_count = 0.00001; // To avoid log(0)
   this->log_prior_hist = vector<double>(n_bins, small_count);
   this->delta_theta = M_PI / n_bins;
-//  this->delta_theta = 2.0 / n_bins;
 
   int highest_freq = 0;
   int highest_freq_bin = 0;
@@ -48,18 +46,13 @@ KDE::KDE(vector<double> thetas, int n_bins)  : n_bins(n_bins) {
 //  int bin_lo = n_bins - 1;
 //  int bin_hi = 0;
 
-//  dbg(delta_theta);
-//  dbg(log_prior_hist);
-
   for (double theta : thetas) {
     theta = theta < 0 ? M_PI + theta : theta;
-//    theta = theta < 0 ? 2 + theta : theta;
 
     int bin = this->theta_to_bin(theta);
 //    bin_lo = bin < bin_lo ? bin : bin_lo;
 //    bin_hi = bin > bin_hi ? bin : bin_hi;
 
-//    dbg(bin);
     this->log_prior_hist[bin] += 1;
 
     if (highest_freq < this->log_prior_hist[bin]) {
@@ -67,9 +60,6 @@ KDE::KDE(vector<double> thetas, int n_bins)  : n_bins(n_bins) {
       highest_freq_bin = bin;
     }
   }
-//  dbg(log_prior_hist);
-//  dbg(bin_lo);
-//  dbg(bin_hi);
 
 //  if (bin_lo != bin_hi && bin_lo != (bin_hi + 1) % n_bins)
 
@@ -79,11 +69,8 @@ KDE::KDE(vector<double> thetas, int n_bins)  : n_bins(n_bins) {
 
   for (double & count : this->log_prior_hist) {
     count /= n_points;
-//    dbg(count);
     count = log(count);
   }
-//  dbg(log_prior_hist);
-//  this->dataset = log_prior_hist;
 }
 
 void KDE::set_num_bins(int n_bins) {
@@ -116,8 +103,8 @@ vector<double> KDE::resample(int n_samples,
   return samples;
 }
 
+// This Should not be called!
 double KDE::pdf(double x) {
-//  dbg("Should not be called!");
   double p = 0.0;
   size_t N = this->dataset.size();
   for (double elem : this->dataset) {

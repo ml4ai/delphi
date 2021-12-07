@@ -114,6 +114,8 @@ typedef std::vector<std::pair<int, int>> Polarities;
 // first element of the tuple is a vector of theta priors KDEs
 // second element of the tuple is a vector of sampled thetas
 // [([p1, p1, ...], [s1, s2, ...]), ... ]
+// Each tuple: <dataset, sampled thertas, log prior histogram>
+// TODO: remove dataset and convert this to a pair
 //typedef std::vector<std::pair<std::vector<double>, std::vector<double>>> Thetas;
 typedef std::vector<std::tuple<std::vector<double>, std::vector<double>, std::vector<double>>> Thetas;
 
