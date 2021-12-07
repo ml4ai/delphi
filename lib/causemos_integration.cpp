@@ -796,8 +796,8 @@ void AnalysisGraph::sample_transition_matrix_collection_from_prior() {
 
   for (int sample = 0; sample < this->res; sample++) {
     for (auto e : this->edges()) {
-      this->graph[e].theta = this->graph[e].kde.resample(
-          1, this->rand_num_generator, this->uni_dist, this->norm_dist)[0];
+      this->graph[e].set_theta(this->graph[e].kde.resample(
+          1, this->rand_num_generator, this->uni_dist, this->norm_dist)[0]);
     }
 
     // Create this->A_original based on the sampled β and remember it

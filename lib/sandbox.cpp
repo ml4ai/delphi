@@ -32,7 +32,9 @@ typedef tuple<
     int,
     vector<double>,
     vector<pair<tuple<string, int, string>, tuple<string, int, string>>>,
-    vector<double>>
+    vector<double>,
+    vector<double>,
+    int>
     Edge_tuple;
 
 /*
@@ -72,6 +74,7 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
       }
     }
     for (auto& edge_element : json_data["edges"]) {
+      bool edge_added = false;
       for (Evidence evidence : edge_element[0]["evidence"]) {
         for (Evidence_Pair evidence_pair : evidence) {
           tuple<string, int, string> subject = evidence_pair.first;
@@ -79,15 +82,21 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
           CausalFragment causal_fragment = CausalFragment(
               {get<0>(subject), get<1>(subject), get<2>(subject)},
               {get<0>(object), get<1>(object), get<2>(object)});
-          this->add_edge(causal_fragment);
+          edge_added = this->add_edge(causal_fragment) || edge_added;
         }
       }
-      string source = edge_element["source"].get<string>();
-      string target = edge_element["target"].get<string>();
-      this->edge(source, target).kde.dataset =
-          edge_element["kernels"].get<vector<double>>();
-      this->edge(source, target).sampled_thetas =
-          edge_element["thetas"].get<vector<double>>();
+      if (edge_added) {
+        string source_id = edge_element["source"].get<string>();
+        string target_id = edge_element["target"].get<string>();
+        Edge edg = this->edge(source_id, target_id);
+        edg.kde.dataset =
+            edge_element["kernels"].get<vector<double>>();
+        edg.sampled_thetas =
+            edge_element["thetas"].get<vector<double>>();
+        edg.kde.log_prior_hist =
+            edge_element["log_prior_hist"].get<vector<double>>();
+        edg.kde.set_num_bins(edge_element["n_bins"]);
+      }
     }
 
     this->training_range.first.first = json_data["start_year"];
@@ -128,10 +137,13 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
         edge_added = this->add_edge(causal_fragment) || edge_added;
       }
       if (edge_added) {
-          this->edge(get<0>(edge_element), get<1>(edge_element)).kde.dataset =
-              get<2>(edge_element);
-          this->edge(get<0>(edge_element), get<1>(edge_element)).sampled_thetas =
-              get<4>(edge_element);
+          int source_id = get<0>(edge_element);
+          int target_id = get<1>(edge_element);
+          Edge edg = this->edge(source_id, target_id);
+          edg.kde.dataset = get<2>(edge_element);
+          edg.sampled_thetas = get<4>(edge_element);
+          edg.kde.log_prior_hist = get<5>(edge_element);
+          edg.kde.set_num_bins(get<6>(edge_element));
       }
     }
 

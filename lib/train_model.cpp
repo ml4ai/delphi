@@ -9,13 +9,7 @@
 #ifdef TIME
   #include "utils.hpp"
   #include "Timer.hpp"
-  #include "CSVWriter.hpp"
-#endif
-
-#ifdef TIME
-  #include "utils.hpp"
-  #include "Timer.hpp"
-  #include "CSVWriter.hpp"
+//  #include "CSVWriter.hpp"
 #endif
 
 using namespace std;
@@ -203,17 +197,17 @@ void AnalysisGraph::run_train_model(int res,
     this->MAP_sample_number = -1;
 
     #ifdef TIME
-      int n_nodes = this->num_nodes();
-      int n_edges = this->num_edges();
-      pair<std::vector<std::string>, std::vector<long>> durations;
-      string filename = string("mcmc_timing_embeded") +
-                        to_string(n_nodes) + "-" +
-                        to_string(n_edges) + "_" +
-                        delphi::utils::get_timestamp() + ".csv";
-      CSVWriter writer(filename);
-      vector<string> headings = {"Nodes", "Edges", "MCMC Wall", "MCMC CPU", "Sample Type"};
-      writer.write_row(headings.begin(), headings.end());
-      cout << filename << endl;
+        this->create_mcmc_part_timing_file();
+//      int n_nodes = this->num_nodes();
+//      int n_edges = this->num_nodes();
+//      string filename = string("mcmc_timing_embeded_") +
+//                        to_string(n_nodes) + "-" +
+//                        to_string(n_edges) + "_" +
+//                        delphi::utils::get_timestamp() + ".csv";
+//      this->writer = CSVWriter(filename);
+//      vector<string> headings = {"Nodes", "Edges", "Wall Clock Time (ns)", "CPU Time (ns)", "Sample Type"};
+//      writer.write_row(headings.begin(), headings.end());
+//      cout << filename << endl;
     #endif
 
     cout << "\nBurning " << burn << " samples out..." << endl;
@@ -222,18 +216,19 @@ void AnalysisGraph::run_train_model(int res,
 
        {
           #ifdef TIME
-            durations.first.clear();
+//            durations.first.clear();
             durations.second.clear();
-            durations.first.push_back("Nodes");
-            durations.second.push_back(n_nodes);
-            durations.first.push_back("Edges");
-            durations.second.push_back(n_edges);
+            durations.second.push_back(this->timing_run_number);
+//            durations.first.push_back("Nodes");
+            durations.second.push_back(this->num_nodes());
+//            durations.first.push_back("Edges");
+            durations.second.push_back(this->num_nodes());
             Timer t = Timer("train", durations);
           #endif
           this->sample_from_posterior();
       }
       #ifdef TIME
-        durations.first.push_back("sample type");
+//        durations.first.push_back("sample type");
         durations.second.push_back(this->coin_flip < this->coin_flip_thresh? 1 : 0);
         writer.write_row(durations.second.begin(), durations.second.end());
       #endif
@@ -257,18 +252,19 @@ void AnalysisGraph::run_train_model(int res,
         this->training_progress += training_step;
 
         #ifdef TIME
-                durations.first.clear();
+//                durations.first.clear();
                 durations.second.clear();
-                durations.first.push_back("Nodes");
-                durations.second.push_back(n_nodes);
-                durations.first.push_back("Edges");
-                durations.second.push_back(n_edges);
+                durations.second.push_back(this->timing_run_number);
+//                durations.first.push_back("Nodes");
+                durations.second.push_back(this->num_nodes());
+//                durations.first.push_back("Edges");
+                durations.second.push_back(this->num_edges());
                 Timer t = Timer("Train", durations);
         #endif
         this->sample_from_posterior();
       }
       #ifdef TIME
-            durations.first.push_back("Sample Type");
+//            durations.first.push_back("Sample Type");
             durations.second.push_back(this->coin_flip < this->coin_flip_thresh? 1 : 0);
             writer.write_row(durations.second.begin(), durations.second.end());
       #endif
@@ -282,7 +278,7 @@ void AnalysisGraph::run_train_model(int res,
       }
 
       for (auto e : this->edges()) {
-        this->graph[e].sampled_thetas.push_back(this->graph[e].theta);
+        this->graph[e].sampled_thetas.push_back(this->graph[e].get_theta());
       }
 
       this->log_likelihoods[burn + i] = this->log_likelihood;
@@ -313,7 +309,7 @@ void AnalysisGraph::run_train_model(int res,
       }
 
       for (auto e : this->edges()) {
-        this->graph[e].sampled_thetas.push_back(this->graph[e].theta);
+        this->graph[e].sampled_thetas.push_back(this->graph[e].get_theta());
       }
 
       this->log_likelihoods[burn + this->res - 1] = this->log_likelihood;
@@ -350,7 +346,7 @@ void AnalysisGraph::run_train_model_2(int res,
         this->initial_latent_state_collection[i] = this->s0;
 
         for (auto e : this->edges()) {
-          this->graph[e].sampled_thetas.push_back(this->graph[e].theta);
+          this->graph[e].sampled_thetas.push_back(this->graph[e].get_theta());
         }
     }
 

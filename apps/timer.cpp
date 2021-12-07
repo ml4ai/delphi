@@ -56,6 +56,7 @@ int main(int argc, char* argv[]) {
   int kde_kernels = vm["kernels"].as<int>();
   double noise_variance = vm["noise-variance"].as<int>();
   string output_file_prefix = vm["output-file"].as<string>() + "_";
+//  fstream model_file;
 //  string output_file = vm["output-file"].as<string>() + "_" + to_string(min_nodes) + "-" + to_string(max_nodes) + "_" +
 //                        delphi::utils::get_timestamp() + ".csv";
 //  cout << "The output is stored in: " << output_file << endl;
@@ -95,7 +96,19 @@ int main(int argc, char* argv[]) {
                                      InitialBeta::PRIOR,
                                      InitialDerivative::DERI_PRIOR,
                                      false);
+//          string model_file_name = output_file_prefix + to_string(nodes) + "_"
+//                                   + to_string(nodes - 1 + extra_edges)
+//                                   + "_" + to_string(run) + ".json";
+//          model_file.open(model_file_name, std::ios::out);
+//          model_file << G1.serialize_to_json_string(true);
+//          model_file.close();
 //        }
+#ifdef TIME
+        G1.set_timing_file_prefix(output_file_prefix);
+        G1.set_timing_run_number(run);
+        G1.create_mcmc_part_timing_file();
+#endif
+
         G1.initialize_profiler(res, kde_kernels);
         G1.profile_mcmc(run, output_file_prefix + "mcmc");
         G1.profile_kde(run, output_file_prefix + "kde");

@@ -106,7 +106,7 @@ void AnalysisGraph::profile_kde(int run, string file_name_prefix) {
             edge_it.begin(), edge_it.end(), e.begin(), 1, this->rand_num_generator);
 
         // Perturb the θ
-        this->graph[e[0]].theta += this->norm_dist(this->rand_num_generator);
+        this->graph[e[0]].set_theta(this->graph[e[0]].get_theta() + this->norm_dist(this->rand_num_generator));
         KDE& kde = this->graph[e[0]].kde;
 
         {
@@ -131,7 +131,7 @@ void AnalysisGraph::profile_kde(int run, string file_name_prefix) {
             durations_kde.second = {run,n_nodes, n_edges, long(this->n_kde_kernels)};
             Timer t = Timer("KDE", durations_kde);
 
-            kde.logpdf(this->graph[e[0]].theta);
+            this->graph[e[0]].compute_logpdf_theta();
         }
 
         durations_kde.first.push_back("Sample Type");

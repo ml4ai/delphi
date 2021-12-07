@@ -24,12 +24,12 @@
 class CSVWriter
     {
   std::string fileName;
-  std::string delimeter;
+  std::string delimiter;
   int linesCount;
-  std::mutex logMutex;
+//  std::mutex logMutex;
       public:
-      CSVWriter(std::string filename, std::string delm = ",") :
-      fileName(filename), delimeter(delm), linesCount(0)
+      CSVWriter(std::string filename = "ag_timing.csv", std::string delm = ",") :
+      fileName(filename), delimiter(delm), linesCount(0)
       {}
       /*
        * Member function to store a range as comma seperated value
@@ -39,21 +39,21 @@ class CSVWriter
     };
 /*
  * This Function accepts a range and appends all the elements in the range
- * to the last row, seperated by delimeter (Default is comma)
+ * to the last row, separated by delimiter (Default is comma)
  */
 template<typename T>
 void CSVWriter::write_row(T first, T last)
 {
-  std::lock_guard<std::mutex> csvLock(logMutex);
+//  std::lock_guard<std::mutex> csvLock(logMutex);
   std::fstream file;
   // Open the file in truncate mode if first line else in Append Mode
   file.open(fileName, std::ios::out | (linesCount ? std::ios::app : std::ios::trunc));
-  // Iterate over the range and add each lement to file seperated by delimeter.
+  // Iterate over the range and add each element to file separated by delimiter.
   for (; first != last; )
   {
     file << *first;
     if (++first != last)
-      file << delimeter;
+      file << this->delimiter;
   }
   file << "\n";
   linesCount++;
