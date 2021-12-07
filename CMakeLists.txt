@@ -25,6 +25,7 @@ find_package(range-v3 REQUIRED)
 find_package(Eigen3 REQUIRED NO_MODULE)
 find_package(fmt REQUIRED)
 find_package(nlohmann_json REQUIRED)
+find_package(OpenMP)
 
 # To micro benchmark the MCMC loop compile as:
 # cmake -DTIME=ON ..
@@ -87,6 +88,11 @@ target_link_libraries(Delphi
                               Eigen3::Eigen
                               ${GRAPHVIZ_LIBS})
 target_link_libraries(Delphi INTERFACE range-v3)
+
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(Delphi PUBLIC OpenMP::OpenMP_CXX)
+endif()
+
 target_include_directories(Delphi PRIVATE ${GRAPHVIZ_INCLUDE_DIRS} lib external)
 
 if(BUILD_PYTHON_BINDINGS)
