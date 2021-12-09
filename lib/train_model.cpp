@@ -189,6 +189,13 @@ void AnalysisGraph::run_train_model(int res,
       }
     }
 
+    this->edge_sample_pool.clear();
+    for (EdgeDescriptor ed : this->edges()) {
+        if (!this->graph[ed].is_frozen()) {
+            this->edge_sample_pool.push_back(ed);
+        }
+    }
+
     this->initialize_parameters(res, initial_beta, initial_derivative,
                                 use_heuristic, use_continuous);
 

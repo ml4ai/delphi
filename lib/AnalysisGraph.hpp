@@ -217,9 +217,11 @@ class AnalysisGraph {
   // Normal distribution used to perturb β
   std::normal_distribution<double> norm_dist;
 
-  // Uniform discrete distribution used by the MCMC sampler
+  // Uniform discrete distributions used by the MCMC sampler
   // to perturb the initial latent state
   std::uniform_int_distribution<int> uni_disc_dist;
+  // to sample an edge
+  std::uniform_int_distribution<int> uni_disc_dist_edge;
 
   // Sampling resolution
   size_t res;
@@ -299,6 +301,7 @@ class AnalysisGraph {
 
   std::unordered_map<int, std::function<double(unsigned int, double)>> external_concepts;
   std::vector<unsigned int> concept_sample_pool;
+  std::vector<EdgeDescriptor> edge_sample_pool;
 
   double t = 0.0;
   double delta_t = 1.0;

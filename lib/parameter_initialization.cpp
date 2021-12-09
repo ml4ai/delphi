@@ -23,6 +23,8 @@ void AnalysisGraph::initialize_parameters(int res,
     this->initialize_random_number_generator();
     this->uni_disc_dist = uniform_int_distribution<int>
                                 (0, this->concept_sample_pool.size() - 1);
+    this->uni_disc_dist_edge = uniform_int_distribution<int>
+                                (0, this->edge_sample_pool.size() - 1);
 
     this->res = res;
     this->continuous = use_continuous;

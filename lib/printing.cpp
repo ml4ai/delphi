@@ -33,7 +33,10 @@ void AnalysisGraph::print_nodes() {
 void AnalysisGraph::print_edges() {
   for_each(edges(), [&](auto e) {
     cout << "(" << (*this)[boost::source(e, this->graph)].name << ", "
-         << (*this)[boost::target(e, this->graph)].name << ")" << endl;
+         << (*this)[boost::target(e, this->graph)].name << ")" << " - "
+         << (this->graph[e].is_frozen()
+                        ? "Frozen at " + to_string(this->graph[e].get_theta())
+                        : "Free") << endl;
   });
 }
 
