@@ -23,6 +23,13 @@ void AnalysisGraph::initialize_profiler(int res,
       }
     }
 
+    this->edge_sample_pool.clear();
+    for (EdgeDescriptor ed : this->edges()) {
+        if (!this->graph[ed].is_frozen()) {
+            this->edge_sample_pool.push_back(ed);
+        }
+    }
+
     this->n_kde_kernels = kde_kernels;
 
     this->initialize_parameters(res, initial_beta, initial_derivative,
