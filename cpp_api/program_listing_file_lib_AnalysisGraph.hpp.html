@@ -294,9 +294,11 @@
 <span class="w">  </span><span class="c1">// Normal distribution used to perturb β</span>
 <span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">normal_distribution</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">norm_dist</span><span class="p">;</span><span class="w"></span>
 
-<span class="w">  </span><span class="c1">// Uniform discrete distribution used by the MCMC sampler</span>
+<span class="w">  </span><span class="c1">// Uniform discrete distributions used by the MCMC sampler</span>
 <span class="w">  </span><span class="c1">// to perturb the initial latent state</span>
 <span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">uniform_int_distribution</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">uni_disc_dist</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// to sample an edge</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">uniform_int_distribution</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">uni_disc_dist_edge</span><span class="p">;</span><span class="w"></span>
 
 <span class="w">  </span><span class="c1">// Sampling resolution</span>
 <span class="w">  </span><span class="kt">size_t</span><span class="w"> </span><span class="n">res</span><span class="p">;</span><span class="w"></span>
@@ -376,6 +378,7 @@
 
 <span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">double</span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="p">)</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">external_concepts</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">concept_sample_pool</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">EdgeDescriptor</span><span class="o">&gt;</span><span class="w"> </span><span class="n">edge_sample_pool</span><span class="p">;</span><span class="w"></span>
 
 <span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">delta_t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span><span class="w"></span>
