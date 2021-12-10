@@ -258,6 +258,7 @@ def combine_before_and_after_dfs(df_bf, df_af):
         df[f'{timing_type} Diff (ms)'] = df.apply(lambda row: row[col_before] - row[col_after], axis=1)
         df[f'% Speedup ({timing_type})'] = df\
             .apply(lambda row: row[f'{timing_type} Diff (ms)'] * 100 / row[col_before], axis=1)
+        df[f'Fold Speedup ({timing_type}) - $f$'] = df.apply(lambda row: row[col_before] / row[col_after], axis=1)
 
     df_summary_bf = df_bf.groupby(by=['Nodes', 'Edges', 'Sample Type'], as_index=False)\
                                                     .agg(wall_before_mean=('Wall Clock Time (ms)', 'mean'),
@@ -342,16 +343,16 @@ def combine_before_and_after_dfs(df_bf, df_af):
     df_average['Average of Median CPU Times (ms) - After'] = df_average \
         .apply(lambda row: (row['theta_cpu_after_median'] + row['deri_cpu_after_median']) / 2, axis=1)
 
-    add_percentage_speedup_columns(df_average, 'Average of Mean CPU Times',
+    add_percentage_speedup_columns(df_average, 'Average of Mean Wall Times',
                                    'Average of Mean Wall Times (ms) - Before',
                                    'Average of Mean Wall Times (ms) - After')
-    add_percentage_speedup_columns(df_average, 'Average of Median CPU Times',
+    add_percentage_speedup_columns(df_average, 'Average of Median Wall Times',
                                    'Average of Median Wall Times (ms) - Before',
                                    'Average of Median Wall Times (ms) - After')
-    add_percentage_speedup_columns(df_average, 'Average of Mean Wall Times',
+    add_percentage_speedup_columns(df_average, 'Average of Mean CPU Times',
                                    'Average of Mean CPU Times (ms) - Before',
                                    'Average of Mean CPU Times (ms) - After')
-    add_percentage_speedup_columns(df_average, 'Average of Median Wall Times',
+    add_percentage_speedup_columns(df_average, 'Average of Median CPU Times',
                                    'Average of Median CPU Times (ms) - Before',
                                    'Average of Median CPU Times (ms) - After')
 
@@ -362,7 +363,9 @@ def combine_before_and_after_dfs(df_bf, df_af):
                   'Average of Mean CPU Times Diff (ms)',     '% Speedup (Average of Mean CPU Times)',
                   'Average of Median CPU Times Diff (ms)',   '% Speedup (Average of Median CPU Times)',
                   'Average of Mean Wall Times Diff (ms)',    '% Speedup (Average of Mean Wall Times)',
-                  'Average of Median Wall Times Diff (ms)',  '% Speedup (Average of Median Wall Times)']
+                  'Average of Median Wall Times Diff (ms)',  '% Speedup (Average of Median Wall Times)',
+                  'Fold Speedup (Average of Mean CPU Times) - $f$', 'Fold Speedup (Average of Median CPU Times) - $f$',
+                  'Fold Speedup (Average of Mean Wall Times) - $f$', 'Fold Speedup (Average of Median Wall Times) - $f$']
     df_average = pd.melt(df_average, id_vars=['Nodes', 'Edges'],
                          value_vars=value_vars, value_name='Average Timing', var_name='Timing Type')
 
@@ -374,15 +377,22 @@ def combine_before_and_after_dfs(df_bf, df_af):
     return df_both, df_average
 
 
-def plot_micro_timing_min_cag_averages(df_average, timing_type, speedup=True, save=False, file_name_prefix=''):
+def plot_micro_timing_min_cag_averages(df_average, timing_type, speedup=True, fold=False, save=False, file_name_prefix=''):
     min_cag = df_average['Edges'] == (df_average['Nodes'] - 1)
     df_min_cag = df_average[min_cag]
 
     if speedup:
-        filter = df_min_cag['Timing Type'] == f'% Speedup ({timing_type})'
-        title = 'Average Percentage Speedup for a Single MCMC Iteration (# Edges = # Nodes - 1)'
-        y_label = 'Average Percentage Speedup'
-        file_name = f'{file_name_prefix}avg_percent_speedup.png'
+        if fold:
+            filter = df_min_cag['Timing Type'] == f'Fold Speedup ({timing_type}) - $f$'
+            title = 'Average Fold Speedup for a Single MCMC Iteration (# Edges = # Nodes - 1)\n' \
+                    'Optimized version is $f$-fold faster than earlier'
+            y_label = 'Fold-Speedup'
+            file_name = f'{file_name_prefix}avg_fold_speedup.png'
+        else:
+            filter = df_min_cag['Timing Type'] == f'% Speedup ({timing_type})'
+            title = 'Average Percentage Speedup for a Single MCMC Iteration (# Edges = # Nodes - 1)'
+            y_label = 'Average Percentage Speedup'
+            file_name = f'{file_name_prefix}avg_percent_speedup.png'
     else:
         filter = (df_min_cag['Timing Type'] == f'{timing_type} (ms) - Before') | \
                  (df_min_cag['Timing Type'] == f'{timing_type} (ms) - After')
@@ -460,13 +470,17 @@ plot_micro_timing_min_cag_distributions(df_all, measurement='% Speedup (Median C
                                         summary=True,
                                         file_name_prefix=f'{out_dir}{out_file_name_prefix}_theta_vs_derivative')
 
-plot_micro_timing_min_cag_averages(df_avg, 'Average of Median CPU Times', speedup=False, save=True,
+plot_micro_timing_min_cag_averages(df_avg, 'Average of Median CPU Times', speedup=False, fold=False, save=True,
                                    file_name_prefix=f'{out_dir}{out_file_name_prefix}_median_')
-plot_micro_timing_min_cag_averages(df_avg, 'Average of Median CPU Times', speedup=True, save=True,
+plot_micro_timing_min_cag_averages(df_avg, 'Average of Median CPU Times', speedup=True, fold=False, save=True,
                                    file_name_prefix=f'{out_dir}{out_file_name_prefix}_median_')
-plot_micro_timing_min_cag_averages(df_avg, 'Average of Mean CPU Times', speedup=False, save=True,
+plot_micro_timing_min_cag_averages(df_avg, 'Average of Median CPU Times', speedup=True, fold=True, save=True,
+                                   file_name_prefix=f'{out_dir}{out_file_name_prefix}_median_')
+plot_micro_timing_min_cag_averages(df_avg, 'Average of Mean CPU Times', speedup=False, fold=False, save=True,
                                    file_name_prefix=f'{out_dir}{out_file_name_prefix}_mean_')
-plot_micro_timing_min_cag_averages(df_avg, 'Average of Mean CPU Times', speedup=True, save=True,
+plot_micro_timing_min_cag_averages(df_avg, 'Average of Mean CPU Times', speedup=True, fold=False, save=True,
+                                   file_name_prefix=f'{out_dir}{out_file_name_prefix}_mean_')
+plot_micro_timing_min_cag_averages(df_avg, 'Average of Mean CPU Times', speedup=True, fold=True, save=True,
                                    file_name_prefix=f'{out_dir}{out_file_name_prefix}_mean_')
 
 df_after_embedded = assemble_micro_timing_output_files_into_df(timing_folder_after, file_name_filter='embeded')
