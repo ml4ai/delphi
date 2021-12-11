@@ -1,0 +1,1577 @@
+{
+    "edges": [
+        {
+            "polarity": 1,
+            "weights": [0.3],
+            "source": "wm/concept/environment/meteorology/temperature",
+            "statments": [
+                {
+                    "belief": 0.9499999975564507,
+                    "evidence": [
+                        {
+                            "document_context": {
+                                "analysis": {
+                                    "sentiment": "neutral",
+                                    "sentiment_score": 0.5,
+                                    "stance": "",
+                                    "subjectivity": "subjective",
+                                    "subjectivity_score": 0
+                                },
+                                "author": "Marshall Burke, Solomon M. Hsiang, Edward Miguel",
+                                "doc_id": "bd89fe2e35f9721a24e75c5d480f57a1",
+                                "document_source": "",
+                                "file_type": "application/pdf",
+                                "label": [
+                                    "Phase 3"
+                                ],
+                                "origin": {
+                                    "assembly_request_id": "init",
+                                    "byod_tag": "Default",
+                                    "modified_at": 1627663203041
+                                },
+                                "publication_date": {
+                                    "date": 1612310400000,
+                                    "day": 3,
+                                    "month": 2,
+                                    "year": 2021
+                                },
+                                "publisher_name": "",
+                                "title": "Climate and Conflict"
+                            },
+                            "evidence_context": {
+                                "agents_text": [
+                                    "abrupt cooling from an already cold baseline temperature",
+                                    "conflict"
+                                ],
+                                "contradiction_words": [],
+                                "hedging_words": [
+                                    "may"
+                                ],
+                                "obj_adjectives": [],
+                                "obj_polarity": null,
+                                "source_api": "eidos",
+                                "source_hash": 2931250788922682000,
+                                "subj_adjectives": [],
+                                "subj_polarity": null,
+                                "text": "Some historical studies that examine temperate locations during cold epochs find that abrupt cooling from an already cold baseline temperature may lead to conflict ."
+                            }
+                        },
+                        {
+                            "document_context": {
+                                "analysis": {
+                                    "sentiment": "positive",
+                                    "sentiment_score": 0.57,
+                                    "stance": "",
+                                    "subjectivity": "subjective",
+                                    "subjectivity_score": 0.3
+                                },
+                                "author": "",
+                                "doc_id": "b7d2e4691b44635ac5a5e514e44cf3ea",
+                                "document_source": "",
+                                "file_type": "application/pdf",
+                                "label": [
+                                    "Phase 3"
+                                ],
+                                "origin": {
+                                    "assembly_request_id": "init",
+                                    "byod_tag": "Default",
+                                    "modified_at": 1627663203041
+                                },
+                                "publication_date": {
+                                    "date": 1449705600000,
+                                    "day": 10,
+                                    "month": 12,
+                                    "year": 2015
+                                },
+                                "publisher_name": "",
+                                "title": "A Survey of the Causes of Civil Conflicts: Natural Factors and Economic Conditions"
+                            },
+                            "evidence_context": {
+                                "agents_text": [
+                                    "temperature anomalies",
+                                    "frequency of violent conflict"
+                                ],
+                                "contradiction_words": [],
+                                "hedging_words": [],
+                                "obj_adjectives": [],
+                                "obj_polarity": 1,
+                                "source_api": "eidos",
+                                "source_hash": -2618801643891973000,
+                                "subj_adjectives": [],
+                                "subj_polarity": null,
+                                "text": "Maystadt & Ecker [ 2014 ] show that temperature anomalies have increased the likelihood of civil conflict in Somalian 's regions ( over 1997-2009 ) and Maystadt et al. [ 2014 ] show that temperature anomalies have increased the frequency of violent conflict by 32 % in Sudanese regions over the 1997-2009 period ."
+                            }
+                        },
+                        {
+                            "document_context": {
+                                "analysis": {
+                                    "sentiment": "positive",
+                                    "sentiment_score": 0.56,
+                                    "stance": "",
+                                    "subjectivity": "subjective",
+                                    "subjectivity_score": 0.28
+                                },
+                                "author": "",
+                                "doc_id": "98900822e0cdaf92b791f05570b62d35",
+                                "document_source": "",
+                                "file_type": "application/pdf",
+                                "label": [
+                                    "Phase 3"
+                                ],
+                                "origin": {
+                                    "assembly_request_id": "init",
+                                    "byod_tag": "Default",
+                                    "modified_at": 1627663203041
+                                },
+                                "publication_date": {
+                                    "date": 1418947200000,
+                                    "day": 19,
+                                    "month": 12,
+                                    "year": 2014
+                                },
+                                "publisher_name": "",
+                                "title": ""
+                            },
+                            "evidence_context": {
+                                "agents_text": [
+                                    "temperature anomalies",
+                                    "frequency of violent conflict"
+                                ],
+                                "contradiction_words": [],
+                                "hedging_words": [],
+                                "obj_adjectives": [],
+                                "obj_polarity": 1,
+                                "source_api": "eidos",
+                                "source_hash": 707207553157883500,
+                                "subj_adjectives": [],
+                                "subj_polarity": null,
+                                "text": "Maystadt & Ecker ( 2014 ) show that temperature anomalies have increased the likelihood of civil conflict in Somalian 's regions ( over 1997-2009 ) and Maystadt et al. ( 2014 ) show that temperature anomalies have increased the frequency of violent conflict by 32 % in Sudanese regions over the 1997-2009 period ."
+                            }
+                        },
+                        {
+                            "document_context": {
+                                "analysis": {
+                                    "sentiment": "neutral",
+                                    "sentiment_score": 0.5,
+                                    "stance": "",
+                                    "subjectivity": "subjective",
+                                    "subjectivity_score": 0
+                                },
+                                "author": "",
+                                "doc_id": "945bcecff5e8d7dc66332824fdeb2a3e",
+                                "document_source": "",
+                                "file_type": "application/pdf",
+                                "label": [
+                                    "Luma",
+                                    "MITRE August",
+                                    "ATA",
+                                    "MITRE Climate Change in Africa",
+                                    "August Embed",
+                                    "Phase 3"
+                                ],
+                                "origin": {
+                                    "assembly_request_id": "init",
+                                    "byod_tag": "Default",
+                                    "modified_at": 1627663203041
+                                },
+                                "publication_date": {
+                                    "date": 1378684800000,
+                                    "day": 9,
+                                    "month": 9,
+                                    "year": 2013
+                                },
+                                "publisher_name": "",
+                                "title": "Hsiang 1..14"
+                            },
+                            "evidence_context": {
+                                "agents_text": [
+                                    "variation in temperature",
+                                    "conflict"
+                                ],
+                                "contradiction_words": [],
+                                "hedging_words": [
+                                    "whether",
+                                    "consider"
+                                ],
+                                "obj_adjectives": [],
+                                "obj_polarity": 1,
+                                "source_api": "eidos",
+                                "source_hash": -7874560284426065000,
+                                "subj_adjectives": [],
+                                "subj_polarity": null,
+                                "text": "For an example of ( i ) , consider whether variation in temperature increases conflict ."
+                            }
+                        },
+                        {
+                            "document_context": {
+                                "analysis": {
+                                    "sentiment": "neutral",
+                                    "sentiment_score": 0.5,
+                                    "stance": "",
+                                    "subjectivity": "subjective",
+                                    "subjectivity_score": 0
+                                },
+                                "author": "",
+                                "doc_id": "945bcecff5e8d7dc66332824fdeb2a3e",
+                                "document_source": "",
+                                "file_type": "application/pdf",
+                                "label": [
+                                    "Luma",
+                                    "MITRE August",
+                                    "ATA",
+                                    "MITRE Climate Change in Africa",
+                                    "August Embed",
+                                    "Phase 3"
+                                ],
+                                "origin": {
+                                    "assembly_request_id": "init",
+                                    "byod_tag": "Default",
+                                    "modified_at": 1627663203041
+                                },
+                                "publication_date": {
+                                    "date": 1378684800000,
+                                    "day": 9,
+                                    "month": 9,
+                                    "year": 2013
+                                },
+                                "publisher_name": "",
+                                "title": "Hsiang 1..14"
+                            },
+                            "evidence_context": {
+                                "agents_text": [
+                                    "abrupt cooling from an already cold baseline temperature",
+                                    "conflict"
+                                ],
+                                "contradiction_words": [],
+                                "hedging_words": [
+                                    "may"
+                                ],
+                                "obj_adjectives": [],
+                                "obj_polarity": null,
+                                "source_api": "eidos",
+                                "source_hash": -2960021998426106000,
+                                "subj_adjectives": [],
+                                "subj_polarity": null,
+                                "text": "However , a few historical studies that examine temperate locations during cold epochs do find that abrupt cooling from an already cold baseline temperature may lead to conflict ."
+                            }
+                        }
+                    ],
+                    "id": "abf5a35d-bdb9-48e9-b295-742832aca50c",
+                    "matches_hash": -19456571586029120,
+                    "modified_at": 1627664369152,
+                    "obj": {
+                        "adjectives": [],
+                        "concept": "wm/concept/crisis_or_disaster/conflict",
+                        "concept_score": 1.0000001192092896,
+                        "factor": "conflict",
+                        "geo_context": {},
+                        "polarity": 1,
+                        "process": "",
+                        "process_property": "",
+                        "theme": "wm/concept/crisis_or_disaster/conflict",
+                        "theme_property": "",
+                        "time_context": {
+                            "end": {
+                                "date": 1612396800000,
+                                "day": 4,
+                                "month": 2,
+                                "year": 2021
+                            },
+                            "start": {
+                                "date": 1612310400000,
+                                "day": 3,
+                                "month": 2,
+                                "year": 2021
+                            }
+                        }
+                    },
+                    "subj": {
+                        "adjectives": [],
+                        "concept": "wm/concept/environment/meteorology/temperature",
+                        "concept_score": 1,
+                        "factor": "temperature",
+                        "geo_context": {},
+                        "polarity": 1,
+                        "process": "",
+                        "process_property": "",
+                        "theme": "wm/concept/environment/meteorology/temperature",
+                        "theme_property": "",
+                        "time_context": {
+                            "end": {
+                                "date": 1612396800000,
+                                "day": 4,
+                                "month": 2,
+                                "year": 2021
+                            },
+                            "start": {
+                                "date": 1612310400000,
+                                "day": 3,
+                                "month": 2,
+                                "year": 2021
+                            }
+                        }
+                    }
+                }
+            ],
+            "target": "wm/concept/crisis_or_disaster/conflict"
+        },
+        {
+            "polarity": -1,
+            "source": "wm/concept/environment/meteorology/temperature",
+            "statments": [
+                {
+                    "belief": 0.9498820932275596,
+                    "evidence": [
+                        {
+                            "document_context": {
+                                "analysis": {
+                                    "sentiment": "",
+                                    "sentiment_score": 0,
+                                    "stance": "",
+                                    "subjectivity": "",
+                                    "subjectivity_score": 0
+                                },
+                                "author": "",
+                                "doc_id": "0e8cc8398db9fb4a45f680b6a4d117ef",
+                                "document_source": "",
+                                "file_type": "application/pdf",
+                                "label": [],
+                                "origin": {
+                                    "assembly_request_id": "init",
+                                    "byod_tag": "Default",
+                                    "modified_at": 1627663203041
+                                },
+                                "publication_date": {
+                                    "date": 1385683200000,
+                                    "day": 29,
+                                    "month": 11,
+                                    "year": 2013
+                                },
+                                "publisher_name": "",
+                                "title": "AJCR13_2_2013.indd"
+                            },
+                            "evidence_context": {
+                                "agents_text": [
+                                    "warmer temperature",
+                                    "particular, less precipitation"
+                                ],
+                                "contradiction_words": [],
+                                "hedging_words": [],
+                                "obj_adjectives": [],
+                                "obj_polarity": -1,
+                                "source_api": "eidos",
+                                "source_hash": 2394518325784740000,
+                                "subj_adjectives": [],
+                                "subj_polarity": null,
+                                "text": "In particular , less precipitation and extended drought as a result of warmer temperature have accelerated degradation of water and land resources ( Raleigh and Urdal 2007:677 ) ."
+                            }
+                        },
+                        {
+                            "document_context": {
+                                "analysis": {
+                                    "sentiment": "",
+                                    "sentiment_score": 0,
+                                    "stance": "",
+                                    "subjectivity": "",
+                                    "subjectivity_score": 0
+                                },
+                                "author": "Goodman, Brad",
+                                "doc_id": "71bd9a3a90397dfc4821ff35829559dd",
+                                "document_source": "",
+                                "file_type": "application/pdf",
+                                "label": [],
+                                "origin": {
+                                    "assembly_request_id": "init",
+                                    "byod_tag": "Default",
+                                    "modified_at": 1627663203041
+                                },
+                                "publication_date": {
+                                    "date": 1579651200000,
+                                    "day": 22,
+                                    "month": 1,
+                                    "year": 2020
+                                },
+                                "publisher_name": "",
+                                "title": "Interethnic conflict in Jonglei State, South Sudan \u2013 ACCORD"
+                            },
+                            "evidence_context": {
+                                "agents_text": [
+                                    "warmer temperature",
+                                    "particular, less precipitation"
+                                ],
+                                "contradiction_words": [],
+                                "hedging_words": [],
+                                "obj_adjectives": [],
+                                "obj_polarity": -1,
+                                "source_api": "eidos",
+                                "source_hash": 2394518325784740000,
+                                "subj_adjectives": [],
+                                "subj_polarity": null,
+                                "text": "In particular , less precipitation and extended drought as a result of warmer temperature have accelerated degradation of water and land resources ( Raleigh and Urdal 2007:677 ) ."
+                            }
+                        }
+                    ],
+                    "id": "9f987bf1-b2bd-43b1-a2c4-1c04d37a793b",
+                    "matches_hash": 2785197654317936,
+                    "modified_at": 1627664242329,
+                    "obj": {
+                        "adjectives": [],
+                        "concept": "wm/concept/environment/meteorology/precipitation",
+                        "concept_score": 1,
+                        "factor": "precipitation",
+                        "geo_context": {},
+                        "polarity": -1,
+                        "process": "",
+                        "process_property": "",
+                        "theme": "wm/concept/environment/meteorology/precipitation",
+                        "theme_property": "",
+                        "time_context": {
+                            "end": {
+                                "date": 1394755200000,
+                                "day": 14,
+                                "month": 3,
+                                "year": 2014
+                            },
+                            "start": {
+                                "date": 1394668800000,
+                                "day": 13,
+                                "month": 3,
+                                "year": 2014
+                            }
+                        }
+                    },
+                    "subj": {
+                        "adjectives": [],
+                        "concept": "wm/concept/environment/meteorology/temperature",
+                        "concept_score": 0.8807713985443115,
+                        "factor": "temperature",
+                        "geo_context": {},
+                        "polarity": 1,
+                        "process": "",
+                        "process_property": "",
+                        "theme": "wm/concept/environment/meteorology/temperature",
+                        "theme_property": "",
+                        "time_context": {
+                            "end": {
+                                "date": 1394755200000,
+                                "day": 14,
+                                "month": 3,
+                                "year": 2014
+                            },
+                            "start": {
+                                "date": 1394668800000,
+                                "day": 13,
+                                "month": 3,
+                                "year": 2014
+                            }
+                        }
+                    }
+                },
+                {
+                    "belief": 0.84,
+                    "evidence": [
+                        {
+                            "document_context": {
+                                "analysis": {
+                                    "sentiment": "",
+                                    "sentiment_score": 0,
+                                    "stance": "",
+                                    "subjectivity": "",
+                                    "subjectivity_score": 0
+                                },
+                                "author": "",
+                                "doc_id": "7ca4e9ba5193a6ba0d81d73ef727a459",
+                                "document_source": "",
+                                "file_type": "application/pdf",
+                                "label": [],
+                                "origin": {
+                                    "assembly_request_id": "init",
+                                    "byod_tag": "Default",
+                                    "modified_at": 1627663203041
+                                },
+                                "publication_date": {
+                                    "date": 1476748800000,
+                                    "day": 18,
+                                    "month": 10,
+                                    "year": 2016
+                                },
+                                "publisher_name": "",
+                                "title": ""
+                            },
+                            "evidence_context": {
+                                "agents_text": [
+                                    "temperature",
+                                    "reduced precipitation"
+                                ],
+                                "contradiction_words": [],
+                                "hedging_words": [],
+                                "obj_adjectives": [],
+                                "obj_polarity": -1,
+                                "source_api": "eidos",
+                                "source_hash": 2406778895506483000,
+                                "subj_adjectives": [],
+                                "subj_polarity": 1,
+                                "text": "In Kenya , an increase in temperature has generally resulted in reduced precipitation , shorter rainy seasons and longer dry seasons ."
+                            }
+                        }
+                    ],
+                    "id": "125bfdb2-315a-465b-9f30-eda6c23d17a3",
+                    "matches_hash": 2785197654317936,
+                    "modified_at": 1627664455937,
+                    "obj": {
+                        "adjectives": [],
+                        "concept": "wm/concept/environment/meteorology/precipitation",
+                        "concept_score": 1,
+                        "factor": "precipitation",
+                        "geo_context": {
+                            "location": {
+                                "lat": 1,
+                                "lon": 38
+                            },
+                            "name": "Republic of Kenya"
+                        },
+                        "polarity": -1,
+                        "process": "",
+                        "process_property": "",
+                        "theme": "wm/concept/environment/meteorology/precipitation",
+                        "theme_property": "",
+                        "time_context": {
+                            "end": {
+                                "date": 1476835200000,
+                                "day": 19,
+                                "month": 10,
+                                "year": 2016
+                            },
+                            "start": {
+                                "date": 1476748800000,
+                                "day": 18,
+                                "month": 10,
+                                "year": 2016
+                            }
+                        }
+                    },
+                    "subj": {
+                        "adjectives": [],
+                        "concept": "wm/concept/environment/meteorology/temperature",
+                        "concept_score": 1,
+                        "factor": "temperature",
+                        "geo_context": {
+                            "location": {
+                                "lat": 1,
+                                "lon": 38
+                            },
+                            "name": "Republic of Kenya"
+                        },
+                        "polarity": 1,
+                        "process": "",
+                        "process_property": "",
+                        "theme": "wm/concept/environment/meteorology/temperature",
+                        "theme_property": "",
+                        "time_context": {
+                            "end": {
+                                "date": 1476835200000,
+                                "day": 19,
+                                "month": 10,
+                                "year": 2016
+                            },
+                            "start": {
+                                "date": 1476748800000,
+                                "day": 18,
+                                "month": 10,
+                                "year": 2016
+                            }
+                        }
+                    }
+                }
+            ],
+            "target": "wm/concept/environment/meteorology/precipitation"
+        }
+    ],
+    "id": "3b376ff3-9114-4f41-95ec-943b5493782b",
+    "nodes": [
+        {
+            "concept": "wm/concept/environment/meteorology/precipitation",
+            "func": "last",
+            "indicator": "WFP VAM Rainfall Anomalies at Country Level for All Types of Land Use 2015-2021 (Kenya__RainfallAnomalies_All_2015-2021 converted.csv)",
+            "maxValue": 361.78952916459997,
+            "minValue": -101.62039438879998,
+            "numLevels": 31,
+            "period": 12,
+            "resolution": "month",
+            "values": [
+                {
+                    "timestamp": 1420070400000,
+                    "value": 87.9557800293
+                },
+                {
+                    "timestamp": 1422748800000,
+                    "value": 79.6909586589
+                },
+                {
+                    "timestamp": 1425168000000,
+                    "value": 59.4580383301
+                },
+                {
+                    "timestamp": 1427846400000,
+                    "value": 105.1431884766
+                },
+                {
+                    "timestamp": 1430438400000,
+                    "value": 117.4149398804
+                },
+                {
+                    "timestamp": 1433116800000,
+                    "value": 125.0132115682
+                },
+                {
+                    "timestamp": 1435708800000,
+                    "value": 113.0009536743
+                },
+                {
+                    "timestamp": 1438387200000,
+                    "value": 92.6613515218
+                },
+                {
+                    "timestamp": 1441065600000,
+                    "value": 81.0781453451
+                },
+                {
+                    "timestamp": 1443657600000,
+                    "value": 89.3735046387
+                },
+                {
+                    "timestamp": 1446336000000,
+                    "value": 118.975112915
+                },
+                {
+                    "timestamp": 1448928000000,
+                    "value": 129.4584884644
+                },
+                {
+                    "timestamp": 1451606400000,
+                    "value": 134.6284637451
+                },
+                {
+                    "timestamp": 1454284800000,
+                    "value": 125.6070480347
+                },
+                {
+                    "timestamp": 1456790400000,
+                    "value": 105.7900797526
+                },
+                {
+                    "timestamp": 1459468800000,
+                    "value": 95.803352356
+                },
+                {
+                    "timestamp": 1462060800000,
+                    "value": 104.8598429362
+                },
+                {
+                    "timestamp": 1464739200000,
+                    "value": 104.0507456462
+                },
+                {
+                    "timestamp": 1467331200000,
+                    "value": 104.1361160278
+                },
+                {
+                    "timestamp": 1470009600000,
+                    "value": 84.7002512614
+                },
+                {
+                    "timestamp": 1472688000000,
+                    "value": 85.8273239136
+                },
+                {
+                    "timestamp": 1475280000000,
+                    "value": 77.3928858439
+                },
+                {
+                    "timestamp": 1477958400000,
+                    "value": 75.7650782267
+                },
+                {
+                    "timestamp": 1480550400000,
+                    "value": 78.5148391724
+                },
+                {
+                    "timestamp": 1483228800000,
+                    "value": 75.9542795817
+                },
+                {
+                    "timestamp": 1485907200000,
+                    "value": 76.4319864909
+                },
+                {
+                    "timestamp": 1488326400000,
+                    "value": 70.841178894
+                },
+                {
+                    "timestamp": 1491004800000,
+                    "value": 70.6347122192
+                },
+                {
+                    "timestamp": 1493596800000,
+                    "value": 79.5277964274
+                },
+                {
+                    "timestamp": 1496275200000,
+                    "value": 83.3872095744
+                },
+                {
+                    "timestamp": 1498867200000,
+                    "value": 106.6610005697
+                },
+                {
+                    "timestamp": 1501545600000,
+                    "value": 118.4390360514
+                },
+                {
+                    "timestamp": 1504224000000,
+                    "value": 139.2541046143
+                },
+                {
+                    "timestamp": 1506816000000,
+                    "value": 131.0795008341
+                },
+                {
+                    "timestamp": 1509494400000,
+                    "value": 124.0986328125
+                },
+                {
+                    "timestamp": 1512086400000,
+                    "value": 96.2675425212
+                },
+                {
+                    "timestamp": 1514764800000,
+                    "value": 83.078163147
+                },
+                {
+                    "timestamp": 1517443200000,
+                    "value": 53.6283607483
+                },
+                {
+                    "timestamp": 1519862400000,
+                    "value": 156.4880218506
+                },
+                {
+                    "timestamp": 1522540800000,
+                    "value": 202.9264984131
+                },
+                {
+                    "timestamp": 1525132800000,
+                    "value": 207.3195546468
+                },
+                {
+                    "timestamp": 1527811200000,
+                    "value": 186.4966990153
+                },
+                {
+                    "timestamp": 1530403200000,
+                    "value": 170.347249349
+                },
+                {
+                    "timestamp": 1533081600000,
+                    "value": 139.1237894694
+                },
+                {
+                    "timestamp": 1535760000000,
+                    "value": 114.830116272
+                },
+                {
+                    "timestamp": 1538352000000,
+                    "value": 98.4169565837
+                },
+                {
+                    "timestamp": 1541030400000,
+                    "value": 83.331489563
+                },
+                {
+                    "timestamp": 1543622400000,
+                    "value": 104.0091578166
+                },
+                {
+                    "timestamp": 1546300800000,
+                    "value": 106.9118525187
+                },
+                {
+                    "timestamp": 1548979200000,
+                    "value": 130.7871424357
+                },
+                {
+                    "timestamp": 1551398400000,
+                    "value": 79.9348538717
+                },
+                {
+                    "timestamp": 1554076800000,
+                    "value": 52.849580129
+                },
+                {
+                    "timestamp": 1556668800000,
+                    "value": 70.8647944132
+                },
+                {
+                    "timestamp": 1559347200000,
+                    "value": 85.7370732625
+                },
+                {
+                    "timestamp": 1561939200000,
+                    "value": 115.4700190226
+                },
+                {
+                    "timestamp": 1564617600000,
+                    "value": 129.169883728
+                },
+                {
+                    "timestamp": 1567296000000,
+                    "value": 121.1503931681
+                },
+                {
+                    "timestamp": 1569888000000,
+                    "value": 178.3689727783
+                },
+                {
+                    "timestamp": 1572566400000,
+                    "value": 172.9451395671
+                },
+                {
+                    "timestamp": 1575158400000,
+                    "value": 194.156346639
+                },
+                {
+                    "timestamp": 1577836800000,
+                    "value": 176.3793690999
+                },
+                {
+                    "timestamp": 1580515200000,
+                    "value": 195.3981374105
+                },
+                {
+                    "timestamp": 1583020800000,
+                    "value": 186.4041392008
+                },
+                {
+                    "timestamp": 1585699200000,
+                    "value": 157.9208933512
+                },
+                {
+                    "timestamp": 1588291200000,
+                    "value": 136.2739868164
+                },
+                {
+                    "timestamp": 1590969600000,
+                    "value": 117.3240483602
+                },
+                {
+                    "timestamp": 1593561600000,
+                    "value": 109.4506098429
+                },
+                {
+                    "timestamp": 1596240000000,
+                    "value": 118.5074717204
+                },
+                {
+                    "timestamp": 1598918400000,
+                    "value": 128.6178410848
+                },
+                {
+                    "timestamp": 1601510400000,
+                    "value": 119.1025009155
+                },
+                {
+                    "timestamp": 1604188800000,
+                    "value": 107.2536824544
+                },
+                {
+                    "timestamp": 1606780800000,
+                    "value": 96.0174585978
+                }
+            ]
+        },
+        {
+            "concept": "wm/concept/crisis_or_disaster/conflict",
+            "func": "last",
+            "indicator": "State Fragility Index and Matrix - 1995-2018 (SFIv2018.xls)",
+            "maxValue": 13.8768183046,
+            "minValue": 5.0293822588,
+            "numLevels": 31,
+            "period": 12,
+            "resolution": "month",
+            "values": [
+                {
+                    "timestamp": 788918400000,
+                    "value": 10.927672956
+                },
+                {
+                    "timestamp": 820454400000,
+                    "value": 10.6163522013
+                },
+                {
+                    "timestamp": 852076800000,
+                    "value": 10.5062893082
+                },
+                {
+                    "timestamp": 883612800000,
+                    "value": 10.3679245283
+                },
+                {
+                    "timestamp": 915148800000,
+                    "value": 10.358490566
+                },
+                {
+                    "timestamp": 946684800000,
+                    "value": 10.3396226415
+                },
+                {
+                    "timestamp": 978307200000,
+                    "value": 10.1006289308
+                },
+                {
+                    "timestamp": 1009843200000,
+                    "value": 9.934375
+                },
+                {
+                    "timestamp": 1041379200000,
+                    "value": 9.8125
+                },
+                {
+                    "timestamp": 1072915200000,
+                    "value": 9.596875
+                },
+                {
+                    "timestamp": 1104537600000,
+                    "value": 9.371875
+                },
+                {
+                    "timestamp": 1136073600000,
+                    "value": 8.9720496894
+                },
+                {
+                    "timestamp": 1167609600000,
+                    "value": 8.7888198758
+                },
+                {
+                    "timestamp": 1199145600000,
+                    "value": 8.700617284
+                },
+                {
+                    "timestamp": 1230768000000,
+                    "value": 8.6666666667
+                },
+                {
+                    "timestamp": 1262304000000,
+                    "value": 8.549382716
+                },
+                {
+                    "timestamp": 1293840000000,
+                    "value": 8.5061728395
+                },
+                {
+                    "timestamp": 1325376000000,
+                    "value": 8.4202453988
+                },
+                {
+                    "timestamp": 1356998400000,
+                    "value": 8.2576687117
+                },
+                {
+                    "timestamp": 1388534400000,
+                    "value": 8.1901840491
+                },
+                {
+                    "timestamp": 1420070400000,
+                    "value": 8.1717791411
+                },
+                {
+                    "timestamp": 1451606400000,
+                    "value": 8.0736196319
+                },
+                {
+                    "timestamp": 1483228800000,
+                    "value": 7.9785276074
+                },
+                {
+                    "timestamp": 1514764800000,
+                    "value": 8.027607362
+                }
+            ]
+        },
+        {
+            "concept": "wm/concept/environment/meteorology/temperature",
+            "func": "last",
+            "indicator": "Temperature Anomaly (No Smoothing) - in Centigrade",
+            "maxValue": 2.52,
+            "minValue": -1.98,
+            "numLevels": 31,
+            "period": 12,
+            "resolution": "month",
+            "values": [
+                {
+                    "timestamp": -2840140800000,
+                    "value": -0.16
+                },
+                {
+                    "timestamp": -2808518400000,
+                    "value": -0.07
+                },
+                {
+                    "timestamp": -2776982400000,
+                    "value": -0.1
+                },
+                {
+                    "timestamp": -2745446400000,
+                    "value": -0.16
+                },
+                {
+                    "timestamp": -2713910400000,
+                    "value": -0.28
+                },
+                {
+                    "timestamp": -2682288000000,
+                    "value": -0.33
+                },
+                {
+                    "timestamp": -2650752000000,
+                    "value": -0.31
+                },
+                {
+                    "timestamp": -2619216000000,
+                    "value": -0.36
+                },
+                {
+                    "timestamp": -2587680000000,
+                    "value": -0.17
+                },
+                {
+                    "timestamp": -2556057600000,
+                    "value": -0.1
+                },
+                {
+                    "timestamp": -2524521600000,
+                    "value": -0.35
+                },
+                {
+                    "timestamp": -2492985600000,
+                    "value": -0.22
+                },
+                {
+                    "timestamp": -2461449600000,
+                    "value": -0.27
+                },
+                {
+                    "timestamp": -2429827200000,
+                    "value": -0.31
+                },
+                {
+                    "timestamp": -2398291200000,
+                    "value": -0.3
+                },
+                {
+                    "timestamp": -2366755200000,
+                    "value": -0.22
+                },
+                {
+                    "timestamp": -2335219200000,
+                    "value": -0.11
+                },
+                {
+                    "timestamp": -2303596800000,
+                    "value": -0.1
+                },
+                {
+                    "timestamp": -2272060800000,
+                    "value": -0.26
+                },
+                {
+                    "timestamp": -2240524800000,
+                    "value": -0.17
+                },
+                {
+                    "timestamp": -2208988800000,
+                    "value": -0.08
+                },
+                {
+                    "timestamp": -2177452800000,
+                    "value": -0.15
+                },
+                {
+                    "timestamp": -2145916800000,
+                    "value": -0.27
+                },
+                {
+                    "timestamp": -2114380800000,
+                    "value": -0.37
+                },
+                {
+                    "timestamp": -2082844800000,
+                    "value": -0.46
+                },
+                {
+                    "timestamp": -2051222400000,
+                    "value": -0.26
+                },
+                {
+                    "timestamp": -2019686400000,
+                    "value": -0.22
+                },
+                {
+                    "timestamp": -1988150400000,
+                    "value": -0.38
+                },
+                {
+                    "timestamp": -1956614400000,
+                    "value": -0.42
+                },
+                {
+                    "timestamp": -1924992000000,
+                    "value": -0.48
+                },
+                {
+                    "timestamp": -1893456000000,
+                    "value": -0.42
+                },
+                {
+                    "timestamp": -1861920000000,
+                    "value": -0.43
+                },
+                {
+                    "timestamp": -1830384000000,
+                    "value": -0.35
+                },
+                {
+                    "timestamp": -1798761600000,
+                    "value": -0.34
+                },
+                {
+                    "timestamp": -1767225600000,
+                    "value": -0.14
+                },
+                {
+                    "timestamp": -1735689600000,
+                    "value": -0.13
+                },
+                {
+                    "timestamp": -1704153600000,
+                    "value": -0.35
+                },
+                {
+                    "timestamp": -1672531200000,
+                    "value": -0.45
+                },
+                {
+                    "timestamp": -1640995200000,
+                    "value": -0.29
+                },
+                {
+                    "timestamp": -1609459200000,
+                    "value": -0.27
+                },
+                {
+                    "timestamp": -1577923200000,
+                    "value": -0.27
+                },
+                {
+                    "timestamp": -1546300800000,
+                    "value": -0.19
+                },
+                {
+                    "timestamp": -1514764800000,
+                    "value": -0.28
+                },
+                {
+                    "timestamp": -1483228800000,
+                    "value": -0.26
+                },
+                {
+                    "timestamp": -1451692800000,
+                    "value": -0.27
+                },
+                {
+                    "timestamp": -1420070400000,
+                    "value": -0.22
+                },
+                {
+                    "timestamp": -1388534400000,
+                    "value": -0.11
+                },
+                {
+                    "timestamp": -1356998400000,
+                    "value": -0.22
+                },
+                {
+                    "timestamp": -1325462400000,
+                    "value": -0.2
+                },
+                {
+                    "timestamp": -1293840000000,
+                    "value": -0.36
+                },
+                {
+                    "timestamp": -1262304000000,
+                    "value": -0.15
+                },
+                {
+                    "timestamp": -1230768000000,
+                    "value": -0.09
+                },
+                {
+                    "timestamp": -1199232000000,
+                    "value": -0.16
+                },
+                {
+                    "timestamp": -1167609600000,
+                    "value": -0.29
+                },
+                {
+                    "timestamp": -1136073600000,
+                    "value": -0.13
+                },
+                {
+                    "timestamp": -1104537600000,
+                    "value": -0.2
+                },
+                {
+                    "timestamp": -1073001600000,
+                    "value": -0.15
+                },
+                {
+                    "timestamp": -1041379200000,
+                    "value": -0.03
+                },
+                {
+                    "timestamp": -1009843200000,
+                    "value": 0
+                },
+                {
+                    "timestamp": -978307200000,
+                    "value": -0.02
+                },
+                {
+                    "timestamp": -946771200000,
+                    "value": 0.13
+                },
+                {
+                    "timestamp": -915148800000,
+                    "value": 0.19
+                },
+                {
+                    "timestamp": -883612800000,
+                    "value": 0.07
+                },
+                {
+                    "timestamp": -852076800000,
+                    "value": 0.09
+                },
+                {
+                    "timestamp": -820540800000,
+                    "value": 0.2
+                },
+                {
+                    "timestamp": -788918400000,
+                    "value": 0.09
+                },
+                {
+                    "timestamp": -757382400000,
+                    "value": -0.07
+                },
+                {
+                    "timestamp": -725846400000,
+                    "value": -0.03
+                },
+                {
+                    "timestamp": -694310400000,
+                    "value": -0.11
+                },
+                {
+                    "timestamp": -662688000000,
+                    "value": -0.11
+                },
+                {
+                    "timestamp": -631152000000,
+                    "value": -0.17
+                },
+                {
+                    "timestamp": -599616000000,
+                    "value": -0.07
+                },
+                {
+                    "timestamp": -568080000000,
+                    "value": 0.01
+                },
+                {
+                    "timestamp": -536457600000,
+                    "value": 0.08
+                },
+                {
+                    "timestamp": -504921600000,
+                    "value": -0.13
+                },
+                {
+                    "timestamp": -473385600000,
+                    "value": -0.14
+                },
+                {
+                    "timestamp": -441849600000,
+                    "value": -0.19
+                },
+                {
+                    "timestamp": -410227200000,
+                    "value": 0.05
+                },
+                {
+                    "timestamp": -378691200000,
+                    "value": 0.06
+                },
+                {
+                    "timestamp": -347155200000,
+                    "value": 0.03
+                },
+                {
+                    "timestamp": -315619200000,
+                    "value": -0.02
+                },
+                {
+                    "timestamp": -283996800000,
+                    "value": 0.06
+                },
+                {
+                    "timestamp": -252460800000,
+                    "value": 0.03
+                },
+                {
+                    "timestamp": -220924800000,
+                    "value": 0.05
+                },
+                {
+                    "timestamp": -189388800000,
+                    "value": -0.2
+                },
+                {
+                    "timestamp": -157766400000,
+                    "value": -0.11
+                },
+                {
+                    "timestamp": -126230400000,
+                    "value": -0.06
+                },
+                {
+                    "timestamp": -94694400000,
+                    "value": -0.02
+                },
+                {
+                    "timestamp": -63158400000,
+                    "value": -0.08
+                },
+                {
+                    "timestamp": -31536000000,
+                    "value": 0.05
+                },
+                {
+                    "timestamp": 0,
+                    "value": 0.03
+                },
+                {
+                    "timestamp": 31536000000,
+                    "value": -0.08
+                },
+                {
+                    "timestamp": 63072000000,
+                    "value": 0.01
+                },
+                {
+                    "timestamp": 94694400000,
+                    "value": 0.16
+                },
+                {
+                    "timestamp": 126230400000,
+                    "value": -0.07
+                },
+                {
+                    "timestamp": 157766400000,
+                    "value": -0.01
+                },
+                {
+                    "timestamp": 189302400000,
+                    "value": -0.1
+                },
+                {
+                    "timestamp": 220924800000,
+                    "value": 0.18
+                },
+                {
+                    "timestamp": 252460800000,
+                    "value": 0.07
+                },
+                {
+                    "timestamp": 283996800000,
+                    "value": 0.16
+                },
+                {
+                    "timestamp": 315532800000,
+                    "value": 0.26
+                },
+                {
+                    "timestamp": 347155200000,
+                    "value": 0.32
+                },
+                {
+                    "timestamp": 378691200000,
+                    "value": 0.14
+                },
+                {
+                    "timestamp": 410227200000,
+                    "value": 0.31
+                },
+                {
+                    "timestamp": 441763200000,
+                    "value": 0.15
+                },
+                {
+                    "timestamp": 473385600000,
+                    "value": 0.12
+                },
+                {
+                    "timestamp": 504921600000,
+                    "value": 0.18
+                },
+                {
+                    "timestamp": 536457600000,
+                    "value": 0.32
+                },
+                {
+                    "timestamp": 567993600000,
+                    "value": 0.38
+                },
+                {
+                    "timestamp": 599616000000,
+                    "value": 0.27
+                },
+                {
+                    "timestamp": 631152000000,
+                    "value": 0.45
+                },
+                {
+                    "timestamp": 662688000000,
+                    "value": 0.4
+                },
+                {
+                    "timestamp": 694224000000,
+                    "value": 0.22
+                },
+                {
+                    "timestamp": 725846400000,
+                    "value": 0.23
+                },
+                {
+                    "timestamp": 757382400000,
+                    "value": 0.31
+                },
+                {
+                    "timestamp": 788918400000,
+                    "value": 0.45
+                },
+                {
+                    "timestamp": 820454400000,
+                    "value": 0.33
+                },
+                {
+                    "timestamp": 852076800000,
+                    "value": 0.46
+                },
+                {
+                    "timestamp": 883612800000,
+                    "value": 0.61
+                },
+                {
+                    "timestamp": 915148800000,
+                    "value": 0.38
+                },
+                {
+                    "timestamp": 946684800000,
+                    "value": 0.39
+                },
+                {
+                    "timestamp": 978307200000,
+                    "value": 0.54
+                },
+                {
+                    "timestamp": 1009843200000,
+                    "value": 0.63
+                },
+                {
+                    "timestamp": 1041379200000,
+                    "value": 0.62
+                },
+                {
+                    "timestamp": 1072915200000,
+                    "value": 0.54
+                },
+                {
+                    "timestamp": 1104537600000,
+                    "value": 0.68
+                },
+                {
+                    "timestamp": 1136073600000,
+                    "value": 0.64
+                },
+                {
+                    "timestamp": 1167609600000,
+                    "value": 0.66
+                },
+                {
+                    "timestamp": 1199145600000,
+                    "value": 0.54
+                },
+                {
+                    "timestamp": 1230768000000,
+                    "value": 0.66
+                },
+                {
+                    "timestamp": 1262304000000,
+                    "value": 0.72
+                },
+                {
+                    "timestamp": 1293840000000,
+                    "value": 0.61
+                },
+                {
+                    "timestamp": 1325376000000,
+                    "value": 0.64
+                },
+                {
+                    "timestamp": 1356998400000,
+                    "value": 0.68
+                },
+                {
+                    "timestamp": 1388534400000,
+                    "value": 0.74
+                },
+                {
+                    "timestamp": 1420070400000,
+                    "value": 0.9
+                },
+                {
+                    "timestamp": 1451606400000,
+                    "value": 1.01
+                },
+                {
+                    "timestamp": 1483228800000,
+                    "value": 0.92
+                },
+                {
+                    "timestamp": 1514764800000,
+                    "value": 0.85
+                },
+                {
+                    "timestamp": 1546300800000,
+                    "value": 0.98
+                },
+                {
+                    "timestamp": 1577836800000,
+                    "value": 1.02
+                }
+            ]
+        }
+    ]
+}
