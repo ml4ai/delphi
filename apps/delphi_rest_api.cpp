@@ -284,6 +284,12 @@ int main(int argc, const char* argv[]) {
                 burn = 100;
             }
 
+	    json rapid_response;
+	    rapid_response["id"] = modelId;
+	    rapid_response["status"] = "Loading data";
+            response << rapid_response.dump();
+
+
             AnalysisGraph G;
             G.set_res(kde_kernels);
             G.from_causemos_json_dict(json_data, 0, 0);
@@ -399,6 +405,11 @@ int main(int argc, const char* argv[]) {
             string experiment_type = request_body["experimentType"];
             boost::uuids::uuid uuid = boost::uuids::random_generator()();
             string experiment_id = to_string(uuid);
+
+	    json rapid_response;
+	    rapid_response["id"] = experiment_id;
+	    rapid_response["status"] = "Loading data";
+            res << rapid_response.dump();
 
             sqlite3DB->insert_into_causemosasyncexperimentresult(
                 experiment_id, "in progress", experiment_type, "");
