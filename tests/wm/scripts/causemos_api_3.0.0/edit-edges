@@ -24,9 +24,11 @@ else
 	call="curl -s $login -X POST $url$endpoint -d @$filename"
         echo "Call:"
         echo $call
-
+	
+	date
         response=$($call)
         echo "Response:"
         echo $response | jq
+	date
 
 fi
