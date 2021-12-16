@@ -25,7 +25,9 @@ else
 	echo "Call:"
 	echo $call
 
+	date
 	response=$($call)
 	echo "Response:"
 	echo $response | jq
+	date
 fi
