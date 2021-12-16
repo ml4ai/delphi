@@ -1,0 +1,1979 @@
+{
+    "conceptIndicators": {
+        "wm/concept/crisis_or_disaster/conflict": {
+            "func": "last",
+            "maxValue": 2,
+            "minValue": 0,
+            "name": "Event Count 1",
+            "numLevels": 31,
+            "period": 12,
+            "resolution": "month",
+            "values": [
+                {
+                    "timestamp": 852076800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 854755200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 857174400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 859852800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 862444800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 865123200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 867715200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 870393600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 873072000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 875664000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 878342400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 880934400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 883612800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 886291200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 888710400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 891388800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 893980800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 896659200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 899251200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 901929600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 904608000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 907200000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 909878400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 912470400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 915148800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 917827200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 920246400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 922924800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 925516800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 928195200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 930787200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 933465600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 936144000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 938736000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 941414400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 944006400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 946684800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 949363200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 951868800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 954547200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 957139200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 959817600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 962409600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 965088000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 967766400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 970358400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 973036800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 975628800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 978307200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 980985600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 983404800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 986083200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 988675200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 991353600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 993945600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 996624000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 999302400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1001894400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1004572800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1007164800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1009843200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1012521600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1014940800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1017619200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1020211200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1022889600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1025481600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1028160000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1030838400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1033430400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1036108800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1038700800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1041379200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1044057600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1046476800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1049155200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1051747200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1054425600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1057017600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1059696000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1062374400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1064966400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1067644800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1070236800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1072915200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1075593600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1078099200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1080777600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1083369600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1086048000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1088640000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1091318400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1093996800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1096588800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1099267200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1101859200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1104537600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1107216000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1109635200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1112313600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1114905600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1117584000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1120176000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1122854400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1125532800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1128124800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1130803200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1133395200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1136073600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1138752000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1141171200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1143849600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1146441600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1149120000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1151712000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1154390400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1157068800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1159660800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1162339200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1164931200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1167609600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1170288000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1172707200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1175385600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1177977600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1180656000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1183248000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1185926400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1188604800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1191196800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1193875200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1196467200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1199145600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1201824000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1204329600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1207008000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1209600000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1212278400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1214870400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1217548800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1220227200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1222819200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1225497600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1228089600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1230768000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1233446400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1235865600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1238544000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1241136000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1243814400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1246406400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1249084800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1251763200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1254355200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1257033600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1259625600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1262304000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1264982400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1267401600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1270080000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1272672000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1275350400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1277942400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1280620800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1283299200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1285891200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1288569600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1291161600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1293840000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1296518400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1298937600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1301616000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1304208000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1306886400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1309478400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1312156800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1314835200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1317427200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1320105600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1322697600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1325376000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1328054400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1330560000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1333238400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1335830400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1338508800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1341100800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1343779200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1346457600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1349049600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1351728000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1354320000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1356998400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1359676800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1362096000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1364774400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1367366400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1370044800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1372636800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1375315200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1377993600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1380585600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1383264000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1385856000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1388534400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1391212800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1393632000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1396310400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1398902400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1401580800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1404172800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1406851200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1409529600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1412121600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1414800000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1417392000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1420070400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1422748800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1425168000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1427846400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1430438400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1433116800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1435708800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1438387200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1441065600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1443657600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1446336000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1448928000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1451606400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1454284800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1456790400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1459468800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1462060800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1464739200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1467331200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1470009600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1472688000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1475280000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1477958400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1480550400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1483228800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1485907200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1488326400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1491004800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1493596800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1496275200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1498867200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1501545600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1504224000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1506816000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1509494400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1512086400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1514764800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1517443200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1519862400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1522540800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1525132800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1527811200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1530403200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1533081600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1535760000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1538352000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1541030400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1543622400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1546300800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1548979200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1551398400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1554076800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1556668800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1559347200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1561939200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1564617600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1567296000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1569888000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1572566400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1575158400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1577836800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1580515200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1583020800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1585699200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1588291200000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1590969600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1593561600000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1596240000000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1598918400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1601510400000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1604188800000,
+                    "value": 1
+                },
+                {
+                    "timestamp": 1606780800000,
+                    "value": 1
+                }
+            ]
+        },
+        "wm/concept/crisis_or_disaster/famine": {
+            "func": "last",
+            "maxValue": 1,
+            "minValue": 0,
+            "name": "Abstract 2",
+            "numLevels": 31,
+            "period": 1,
+            "resolution": "month",
+            "values": [
+                {
+                    "timestamp": 1483228800000,
+                    "value": 0.5
+                },
+                {
+                    "timestamp": 1485907200000,
+                    "value": 0.5
+                },
+                {
+                    "timestamp": 1488326400000,
+                    "value": 0.5
+                }
+            ]
+        },
+        "wm/concept/goods/food_price_or_cost": {
+            "func": "last",
+            "maxValue": 2760.408946990967,
+            "minValue": -1204.295040130615,
+            "name": "Consumer Prices, General Indices (2015 = 100) Value 0",
+            "numLevels": 31,
+            "period": 12,
+            "resolution": "month",
+            "values": [
+                {
+                    "timestamp": 1451606400000,
+                    "value": 117.27295557657878
+                },
+                {
+                    "timestamp": 1454284800000,
+                    "value": 123.02700424194336
+                },
+                {
+                    "timestamp": 1456790400000,
+                    "value": 129.3950538635254
+                },
+                {
+                    "timestamp": 1459468800000,
+                    "value": 136.00089899698892
+                },
+                {
+                    "timestamp": 1462060800000,
+                    "value": 146.39263916015625
+                },
+                {
+                    "timestamp": 1464739200000,
+                    "value": 139.70501836140951
+                },
+                {
+                    "timestamp": 1467331200000,
+                    "value": 182.0328280131022
+                },
+                {
+                    "timestamp": 1470009600000,
+                    "value": 187.69030253092447
+                },
+                {
+                    "timestamp": 1472688000000,
+                    "value": 229.76212946573892
+                },
+                {
+                    "timestamp": 1475280000000,
+                    "value": 216.66962305704752
+                },
+                {
+                    "timestamp": 1477958400000,
+                    "value": 225.1684366861979
+                },
+                {
+                    "timestamp": 1480550400000,
+                    "value": 238.12102635701498
+                },
+                {
+                    "timestamp": 1483228800000,
+                    "value": 238.19231669108072
+                },
+                {
+                    "timestamp": 1485907200000,
+                    "value": 285.36852773030597
+                },
+                {
+                    "timestamp": 1488326400000,
+                    "value": 266.65006891886395
+                },
+                {
+                    "timestamp": 1491004800000,
+                    "value": 275.4225845336914
+                },
+                {
+                    "timestamp": 1493596800000,
+                    "value": 347.54931259155273
+                },
+                {
+                    "timestamp": 1496275200000,
+                    "value": 329.68213653564453
+                },
+                {
+                    "timestamp": 1498867200000,
+                    "value": 331.6855278015137
+                },
+                {
+                    "timestamp": 1501545600000,
+                    "value": 355.3718617757161
+                },
+                {
+                    "timestamp": 1504224000000,
+                    "value": 376.96982192993164
+                },
+                {
+                    "timestamp": 1506816000000,
+                    "value": 386.7093645731608
+                },
+                {
+                    "timestamp": 1509494400000,
+                    "value": 419.20948028564453
+                },
+                {
+                    "timestamp": 1512086400000,
+                    "value": 413.8327941894531
+                },
+                {
+                    "timestamp": 1514764800000,
+                    "value": 423.4592692057292
+                },
+                {
+                    "timestamp": 1517443200000,
+                    "value": 504.52896245320636
+                },
+                {
+                    "timestamp": 1519862400000,
+                    "value": 545.034097035726
+                },
+                {
+                    "timestamp": 1522540800000,
+                    "value": 611.9360402425131
+                },
+                {
+                    "timestamp": 1525132800000,
+                    "value": 562.0404993693033
+                },
+                {
+                    "timestamp": 1527811200000,
+                    "value": 540.9753863016764
+                },
+                {
+                    "timestamp": 1530403200000,
+                    "value": 625.6955451965332
+                },
+                {
+                    "timestamp": 1533081600000,
+                    "value": 553.8021621704102
+                },
+                {
+                    "timestamp": 1535760000000,
+                    "value": 519.1945864359537
+                },
+                {
+                    "timestamp": 1538352000000,
+                    "value": 512.681755065918
+                },
+                {
+                    "timestamp": 1541030400000,
+                    "value": 531.4838574727377
+                },
+                {
+                    "timestamp": 1543622400000,
+                    "value": 544.863826751709
+                },
+                {
+                    "timestamp": 1546300800000,
+                    "value": 662.6501973470052
+                },
+                {
+                    "timestamp": 1548979200000,
+                    "value": 747.0920944213867
+                },
+                {
+                    "timestamp": 1551398400000,
+                    "value": 829.5155512491862
+                },
+                {
+                    "timestamp": 1554076800000,
+                    "value": 882.4217211405436
+                },
+                {
+                    "timestamp": 1556668800000,
+                    "value": 924.7782961527506
+                },
+                {
+                    "timestamp": 1559347200000,
+                    "value": 925.7206128438314
+                },
+                {
+                    "timestamp": 1561939200000,
+                    "value": 1007.773754119873
+                },
+                {
+                    "timestamp": 1564617600000,
+                    "value": 1045.9895261128743
+                },
+                {
+                    "timestamp": 1567296000000,
+                    "value": 1180.0278142293294
+                },
+                {
+                    "timestamp": 1569888000000,
+                    "value": 1217.9141591389973
+                },
+                {
+                    "timestamp": 1572566400000,
+                    "value": 850.8876355489095
+                },
+                {
+                    "timestamp": 1575158400000,
+                    "value": 857.2067947387695
+                },
+                {
+                    "timestamp": 1577836800000,
+                    "value": 873.4388173421224
+                },
+                {
+                    "timestamp": 1580515200000,
+                    "value": 1103.395440419515
+                },
+                {
+                    "timestamp": 1583020800000,
+                    "value": 1130.3647702534993
+                },
+                {
+                    "timestamp": 1585699200000,
+                    "value": 1197.8264668782551
+                },
+                {
+                    "timestamp": 1588291200000,
+                    "value": 1240.3179880777996
+                },
+                {
+                    "timestamp": 1590969600000,
+                    "value": 1013.8926315307617
+                },
+                {
+                    "timestamp": 1593561600000,
+                    "value": 1084.7107645670574
+                },
+                {
+                    "timestamp": 1596240000000,
+                    "value": 1162.491626739502
+                },
+                {
+                    "timestamp": 1598918400000,
+                    "value": 1252.2826639811199
+                },
+                {
+                    "timestamp": 1601510400000,
+                    "value": 1354.0856386820476
+                },
+                {
+                    "timestamp": 1604188800000,
+                    "value": 1438.8409512837727
+                },
+                {
+                    "timestamp": 1606780800000,
+                    "value": 1298.0378735860188
+                }
+            ]
+        }
+    },
+    "id": "3nodes",
+    "statements": [
+        {
+            "belief": 0.9499999999809341,
+            "evidence": [
+                {
+                    "document_context": {
+                        "analysis": {
+                            "sentiment": "neutral",
+                            "sentiment_score": 0.49,
+                            "stance": "",
+                            "subjectivity": "subjective",
+                            "subjectivity_score": 0.29
+                        },
+                        "author": "",
+                        "doc_id": "fea2bfb3e1b879d144e43bcba1412f6c",
+                        "document_source": "",
+                        "file_type": "application/pdf",
+                        "label": [],
+                        "origin": {
+                            "assembly_request_id": "init",
+                            "byod_tag": "Default",
+                            "modified_at": 1627678011022
+                        },
+                        "publication_date": {
+                            "date": 1599609600000,
+                            "day": 9,
+                            "month": 9,
+                            "year": 2020
+                        },
+                        "publisher_name": "",
+                        "title": ""
+                    },
+                    "evidence_context": {
+                        "agents_text": [
+                            "conflict",
+                            "economic instability resulting in food price hikes and displacements"
+                        ],
+                        "contradiction_words": [],
+                        "hedging_words": [],
+                        "obj_adjectives": [],
+                        "obj_polarity": null,
+                        "source_api": "eidos",
+                        "source_hash": 957167744331079400,
+                        "subj_adjectives": [],
+                        "subj_polarity": null,
+                        "text": "COVID 19 , Desert Locust , economic instability resulting in food price hikes and displacements due to conflict and climate related factors were the main drivers of food insecurity in for Belg dependent areas , pastoralists and agro-pastoralists analyzed communities ."
+                    }
+                },
+                {
+                    "document_context": {
+                        "analysis": {
+                            "sentiment": "neutral",
+                            "sentiment_score": 0.5,
+                            "stance": "",
+                            "subjectivity": "subjective",
+                            "subjectivity_score": 0
+                        },
+                        "author": "FAO",
+                        "doc_id": "dc0cec969b796d73bca6dd379e1910b7",
+                        "document_source": "",
+                        "file_type": "application/pdf",
+                        "label": [
+                            "Luma",
+                            "MITRE FAO-WFP",
+                            "MITRE August",
+                            "ATA",
+                            "August Embed",
+                            "Phase 3"
+                        ],
+                        "origin": {
+                            "assembly_request_id": "init",
+                            "byod_tag": "Default",
+                            "modified_at": 1627678011022
+                        },
+                        "publication_date": {
+                            "date": 1586476800000,
+                            "day": 10,
+                            "month": 4,
+                            "year": 2020
+                        },
+                        "publisher_name": "",
+                        "title": "Food Price Monitoring and Analysis (FPMA) Bulletin # 3, 10 April 2020"
+                    },
+                    "evidence_context": {
+                        "agents_text": [
+                            "lingering impact of prolonged conflict",
+                            "high level of food prices"
+                        ],
+                        "contradiction_words": [],
+                        "hedging_words": [],
+                        "obj_adjectives": [],
+                        "obj_polarity": 1,
+                        "source_api": "eidos",
+                        "source_hash": -4299630227775570000,
+                        "subj_adjectives": [],
+                        "subj_polarity": 1,
+                        "text": "The high level of food prices is driven by inadequate domestic supplies , high transport costs , the difficult macro-economic situation and the lingering impact of prolonged conflict ."
+                    }
+                },
+                {
+                    "document_context": {
+                        "analysis": {
+                            "sentiment": "",
+                            "sentiment_score": 0,
+                            "stance": "",
+                            "subjectivity": "",
+                            "subjectivity_score": 0
+                        },
+                        "author": "Clionadh Raleigh",
+                        "doc_id": "405911e6d76d19524221b8aca25a7c11",
+                        "document_source": "",
+                        "file_type": "application/pdf",
+                        "label": [],
+                        "origin": {
+                            "assembly_request_id": "init",
+                            "byod_tag": "Default",
+                            "modified_at": 1627678011022
+                        },
+                        "publication_date": {
+                            "date": 1430352000000,
+                            "day": 30,
+                            "month": 4,
+                            "year": 2015
+                        },
+                        "publisher_name": "",
+                        "title": "The devil is in the details: An investigation of the relationships between conflict, food price and climate across Africa"
+                    },
+                    "evidence_context": {
+                        "agents_text": [
+                            "higher number of conflict events",
+                            "higher food prices"
+                        ],
+                        "contradiction_words": [],
+                        "hedging_words": [
+                            "indicate"
+                        ],
+                        "obj_adjectives": [],
+                        "obj_polarity": 1,
+                        "source_api": "eidos",
+                        "source_hash": 1721873116332694300,
+                        "subj_adjectives": [],
+                        "subj_polarity": 1,
+                        "text": "The coefficient on Conflictt in the commodity equation is positive and statistically significant at the 0.05 level , indicating that higher number of conflict events contribute to higher food prices ."
+                    }
+                },
+                {
+                    "document_context": {
+                        "analysis": {
+                            "sentiment": "neutral",
+                            "sentiment_score": 0.5,
+                            "stance": "",
+                            "subjectivity": "subjective",
+                            "subjectivity_score": 0
+                        },
+                        "author": "Clemens Breisinger",
+                        "doc_id": "74e6cf6fd539a03a46e2d1cdc61b0009",
+                        "document_source": "",
+                        "file_type": "application/pdf",
+                        "label": [],
+                        "origin": {
+                            "assembly_request_id": "init",
+                            "byod_tag": "Default",
+                            "modified_at": 1627678011022
+                        },
+                        "publication_date": {
+                            "date": 1412553600000,
+                            "day": 6,
+                            "month": 10,
+                            "year": 2014
+                        },
+                        "publisher_name": "",
+                        "title": "How to build resilience to conflict: The role of food security"
+                    },
+                    "evidence_context": {
+                        "agents_text": [
+                            "Conflict",
+                            "local food prices"
+                        ],
+                        "contradiction_words": [],
+                        "hedging_words": [
+                            "risk"
+                        ],
+                        "obj_adjectives": [],
+                        "obj_polarity": null,
+                        "source_api": "eidos",
+                        "source_hash": -4702842069930665000,
+                        "subj_adjectives": [],
+                        "subj_polarity": null,
+                        "text": "Conflict also often destroys physical infrastructure and increases the security risks associated with its use to access the ( food ) markets , thus driving up local food prices ."
+                    }
+                },
+                {
+                    "document_context": {
+                        "analysis": {
+                            "sentiment": "neutral",
+                            "sentiment_score": 0.5,
+                            "stance": "",
+                            "subjectivity": "subjective",
+                            "subjectivity_score": 0
+                        },
+                        "author": "FAO",
+                        "doc_id": "e9d00ffde95f5572c020fb2f09467c5d",
+                        "document_source": "",
+                        "file_type": "application/pdf",
+                        "label": [],
+                        "origin": {
+                            "assembly_request_id": "init",
+                            "byod_tag": "Default",
+                            "modified_at": 1627678011022
+                        },
+                        "publication_date": {
+                            "date": 1581465600000,
+                            "day": 12,
+                            "month": 2,
+                            "year": 2020
+                        },
+                        "publisher_name": "",
+                        "title": "Food Price Monitoring and Analysis (FPMA) Bulletin # 1, 12 February 2020"
+                    },
+                    "evidence_context": {
+                        "agents_text": [
+                            "lingering impact of prolonged conflict",
+                            "high level of food prices"
+                        ],
+                        "contradiction_words": [],
+                        "hedging_words": [],
+                        "obj_adjectives": [],
+                        "obj_polarity": 1,
+                        "source_api": "eidos",
+                        "source_hash": -1937022948257737200,
+                        "subj_adjectives": [],
+                        "subj_polarity": 1,
+                        "text": "The high level of food prices is driven by inadequate domestic supplies , high transport costs , difficult macro-economic situation and lingering impact of prolonged conflict ."
+                    }
+                },
+                {
+                    "document_context": {
+                        "analysis": {
+                            "sentiment": "neutral",
+                            "sentiment_score": 0.5,
+                            "stance": "",
+                            "subjectivity": "subjective",
+                            "subjectivity_score": 0
+                        },
+                        "author": "FAO",
+                        "doc_id": "54ae6262960ce0f27481da8e81c0b74f",
+                        "document_source": "",
+                        "file_type": "application/pdf",
+                        "label": [
+                            "Luma",
+                            "MITRE FAO-WFP",
+                            "MITRE August",
+                            "ATA",
+                            "August Embed",
+                            "Phase 3"
+                        ],
+                        "origin": {
+                            "assembly_request_id": "init",
+                            "byod_tag": "Default",
+                            "modified_at": 1627678011022
+                        },
+                        "publication_date": {
+                            "date": 1591747200000,
+                            "day": 10,
+                            "month": 6,
+                            "year": 2020
+                        },
+                        "publisher_name": "",
+                        "title": "Food Price Monitoring and Analysis (FPMA) Bulletin # 5, 10 June 2020"
+                    },
+                    "evidence_context": {
+                        "agents_text": [
+                            "lingering impact of prolonged conflict",
+                            "high level of food prices"
+                        ],
+                        "contradiction_words": [],
+                        "hedging_words": [],
+                        "obj_adjectives": [],
+                        "obj_polarity": 1,
+                        "source_api": "eidos",
+                        "source_hash": 8824882668751472000,
+                        "subj_adjectives": [],
+                        "subj_polarity": 1,
+                        "text": "Besides the COVID-19-related drivers , the high level of food prices is caused by inadequate domestic supplies , high transport costs , the difficult macro-economic situation and the lingering impact of prolonged conflict ."
+                    }
+                }
+            ],
+            "id": "06a1cfeb-6094-4a28-a1c3-a6a4b4d7517c-6b5afb43-0ba4-41e2-9fcf-272893572f36",
+            "matches_hash": -3043160854020870,
+            "modified_at": 1636737536572,
+            "obj": {
+                "adjectives": [],
+                "concept": "wm/concept/goods/food_price_or_cost",
+                "concept_score": 1,
+                "factor": "economic instability resulting in food price hikes and displacements",
+                "geo_context": {},
+                "polarity": 1,
+                "process": "",
+                "process_property": "",
+                "theme": "wm/concept/goods/food",
+                "theme_property": "wm/property/price_or_cost",
+                "time_context": {
+                    "end": {
+                        "date": 1599696000000,
+                        "day": 10,
+                        "month": 9,
+                        "year": 2020
+                    },
+                    "start": {
+                        "date": 1599609600000,
+                        "day": 9,
+                        "month": 9,
+                        "year": 2020
+                    }
+                }
+            },
+            "subj": {
+                "adjectives": [],
+                "concept": "wm/concept/crisis_or_disaster/conflict",
+                "concept_score": 1.0000001192092896,
+                "factor": "conflict",
+                "geo_context": {},
+                "polarity": 1,
+                "process": "",
+                "process_property": "",
+                "theme": "wm/concept/crisis_or_disaster/conflict",
+                "theme_property": "",
+                "time_context": {
+                    "end": {
+                        "date": 1599696000000,
+                        "day": 10,
+                        "month": 9,
+                        "year": 2020
+                    },
+                    "start": {
+                        "date": 1599609600000,
+                        "day": 9,
+                        "month": 9,
+                        "year": 2020
+                    }
+                }
+            }
+        },
+        {
+            "belief": 1,
+            "evidence": [
+                {
+                    "document_context": {},
+                    "evidence_context": {
+                        "obj_adjectives": [],
+                        "obj_polarity": 1,
+                        "subj_adjectives": [],
+                        "subj_polarity": 1
+                    }
+                }
+            ],
+            "id": "stub_statement",
+            "obj": {
+                "adjectives": [],
+                "concept": "wm/concept/crisis_or_disaster/conflict",
+                "concept_score": 1,
+                "factor": "user",
+                "polarity": 1,
+                "process": "user",
+                "process_property": "user",
+                "theme": "user",
+                "theme_property": "user"
+            },
+            "subj": {
+                "adjectives": [],
+                "concept": "wm/concept/crisis_or_disaster/famine",
+                "concept_score": 1,
+                "factor": "user",
+                "polarity": 1,
+                "process": "user",
+                "process_property": "user",
+                "theme": "user",
+                "theme_property": "user"
+            }
+        },
+        {
+            "belief": 0.9488280370316875,
+            "evidence": [
+                {
+                    "document_context": {
+                        "analysis": {
+                            "sentiment": "neutral",
+                            "sentiment_score": 0.5,
+                            "stance": "",
+                            "subjectivity": "subjective",
+                            "subjectivity_score": 0
+                        },
+                        "author": "Karolina Ekl\u00f6w and Dr Florian Krampe",
+                        "doc_id": "8c3713420910ba5a0881518a2506a020",
+                        "document_source": "",
+                        "file_type": "application/pdf",
+                        "label": [
+                            "MITRE Climate Security",
+                            "Luma",
+                            "MITRE August",
+                            "ATA",
+                            "August Embed"
+                        ],
+                        "origin": {
+                            "assembly_request_id": "init",
+                            "byod_tag": "Default",
+                            "modified_at": 1627678011022
+                        },
+                        "publication_date": {
+                            "date": 1571702400000,
+                            "day": 22,
+                            "month": 10,
+                            "year": 2019
+                        },
+                        "publisher_name": "",
+                        "title": "Climate-related security risks and peacebuilding in Somali"
+                    },
+                    "evidence_context": {
+                        "agents_text": [
+                            "price of food",
+                            "famine in the area.b The famine"
+                        ],
+                        "contradiction_words": [],
+                        "hedging_words": [],
+                        "obj_adjectives": [],
+                        "obj_polarity": null,
+                        "source_api": "eidos",
+                        "source_hash": 1992076253214597400,
+                        "subj_adjectives": [],
+                        "subj_polarity": 1,
+                        "text": "In the absence of any state-led response-and a substantial delay in major international response-it became the first time in three decades that the United Nations declared a famine in the area.b The famine was triggered by a major production failure and a global spike in the price of food ."
+                    }
+                },
+                {
+                    "document_context": {
+                        "analysis": {
+                            "sentiment": "negative",
+                            "sentiment_score": 0.35,
+                            "stance": "",
+                            "subjectivity": "objective",
+                            "subjectivity_score": 0.54
+                        },
+                        "author": "",
+                        "doc_id": "49e2d328d6a1501556ae02ad265a8e17",
+                        "document_source": "",
+                        "file_type": "application/json",
+                        "label": [],
+                        "origin": {
+                            "assembly_request_id": "init",
+                            "byod_tag": "Default",
+                            "modified_at": 1627678011022
+                        },
+                        "publication_date": {
+                            "date": 1584403200000,
+                            "day": 17,
+                            "month": 3,
+                            "year": 2020
+                        },
+                        "publisher_name": "Kuwait News Agency",
+                        "title": "Food security in E. Africa hard hit by desert locusts -- WFP"
+                    },
+                    "evidence_context": {
+                        "agents_text": [
+                            "rising food prices",
+                            "farmers and pastoralists deeper into hunger"
+                        ],
+                        "contradiction_words": [],
+                        "hedging_words": [
+                            "likely"
+                        ],
+                        "obj_adjectives": [],
+                        "obj_polarity": 1,
+                        "source_api": "eidos",
+                        "source_hash": 1229359316159103700,
+                        "subj_adjectives": [],
+                        "subj_polarity": 1,
+                        "text": "Lower food stocks and pasture , reduced income and rising food prices would likely drive farmers and pastoralists deeper into hunger ."
+                    }
+                }
+            ],
+            "id": "c2e48768-1f12-4333-99c3-8ade7000f778-69d4e731-b564-44bc-9ba5-62d81692f699",
+            "matches_hash": -8340153209132779,
+            "modified_at": 1636737555486,
+            "obj": {
+                "adjectives": [],
+                "concept": "wm/concept/crisis_or_disaster/famine",
+                "concept_score": 1,
+                "factor": "famine in the area.b The famine",
+                "geo_context": {},
+                "polarity": 1,
+                "process": "",
+                "process_property": "",
+                "theme": "wm/concept/crisis_or_disaster/famine",
+                "theme_property": "",
+                "time_context": {
+                    "end": {
+                        "date": 1571875200000,
+                        "day": 24,
+                        "month": 10,
+                        "year": 2019
+                    },
+                    "start": {
+                        "date": 1571788800000,
+                        "day": 23,
+                        "month": 10,
+                        "year": 2019
+                    }
+                }
+            },
+            "subj": {
+                "adjectives": [],
+                "concept": "wm/concept/goods/food_price_or_cost",
+                "concept_score": 1,
+                "factor": "price of food",
+                "geo_context": {},
+                "polarity": 1,
+                "process": "",
+                "process_property": "",
+                "theme": "wm/concept/goods/food",
+                "theme_property": "wm/property/price_or_cost",
+                "time_context": {
+                    "end": {
+                        "date": 1571875200000,
+                        "day": 24,
+                        "month": 10,
+                        "year": 2019
+                    },
+                    "start": {
+                        "date": 1571788800000,
+                        "day": 23,
+                        "month": 10,
+                        "year": 2019
+                    }
+                }
+            }
+        }
+    ]
+}
