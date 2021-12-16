@@ -261,14 +261,14 @@ int main(int argc, const char* argv[]) {
 
             /*
              If neither "CI" or "DELPHI_N_SAMPLES" is set, we default to a
-             sampling resolution of 1000.
+             sampling resolution of 100.
 
              TODO - we might want to set the default sampling resolution with
              some kind of heuristic, based on the number of nodes and edges. -
              Adarsh
             */
             size_t kde_kernels = 1000;
-            int sampling_resolution = 100; // in all cases
+            int sampling_resolution = 100; 
 	    int burn = 10000;
             if (getenv("CI")) {
                 // When running in a continuous integration run, we set the
