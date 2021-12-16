@@ -156,17 +156,30 @@ class Experiment {
             ; // Unknown experiment type
     }
 
-    static void train_model(Database* sqlite3DB,
-                            AnalysisGraph G,
-                            string modelId,
-                            int sampling_resolution,
-                            int burn) {
-        G.run_train_model(sampling_resolution,
-                          burn,
-                          InitialBeta::ZERO,
-                          InitialDerivative::DERI_ZERO);
-        sqlite3DB->insert_into_delphimodel(modelId,
-                                           G.serialize_to_json_string(false));
+
+    static void load_and_train_model(
+        nlohmann::json json_data,
+	Database* sqlite3DB,
+        AnalysisGraph G,
+        string modelId,
+        int sampling_resolution,
+        int burn) 
+    {
+        G.from_causemos_json_dict(json_data, 0, 0);
+	sqlite3DB->insert_into_delphimodel(
+            modelId,
+	    G.serialize_to_json_string(false)
+        );
+        G.run_train_model(
+            sampling_resolution,
+            burn,
+            InitialBeta::ZERO,
+            InitialDerivative::DERI_ZERO
+        );
+        sqlite3DB->insert_into_delphimodel(
+            modelId,
+            G.serialize_to_json_string(false)
+        );
     }
 };
 
@@ -248,16 +261,15 @@ int main(int argc, const char* argv[]) {
             // Find the id field, stop now if not foud.
             string failEarly = "model ID not found";
             string modelId = json_data.value("id", failEarly);
+	    nlohmann::json ret;
+	    ret["id"] = modelId;
+	    
             if (modelId == failEarly) {
                 cout << "Could not find 'id' field in input" << endl;
-                json ret_exp;
-                ret_exp["status"] = failEarly;
-                response << ret_exp.dump();
-//                return ret_exp.dump();
+                ret["status"] = failEarly;
+                response << ret.dump();
+                return ret.dump();
             }
-
-            /* dump the input file to screen */
-            // cout << json_data.dump() << endl;
 
             /*
              If neither "CI" or "DELPHI_N_SAMPLES" is set, we default to a
@@ -284,46 +296,31 @@ int main(int argc, const char* argv[]) {
                 burn = 100;
             }
 
-	    json rapid_response;
-	    rapid_response["id"] = modelId;
-	    rapid_response["status"] = "Loading data";
-            response << rapid_response.dump();
-
-
             AnalysisGraph G;
             G.set_res(kde_kernels);
-            G.from_causemos_json_dict(json_data, 0, 0);
-
-            sqlite3DB->insert_into_delphimodel(
-                json_data["id"], G.serialize_to_json_string(false));
-
-            auto response_json =
-                nlohmann::json::parse(G.generate_create_model_response());
 
             try {
-                thread executor_create_model(&Experiment::train_model,
-                                             sqlite3DB,
-                                             G,
-                                             json_data["id"],
-                                             sampling_resolution,
-                                             burn);
+                thread executor_create_model(
+                    &Experiment::load_and_train_model,
+                    json_data,
+                    sqlite3DB,
+                    G,
+                    modelId,
+                    sampling_resolution,
+                    burn
+		);
                 executor_create_model.detach();
-                cout << "Training model " << modelId << endl;
             }
             catch (std::exception& e) {
-                cout << "Error: unable to start training process" << endl;
-                json error;
-                error["status"] = "server error: training";
-                response << error.dump();
-//                return error.dump();
+                cout << "Error: unable to load and train model" << endl;
+                ret["status"] = "server error: training";
+                response << ret.dump();
+                return ret.dump();
             }
 
-            // response << response_json.dump();
-            // return response_json.dump();
-
-            string strresult = response_json.dump();
-            response << strresult;
-//            return strresult;
+	    ret["status"] = "Loading data";
+            response << ret.dump();
+            return ret.dump();
         });
 
     /* openApi 3.0.0
