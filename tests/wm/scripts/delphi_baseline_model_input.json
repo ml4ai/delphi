@@ -1,0 +1,84 @@
+{
+  "id": "XYZ1606327881",
+  "statements": [
+    {
+      "id": "0",
+      "belief": 1,
+      "evidence": [
+        {
+          "evidence_context": {
+            "subj_adjectives": [
+              "small"
+            ],
+            "subj_polarity": 1,
+            "obj_adjectives": [
+              "large"
+            ],
+            "obj_polarity": 1,
+            "text": "a small increase in rainfall results a large change in food prices"
+          }
+        }
+      ],
+      "subj": {
+        "adjectives": [],
+        "concept": "a",
+        "concept_score": 1,
+        "polarity": 1,
+        "theme": "a"
+      },
+      "obj": {
+        "adjectives": [],
+        "concept": "b",
+        "concept_score": 1,
+        "polarity": 1,
+        "theme": "b"
+      }
+    }
+  ],
+  "conceptIndicators": {
+    "a": {
+      "name": "a_ind",
+      "func": "mean",
+      "minValue": 1,
+      "maxValue": 201,
+      "numLevels": 31,
+      "values": [
+        {
+          "timestamp": 10,
+          "value": 1
+        },
+        {
+          "timestamp": 11,
+          "value": 1.1
+        },
+        {
+          "timestamp": 12,
+          "value": 1.2
+        }
+      ],
+      "source": ""
+    },
+    "b": {
+      "name": "b_ind",
+      "func": "first",
+      "minValue": 1,
+      "maxValue": 201,
+      "numLevels": 31,
+      "values": [
+        {
+          "timestamp": 10,
+          "value": 1
+        },
+        {
+          "timestamp": 13,
+          "value": 1.6
+        },
+        {
+          "timestamp": 14,
+          "value": 1.8
+        }
+      ],
+      "source": ""
+    }
+  }
+}
