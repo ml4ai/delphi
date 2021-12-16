@@ -253,7 +253,7 @@ int main(int argc, const char* argv[]) {
                 json ret_exp;
                 ret_exp["status"] = failEarly;
                 response << ret_exp.dump();
-                return ret_exp.dump();
+//                return ret_exp.dump();
             }
 
             /* dump the input file to screen */
@@ -315,7 +315,7 @@ int main(int argc, const char* argv[]) {
                 json error;
                 error["status"] = "server error: training";
                 response << error.dump();
-                return error.dump();
+//                return error.dump();
             }
 
             // response << response_json.dump();
@@ -323,7 +323,7 @@ int main(int argc, const char* argv[]) {
 
             string strresult = response_json.dump();
             response << strresult;
-            return strresult;
+//            return strresult;
         });
 
     /* openApi 3.0.0
