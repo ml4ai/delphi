@@ -24,9 +24,13 @@ else
 	call="curl -s $login -X POST $url$endpoint -d @$filename"
         echo "Call:"
         echo $call
-
+	
+	call_time=$(date +%T.%3N)
         response=$($call)
+	response_time=$(date +%T.%3N)
+
         echo "Response:"
         echo $response | jq
-
+	echo "Server queried: $call_time"
+	echo "Server replied: $response_time"
 fi
