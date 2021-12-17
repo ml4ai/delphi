@@ -16,6 +16,8 @@ class Database {
 
   void create_table();
 
+  bool model_id_exists(std::string model_id);
+
   std::vector<std::string> read_column_text(std::string query);
 
   std::vector<std::string> read_column_text_query(std::string table_name,

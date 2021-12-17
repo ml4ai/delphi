@@ -157,19 +157,23 @@ class Experiment {
     }
 
 
+    // load and run a model
     static void load_and_train_model(
         nlohmann::json json_data,
 	Database* sqlite3DB,
         AnalysisGraph G,
         string modelId,
         int sampling_resolution,
-        int burn) 
+        int burn
+    ) 
     {
+	// model status should be set in db as 'loading'
         G.from_causemos_json_dict(json_data, 0, 0);
 	sqlite3DB->insert_into_delphimodel(
             modelId,
 	    G.serialize_to_json_string(false)
         );
+	// model status should be set in db as 'training'
         G.run_train_model(
             sampling_resolution,
             burn,
@@ -181,11 +185,56 @@ class Experiment {
             G.serialize_to_json_string(false)
         );
     }
+
+    // load and run an experiment
+    static void load_and_run_experiment(
+        string experiment_type,
+        Database* sqlite3DB,
+        const served::request& request,
+        string modelId,
+        string experiment_id
+    )
+    {
+        sqlite3DB->insert_into_causemosasyncexperimentresult(
+            experiment_id,
+	    "checking model",
+	    experiment_type,
+	    ""
+        );
+
+	json query_result = sqlite3DB->select_delphimodel_row(modelId);
+	string model = query_result["model"];
+
+        bool trained = nlohmann::json::parse(model)["trained"];
+	if (trained == false) {
+            sqlite3DB->insert_into_causemosasyncexperimentresult(
+                experiment_id,
+        	"model not trained",
+    	        experiment_type,
+    	        ""
+            );
+	    return;
+	}
+
+        sqlite3DB->insert_into_causemosasyncexperimentresult(
+            experiment_id,
+	    "processing",
+	    experiment_type,
+	    ""
+        );
+
+        runExperiment(
+            sqlite3DB,
+            request,
+            modelId,
+            experiment_id
+        );
+    }
 };
 
 
 // declare if CI is running, model creation will be shorter
-std::string getStatus() {
+static std::string getApiStatus() {
 
     char buf[200];
     time_t t;
@@ -210,7 +259,7 @@ std::string getStatus() {
 }
 
 // the status only has to be generated once.
-string status = getStatus();
+string status = getApiStatus();
 
 
 int main(int argc, const char* argv[]) {
@@ -318,7 +367,7 @@ int main(int argc, const char* argv[]) {
                 return ret.dump();
             }
 
-	    ret["status"] = "Loading data";
+	    ret["status"] = "Loading";
             response << ret.dump();
             return ret.dump();
         });
@@ -377,63 +426,53 @@ int main(int argc, const char* argv[]) {
     */
     mux.handle("/models/{modelId}/experiments")
         .post([&sqlite3DB](served::response& res, const served::request& req) {
+	    cout << "/models/{modelId}/experiments" << endl;
+
             auto request_body = nlohmann::json::parse(req.body());
-            string modelId = req.params["modelId"]; // should catch if not found
+            string modelId = req.params["modelId"]; 
 
-            json query_result = sqlite3DB->select_delphimodel_row(modelId);
-            if (query_result.empty()) {
-                json ret_exp;
-                ret_exp["experimentId"] = "invalid model id";
-                res << ret_exp.dump();
-                return ret_exp;
+	    cout << "model ID:  " << modelId << endl;
+
+	    json ret;
+	    ret["model_id"] = modelId;
+
+	    // check if model ID is in the database
+	    if(!sqlite3DB->model_id_exists(modelId)){
+                ret["experimentId"] = "invalid model id";
+                res << ret.dump();
+                return ret;
             }
 
-            string model = query_result["model"];
-
-            bool trained = nlohmann::json::parse(model)["trained"];
-
-            if (trained == false) {
-                json ret_exp;
-                ret_exp["experimentId"] = "model not trained";
-                res << ret_exp.dump();
-                return ret_exp;
-            }
-
-            string experiment_type = request_body["experimentType"];
             boost::uuids::uuid uuid = boost::uuids::random_generator()();
             string experiment_id = to_string(uuid);
+	    ret["experimentId"] = experiment_id;
+	    ret["status"] = "loading";
 
-	    json rapid_response;
-	    rapid_response["id"] = experiment_id;
-	    rapid_response["status"] = "Loading data";
-            res << rapid_response.dump();
+	    // what if this value is not in the request?
+            string experiment_type = request_body["experimentType"];
+	    cout << "experiment_type:  " << experiment_type << endl;
 
-            sqlite3DB->insert_into_causemosasyncexperimentresult(
-                experiment_id, "in progress", experiment_type, "");
 
             try {
-                thread executor_experiment(&Experiment::runExperiment,
-                                           sqlite3DB,
-                                           req,
-                                           modelId,
-                                           experiment_id);
+                thread executor_experiment(
+                    &Experiment::load_and_run_experiment,
+		    experiment_type,
+                    sqlite3DB,
+                    req,
+                    modelId,
+                    experiment_id
+		);
                 executor_experiment.detach();
             }
             catch (std::exception& e) {
                 cout << "Error: unable to start experiment process" << endl;
-
-                json ret_exp;
-                ret_exp["experimentId"] = "server error: experiment";
-                res << ret_exp.dump();
-                return ret_exp;
+                ret["experimentId"] = "server error: experiment";
+                res << ret.dump();
+                return ret;
             }
 
-            json ret_exp;
-            //            ret_exp["modelId"] = modelId;  API only calls for
-            //            experiment ID
-            ret_exp["experimentId"] = experiment_id;
-            res << ret_exp.dump();
-            return ret_exp;
+            res << ret.dump();
+            return ret;
         });
 
     /* openApi 3.0.0
@@ -548,9 +587,9 @@ int main(int argc, const char* argv[]) {
             json query_result = sqlite3DB->select_delphimodel_row(modelId);
 
             if (query_result.empty()) {
-                json ret_exp;
-                ret_exp["status"] = "invalid model id";
-                res << ret_exp.dump();
+                json ret;
+                ret["status"] = "invalid model id";
+                res << ret.dump();
                 return;
             }
 

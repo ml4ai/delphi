@@ -32,6 +32,17 @@ int callback(void* NotUsed, int argc, char** argv, char** azColName) {
     return 0;
 }
 
+/* return true if the model ID has a row in the delphimodel table */
+bool Database::model_id_exists(std::string model_id) {
+    vector<std::string> result = read_column_text_query_where(
+        "delphimodel",
+        "id",
+        "id",
+        model_id
+    );
+    return ((result.size() == 1) && (result.front() == model_id));
+}
+
 /*
     Query to select/read one column and return a vector of string filled with
    the column value of any table Query format: SELECT <column_name> from
