@@ -430,11 +430,10 @@ int main(int argc, const char* argv[]) {
 
             auto request_body = nlohmann::json::parse(req.body());
             string modelId = req.params["modelId"]; 
-
 	    cout << "model ID:  " << modelId << endl;
 
 	    json ret;
-	    ret["model_id"] = modelId;
+	    ret["modelId"] = modelId;
 
 	    // check if model ID is in the database
 	    if(!sqlite3DB->model_id_exists(modelId)){
@@ -451,7 +450,6 @@ int main(int argc, const char* argv[]) {
 	    // what if this value is not in the request?
             string experiment_type = request_body["experimentType"];
 	    cout << "experiment_type:  " << experiment_type << endl;
-
 
             try {
                 thread executor_experiment(
@@ -482,15 +480,22 @@ int main(int argc, const char* argv[]) {
         .get([&sqlite3DB](served::response& res, const served::request& req) {
             TrainingStatus ts;
 
-            string modelId = req.params["modelId"]; // should catch missing
+            string modelId = req.params["modelId"]; 
+	    json ret;
+	    ret["modelId"] = modelId;
+
+	    // check if model ID is in the database
+	    if(!sqlite3DB->model_id_exists(modelId)){
+                ret["status"] = "invalid model id";
+                res << ret.dump();
+		return;
+            }
             string query_return = ts.read_from_db(modelId);
 
+
             if (query_return.empty()) {
-                json error;
-                error["id"] = modelId;
-                error["status"] = "No training status data found";
-                res << error.dump();
-                return;
+                ret["status"] = "No training status data found";
+                res << ret.dump();
             }
 
             json cols = json::parse(query_return);
@@ -504,10 +509,9 @@ int main(int argc, const char* argv[]) {
             // output["progressPercentage"].dump(), but the specification also
             // calls for application/json content, so we send a JSON structure
             // with only that field.
-            json foo;
-            foo["progressPercentage"] = output["progressPercentage"];
+            ret["progressPercentage"] = output["progressPercentage"];
 
-            res << foo.dump();
+            res << ret.dump();
         });
 
     /* openApi 3.0.0
