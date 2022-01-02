@@ -61,6 +61,7 @@ class Edge {
   // θ = atan(1) = Π/4
   // β = tan(atan(1)) = 1
   double theta = std::atan(1);
+  double theta_gt = std::atan(1);  // Ground truth theta used to generate synthetic data
   bool frozen = false;
 
   public:
@@ -85,7 +86,7 @@ class Edge {
       return this->frozen;
   }
 
-  void set_theta(double theta) {
+  void set_theta(double theta, bool is_ground_truth = false) {
       if (!this->frozen) {
           if (0 <= theta && theta <= M_PI) {
               this->theta = theta;
@@ -98,7 +99,12 @@ class Edge {
           }
           else {
               std::cout << "\n\n\t**********ERROR: Edge.hpp - theta outside range coded for processing!!**********\n\n";
-              std::cout << theta << std::endl;
+              std::cout << "\tNew: " << theta << std::endl;
+          }
+
+          if (is_ground_truth) {
+              // Remember the ground truth theta used to generate synthetic data
+              this->theta_gt = this->theta;
           }
       }
   }
@@ -107,8 +113,11 @@ class Edge {
     return this->theta;
   }
 
+   double get_theta_gt() const {
+       return this->theta_gt;
+   }
+
   void compute_logpdf_theta() {
-//    this->logpdf_theta = this->kde.logpdf(this->theta);
     this->logpdf_theta = this->kde.log_prior_hist[this->kde.theta_to_bin(this->theta)];
   }
 

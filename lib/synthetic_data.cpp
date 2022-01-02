@@ -2,8 +2,7 @@
 #include <range/v3/all.hpp>
 #include <boost/range/algorithm.hpp>
 #include <boost/range/adaptors.hpp>
-#include <sqlite3.h>
-#include <unistd.h>
+#include "CSVWriter.hpp"
 
 using namespace std;
 using namespace delphi::utils;
@@ -45,7 +44,6 @@ AnalysisGraph AnalysisGraph::generate_random_CAG(unsigned int num_nodes,
   int src_idx = 0;
 
   for (rand_node[1] = 1; rand_node[1] < num_nodes; rand_node[1]++) {
-    rand_node.clear();
     sample(cag_nodes.begin(), cag_nodes.end(), rand_node.begin(), 1, G.rand_num_generator);
     cag_nodes.push_back(rand_node[1]);
 
@@ -104,10 +102,10 @@ void AnalysisGraph::initialize_random_CAG(unsigned int num_obs,
                                           InitialDerivative initial_derivative,
                                           bool use_continuous) {
   this->initialize_random_number_generator();
-  this->set_default_initial_state(initial_derivative);
+  this->set_default_initial_state(initial_derivative, true);
   this->n_kde_kernels = kde_kernels;
   this->construct_theta_pdfs();
-  this->init_betas_to(initial_beta);
+  this->init_betas_to(initial_beta, true);
   this->pred_timesteps = num_obs + 1;
   this->continuous = use_continuous;
   this->find_all_paths();
@@ -153,7 +151,6 @@ void AnalysisGraph::generate_synthetic_data(unsigned int num_obs,
       filled_months.push_back(month);
     }
     this->interpolate_missing_months(filled_months, n);
-    print("{0} - {1}\n", n.name, n.period);
   }
 
   for (int v = 0; v < this->num_vertices(); v++) {
@@ -252,3 +249,150 @@ void AnalysisGraph::interpolate_missing_months(vector<int> &filled_months, Node 
     }
   }
 }
+
+pair<int, double> AnalysisGraph::assess_model_fit(string output_file_prefix,
+                                                  int cag_id,
+                                                  int seed) {
+    if (!this->trained) {
+        cout << "WARNING: The model is not trained. "
+                "Cannot assess the quality of the fit\n";
+        return make_pair(0, 0.0);
+    }
+
+    // Calculate the MAP sample fit
+    Eigen::MatrixXd& A_MAP = this->transition_matrix_collection
+                                [this->MAP_sample_number];
+    vector<double> theta_errors(this->res);
+    double tot_MAP_squared_error_theta = 0.0;
+    int n_nodes = this->num_nodes();
+    int n_edges = this->num_edges();
+    CSVWriter fitness_writer = CSVWriter(output_file_prefix +
+                                         to_string(cag_id) + "_" +
+                                         to_string(n_nodes) + "-" +
+                                         to_string(n_edges) + "_" +
+                                         to_string(seed) + "_" +
+                                         to_string(this->coin_flip_thresh) +
+                                         "_model_fit_"
+                                         + delphi::utils::get_timestamp() +
+                                         ".csv");
+    vector<string> headings = {"Run", "Nodes", "Edges", "Source", "Target",
+                               "True Theta", "MAP Theta", "True - MAP",
+                               "Edge RMSE", "Edge Error Mean",
+                               "Edge Error Std"};
+    fitness_writer.write_row(headings.begin(), headings.end());
+    vector<string> row;
+
+    for (EdgeDescriptor ed : this->edges()) {
+        string source_name = (*this)[boost::source(ed, this->graph)].name;
+        string target_name = (*this)[boost::target(ed, this->graph)].name;
+        int source_id = this->name_to_vertex[source_name];
+        int target_id = this->name_to_vertex[target_name];
+
+        double theta_MAP = atan(A_MAP(target_id * 2, source_id * 2 + 1));
+        theta_MAP = theta_MAP < 0 ? M_PI + theta_MAP : theta_MAP;
+
+        double theta_gt = this->graph[ed].get_theta_gt();
+
+        double theta_error_MAP = theta_gt - theta_MAP;
+        tot_MAP_squared_error_theta += theta_error_MAP * theta_error_MAP;
+
+        for (int i = 0; i < this->res; i++) {
+            theta_errors[i] = theta_gt - this->graph[ed].sampled_thetas[i];
+        }
+
+        double rmse_edge = sqrt(inner_product(theta_errors.begin(),
+                                              theta_errors.end(),
+                                              theta_errors.begin(), 0.0)
+                                / this->res);
+        double mean_error_edge = accumulate(theta_errors.begin(),
+                                            theta_errors.end(), 0.0)
+                                 / theta_errors.size();
+        double tot_error_diff_edge = 0.0;
+        std::for_each (
+            theta_errors.begin(), theta_errors.end(),
+                      [&](const double err) {
+                                double error_diff = err - mean_error_edge;
+                                tot_error_diff_edge += error_diff * error_diff;
+                                            });
+
+        double std_error_edge = sqrt(tot_error_diff_edge / (this->res - 1));
+
+        row.clear();
+        row = {to_string(cag_id), to_string(n_nodes), to_string(n_edges),
+               source_name, target_name, to_string(theta_gt),
+               to_string(theta_MAP), to_string(theta_error_MAP),
+               to_string(rmse_edge), to_string(mean_error_edge),
+               to_string(std_error_edge)};
+        fitness_writer.write_row(row.begin(), row.end());
+    }
+
+    double rmse_MAP = sqrt(tot_MAP_squared_error_theta / n_edges);
+    row.clear();
+    row = {to_string(cag_id), to_string(n_nodes), to_string(n_edges),
+           "MAP RMSE", "", "", "", "", to_string(rmse_MAP)};
+    fitness_writer.write_row(row.begin(), row.end());
+    headings = {"Run", "Nodes", "Edges", "Node", "True Derivative",
+                "MAP Derivative", "True - MAP", "Node RMSE", "Node Error Mean",
+                "Node Error Std"};
+    row.clear();
+    row = {""};
+    fitness_writer.write_row(row.begin(), row.end()); // Blank row
+    fitness_writer.write_row(headings.begin(), headings.end());
+
+    Eigen::VectorXd s0_MAP = this->initial_latent_state_collection
+                                 [this->MAP_sample_number];
+    double tot_MAP_squared_error_deri = 0.0;
+    vector<double> deri_errors(this->res);
+
+    for (int node_id : this->body_nodes) {
+        int deri_idx = 2 * node_id + 1;
+        double deri_MAP = s0_MAP(deri_idx);
+        double deri_gt = this->s0_gt(deri_idx);
+        double deri_error_MAP = deri_gt - deri_MAP;
+        tot_MAP_squared_error_deri += deri_error_MAP * deri_error_MAP;
+
+        for (int i = 0; i < this->res; i++) {
+            deri_errors[i] = deri_gt - this->initial_latent_state_collection
+                                            [i](deri_idx);
+        }
+
+        double rmse_deri = sqrt(inner_product(deri_errors.begin(),
+                                              deri_errors.end(),
+                                              deri_errors.begin(), 0.0)
+                                / this->res);
+        double mean_error_deri = accumulate(deri_errors.begin(),
+                                            deri_errors.end(), 0.0)
+                                 / this->res;
+        double tot_error_diff_deri = 0.0;
+        std::for_each (
+            deri_errors.begin(), deri_errors.end(),
+            [&](const double err) {
+                double error_diff = err - mean_error_deri;
+                tot_error_diff_deri += error_diff * error_diff;
+            });
+
+        double std_error_deri = this->res > 1
+                                ? sqrt(tot_error_diff_deri / (this->res - 1))
+                                : 0;
+
+        Node& n = (*this)[node_id];
+
+        row.clear();
+        row = {to_string(cag_id), to_string(n_nodes), to_string(n_edges),
+               n.name, to_string(deri_gt),
+               to_string(deri_MAP), to_string(deri_error_MAP),
+               to_string(rmse_deri), to_string(mean_error_deri),
+               to_string(std_error_deri)};
+        fitness_writer.write_row(row.begin(), row.end());
+    }
+
+    rmse_MAP = sqrt(tot_MAP_squared_error_deri / this->body_nodes.size());
+    row.clear();
+    row = {to_string(cag_id), to_string(n_nodes), to_string(n_edges),
+           "MAP RMSE", "", "", "", to_string(rmse_MAP)};
+    fitness_writer.write_row(row.begin(), row.end());
+
+    return make_pair(this->body_nodes.size() + n_edges,
+                     tot_MAP_squared_error_deri + tot_MAP_squared_error_theta);
+}
+

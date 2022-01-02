@@ -14,7 +14,8 @@ using namespace std;
 pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph(bool simplified_labels,
                                                  int label_depth,
                                                  string node_to_highlight,
-                                                 string rankdir) {
+                                                 string rankdir,
+                                                 bool show_indicators) {
 
   using delphi::gv::set_property, delphi::gv::add_node;
   using namespace ranges::views;
@@ -86,21 +87,24 @@ pair<Agraph_t*, GVC_t*> AnalysisGraph::to_agraph(bool simplified_labels,
   }
 
   // Add concepts, indicators, and link them.
-  for (Node& node : this->nodes()) {
-    string concept_name = node.name;
-    for (auto indicator : node.indicators) {
-      src = add_node(G, concept_name);
-      trgt = add_node(G, indicator.name);
-      set_property(trgt,
-                   "label",
-                   indicator.name + "\nSource: " + indicator.source +
-                       "\nDBN Initialization Value: " +
-                       to_string(indicator.mean) + "\nUnit: " + indicator.unit);
-      set_property(trgt, "style", "rounded,filled");
-      set_property(trgt, "fillcolor", "lightblue");
+  if (show_indicators) {
+      for (Node& node : this->nodes()) {
+          string concept_name = node.name;
+          for (auto indicator : node.indicators) {
+              src = add_node(G, concept_name);
+              trgt = add_node(G, indicator.name);
+              set_property(trgt,
+                           "label",
+                           indicator.name + "\nSource: " + indicator.source +
+                               "\nDBN Initialization Value: " +
+                               to_string(indicator.mean) +
+                               "\nUnit: " + indicator.unit);
+              set_property(trgt, "style", "rounded,filled");
+              set_property(trgt, "fillcolor", "lightblue");
 
-      edge = agedge(G, src, trgt, 0, true);
-    }
+              edge = agedge(G, src, trgt, 0, true);
+          }
+      }
   }
   gvLayout(gvc, G, "dot");
   return make_pair(G, gvc);
@@ -116,9 +120,11 @@ void AnalysisGraph::to_png(string filename,
                            bool simplified_labels,
                            int label_depth,
                            string node_to_highlight,
-                           string rankdir) {
+                           string rankdir,
+                           bool show_indicators) {
   auto [G, gvc] = this->to_agraph(
-      simplified_labels, label_depth, node_to_highlight, rankdir);
+      simplified_labels, label_depth, node_to_highlight,
+        rankdir, show_indicators);
   gvRenderFilename(gvc, G, "png", const_cast<char*>(filename.c_str()));
   gvFreeLayout(gvc, G);
   agclose(G);

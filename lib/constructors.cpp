@@ -227,6 +227,7 @@ AnalysisGraph::AnalysisGraph(const AnalysisGraph& rhs) {
   this->t = rhs.t;
   this->delta_t = rhs.delta_t;
   this->s0 = rhs.s0;
+  this->s0_gt = rhs.s0_gt;
   this->A_original = rhs.A_original;
   this->continuous = rhs.continuous;
 

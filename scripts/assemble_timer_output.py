@@ -258,7 +258,7 @@ def combine_before_and_after_dfs(df_bf, df_af):
         df[f'{timing_type} Diff (ms)'] = df.apply(lambda row: row[col_before] - row[col_after], axis=1)
         df[f'% Speedup ({timing_type})'] = df\
             .apply(lambda row: row[f'{timing_type} Diff (ms)'] * 100 / row[col_before], axis=1)
-        df[f'Fold Speedup ({timing_type}) - $f$'] = df.apply(lambda row: row[col_before] / row[col_after], axis=1)
+        df[f'Speedup Factor ({timing_type}) - $f$'] = df.apply(lambda row: row[col_before] / row[col_after], axis=1)
 
     df_summary_bf = df_bf.groupby(by=['Nodes', 'Edges', 'Sample Type'], as_index=False)\
                                                     .agg(wall_before_mean=('Wall Clock Time (ms)', 'mean'),
@@ -364,8 +364,8 @@ def combine_before_and_after_dfs(df_bf, df_af):
                   'Average of Median CPU Times Diff (ms)',   '% Speedup (Average of Median CPU Times)',
                   'Average of Mean Wall Times Diff (ms)',    '% Speedup (Average of Mean Wall Times)',
                   'Average of Median Wall Times Diff (ms)',  '% Speedup (Average of Median Wall Times)',
-                  'Fold Speedup (Average of Mean CPU Times) - $f$', 'Fold Speedup (Average of Median CPU Times) - $f$',
-                  'Fold Speedup (Average of Mean Wall Times) - $f$', 'Fold Speedup (Average of Median Wall Times) - $f$']
+                  'Speedup Factor (Average of Mean CPU Times) - $f$', 'Speedup Factor (Average of Median CPU Times) - $f$',
+                  'Speedup Factor (Average of Mean Wall Times) - $f$', 'Speedup Factor (Average of Median Wall Times) - $f$']
     df_average = pd.melt(df_average, id_vars=['Nodes', 'Edges'],
                          value_vars=value_vars, value_name='Average Timing', var_name='Timing Type')
 
@@ -383,11 +383,11 @@ def plot_micro_timing_min_cag_averages(df_average, timing_type, speedup=True, fo
 
     if speedup:
         if fold:
-            filter = df_min_cag['Timing Type'] == f'Fold Speedup ({timing_type}) - $f$'
-            title = 'Average Fold Speedup for a Single MCMC Iteration (# Edges = # Nodes - 1)\n' \
-                    'Optimized version is $f$-fold faster than earlier'
-            y_label = 'Fold-Speedup'
-            file_name = f'{file_name_prefix}avg_fold_speedup.png'
+            filter = df_min_cag['Timing Type'] == f'Speedup Factor ({timing_type}) - $f$'
+            title = 'Average Speedup Factor for a Single MCMC Iteration (# Edges = # Nodes - 1)\n' \
+                    'Optimized version is $f$-times faster than earlier'
+            y_label = 'Times Faster'
+            file_name = f'{file_name_prefix}avg_speedup_factor.png'
         else:
             filter = df_min_cag['Timing Type'] == f'% Speedup ({timing_type})'
             title = 'Average Percentage Speedup for a Single MCMC Iteration (# Edges = # Nodes - 1)'

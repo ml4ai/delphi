@@ -53,7 +53,7 @@ void AnalysisGraph::train_model(int start_year,
           this->set_observed_state_sequence_from_data(country, state, county);
       }
 
-      this->run_train_model(res, burn, initial_beta, initial_derivative,
+      this->run_train_model(res, burn, initial_beta, initial_derivative, 0.5,
                             use_heuristic, use_continuous);
   }
 }
@@ -82,6 +82,7 @@ void AnalysisGraph::run_train_model(int res,
                                 int burn,
                                 InitialBeta initial_beta,
                                 InitialDerivative initial_derivative,
+                                double theta_sampling_probability,
                                 bool use_heuristic,
                                 bool use_continuous,
                                 int train_start_timestep,
@@ -93,6 +94,8 @@ void AnalysisGraph::run_train_model(int res,
                                 unordered_map<string, double> concept_max_vals,
                                 unordered_map<string, function<double(unsigned int, double)>> ext_concepts
                                 ) {
+
+    this->coin_flip_thresh = theta_sampling_probability;
 
     TrainingStatus ts;
     ts.start_updating_db(this);
@@ -205,16 +208,6 @@ void AnalysisGraph::run_train_model(int res,
 
     #ifdef TIME
         this->create_mcmc_part_timing_file();
-//      int n_nodes = this->num_nodes();
-//      int n_edges = this->num_nodes();
-//      string filename = string("mcmc_timing_embeded_") +
-//                        to_string(n_nodes) + "-" +
-//                        to_string(n_edges) + "_" +
-//                        delphi::utils::get_timestamp() + ".csv";
-//      this->writer = CSVWriter(filename);
-//      vector<string> headings = {"Nodes", "Edges", "Wall Clock Time (ns)", "CPU Time (ns)", "Sample Type"};
-//      writer.write_row(headings.begin(), headings.end());
-//      cout << filename << endl;
     #endif
 
     cout << "\nBurning " << burn << " samples out..." << endl;
@@ -223,19 +216,15 @@ void AnalysisGraph::run_train_model(int res,
 
        {
           #ifdef TIME
-//            durations.first.clear();
             durations.second.clear();
             durations.second.push_back(this->timing_run_number);
-//            durations.first.push_back("Nodes");
             durations.second.push_back(this->num_nodes());
-//            durations.first.push_back("Edges");
             durations.second.push_back(this->num_nodes());
             Timer t = Timer("train", durations);
           #endif
           this->sample_from_posterior();
       }
       #ifdef TIME
-//        durations.first.push_back("sample type");
         durations.second.push_back(this->coin_flip < this->coin_flip_thresh? 1 : 0);
         writer.write_row(durations.second.begin(), durations.second.end());
       #endif
@@ -251,27 +240,21 @@ void AnalysisGraph::run_train_model(int res,
       }
     }
 
-    //int num_verts = this->num_vertices();
-
     cout << "\nSampling " << this->res << " samples from posterior..." << endl;
     for (int i : trange(this->res - 1)) {
       {
         this->training_progress += training_step;
 
         #ifdef TIME
-//                durations.first.clear();
                 durations.second.clear();
                 durations.second.push_back(this->timing_run_number);
-//                durations.first.push_back("Nodes");
                 durations.second.push_back(this->num_nodes());
-//                durations.first.push_back("Edges");
                 durations.second.push_back(this->num_edges());
                 Timer t = Timer("Train", durations);
         #endif
         this->sample_from_posterior();
       }
       #ifdef TIME
-//            durations.first.push_back("Sample Type");
             durations.second.push_back(this->coin_flip < this->coin_flip_thresh? 1 : 0);
             writer.write_row(durations.second.begin(), durations.second.end());
       #endif

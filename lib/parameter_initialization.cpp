@@ -57,7 +57,7 @@ void AnalysisGraph::initialize_parameters(int res,
     //                      unordered_map<int, pair<double, double>>>>(this->res);
 }
 
-void AnalysisGraph::init_betas_to(InitialBeta ib) {
+void AnalysisGraph::init_betas_to(InitialBeta ib, bool is_ground_truth) {
   switch (ib) {
   // Initialize the initial β for this edge
   // Note: I am repeating the loop within each case for efficiency.
@@ -66,7 +66,7 @@ void AnalysisGraph::init_betas_to(InitialBeta ib) {
   case InitialBeta::ZERO:
     for (EdgeDescriptor e : this->edges()) {
       // β = tan(0.0) = 0
-      this->graph[e].set_theta(0.0);
+      this->graph[e].set_theta(0.0, is_ground_truth);
       this->graph[e].compute_logpdf_theta();
     }
     break;
@@ -74,32 +74,34 @@ void AnalysisGraph::init_betas_to(InitialBeta ib) {
     for (EdgeDescriptor e : this->edges()) {
       // θ = atan(1) = Π/4
       // β = tan(atan(1)) = 1
-      this->graph[e].set_theta(std::atan(1));
+      this->graph[e].set_theta(std::atan(1), is_ground_truth);
       this->graph[e].compute_logpdf_theta();
     }
     break;
   case InitialBeta::HALF:
     for (EdgeDescriptor e : this->edges()) {
       // β = tan(atan(0.5)) = 0.5
-      this->graph[e].set_theta(std::atan(0.5));
+      this->graph[e].set_theta(std::atan(0.5), is_ground_truth);
       this->graph[e].compute_logpdf_theta();
     }
     break;
   case InitialBeta::MEAN:
     for (EdgeDescriptor e : this->edges()) {
-      this->graph[e].set_theta(this->graph[e].kde.mu);
+      this->graph[e].set_theta(this->graph[e].kde.mu, is_ground_truth);
       this->graph[e].compute_logpdf_theta();
     }
     break;
   case InitialBeta::MEDIAN:
       for (EdgeDescriptor e : this->edges()) {
-        this->graph[e].set_theta(median(this->graph[e].kde.dataset));
+        this->graph[e].set_theta(median(this->graph[e].kde.dataset),
+                                 is_ground_truth);
         this->graph[e].compute_logpdf_theta();
       }
       break;
     case InitialBeta::PRIOR:
       for (EdgeDescriptor e : this->edges()) {
-        this->graph[e].set_theta(this->graph[e].kde.most_probable_theta);
+        this->graph[e].set_theta(this->graph[e].kde.most_probable_theta,
+                                 is_ground_truth);
         this->graph[e].compute_logpdf_theta();
       }
       break;
@@ -107,7 +109,8 @@ void AnalysisGraph::init_betas_to(InitialBeta ib) {
     for (EdgeDescriptor e : this->edges()) {
       // this->uni_dist() gives a random number in range [0, 1]
       // Multiplying by M_PI scales the range to [0, M_PI]
-      this->graph[e].set_theta(this->uni_dist(this->rand_num_generator) * M_PI);
+      this->graph[e].set_theta(this->uni_dist(this->rand_num_generator) * M_PI,
+                               is_ground_truth);
       this->graph[e].compute_logpdf_theta();
     }
     break;

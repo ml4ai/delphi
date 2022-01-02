@@ -330,6 +330,7 @@ class AnalysisGraph {
 
   // Latent state that is evolved by sampling.
   Eigen::VectorXd s0;
+  Eigen::VectorXd s0_gt;  // Ground truth s0 used to generate synthetic data
   Eigen::VectorXd s0_prev;
   double derivative_prior_variance = 0.1;
 
@@ -885,7 +886,8 @@ class AnalysisGraph {
    *
    * @param ib: Criteria to initialize β
    */
-  void init_betas_to(InitialBeta ib = InitialBeta::MEAN);
+  void init_betas_to(InitialBeta ib = InitialBeta::MEAN,
+                     bool is_ground_truth = false);
 
   void construct_theta_pdfs();
 
@@ -1044,7 +1046,8 @@ class AnalysisGraph {
       int label_depth =
           1, /** Depth in the ontology to which simplified labels extend */
       std::string node_to_highlight = "",
-      std::string rankdir = "TB");
+      std::string rankdir = "TB",
+      bool show_indicators = true);
 
   public:
   AnalysisGraph() {
@@ -1436,6 +1439,7 @@ class AnalysisGraph {
                    int burn = 10000,
                    InitialBeta initial_beta = InitialBeta::ZERO,
                    InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO,
+                   double theta_sampling_probability = 0.5,
                    bool use_heuristic = false,
                    bool use_continuous = true,
                    int train_start_timestep = 0,
@@ -1464,7 +1468,8 @@ class AnalysisGraph {
 
   void set_initial_latent_state(Eigen::VectorXd vec) { this->s0 = vec; };
 
-  void set_default_initial_state(InitialDerivative id = InitialDerivative::DERI_ZERO);
+  void set_default_initial_state(InitialDerivative id = InitialDerivative::DERI_ZERO,
+                                 bool is_ground_truth = false);
 
   /*
    ============================================================================
@@ -1546,6 +1551,9 @@ class AnalysisGraph {
 
   void interpolate_missing_months(std::vector<int> &filled_months, Node &n);
 
+  std::pair<int, double>
+  assess_model_fit(std::string output_file_prefix, int cag_id, int seed);
+
   /*
    ============================================================================
    Public: Graph Visualization (in graphviz.cpp)
@@ -1561,7 +1569,8 @@ class AnalysisGraph {
          int label_depth =
              1, /** Depth in the ontology to which simplified labels extend */
          std::string node_to_highlight = "",
-         std::string rankdir = "TB");
+         std::string rankdir = "TB",
+         bool show_indicators = true);
 
   /*
    ============================================================================
@@ -1640,7 +1649,7 @@ class AnalysisGraph {
   {
       std::string filename = this->timing_file_prefix + "embeded_" +
                               std::to_string(this->num_nodes()) + "-" +
-                              std::to_string(this->num_nodes()) + "_" +
+                              std::to_string(this->num_edges()) + "_" +
                               std::to_string(this->timing_run_number) + "_" +
                               delphi::utils::get_timestamp() + ".csv";
       this->writer = CSVWriter(filename);

@@ -183,6 +183,7 @@ PYBIND11_MODULE(DelphiPython, m) {
            "burn"_a = 10000,
            "initial_beta"_a = InitialBeta::ZERO,
            "initial_derivative"_a = InitialDerivative::DERI_ZERO,
+           "theta_sampling_probability"_a = 0.5,
            "use_heuristic"_a = false,
            "use_continuous"_a = true,
            "train_start_timestep"_a = 0,

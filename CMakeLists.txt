@@ -128,6 +128,13 @@ add_executable(timer
 target_link_libraries(timer PRIVATE Delphi Eigen3::Eigen ${Boost_LIBRARIES})
 target_include_directories(timer PRIVATE ${Boost_INCLUDE_DIR} lib external ${GRAPHVIZ_INCLUDE_DIRS})
 
+## Model training fitness assessment against ground truth parameters
+add_executable(fitness_assessor
+        apps/fitness_assessor.cpp
+        lib/CSVWriter.hpp)
+target_link_libraries(fitness_assessor PRIVATE Delphi Eigen3::Eigen ${Boost_LIBRARIES})
+target_include_directories(fitness_assessor PRIVATE ${Boost_INCLUDE_DIR} lib external ${GRAPHVIZ_INCLUDE_DIRS})
+
 # Build the REST API program
 add_executable(delphi_rest_api apps/delphi_rest_api.cpp)
 target_link_libraries(delphi_rest_api PRIVATE Delphi PkgConfig::SERVED Eigen3::Eigen pthread)
