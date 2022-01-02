@@ -392,6 +392,15 @@ pair<int, double> AnalysisGraph::assess_model_fit(string output_file_prefix,
            "MAP RMSE", "", "", "", to_string(rmse_MAP)};
     fitness_writer.write_row(row.begin(), row.end());
 
+    int tot_parameters = this->body_nodes.size() + n_edges;
+    double tot_MAP_squared_error_all = tot_MAP_squared_error_deri +
+                                        tot_MAP_squared_error_theta;
+    double rmse_MAP_all = sqrt(tot_MAP_squared_error_all / tot_parameters);
+    row.clear();
+    row = {to_string(cag_id), to_string(n_nodes), to_string(n_edges),
+           "MAP RMSE All", "", "", "", to_string(rmse_MAP_all)};
+    fitness_writer.write_row(row.begin(), row.end());
+
     return make_pair(this->body_nodes.size() + n_edges,
                      tot_MAP_squared_error_deri + tot_MAP_squared_error_theta);
 }
