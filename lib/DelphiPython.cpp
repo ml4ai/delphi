@@ -119,7 +119,8 @@ PYBIND11_MODULE(DelphiPython, m) {
            "simplified_labels"_a = true,
            "label_depth"_a = 1,
            "node_to_highlight"_a = "",
-           "rankdir"_a = "TB")
+           "rankdir"_a = "TB",
+           "show_indicators"_a = true)
       .def("add_node", &AnalysisGraph::add_node, "concept"_a)
       .def("remove_node",
            py::overload_cast<string>(&AnalysisGraph::remove_node),
