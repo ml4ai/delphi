@@ -18,6 +18,11 @@ find_package(Graphviz)
 SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "/opt/local/libexec/boost/1.76/include/boost")
 SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "/opt/local/libexec/boost/1.76/lib")
 
+find_package(OpenMP)
+
+# Disable multi-threading in Eigen as it significantly slows down matrix exponential calculation
+add_definitions(-DEIGEN_DONT_PARALLELIZE)
+
 # Add and link pybind11 modules
 find_package(Boost COMPONENTS graph program_options REQUIRED)
 
@@ -88,6 +93,9 @@ target_link_libraries(Delphi
                               ${GRAPHVIZ_LIBS})
 target_link_libraries(Delphi INTERFACE range-v3)
 target_include_directories(Delphi PRIVATE ${GRAPHVIZ_INCLUDE_DIRS} lib external)
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(Delphi PUBLIC OpenMP::OpenMP_CXX)
+endif()
 
 if(BUILD_PYTHON_BINDINGS)
 
@@ -127,6 +135,11 @@ add_executable(timer
         lib/CSVWriter.hpp)
 target_link_libraries(timer PRIVATE Delphi Eigen3::Eigen ${Boost_LIBRARIES})
 target_include_directories(timer PRIVATE ${Boost_INCLUDE_DIR} lib external ${GRAPHVIZ_INCLUDE_DIRS})
+
+## Program to check whether Delphi is compiled with OpenMP
+add_executable(check_OpenMP apps/check_OpenMP.cpp)
+target_link_libraries(check_OpenMP PRIVATE Delphi Eigen3::Eigen ${Boost_LIBRARIES})
+target_include_directories(check_OpenMP PRIVATE ${Boost_INCLUDE_DIR} lib external ${GRAPHVIZ_INCLUDE_DIRS})
 
 # Build the REST API program
 add_executable(delphi_rest_api apps/delphi_rest_api.cpp)

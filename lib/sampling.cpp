@@ -1,4 +1,7 @@
 #include "AnalysisGraph.hpp"
+#ifdef _OPENMP
+    #include <omp.h>
+#endif
 
 #ifdef TIME
   #include "Timer.hpp"
@@ -90,11 +93,19 @@ void AnalysisGraph::set_transition_matrix_from_betas() {
     // Initialize the transition matrix pre-calculation data structure.
     // This data structure holds all the transition matrices required to
     // advance the system from each timestep to the next.
+    unordered_set<double> gaps_set = unordered_set<double>(
+                                   this->observation_timestep_gaps.begin(),
+                                   this->observation_timestep_gaps.end());
+    gaps_set.insert(1); // Due to the current head node model
+    this->observation_timestep_unique_gaps = vector<double>(gaps_set.begin(),
+                                                            gaps_set.end());
+    /*
     for (double gap : set<double>(this->observation_timestep_gaps.begin(),
                                   this->observation_timestep_gaps.end())) {
       this->e_A_ts.insert(make_pair(gap, (this->A_original * gap).exp()));
     }
     this->e_A_ts.insert(make_pair(1, this->A_original.exp()));
+     */
   }
 }
 
@@ -132,8 +143,6 @@ void AnalysisGraph::set_log_likelihood() {
   if (this->continuous) {
       if (this->coin_flip < this->coin_flip_thresh) {
         // A θ has been sampled
-        // Precalculate all the transition matrices required to advance the system
-        // from one timestep to the next.
         {
           #ifdef TIME
               this->mcmc_part_duration.second.clear();
@@ -142,9 +151,25 @@ void AnalysisGraph::set_log_likelihood() {
               this->mcmc_part_duration.second.push_back(this->num_edges());
               Timer t_part = Timer("ME", this->mcmc_part_duration);
           #endif
+          // Precalculate all the transition matrices required to advance the system
+          // from one timestep to the next.
+          this->e_A_ts.clear();
+          #pragma omp parallel
+          {
+              unordered_map<double, Eigen::MatrixXd> partial_e_A_ts;
+              for (int i = 0; i < this->observation_timestep_unique_gaps.size();
+                   i++) {
+                  int gap = this->observation_timestep_unique_gaps[i];
+                  partial_e_A_ts[gap] = (this->A_original * gap).exp();
+              }
+              #pragma omp critical
+              this->e_A_ts.merge(partial_e_A_ts);
+          }
+          /*
           for (auto [gap, mat] : this->e_A_ts) {
             this->e_A_ts[gap] = (this->A_original * gap).exp();
           }
+           */
         }
         #ifdef TIME
           this->mcmc_part_duration.second.push_back(11);
@@ -456,4 +481,21 @@ void AnalysisGraph::set_res(size_t res) {
 
 size_t AnalysisGraph::get_res() {
     return this->res;
+}
+
+void AnalysisGraph::check_OpenMP() {
+    #ifdef _OPENMP
+        std::cout << "Compiled with OpenMP\n";
+        #pragma omp parallel
+            {
+                int n_threads = omp_get_num_threads();
+                int tid = omp_get_thread_num();
+                if (tid == 0) {
+                    printf("%d Threads\n", n_threads);
+                }
+                printf("Thread = %d\n", tid);
+            }
+    #else
+        std::cout << "Compiled **without** OpenMP\n";
+    #endif
 }
