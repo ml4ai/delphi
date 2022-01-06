@@ -43,7 +43,9 @@ jobs:
             libfmt-dev\
             librange-v3-dev\
             nlohmann-json3-dev\
-            libomp-dev
+
+        echo "### Checking whether we have OpenMP support"
+        echo |cpp -fopenmp -dM |grep -i open
 
         pwd
         echo "### Building Served from source"
