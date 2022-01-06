@@ -42,7 +42,8 @@ jobs:
             pybind11-dev\
             libfmt-dev\
             librange-v3-dev\
-            nlohmann-json3-dev
+            nlohmann-json3-dev\
+            libomp-dev
 
         pwd
         echo "### Building Served from source"
