@@ -156,23 +156,24 @@ void AnalysisGraph::profile_kde(int run, string file_name_prefix) {
             durations_me.second = {run,n_nodes, n_edges, long(this->n_kde_kernels)};
             Timer t = Timer("ME", durations_me);
 
-            this->e_A_ts.clear();
-            #pragma omp parallel
-            {
-                unordered_map<double, Eigen::MatrixXd> partial_e_A_ts;
-                for (int i = 0; i < this->observation_timestep_unique_gaps.size();
-                     i++) {
-                    int gap = this->observation_timestep_unique_gaps[i];
-                    partial_e_A_ts[gap] = (this->A_original * gap).exp();
+            #ifdef _OPENMP
+                this->e_A_ts.clear();
+                #pragma omp parallel
+                {
+                    unordered_map<double, Eigen::MatrixXd> partial_e_A_ts;
+                    for (int i = 0; i < this->observation_timestep_unique_gaps.size();
+                         i++) {
+                        int gap = this->observation_timestep_unique_gaps[i];
+                        partial_e_A_ts[gap] = (this->A_original * gap).exp();
+                    }
+                    #pragma omp critical
+                    this->e_A_ts.merge(partial_e_A_ts);
                 }
-                #pragma omp critical
-                this->e_A_ts.merge(partial_e_A_ts);
-            }
-            /*
-            for (auto [gap, mat] : this->e_A_ts) {
-                this->e_A_ts[gap] = (this->A_original * gap).exp();
-            }
-             */
+            #else
+                for (auto [gap, mat] : this->e_A_ts) {
+                    this->e_A_ts[gap] = (this->A_original * gap).exp();
+                }
+            #endif
         }
 
         durations_me.first.push_back("Sample Type");

@@ -296,7 +296,9 @@ class AnalysisGraph {
   long train_end_epoch = -1;
   double pred_start_timestep = -1;
   std::vector<double> observation_timestep_gaps;
-  std::vector<double> observation_timestep_unique_gaps;
+  #ifdef _OPENMP
+    std::vector<double> observation_timestep_unique_gaps;
+  #endif
   std::unordered_map<double, Eigen::MatrixXd> e_A_ts;
   long modeling_period = 1; // Number of epochs per one modeling timestep
 

@@ -93,19 +93,20 @@ void AnalysisGraph::set_transition_matrix_from_betas() {
     // Initialize the transition matrix pre-calculation data structure.
     // This data structure holds all the transition matrices required to
     // advance the system from each timestep to the next.
-    unordered_set<double> gaps_set = unordered_set<double>(
-                                   this->observation_timestep_gaps.begin(),
-                                   this->observation_timestep_gaps.end());
-    gaps_set.insert(1); // Due to the current head node model
-    this->observation_timestep_unique_gaps = vector<double>(gaps_set.begin(),
-                                                            gaps_set.end());
-    /*
-    for (double gap : set<double>(this->observation_timestep_gaps.begin(),
-                                  this->observation_timestep_gaps.end())) {
-      this->e_A_ts.insert(make_pair(gap, (this->A_original * gap).exp()));
-    }
-    this->e_A_ts.insert(make_pair(1, this->A_original.exp()));
-     */
+    #ifdef _OPENMP
+        unordered_set<double> gaps_set = unordered_set<double>(
+                                       this->observation_timestep_gaps.begin(),
+                                       this->observation_timestep_gaps.end());
+        gaps_set.insert(1); // Due to the current head node model
+        this->observation_timestep_unique_gaps = vector<double>(gaps_set.begin(),
+                                                                gaps_set.end());
+    #else
+        for (double gap : set<double>(this->observation_timestep_gaps.begin(),
+                                      this->observation_timestep_gaps.end())) {
+          this->e_A_ts.insert(make_pair(gap, (this->A_original * gap).exp()));
+        }
+        this->e_A_ts.insert(make_pair(1, this->A_original.exp()));
+    #endif
   }
 }
 
@@ -153,23 +154,24 @@ void AnalysisGraph::set_log_likelihood() {
           #endif
           // Precalculate all the transition matrices required to advance the system
           // from one timestep to the next.
-          this->e_A_ts.clear();
-          #pragma omp parallel
-          {
-              unordered_map<double, Eigen::MatrixXd> partial_e_A_ts;
-              for (int i = 0; i < this->observation_timestep_unique_gaps.size();
-                   i++) {
-                  int gap = this->observation_timestep_unique_gaps[i];
-                  partial_e_A_ts[gap] = (this->A_original * gap).exp();
+          #ifdef _OPENMP
+              this->e_A_ts.clear();
+              #pragma omp parallel
+              {
+                  unordered_map<double, Eigen::MatrixXd> partial_e_A_ts;
+                  for (int i = 0; i < this->observation_timestep_unique_gaps.size();
+                       i++) {
+                      int gap = this->observation_timestep_unique_gaps[i];
+                      partial_e_A_ts[gap] = (this->A_original * gap).exp();
+                  }
+                  #pragma omp critical
+                  this->e_A_ts.merge(partial_e_A_ts);
               }
-              #pragma omp critical
-              this->e_A_ts.merge(partial_e_A_ts);
-          }
-          /*
-          for (auto [gap, mat] : this->e_A_ts) {
-            this->e_A_ts[gap] = (this->A_original * gap).exp();
-          }
-           */
+          #else
+              for (auto [gap, mat] : this->e_A_ts) {
+                this->e_A_ts[gap] = (this->A_original * gap).exp();
+              }
+          #endif
         }
         #ifdef TIME
           this->mcmc_part_duration.second.push_back(11);
@@ -486,14 +488,16 @@ size_t AnalysisGraph::get_res() {
 void AnalysisGraph::check_OpenMP() {
     #ifdef _OPENMP
         std::cout << "Compiled with OpenMP\n";
+        std::cout << "Maximum number of threads: " << omp_get_max_threads()
+                  << endl;
         #pragma omp parallel
             {
                 int n_threads = omp_get_num_threads();
                 int tid = omp_get_thread_num();
                 if (tid == 0) {
-                    printf("%d Threads\n", n_threads);
+                    printf("%d Threads created\n", n_threads);
                 }
-                printf("Thread = %d\n", tid);
+                printf("Thread - %d\n", tid);
             }
     #else
         std::cout << "Compiled **without** OpenMP\n";
