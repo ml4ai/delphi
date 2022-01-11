@@ -136,6 +136,14 @@ add_executable(timer
 target_link_libraries(timer PRIVATE Delphi Eigen3::Eigen ${Boost_LIBRARIES})
 target_include_directories(timer PRIVATE ${Boost_INCLUDE_DIR} lib external ${GRAPHVIZ_INCLUDE_DIRS})
 
+## Matirx Exponential Timer program
+add_executable(mat_exp_timer
+        apps/mat_exp_timer.cpp
+        lib/Timer.hpp
+        lib/CSVWriter.hpp)
+target_link_libraries(mat_exp_timer PRIVATE Delphi Eigen3::Eigen ${Boost_LIBRARIES})
+target_include_directories(mat_exp_timer PRIVATE ${Boost_INCLUDE_DIR} lib external ${GRAPHVIZ_INCLUDE_DIRS})
+
 ## Program to check whether Delphi is compiled with OpenMP
 add_executable(check_OpenMP apps/check_OpenMP.cpp)
 target_link_libraries(check_OpenMP PRIVATE Delphi Eigen3::Eigen ${Boost_LIBRARIES})

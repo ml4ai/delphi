@@ -166,6 +166,7 @@ void AnalysisGraph::set_log_likelihood() {
                   }
                   #pragma omp critical
                   this->e_A_ts.merge(partial_e_A_ts);
+                  #pragma omp barrier
               }
           #else
               for (auto [gap, mat] : this->e_A_ts) {

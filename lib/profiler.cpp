@@ -168,6 +168,7 @@ void AnalysisGraph::profile_kde(int run, string file_name_prefix) {
                     }
                     #pragma omp critical
                     this->e_A_ts.merge(partial_e_A_ts);
+                    #pragma omp barrier
                 }
             #else
                 for (auto [gap, mat] : this->e_A_ts) {
@@ -222,5 +223,100 @@ void AnalysisGraph::profile_prediction(int run, int pred_timesteps, string file_
 
     writer.write_row(durations.second.begin(), durations.second.end());
     cout << endl;
+}
+
+
+void AnalysisGraph::profile_matrix_exponential(int run, std::string file_name_prefix,
+                                               std::vector<double> unique_gaps,
+                                               int repeat,
+                                               bool multi_threaded) {
+    this->initialize_random_number_generator();
+    int n_nodes = this->num_nodes();
+    int n_edges = this->num_edges();
+
+    pair<std::vector<std::string>, std::vector<long>> durations_me;
+
+    string filename = file_name_prefix +
+                      (multi_threaded ? "mt_" : "st_") +
+                      to_string(n_nodes) + "-" +
+                      to_string(n_edges) + "_" +
+                      to_string(run) + "_" +
+                      delphi::utils::get_timestamp() + ".csv";
+    CSVWriter writer(filename);
+    vector<string> headings = {"Run", "Nodes", "Edges",
+                               "KDE Kernels", "Wall Clock Time (ns)",
+                               "CPU Time (ns)", "Sample Type"};
+    writer.write_row(headings.begin(), headings.end());
+    cout << filename << endl;
+
+    if (multi_threaded) {
+        this->observation_timestep_unique_gaps = unique_gaps;
+    }
+    else {
+        for (double gap : unique_gaps) {
+            this->e_A_ts.insert(make_pair(gap, (this->A_original * gap).exp()));
+        }
+    }
+
+    this->res = repeat;
+
+    cout << "\nProfiling Matrix Exponential\n";
+    cout << "\nRunning Matrix Exponential for " << this->res << " times..." << endl;
+    for (int i : trange(this->res)) {
+        // Randomly pick an edge ≡ θ
+        boost::iterator_range edge_it = this->edges();
+
+        vector<EdgeDescriptor> e(1);
+        sample(
+            edge_it.begin(), edge_it.end(), e.begin(), 1, this->rand_num_generator);
+
+        // Perturb the θ
+        this->graph[e[0]].set_theta(this->graph[e[0]].get_theta() +
+                                    this->norm_dist(this->rand_num_generator) / 5);
+        KDE& kde = this->graph[e[0]].kde;
+
+        this->update_transition_matrix_cells(e[0]);
+        this->graph[e[0]].compute_logpdf_theta();
+        int dumb;
+
+        durations_me.first.clear();
+        durations_me.second.clear();
+        durations_me.first = {"Run", "Nodes", "Edges", "KDE Kernels"};
+        durations_me.second = {run,n_nodes, n_edges, long(this->n_kde_kernels)};
+        {
+            Timer t = Timer("ME", durations_me);
+
+            if (multi_threaded) {
+                this->e_A_ts.clear();
+                #pragma omp parallel
+                {
+                    unordered_map<double, Eigen::MatrixXd> partial_e_A_ts;
+                    for (int i = 0;
+                         i < this->observation_timestep_unique_gaps.size();
+                         i++) {
+                        int gap = this->observation_timestep_unique_gaps[i];
+                        partial_e_A_ts[gap] = (this->A_original * gap).exp();
+                    }
+                    #pragma omp critical
+                    //dumb++;
+                    this->e_A_ts.merge(partial_e_A_ts);
+                    #pragma omp barrier
+                }
+            }
+            else {
+                for (auto [gap, mat] : this->e_A_ts) {
+                    this->e_A_ts[gap] = (this->A_original * gap).exp();
+                }
+            }
+        }
+
+        durations_me.first.push_back("Sample Type");
+        durations_me.second.push_back(multi_threaded ? 13
+                                                     : 11);
+
+        writer.write_row(durations_me.second.begin(), durations_me.second.end());
+    }
+    cout << endl;
+    RNG::release_instance();
 }
 

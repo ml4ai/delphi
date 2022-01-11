@@ -1638,6 +1638,12 @@ class AnalysisGraph {
 
   void profile_prediction(int run = 1, int pred_timesteps = 24, std::string file_name_prefix = "prediction_timing");
 
+  void profile_matrix_exponential(int run = 1,
+                                  std::string file_name_prefix = "mat_exp_timing",
+                                  std::vector<double> unique_gaps = {1, 2, 5},
+                                  int repeat = 30,
+                                  bool multi_threaded = false);
+
 #ifdef TIME
   void set_timing_file_prefix(std::string tfp) {this->timing_file_prefix = tfp;}
   void create_mcmc_part_timing_file()
