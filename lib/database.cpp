@@ -58,7 +58,9 @@ AdjectiveResponseMap AnalysisGraph::construct_adjective_response_map(
     normal_distribution<double>& norm_dist,
     size_t n_kernels
 ) {
+  cout << "Trying to open Delphi DB\n";
   sqlite3* db = this->open_delphi_db(SQLITE_OPEN_READONLY);
+  cout << "Delphi DB opened\n";
 
   if (db == nullptr) {
     cout << "\n\nERROR: opening delphi.db" << endl;
