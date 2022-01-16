@@ -16,6 +16,9 @@
 #include <string>
 #include <thread>
 
+#include "Timer.hpp"
+#include "CSVWriter.hpp"
+
 using namespace std;
 using json = nlohmann::json;
 namespace po = boost::program_options;
@@ -284,6 +287,10 @@ int main(int argc, const char* argv[]) {
                 burn = 100;
             }
 
+            cout << "\nKDE Kernels: " << kde_kernels << endl;
+            cout << "Burn: " << burn << endl;
+            cout << "Sampling resolution: " << sampling_resolution << endl;
+
             AnalysisGraph G;
             G.set_res(kde_kernels);
             G.from_causemos_json_dict(json_data, 0, 0);
@@ -536,8 +543,18 @@ int main(int argc, const char* argv[]) {
      */
     mux.handle("/models/{modelId}")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
+
+            CSVWriter writer = CSVWriter(string("model_status") + "_" + delphi::utils::get_timestamp() + ".csv");
+            std::pair<std::vector<std::string>, std::vector<long>> durations;
+            durations.second.clear();
+
             string modelId = req.params["modelId"];
-            json query_result = sqlite3DB->select_delphimodel_row(modelId);
+
+            json query_result;
+            {
+                Timer t = Timer("Query", durations);
+                query_result = sqlite3DB->select_delphimodel_row(modelId);
+            }
 
             if (query_result.empty()) {
                 json ret_exp;
@@ -549,11 +566,20 @@ int main(int argc, const char* argv[]) {
             string model = query_result["model"];
 
             AnalysisGraph G;
-            G = G.deserialize_from_json_string(model, false);
-            auto response =
-                nlohmann::json::parse(G.generate_create_model_response());
+            {
+                Timer t = Timer("Deserialize", durations);
+                G = G.deserialize_from_json_string(model, false);
+            }
 
-            res << response.dump();
+            {
+                Timer t = Timer("Response", durations);
+                auto response =
+                    nlohmann::json::parse(G.generate_create_model_response());
+
+                res << response.dump();
+            }
+            writer.write_row(durations.second.begin(), durations.second.end());
+            cout << "\nElapsed time to deserialize (seconds): " << durations.second[2] / 1000000000.0 << endl;
         });
 
     served::net::server server(host, to_string(port), mux);
