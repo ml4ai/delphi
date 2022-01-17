@@ -103,6 +103,11 @@ int main(int argc, char* argv[]) {
 
           for (int cag_id = 0; cag_id < ags.size(); cag_id++) {
               AnalysisGraph G = ags[cag_id];
+              cout << "\nCag ID: " << cag_id << endl;
+              cout << "\tNodes: " << G.num_vertices() << endl;
+              cout << "\tEdges: " << G.num_edges() << endl;
+              cout << "\tTheta prob: " << theta_prob << endl;
+              cout << "\tSeed: " << seed << endl;
               G.set_random_seed(seed);
               G.run_train_model(res,
                                 burn,
