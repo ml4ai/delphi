@@ -292,7 +292,7 @@ int main(int argc, const char* argv[]) {
             cout << "Sampling resolution: " << sampling_resolution << endl;
 
             AnalysisGraph G;
-            G.set_res(kde_kernels);
+            G.set_n_kde_kernels(kde_kernels);
             G.from_causemos_json_dict(json_data, 0, 0);
 
             sqlite3DB->insert_into_delphimodel(
@@ -544,11 +544,22 @@ int main(int argc, const char* argv[]) {
     mux.handle("/models/{modelId}")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
 
-            CSVWriter writer = CSVWriter(string("model_status") + "_" + delphi::utils::get_timestamp() + ".csv");
+            string modelId = req.params["modelId"];
+
+            CSVWriter writer = CSVWriter(string("timing") + "_" +
+                                         modelId + "_" +
+                                         "model_status" + "_" +
+                                         delphi::utils::get_timestamp() +
+                                         ".csv");
+            vector<string> headings = {"Query DB WC Time (ns)",
+                                       "Query DB CPU Time (ns)",
+                                        "Deserialize WC Time (ns)",
+                                        "Deserialize CPU Time (ns)",
+                                        "Response WC Time (ns)",
+                                        "Response CPU Time (ns)"};
+            writer.write_row(headings.begin(), headings.end());
             std::pair<std::vector<std::string>, std::vector<long>> durations;
             durations.second.clear();
-
-            string modelId = req.params["modelId"];
 
             json query_result;
             {
