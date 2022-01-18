@@ -16,6 +16,11 @@
 #include <string>
 #include <thread>
 
+#ifdef TIME
+    #include "Timer.hpp"
+    #include "CSVWriter.hpp"
+#endif
+
 using namespace std;
 using json = nlohmann::json;
 namespace po = boost::program_options;
@@ -285,7 +290,7 @@ int main(int argc, const char* argv[]) {
             }
 
             AnalysisGraph G;
-            G.set_res(kde_kernels);
+            G.set_n_kde_kernels(kde_kernels);
             G.from_causemos_json_dict(json_data, 0, 0);
 
             sqlite3DB->insert_into_delphimodel(
@@ -536,8 +541,32 @@ int main(int argc, const char* argv[]) {
      */
     mux.handle("/models/{modelId}")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
+
             string modelId = req.params["modelId"];
-            json query_result = sqlite3DB->select_delphimodel_row(modelId);
+
+            #ifdef TIME
+                CSVWriter writer = CSVWriter(string("timing") + "_" +
+                                             modelId + "_" +
+                                             "model_status" + "_" +
+                                             delphi::utils::get_timestamp() +
+                                             ".csv");
+                vector<string> headings = {"Query DB WC Time (ns)",
+                                           "Query DB CPU Time (ns)",
+                                            "Deserialize WC Time (ns)",
+                                            "Deserialize CPU Time (ns)",
+                                            "Response WC Time (ns)",
+                                            "Response CPU Time (ns)"};
+                writer.write_row(headings.begin(), headings.end());
+                std::pair<std::vector<std::string>, std::vector<long>> durations;
+                durations.second.clear();
+            #endif
+            json query_result;
+            {
+                #ifdef TIME
+                    Timer t = Timer("Query", durations);
+                #endif
+                query_result = sqlite3DB->select_delphimodel_row(modelId);
+            }
 
             if (query_result.empty()) {
                 json ret_exp;
@@ -549,11 +578,26 @@ int main(int argc, const char* argv[]) {
             string model = query_result["model"];
 
             AnalysisGraph G;
-            G = G.deserialize_from_json_string(model, false);
-            auto response =
-                nlohmann::json::parse(G.generate_create_model_response());
+            {
+                #ifdef TIME
+                    Timer t = Timer("Deserialize", durations);
+                #endif
+                G = G.deserialize_from_json_string(model, false);
+            }
 
-            res << response.dump();
+            {
+                #ifdef TIME
+                    Timer t = Timer("Response", durations);
+                #endif
+                auto response =
+                    nlohmann::json::parse(G.generate_create_model_response());
+
+                res << response.dump();
+            }
+            #ifdef TIME
+                writer.write_row(durations.second.begin(), durations.second.end());
+                cout << "\nElapsed time to deserialize (seconds): " << durations.second[2] / 1000000000.0 << endl;
+            #endif
         });
 
     served::net::server server(host, to_string(port), mux);

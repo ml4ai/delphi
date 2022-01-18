@@ -856,6 +856,7 @@ string AnalysisGraph::generate_create_model_response() {
     j["conceptIndicators"] = {};
 
     for (auto e : this->edges()) {
+        /*
         vector<double> weights;
         if (this->trained) {
             weights = vector<double>(this->graph[e].sampled_thetas.size());
@@ -868,10 +869,13 @@ string AnalysisGraph::generate_create_model_response() {
         } else {
             weights = vector<double>{0.5};
         }
+         */
 
         json edge_json = {{"source", this->source(e).name},
                           {"target", this->target(e).name},
-                          {"weights", weights}};
+                          {"weights", this->trained
+                                          ? this->graph[e].sampled_thetas
+                                          : vector<double>{0.5}}};
 
         j["relations"].push_back(edge_json);
     }

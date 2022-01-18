@@ -8,6 +8,8 @@ from delphi.apps.rest_api.models import *
 import multiprocessing
 multiprocessing.set_start_method('fork')
 
+# from time import perf_counter
+
 bp = Blueprint("rest_api", __name__)
 
 # ============
@@ -92,7 +94,10 @@ def getModelStatus(modelID):
         return jsonify(json.loads('{"status": "invalid model id"}'))
 
     model = query_result.model
+    # t1_start = perf_counter()
     G = AnalysisGraph.deserialize_from_json_string(model, verbose=False)
+    # t1_stop = perf_counter()
+    # print("\nElapsed time to deserialize (seconds):", t1_stop-t1_start)
 
     response = json.loads(G.generate_create_model_response())
     return jsonify(response)
