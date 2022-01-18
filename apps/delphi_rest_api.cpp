@@ -7,6 +7,7 @@
 #include <boost/uuid/uuid.hpp>            // uuid class
 #include <boost/uuid/uuid_generators.hpp> // generators
 #include <boost/uuid/uuid_io.hpp>         // streaming operators etc.
+#include <boost/asio/ip/host_name.hpp>    // hostname
 #include <ctime>
 #include <iostream>
 #include <nlohmann/json.hpp>
@@ -235,8 +236,9 @@ class Experiment {
 
 // declare if CI is running, model creation will be shorter
 static std::string getApiStatus() {
-
-    char buf[200];
+    const auto hostname = boost::asio::ip::host_name();
+    const auto runmode = getenv("CI") ? "CI" : "normal";
+    char timebuf[200];
     time_t t;
     struct tm *now;
     const char* fmt = "%F %T";
@@ -248,14 +250,19 @@ static std::string getApiStatus() {
         exit(EXIT_FAILURE);
     }
 
-    if (strftime(buf, sizeof(buf), fmt, now) == 0) {
+    if (strftime(timebuf, sizeof(timebuf), fmt, now) == 0) {
         fprintf(stderr, "strftime returned 0");
         exit(EXIT_FAILURE);
     }
 
-    return getenv("CI") ? 
-        (string)"The Delphi REST API was started in CI mode at UTC " + buf: 
-	(string)"The Delphi REST API was started at UTC " + buf;
+    string ret = "The Delphi REST API was started on "
+      + hostname
+      + " in "
+      + runmode
+      + " mode at UTC "
+      + timebuf;
+
+    return ret;
 }
 
 // the status only has to be generated once.
