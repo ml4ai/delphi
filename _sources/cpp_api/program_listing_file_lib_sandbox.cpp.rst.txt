@@ -33,8 +33,8 @@ Program Listing for File sandbox.cpp
    typedef tuple<
        int,
        int,
-       vector<double>,
        vector<pair<tuple<string, int, string>, tuple<string, int, string>>>,
+       vector<double>,
        vector<double>,
        vector<double>,
        int>
@@ -91,7 +91,7 @@ Program Listing for File sandbox.cpp
          if (edge_added) {
            string source_id = edge_element["source"].get<string>();
            string target_id = edge_element["target"].get<string>();
-           Edge edg = this->edge(source_id, target_id);
+           Edge& edg = this->edge(source_id, target_id);
            edg.kde.dataset =
                edge_element["kernels"].get<vector<double>>();
            edg.sampled_thetas =
@@ -131,7 +131,7 @@ Program Listing for File sandbox.cpp
    
        for (Edge_tuple edge_element : json_data["edges"]) {
          bool edge_added = false;
-         for (Evidence_Pair evidence : get<3>(edge_element)) {
+         for (Evidence_Pair evidence : get<2>(edge_element)) {
            tuple<string, int, string> subject = evidence.first;
            tuple<string, int, string> object = evidence.second;
            CausalFragment causal_fragment =
@@ -142,9 +142,9 @@ Program Listing for File sandbox.cpp
          if (edge_added) {
              int source_id = get<0>(edge_element);
              int target_id = get<1>(edge_element);
-             Edge edg = this->edge(source_id, target_id);
-             edg.kde.dataset = get<2>(edge_element);
-             edg.sampled_thetas = get<4>(edge_element);
+             Edge& edg = this->edge(source_id, target_id);
+             edg.sampled_thetas = get<3>(edge_element);
+             edg.kde.dataset = get<4>(edge_element);
              edg.kde.log_prior_hist = get<5>(edge_element);
              edg.kde.set_num_bins(get<6>(edge_element));
          }

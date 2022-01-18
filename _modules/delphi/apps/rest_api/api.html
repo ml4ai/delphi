@@ -86,6 +86,8 @@
 <span class="kn">import</span> <span class="nn">multiprocessing</span>
 <span class="n">multiprocessing</span><span class="o">.</span><span class="n">set_start_method</span><span class="p">(</span><span class="s1">&#39;fork&#39;</span><span class="p">)</span>
 
+<span class="c1"># from time import perf_counter</span>
+
 <span class="n">bp</span> <span class="o">=</span> <span class="n">Blueprint</span><span class="p">(</span><span class="s2">&quot;rest_api&quot;</span><span class="p">,</span> <span class="vm">__name__</span><span class="p">)</span>
 
 <span class="c1"># ============</span>
@@ -170,7 +172,10 @@
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="s1">&#39;{&quot;status&quot;: &quot;invalid model id&quot;}&#39;</span><span class="p">))</span>
 
     <span class="n">model</span> <span class="o">=</span> <span class="n">query_result</span><span class="o">.</span><span class="n">model</span>
+    <span class="c1"># t1_start = perf_counter()</span>
     <span class="n">G</span> <span class="o">=</span> <span class="n">AnalysisGraph</span><span class="o">.</span><span class="n">deserialize_from_json_string</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="c1"># t1_stop = perf_counter()</span>
+    <span class="c1"># print(&quot;\nElapsed time to deserialize (seconds):&quot;, t1_stop-t1_start)</span>
 
     <span class="n">response</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">generate_create_model_response</span><span class="p">())</span>
     <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
