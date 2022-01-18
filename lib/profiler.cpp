@@ -6,6 +6,7 @@
 #ifdef _OPENMP
     #include <omp.h>
 #endif
+#include <future>
 
 using namespace std;
 using tq::trange;
@@ -226,6 +227,11 @@ void AnalysisGraph::profile_prediction(int run, int pred_timesteps, string file_
 }
 
 
+static Eigen::MatrixXd compute_matrix_exponential(const Eigen::Ref<const Eigen::MatrixXd> A, double gap) {
+    return (A * gap).exp();
+}
+
+
 void AnalysisGraph::profile_matrix_exponential(int run, std::string file_name_prefix,
                                                std::vector<double> unique_gaps,
                                                int repeat,
@@ -248,6 +254,8 @@ void AnalysisGraph::profile_matrix_exponential(int run, std::string file_name_pr
                                "CPU Time (ns)", "Sample Type"};
     writer.write_row(headings.begin(), headings.end());
     cout << filename << endl;
+
+    vector<future<Eigen::MatrixXd>> matrix_exponentials(unique_gaps.size());
 
     if (multi_threaded) {
         this->observation_timestep_unique_gaps = unique_gaps;
@@ -287,6 +295,7 @@ void AnalysisGraph::profile_matrix_exponential(int run, std::string file_name_pr
             Timer t = Timer("ME", durations_me);
 
             if (multi_threaded) {
+                /*
                 this->e_A_ts.clear();
                 #pragma omp parallel
                 {
@@ -301,6 +310,21 @@ void AnalysisGraph::profile_matrix_exponential(int run, std::string file_name_pr
                     //dumb++;
                     this->e_A_ts.merge(partial_e_A_ts);
                     #pragma omp barrier
+                }
+                 */
+                for (int i = 0;
+                     i < this->observation_timestep_unique_gaps.size();
+                     i++) {
+                    int gap = this->observation_timestep_unique_gaps[i];
+                    matrix_exponentials[i] = async(launch::async,
+                                                   compute_matrix_exponential,
+                                                   A_original, gap);
+                }
+                for (int i = 0;
+                     i < this->observation_timestep_unique_gaps.size();
+                     i++) {
+                    int gap = this->observation_timestep_unique_gaps[i];
+                    this->e_A_ts[gap] = matrix_exponentials[i].get();
                 }
             }
             else {
