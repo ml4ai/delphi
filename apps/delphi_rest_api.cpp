@@ -490,28 +490,15 @@ int main(int argc, const char* argv[]) {
                 res << ret.dump();
 		return;
             }
+
+	    // will return model_id and dumped status
             string query_return = ts.read_from_db(modelId);
 
-
-            if (query_return.empty()) {
-                ret["status"] = "No training status data found";
-                res << ret.dump();
-            }
-
+	    // we are only interested in the dumped status col
             json cols = json::parse(query_return);
-            string status = cols["status"];
+            string dumped_status = cols["status"];
 
-            // contains full debug struct
-            json output = json::parse(status);
-
-            // the API only calls for the training status value, so really this
-            // should only be the value itself, e.g.
-            // output["progressPercentage"].dump(), but the specification also
-            // calls for application/json content, so we send a JSON structure
-            // with only that field.
-            ret["progressPercentage"] = output["progressPercentage"];
-
-            res << ret.dump();
+            res << dumped_status;
         });
 
     /* openApi 3.0.0
