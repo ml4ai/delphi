@@ -1,30 +1,38 @@
 #!/bin/bash
 
 # Author: Joseph Astier
-
-# Query an experiment result using the CauseMos 3.0.0 API
 #
+# CauseMos 3.0.0 API endpoint: "/models/{modelId}/experiments"
+#
+# Create a new experiment with the passed-in definition file.
+# The ID of the new experiment, or an error message, is returned.
 
+# Model ID, e.g. "XYZ"
 modelId=$1
-experimentId=$2
 
-if [[ $modelId == "" ]] || [[ $experimentId == "" ]]; then
+# Experiment definition JSON file
+filename=$2
 
-        echo "Please specify a model ID and an experiment ID"
-        echo "Usage:  $0 model_ID experiment_ID"
+if [[ $modelId == "" ]] || [[ $filename == "" ]]; then
+
+        echo "Please specify a model ID and experiment definition filename"
+        echo "Usage:  $0 model_ID filename"
 
 else
         login="-u me:ivilab4fun"
-	endpoint="/models/$modelId/experiments/$experimentId"
-	url=$(./get_delphi_url)
+        url=$(./get_delphi_url)
+        endpoint="/models/$modelId/experiments"
 
-	call="curl $login -s $url$endpoint"
-	echo "Call:"
+        call="curl -s $login -X POST $url$endpoint -d @$filename"
+        echo "Call:"
         echo $call
 
-	date
+	call_time=$(date +%T.%3N)
         response=$($call)
+	response_time=$(date +%T.%3N)
+
         echo "Response:"
         echo $response | jq
-	date
+	echo "Server queried: $call_time"
+        echo "Server replied: $response_time"
 fi

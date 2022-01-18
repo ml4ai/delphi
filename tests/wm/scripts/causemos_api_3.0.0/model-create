@@ -35,10 +35,13 @@ else
 		echo "Call:"
                 echo $call
 
-		date
+		call_time=$(date +%T.%3N)
                 response=$($call)
+		response_time=$(date +%T.%3N)
+
                 echo "Response:"
                 echo $response | jq
-		date
+		echo "Server queried: $call_time"
+		echo "Server replied: $response_time"
 	fi
 fi
