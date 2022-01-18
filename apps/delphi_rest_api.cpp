@@ -16,8 +16,10 @@
 #include <string>
 #include <thread>
 
-#include "Timer.hpp"
-#include "CSVWriter.hpp"
+#ifdef TIME
+    #include "Timer.hpp"
+    #include "CSVWriter.hpp"
+#endif
 
 using namespace std;
 using json = nlohmann::json;
@@ -287,10 +289,6 @@ int main(int argc, const char* argv[]) {
                 burn = 100;
             }
 
-            cout << "\nKDE Kernels: " << kde_kernels << endl;
-            cout << "Burn: " << burn << endl;
-            cout << "Sampling resolution: " << sampling_resolution << endl;
-
             AnalysisGraph G;
             G.set_n_kde_kernels(kde_kernels);
             G.from_causemos_json_dict(json_data, 0, 0);
@@ -546,24 +544,27 @@ int main(int argc, const char* argv[]) {
 
             string modelId = req.params["modelId"];
 
-            CSVWriter writer = CSVWriter(string("timing") + "_" +
-                                         modelId + "_" +
-                                         "model_status" + "_" +
-                                         delphi::utils::get_timestamp() +
-                                         ".csv");
-            vector<string> headings = {"Query DB WC Time (ns)",
-                                       "Query DB CPU Time (ns)",
-                                        "Deserialize WC Time (ns)",
-                                        "Deserialize CPU Time (ns)",
-                                        "Response WC Time (ns)",
-                                        "Response CPU Time (ns)"};
-            writer.write_row(headings.begin(), headings.end());
-            std::pair<std::vector<std::string>, std::vector<long>> durations;
-            durations.second.clear();
-
+            #ifdef TIME
+                CSVWriter writer = CSVWriter(string("timing") + "_" +
+                                             modelId + "_" +
+                                             "model_status" + "_" +
+                                             delphi::utils::get_timestamp() +
+                                             ".csv");
+                vector<string> headings = {"Query DB WC Time (ns)",
+                                           "Query DB CPU Time (ns)",
+                                            "Deserialize WC Time (ns)",
+                                            "Deserialize CPU Time (ns)",
+                                            "Response WC Time (ns)",
+                                            "Response CPU Time (ns)"};
+                writer.write_row(headings.begin(), headings.end());
+                std::pair<std::vector<std::string>, std::vector<long>> durations;
+                durations.second.clear();
+            #endif
             json query_result;
             {
-                Timer t = Timer("Query", durations);
+                #ifdef TIME
+                    Timer t = Timer("Query", durations);
+                #endif
                 query_result = sqlite3DB->select_delphimodel_row(modelId);
             }
 
@@ -578,19 +579,25 @@ int main(int argc, const char* argv[]) {
 
             AnalysisGraph G;
             {
-                Timer t = Timer("Deserialize", durations);
+                #ifdef TIME
+                    Timer t = Timer("Deserialize", durations);
+                #endif
                 G = G.deserialize_from_json_string(model, false);
             }
 
             {
-                Timer t = Timer("Response", durations);
+                #ifdef TIME
+                    Timer t = Timer("Response", durations);
+                #endif
                 auto response =
                     nlohmann::json::parse(G.generate_create_model_response());
 
                 res << response.dump();
             }
-            writer.write_row(durations.second.begin(), durations.second.end());
-            cout << "\nElapsed time to deserialize (seconds): " << durations.second[2] / 1000000000.0 << endl;
+            #ifdef TIME
+                writer.write_row(durations.second.begin(), durations.second.end());
+                cout << "\nElapsed time to deserialize (seconds): " << durations.second[2] / 1000000000.0 << endl;
+            #endif
         });
 
     served::net::server server(host, to_string(port), mux);
