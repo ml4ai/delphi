@@ -70,10 +70,10 @@ json TrainingStatus::compose_status() {
       status["progressPercentage"] =
 	delphi::utils::round_n(ag->get_training_progress(), 2);
       status["trained"] = ag->get_trained();
-      status["stopped"] = ag->get_stopped(); 
-      status["log_likelihood"] = ag->get_log_likelihood();
-      status["log_likelihood_previous"] = ag->get_previous_log_likelihood();
-      status["log_likelihood_map"] = ag->get_log_likelihood_MAP();
+//      status["stopped"] = ag->get_stopped(); 
+//      status["log_likelihood"] = ag->get_log_likelihood();
+//      status["log_likelihood_previous"] = ag->get_previous_log_likelihood();
+//      status["log_likelihood_map"] = ag->get_log_likelihood_MAP();
     }
   }
   return status;
