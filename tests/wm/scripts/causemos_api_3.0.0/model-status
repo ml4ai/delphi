@@ -4,6 +4,8 @@
 
 # Query a model status from the delphi REST API using the CauseMos 3.0.0 API
 
+# EXAMPLE:  curl -u me:ivilab4fun -s http://localhost:8123/models/3nodes
+
 modelId=$1
 
 if [[ $modelId == "" ]]; then

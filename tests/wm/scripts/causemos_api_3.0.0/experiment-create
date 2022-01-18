@@ -6,6 +6,10 @@
 #
 # Create a new experiment with the passed-in definition file.
 # The ID of the new experiment, or an error message, is returned.
+#
+# EXAMPLE:
+# curl -s -u me:ivilab4fun -X POST http://localhost:8123/models/3nodes/experiments -d @3nodes_projection.json
+#
 
 # Model ID, e.g. "XYZ"
 modelId=$1
