@@ -7,6 +7,7 @@
 #include <boost/uuid/uuid.hpp>            // uuid class
 #include <boost/uuid/uuid_generators.hpp> // generators
 #include <boost/uuid/uuid_io.hpp>         // streaming operators etc.
+#include <boost/asio/ip/host_name.hpp>    // hostname
 #include <ctime>
 #include <iostream>
 #include <nlohmann/json.hpp>
@@ -176,33 +177,43 @@ class Experiment {
 };
 
 
-// declare if CI is running, model creation will be shorter
-std::string getStatus() {
+// System runtime parameters returned by the 'status' endpoint
+std::string getSystemStatus() {
 
-    char buf[200];
+    // report the host machine name
+    const auto host_name = boost::asio::ip::host_name(); 
+
+    // report the run mode.  CI is used for debugging.
+    const auto run_mode = getenv("CI") ? "CI" : "normal";
+
+    // report the start time
+    char timebuf[200];
     time_t t;
     struct tm *now;
     const char* fmt = "%F %T";
-
     t = time(NULL);
     now = gmtime(&t);
     if (now == NULL) {
-        perror("gmtime error");
-        exit(EXIT_FAILURE);
+      perror("gmtime error");
+      exit(EXIT_FAILURE);
+    }
+    if (strftime(timebuf, sizeof(timebuf), fmt, now) == 0) {
+      fprintf(stderr, "strftime returned 0");
+      exit(EXIT_FAILURE);
     }
 
-    if (strftime(buf, sizeof(buf), fmt, now) == 0) {
-        fprintf(stderr, "strftime returned 0");
-        exit(EXIT_FAILURE);
-    }
+    std::string system_status = "The Delphi REST API was started on "
+      + host_name
+      + " in "
+      + run_mode
+      + " mode at UTC "
+      + timebuf;
 
-    return getenv("CI") ? 
-        (string)"The Delphi REST API was started in CI mode at UTC " + buf: 
-	(string)"The Delphi REST API was started at UTC " + buf;
+    return system_status;
 }
 
-// the status only has to be generated once.
-string status = getStatus();
+// the system status only has to be generated once.
+string systemStatus = getSystemStatus();
 
 
 int main(int argc, const char* argv[]) {
@@ -233,13 +244,13 @@ int main(int argc, const char* argv[]) {
     ts.init_db();
 
     // report status on startup
-    cout << status << endl;
+    cout << systemStatus << endl;
 
     /* Allow users to check if the REST API is running */
     mux.handle("/status").get(
         [&sqlite3DB](served::response& res, const served::request& req) {
 	    // report status on request
-	    res << status;
+	    res << systemStatus;
         });
 
     /* openApi 3.0.0
