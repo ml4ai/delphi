@@ -18,7 +18,14 @@ sqlite3* AnalysisGraph::open_delphi_db(int mode) {
   if (sqlite3_open_v2(getenv("DELPHI_DB"), &db, mode, NULL) != SQLITE_OK) {
     cout << "\n\nERROR: delphi.db does not exist at " << pPath << endl;
     cout << sqlite3_errmsg(db) << endl;
-    exit(1);
+    cout << "Trying to open for the second time after waiting for 5 seconds..." << endl;
+    sleep(5);
+    if (sqlite3_open_v2(getenv("DELPHI_DB"), &db, mode, NULL) != SQLITE_OK) {
+        cout << "\n\nERROR: opening delphi.db for the second time" << endl;
+        cout << "ERROR: delphi.db does not exist at " << pPath << endl;
+        cout << sqlite3_errmsg(db) << endl;
+        exit(1);
+    }
   }
 
   return db;
@@ -58,9 +65,7 @@ AdjectiveResponseMap AnalysisGraph::construct_adjective_response_map(
     normal_distribution<double>& norm_dist,
     size_t n_kernels
 ) {
-  cout << "Trying to open Delphi DB\n";
   sqlite3* db = this->open_delphi_db(SQLITE_OPEN_READONLY);
-  cout << "Delphi DB opened\n";
 
   if (db == nullptr) {
     cout << "\n\nERROR: opening delphi.db" << endl;

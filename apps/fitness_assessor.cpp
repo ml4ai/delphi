@@ -93,6 +93,7 @@ int main(int argc, char* argv[]) {
 
   //vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
   // To debug delphi being unable to open the delphi.db
+  /*
   double theta_prob = 0.3;
   int seed = 14;
   int cag_id = 30;
@@ -111,7 +112,10 @@ int main(int argc, char* argv[]) {
   pair<int, double> MAP_squared_error =
       G.assess_model_fit(output_file_prefix, cag_id, seed);
   return(0);
+   */
   // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  int model_no = 0;
 
   for (double theta_prob : theta_probs) {
 
@@ -125,7 +129,8 @@ int main(int argc, char* argv[]) {
 
           for (int cag_id = 0; cag_id < ags.size(); cag_id++) {
               AnalysisGraph G = ags[cag_id];
-              cout << "\nCag ID: " << cag_id << endl;
+              cout << "\n\nCag ID: " << cag_id << "/" << ags.size() << endl;
+              cout << "\tTraining model: " << model_no++ << endl;
               cout << "\tNodes: " << G.num_vertices() << endl;
               cout << "\tEdges: " << G.num_edges() << endl;
               cout << "\tTheta prob: " << theta_prob << endl;
