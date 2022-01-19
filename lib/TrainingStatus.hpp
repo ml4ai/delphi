@@ -43,5 +43,7 @@ class TrainingStatus {
 
   const string COL_MODEL_ID = "id";
   const string COL_MODEL_STATUS = "status";
+  const string MODEL_STATUS_TRAINED = "trained";
+  const string MODEL_STATUS_PROGRESS_PERCENTAGE = "progressPercentage";
   const string TABLE_NAME = "training_status";
 };

@@ -91,9 +91,9 @@ json TrainingStatus::compose_status() {
     string model_id = ag->id;
     if(!model_id.empty()) {
       status[COL_MODEL_ID] = model_id;
-      status["progressPercentage"] =
+      status[MODEL_STATUS_PROGRESS_PERCENTAGE] =
 	delphi::utils::round_n(ag->get_training_progress(), 2);
-      status["trained"] = ag->get_trained();
+      status[MODEL_STATUS_TRAINED] = ag->get_trained();
 //      status["stopped"] = ag->get_stopped(); 
 //      status["log_likelihood"] = ag->get_log_likelihood();
 //      status["log_likelihood_previous"] = ag->get_previous_log_likelihood();

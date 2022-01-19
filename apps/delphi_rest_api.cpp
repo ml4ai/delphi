@@ -553,7 +553,41 @@ int main(int argc, const char* argv[]) {
     mux.handle("/models/{modelId}")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
 
-            string modelId = req.params["modelId"];
+            TrainingStatus ts;
+	    json ret;
+	    string modelId = req.params["modelId"]; // endpoint value exists
+	    
+	    // get the model row if it exists
+	    ret[ts.COL_MODEL_ID] = modelId;
+            string row_query_return = ts.read_from_db(modelId);
+            if (row_query_return.empty()) {
+	        ret[ts.COL_MODEL_STATUS] = "No model data found";
+                res << ret.dump();
+                return;
+            }
+
+	    // find the JSON serialization of the status if it exists
+	    json cols = json::parse(row_query_return);
+	    string notFound = "No status data found";
+	    string statusDump = cols.value(ts.COL_MODEL_STATUS, notFound);
+	    if(statusDump == notFound) {
+	      ret[ts.COL_MODEL_STATUS] = notFound;
+              res << ret.dump();
+              return;
+            }
+
+	    // OK the status exists!  Deserialize and pick fields
+	    json statusJson = json::parse(statusDump);
+
+	    // trained status fields
+	    ret[ts.MODEL_STATUS_PROGRESS_PERCENTAGE] = 
+                statusJson[ts.MODEL_STATUS_PROGRESS_PERCENTAGE];
+	    ret[ts.MODEL_STATUS_TRAINED] = 
+                statusJson[ts.MODEL_STATUS_TRAINED];
+            res << ret.dump();
+            #ifndef TIME 
+	      return;
+            #endif
 
             #ifdef TIME
                 CSVWriter writer = CSVWriter(string("timing") + "_" +
@@ -579,13 +613,6 @@ int main(int argc, const char* argv[]) {
                 query_result = sqlite3DB->select_delphimodel_row(modelId);
             }
 
-            if (query_result.empty()) {
-                json ret_exp;
-                ret_exp["status"] = "invalid model id";
-                res << ret_exp.dump();
-                return;
-            }
-
             string model = query_result["model"];
 
             AnalysisGraph G;
@@ -603,7 +630,7 @@ int main(int argc, const char* argv[]) {
                 auto response =
                     nlohmann::json::parse(G.generate_create_model_response());
 
-                res << response.dump();
+                res << response.dump(); //FIXME API?
             }
             #ifdef TIME
                 writer.write_row(durations.second.begin(), durations.second.end());
