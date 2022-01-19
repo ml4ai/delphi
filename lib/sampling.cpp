@@ -282,7 +282,7 @@ void AnalysisGraph::sample_from_proposal() {
     // Perturb the θ and compute the new logpdf(θ)
     // TODO: Check whether this perturbation is accurate
 //    this->graph[e[0]].set_theta(this->graph[e[0]].get_theta() + this->norm_dist(this->rand_num_generator));
-    this->graph[ed].set_theta(this->graph[ed].get_theta() + this->norm_dist(this->rand_num_generator));
+    this->graph[ed].set_theta(this->graph[ed].get_theta() + this->norm_dist(this->rand_num_generator) / 10);
     {
       #ifdef TIME
         this->mcmc_part_duration.second.clear();
