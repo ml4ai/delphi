@@ -91,6 +91,28 @@ int main(int argc, char* argv[]) {
     }
   }
 
+  //vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+  // To debug delphi being unable to open the delphi.db
+  double theta_prob = 0.3;
+  int seed = 14;
+  int cag_id = 30;
+  AnalysisGraph G = ags[cag_id];
+  cout << "\nCag ID: " << cag_id << endl;
+  cout << "\tNodes: " << G.num_vertices() << endl;
+  cout << "\tEdges: " << G.num_edges() << endl;
+  cout << "\tTheta prob: " << theta_prob << endl;
+  cout << "\tSeed: " << seed << endl;
+  G.set_random_seed(seed);
+  G.run_train_model(res,
+                    burn,
+                    InitialBeta::ZERO,
+                    InitialDerivative::DERI_ZERO,
+                    theta_prob);
+  pair<int, double> MAP_squared_error =
+      G.assess_model_fit(output_file_prefix, cag_id, seed);
+  return(0);
+  // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
   for (double theta_prob : theta_probs) {
 
       int tot_parameters_all_seeds = 0;
