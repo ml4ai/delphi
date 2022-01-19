@@ -457,6 +457,8 @@ int main(int argc, const char* argv[]) {
 
             string modelId = req.params["modelId"];
 
+	    cout << "/models/{modelId}/experiments with model: " << modelId << endl;
+
 	    // find the modelId row in the database if it exists
             auto request_body = nlohmann::json::parse(req.body());
             json query_result = sqlite3DB->select_delphimodel_row(modelId);
@@ -481,6 +483,8 @@ int main(int argc, const char* argv[]) {
             string experiment_type = request_body["experimentType"];
             boost::uuids::uuid uuid = boost::uuids::random_generator()();
             string experiment_id = to_string(uuid);
+
+	    cout << "Experimment_id: " << experiment_id << endl;
 
             sqlite3DB->insert_into_causemosasyncexperimentresult(
                 experiment_id, "in progress", experiment_type, "");
@@ -551,69 +555,71 @@ int main(int argc, const char* argv[]) {
      * Post edge indicators for this model
      * TODO This needs to be implemented
      */
-    mux.handle("/models/{modelId}/edit-indicators")
-        .post([&sqlite3DB](served::response& res, const served::request& req) {
-            string message =
-                "The edit-indicators endpoint is not implemented for Delphi, "
-                "since Delphi (as it is currently implemented) needs to "
-                "retrain the whole model on every indicator change. This might "
-                "change in the future, but for now, the way to update an "
-                "existing model is to use the create-model API endpoint.";
+    mux.handle("/models/{modelId}/edit-indicators").post([&sqlite3DB](
+        served::response& res, 
+        const served::request& req
+    ){
+        string modelId = req.params["modelId"]; 
+        json query_result = sqlite3DB->select_delphimodel_row(modelId);
 
-            string modelId = req.params["modelId"]; // should catch if not found
-            json result =
-                sqlite3DB->select_causemosasyncexperimentresult_row(modelId);
+        string message = query_result.empty() ?
+            "modelId '" + modelId + "' not found in database." :
+            "The edit-indicators endpoint is not implemented for Delphi, "
+            "since Delphi (as it is currently implemented) needs to "
+            "retrain the whole model on every indicator change. This might "
+            "change in the future, but for now, the way to update an "
+            "existing model is to use the create-model API endpoint.";
 
-            if (result.empty()) {
-                // model ID not in database.
-            }
-            result["modelId"] = modelId;
-            result["status"] = message;
+        json ret;
+        ret["modelId"] = modelId;
+        ret["status"] = message;
+        res << ret.dump();
+    });
 
-            res << result.dump();
-        });
 
     /* openApi 3.0.0
-     * Post edge edits for this model
+     * Post edge indicators for this model
      * TODO This needs to be implemented
      */
-    mux.handle("/models/{modelId}/edit-edges")
-        .post([&sqlite3DB](served::response& res, const served::request& req) {
-            string message =
-                "Edit-edges: Currently implemented as a NOP.  It will soon "
-                "have the semantics of changing the prior distribution of the "
-                "rate of change of the target node with respect to the source "
-                "node expressed in terms of angles.";
+    mux.handle("/models/{modelId}/edit-edges").post([&sqlite3DB](
+        served::response& res, 
+        const served::request& req
+    ){
+        string modelId = req.params["modelId"]; 
+        json query_result = sqlite3DB->select_delphimodel_row(modelId);
+        string message = query_result.empty() ?
+            "modelId '" + modelId + "' not found in database." :
+            "Edit-edges: Currently implemented as a NOP.  It will soon "
+            "have the semantics of changing the prior distribution of the "
+            "rate of change of the target node with respect to the source "
+            "node expressed in terms of angles.";
 
-            string modelId = req.params["modelId"]; // should catch if not found
-            json result =
-                sqlite3DB->select_causemosasyncexperimentresult_row(modelId);
-            if (result.empty()) {
-                // model ID not in database.
-            }
-            result["modelId"] = modelId;
-            result["status"] = message;
+        json ret;
+        ret["modelId"] = modelId;
+        ret["status"] = message;
+        res << ret.dump();
+    });
 
-            res << result.dump();
-        });
 
-    mux.handle("/models/{modelId}/training-stop")
-        .get([&sqlite3DB](served::response& res, const served::request& req) {
-            TrainingStatus ts;
-            string modelId = req.params["modelId"]; // should catch missing
+    mux.handle("/models/{modelId}/training-stop").get([&sqlite3DB](
+        served::response& res,
+        const served::request& req
+    ){
+        TrainingStatus ts;
+        string modelId = req.params["modelId"]; // should catch missing
 
-            string query_return = ts.stop_training(modelId);
+        string query_return = ts.stop_training(modelId);
 
-            if (query_return.empty()) {
-                json error;
-                error["id"] = modelId;
-                error["status"] = "No training status data found";
-                res << error.dump();
-                return;
-            }
+        if (query_return.empty()) {
+            json error;
+            error["id"] = modelId;
+            error["status"] = "No training status data found";
+            res << error.dump();
+            return;
+        }
 
-            res << query_return;
-        });
+        res << query_return;
+    });
 
     /* openApi 3.0.0
      * Get the status of an existing model
