@@ -162,18 +162,80 @@ class Experiment {
             ; // Unknown experiment type
     }
 
-    static void train_model(Database* sqlite3DB,
-                            AnalysisGraph G,
-                            string modelId,
-                            int sampling_resolution,
-                            int burn) {
-        G.run_train_model(sampling_resolution,
-                          burn,
-                          InitialBeta::ZERO,
-                          InitialDerivative::DERI_ZERO);
-        sqlite3DB->insert_into_delphimodel(modelId,
-                                           G.serialize_to_json_string(false));
+    // load and run a model
+    static void load_and_train_model(
+        nlohmann::json json_data,
+        Database* sqlite3DB,
+        AnalysisGraph G,
+        string modelId,
+        int sampling_resolution,
+        int burn
+    )
+    {
+        // model status should be set in db as 'loading'
+        G.from_causemos_json_dict(json_data, 0, 0);
+        sqlite3DB->insert_into_delphimodel(
+            modelId,
+            G.serialize_to_json_string(false)
+        );
+        // model status should be set in db as 'training'
+        G.run_train_model(
+            sampling_resolution,
+            burn,
+            InitialBeta::ZERO,
+            InitialDerivative::DERI_ZERO
+        );
+        sqlite3DB->insert_into_delphimodel(
+            modelId,
+            G.serialize_to_json_string(false)
+        );
     }
+
+       // load and run an experiment
+    static void load_and_run_experiment(
+        string experiment_type,
+        Database* sqlite3DB,
+        const served::request& request,
+        string modelId,
+        string experiment_id
+    )
+    {
+        sqlite3DB->insert_into_causemosasyncexperimentresult(
+            experiment_id,
+            "checking model",
+            experiment_type,
+            ""
+        );
+
+        json query_result = sqlite3DB->select_delphimodel_row(modelId);
+        string model = query_result["model"];
+
+        bool trained = nlohmann::json::parse(model)["trained"];
+        if (trained == false) {
+            sqlite3DB->insert_into_causemosasyncexperimentresult(
+                experiment_id,
+                "model not trained",
+                experiment_type,
+                ""
+            );
+            return;
+        }
+
+        sqlite3DB->insert_into_causemosasyncexperimentresult(
+            experiment_id,
+            "processing",
+            experiment_type,
+            ""
+        );
+
+        runExperiment(
+            sqlite3DB,
+            request,
+            modelId,
+            experiment_id
+        );
+    }
+
 };
 
 
@@ -184,7 +246,7 @@ std::string getSystemStatus() {
     const auto host_name = boost::asio::ip::host_name(); 
 
     // report the run mode.  CI is used for debugging.
-    const auto run_mode = getenv("CI") ? "CI" : "normal";
+    const auto run_mode = getenv("CI") ? "in CI mode" : "";
 
     // report the start time
     char timebuf[200];
@@ -204,9 +266,9 @@ std::string getSystemStatus() {
 
     std::string system_status = "The Delphi REST API was started on "
       + host_name
-      + " in "
+      + " "
       + run_mode
-      + " mode at UTC "
+      + " at UTC "
       + timebuf;
 
     return system_status;
@@ -272,9 +334,6 @@ int main(int argc, const char* argv[]) {
                 return ret_exp.dump();
             }
 
-            /* dump the input file to screen */
-            // cout << json_data.dump() << endl;
-
             /*
              If neither "CI" or "DELPHI_N_SAMPLES" is set, we default to a
              sampling resolution of 1000.
@@ -311,12 +370,15 @@ int main(int argc, const char* argv[]) {
                 nlohmann::json::parse(G.generate_create_model_response());
 
             try {
-                thread executor_create_model(&Experiment::train_model,
-                                             sqlite3DB,
-                                             G,
-                                             json_data["id"],
-                                             sampling_resolution,
-                                             burn);
+                thread executor_create_model(
+                    &Experiment::load_and_train_model,
+                    json_data,
+                    sqlite3DB,
+                    G,
+                    modelId,
+                    sampling_resolution,
+                    burn
+                );
                 executor_create_model.detach();
                 cout << "Training model " << modelId << endl;
             }
@@ -388,11 +450,15 @@ int main(int argc, const char* argv[]) {
        a new thread to run the projection and returning
        served's REST response immediately.
     */
-    mux.handle("/models/{modelId}/experiments")
-        .post([&sqlite3DB](served::response& res, const served::request& req) {
-            auto request_body = nlohmann::json::parse(req.body());
-            string modelId = req.params["modelId"]; // should catch if not found
+    mux.handle("/models/{modelId}/experiments").post([&sqlite3DB](
+       served::response& res, 
+       const served::request& req
+    ) {
 
+            string modelId = req.params["modelId"];
+
+	    // find the modelId row in the database if it exists
+            auto request_body = nlohmann::json::parse(req.body());
             json query_result = sqlite3DB->select_delphimodel_row(modelId);
             if (query_result.empty()) {
                 json ret_exp;
@@ -420,11 +486,15 @@ int main(int argc, const char* argv[]) {
                 experiment_id, "in progress", experiment_type, "");
 
             try {
-                thread executor_experiment(&Experiment::runExperiment,
-                                           sqlite3DB,
-                                           req,
-                                           modelId,
-                                           experiment_id);
+                thread executor_experiment(
+                    &Experiment::load_and_run_experiment,
+                    experiment_type,
+                    sqlite3DB,
+                    req,
+                    modelId,
+                    experiment_id
+                );
+
                 executor_experiment.detach();
             }
             catch (std::exception& e) {
@@ -437,8 +507,6 @@ int main(int argc, const char* argv[]) {
             }
 
             json ret_exp;
-            //            ret_exp["modelId"] = modelId;  API only calls for
-            //            experiment ID
             ret_exp["experimentId"] = experiment_id;
             res << ret_exp.dump();
             return ret_exp;
