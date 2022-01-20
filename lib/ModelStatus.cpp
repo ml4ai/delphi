@@ -80,7 +80,7 @@ void ModelStatus::stop_updating_db(){
 string ModelStatus::stop_training(string modelId){
   json status;
   status[COL_ID] = modelId;
-  status[COL_STATUS] = "Endpoint 'training-stop' not yet implemented.";
+  status[COL_JSON] = "Endpoint 'training-stop' not yet implemented.";
   return status.dump();
 }
 
@@ -91,9 +91,9 @@ json ModelStatus::compose_status() {
     string model_id = ag->id;
     if(!model_id.empty()) {
       status[COL_ID] = model_id;
-      status[STATUS_PROGRESS_PERCENTAGE] =
+      status[STATUS_PROGRESS] =
 	delphi::utils::round_n(ag->get_training_progress(), 2);
-      status[STATUS_TRAINED] = ag->get_trained();
+//      status[STATUS_TRAINED] = ag->get_trained();
 //      status["stopped"] = ag->get_stopped(); 
 //      status["log_likelihood"] = ag->get_log_likelihood();
 //      status["log_likelihood_previous"] = ag->get_previous_log_likelihood();
@@ -105,23 +105,23 @@ json ModelStatus::compose_status() {
 
 /* write the current status to our table */
 void ModelStatus::update_db() {
-  json status = compose_status();
-  write_to_db(status);
+  write_to_db(ag->id, compose_status());
 }
 
 /* write the model training status to the database */
-void ModelStatus::write_to_db(json status) {
+void ModelStatus::write_to_db(string modelId, json status) {
   if(status.empty()) {
     logError("write_to_db with empty json");
   } else {
-    string id = status.value(COL_ID, "");
-    logInfo("write_to_db: ");
-    string dump = status.dump();
-    logInfo(dump);
 
-    // test inputs
-    string query = 
-      "INSERT OR REPLACE INTO " + TABLE_NAME + " VALUES ('" + id + "', '" + dump +  "');";
+    string query = "INSERT OR REPLACE INTO " 
+      + TABLE_NAME
+      + " VALUES ('"
+      + modelId
+      + "', '"
+      + status.dump() 
+      +  "');";
+
     insert(query);
   }
 }
@@ -139,7 +139,7 @@ string ModelStatus::read_from_db(string modelId) {
   while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
     matches[COL_ID] =
       string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
-    matches[COL_STATUS] =
+    matches[COL_JSON] =
       string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
   }
   sqlite3_finalize(stmt);
@@ -157,7 +157,7 @@ string ModelStatus::read_from_db(string modelId) {
 void ModelStatus::init_db() {
   string query = "CREATE TABLE IF NOT EXISTS " 
     + TABLE_NAME 
-    + " (" + COL_ID + " TEXT PRIMARY KEY, " + COL_STATUS + " TEXT NOT NULL);";
+    + " (" + COL_ID + " TEXT PRIMARY KEY, " + COL_JSON + " TEXT NOT NULL);";
 
   insert(query);
 }

@@ -341,7 +341,7 @@ int main(int argc, const char* argv[]) {
     ){
         nlohmann::json json_data = nlohmann::json::parse(req.body());
 
-        // Find the id field, stop now if not foud.
+        // Find the id field, stop now if not found.
         string failEarly = "model ID not found";
         string modelId = json_data.value("id", failEarly);
         if (modelId == failEarly) {
@@ -486,11 +486,12 @@ int main(int argc, const char* argv[]) {
             res << retstr;
             return retstr;
         }
-	string modelStatusString = modelResultCols[ms.COL_STATUS];
+	string modelStatusString = modelResultCols[ms.COL_JSON];
 	json status = nlohmann::json::parse(modelStatusString);
 
 	// check if model is trained
-	bool trained = status[ms.STATUS_TRAINED];
+	float training_progress = status[ms.STATUS_PROGRESS];
+	bool trained = (training_progress < 1.0);
 	if(!trained) {
 	    cout << "exit 2" << endl;
             ret["experimentId"] = "model not trained";
@@ -550,17 +551,16 @@ int main(int argc, const char* argv[]) {
         if (query_return.empty()) {
             json error;
             error[ms.COL_ID] = modelId;
-            error[ms.COL_STATUS] = "No training status data found";
+            error[ms.COL_JSON] = "No training status data found";
             res << error.dump();
             return;
         }
 
         json cols = json::parse(query_return);
-        string statusText = cols[ms.COL_STATUS];
+        string statusText = cols[ms.COL_JSON];
         json status = json::parse(statusText);
         json ret;
-        ret[ms.STATUS_PROGRESS_PERCENTAGE] = 
-	        status[ms.STATUS_PROGRESS_PERCENTAGE];
+        ret[ms.STATUS_PROGRESS] = status[ms.STATUS_PROGRESS];
         res << ret.dump();
     });
 
@@ -649,7 +649,7 @@ int main(int argc, const char* argv[]) {
         ret[ms.COL_ID] = modelId;
         string row_query_return = ms.read_from_db(modelId);
         if (row_query_return.empty()) {
-            ret[ms.COL_STATUS] = "No model data found";
+            ret[ms.COL_JSON] = "No model data found";
             res << ret.dump();
             return;
         }
@@ -657,9 +657,9 @@ int main(int argc, const char* argv[]) {
         // find the JSON serialization of the status if it exists
         json cols = json::parse(row_query_return);
         string notFound = "No status data found";
-        string statusDump = cols.value(ms.COL_STATUS, notFound);
+        string statusDump = cols.value(ms.COL_JSON, notFound);
         if(statusDump == notFound) {
-            ret[ms.COL_STATUS] = notFound;
+            ret[ms.COL_JSON] = notFound;
             res << ret.dump();
             return;
         }
@@ -667,11 +667,6 @@ int main(int argc, const char* argv[]) {
         // OK the status exists!  Deserialize and pick fields
         json status = json::parse(statusDump);
 
-        // trained status fields
-        ret[ms.STATUS_PROGRESS_PERCENTAGE] = 
-            status[ms.STATUS_PROGRESS_PERCENTAGE];
-        ret[ms.STATUS_TRAINED] = status[ms.STATUS_TRAINED];
-        res << ret.dump();
         #ifndef TIME 
 	      return;
         #endif
