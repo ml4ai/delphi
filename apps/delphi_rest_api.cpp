@@ -283,13 +283,13 @@ int main(int argc, const char* argv[]) {
              some kind of heuristic, based on the number of nodes and edges. -
              Adarsh
             */
-            size_t kde_kernels = 1000;
+            size_t kde_kernels = 200;
             int sampling_resolution = 100; // in all cases
 	    int burn = 10000;
             if (getenv("CI")) {
                 // When running in a continuous integration run, we set the
                 // sampling resolution to be small to prevent timeouts.
-                kde_kernels = 400;
+                kde_kernels = 200;
                 burn = 1000;
             }
             else if (getenv("DELPHI_N_SAMPLES")) {
