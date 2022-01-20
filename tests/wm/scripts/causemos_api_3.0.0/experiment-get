@@ -2,37 +2,36 @@
 
 # Author: Joseph Astier
 #
-# CauseMos 3.0.0 API endpoint: "/models/{modelId}/experiments"
+# CauseMos 3.0.0 API endpoint: "/models/{modelId}/experiments/{experimentId}
 #
-# Create a new experiment with the passed-in definition file.
-# The ID of the new experiment, or an error message, is returned.
 
-# Model ID, e.g. "XYZ"
+# Retrieve an experiment from the database with the model ID and experiment ID
+#
+# EXAMPLE:  curl -s -u me:ivilab4fun http://localhost:8123/models/3nodes/experiments/068d6add-f10f-4eb7-a412-0e2405fcf3d3
+
 modelId=$1
+experimentId=$2
 
-# Experiment definition JSON file
-filename=$2
+if [[ $modelId == "" ]] || [[ $experimentId == "" ]]; then
 
-if [[ $modelId == "" ]] || [[ $filename == "" ]]; then
-
-        echo "Please specify a model ID and experiment definition filename"
-        echo "Usage:  $0 model_ID filename"
+    echo "Please specify a modelId and an experimentId"
+    echo "Usage:  $0 modelId experimentId"
 
 else
-        login="-u me:ivilab4fun"
-        url=$(./get_delphi_url)
-        endpoint="/models/$modelId/experiments"
+    login="-u me:ivilab4fun"
+    url=$(./get_delphi_url)
+    endpoint="/models/$modelId/experiments/$experimentId"
 
-        call="curl -s $login -X POST $url$endpoint -d @$filename"
-        echo "Call:"
-        echo $call
+    call="curl -s $login $url$endpoint"
+    echo "Call:"
+    echo $call
 
-	call_time=$(date +%T.%3N)
-        response=$($call)
-	response_time=$(date +%T.%3N)
+    call_time=$(date +%T.%3N)
+    response=$($call)
+    response_time=$(date +%T.%3N)
 
-        echo "Response:"
-        echo $response | jq
-	echo "Server queried: $call_time"
-        echo "Server replied: $response_time"
+    echo "Response:"
+    echo $response | jq
+    echo "Server queried: $call_time"
+    echo "Server replied: $response_time"
 fi
