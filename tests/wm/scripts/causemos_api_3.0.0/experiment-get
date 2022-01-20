@@ -9,14 +9,15 @@
 #
 # EXAMPLE:  curl -s -u me:ivilab4fun http://localhost:8123/models/3nodes/experiments/068d6add-f10f-4eb7-a412-0e2405fcf3d3
 
+# Model ID, e.g. "XYZ"
 modelId=$1
-experimentId=$2
 
-if [[ $modelId == "" ]] || [[ $experimentId == "" ]]; then
+# Experiment definition JSON file
+filename=$2
 
+if [[ $modelId == "" ]] || [[ $filename == "" ]]; then
     echo "Please specify a modelId and an experimentId"
     echo "Usage:  $0 modelId experimentId"
-
 else
     login="-u me:ivilab4fun"
     url=$(./get_delphi_url)

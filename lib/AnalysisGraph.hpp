@@ -1187,7 +1187,7 @@ class AnalysisGraph {
    ============================================================================
   */
 
-  std::string serialize_to_json_string(bool verbose = true);
+  std::string serialize_to_json_string(bool verbose = true, bool compact = true);
 
   void export_create_model_json_string();
 

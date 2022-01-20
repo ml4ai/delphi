@@ -271,8 +271,8 @@ std::string getSystemStatus() {
     t = time(NULL);
     now = gmtime(&t);
     if (now == NULL) {
-        perror("gmtime error");
-        exit(EXIT_FAILURE);
+      perror("gmtime error");
+      exit(EXIT_FAILURE);
     }
     if (strftime(timebuf, sizeof(timebuf), fmt, now) == 0) {
         fprintf(stderr, "strftime returned 0");

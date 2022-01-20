@@ -16,6 +16,7 @@ if [[ $modelId == "" ]]; then
     echo "Usage:  $0 modelId"
 
 else
+
     login="-u me:ivilab4fun"
     endpoint="/models/$modelId/training-progress"
     url=$(./get_delphi_url)
