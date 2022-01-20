@@ -1,5 +1,5 @@
 #include "AnalysisGraph.hpp"
-#include "TrainingStatus.hpp"
+#include "ModelStatus.hpp"
 #include "data.hpp"
 #include <tqdm.hpp>
 #include <range/v3/all.hpp>
@@ -94,8 +94,8 @@ void AnalysisGraph::run_train_model(int res,
                                 unordered_map<string, function<double(unsigned int, double)>> ext_concepts
                                 ) {
 
-    TrainingStatus ts;
-    ts.start_updating_db(this);
+    ModelStatus ms;
+    ms.start_updating_db(this);
 
     float training_step = 1.0 / (res + burn);
 
@@ -326,7 +326,7 @@ void AnalysisGraph::run_train_model(int res,
 
     this->trained = true;
     this->training_progress= 1.0;
-    ts.stop_updating_db();
+    ms.stop_updating_db();
     RNG::release_instance();
 }
 

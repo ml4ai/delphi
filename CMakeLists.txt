@@ -75,7 +75,8 @@ add_library(Delphi
   lib/database.cpp
   lib/DatabaseHelper.cpp
   lib/head_nodes.cpp
-  lib/TrainingStatus.cpp
+  lib/ModelStatus.cpp
+  lib/ExperimentStatus.cpp
   lib/profiler.cpp
   lib/CSVWriter.hpp)
 
