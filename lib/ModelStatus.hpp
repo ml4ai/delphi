@@ -15,7 +15,6 @@ class ModelStatus {
     std::thread *pThread = nullptr;
     sqlite3* db = nullptr;
     void scheduler();
-    void write_to_db(string modelId, json status);
     json compose_status();
     int insert(string query);
     void logInfo(string message);
@@ -34,14 +33,17 @@ class ModelStatus {
     void update_db();
     void start_updating_db(AnalysisGraph* ag);
     void stop_updating_db();
+    void write_to_db(string modelId, json status);
     string stop_training(string modelId);
-    string read_from_db(string modelId);
+    json read_from_db(string modelId);
 
     const string TABLE_NAME = "model_status";
     const string COL_ID = "id";    // Model ID, primary key
-    const string COL_JSON = "json"; // serialized JSON status string
+    const string COL_STATUS = "status"; // serialized JSON status string
     const string STATUS_PROGRESS = "progressPercentage"; // model training
+    const string STATUS_MODEL_ID = "model_id";
     const string STATUS_NODES = "nodes";
     const string STATUS_EDGES = "edges";
     const string STATUS_STATUS = "status";
+    const string STATUS_TRAINED = "trained";
 };

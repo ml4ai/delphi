@@ -158,7 +158,7 @@ string ExperimentStatus::read_from_db(string experimentId) {
   while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
     matches[COL_ID] =
       string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
-    matches[COL_JSON] =
+    matches[COL_STATUS] =
       string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
   }
   sqlite3_finalize(stmt);
@@ -177,7 +177,7 @@ void ExperimentStatus::init_db() {
     + TABLE_NAME 
     + " (" 
     + COL_ID + " TEXT PRIMARY KEY, " 
-    + COL_JSON + " TEXT NOT NULL"
+    + COL_STATUS + " TEXT NOT NULL"
     + ");";
 
   insert(query);

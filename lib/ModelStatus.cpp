@@ -80,7 +80,7 @@ void ModelStatus::stop_updating_db(){
 string ModelStatus::stop_training(string modelId){
   json status;
   status[COL_ID] = modelId;
-  status[COL_JSON] = "Endpoint 'training-stop' not yet implemented.";
+  status[COL_STATUS] = "Endpoint 'training-stop' not yet implemented.";
   return status.dump();
 }
 
@@ -93,7 +93,7 @@ json ModelStatus::compose_status() {
       status[COL_ID] = model_id;
       status[STATUS_PROGRESS] =
 	delphi::utils::round_n(ag->get_training_progress(), 2);
-//      status[STATUS_TRAINED] = ag->get_trained();
+      status[STATUS_TRAINED] = ag->get_trained();
 //      status["stopped"] = ag->get_stopped(); 
 //      status["log_likelihood"] = ag->get_log_likelihood();
 //      status["log_likelihood_previous"] = ag->get_previous_log_likelihood();
@@ -127,29 +127,34 @@ void ModelStatus::write_to_db(string modelId, json status) {
 }
 
 /* Read the model training status from the database */
-string ModelStatus::read_from_db(string modelId) {
-  logInfo("read_from_db, model_id:");
-  logInfo(modelId);
+json ModelStatus::read_from_db(string modelId) {
+  string info = "read_from_db, modelId = " + modelId;
+  logInfo(info);
 
   json matches;
   sqlite3_stmt* stmt = nullptr;
-  string query =
-    "SELECT * from " + TABLE_NAME + " WHERE " + COL_ID + "='"+ modelId+ "'  LIMIT 1;";
+  string query = "SELECT * from " 
+    + TABLE_NAME 
+    + " WHERE " 
+    + COL_ID 
+    + "='"
+    + modelId
+    + "'  LIMIT 1;";
+
   int rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
   while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
     matches[COL_ID] =
       string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
-    matches[COL_JSON] =
+    matches[COL_STATUS] =
       string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
   }
   sqlite3_finalize(stmt);
   stmt = nullptr;
 
-  logInfo("read_from_db, results:");
-  string dump = matches.dump();
-  logInfo(dump);
+  string report = "read_from_db, row = " + matches.dump();;
+  logInfo(report);
 
-  return dump;
+  return matches;
 }
 
 
@@ -157,7 +162,7 @@ string ModelStatus::read_from_db(string modelId) {
 void ModelStatus::init_db() {
   string query = "CREATE TABLE IF NOT EXISTS " 
     + TABLE_NAME 
-    + " (" + COL_ID + " TEXT PRIMARY KEY, " + COL_JSON + " TEXT NOT NULL);";
+    + " (" + COL_ID + " TEXT PRIMARY KEY, " + COL_STATUS + " TEXT NOT NULL);";
 
   insert(query);
 }

@@ -18,7 +18,7 @@
 #include <string>
 #include <thread>
 
-#define TIME
+//#define TIME
 
 #ifdef TIME
     #include "Timer.hpp"
@@ -404,8 +404,12 @@ int main(int argc, const char* argv[]) {
 
         // Send back a status message immediately 
 	json ret;
+	ret[ms.STATUS_MODEL_ID] = modelId;
 	ret[ms.STATUS_STATUS] = "loading";
+	ret[ms.STATUS_TRAINED] = false;
 	string retStr = ret.dump();
+
+	ms.write_to_db(modelId, retStr);
         response << retStr;
         return retStr;
     });
@@ -466,28 +470,25 @@ int main(int argc, const char* argv[]) {
        served::response& res, 
        const served::request& req
     ) {
-	cout << "/models/{modelId}/experiments" << endl;
         ExperimentStatus es;
         ModelStatus ms;
         string modelId = req.params["modelId"];
         json ret;
 
 	// check if model status exists in database
-	json modelResultCols = nlohmann::json::parse(ms.read_from_db(modelId));
-	if(modelResultCols.empty()) {
+	json row = ms.read_from_db(modelId);
+	if(row.empty()) {
             ret["experimentId"] = "invalid model id";
 	    string retstr = ret.dump();
             res << retstr;
             return retstr;
         }
-	string modelStatusString = modelResultCols[ms.COL_JSON];
+	string modelStatusString = row[ms.COL_STATUS];
 	json status = nlohmann::json::parse(modelStatusString);
 
 	// check if model is trained
-	float training_progress = status[ms.STATUS_PROGRESS];
-	bool trained = (training_progress < 1.0);
+        bool trained = nlohmann::json::parse(modelStatusString)["trained"];
 	if(!trained) {
-	    cout << "exit 2" << endl;
             ret["experimentId"] = "model not trained";
 	    string retstr = ret.dump();
             res << retstr;
@@ -540,18 +541,17 @@ int main(int argc, const char* argv[]) {
     ){
         string modelId = req.params["modelId"]; // should catch missing
         ModelStatus ms;
-        string query_return = ms.read_from_db(modelId);
+        json row = ms.read_from_db(modelId);
 
-        if (query_return.empty()) {
+        if (row.empty()) {
             json error;
             error[ms.COL_ID] = modelId;
-            error[ms.COL_JSON] = "No training status data found";
+            error[ms.COL_STATUS] = "No training status data found";
             res << error.dump();
             return;
         }
 
-        json cols = json::parse(query_return);
-        string statusText = cols[ms.COL_JSON];
+        string statusText = row[ms.COL_STATUS];
         json status = json::parse(statusText);
         json ret;
         ret[ms.STATUS_PROGRESS] = status[ms.STATUS_PROGRESS];
@@ -635,35 +635,35 @@ int main(int argc, const char* argv[]) {
         served::response& res, 
         const served::request& req
     ){
+        cout << "/models/{modelId} start" << endl;
+
         ModelStatus ms;
         json ret;
         string modelId = req.params["modelId"]; // endpoint value exists
 	    
         // get the model row if it exists
         ret[ms.COL_ID] = modelId;
-        string row_query_return = ms.read_from_db(modelId);
-        if (row_query_return.empty()) {
-            ret[ms.COL_JSON] = "No model data found";
+        json row = ms.read_from_db(modelId);
+        if (row.empty()) {
+            ret[ms.COL_STATUS] = "No model data found";
             res << ret.dump();
             return;
         }
+
+	cout << row.dump() << endl;
 
         // find the JSON serialization of the status if it exists
-        json cols = json::parse(row_query_return);
         string notFound = "No status data found";
-        string statusDump = cols.value(ms.COL_JSON, notFound);
+        string statusDump = row.value(ms.COL_STATUS, notFound);
         if(statusDump == notFound) {
-            ret[ms.COL_JSON] = notFound;
+            ret[ms.COL_STATUS] = notFound;
             res << ret.dump();
             return;
         }
 
-        // OK the status exists!  Deserialize and pick fields
-        json status = json::parse(statusDump);
+	// send back whatever we have stored for this model
+	res << statusDump;
 
-        #ifndef TIME 
-	      return;
-        #endif
 
         #ifdef TIME
                 CSVWriter writer = CSVWriter(string("timing") + "_" +
@@ -680,12 +680,10 @@ int main(int argc, const char* argv[]) {
                 writer.write_row(headings.begin(), headings.end());
                 std::pair<std::vector<std::string>, std::vector<long>> durations;
                 durations.second.clear();
-        #endif
+
         json query_result;
         {
-            #ifdef TIME
                 Timer t = Timer("Query", durations);
-            #endif
             query_result = sqlite3DB->select_delphimodel_row(modelId);
         }
 
@@ -693,27 +691,23 @@ int main(int argc, const char* argv[]) {
 
         AnalysisGraph G;
         {
-            #ifdef TIME
                 Timer t = Timer("Deserialize", durations);
-            #endif
             G = G.deserialize_from_json_string(model, false);
         }
 
         {
-            #ifdef TIME
                 Timer t = Timer("Response", durations);
-            #endif
             auto response =
                 nlohmann::json::parse(G.generate_create_model_response());
-            res << response.dump(); //FIXME API?
+            res << response.dump(); 
         }
-        #ifdef TIME
             writer.write_row(durations.second.begin(), durations.second.end());
             cout 
                 << "\nElapsed time to deserialize (seconds): " 
                 << durations.second[2] / 1000000000.0 
                 << endl;
         #endif
+
     });
 
     served::net::server server(host, to_string(port), mux);
