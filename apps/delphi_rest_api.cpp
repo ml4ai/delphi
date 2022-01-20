@@ -340,6 +340,7 @@ int main(int argc, const char* argv[]) {
         const served::request& req
     ){
         nlohmann::json json_data = nlohmann::json::parse(req.body());
+	ModelStatus ms;
 
         // Find the id field, stop now if not found.
         string failEarly = "model ID not found";
@@ -379,13 +380,6 @@ int main(int argc, const char* argv[]) {
 
         AnalysisGraph G;
         G.set_n_kde_kernels(kde_kernels);
-        G.from_causemos_json_dict(json_data, 0, 0);
-
-        sqlite3DB->insert_into_delphimodel(
-            json_data["id"], G.serialize_to_json_string(false));
-
-        auto response_json =
-            nlohmann::json::parse(G.generate_create_model_response());
 
         try {
             thread executor_create_model(
@@ -408,12 +402,12 @@ int main(int argc, const char* argv[]) {
             return error.dump();
         }
 
-        // response << response_json.dump();
-        // return response_json.dump();
-
-        string strresult = response_json.dump();
-        response << strresult;
-        return strresult;
+        // Send back a status message immediately 
+	json ret;
+	ret[ms.STATUS_STATUS] = "loading";
+	string retStr = ret.dump();
+        response << retStr;
+        return retStr;
     });
 
     /* openApi 3.0.0

@@ -22,8 +22,8 @@ class ExperimentStatus {
     string read_from_db(string modelId);
 
     const string TABLE_NAME = "experiment_status";
-    const string COL_ID = "id";    // Experiment ID, primary key
-    const string COL_JSON = "json"; // text, serialized JSON string
+    const string COL_ID = "id";  // Experiment ID, primary key
+    const string COL_JSON = "json"; // serialized JSON status string
     const string STATUS_EXPERIMENT_ID = "experimentId";
     const string STATUS_MODEL_ID = "modelId";
     const string STATUS_TYPE = "experimentType";

@@ -38,8 +38,8 @@ class ModelStatus {
     string read_from_db(string modelId);
 
     const string TABLE_NAME = "model_status";
-    const string COL_ID = "id";    // primary key
-    const string COL_JSON = "json"; // serialized JSON string
+    const string COL_ID = "id";    // Model ID, primary key
+    const string COL_JSON = "json"; // serialized JSON status string
     const string STATUS_PROGRESS = "progressPercentage"; // model training
     const string STATUS_NODES = "nodes";
     const string STATUS_EDGES = "edges";
