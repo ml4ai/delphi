@@ -1,11 +1,13 @@
 #!/bin/bash
 
 # Author: Joseph Astier
-
+#
 # Edit model edges using the CauseMos 3.0.0 API
 #
+# EXAMPLE:
+# curl -s -u me:ivilab4fun -X POST /models/modelId/edit-edges -d @filename
 
-# Model ID, e.g. "XYZ"
+# Model ID
 modelId=$1
 
 # model edges file
@@ -13,24 +15,24 @@ filename=$2
 
 if [[ $modelId == "" ]] || [[ $filename == "" ]]; then
 
-	echo "Please specify a model ID and a model edges filename"
-	echo "Usage:  $0 model_ID filename"
+    echo "Please specify a model ID and a model edges filename"
+    echo "Usage:  $0 model_ID filename"
 
 else
-	login="-u me:ivilab4fun"
-	url=$(./get_delphi_url)
-	endpoint="/models/$modelId/edit-edges"
+    login="-u me:ivilab4fun"
+    url=$(./get_delphi_url)
+    endpoint="/models/$modelId/edit-edges"
 
-	call="curl -s $login -X POST $url$endpoint -d @$filename"
-        echo "Call:"
-        echo $call
-	
-	call_time=$(date +%T.%3N)
-        response=$($call)
-	response_time=$(date +%T.%3N)
+    call="curl -s $login -X POST $url$endpoint -d @$filename"
+    echo "Call:"
+    echo $call
+    
+    call_time=$(date +%T.%3N)
+    response=$($call)
+    response_time=$(date +%T.%3N)
 
-        echo "Response:"
-        echo $response | jq
-	echo "Server queried: $call_time"
-	echo "Server replied: $response_time"
+    echo "Response:"
+    echo $response | jq
+    echo "Server queried: $call_time"
+    echo "Server replied: $response_time"
 fi
