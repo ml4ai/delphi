@@ -1,33 +1,38 @@
 #!/bin/bash
 
 # Author: Joseph Astier
-
-# Query a model status using CauseMos OpenAPI 3.0.0
 #
+# CauseMos 3.0.0 API endpoint: "/models/$modelId/training-progress"
+#
+# Retrieve a model status from the database with the model ID
+#
+# EXAMPLE:
+# curl -s -u me:ivilab4fun http://localhost:8123/models/3nodes/training-progress
 
 modelId=$1
 
 if [[ $modelId == "" ]]; then
 
-        echo "please specify a Model ID"
-	echo "Usage:  $0 model_ID"
+    echo "please specify a modelId"
+    echo "Usage:  $0 modelId"
 
 else
-	login="-u me:ivilab4fun"
-	endpoint="/models/$modelId/training-progress"
-	url=$(./get_delphi_url)
 
-	call="curl $login -s $url$endpoint"
+    login="-u me:ivilab4fun"
+    endpoint="/models/$modelId/training-progress"
+    url=$(./get_delphi_url)
 
-	echo "Call:"
-        echo $call
+    call="curl -s $login $url$endpoint"
 
-	call_time=$(date +%T.%3N)
-        response=$($call)
-        response_time=$(date +%T.%3N)
+    echo "Call:"
+    echo $call
 
-        echo "Response:"
-        echo $response | jq
-	echo "Server queried: $call_time"
-        echo "Server replied: $response_time"
+    call_time=$(date +%T.%3N)
+    response=$($call)
+    response_time=$(date +%T.%3N)
+
+    echo "Response:"
+    echo $response | jq
+    echo "Server queried: $call_time"
+    echo "Server replied: $response_time"
 fi

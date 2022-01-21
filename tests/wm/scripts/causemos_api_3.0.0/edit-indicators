@@ -1,9 +1,11 @@
 #!/bin/bash
 
 # Author: Joseph Astier
-
+#
 # Edit model indicators using the CauseMos 3.0.0 API
 #
+# EXAMPLE:
+# curl -s -u me:ivilab4fun -X POST /models/modelId/edit-indicators -d @filename
 
 # Model ID, e.g. "XYZ"
 modelId=$1
@@ -13,24 +15,24 @@ filename=$2
 
 if [[ $modelId == "" ]] || [[ $filename == "" ]]; then
 
-	echo "Please specify a model ID and a model indicators filename"
-	echo "Usage:  $0 model_ID filename"
+    echo "Please specify a model ID and a model indicators filename"
+    echo "Usage:  $0 model_ID filename"
 
 else
-	login="-u me:ivilab4fun"
-	url=$(./get_delphi_url)
-	endpoint="/models/$modelId/edit-indicators"
+    login="-u me:ivilab4fun"
+    url=$(./get_delphi_url)
+    endpoint="/models/$modelId/edit-indicators"
 
-	call="curl -s $login -X POST $url$endpoint -d @$filename"
-	echo "Call:"
-	echo $call
+    call="curl -s $login -X POST $url$endpoint -d @$filename"
+    echo "Call:"
+    echo $call
 
-	call_time=$(date +%T.%3N)
-        response=$($call)
-        response_time=$(date +%T.%3N)
+    call_time=$(date +%T.%3N)
+    response=$($call)
+    response_time=$(date +%T.%3N)
 
-        echo "Response:"
-        echo $response | jq
-        echo "Server queried: $call_time"
-        echo "Server replied: $response_time"
+    echo "Response:"
+    echo $response | jq
+    echo "Server queried: $call_time"
+    echo "Server replied: $response_time"
 fi
