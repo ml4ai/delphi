@@ -176,7 +176,8 @@ void AnalysisGraph::set_log_likelihood() {
                   double &gap = this->observation_timestep_unique_gaps[i];
                   this->e_A_ts[gap] = matrix_exponential_futures[i].get();
               }
-          #elifdef _OPENMP
+          /*
+          #ifdef _OPENMP
               this->e_A_ts.clear();
               #pragma omp parallel
               {
@@ -190,6 +191,7 @@ void AnalysisGraph::set_log_likelihood() {
                   this->e_A_ts.merge(partial_e_A_ts);
                   #pragma omp barrier
               }
+          */
           #else
               for (double gap : this->observation_timestep_unique_gaps) {
                 this->e_A_ts[gap] = (this->A_original * gap).exp();
