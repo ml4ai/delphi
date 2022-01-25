@@ -11,6 +11,9 @@ Program Listing for File sampling.cpp
 .. code-block:: cpp
 
    #include "AnalysisGraph.hpp"
+   #ifdef _OPENMP
+       #include <omp.h>
+   #endif
    
    #ifdef TIME
      #include "Timer.hpp"
@@ -99,16 +102,40 @@ Program Listing for File sampling.cpp
      }
    
      if (this->continuous) {
-       // Initialize the transition matrix pre-calculation data structure.
-       // This data structure holds all the transition matrices required to
-       // advance the system from each timestep to the next.
-       for (double gap : set<double>(this->observation_timestep_gaps.begin(),
-                                     this->observation_timestep_gaps.end())) {
-         this->e_A_ts.insert(make_pair(gap, (this->A_original * gap).exp()));
-       }
-       this->e_A_ts.insert(make_pair(1, this->A_original.exp()));
+       // Initialize matrix exponential pre-calculation related data structures.
+       unordered_set<double> gaps_set = unordered_set<double>(
+                                      this->observation_timestep_gaps.begin() + 1,
+                                      this->observation_timestep_gaps.end());
+       gaps_set.insert(1); // Due to the current head node model
+       this->observation_timestep_unique_gaps = vector<double>(gaps_set.begin(),
+                                                               gaps_set.end());
+       #ifdef MULTI_THREADING
+           this->matrix_exponential_futures = vector<future<Eigen::MatrixXd>>(
+               this->observation_timestep_unique_gaps.size());
+       #endif
      }
    }
+   
+   
+   #ifdef MULTI_THREADING
+       static Eigen::MatrixXd compute_matrix_exponential(const Eigen::Ref<const Eigen::MatrixXd> A,
+                                                         double gap) {
+           return (A * gap).exp();
+       }
+   
+   
+       void AnalysisGraph::compute_multiple_matrix_exponentials_parallelly() {
+           // Create threads to precalculate all the transition matrices required to
+           // advance the system from one time step to the next by computing matrix
+           // exponentials in parallel - e^(this->A_original * gap)
+           for (int i = 0; i < this->observation_timestep_unique_gaps.size(); i++) {
+               double &gap = this->observation_timestep_unique_gaps[i];
+               this->matrix_exponential_futures[i] = async(launch::async,
+                                                           compute_matrix_exponential,
+                                                           this->A_original, gap);
+           }
+       }
+   #endif
    
    void AnalysisGraph::set_log_likelihood_helper(int ts) {
        // Access (concept is a vertex in the CAG)
@@ -144,8 +171,6 @@ Program Listing for File sampling.cpp
      if (this->continuous) {
          if (this->coin_flip < this->coin_flip_thresh) {
            // A θ has been sampled
-           // Precalculate all the transition matrices required to advance the system
-           // from one timestep to the next.
            {
              #ifdef TIME
                  this->mcmc_part_duration.second.clear();
@@ -154,9 +179,36 @@ Program Listing for File sampling.cpp
                  this->mcmc_part_duration.second.push_back(this->num_edges());
                  Timer t_part = Timer("ME", this->mcmc_part_duration);
              #endif
-             for (auto [gap, mat] : this->e_A_ts) {
-               this->e_A_ts[gap] = (this->A_original * gap).exp();
-             }
+   
+             #ifdef MULTI_THREADING
+                 // Accumulate the precalculated exponentiated transition matrices
+                 // from different threads
+                 for (int i = 0; i < this->observation_timestep_unique_gaps.size();
+                      i++) {
+                     double &gap = this->observation_timestep_unique_gaps[i];
+                     this->e_A_ts[gap] = matrix_exponential_futures[i].get();
+                 }
+             /*
+             #ifdef _OPENMP
+                 this->e_A_ts.clear();
+                 #pragma omp parallel
+                 {
+                     unordered_map<double, Eigen::MatrixXd> partial_e_A_ts;
+                     for (int i = 0; i < this->observation_timestep_unique_gaps.size();
+                          i++) {
+                         int gap = this->observation_timestep_unique_gaps[i];
+                         partial_e_A_ts[gap] = (this->A_original * gap).exp();
+                     }
+                     #pragma omp critical
+                     this->e_A_ts.merge(partial_e_A_ts);
+                     #pragma omp barrier
+                 }
+             */
+             #else
+                 for (double gap : this->observation_timestep_unique_gaps) {
+                   this->e_A_ts[gap] = (this->A_original * gap).exp();
+                 }
+             #endif
            }
            #ifdef TIME
              this->mcmc_part_duration.second.push_back(11);
@@ -323,6 +375,11 @@ Program Listing for File sampling.cpp
    //      this->update_transition_matrix_cells(e[0]);
          this->update_transition_matrix_cells(ed);
        }
+   
+       #ifdef MULTI_THREADING
+           this->compute_multiple_matrix_exponentials_parallelly();
+       #endif
+   
        #ifdef TIME
          this->mcmc_part_duration.second.push_back(12);
          this->writer.write_row(this->mcmc_part_duration.second.begin(),
@@ -468,4 +525,30 @@ Program Listing for File sampling.cpp
    
    size_t AnalysisGraph::get_res() {
        return this->res;
+   }
+   
+   void AnalysisGraph::check_multithreading() {
+       #ifdef _OPENMP
+           std::cout << "Compiled with OpenMP\n";
+           std::cout << "Maximum number of threads: " << omp_get_max_threads()
+                     << endl;
+           #pragma omp parallel
+               {
+                   int n_threads = omp_get_num_threads();
+                   int tid = omp_get_thread_num();
+                   if (tid == 0) {
+                       printf("%d Threads created\n", n_threads);
+                   }
+                   printf("Thread - %d\n", tid);
+               }
+       #else
+           std::cout << "Compiled **without** OpenMP\n";
+       #endif
+   
+       #ifdef MULTI_THREADING
+           std::cout << "Computing matrix exponential for different gaps in parallel\n";
+           cout << "\nMaximum number of hardware threads run parallelly: " << thread::hardware_concurrency() << endl;
+       #else
+           std::cout << "Computing matrix exponential for different gaps sequentially\n";
+       #endif
    }

@@ -112,6 +112,9 @@
 <span class="w">    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">init_betas_to</span><span class="p">(</span><span class="n">initial_beta</span><span class="p">);</span><span class="w"></span>
 <span class="w">    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">set_indicator_means_and_standard_deviations</span><span class="p">();</span><span class="w"></span>
 <span class="w">    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">set_transition_matrix_from_betas</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="cp">#ifdef MULTI_THREADING</span>
+<span class="w">        </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">compute_multiple_matrix_exponentials_parallelly</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="cp">#endif</span>
 <span class="w">    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">derivative_prior_variance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="p">;</span><span class="w"></span>
 <span class="w">    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">set_default_initial_state</span><span class="p">(</span><span class="n">initial_derivative</span><span class="p">);</span><span class="w"></span>
 <span class="w">    </span><span class="c1">//this-&gt;generate_head_node_latent_sequences(-1, this-&gt;n_timesteps);</span>

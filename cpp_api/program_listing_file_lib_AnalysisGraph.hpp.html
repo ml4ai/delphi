@@ -97,6 +97,9 @@
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;Tran_Mat_Cell.hpp&quot;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;fmt/format.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;nlohmann/json.hpp&gt;</span><span class="cp"></span>
+<span class="cp">#ifdef MULTI_THREADING</span>
+<span class="w">  </span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;future&gt;</span><span class="cp"></span>
+<span class="cp">#endif</span>
 
 <span class="cp">#ifdef TIME</span>
 <span class="w">  </span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;CSVWriter.hpp&quot;</span><span class="cp"></span>
@@ -373,6 +376,13 @@
 <span class="w">  </span><span class="kt">long</span><span class="w"> </span><span class="n">train_end_epoch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">pred_start_timestep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">observation_timestep_gaps</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">observation_timestep_unique_gaps</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">  </span><span class="cp">#ifdef MULTI_THREADING</span>
+<span class="w">    </span><span class="c1">// A future cannot be copied. So we need to specify a copy assign</span>
+<span class="w">    </span><span class="c1">// constructor that does not copy this for the code to compile</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">future</span><span class="o">&lt;</span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">matrix_exponential_futures</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="cp">#endif</span>
 <span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">double</span><span class="p">,</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="o">&gt;</span><span class="w"> </span><span class="n">e_A_ts</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="kt">long</span><span class="w"> </span><span class="n">modeling_period</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="c1">// Number of epochs per one modeling timestep</span>
 
@@ -789,6 +799,10 @@
 
 <span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">set_base_transition_matrix</span><span class="p">();</span><span class="w"></span>
 
+<span class="w">  </span><span class="cp">#ifdef MULTI_THREADING</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">compute_multiple_matrix_exponentials_parallelly</span><span class="p">();</span><span class="w"></span>
+<span class="w">  </span><span class="cp">#endif</span>
+
 <span class="w">  </span><span class="c1">// Sample elements of the stochastic transition matrix from the</span>
 <span class="w">  </span><span class="c1">// prior distribution, based on gradable adjectives.</span>
 <span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">set_transition_matrix_from_betas</span><span class="p">();</span><span class="w"></span>
@@ -956,6 +970,8 @@
 <span class="w">  </span><span class="k">static</span><span class="w"> </span><span class="n">AnalysisGraph</span><span class="w"> </span><span class="nf">from_json_string</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">);</span><span class="w"></span>
 
 <span class="w">  </span><span class="n">AnalysisGraph</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">AnalysisGraph</span><span class="o">&amp;</span><span class="w"> </span><span class="n">rhs</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">  </span><span class="n">AnalysisGraph</span><span class="o">&amp;</span><span class="w"> </span><span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">AnalysisGraph</span><span class="w"> </span><span class="n">rhs</span><span class="p">);</span><span class="w"></span>
 
 <span class="w">  </span><span class="cm">/*</span>
 <span class="cm">   ============================================================================</span>
@@ -1222,6 +1238,7 @@
 
 <span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">set_default_initial_state</span><span class="p">(</span><span class="n">InitialDerivative</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">InitialDerivative</span><span class="o">::</span><span class="n">DERI_ZERO</span><span class="p">);</span><span class="w"></span>
 
+<span class="w">  </span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">check_multithreading</span><span class="p">();</span><span class="w"></span>
 <span class="w">  </span><span class="cm">/*</span>
 <span class="cm">   ============================================================================</span>
 <span class="cm">   Public: Prediction (in prediction.cpp)</span>
@@ -1357,6 +1374,12 @@
 <span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">profile_kde</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">run</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">file_name_prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;kde_timing&quot;</span><span class="p">);</span><span class="w"></span>
 
 <span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">profile_prediction</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">run</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">pred_timesteps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">24</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">file_name_prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;prediction_timing&quot;</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">profile_matrix_exponential</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">run</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                  </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">file_name_prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;mat_exp_timing&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                  </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">unique_gaps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">},</span><span class="w"></span>
+<span class="w">                                  </span><span class="kt">int</span><span class="w"> </span><span class="n">repeat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                  </span><span class="kt">bool</span><span class="w"> </span><span class="n">multi_threaded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span><span class="w"></span>
 
 <span class="cp">#ifdef TIME</span>
 <span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">set_timing_file_prefix</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">tfp</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">timing_file_prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tfp</span><span class="p">;}</span><span class="w"></span>

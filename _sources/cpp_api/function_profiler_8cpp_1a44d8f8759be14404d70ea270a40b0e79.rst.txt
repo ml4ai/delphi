@@ -1,0 +1,13 @@
+.. _exhale_function_profiler_8cpp_1a44d8f8759be14404d70ea270a40b0e79:
+
+Function compute_matrix_exponential
+===================================
+
+- Defined in :ref:`file_lib_profiler.cpp`
+
+
+Function Documentation
+----------------------
+
+
+.. doxygenfunction:: compute_matrix_exponential(const Eigen::Ref<const Eigen::MatrixXd>, double)

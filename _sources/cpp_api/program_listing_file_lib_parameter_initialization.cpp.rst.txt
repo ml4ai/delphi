@@ -44,6 +44,9 @@ Program Listing for File parameter_initialization.cpp
        this->init_betas_to(initial_beta);
        this->set_indicator_means_and_standard_deviations();
        this->set_transition_matrix_from_betas();
+       #ifdef MULTI_THREADING
+           this->compute_multiple_matrix_exponentials_parallelly();
+       #endif
        this->derivative_prior_variance = 0.1;
        this->set_default_initial_state(initial_derivative);
        //this->generate_head_node_latent_sequences(-1, this->n_timesteps);

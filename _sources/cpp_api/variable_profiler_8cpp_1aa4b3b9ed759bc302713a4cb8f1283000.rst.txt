@@ -1,0 +1,13 @@
+.. _exhale_variable_profiler_8cpp_1aa4b3b9ed759bc302713a4cb8f1283000:
+
+Variable g_display_mutex
+========================
+
+- Defined in :ref:`file_lib_profiler.cpp`
+
+
+Variable Documentation
+----------------------
+
+
+.. doxygenvariable:: g_display_mutex

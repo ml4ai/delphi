@@ -181,6 +181,11 @@ Functions
 .. toctree::
    :maxdepth: 5
 
+   function_profiler_8cpp_1a44d8f8759be14404d70ea270a40b0e79.rst
+
+.. toctree::
+   :maxdepth: 5
+
    function_AnalysisGraph_8hpp_1ace16d595b9131cdc3064439ffc89f1bb.rst
 
 .. toctree::
@@ -326,6 +331,11 @@ Functions
 Variables
 *********
 
+
+.. toctree::
+   :maxdepth: 5
+
+   variable_profiler_8cpp_1aa4b3b9ed759bc302713a4cb8f1283000.rst
 
 .. toctree::
    :maxdepth: 5
