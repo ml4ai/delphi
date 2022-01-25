@@ -3,6 +3,10 @@
 #include "utils.hpp"
 #include "Timer.hpp"
 #include "CSVWriter.hpp"
+#ifdef _OPENMP
+    #include <omp.h>
+#endif
+#include <future>
 
 using namespace std;
 using tq::trange;
@@ -153,9 +157,25 @@ void AnalysisGraph::profile_kde(int run, string file_name_prefix) {
             durations_me.second = {run,n_nodes, n_edges, long(this->n_kde_kernels)};
             Timer t = Timer("ME", durations_me);
 
-            for (auto [gap, mat] : this->e_A_ts) {
-                this->e_A_ts[gap] = (this->A_original * gap).exp();
-            }
+            #ifdef _OPENMP
+                this->e_A_ts.clear();
+                #pragma omp parallel
+                {
+                    unordered_map<double, Eigen::MatrixXd> partial_e_A_ts;
+                    for (int i = 0; i < this->observation_timestep_unique_gaps.size();
+                         i++) {
+                        int gap = this->observation_timestep_unique_gaps[i];
+                        partial_e_A_ts[gap] = (this->A_original * gap).exp();
+                    }
+                    #pragma omp critical
+                    this->e_A_ts.merge(partial_e_A_ts);
+                    #pragma omp barrier
+                }
+            #else
+                for (auto [gap, mat] : this->e_A_ts) {
+                    this->e_A_ts[gap] = (this->A_original * gap).exp();
+                }
+            #endif
         }
 
         durations_me.first.push_back("Sample Type");
@@ -204,5 +224,134 @@ void AnalysisGraph::profile_prediction(int run, int pred_timesteps, string file_
 
     writer.write_row(durations.second.begin(), durations.second.end());
     cout << endl;
+}
+
+mutex g_display_mutex;
+static Eigen::MatrixXd compute_matrix_exponential(const Eigen::Ref<const Eigen::MatrixXd> A, double gap) {
+    thread::id this_id = std::this_thread::get_id();
+    g_display_mutex.lock();
+    cout << "\nthread: " << this_id << endl;
+    g_display_mutex.unlock();
+
+    return (A * gap).exp();
+}
+
+
+void AnalysisGraph::profile_matrix_exponential(int run, std::string file_name_prefix,
+                                               std::vector<double> unique_gaps,
+                                               int repeat,
+                                               bool multi_threaded) {
+    this->initialize_random_number_generator();
+    int n_nodes = this->num_nodes();
+    int n_edges = this->num_edges();
+
+    pair<std::vector<std::string>, std::vector<long>> durations_me;
+
+    string filename = file_name_prefix +
+                      (multi_threaded ? "mt_" : "st_") +
+                      to_string(n_nodes) + "-" +
+                      to_string(n_edges) + "_" +
+                      to_string(run) + "_" +
+                      delphi::utils::get_timestamp() + ".csv";
+    CSVWriter writer(filename);
+    vector<string> headings = {"Run", "Nodes", "Edges",
+                               "KDE Kernels", "Wall Clock Time (ns)",
+                               "CPU Time (ns)", "Sample Type"};
+    writer.write_row(headings.begin(), headings.end());
+    cout << filename << endl;
+
+    vector<future<Eigen::MatrixXd>> matrix_exponentials(unique_gaps.size());
+
+    if (multi_threaded) {
+        thread::id this_id = std::this_thread::get_id();
+        cout << "\nmain thread: " << this_id << endl;
+        cout << "\nmax hardware threads: " << thread::hardware_concurrency() << endl;
+    }
+
+    this->observation_timestep_unique_gaps = unique_gaps;
+
+    this->res = repeat;
+
+    cout << "\nProfiling Matrix Exponential\n";
+    cout << "\nRunning Matrix Exponential for " << this->res << " times..." << endl;
+    for (int i : trange(this->res)) {
+        // Randomly pick an edge ≡ θ
+        boost::iterator_range edge_it = this->edges();
+
+        vector<EdgeDescriptor> e(1);
+        sample(
+            edge_it.begin(), edge_it.end(), e.begin(), 1, this->rand_num_generator);
+
+        // Perturb the θ
+        this->graph[e[0]].set_theta(this->graph[e[0]].get_theta() +
+                                    this->norm_dist(this->rand_num_generator) / 10);
+        KDE& kde = this->graph[e[0]].kde;
+
+        this->update_transition_matrix_cells(e[0]);
+        this->graph[e[0]].compute_logpdf_theta();
+
+        durations_me.first.clear();
+        durations_me.second.clear();
+        durations_me.first = {"Run", "Nodes", "Edges", "KDE Kernels"};
+        durations_me.second = {run,n_nodes, n_edges, long(this->n_kde_kernels)};
+        {
+            Timer t = Timer("ME", durations_me);
+
+            if (multi_threaded) {
+                /*
+                this->e_A_ts.clear();
+                #pragma omp parallel
+                {
+                    unordered_map<double, Eigen::MatrixXd> partial_e_A_ts;
+                    for (int i = 0;
+                         i < this->observation_timestep_unique_gaps.size();
+                         i++) {
+                        int gap = this->observation_timestep_unique_gaps[i];
+                        partial_e_A_ts[gap] = (this->A_original * gap).exp();
+                    }
+                    #pragma omp critical
+                    //dumb++;
+                    this->e_A_ts.merge(partial_e_A_ts);
+                    #pragma omp barrier
+                }
+                 */
+                for (int i = 0;
+                     i < this->observation_timestep_unique_gaps.size();
+                     i++) {
+                    int gap = this->observation_timestep_unique_gaps[i];
+                    matrix_exponentials[i] = async(launch::async,// | launch::deferred,
+                                                   compute_matrix_exponential,
+                                                   A_original, gap);
+                }
+                for (int i = 0;
+                     i < this->observation_timestep_unique_gaps.size();
+                     i++) {
+                    int gap = this->observation_timestep_unique_gaps[i];
+                    this->e_A_ts[gap] = matrix_exponentials[i].get();
+                }
+            }
+            else {
+                for (double gap : this->observation_timestep_unique_gaps) {
+                    this->e_A_ts[gap] = (this->A_original * gap).exp();
+                }
+            }
+        }
+
+        /*
+        for (double gap :unique_gaps) {
+            cout << "\ngap: " << gap << endl;
+            cout << this->e_A_ts[gap] << endl;
+        }
+         */
+
+        durations_me.first.push_back("Sample Type");
+        durations_me.second.push_back(multi_threaded ? 13
+                                                     : 11);
+
+        writer.write_row(durations_me.second.begin(), durations_me.second.end());
+    }
+    cout << endl;
+    RNG::release_instance();
+    cout << "\nmax hardware threads: " << thread::hardware_concurrency() << endl;
 }
 

@@ -17,6 +17,9 @@
 #include "Tran_Mat_Cell.hpp"
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
+#ifdef MULTI_THREADING
+  #include <future>
+#endif
 
 #ifdef TIME
   #include "CSVWriter.hpp"
@@ -296,6 +299,13 @@ class AnalysisGraph {
   long train_end_epoch = -1;
   double pred_start_timestep = -1;
   std::vector<double> observation_timestep_gaps;
+  std::vector<double> observation_timestep_unique_gaps;
+
+  #ifdef MULTI_THREADING
+    // A future cannot be copied. So we need to specify a copy assign
+    // constructor that does not copy this for the code to compile
+    std::vector<std::future<Eigen::MatrixXd>> matrix_exponential_futures;
+  #endif
   std::unordered_map<double, Eigen::MatrixXd> e_A_ts;
   long modeling_period = 1; // Number of epochs per one modeling timestep
 
@@ -897,6 +907,10 @@ class AnalysisGraph {
 
   void set_base_transition_matrix();
 
+  #ifdef MULTI_THREADING
+    void compute_multiple_matrix_exponentials_parallelly();
+  #endif
+
   // Sample elements of the stochastic transition matrix from the
   // prior distribution, based on gradable adjectives.
   void set_transition_matrix_from_betas();
@@ -1125,6 +1139,9 @@ class AnalysisGraph {
 
   /** Copy constructor */
   AnalysisGraph(const AnalysisGraph& rhs);
+
+  /** Copy assignment operator */
+  AnalysisGraph& operator=(AnalysisGraph rhs);
 
   /*
    ============================================================================
@@ -1466,6 +1483,7 @@ class AnalysisGraph {
 
   void set_default_initial_state(InitialDerivative id = InitialDerivative::DERI_ZERO);
 
+  static void check_multithreading();
   /*
    ============================================================================
    Public: Prediction (in prediction.cpp)
@@ -1633,6 +1651,12 @@ class AnalysisGraph {
   void profile_kde(int run = 1, std::string file_name_prefix = "kde_timing");
 
   void profile_prediction(int run = 1, int pred_timesteps = 24, std::string file_name_prefix = "prediction_timing");
+
+  void profile_matrix_exponential(int run = 1,
+                                  std::string file_name_prefix = "mat_exp_timing",
+                                  std::vector<double> unique_gaps = {1, 2, 5},
+                                  int repeat = 30,
+                                  bool multi_threaded = false);
 
 #ifdef TIME
   void set_timing_file_prefix(std::string tfp) {this->timing_file_prefix = tfp;}

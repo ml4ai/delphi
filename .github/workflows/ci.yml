@@ -44,6 +44,9 @@ jobs:
             librange-v3-dev\
             nlohmann-json3-dev
 
+        echo "### Checking whether we have OpenMP support"
+        echo |cpp -fopenmp -dM |grep -i open
+
         pwd
         echo "### Building Served from source"
         curl -LO https://github.com/meltwater/served/archive/refs/tags/v1.6.0.tar.gz
