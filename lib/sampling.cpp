@@ -90,25 +90,40 @@ void AnalysisGraph::set_transition_matrix_from_betas() {
   }
 
   if (this->continuous) {
-    // Initialize the transition matrix pre-calculation data structure.
-    // This data structure holds all the transition matrices required to
-    // advance the system from each timestep to the next.
-    #ifdef _OPENMP
-        unordered_set<double> gaps_set = unordered_set<double>(
-                                       this->observation_timestep_gaps.begin(),
-                                       this->observation_timestep_gaps.end());
-        gaps_set.insert(1); // Due to the current head node model
-        this->observation_timestep_unique_gaps = vector<double>(gaps_set.begin(),
-                                                                gaps_set.end());
-    #else
-        for (double gap : set<double>(this->observation_timestep_gaps.begin(),
-                                      this->observation_timestep_gaps.end())) {
-          this->e_A_ts.insert(make_pair(gap, (this->A_original * gap).exp()));
-        }
-        this->e_A_ts.insert(make_pair(1, this->A_original.exp()));
+    // Initialize matrix exponential pre-calculation related data structures.
+    unordered_set<double> gaps_set = unordered_set<double>(
+                                   this->observation_timestep_gaps.begin() + 1,
+                                   this->observation_timestep_gaps.end());
+    gaps_set.insert(1); // Due to the current head node model
+    this->observation_timestep_unique_gaps = vector<double>(gaps_set.begin(),
+                                                            gaps_set.end());
+    #ifdef MULTI_THREADING
+        this->matrix_exponential_futures = vector<future<Eigen::MatrixXd>>(
+            this->observation_timestep_unique_gaps.size());
     #endif
   }
 }
+
+
+#ifdef MULTI_THREADING
+    static Eigen::MatrixXd compute_matrix_exponential(const Eigen::Ref<const Eigen::MatrixXd> A,
+                                                      double gap) {
+        return (A * gap).exp();
+    }
+
+
+    void AnalysisGraph::compute_multiple_matrix_exponentials_parallelly() {
+        // Create threads to precalculate all the transition matrices required to
+        // advance the system from one time step to the next by computing matrix
+        // exponentials in parallel - e^(this->A_original * gap)
+        for (int i = 0; i < this->observation_timestep_unique_gaps.size(); i++) {
+            double &gap = this->observation_timestep_unique_gaps[i];
+            this->matrix_exponential_futures[i] = async(launch::async,
+                                                        compute_matrix_exponential,
+                                                        this->A_original, gap);
+        }
+    }
+#endif
 
 void AnalysisGraph::set_log_likelihood_helper(int ts) {
     // Access (concept is a vertex in the CAG)
@@ -152,9 +167,16 @@ void AnalysisGraph::set_log_likelihood() {
               this->mcmc_part_duration.second.push_back(this->num_edges());
               Timer t_part = Timer("ME", this->mcmc_part_duration);
           #endif
-          // Precalculate all the transition matrices required to advance the system
-          // from one timestep to the next.
-          #ifdef _OPENMP
+
+          #ifdef MULTI_THREADING
+              // Accumulate the precalculated exponentiated transition matrices
+              // from different threads
+              for (int i = 0; i < this->observation_timestep_unique_gaps.size();
+                   i++) {
+                  double &gap = this->observation_timestep_unique_gaps[i];
+                  this->e_A_ts[gap] = matrix_exponential_futures[i].get();
+              }
+          #elifdef _OPENMP
               this->e_A_ts.clear();
               #pragma omp parallel
               {
@@ -169,7 +191,7 @@ void AnalysisGraph::set_log_likelihood() {
                   #pragma omp barrier
               }
           #else
-              for (auto [gap, mat] : this->e_A_ts) {
+              for (double gap : this->observation_timestep_unique_gaps) {
                 this->e_A_ts[gap] = (this->A_original * gap).exp();
               }
           #endif
@@ -310,7 +332,7 @@ void AnalysisGraph::sample_from_proposal() {
     // Perturb the θ and compute the new logpdf(θ)
     // TODO: Check whether this perturbation is accurate
 //    this->graph[e[0]].set_theta(this->graph[e[0]].get_theta() + this->norm_dist(this->rand_num_generator));
-    this->graph[ed].set_theta(this->graph[ed].get_theta() + this->norm_dist(this->rand_num_generator));
+    this->graph[ed].set_theta(this->graph[ed].get_theta() + this->norm_dist(this->rand_num_generator) / 10);
     {
       #ifdef TIME
         this->mcmc_part_duration.second.clear();
@@ -339,6 +361,11 @@ void AnalysisGraph::sample_from_proposal() {
 //      this->update_transition_matrix_cells(e[0]);
       this->update_transition_matrix_cells(ed);
     }
+
+    #ifdef MULTI_THREADING
+        this->compute_multiple_matrix_exponentials_parallelly();
+    #endif
+
     #ifdef TIME
       this->mcmc_part_duration.second.push_back(12);
       this->writer.write_row(this->mcmc_part_duration.second.begin(),
@@ -502,5 +529,11 @@ void AnalysisGraph::check_OpenMP() {
             }
     #else
         std::cout << "Compiled **without** OpenMP\n";
+    #endif
+
+    #ifdef MULTI_THREADING
+        std::cout << "Computing matrix exponential for different gaps in parallel\n";
+    #else
+        std::cout << "Computing matrix exponential for different gaps sequentially\n";
     #endif
 }

@@ -17,6 +17,9 @@
 #include "Tran_Mat_Cell.hpp"
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
+#ifdef MULTI_THREADING
+  #include <future>
+#endif
 
 #ifdef TIME
   #include "CSVWriter.hpp"
@@ -296,8 +299,12 @@ class AnalysisGraph {
   long train_end_epoch = -1;
   double pred_start_timestep = -1;
   std::vector<double> observation_timestep_gaps;
-  #ifdef _OPENMP
-    std::vector<double> observation_timestep_unique_gaps;
+  std::vector<double> observation_timestep_unique_gaps;
+
+  #ifdef MULTI_THREADING
+    // A future cannot be copied. So we need to specify a copy assign
+    // constructor that does not copy this for the code to compile
+    std::vector<std::future<Eigen::MatrixXd>> matrix_exponential_futures;
   #endif
   std::unordered_map<double, Eigen::MatrixXd> e_A_ts;
   long modeling_period = 1; // Number of epochs per one modeling timestep
@@ -900,6 +907,10 @@ class AnalysisGraph {
 
   void set_base_transition_matrix();
 
+  #ifdef MULTI_THREADING
+    void compute_multiple_matrix_exponentials_parallelly();
+  #endif
+
   // Sample elements of the stochastic transition matrix from the
   // prior distribution, based on gradable adjectives.
   void set_transition_matrix_from_betas();
@@ -1128,6 +1139,9 @@ class AnalysisGraph {
 
   /** Copy constructor */
   AnalysisGraph(const AnalysisGraph& rhs);
+
+  /** Copy assignment operator */
+  AnalysisGraph& operator=(AnalysisGraph rhs);
 
   /*
    ============================================================================

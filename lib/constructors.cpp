@@ -244,7 +244,7 @@ AnalysisGraph::AnalysisGraph(const AnalysisGraph& rhs) {
   this->is_one_off_constraints = rhs.is_one_off_constraints;
   this->transition_matrix_collection = rhs.transition_matrix_collection;
   this->initial_latent_state_collection = rhs.initial_latent_state_collection;
-  this->synthetic_latent_state_sequence= rhs.synthetic_latent_state_sequence;
+  this->synthetic_latent_state_sequence = rhs.synthetic_latent_state_sequence;
   this->synthetic_data_experiment = rhs.synthetic_data_experiment;
 
   // Copying public members
@@ -290,4 +290,110 @@ AnalysisGraph::AnalysisGraph(const AnalysisGraph& rhs) {
     */
 
   });
+}
+
+
+/** Copy assignment operator (copy-and-swap idiom)*/
+AnalysisGraph& AnalysisGraph::operator=(AnalysisGraph rhs) {
+    #ifdef TIME
+        swap(durations, rhs.durations);
+        swap(mcmc_part_duration, rhs.mcmc_part_duration);
+        swap(writer, rhs.writer);
+        swap(timing_file_prefix, rhs.timing_file_prefix);
+        swap(timing_run_number, rhs.timing_run_number);
+    #endif
+    swap(causemos_call, rhs.causemos_call);
+
+    swap(graph, rhs.graph);
+
+    swap(uni_dist, rhs.uni_dist);
+    swap(norm_dist, rhs.norm_dist);
+    swap(uni_disc_dist, rhs.uni_disc_dist);
+    swap(uni_disc_dist_edge, rhs.uni_disc_dist_edge);
+
+    swap(res, rhs.res);
+    swap(n_kde_kernels, rhs.n_kde_kernels);
+
+    swap(name_to_vertex, rhs.name_to_vertex);
+    swap(indicators_in_CAG, rhs.indicators_in_CAG);
+    swap(A_beta_factors, rhs.A_beta_factors);
+    swap(beta_dependent_cells, rhs.beta_dependent_cells);
+    swap(beta2cell, rhs.beta2cell);
+
+    swap(body_nodes, rhs.body_nodes);
+    swap(head_nodes, rhs.head_nodes);
+    swap(generated_latent_sequence, rhs.generated_latent_sequence);
+    swap(generated_concept, rhs.generated_concept);
+
+    swap(training_progress, rhs.training_progress);
+    swap(trained, rhs.trained);
+    swap(stopped, rhs.stopped);
+
+    swap(n_timesteps, rhs.n_timesteps);
+    swap(pred_timesteps, rhs.pred_timesteps);
+    swap(training_range, rhs.training_range);
+    swap(pred_range, rhs.pred_range);
+    swap(train_start_epoch, rhs.train_start_epoch);
+    swap(train_end_epoch, rhs.train_end_epoch);
+    swap(pred_start_timestep, rhs.pred_start_timestep);
+    swap(observation_timestep_gaps, rhs.observation_timestep_gaps);
+    swap(observation_timestep_unique_gaps, rhs.observation_timestep_unique_gaps);
+    swap(e_A_ts, rhs.e_A_ts);
+    swap(modeling_period, rhs.modeling_period);
+
+    swap(external_concepts, rhs.external_concepts);
+    swap(concept_sample_pool, rhs.concept_sample_pool);
+    swap(edge_sample_pool, rhs.edge_sample_pool);
+
+    swap(t, rhs.t);
+    swap(delta_t, rhs.delta_t);
+
+    swap(log_likelihood, rhs.log_likelihood);
+    swap(previous_log_likelihood, rhs.previous_log_likelihood);
+    swap(log_likelihood_MAP, rhs.log_likelihood_MAP);
+    swap(MAP_sample_number, rhs.MAP_sample_number);
+    swap(log_likelihoods, rhs.log_likelihoods);
+
+    swap(coin_flip, rhs.coin_flip);
+    swap(coin_flip_thresh, rhs.coin_flip_thresh);
+
+    swap(previous_theta, rhs.previous_theta);
+    swap(changed_derivative, rhs.changed_derivative);
+    swap(previous_derivative, rhs.previous_derivative);
+
+    swap(s0, rhs.s0);
+    swap(s0_prev, rhs.s0_prev);
+    swap(derivative_prior_variance, rhs.derivative_prior_variance);
+
+    swap(A_original, rhs.A_original);
+
+    swap(continuous, rhs.continuous);
+
+    swap(current_latent_state, rhs.current_latent_state);
+
+    // NOTE: This assumes that node indices and indicator indices for each node
+    // does not change when copied. This data structure is indexed using those
+    // indices. If they gets changed while copying, assigned indicator data would
+    // be mixed up and hence training gets mixed up.
+    swap(observed_state_sequence, rhs.observed_state_sequence);
+    swap(predicted_latent_state_sequences, rhs.predicted_latent_state_sequences);
+    swap(predicted_observed_state_sequences, rhs.predicted_observed_state_sequences);
+    swap(test_observed_state_sequence, rhs.test_observed_state_sequence);
+
+    swap(one_off_constraints, rhs.one_off_constraints);
+    swap(head_node_one_off_constraints, rhs.head_node_one_off_constraints);
+    swap(perpetual_constraints, rhs.perpetual_constraints);
+    swap(is_one_off_constraints, rhs.is_one_off_constraints);
+    swap(clamp_at_derivative, rhs.clamp_at_derivative);
+    swap(rest_derivative_clamp_ts, rhs.rest_derivative_clamp_ts);
+
+    swap(transition_matrix_collection, rhs.transition_matrix_collection);
+    swap(initial_latent_state_collection, rhs.initial_latent_state_collection);
+    swap(synthetic_latent_state_sequence, rhs.synthetic_latent_state_sequence);
+    swap(synthetic_data_experiment, rhs.synthetic_data_experiment);
+
+    // Copying public members
+    swap(id, rhs.id);
+    swap(data_heuristic, rhs.data_heuristic);
+    return *this;
 }

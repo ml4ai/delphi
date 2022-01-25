@@ -18,7 +18,7 @@ find_package(Graphviz)
 SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "/opt/local/libexec/boost/1.76/include/boost")
 SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "/opt/local/libexec/boost/1.76/lib")
 
-find_package(OpenMP)
+#find_package(OpenMP)
 
 # Disable multi-threading in Eigen as it significantly slows down matrix exponential calculation
 add_definitions(-DEIGEN_DONT_PARALLELIZE)
@@ -36,6 +36,15 @@ find_package(nlohmann_json REQUIRED)
 option(TIME "Micro benchmark the MCMC loop" OFF)
 if (TIME)
     add_definitions(-DTIME)
+    message(STATUS "Timing - on")
+endif()
+
+# To turn on and off multithreading compile as:
+# cmake -DMULTI_THREADING=OFF ..
+option(MULTI_THREADING "Turning on multithreading" ON)
+if (MULTI_THREADING)
+    add_definitions(-DMULTI_THREADING)
+    message(STATUS "Multithreading - on")
 endif()
 
 option(BUILD_PYTHON_BINDINGS "Build Python bindings" ON)
@@ -93,9 +102,9 @@ target_link_libraries(Delphi
                               ${GRAPHVIZ_LIBS})
 target_link_libraries(Delphi INTERFACE range-v3)
 target_include_directories(Delphi PRIVATE ${GRAPHVIZ_INCLUDE_DIRS} lib external)
-if(OpenMP_CXX_FOUND)
-    target_link_libraries(Delphi PUBLIC OpenMP::OpenMP_CXX)
-endif()
+#if(OpenMP_CXX_FOUND)
+#    target_link_libraries(Delphi PUBLIC OpenMP::OpenMP_CXX)
+#endif()
 
 if(BUILD_PYTHON_BINDINGS)
 

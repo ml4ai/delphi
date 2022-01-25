@@ -82,8 +82,10 @@ int main(int argc, char* argv[]) {
     }
 
     for (int cag_id = 0; cag_id < ags.size(); cag_id++) {
-        for (bool multi_threaded : {true, false}) {
-            for (vector<double> unique_gaps : vector<vector<double>>({{1}, {1, 2, 5}})) {
+        for (bool multi_threaded : {false, true}) {
+            for (vector<double> unique_gaps : vector<vector<double>>({{1}, {1, 2, 5, 6, 7, 8,
+                                                                            9, 10, 11, 12, 13, 14,
+                                                                            15, 16, 17, 18, 19, 20}})) {
                 cout << cag_id << "/" << ags.size() << " - "
                      << (multi_threaded ? "mt\n" : "st\n");
                 string output_file_prefix_2 = output_file_prefix + "--" + to_string(unique_gaps.size()) + "--";

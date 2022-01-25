@@ -226,8 +226,13 @@ void AnalysisGraph::profile_prediction(int run, int pred_timesteps, string file_
     cout << endl;
 }
 
-
+mutex g_display_mutex;
 static Eigen::MatrixXd compute_matrix_exponential(const Eigen::Ref<const Eigen::MatrixXd> A, double gap) {
+    thread::id this_id = std::this_thread::get_id();
+    g_display_mutex.lock();
+    cout << "\nthread: " << this_id << endl;
+    g_display_mutex.unlock();
+
     return (A * gap).exp();
 }
 
@@ -258,13 +263,12 @@ void AnalysisGraph::profile_matrix_exponential(int run, std::string file_name_pr
     vector<future<Eigen::MatrixXd>> matrix_exponentials(unique_gaps.size());
 
     if (multi_threaded) {
-        this->observation_timestep_unique_gaps = unique_gaps;
+        thread::id this_id = std::this_thread::get_id();
+        cout << "\nmain thread: " << this_id << endl;
+        cout << "\nmax hardware threads: " << thread::hardware_concurrency() << endl;
     }
-    else {
-        for (double gap : unique_gaps) {
-            this->e_A_ts.insert(make_pair(gap, (this->A_original * gap).exp()));
-        }
-    }
+
+    this->observation_timestep_unique_gaps = unique_gaps;
 
     this->res = repeat;
 
@@ -280,12 +284,11 @@ void AnalysisGraph::profile_matrix_exponential(int run, std::string file_name_pr
 
         // Perturb the θ
         this->graph[e[0]].set_theta(this->graph[e[0]].get_theta() +
-                                    this->norm_dist(this->rand_num_generator) / 5);
+                                    this->norm_dist(this->rand_num_generator) / 10);
         KDE& kde = this->graph[e[0]].kde;
 
         this->update_transition_matrix_cells(e[0]);
         this->graph[e[0]].compute_logpdf_theta();
-        int dumb;
 
         durations_me.first.clear();
         durations_me.second.clear();
@@ -316,7 +319,7 @@ void AnalysisGraph::profile_matrix_exponential(int run, std::string file_name_pr
                      i < this->observation_timestep_unique_gaps.size();
                      i++) {
                     int gap = this->observation_timestep_unique_gaps[i];
-                    matrix_exponentials[i] = async(launch::async,
+                    matrix_exponentials[i] = async(launch::async,// | launch::deferred,
                                                    compute_matrix_exponential,
                                                    A_original, gap);
                 }
@@ -328,11 +331,18 @@ void AnalysisGraph::profile_matrix_exponential(int run, std::string file_name_pr
                 }
             }
             else {
-                for (auto [gap, mat] : this->e_A_ts) {
+                for (double gap : this->observation_timestep_unique_gaps) {
                     this->e_A_ts[gap] = (this->A_original * gap).exp();
                 }
             }
         }
+
+        /*
+        for (double gap :unique_gaps) {
+            cout << "\ngap: " << gap << endl;
+            cout << this->e_A_ts[gap] << endl;
+        }
+         */
 
         durations_me.first.push_back("Sample Type");
         durations_me.second.push_back(multi_threaded ? 13
@@ -342,5 +352,6 @@ void AnalysisGraph::profile_matrix_exponential(int run, std::string file_name_pr
     }
     cout << endl;
     RNG::release_instance();
+    cout << "\nmax hardware threads: " << thread::hardware_concurrency() << endl;
 }
 
