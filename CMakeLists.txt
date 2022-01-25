@@ -154,9 +154,9 @@ target_link_libraries(mat_exp_timer PRIVATE Delphi Eigen3::Eigen ${Boost_LIBRARI
 target_include_directories(mat_exp_timer PRIVATE ${Boost_INCLUDE_DIR} lib external ${GRAPHVIZ_INCLUDE_DIRS})
 
 ## Program to check whether Delphi is compiled with OpenMP
-add_executable(check_OpenMP apps/check_OpenMP.cpp)
-target_link_libraries(check_OpenMP PRIVATE Delphi Eigen3::Eigen ${Boost_LIBRARIES})
-target_include_directories(check_OpenMP PRIVATE ${Boost_INCLUDE_DIR} lib external ${GRAPHVIZ_INCLUDE_DIRS})
+add_executable(check_multithreading apps/check_multithreading.cpp)
+target_link_libraries(check_multithreading PRIVATE Delphi Eigen3::Eigen ${Boost_LIBRARIES})
+target_include_directories(check_multithreading PRIVATE ${Boost_INCLUDE_DIR} lib external ${GRAPHVIZ_INCLUDE_DIRS})
 
 # Build the REST API program
 add_executable(delphi_rest_api apps/delphi_rest_api.cpp)

@@ -5,6 +5,6 @@
 #include "AnalysisGraph.hpp"
 
 int main() {
-    AnalysisGraph::check_OpenMP();
+    AnalysisGraph::check_multithreading();
     return(0);
 }

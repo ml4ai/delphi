@@ -42,7 +42,7 @@ jobs:
             pybind11-dev\
             libfmt-dev\
             librange-v3-dev\
-            nlohmann-json3-dev\
+            nlohmann-json3-dev
 
         echo "### Checking whether we have OpenMP support"
         echo |cpp -fopenmp -dM |grep -i open

@@ -1483,7 +1483,7 @@ class AnalysisGraph {
 
   void set_default_initial_state(InitialDerivative id = InitialDerivative::DERI_ZERO);
 
-  static void check_OpenMP();
+  static void check_multithreading();
   /*
    ============================================================================
    Public: Prediction (in prediction.cpp)

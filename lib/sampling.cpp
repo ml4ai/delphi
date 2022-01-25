@@ -515,7 +515,7 @@ size_t AnalysisGraph::get_res() {
     return this->res;
 }
 
-void AnalysisGraph::check_OpenMP() {
+void AnalysisGraph::check_multithreading() {
     #ifdef _OPENMP
         std::cout << "Compiled with OpenMP\n";
         std::cout << "Maximum number of threads: " << omp_get_max_threads()
@@ -535,6 +535,7 @@ void AnalysisGraph::check_OpenMP() {
 
     #ifdef MULTI_THREADING
         std::cout << "Computing matrix exponential for different gaps in parallel\n";
+        cout << "\nMaximum number of hardware threads run parallelly: " << thread::hardware_concurrency() << endl;
     #else
         std::cout << "Computing matrix exponential for different gaps sequentially\n";
     #endif
