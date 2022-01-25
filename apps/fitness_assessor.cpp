@@ -53,10 +53,12 @@ int main(int argc, char* argv[]) {
                        to_string(max_nodes) + "_" +
                        delphi::utils::get_timestamp() + ".csv";
 
+  /*
   vector<double> row;
   CSVWriter writer(output_file);
   vector<string> headings = {"Seed", "Theta Sampling Probability", "RMSE"};
   writer.write_row(headings.begin(), headings.end());
+   */
 
   int node_jump = 4;
   vector<AnalysisGraph> ags;
@@ -136,6 +138,8 @@ int main(int argc, char* argv[]) {
               cout << "\tTheta prob: " << theta_prob << endl;
               cout << "\tSeed: " << seed << endl;
               G.set_random_seed(seed);
+              G.debug();
+              /*
               G.run_train_model(res,
                                 burn,
                                 InitialBeta::ZERO,
@@ -145,8 +149,10 @@ int main(int argc, char* argv[]) {
                   G.assess_model_fit(output_file_prefix, cag_id, seed);
               tot_parameters += MAP_squared_error.first;
               tot_MAP_squared_error += MAP_squared_error.second;
+               */
               //cout << MAP_squared_error.first << ", " << MAP_squared_error.second << endl;
           }
+          /*
           tot_parameters_all_seeds += tot_parameters;
           tot_MAP_squared_error_all_seeds += tot_MAP_squared_error;
           double grand_MAP_rmse = sqrt(tot_MAP_squared_error / tot_parameters);
@@ -154,11 +160,14 @@ int main(int argc, char* argv[]) {
           row.clear();
           row = {(double)seed, theta_prob, grand_MAP_rmse};
           writer.write_row(row.begin(), row.end());
+           */
       }
+      /*
       double grand_MAP_rmse_all_seeds = sqrt(tot_MAP_squared_error_all_seeds / tot_parameters_all_seeds);
       row.clear();
       row = {0, theta_prob, grand_MAP_rmse_all_seeds};
       writer.write_row(row.begin(), row.end());
+       */
   }
   return(0);
 }
