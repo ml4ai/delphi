@@ -20,9 +20,9 @@ sqlite3* AnalysisGraph::open_delphi_db(int mode) {
     cout << sqlite3_errmsg(db) << endl;
     cout << "Trying to open for the second time after waiting for 5 seconds..." << endl;
     sleep(5);
-    if (sqlite3_open_v2(getenv("DELPHI_DB"), &db, mode, NULL) != SQLITE_OK) {
+    if (sqlite3_open_v2("/speedy/delphi/delphi.db", &db, mode, NULL) != SQLITE_OK) {
         cout << "\n\nERROR: opening delphi.db for the second time" << endl;
-        cout << "ERROR: delphi.db does not exist at " << pPath << endl;
+        cout << "ERROR: delphi.db does not exist at " << "/speedy/delphi/delphi.db" << endl;
         cout << sqlite3_errmsg(db) << endl;
         exit(1);
     }
