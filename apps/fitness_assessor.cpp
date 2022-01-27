@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
 
   int node_jump = 4;
   vector<AnalysisGraph> ags;
-  vector<int> seeds = {14, 1, 27, 5, 2020};
+  vector<int> seeds = {1, 14, 27, 5, 2020};
   vector<double> theta_probs = {0.5, 0.4, 0.3, 0.2, 0.1, 0.05, 0.01};
 
   for (int run = 1; run <= num_repeats; ++run) {
@@ -82,10 +82,12 @@ int main(int argc, char* argv[]) {
                          InitialBeta::PRIOR,
                      InitialDerivative::DERI_PRIOR,
                      false);
+        /*
         G.to_png(output_file_prefix + fmt::to_string(nodes) + "_"
                  + fmt::to_string(extra_edges + nodes - 1) + "_"
                  + fmt::to_string(run) + ".png",
                  false, 1, "", "TB", false);
+        */
         ags.push_back(G);
       }
     }
@@ -160,5 +162,16 @@ int main(int argc, char* argv[]) {
       row = {0, theta_prob, grand_MAP_rmse_all_seeds};
       writer.write_row(row.begin(), row.end());
   }
+
+  for (int cag_id = 0; cag_id < ags.size(); cag_id++) {
+      AnalysisGraph G = ags[cag_id];
+      int nodes = G.num_vertices();
+      int edges = G.num_edges();
+      G.to_png(output_file_prefix + fmt::to_string(nodes) + "_"
+                   + fmt::to_string(edges) + "_"
+                   + fmt::to_string(cag_id) + ".png",
+               false, 1, "", "TB", false);
+  }
+
   return(0);
 }
