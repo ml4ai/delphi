@@ -796,8 +796,8 @@ void AnalysisGraph::sample_transition_matrix_collection_from_prior() {
 
   for (int sample = 0; sample < this->res; sample++) {
     for (auto e : this->edges()) {
-      this->graph[e].theta = this->graph[e].kde.resample(
-          1, this->rand_num_generator, this->uni_dist, this->norm_dist)[0];
+      this->graph[e].set_theta(this->graph[e].kde.resample(
+          1, this->rand_num_generator, this->uni_dist, this->norm_dist)[0]);
     }
 
     // Create this->A_original based on the sampled β and remember it
@@ -822,7 +822,7 @@ AnalysisGraph AnalysisGraph::from_causemos_json_string(string json_string,
                                                        int kde_kernels
                                                        ) {
   AnalysisGraph G;
-  G.set_res(kde_kernels);
+  G.n_kde_kernels = kde_kernels;
 
   auto json_data = nlohmann::json::parse(json_string);
   G.from_causemos_json_dict(json_data, belief_score_cutoff, grounding_score_cutoff);
@@ -835,7 +835,7 @@ AnalysisGraph AnalysisGraph::from_causemos_json_file(string filename,
                                                      int kde_kernels
                                                      ) {
   AnalysisGraph G;
-  G.set_res(kde_kernels);
+  G.n_kde_kernels = kde_kernels;
 
   auto json_data = load_json(filename);
   G.from_causemos_json_dict(json_data, belief_score_cutoff, grounding_score_cutoff);
@@ -856,6 +856,7 @@ string AnalysisGraph::generate_create_model_response() {
     j["conceptIndicators"] = {};
 
     for (auto e : this->edges()) {
+        /*
         vector<double> weights;
         if (this->trained) {
             weights = vector<double>(this->graph[e].sampled_thetas.size());
@@ -868,10 +869,13 @@ string AnalysisGraph::generate_create_model_response() {
         } else {
             weights = vector<double>{0.5};
         }
+         */
 
         json edge_json = {{"source", this->source(e).name},
                           {"target", this->target(e).name},
-                          {"weights", weights}};
+                          {"weights", this->trained
+                                          ? this->graph[e].sampled_thetas
+                                          : vector<double>{0.5}}};
 
         j["relations"].push_back(edge_json);
     }

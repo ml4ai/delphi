@@ -75,7 +75,8 @@ CompleteState AnalysisGraph::get_complete_state() {
         prior["Prior"] = this->graph[e].kde.dataset;
         sampled_thetas["Sampled Thetas"] = this->graph[e].sampled_thetas;
 
-        thetas.push_back(std::make_pair(this->graph[e].kde.dataset, this->graph[e].sampled_thetas));
+//        thetas.push_back(std::make_pair(this->graph[e].kde.dataset, this->graph[e].sampled_thetas));
+        thetas.push_back(std::make_tuple(this->graph[e].kde.dataset, this->graph[e].sampled_thetas, this->graph[e].kde.log_prior_hist));
     }
 
     for (auto [vert_name, vert_id] : this->name_to_vertex) {
@@ -151,5 +152,5 @@ CompleteState AnalysisGraph::get_complete_state() {
     CredibleIntervals cis = get_credible_interval(predictions);
 
     //return std::make_tuple(concept_indicators, edges, adjectives, polarities, thetas, derivatives, data_range, data_set, this->pred_range, predictions, cis);
-    return std::make_tuple(concept_indicators, edges, adjectives, polarities, thetas, derivatives, data_range, data_set, prediction_range, predictions, cis, this->log_likelihoods);
+    return std::make_tuple(concept_indicators, edges, adjectives, polarities, thetas, derivatives, data_range, data_set, prediction_range, predictions, cis, this->log_likelihoods, this->n_kde_kernels);
 }

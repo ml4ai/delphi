@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# Author: Joseph Astier
+#
+# CauseMos 3.0.0 API endpoint: "/models/{modelId}/experiments/{experimentId}
+#
+# Retrieve an experiment from the database with the model ID and experiment ID
+#
+# EXAMPLE:
+# curl -s -u me:ivilab4fun http://localhost:8123/models/3nodes/experiments/068d6add-f10f-4eb7-a412-0e2405fcf3d3
+
+# Model ID
+modelId=$1
+
+# Experiment definition JSON file
+experimentId=$2
+
+if [[ $modelId == "" ]] || [[ $experimentId == "" ]]; then
+    echo "Please specify a modelId and an experimentId"
+    echo "Usage:  $0 modelId experimentId"
+else
+    login="-u me:ivilab4fun"
+    url=$(./get_delphi_url)
+    endpoint="/models/$modelId/experiments/$experimentId"
+
+    call="curl -s $login $url$endpoint"
+    echo "Call:"
+    echo $call
+
+    call_time=$(date +%T.%3N)
+    response=$($call)
+    response_time=$(date +%T.%3N)
+
+    echo "Response:"
+    echo $response | jq
+    echo "Server queried: $call_time"
+    echo "Server replied: $response_time"
+fi

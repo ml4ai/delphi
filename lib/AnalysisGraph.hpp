@@ -17,6 +17,13 @@
 #include "Tran_Mat_Cell.hpp"
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
+#ifdef MULTI_THREADING
+  #include <future>
+#endif
+
+#ifdef TIME
+  #include "CSVWriter.hpp"
+#endif
 
 const double tuning_param = 1.0;
 
@@ -110,7 +117,10 @@ typedef std::vector<std::pair<int, int>> Polarities;
 // first element of the tuple is a vector of theta priors KDEs
 // second element of the tuple is a vector of sampled thetas
 // [([p1, p1, ...], [s1, s2, ...]), ... ]
-typedef std::vector<std::pair<std::vector<double>, std::vector<double>>> Thetas;
+// Each tuple: <dataset, sampled thertas, log prior histogram>
+// TODO: remove dataset and convert this to a pair
+//typedef std::vector<std::pair<std::vector<double>, std::vector<double>>> Thetas;
+typedef std::vector<std::tuple<std::vector<double>, std::vector<double>, std::vector<double>>> Thetas;
 
 // Sampled Derivatives for each concept
 // Access
@@ -155,7 +165,8 @@ typedef std::tuple<
     Predictions,
     CredibleIntervals,
     // Log likelihoods
-    std::vector<double>
+    std::vector<double>,
+    int // Number of bins in theta prior distributions
             > CompleteState;
 
 // Access
@@ -183,10 +194,19 @@ AdjectiveResponseMap construct_adjective_response_map(size_t n_kernels);
 class AnalysisGraph {
 
   private:
+  #ifdef TIME
+    std::pair<std::vector<std::string>, std::vector<long>> durations;
+    std::pair<std::vector<std::string>, std::vector<long>> mcmc_part_duration;
+    CSVWriter writer;
+    std::string timing_file_prefix = "";
+    int timing_run_number = 0;
+  #endif
+
   // True only when Delphi is run through the CauseMos HMI.
   bool causemos_call = false;
 
   DiGraph graph;
+
 
   // Handle to the random number generator singleton object
   RNG* rng_instance = nullptr;
@@ -200,12 +220,17 @@ class AnalysisGraph {
   // Normal distribution used to perturb β
   std::normal_distribution<double> norm_dist;
 
-  // Uniform discrete distribution used by the MCMC sampler
+  // Uniform discrete distributions used by the MCMC sampler
   // to perturb the initial latent state
   std::uniform_int_distribution<int> uni_disc_dist;
+  // to sample an edge
+  std::uniform_int_distribution<int> uni_disc_dist_edge;
 
   // Sampling resolution
   size_t res;
+
+  // Number of KDE kernels
+  size_t n_kde_kernels = 1000;
 
   /*
    ============================================================================
@@ -256,10 +281,15 @@ class AnalysisGraph {
    ============================================================================
   */
 
-  // Keep track whether the model is trained.
+  // keep track of training progress
+  float training_progress = 0.0;  // Range is [0.0, 1.0]
+
   // Used to check whether there is a trained model before calling
   // generate_prediction()
   bool trained = false;
+
+  // training was stopped by user input
+  bool stopped = false;
 
   int n_timesteps = 0;
   int pred_timesteps = 0;
@@ -269,11 +299,19 @@ class AnalysisGraph {
   long train_end_epoch = -1;
   double pred_start_timestep = -1;
   std::vector<double> observation_timestep_gaps;
+  std::vector<double> observation_timestep_unique_gaps;
+
+  #ifdef MULTI_THREADING
+    // A future cannot be copied. So we need to specify a copy assign
+    // constructor that does not copy this for the code to compile
+    std::vector<std::future<Eigen::MatrixXd>> matrix_exponential_futures;
+  #endif
   std::unordered_map<double, Eigen::MatrixXd> e_A_ts;
   long modeling_period = 1; // Number of epochs per one modeling timestep
 
   std::unordered_map<int, std::function<double(unsigned int, double)>> external_concepts;
   std::vector<unsigned int> concept_sample_pool;
+  std::vector<EdgeDescriptor> edge_sample_pool;
 
   double t = 0.0;
   double delta_t = 1.0;
@@ -289,10 +327,12 @@ class AnalysisGraph {
   double coin_flip = 0;
   double coin_flip_thresh = 0.5;
 
-  // Remember the old θ and the edge where we perturbed the θ.
+  // Remember the old θ, logpdf(θ) and the edge where we perturbed the θ.
   // We need this to revert the system to the previous state if the proposal
   // gets rejected.
-  std::pair<EdgeDescriptor, double> previous_theta;
+  // Access:
+  //        edge, θ, logpdf(θ)
+  std::tuple<EdgeDescriptor, double, double> previous_theta;
 
   // Remember the old derivative and the concept we perturbed the derivative
   int changed_derivative = 0;
@@ -445,6 +485,10 @@ class AnalysisGraph {
                                                   (in causemos_integration.cpp)
    ============================================================================
   */
+
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                            training-progress
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                             create-model
@@ -767,6 +811,7 @@ class AnalysisGraph {
    ============================================================================
   */
 
+
   /**
    * Set the observed state sequence for a given time range from data.
    * The sequence includes both ends of the range.
@@ -854,7 +899,6 @@ class AnalysisGraph {
 
   void construct_theta_pdfs();
 
-
   /*
    ============================================================================
    Private: Training by MCMC Sampling (in sampling.cpp)
@@ -862,6 +906,10 @@ class AnalysisGraph {
   */
 
   void set_base_transition_matrix();
+
+  #ifdef MULTI_THREADING
+    void compute_multiple_matrix_exponentials_parallelly();
+  #endif
 
   // Sample elements of the stochastic transition matrix from the
   // prior distribution, based on gradable adjectives.
@@ -1027,6 +1075,10 @@ class AnalysisGraph {
   // Set the sampling resolution.
   void set_res(size_t res);
 
+  // Set the number of KDE kernels.
+  void set_n_kde_kernels(size_t kde_kernels)
+      {this->n_kde_kernels = kde_kernels;};
+
   // Get the sampling resolution.
   size_t get_res();
 
@@ -1088,12 +1140,25 @@ class AnalysisGraph {
   /** Copy constructor */
   AnalysisGraph(const AnalysisGraph& rhs);
 
+  /** Copy assignment operator */
+  AnalysisGraph& operator=(AnalysisGraph rhs);
+
   /*
    ============================================================================
    Public: Integration with Uncharted's CauseMos interface
                                                   (in causemos_integration.cpp)
    ============================================================================
   */
+
+            /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                            training-progress
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+  float get_training_progress();
+  bool get_trained();
+  bool get_stopped();
+  double get_log_likelihood();
+  double get_previous_log_likelihood();
+  double get_log_likelihood_MAP();
 
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                             create-model
@@ -1122,6 +1187,7 @@ class AnalysisGraph {
    */
   std::string generate_create_model_response();
 
+
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                           create-experiment
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -1138,7 +1204,7 @@ class AnalysisGraph {
    ============================================================================
   */
 
-  std::string serialize_to_json_string(bool verbose = true);
+  std::string serialize_to_json_string(bool verbose = true, bool compact = true);
 
   void export_create_model_json_string();
 
@@ -1417,6 +1483,7 @@ class AnalysisGraph {
 
   void set_default_initial_state(InitialDerivative id = InitialDerivative::DERI_ZERO);
 
+  static void check_multithreading();
   /*
    ============================================================================
    Public: Prediction (in prediction.cpp)
@@ -1566,4 +1633,45 @@ class AnalysisGraph {
       std::normal_distribution<double>& norm_dist,
       size_t n_kernels
   );
+
+  /*
+   ============================================================================
+   Public: Profiling Delphi (in profiler.cpp)
+   ============================================================================
+  */
+
+  void initialize_profiler(int res = 100,
+                           int kde_kernels = 1000,
+                           InitialBeta initial_beta = InitialBeta::ZERO,
+                           InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO,
+                           bool use_continuous = true);
+
+  void profile_mcmc(int run = 1, std::string file_name_prefix = "mcmc_timing");
+
+  void profile_kde(int run = 1, std::string file_name_prefix = "kde_timing");
+
+  void profile_prediction(int run = 1, int pred_timesteps = 24, std::string file_name_prefix = "prediction_timing");
+
+  void profile_matrix_exponential(int run = 1,
+                                  std::string file_name_prefix = "mat_exp_timing",
+                                  std::vector<double> unique_gaps = {1, 2, 5},
+                                  int repeat = 30,
+                                  bool multi_threaded = false);
+
+#ifdef TIME
+  void set_timing_file_prefix(std::string tfp) {this->timing_file_prefix = tfp;}
+  void create_mcmc_part_timing_file()
+  {
+      std::string filename = this->timing_file_prefix + "embeded_" +
+                              std::to_string(this->num_nodes()) + "-" +
+                              std::to_string(this->num_nodes()) + "_" +
+                              std::to_string(this->timing_run_number) + "_" +
+                              delphi::utils::get_timestamp() + ".csv";
+      this->writer = CSVWriter(filename);
+      std::vector<std::string> headings = {"Run", "Nodes", "Edges", "Wall Clock Time (ns)", "CPU Time (ns)", "Sample Type"};
+      writer.write_row(headings.begin(), headings.end());
+//      cout << filename << endl;
+  }
+  void set_timing_run_number(int run) {this->timing_run_number = run;}
+#endif
 };

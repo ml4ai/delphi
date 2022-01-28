@@ -45,6 +45,11 @@ template <class F, class V> vector<V> lmap(F f, vector<V> vec) {
 }
 
 /**
+ * Returns the value rounded to n places past the decimal.
+ */
+double round_n(double value, int n);
+
+/**
  * Returns the square of a number.
  */
 double sqr(double x);
@@ -82,4 +87,7 @@ nlohmann::json load_json(std::string filename);
 
 /** Compute the number of months between two dates **/
 int months_between(std::tuple<int, int, int> earlier_date, std::tuple<int, int, int> latter_date);
+
+/** Get current date & time in human readable format **/
+std::string get_timestamp();
 } // namespace delphi::utils

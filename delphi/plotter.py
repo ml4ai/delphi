@@ -38,7 +38,7 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
     if file_name_prefix:
         file_name_prefix += '_'
 
-    concept_indicators, edges, adjectives, polarities, edge_data, derivatives, data_range, data_set, pred_range, predictions, cis, log_likelihoods = model_state
+    concept_indicators, edges, adjectives, polarities, edge_data, derivatives, data_range, data_set, pred_range, predictions, cis, log_likelihoods, num_bins = model_state
 
     plot_num = 1
 
@@ -99,6 +99,7 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
         g = sns.barplot(x=df_theta_samples_grp['Theta'],
                 y=df_theta_samples_grp['# of Samples'],
                 color=(0.9375, 0.5, 0.5), ax=ax1)
+        sns.lineplot(x=np.round(np.linspace(0, np.pi, num=num_bins, endpoint=False), 3), y=thetas[2], color='blue', ax=ax2)
 
         source = edges[idx][0].split('/')[-1]
         target = edges[idx][1].split('/')[-1]

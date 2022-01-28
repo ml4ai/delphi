@@ -122,7 +122,7 @@ AnalysisGraph::from_causal_fragments_with_data(pair<vector<CausalFragment>,
                                                int kde_kernels) {
   AnalysisGraph G = from_causal_fragments(cag_ind_data.first);
 
-  G.set_res(kde_kernels);
+  G.n_kde_kernels = kde_kernels;
 
   G.observed_state_sequence.clear();
   G.n_timesteps = 0;
@@ -208,27 +208,77 @@ AnalysisGraph AnalysisGraph::from_json_string(string json_string) {
  */
 AnalysisGraph::AnalysisGraph(const AnalysisGraph& rhs) {
   // Copying private members
-  this->indicators_in_CAG = rhs.indicators_in_CAG;
-  // NOTE: Copying this gives a segmentation fault
-  //       Investigate
-  //this->name_to_vertex = rhs.name_to_vertex;
+  #ifdef TIME
+    this->durations = rhs.durations;
+    this->mcmc_part_duration = rhs.mcmc_part_duration;
+    this->writer = rhs.writer;
+    this->timing_file_prefix = rhs.timing_file_prefix;
+    this->timing_run_number = rhs.timing_run_number;
+  #endif
   this->causemos_call = rhs.causemos_call;
+
+  this->uni_dist = rhs.uni_dist;
+  this->norm_dist = rhs.norm_dist;
+  this->uni_disc_dist = rhs.uni_disc_dist;
+  this->uni_disc_dist_edge = rhs.uni_disc_dist_edge;
+
+  this->res = rhs.res;
+  this->n_kde_kernels = rhs.n_kde_kernels;
+
+  this->indicators_in_CAG = rhs.indicators_in_CAG;
+  this->A_beta_factors = rhs.A_beta_factors;
+  this->beta_dependent_cells = rhs.beta_dependent_cells;
+  this->beta2cell = rhs.beta2cell;
+
+  this->generated_latent_sequence = rhs.generated_latent_sequence;
+  this->generated_concept = rhs.generated_concept;
+
+  this->training_progress = rhs.training_progress;
   this->trained = rhs.trained;
+  this->stopped = rhs.stopped;
+
   this->n_timesteps = rhs.n_timesteps;
   this->pred_timesteps = rhs.pred_timesteps;
   this->training_range = rhs.training_range;
+  this->pred_range = rhs.pred_range;
   this->train_start_epoch = rhs.train_start_epoch;
   this->train_end_epoch = rhs.train_end_epoch;
   this->pred_start_timestep = rhs.pred_start_timestep;
   this->observation_timestep_gaps = rhs.observation_timestep_gaps;
+  this->observation_timestep_unique_gaps = rhs.observation_timestep_unique_gaps;
+
   this->e_A_ts = rhs.e_A_ts;
   this->modeling_period = rhs.modeling_period;
-  this->pred_range = rhs.pred_range;
+
+  this->external_concepts = rhs.external_concepts;
+  this->concept_sample_pool = rhs.concept_sample_pool;
+  this->edge_sample_pool = rhs.edge_sample_pool;
+
   this->t = rhs.t;
   this->delta_t = rhs.delta_t;
+
+  this->log_likelihood = rhs.log_likelihood;
+  this->previous_log_likelihood = rhs.previous_log_likelihood;
+  this->log_likelihood_MAP = rhs.log_likelihood_MAP;
+  this->MAP_sample_number = rhs.MAP_sample_number;
+  this->log_likelihoods = rhs.log_likelihoods;
+
+  this->coin_flip = rhs.coin_flip;
+  this->coin_flip_thresh = rhs.coin_flip_thresh;
+
+  this->previous_theta = rhs.previous_theta;
+  this->changed_derivative = rhs.changed_derivative;
+  this->previous_derivative = rhs.previous_derivative;
+
   this->s0 = rhs.s0;
+  this->s0_prev = rhs.s0_prev;
+  this->derivative_prior_variance = rhs.derivative_prior_variance;
+
   this->A_original = rhs.A_original;
+
   this->continuous = rhs.continuous;
+
+  this->current_latent_state = rhs.current_latent_state;
 
   // NOTE: This assumes that node indices and indicator indices for each node
   // does not change when copied. This data structure is indexed using those
@@ -239,18 +289,22 @@ AnalysisGraph::AnalysisGraph(const AnalysisGraph& rhs) {
   this->predicted_latent_state_sequences = rhs.predicted_latent_state_sequences;
   this->predicted_observed_state_sequences = rhs.predicted_observed_state_sequences;
   this->test_observed_state_sequence = rhs.test_observed_state_sequence;
+
   this->one_off_constraints = rhs.one_off_constraints;
+  this->head_node_one_off_constraints = rhs.head_node_one_off_constraints;
   this->perpetual_constraints = rhs.perpetual_constraints;
   this->is_one_off_constraints = rhs.is_one_off_constraints;
+  this->clamp_at_derivative = rhs.clamp_at_derivative;
+  this->rest_derivative_clamp_ts = rhs.rest_derivative_clamp_ts;
+
   this->transition_matrix_collection = rhs.transition_matrix_collection;
   this->initial_latent_state_collection = rhs.initial_latent_state_collection;
-  this->synthetic_latent_state_sequence= rhs.synthetic_latent_state_sequence;
+  this->synthetic_latent_state_sequence = rhs.synthetic_latent_state_sequence;
   this->synthetic_data_experiment = rhs.synthetic_data_experiment;
 
   // Copying public members
   this->id = rhs.id;
   this->data_heuristic = rhs.data_heuristic;
-  this->res = rhs.res;
 
   for_each(rhs.node_indices(), [&](int v) {
     Node node_rhs = rhs.graph[v];
@@ -289,4 +343,108 @@ AnalysisGraph::AnalysisGraph(const AnalysisGraph& rhs) {
     */
 
   });
+}
+
+
+/** Copy assignment operator (copy-and-swap idiom)*/
+AnalysisGraph& AnalysisGraph::operator=(AnalysisGraph rhs) {
+    #ifdef TIME
+        swap(durations, rhs.durations);
+        swap(mcmc_part_duration, rhs.mcmc_part_duration);
+        swap(writer, rhs.writer);
+        swap(timing_file_prefix, rhs.timing_file_prefix);
+        swap(timing_run_number, rhs.timing_run_number);
+    #endif
+
+    swap(causemos_call, rhs.causemos_call);
+
+    swap(graph, rhs.graph);
+
+    swap(uni_dist, rhs.uni_dist);
+    swap(norm_dist, rhs.norm_dist);
+    swap(uni_disc_dist, rhs.uni_disc_dist);
+    swap(uni_disc_dist_edge, rhs.uni_disc_dist_edge);
+
+    swap(res, rhs.res);
+    swap(n_kde_kernels, rhs.n_kde_kernels);
+
+    swap(name_to_vertex, rhs.name_to_vertex);
+    swap(indicators_in_CAG, rhs.indicators_in_CAG);
+    swap(A_beta_factors, rhs.A_beta_factors);
+    swap(beta_dependent_cells, rhs.beta_dependent_cells);
+    swap(beta2cell, rhs.beta2cell);
+
+    swap(body_nodes, rhs.body_nodes);
+    swap(head_nodes, rhs.head_nodes);
+    swap(generated_latent_sequence, rhs.generated_latent_sequence);
+    swap(generated_concept, rhs.generated_concept);
+
+    swap(training_progress, rhs.training_progress);
+    swap(trained, rhs.trained);
+    swap(stopped, rhs.stopped);
+
+    swap(n_timesteps, rhs.n_timesteps);
+    swap(pred_timesteps, rhs.pred_timesteps);
+    swap(training_range, rhs.training_range);
+    swap(pred_range, rhs.pred_range);
+    swap(train_start_epoch, rhs.train_start_epoch);
+    swap(train_end_epoch, rhs.train_end_epoch);
+    swap(pred_start_timestep, rhs.pred_start_timestep);
+    swap(observation_timestep_gaps, rhs.observation_timestep_gaps);
+    swap(observation_timestep_unique_gaps, rhs.observation_timestep_unique_gaps);
+
+    swap(e_A_ts, rhs.e_A_ts);
+    swap(modeling_period, rhs.modeling_period);
+
+    swap(external_concepts, rhs.external_concepts);
+    swap(concept_sample_pool, rhs.concept_sample_pool);
+    swap(edge_sample_pool, rhs.edge_sample_pool);
+
+    swap(t, rhs.t);
+    swap(delta_t, rhs.delta_t);
+
+    swap(log_likelihood, rhs.log_likelihood);
+    swap(previous_log_likelihood, rhs.previous_log_likelihood);
+    swap(log_likelihood_MAP, rhs.log_likelihood_MAP);
+    swap(MAP_sample_number, rhs.MAP_sample_number);
+    swap(log_likelihoods, rhs.log_likelihoods);
+
+    swap(coin_flip, rhs.coin_flip);
+    swap(coin_flip_thresh, rhs.coin_flip_thresh);
+
+    swap(previous_theta, rhs.previous_theta);
+    swap(changed_derivative, rhs.changed_derivative);
+    swap(previous_derivative, rhs.previous_derivative);
+
+    swap(s0, rhs.s0);
+    swap(s0_prev, rhs.s0_prev);
+    swap(derivative_prior_variance, rhs.derivative_prior_variance);
+
+    swap(A_original, rhs.A_original);
+
+    swap(continuous, rhs.continuous);
+
+    swap(current_latent_state, rhs.current_latent_state);
+
+    swap(observed_state_sequence, rhs.observed_state_sequence);
+    swap(predicted_latent_state_sequences, rhs.predicted_latent_state_sequences);
+    swap(predicted_observed_state_sequences, rhs.predicted_observed_state_sequences);
+    swap(test_observed_state_sequence, rhs.test_observed_state_sequence);
+
+    swap(one_off_constraints, rhs.one_off_constraints);
+    swap(head_node_one_off_constraints, rhs.head_node_one_off_constraints);
+    swap(perpetual_constraints, rhs.perpetual_constraints);
+    swap(is_one_off_constraints, rhs.is_one_off_constraints);
+    swap(clamp_at_derivative, rhs.clamp_at_derivative);
+    swap(rest_derivative_clamp_ts, rhs.rest_derivative_clamp_ts);
+
+    swap(transition_matrix_collection, rhs.transition_matrix_collection);
+    swap(initial_latent_state_collection, rhs.initial_latent_state_collection);
+    swap(synthetic_latent_state_sequence, rhs.synthetic_latent_state_sequence);
+    swap(synthetic_data_experiment, rhs.synthetic_data_experiment);
+
+    // Copying public members
+    swap(id, rhs.id);
+    swap(data_heuristic, rhs.data_heuristic);
+    return *this;
 }

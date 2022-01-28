@@ -53,11 +53,7 @@ class Statement {
 };
 
 class Edge {
-  public:
-  std::string name;
-  KDE kde;
-  std::vector<Statement> evidence;
-
+  private:
   // The current β for this edge
   // TODO: Need to decide how to initialize this or
   // decide whether this is the correct way to do this.
@@ -65,7 +61,56 @@ class Edge {
   // θ = atan(1) = Π/4
   // β = tan(atan(1)) = 1
   double theta = std::atan(1);
+  bool frozen = false;
+
+  public:
+  std::string name;
+  KDE kde;
+  std::vector<Statement> evidence;
+
   std::vector<double> sampled_thetas;
+
+  // The current log(p(θ))
+  double logpdf_theta = 0;
+
+  void freeze() {
+      this->frozen = true;
+  }
+
+  void unfreeze() {
+      this->frozen = false;
+  }
+
+  bool is_frozen() {
+      return this->frozen;
+  }
+
+  void set_theta(double theta) {
+      if (!this->frozen) {
+          if (0 <= theta && theta <= M_PI) {
+              this->theta = theta;
+          }
+          else if (-M_PI <= theta && theta < 0) {
+              this->theta = M_PI + theta;
+          }
+          else if (M_PI < theta && theta <= 2 * M_PI) {
+              this->theta = theta - M_PI;
+          }
+          else {
+              std::cout << "\n\n\t**********ERROR: Edge.hpp - theta outside range coded for processing!!**********\n\n";
+              std::cout << theta << std::endl;
+          }
+      }
+  }
+
+   double get_theta() const {
+    return this->theta;
+  }
+
+  void compute_logpdf_theta() {
+//    this->logpdf_theta = this->kde.logpdf(this->theta);
+    this->logpdf_theta = this->kde.log_prior_hist[this->kde.theta_to_bin(this->theta)];
+  }
 
   void change_polarity(int subject_polarity, int object_polarity) {
     for (Statement stmt : evidence) {

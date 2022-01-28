@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Author: Joseph Astier
+#
+# Query a model status from the delphi REST API using the CauseMos 3.0.0 API
+#
+# EXAMPLE:
+# curl -u me:ivilab4fun -s http://localhost:8123/models/3nodes
+
+modelId=$1
+
+if [[ $modelId == "" ]]; then
+
+    echo "please specify a Model ID"
+    echo "Usage:  $0 model_ID"
+
+else
+    login="-u me:ivilab4fun"
+    endpoint="/models/$modelId"
+    url=$(./get_delphi_url)
+
+    call="curl $login -s $url$endpoint"
+    echo "Call:"
+    echo $call
+
+    call_time=$(date +%T.%3N)
+    response=$($call)
+    response_time=$(date +%T.%3N)
+
+    echo "Response:"
+    echo $response | jq
+    echo "Server queried: $call_time"
+    echo "Server replied: $response_time"
+fi

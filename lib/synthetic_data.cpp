@@ -105,7 +105,7 @@ void AnalysisGraph::initialize_random_CAG(unsigned int num_obs,
                                           bool use_continuous) {
   this->initialize_random_number_generator();
   this->set_default_initial_state(initial_derivative);
-  this->set_res(kde_kernels);
+  this->n_kde_kernels = kde_kernels;
   this->construct_theta_pdfs();
   this->init_betas_to(initial_beta);
   this->pred_timesteps = num_obs + 1;

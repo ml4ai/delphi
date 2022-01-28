@@ -1,4 +1,11 @@
 #include "AnalysisGraph.hpp"
+#ifdef _OPENMP
+    #include <omp.h>
+#endif
+
+#ifdef TIME
+  #include "Timer.hpp"
+#endif
 
 using namespace std;
 using namespace delphi::utils;
@@ -83,16 +90,40 @@ void AnalysisGraph::set_transition_matrix_from_betas() {
   }
 
   if (this->continuous) {
-    // Initialize the transition matrix pre-calculation data structure.
-    // This data structure holds all the transition matrices required to
-    // advance the system from each timestep to the next.
-    for (double gap : set<double>(this->observation_timestep_gaps.begin(),
-                                  this->observation_timestep_gaps.end())) {
-      this->e_A_ts.insert(make_pair(gap, (this->A_original * gap).exp()));
-    }
-    this->e_A_ts.insert(make_pair(1, this->A_original.exp()));
+    // Initialize matrix exponential pre-calculation related data structures.
+    unordered_set<double> gaps_set = unordered_set<double>(
+                                   this->observation_timestep_gaps.begin() + 1,
+                                   this->observation_timestep_gaps.end());
+    gaps_set.insert(1); // Due to the current head node model
+    this->observation_timestep_unique_gaps = vector<double>(gaps_set.begin(),
+                                                            gaps_set.end());
+    #ifdef MULTI_THREADING
+        this->matrix_exponential_futures = vector<future<Eigen::MatrixXd>>(
+            this->observation_timestep_unique_gaps.size());
+    #endif
   }
 }
+
+
+#ifdef MULTI_THREADING
+    static Eigen::MatrixXd compute_matrix_exponential(const Eigen::Ref<const Eigen::MatrixXd> A,
+                                                      double gap) {
+        return (A * gap).exp();
+    }
+
+
+    void AnalysisGraph::compute_multiple_matrix_exponentials_parallelly() {
+        // Create threads to precalculate all the transition matrices required to
+        // advance the system from one time step to the next by computing matrix
+        // exponentials in parallel - e^(this->A_original * gap)
+        for (int i = 0; i < this->observation_timestep_unique_gaps.size(); i++) {
+            double &gap = this->observation_timestep_unique_gaps[i];
+            this->matrix_exponential_futures[i] = async(launch::async,
+                                                        compute_matrix_exponential,
+                                                        this->A_original, gap);
+        }
+    }
+#endif
 
 void AnalysisGraph::set_log_likelihood_helper(int ts) {
     // Access (concept is a vertex in the CAG)
@@ -128,32 +159,86 @@ void AnalysisGraph::set_log_likelihood() {
   if (this->continuous) {
       if (this->coin_flip < this->coin_flip_thresh) {
         // A θ has been sampled
-        // Precalculate all the transition matrices required to advance the system
-        // from one timestep to the next.
-        for (auto [gap, mat] : this->e_A_ts) {
-          this->e_A_ts[gap] = (this->A_original * gap).exp();
+        {
+          #ifdef TIME
+              this->mcmc_part_duration.second.clear();
+              this->mcmc_part_duration.second.push_back(this->timing_run_number);
+              this->mcmc_part_duration.second.push_back(this->num_nodes());
+              this->mcmc_part_duration.second.push_back(this->num_edges());
+              Timer t_part = Timer("ME", this->mcmc_part_duration);
+          #endif
+
+          #ifdef MULTI_THREADING
+              // Accumulate the precalculated exponentiated transition matrices
+              // from different threads
+              for (int i = 0; i < this->observation_timestep_unique_gaps.size();
+                   i++) {
+                  double &gap = this->observation_timestep_unique_gaps[i];
+                  this->e_A_ts[gap] = matrix_exponential_futures[i].get();
+              }
+          /*
+          #ifdef _OPENMP
+              this->e_A_ts.clear();
+              #pragma omp parallel
+              {
+                  unordered_map<double, Eigen::MatrixXd> partial_e_A_ts;
+                  for (int i = 0; i < this->observation_timestep_unique_gaps.size();
+                       i++) {
+                      int gap = this->observation_timestep_unique_gaps[i];
+                      partial_e_A_ts[gap] = (this->A_original * gap).exp();
+                  }
+                  #pragma omp critical
+                  this->e_A_ts.merge(partial_e_A_ts);
+                  #pragma omp barrier
+              }
+          */
+          #else
+              for (double gap : this->observation_timestep_unique_gaps) {
+                this->e_A_ts[gap] = (this->A_original * gap).exp();
+              }
+          #endif
         }
+        #ifdef TIME
+          this->mcmc_part_duration.second.push_back(11);
+          this->writer.write_row(this->mcmc_part_duration.second.begin(),
+                                 this->mcmc_part_duration.second.end());
+        #endif
       }
       this->current_latent_state = this->s0;
       int ts_monthly = 0;
 
-      for (int ts = 0; ts < this->n_timesteps; ts++) {
+      {
+        #ifdef TIME
+          this->mcmc_part_duration.second.clear();
+          this->mcmc_part_duration.second.push_back(this->timing_run_number);
+          this->mcmc_part_duration.second.push_back(this->num_nodes());
+          this->mcmc_part_duration.second.push_back(this->num_edges());
+          Timer t_part = Timer("Log Likelihood", this->mcmc_part_duration);
+        #endif
+        for (int ts = 0; ts < this->n_timesteps; ts++) {
 
-        // Set derivatives for frozen nodes
-        for (const auto & [ v, deriv_func ] : this->external_concepts) {
-          const Indicator& ind = this->graph[v].indicators[0];
-          this->current_latent_state[2 * v + 1] = deriv_func(ts, ind.mean);
-        }
+          // Set derivatives for frozen nodes
+          for (const auto& [v, deriv_func] : this->external_concepts) {
+            const Indicator& ind = this->graph[v].indicators[0];
+            this->current_latent_state[2 * v + 1] = deriv_func(ts, ind.mean);
+          }
 
-        for (int ts_gap = 0; ts_gap < this->observation_timestep_gaps[ts]; ts_gap++) {
-          this->update_latent_state_with_generated_derivatives(ts_monthly,
-                                                               ts_monthly + 1);
-          this->current_latent_state =
-              this->e_A_ts[1] * this->current_latent_state;
-          ts_monthly++;
+          for (int ts_gap = 0; ts_gap < this->observation_timestep_gaps[ts];
+               ts_gap++) {
+            this->update_latent_state_with_generated_derivatives(
+                ts_monthly, ts_monthly + 1);
+            this->current_latent_state =
+                this->e_A_ts[1] * this->current_latent_state;
+            ts_monthly++;
+          }
+          set_log_likelihood_helper(ts);
         }
-        set_log_likelihood_helper(ts);
       }
+      #ifdef TIME
+        this->mcmc_part_duration.second.push_back(13);
+        this->writer.write_row(this->mcmc_part_duration.second.begin(),
+                               this->mcmc_part_duration.second.end());
+      #endif
 
       /*
       this->update_latent_state_with_generated_derivatives(0, 1);
@@ -225,25 +310,69 @@ void AnalysisGraph::sample_from_posterior() {
 
 void AnalysisGraph::sample_from_proposal() {
   // Flip a coin and decide whether to perturb a θ or a derivative
-  this->coin_flip = this->uni_dist(this->rand_num_generator);
+  if (this->edge_sample_pool.empty()) {
+      // All edge weights are frozen. Always sample a concept.
+      this->coin_flip = this->coin_flip_thresh;
+  } else {
+      this->coin_flip = this->uni_dist(this->rand_num_generator);
+  }
   this->generated_concept = -1;
 
   if (this->coin_flip < this->coin_flip_thresh) {
     // Randomly pick an edge ≡ θ
-    boost::iterator_range edge_it = this->edges();
+//    boost::iterator_range edge_it = this->edges();
+//
+//    vector<EdgeDescriptor> e(1);
+//    sample(
+//        edge_it.begin(), edge_it.end(), e.begin(), 1, this->rand_num_generator);
+    EdgeDescriptor ed = this->edge_sample_pool[this->uni_disc_dist_edge(this->rand_num_generator)];
 
-    vector<EdgeDescriptor> e(1);
-    sample(
-        edge_it.begin(), edge_it.end(), e.begin(), 1, this->rand_num_generator);
+    // Remember the previous θ and logpdf(θ)
+//    this->previous_theta = make_tuple(e[0], this->graph[e[0]].get_theta(), this->graph[e[0]].logpdf_theta);
+    this->previous_theta = make_tuple(ed, this->graph[ed].get_theta(), this->graph[ed].logpdf_theta);
 
-    // Remember the previous θ
-    this->previous_theta = make_pair(e[0], this->graph[e[0]].theta);
-
-    // Perturb the θ
+    // Perturb the θ and compute the new logpdf(θ)
     // TODO: Check whether this perturbation is accurate
-    this->graph[e[0]].theta += this->norm_dist(this->rand_num_generator);
+//    this->graph[e[0]].set_theta(this->graph[e[0]].get_theta() + this->norm_dist(this->rand_num_generator));
+    this->graph[ed].set_theta(this->graph[ed].get_theta() + this->norm_dist(this->rand_num_generator) / 10);
+    {
+      #ifdef TIME
+        this->mcmc_part_duration.second.clear();
+        this->mcmc_part_duration.second.push_back(this->timing_run_number);
+        this->mcmc_part_duration.second.push_back(this->num_nodes());
+        this->mcmc_part_duration.second.push_back(this->num_edges());
+        Timer t_part = Timer("KDE", this->mcmc_part_duration);
+      #endif
+//      this->graph[e[0]].compute_logpdf_theta();
+      this->graph[ed].compute_logpdf_theta();
+    }
+    #ifdef TIME
+      this->mcmc_part_duration.second.push_back(10);
+      this->writer.write_row(this->mcmc_part_duration.second.begin(),
+                             this->mcmc_part_duration.second.end());
+    #endif
 
-    this->update_transition_matrix_cells(e[0]);
+    {
+      #ifdef TIME
+        this->mcmc_part_duration.second.clear();
+        this->mcmc_part_duration.second.push_back(this->timing_run_number);
+        this->mcmc_part_duration.second.push_back(this->num_nodes());
+        this->mcmc_part_duration.second.push_back(this->num_edges());
+        Timer t_part = Timer("UPTM", this->mcmc_part_duration);
+      #endif
+//      this->update_transition_matrix_cells(e[0]);
+      this->update_transition_matrix_cells(ed);
+    }
+
+    #ifdef MULTI_THREADING
+        this->compute_multiple_matrix_exponentials_parallelly();
+    #endif
+
+    #ifdef TIME
+      this->mcmc_part_duration.second.push_back(12);
+      this->writer.write_row(this->mcmc_part_duration.second.begin(),
+                             this->mcmc_part_duration.second.end());
+    #endif
   }
   else {
     // Randomly select a concept
@@ -293,11 +422,13 @@ void AnalysisGraph::update_transition_matrix_cells(EdgeDescriptor e) {
 double AnalysisGraph::calculate_delta_log_prior() {
   if (this->coin_flip < this->coin_flip_thresh) {
     // A θ has been sampled
-    KDE& kde = this->graph[this->previous_theta.first].kde;
+    // KDE& kde = this->graph[get<0>(this->previous_theta)].kde;
 
     // We have to return: log( p( θ_new )) - log( p( θ_old ))
-    return kde.logpdf(this->graph[this->previous_theta.first].theta) -
-           kde.logpdf(this->previous_theta.second);
+    //    return kde.logpdf(this->graph[this->previous_theta.first].theta) -
+    //           kde.logpdf(this->previous_theta.second);
+    return this->graph[get<0>(this->previous_theta)].logpdf_theta -
+           get<2>(this->previous_theta);
   }
   else {
     if (this->generated_concept == -1) {
@@ -330,12 +461,15 @@ void AnalysisGraph::revert_back_to_previous_state() {
 
   if (this->coin_flip < this->coin_flip_thresh) {
     // A θ has been sampled
-    this->graph[this->previous_theta.first].theta = this->previous_theta.second;
+    EdgeDescriptor perturbed_edge = get<0>(this->previous_theta);
+
+    this->graph[perturbed_edge].set_theta(get<1>(this->previous_theta));
+    this->graph[perturbed_edge].logpdf_theta = get<2>(this->previous_theta);
 
     // Reset the transition matrix cells that were changed
     // TODO: Can we change the transition matrix only when the sample is
     // accepted?
-    this->update_transition_matrix_cells(this->previous_theta.first);
+    this->update_transition_matrix_cells(perturbed_edge);
   }
   else {
     // A derivative  has been sampled
@@ -379,4 +513,30 @@ void AnalysisGraph::set_res(size_t res) {
 
 size_t AnalysisGraph::get_res() {
     return this->res;
+}
+
+void AnalysisGraph::check_multithreading() {
+    #ifdef _OPENMP
+        std::cout << "Compiled with OpenMP\n";
+        std::cout << "Maximum number of threads: " << omp_get_max_threads()
+                  << endl;
+        #pragma omp parallel
+            {
+                int n_threads = omp_get_num_threads();
+                int tid = omp_get_thread_num();
+                if (tid == 0) {
+                    printf("%d Threads created\n", n_threads);
+                }
+                printf("Thread - %d\n", tid);
+            }
+    #else
+        std::cout << "Compiled **without** OpenMP\n";
+    #endif
+
+    #ifdef MULTI_THREADING
+        std::cout << "Computing matrix exponential for different gaps in parallel\n";
+        cout << "\nMaximum number of hardware threads run parallelly: " << thread::hardware_concurrency() << endl;
+    #else
+        std::cout << "Computing matrix exponential for different gaps sequentially\n";
+    #endif
 }

@@ -10,9 +10,18 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(Boost_NO_BOOST_CMAKE ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden")
+    "${CMAKE_CXX_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden -pthread -g")
 
 find_package(Graphviz)
+
+# Add MacOs Boost directories
+SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "/opt/local/libexec/boost/1.76/include/boost")
+SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "/opt/local/libexec/boost/1.76/lib")
+
+#find_package(OpenMP)
+
+# Disable multi-threading in Eigen as it significantly slows down matrix exponential calculation
+add_definitions(-DEIGEN_DONT_PARALLELIZE)
 
 # Add and link pybind11 modules
 find_package(Boost COMPONENTS graph program_options REQUIRED)
@@ -21,6 +30,22 @@ find_package(range-v3 REQUIRED)
 find_package(Eigen3 REQUIRED NO_MODULE)
 find_package(fmt REQUIRED)
 find_package(nlohmann_json REQUIRED)
+
+# To micro benchmark the MCMC loop compile as:
+# cmake -DTIME=ON ..
+option(TIME "Micro benchmark the MCMC loop" OFF)
+if (TIME)
+    add_definitions(-DTIME)
+    message(STATUS "Timing - on")
+endif()
+
+# To turn on and off multithreading compile as:
+# cmake -DMULTI_THREADING=OFF ..
+option(MULTI_THREADING "Turning on multithreading" ON)
+if (MULTI_THREADING)
+    add_definitions(-DMULTI_THREADING)
+    message(STATUS "Multithreading - on")
+endif()
 
 option(BUILD_PYTHON_BINDINGS "Build Python bindings" ON)
 
@@ -64,7 +89,9 @@ add_library(Delphi
   lib/database.cpp
   lib/DatabaseHelper.cpp
   lib/head_nodes.cpp
-)
+  lib/TrainingStatus.cpp
+  lib/profiler.cpp
+  lib/CSVWriter.hpp)
 
 target_link_libraries(Delphi
                       PRIVATE ${Boost_LIBRARIES}
@@ -75,6 +102,9 @@ target_link_libraries(Delphi
                               ${GRAPHVIZ_LIBS})
 target_link_libraries(Delphi INTERFACE range-v3)
 target_include_directories(Delphi PRIVATE ${GRAPHVIZ_INCLUDE_DIRS} lib external)
+#if(OpenMP_CXX_FOUND)
+#    target_link_libraries(Delphi PUBLIC OpenMP::OpenMP_CXX)
+#endif()
 
 if(BUILD_PYTHON_BINDINGS)
 
@@ -114,6 +144,19 @@ add_executable(timer
         lib/CSVWriter.hpp)
 target_link_libraries(timer PRIVATE Delphi Eigen3::Eigen ${Boost_LIBRARIES})
 target_include_directories(timer PRIVATE ${Boost_INCLUDE_DIR} lib external ${GRAPHVIZ_INCLUDE_DIRS})
+
+## Matirx Exponential Timer program
+add_executable(mat_exp_timer
+        apps/mat_exp_timer.cpp
+        lib/Timer.hpp
+        lib/CSVWriter.hpp)
+target_link_libraries(mat_exp_timer PRIVATE Delphi Eigen3::Eigen ${Boost_LIBRARIES})
+target_include_directories(mat_exp_timer PRIVATE ${Boost_INCLUDE_DIR} lib external ${GRAPHVIZ_INCLUDE_DIRS})
+
+## Program to check whether Delphi is compiled with OpenMP
+add_executable(check_multithreading apps/check_multithreading.cpp)
+target_link_libraries(check_multithreading PRIVATE Delphi Eigen3::Eigen ${Boost_LIBRARIES})
+target_include_directories(check_multithreading PRIVATE ${Boost_INCLUDE_DIR} lib external ${GRAPHVIZ_INCLUDE_DIRS})
 
 # Build the REST API program
 add_executable(delphi_rest_api apps/delphi_rest_api.cpp)

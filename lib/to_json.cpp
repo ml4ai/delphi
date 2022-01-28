@@ -41,7 +41,7 @@ string AnalysisGraph::to_json_string(int indent) {
   return j.dump(indent);
 }
 
-string AnalysisGraph::serialize_to_json_string(bool verbose) {
+string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
     nlohmann::json j;
     j["id"] = this->id;
 
@@ -151,9 +151,14 @@ string AnalysisGraph::serialize_to_json_string(bool verbose) {
         if (verbose) {
             j["edges"].push_back({{"source",name_to_vertex.at(source.name)},
                                 {"target", name_to_vertex.at(target.name)},
-                                {"kernels", this->edge(e).kde.dataset},
+                                {"kernels", compact ? vector<double>()
+                                                    : this->edge(e).kde.dataset},
                                 {"evidence", evidence},
-                                {"thetas", this->edge(e).sampled_thetas}});
+                                {"thetas", this->edge(e).sampled_thetas},
+                                {"log_prior_hist",
+                                   compact ? vector<double>()
+                                           : this->edge(e).kde.log_prior_hist},
+                                {"n_bins", this->edge(e).kde.n_bins}});
         }
         else {
             // This is a more compressed version of edges. We do not utilize space
@@ -161,9 +166,13 @@ string AnalysisGraph::serialize_to_json_string(bool verbose) {
             // might be able to go for this.
             j["edges"].push_back(make_tuple(name_to_vertex.at(source.name),
                                             name_to_vertex.at(target.name),
-                                            this->edge(e).kde.dataset,
                                             evidence,
-                                            this->edge(e).sampled_thetas));
+                                            this->edge(e).sampled_thetas,
+                                            compact ? vector<double>()
+                                                : this->edge(e).kde.dataset,
+                                            compact ? vector<double>()
+                                                : this->edge(e).kde.log_prior_hist,
+                                            this->edge(e).kde.n_bins));
         }
     }
 
