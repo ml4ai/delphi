@@ -16,6 +16,14 @@ using json = nlohmann::json;
 /* write out the status as a string for the database */
 json ExperimentStatus::compose_status() {
   json status;
+  if (ag != nullptr) {
+    string experiment_id = ag->get_experiment_id();
+    if(!experiment_id.empty()) {
+      status[COL_ID] = experiment_id;
+      status[STATUS_PROGRESS] =
+        delphi::utils::round_n(ag->get_experiment_progress(), 2);
+    }
+  }
   return status;
 }
 
@@ -23,5 +31,25 @@ json ExperimentStatus::compose_status() {
 #include "BaseStatus.hpp"
 void ExperimentStatus::update_db() {
   logInfo("update_db()");
+  string experiment_id = ag->get_experiment_id();
+  set_status(experiment_id, compose_status());
+}
+
+/* Return the training progress for this model */
+json ExperimentStatus::get_experiment_progress(string experiment_id) {
+
+  json result = get_status(experiment_id);
+  json ret;
+
+  if(result.empty()) {
+    ret[COL_ID] = experiment_id;
+    ret[COL_STATUS] = "Invalid experiment ID";
+  } else {
+    string statusString = result[COL_STATUS];
+    json status = json::parse(statusString);
+    ret[STATUS_PROGRESS] = status[STATUS_PROGRESS];
+  }
+
+  return ret;
 }
 

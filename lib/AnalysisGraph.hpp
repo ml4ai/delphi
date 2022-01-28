@@ -1193,7 +1193,13 @@ class AnalysisGraph {
                           create-experiment
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+  std::string experiment_id="not_set";
+
+  void set_experiment_progress(double progress){experiment_progress = progress;}
   double get_experiment_progress(){return experiment_progress;}
+
+  void set_experiment_id(std::string id){experiment_id = id;}
+  std::string get_experiment_id(){return experiment_id;}
 
   FormattedProjectionResult
   run_causemos_projection_experiment_from_json_string(std::string json_string);

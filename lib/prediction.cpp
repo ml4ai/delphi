@@ -30,9 +30,9 @@ void AnalysisGraph::generate_latent_state_sequences(
 
   // configure monitoring of experiment progress
   ExperimentStatus es;
-  es.start_updating_db(this);
   double progress_step = 0.01;  // 100 sample steps
-  this->experiment_progress = 0;
+  this->set_experiment_progress(0);
+  es.start_updating_db(this);
 
 
   cout << "\nPredicting for " << this->pred_timesteps << " time steps..." << endl;
@@ -249,11 +249,11 @@ void AnalysisGraph::generate_latent_state_sequences(
           }
       }
       // update experiment progress
-      this-> experiment_progress += progress_step;
+      this->set_experiment_progress(this->get_experiment_progress() + progress_step);
   }
 
    // finalize experiment progress monitoring
-   this->experiment_progress= 1.0;
+   this->set_experiment_progress(1.0);
    es.stop_updating_db();
 }
 

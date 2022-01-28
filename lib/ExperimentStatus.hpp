@@ -33,7 +33,8 @@ class ExperimentStatus : public BaseStatus {
     ){}
     ~ExperimentStatus(){}
     void update_db();
-    json get_projection_response(string experimentId);
+    json get_experiment_progress(string experimentId);
+//    json get_projection_response(string experimentId);
 
     const string TABLE_NAME = "experiment_status";
     const string STATUS_EXPERIMENT_ID = "experimentId"; // API

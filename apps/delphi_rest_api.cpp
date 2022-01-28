@@ -322,7 +322,6 @@ int main(int argc, const char* argv[]) {
                                              sampling_resolution,
                                              burn);
                 executor_create_model.detach();
-                cout << "Training model " << modelId << endl;
             }
             catch (std::exception& e) {
                 cout << "Error: unable to start training process" << endl;
@@ -357,6 +356,7 @@ int main(int argc, const char* argv[]) {
         .get([&sqlite3DB](served::response& res, const served::request& req) {
             string modelId = req.params["modelId"];
             string experimentId = req.params["experimentId"];
+	    ExperimentStatus es;
 
             json query_result =
                 sqlite3DB->select_causemosasyncexperimentresult_row(
@@ -373,6 +373,9 @@ int main(int argc, const char* argv[]) {
                 return;
             }
 
+	    // get the progress percentage from experiment status
+	    json progress = es.get_experiment_progress(experimentId);
+
             string resultstr = query_result["results"];
             json results = json::parse(resultstr);
 
@@ -381,8 +384,11 @@ int main(int argc, const char* argv[]) {
             output["experimentId"] = experimentId;
             output["experimentType"] = query_result["experimentType"];
             output["status"] = query_result["status"];
-            //            output["progressPercentage"] = "Not yet implemented";
             output["results"] = results["data"];
+
+	    if(!progress.empty()) {
+              output[es.STATUS_PROGRESS] = progress[es.STATUS_PROGRESS];
+	    }
 
             res << output.dump();
         });
@@ -396,6 +402,7 @@ int main(int argc, const char* argv[]) {
         .post([&sqlite3DB](served::response& res, const served::request& req) {
             auto request_body = nlohmann::json::parse(req.body());
             string modelId = req.params["modelId"]; // should catch if not found
+	    ExperimnentStatus es;
 
             json query_result = sqlite3DB->select_delphimodel_row(modelId);
             if (query_result.empty()) {

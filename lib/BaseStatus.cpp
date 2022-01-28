@@ -8,6 +8,8 @@
 #include <chrono>
 #include <nlohmann/json.hpp>
 
+#define DEBUG  // define this to see info and error messages
+
 using namespace std;
 using namespace delphi::utils;
 using json = nlohmann::json;
@@ -37,6 +39,7 @@ void BaseStatus::start_updating_db(AnalysisGraph *ag){
 /* Stop posting training status updates to the database */
 void BaseStatus::stop_updating_db(){
   logInfo("stop_updating_db()");
+  update_db();
     if (pThread != nullptr)
     {
         if(pThread->joinable()) {
@@ -116,10 +119,14 @@ string BaseStatus::timestamp() {
 
 /* Report a message to stdout */
 void BaseStatus::logInfo(string text) {
+#ifdef DEBUG
   cout << timestamp() << " " << class_name << " INFO: " << text << endl;
+#endif
 }
 
 /* Report an error to stderr */
 void BaseStatus::logError(string text) {
+#ifdef DEBUG
   cerr << timestamp() << " " << class_name << " ERROR: " << text << endl;
+#endif
 }
