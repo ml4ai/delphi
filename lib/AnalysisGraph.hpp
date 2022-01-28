@@ -281,8 +281,9 @@ class AnalysisGraph {
    ============================================================================
   */
 
-  // keep track of training progress
+  // keep track of model training and experiment progress
   float training_progress = 0.0;  // Range is [0.0, 1.0]
+  float experiment_progress = 0.0;  // Range is [0.0, 1.0]
 
   // Used to check whether there is a trained model before calling
   // generate_prediction()
@@ -1153,12 +1154,12 @@ class AnalysisGraph {
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                             training-progress
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-  float get_training_progress();
-  bool get_trained();
-  bool get_stopped();
-  double get_log_likelihood();
-  double get_previous_log_likelihood();
-  double get_log_likelihood_MAP();
+  double get_training_progress(){ return training_progress;}
+  bool get_trained(){ return trained; }
+  bool get_stopped() { return stopped; }
+  double get_log_likelihood(){ return log_likelihood; }
+  double get_previous_log_likelihood(){ return previous_log_likelihood; }
+  double get_log_likelihood_MAP(){ return log_likelihood_MAP; }
 
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                             create-model
@@ -1191,6 +1192,8 @@ class AnalysisGraph {
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                           create-experiment
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+  double get_experiment_progress(){return experiment_progress;}
 
   FormattedProjectionResult
   run_causemos_projection_experiment_from_json_string(std::string json_string);

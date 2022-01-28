@@ -1,4 +1,5 @@
 #include "AnalysisGraph.hpp"
+#include "ExperimentStatus.hpp"
 #include <range/v3/all.hpp>
 #include <unsupported/Eigen/MatrixFunctions>
 #include <boost/range/adaptors.hpp>
@@ -26,7 +27,16 @@ void AnalysisGraph::generate_latent_state_sequences(
       this->res,
       vector<VectorXd>(this->pred_timesteps, VectorXd(this->num_vertices() * 2)));
 
+
+  // configure monitoring of experiment progress
+  ExperimentStatus es;
+  es.start_updating_db(this);
+  double progress_step = 0.01;  // 100 sample steps
+  this->experiment_progress = 0;
+
+
   cout << "\nPredicting for " << this->pred_timesteps << " time steps..." << endl;
+
   for (int samp : tq::trange(this->res)) {
       // The sampled transition matrices would be either of matrix exponential
       // (continuous) version or discretized version depending on whether the
@@ -238,8 +248,15 @@ void AnalysisGraph::generate_latent_state_sequences(
               }
           }
       }
+      // update experiment progress
+      this-> experiment_progress += progress_step;
   }
+
+   // finalize experiment progress monitoring
+   this->experiment_progress= 1.0;
+   es.stop_updating_db();
 }
+
 
 /*
  * Applying constraints (interventions) to latent states

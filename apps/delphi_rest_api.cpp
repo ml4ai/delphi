@@ -1,6 +1,7 @@
 #include "AnalysisGraph.hpp"
 #include "DatabaseHelper.hpp"
-#include "TrainingStatus.hpp"
+#include "ModelStatus.hpp"
+#include "ExperimentStatus.hpp"
 #include <assert.h>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/program_options.hpp>
@@ -93,6 +94,7 @@ class Experiment {
             result["status"] = "failed";
         else {
             result["status"] = "completed";
+	    result["progressPercentage"] = G.get_experiment_progress();
             vector<double> timesteps_nparr =
                 linspace(startTime, endTime, numTimesteps);
             unordered_map<string, vector<string>> res_data;
@@ -238,10 +240,12 @@ int main(int argc, const char* argv[]) {
 
     Database* sqlite3DB = new Database();
     Experiment* experiment = new Experiment();
-    TrainingStatus ts;
     served::multiplexer mux;
+    ModelStatus ms;
+    ExperimentStatus es;
 
-    ts.init_db();
+    ms.init_db();
+    es.init_db();
 
     // report status on startup
     cout << systemStatus << endl;
@@ -447,37 +451,16 @@ int main(int argc, const char* argv[]) {
     /* openApi 3.0.0
      * Query the training progress for a model.
      */
-    mux.handle("/models/{modelId}/training-progress")
-        .get([&sqlite3DB](served::response& res, const served::request& req) {
-            TrainingStatus ts;
+    mux.handle("/models/{modelId}/training-progress").get([&sqlite3DB](
+        served::response& res,
+        const served::request& req
+    ){
+        ModelStatus ms(sqlite3DB);
+        string modelId = req.params["modelId"];
+        json ret = ms.get_training_progress_response(modelId);
+        res << ret.dump();
+    });
 
-            string modelId = req.params["modelId"]; // should catch missing
-            string query_return = ts.read_from_db(modelId);
-
-            if (query_return.empty()) {
-                json error;
-                error["id"] = modelId;
-                error["status"] = "No training status data found";
-                res << error.dump();
-                return;
-            }
-
-            json cols = json::parse(query_return);
-            string status = cols["status"];
-
-            // contains full debug struct
-            json output = json::parse(status);
-
-            // the API only calls for the training status value, so really this
-            // should only be the value itself, e.g.
-            // output["progressPercentage"].dump(), but the specification also
-            // calls for application/json content, so we send a JSON structure
-            // with only that field.
-            json foo;
-            foo["progressPercentage"] = output["progressPercentage"];
-
-            res << foo.dump();
-        });
 
     /* openApi 3.0.0
      * Post edge indicators for this model
@@ -529,23 +512,6 @@ int main(int argc, const char* argv[]) {
             res << result.dump();
         });
 
-    mux.handle("/models/{modelId}/training-stop")
-        .get([&sqlite3DB](served::response& res, const served::request& req) {
-            TrainingStatus ts;
-            string modelId = req.params["modelId"]; // should catch missing
-
-            string query_return = ts.stop_training(modelId);
-
-            if (query_return.empty()) {
-                json error;
-                error["id"] = modelId;
-                error["status"] = "No training status data found";
-                res << error.dump();
-                return;
-            }
-
-            res << query_return;
-        });
 
     /* openApi 3.0.0
      * Get the status of an existing model
