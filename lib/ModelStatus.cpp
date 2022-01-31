@@ -41,7 +41,7 @@ void ModelStatus::update_db() {
 
 /* Return the training progress for this model */
 json ModelStatus::get_training_progress_response(string modelId) {
-
+  logInfo("get_training_progress_response");
   json result = get_status(modelId);
   json ret;
 
@@ -49,11 +49,10 @@ json ModelStatus::get_training_progress_response(string modelId) {
     ret[COL_ID] = modelId;
     ret[COL_STATUS] = "Invalid model ID";
   } else {
-    string statusString = result[COL_STATUS];
-    json status = json::parse(statusString);
-    ret[STATUS_PROGRESS] = status[STATUS_PROGRESS];
+    ret[STATUS_PROGRESS] = result[STATUS_PROGRESS];
   }
 
+  logInfo("  " + ret.dump());
   return ret;
 }
 
