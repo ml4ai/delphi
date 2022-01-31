@@ -15,8 +15,7 @@ using namespace delphi::utils;
 using json = nlohmann::json;
 
 /* Start the thread that posts the status to the datbase */
-void BaseStatus::scheduler()
-{
+void BaseStatus::scheduler() {
   logInfo("scheduler()");
   while(!done_updating_db()){
     this_thread::sleep_for(std::chrono::seconds(1));
@@ -36,21 +35,20 @@ void BaseStatus::start_updating_db(AnalysisGraph *ag){
   }
 }
 
-/* Stop posting training status updates to the database */
+/* Stop posting progress updates to the database */
 void BaseStatus::stop_updating_db(){
   logInfo("stop_updating_db()");
   update_db();
-    if (pThread != nullptr)
-    {
-        if(pThread->joinable()) {
-            pThread->join();
-	}
-        delete pThread;
+  if (pThread != nullptr) {
+    if(pThread->joinable()) {
+      pThread->join();
     }
-    pThread = nullptr;
+    delete pThread;
+  }
+  pThread = nullptr;
 }
 
-/* write the model training status to the database */
+/* write the progress status to the database */
 void BaseStatus::set_status(string id, json status) {
   string statusStr = status.dump();
   string info = "set_status(" + id + ", " + statusStr + ")";
@@ -67,12 +65,15 @@ void BaseStatus::set_status(string id, json status) {
   insert(query);
 }
 
-/* Return a JSON struct serialized from the query result row */
+/* Return a JSON struct serialized from the 'status' query result row */
 json BaseStatus::get_status(string id) {
   string info = "get_status(" + id + ")";
   logInfo(info);
   json result = database->select_row(table_name, id, COL_STATUS);
-  return result;
+  string statusString = result[COL_STATUS];
+  json status = json::parse(statusString);
+  logInfo("  " + status.dump());
+  return status;
 }
 
 /* create the table if we need it.  */
