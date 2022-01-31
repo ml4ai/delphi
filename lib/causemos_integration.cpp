@@ -955,3 +955,47 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_file(
         return FormattedProjectionResult();
     }
 }
+
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                  edit-weights
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/**
+   *
+   * @param source Source concept name
+   * @param target Target concept name
+   * @param scaled_weight A value in the range [-1, 1]. Sign of the value
+   *               indicate the polarity. Delphi edge weights are angles
+   *               in the range [0, π]. Values in the range ]0, π/2[ represent
+   *               positive polarities and values in the range ]π/2, π[
+   *               represent negative polarities.
+   * @return true if freezing the edge is successful
+   *         false otherwise
+ */
+bool AnalysisGraph::freeze_edge_weight(std::string source_name,
+                                       std::string target_name,
+                                       double scaled_weight) {
+    if (scaled_weight < -1 || scaled_weight > 1) {
+        return false;
+    }
+
+    int source_id = this->add_node(source_name);
+    int target_id = this->add_node(target_name);
+
+    pair<EdgeDescriptor, bool> edg = boost::edge(source_id, target_id,
+                                                         this->graph);
+
+    if (!edg.second) {
+        // There is no edge from source concept to target concept
+        return false;
+    }
+
+    double theta = scaled_weight * M_PI_2;
+    theta = scaled_weight >= 0 ? theta : M_PI + theta;
+
+    this->graph[edg.first].set_theta(theta);
+    this->graph[edg.first].freeze();
+
+    return true;
+}
