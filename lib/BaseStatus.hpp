@@ -11,15 +11,14 @@ using json = nlohmann::json;
 class BaseStatus {
 
   private:
+    Database* database = nullptr;
     void insert(string query);
     string table_name = "N/A";
     string class_name = "N/A";
 
   protected:
-    Database* database = nullptr;
     virtual json compose_status() = 0;
     virtual bool done_updating_db() = 0;
-    json get_status(string id);
 
     void scheduler();
     void logInfo(string message);
@@ -40,6 +39,7 @@ class BaseStatus {
   public:
     virtual void update_db() = 0;
     void init_db();
+    json get_status(string id);
     void set_status(string id, json status);
     void start_updating_db(AnalysisGraph* ag);
     void stop_updating_db();
