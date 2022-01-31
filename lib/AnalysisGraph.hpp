@@ -1060,6 +1060,15 @@ class AnalysisGraph {
       std::string node_to_highlight = "",
       std::string rankdir = "TB");
 
+  /*
+   ============================================================================
+   Private: Fourier decomposition based seasonal head node model (in fourier.cpp)
+   ============================================================================
+  */
+
+  void partition_data_according_to_period(int hn_id, std::vector<double> &mean_sequence,
+                                          std::vector<int> &ts_sequence);
+
   public:
   AnalysisGraph() {
      one_off_constraints.clear();
