@@ -1,0 +1,66 @@
+#!/bin/bash
+
+# Author: Joseph Astier
+
+# Test the model training
+
+inputFile=$1
+login="-u me:ivilab4fun"
+url=$(./get_delphi_url)
+
+# make sure user entered a filename
+if [[ $inputFile == "" ]]; then
+    echo "Please specify a Delphi model filename."
+    echo "Usage: $0 filename"
+    exit 1
+fi
+
+# make sure the input is a regular file and it exists
+if test -f "$inputFile"; then
+    echo "Reading input file $inputFile" 
+else
+    echo "Could not read input file $inputFile"
+    exit 1
+fi
+
+# make sure file has an "id" JSON field
+modelId=$('jq' -r '.id' < $inputFile)
+if [[ $modelId == "null" ]]; then
+    echo "please specify an input file with a valid 'id' field"
+    exit 1
+fi
+
+# create the model
+echo "Creating model: $modelId"
+modelCreateEndpoint="/create-model"
+modelCreateCall="curl -s $login -X POST $url$modelCreateEndpoint -d @$inputFile"
+modelCreateResponse=$($modelCreateCall)
+echo $modelCreateResponse | jq
+
+
+# check the modek training status until it is complete
+progressPercentage=0
+echo "Checking training status for model: $modelId"
+trainingStatusEndpoint="/models/$modelId/training-progress"
+trainingStatusCall="curl -s $login $url$trainingStatusEndpoint"
+#echo "Call:"
+#echo $trainingStatusCall
+echo "t (s),	progress"
+for i in {0..1000}
+do
+    trainingStatusResponse=$($trainingStatusCall)
+#    echo "Response:"
+#    echo $trainingStatusResponse
+
+    progressPercentage=$(printf $trainingStatusResponse | jq '.progressPercentage')
+    echo "$i	$progressPercentage"
+
+    if [[ $progressPercentage == "1" ]]; then
+        break
+    fi
+
+    sleep 1
+done
+
+echo "Done"
+
