@@ -8,7 +8,7 @@
 #include <chrono>
 #include <nlohmann/json.hpp>
 
-#define DEBUG  // define this to see info and error messages
+#define SHOW_LOGS  // define this to see info and error messages
 
 using namespace std;
 using namespace delphi::utils;
@@ -120,14 +120,14 @@ string BaseStatus::timestamp() {
 
 /* Report a message to stdout */
 void BaseStatus::logInfo(string text) {
-#ifdef DEBUG
+#ifdef SHOW_LOGS
   cout << timestamp() << " " << class_name << " INFO: " << text << endl;
 #endif
 }
 
 /* Report an error to stderr */
 void BaseStatus::logError(string text) {
-#ifdef DEBUG
+#ifdef SHOW_LOGS
   cerr << timestamp() << " " << class_name << " ERROR: " << text << endl;
 #endif
 }
