@@ -851,6 +851,7 @@ string AnalysisGraph::generate_create_model_response() {
     using nlohmann::json, ranges::max;
 
     json j;
+    j["id"] = this->id;
     j["status"] = this->trained? "ready" : "training";
     j["relations"] = {};
     j["conceptIndicators"] = {};
