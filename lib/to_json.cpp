@@ -149,8 +149,8 @@ string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
                               {obj.adjective, obj.polarity, obj.concept_name}};
         }
         if (verbose) {
-            j["edges"].push_back({{"source",name_to_vertex.at(source.name)},
-                                {"target", name_to_vertex.at(target.name)},
+            j["edges"].push_back({{"source", source.name},
+                                {"target", target.name},
                                 {"kernels", compact ? vector<double>()
                                                     : this->edge(e).kde.dataset},
                                 {"evidence", evidence},
@@ -158,7 +158,9 @@ string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
                                 {"log_prior_hist",
                                    compact ? vector<double>()
                                            : this->edge(e).kde.log_prior_hist},
-                                {"n_bins", this->edge(e).kde.n_bins}});
+                                {"n_bins", this->edge(e).kde.n_bins},
+                                {"theta", this->edge(e).get_theta()},
+                                {"is_frozen", this->edge(e).is_frozen()}});
         }
         else {
             // This is a more compressed version of edges. We do not utilize space
@@ -172,7 +174,9 @@ string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
                                                 : this->edge(e).kde.dataset,
                                             compact ? vector<double>()
                                                 : this->edge(e).kde.log_prior_hist,
-                                            this->edge(e).kde.n_bins));
+                                            this->edge(e).kde.n_bins,
+                                            this->edge(e).get_theta(),
+                                            this->edge(e).is_frozen()));
         }
     }
 
