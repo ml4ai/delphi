@@ -874,8 +874,9 @@ string AnalysisGraph::generate_create_model_response() {
         json edge_json = {{"source", this->source(e).name},
                           {"target", this->target(e).name},
                           {"weights", this->trained
-                                          ? this->graph[e].sampled_thetas
-                                          : vector<double>{0.5}}};
+                             ? vector<double>{(mean(this->graph[e].sampled_thetas)
+                                                            + M_PI_2) * M_2_PI - 1}
+                             : vector<double>{0.5}}};
 
         j["relations"].push_back(edge_json);
     }
@@ -1009,10 +1010,7 @@ unsigned short AnalysisGraph::freeze_edge_weight(std::string source_name,
         return 8;
     }
 
-    double theta = scaled_weight * M_PI_2;
-    if (polarity < 0) {
-        theta = M_PI - theta;
-    }
+    double theta = polarity / abs(polarity) * scaled_weight * M_PI_2;
 
     this->graph[edg.first].set_theta(theta);
     this->graph[edg.first].freeze();
