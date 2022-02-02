@@ -361,6 +361,32 @@ int main(int argc, const char* argv[]) {
             return dumpStr;
         }
 	string modelId = model_data[ms.COL_ID];
+	cout << "create-model with model_id " <<  modelId << endl;
+
+	// Do not overwrite an existing model if it is still training
+	json model_status = ms.get_status(modelId);
+	if(!model_status.empty()) {
+          bool trained = model_status[ms.STATUS_TRAINED];
+	  if(!trained) {
+            // If the existing model has not completed training, advise
+            // the user and report the progress so far.
+            double progress = model_status[ms.STATUS_PROGRESS];
+            char buf[200];
+	    sprintf(buf, "%3.2f", progress);
+	    string report = 
+              "An existing model with this ID is still training, "
+              + ms.STATUS_PROGRESS 
+	      + " = "
+	      + string(buf);
+
+	    json ret;
+	    ret[ms.STATUS_MODEL_ID] = modelId;
+	    ret[ms.STATUS_STATUS] = report;
+	    string dumpStr = ret.dump();
+            response << dumpStr;
+            return dumpStr;
+	  }
+	}
 
         /*
          If neither "CI" or "DELPHI_N_SAMPLES" is set, we default to a
