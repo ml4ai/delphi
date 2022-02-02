@@ -970,8 +970,11 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_file(
    *               represents positive polarities and values in the range
    *               ]π/2, π[ represents negative polarities.
    * @param polarity Polarity of the edge. Should be either 1 or -1.
-   * @return true if freezing the edge is successful
-   *         false otherwise
+   * @return 0 freezing the edge is successful
+   *         1 scaled_weight outside accepted range
+   *         2 Source concept does not exist
+   *         4 Target concept does not exist
+   *         8 Edge does not exist
  */
 unsigned short AnalysisGraph::freeze_edge_weight(std::string source_name,
                                        std::string target_name,
