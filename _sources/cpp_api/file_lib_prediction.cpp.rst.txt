@@ -31,6 +31,8 @@ Includes
 
 - ``AnalysisGraph.hpp`` (:ref:`file_lib_AnalysisGraph.hpp`)
 
+- ``ExperimentStatus.hpp`` (:ref:`file_lib_ExperimentStatus.hpp`)
+
 - ``boost/range/adaptors.hpp``
 
 - ``range/v3/all.hpp``

@@ -31,7 +31,7 @@ Includes
 
 - ``AnalysisGraph.hpp`` (:ref:`file_lib_AnalysisGraph.hpp`)
 
-- ``TrainingStatus.hpp`` (:ref:`file_lib_TrainingStatus.hpp`)
+- ``ModelStatus.hpp`` (:ref:`file_lib_ModelStatus.hpp`)
 
 - ``data.hpp`` (:ref:`file_lib_data.hpp`)
 

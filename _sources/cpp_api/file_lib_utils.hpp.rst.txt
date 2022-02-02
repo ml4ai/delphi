@@ -53,19 +53,23 @@ Included By
 
 - :ref:`file_lib_Edge.hpp`
 
+- :ref:`file_lib_BaseStatus.cpp`
+
 - :ref:`file_lib_causemos_integration.cpp`
 
 - :ref:`file_lib_constructors.cpp`
 
 - :ref:`file_lib_data.cpp`
 
+- :ref:`file_lib_ExperimentStatus.cpp`
+
+- :ref:`file_lib_ModelStatus.cpp`
+
 - :ref:`file_lib_profiler.cpp`
 
 - :ref:`file_lib_sandbox.cpp`
 
 - :ref:`file_lib_subgraphs.cpp`
-
-- :ref:`file_lib_TrainingStatus.cpp`
 
 - :ref:`file_lib_utils.cpp`
 

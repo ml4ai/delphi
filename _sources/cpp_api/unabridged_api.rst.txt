@@ -58,6 +58,11 @@ Classes and Structs
 .. toctree::
    :maxdepth: 5
 
+   classBaseStatus.rst
+
+.. toctree::
+   :maxdepth: 5
+
    classConcept.rst
 
 .. toctree::
@@ -83,6 +88,11 @@ Classes and Structs
 .. toctree::
    :maxdepth: 5
 
+   classExperimentStatus.rst
+
+.. toctree::
+   :maxdepth: 5
+
    classGraphData.rst
 
 .. toctree::
@@ -104,6 +114,11 @@ Classes and Structs
    :maxdepth: 5
 
    classLatentVar.rst
+
+.. toctree::
+   :maxdepth: 5
+
+   classModelStatus.rst
 
 .. toctree::
    :maxdepth: 5
@@ -139,11 +154,6 @@ Classes and Structs
    :maxdepth: 5
 
    classTimer.rst
-
-.. toctree::
-   :maxdepth: 5
-
-   classTrainingStatus.rst
 
 .. toctree::
    :maxdepth: 5
@@ -469,6 +479,16 @@ Typedefs
 .. toctree::
    :maxdepth: 5
 
+   typedef_BaseStatus_8cpp_1ab701e3ac61a85b337ec5c1abaad6742d.rst
+
+.. toctree::
+   :maxdepth: 5
+
+   typedef_BaseStatus_8hpp_1ab701e3ac61a85b337ec5c1abaad6742d.rst
+
+.. toctree::
+   :maxdepth: 5
+
    typedef_database_8cpp_1ab701e3ac61a85b337ec5c1abaad6742d.rst
 
 .. toctree::
@@ -479,17 +499,27 @@ Typedefs
 .. toctree::
    :maxdepth: 5
 
+   typedef_ExperimentStatus_8cpp_1ab701e3ac61a85b337ec5c1abaad6742d.rst
+
+.. toctree::
+   :maxdepth: 5
+
+   typedef_ExperimentStatus_8hpp_1ab701e3ac61a85b337ec5c1abaad6742d.rst
+
+.. toctree::
+   :maxdepth: 5
+
+   typedef_ModelStatus_8cpp_1ab701e3ac61a85b337ec5c1abaad6742d.rst
+
+.. toctree::
+   :maxdepth: 5
+
+   typedef_ModelStatus_8hpp_1ab701e3ac61a85b337ec5c1abaad6742d.rst
+
+.. toctree::
+   :maxdepth: 5
+
    typedef_train__model_8cpp_1ab701e3ac61a85b337ec5c1abaad6742d.rst
-
-.. toctree::
-   :maxdepth: 5
-
-   typedef_TrainingStatus_8cpp_1ab701e3ac61a85b337ec5c1abaad6742d.rst
-
-.. toctree::
-   :maxdepth: 5
-
-   typedef_TrainingStatus_8hpp_1ab701e3ac61a85b337ec5c1abaad6742d.rst
 
 .. toctree::
    :maxdepth: 5

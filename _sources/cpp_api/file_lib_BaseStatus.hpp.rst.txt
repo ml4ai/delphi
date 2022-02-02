@@ -1,0 +1,69 @@
+
+.. _file_lib_BaseStatus.hpp:
+
+File BaseStatus.hpp
+===================
+
+|exhale_lsh| :ref:`Parent directory <dir_lib>` (``lib``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. contents:: Contents
+   :local:
+   :backlinks: none
+
+Definition (``lib/BaseStatus.hpp``)
+-----------------------------------
+
+
+.. toctree::
+   :maxdepth: 1
+
+   program_listing_file_lib_BaseStatus.hpp.rst
+
+
+
+
+
+Includes
+--------
+
+
+- ``DatabaseHelper.hpp`` (:ref:`file_lib_DatabaseHelper.hpp`)
+
+- ``nlohmann/json.hpp``
+
+- ``thread``
+
+
+
+Included By
+-----------
+
+
+- :ref:`file_lib_BaseStatus.cpp`
+
+- :ref:`file_lib_ExperimentStatus.cpp`
+
+- :ref:`file_lib_ExperimentStatus.hpp`
+
+- :ref:`file_lib_ModelStatus.cpp`
+
+- :ref:`file_lib_ModelStatus.hpp`
+
+
+
+
+Classes
+-------
+
+
+- :ref:`exhale_class_classBaseStatus`
+
+
+Typedefs
+--------
+
+
+- :ref:`exhale_typedef_BaseStatus_8hpp_1ab701e3ac61a85b337ec5c1abaad6742d`
+

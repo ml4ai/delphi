@@ -79,6 +79,7 @@
 <span id="program-listing-file-lib-prediction-cpp"></span><h1>Program Listing for File prediction.cpp<a class="headerlink" href="#program-listing-for-file-prediction-cpp" title="Permalink to this headline"></a></h1>
 <p>↰ <a class="reference internal" href="file_lib_prediction.cpp.html#file-lib-prediction-cpp"><span class="std std-ref">Return to documentation for file</span></a> (<code class="docutils literal notranslate"><span class="pre">lib/prediction.cpp</span></code>)</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;AnalysisGraph.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ExperimentStatus.hpp&quot;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;range/v3/all.hpp&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unsupported/Eigen/MatrixFunctions&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;boost/range/adaptors.hpp&gt;</span><span class="cp"></span>
@@ -106,7 +107,16 @@
 <span class="w">      </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">res</span><span class="p">,</span><span class="w"></span>
 <span class="w">      </span><span class="n">vector</span><span class="o">&lt;</span><span class="n">VectorXd</span><span class="o">&gt;</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_timesteps</span><span class="p">,</span><span class="w"> </span><span class="n">VectorXd</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">num_vertices</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="p">)));</span><span class="w"></span>
 
+
+<span class="w">  </span><span class="c1">// configure monitoring of experiment progress</span>
+<span class="w">  </span><span class="n">ExperimentStatus</span><span class="w"> </span><span class="n">es</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">progress_step</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.01</span><span class="p">;</span><span class="w">  </span><span class="c1">// 100 sample steps</span>
+<span class="w">  </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">set_experiment_progress</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">es</span><span class="p">.</span><span class="n">start_updating_db</span><span class="p">(</span><span class="k">this</span><span class="p">);</span><span class="w"></span>
+
+
 <span class="w">  </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Predicting for &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_timesteps</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; time steps...&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
+
 <span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">samp</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">tq</span><span class="o">::</span><span class="n">trange</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">res</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">      </span><span class="c1">// The sampled transition matrices would be either of matrix exponential</span>
 <span class="w">      </span><span class="c1">// (continuous) version or discretized version depending on whether the</span>
@@ -316,8 +326,15 @@
 <span class="w">              </span><span class="p">}</span><span class="w"></span>
 <span class="w">          </span><span class="p">}</span><span class="w"></span>
 <span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">      </span><span class="c1">// update experiment progress</span>
+<span class="w">      </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">set_experiment_progress</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">get_experiment_progress</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">progress_step</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">   </span><span class="c1">// finalize experiment progress monitoring</span>
+<span class="w">   </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">set_experiment_progress</span><span class="p">(</span><span class="mf">1.0</span><span class="p">);</span><span class="w"></span>
+<span class="w">   </span><span class="n">es</span><span class="p">.</span><span class="n">stop_updating_db</span><span class="p">();</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
+
 
 <span class="cm">/*</span>
 <span class="cm"> * Applying constraints (interventions) to latent states</span>

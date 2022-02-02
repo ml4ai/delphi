@@ -1,0 +1,13 @@
+.. _exhale_typedef_ModelStatus_8hpp_1ab701e3ac61a85b337ec5c1abaad6742d:
+
+Typedef json
+============
+
+- Defined in :ref:`file_lib_ModelStatus.hpp`
+
+
+Typedef Documentation
+---------------------
+
+
+.. doxygentypedef:: json

@@ -11,6 +11,7 @@ Program Listing for File prediction.cpp
 .. code-block:: cpp
 
    #include "AnalysisGraph.hpp"
+   #include "ExperimentStatus.hpp"
    #include <range/v3/all.hpp>
    #include <unsupported/Eigen/MatrixFunctions>
    #include <boost/range/adaptors.hpp>
@@ -38,7 +39,16 @@ Program Listing for File prediction.cpp
          this->res,
          vector<VectorXd>(this->pred_timesteps, VectorXd(this->num_vertices() * 2)));
    
+   
+     // configure monitoring of experiment progress
+     ExperimentStatus es;
+     double progress_step = 0.01;  // 100 sample steps
+     this->set_experiment_progress(0);
+     es.start_updating_db(this);
+   
+   
      cout << "\nPredicting for " << this->pred_timesteps << " time steps..." << endl;
+   
      for (int samp : tq::trange(this->res)) {
          // The sampled transition matrices would be either of matrix exponential
          // (continuous) version or discretized version depending on whether the
@@ -248,8 +258,15 @@ Program Listing for File prediction.cpp
                  }
              }
          }
+         // update experiment progress
+         this->set_experiment_progress(this->get_experiment_progress() + progress_step);
      }
+   
+      // finalize experiment progress monitoring
+      this->set_experiment_progress(1.0);
+      es.stop_updating_db();
    }
+   
    
    /*
     * Applying constraints (interventions) to latent states

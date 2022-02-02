@@ -1,0 +1,13 @@
+.. _exhale_typedef_ExperimentStatus_8cpp_1ab701e3ac61a85b337ec5c1abaad6742d:
+
+Typedef json
+============
+
+- Defined in :ref:`file_lib_ExperimentStatus.cpp`
+
+
+Typedef Documentation
+---------------------
+
+
+.. doxygentypedef:: json

@@ -1,0 +1,65 @@
+
+.. _file_lib_ExperimentStatus.hpp:
+
+File ExperimentStatus.hpp
+=========================
+
+|exhale_lsh| :ref:`Parent directory <dir_lib>` (``lib``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. contents:: Contents
+   :local:
+   :backlinks: none
+
+Definition (``lib/ExperimentStatus.hpp``)
+-----------------------------------------
+
+
+.. toctree::
+   :maxdepth: 1
+
+   program_listing_file_lib_ExperimentStatus.hpp.rst
+
+
+
+
+
+Includes
+--------
+
+
+- ``BaseStatus.hpp`` (:ref:`file_lib_BaseStatus.hpp`)
+
+- ``DatabaseHelper.hpp`` (:ref:`file_lib_DatabaseHelper.hpp`)
+
+- ``nlohmann/json.hpp``
+
+- ``thread``
+
+
+
+Included By
+-----------
+
+
+- :ref:`file_lib_ExperimentStatus.cpp`
+
+- :ref:`file_lib_prediction.cpp`
+
+
+
+
+Classes
+-------
+
+
+- :ref:`exhale_class_classExperimentStatus`
+
+
+Typedefs
+--------
+
+
+- :ref:`exhale_typedef_ExperimentStatus_8hpp_1ab701e3ac61a85b337ec5c1abaad6742d`
+

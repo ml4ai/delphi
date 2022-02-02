@@ -1,0 +1,65 @@
+
+.. _file_lib_ModelStatus.hpp:
+
+File ModelStatus.hpp
+====================
+
+|exhale_lsh| :ref:`Parent directory <dir_lib>` (``lib``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. contents:: Contents
+   :local:
+   :backlinks: none
+
+Definition (``lib/ModelStatus.hpp``)
+------------------------------------
+
+
+.. toctree::
+   :maxdepth: 1
+
+   program_listing_file_lib_ModelStatus.hpp.rst
+
+
+
+
+
+Includes
+--------
+
+
+- ``BaseStatus.hpp`` (:ref:`file_lib_BaseStatus.hpp`)
+
+- ``DatabaseHelper.hpp`` (:ref:`file_lib_DatabaseHelper.hpp`)
+
+- ``nlohmann/json.hpp``
+
+- ``thread``
+
+
+
+Included By
+-----------
+
+
+- :ref:`file_lib_ModelStatus.cpp`
+
+- :ref:`file_lib_train_model.cpp`
+
+
+
+
+Classes
+-------
+
+
+- :ref:`exhale_class_classModelStatus`
+
+
+Typedefs
+--------
+
+
+- :ref:`exhale_typedef_ModelStatus_8hpp_1ab701e3ac61a85b337ec5c1abaad6742d`
+

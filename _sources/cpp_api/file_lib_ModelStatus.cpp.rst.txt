@@ -1,8 +1,8 @@
 
-.. _file_lib_TrainingStatus.cpp:
+.. _file_lib_ModelStatus.cpp:
 
-File TrainingStatus.cpp
-=======================
+File ModelStatus.cpp
+====================
 
 |exhale_lsh| :ref:`Parent directory <dir_lib>` (``lib``)
 
@@ -12,14 +12,14 @@ File TrainingStatus.cpp
    :local:
    :backlinks: none
 
-Definition (``lib/TrainingStatus.cpp``)
----------------------------------------
+Definition (``lib/ModelStatus.cpp``)
+------------------------------------
 
 
 .. toctree::
    :maxdepth: 1
 
-   program_listing_file_lib_TrainingStatus.cpp.rst
+   program_listing_file_lib_ModelStatus.cpp.rst
 
 
 
@@ -31,11 +31,15 @@ Includes
 
 - ``AnalysisGraph.hpp`` (:ref:`file_lib_AnalysisGraph.hpp`)
 
+- ``BaseStatus.hpp`` (:ref:`file_lib_BaseStatus.hpp`)
+
 - ``DatabaseHelper.hpp`` (:ref:`file_lib_DatabaseHelper.hpp`)
 
-- ``TrainingStatus.hpp`` (:ref:`file_lib_TrainingStatus.hpp`)
+- ``ModelStatus.hpp`` (:ref:`file_lib_ModelStatus.hpp`)
 
 - ``chrono``
+
+- ``ctime``
 
 - ``nlohmann/json.hpp``
 
@@ -54,5 +58,5 @@ Typedefs
 --------
 
 
-- :ref:`exhale_typedef_TrainingStatus_8cpp_1ab701e3ac61a85b337ec5c1abaad6742d`
+- :ref:`exhale_typedef_ModelStatus_8cpp_1ab701e3ac61a85b337ec5c1abaad6742d`
 

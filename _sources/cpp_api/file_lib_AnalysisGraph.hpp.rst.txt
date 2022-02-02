@@ -61,6 +61,8 @@ Included By
 -----------
 
 
+- :ref:`file_lib_BaseStatus.cpp`
+
 - :ref:`file_lib_causemos_integration.cpp`
 
 - :ref:`file_lib_constructors.cpp`
@@ -68,6 +70,8 @@ Included By
 - :ref:`file_lib_database.cpp`
 
 - :ref:`file_lib_DelphiPython.cpp`
+
+- :ref:`file_lib_ExperimentStatus.cpp`
 
 - :ref:`file_lib_format_output.cpp`
 
@@ -82,6 +86,8 @@ Included By
 - :ref:`file_lib_head_nodes.cpp`
 
 - :ref:`file_lib_indicator_manipulation.cpp`
+
+- :ref:`file_lib_ModelStatus.cpp`
 
 - :ref:`file_lib_parameter_initialization.cpp`
 
@@ -102,8 +108,6 @@ Included By
 - :ref:`file_lib_to_json.cpp`
 
 - :ref:`file_lib_train_model.cpp`
-
-- :ref:`file_lib_TrainingStatus.cpp`
 
 
 

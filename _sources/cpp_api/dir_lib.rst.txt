@@ -12,6 +12,8 @@ Files
 -----
 
 - :ref:`file_lib_AnalysisGraph.hpp`
+- :ref:`file_lib_BaseStatus.cpp`
+- :ref:`file_lib_BaseStatus.hpp`
 - :ref:`file_lib_causemos_integration.cpp`
 - :ref:`file_lib_constructors.cpp`
 - :ref:`file_lib_CSVWriter.hpp`
@@ -24,6 +26,8 @@ Files
 - :ref:`file_lib_DiGraph.hpp`
 - :ref:`file_lib_Edge.hpp`
 - :ref:`file_lib_exceptions.hpp`
+- :ref:`file_lib_ExperimentStatus.cpp`
+- :ref:`file_lib_ExperimentStatus.hpp`
 - :ref:`file_lib_format_output.cpp`
 - :ref:`file_lib_graph_building.cpp`
 - :ref:`file_lib_graph_modification.cpp`
@@ -37,6 +41,8 @@ Files
 - :ref:`file_lib_indicator_manipulation.cpp`
 - :ref:`file_lib_KDE.cpp`
 - :ref:`file_lib_KDE.hpp`
+- :ref:`file_lib_ModelStatus.cpp`
+- :ref:`file_lib_ModelStatus.hpp`
 - :ref:`file_lib_Node.hpp`
 - :ref:`file_lib_parameter_initialization.cpp`
 - :ref:`file_lib_prediction.cpp`
@@ -54,8 +60,6 @@ Files
 - :ref:`file_lib_Timer.hpp`
 - :ref:`file_lib_to_json.cpp`
 - :ref:`file_lib_train_model.cpp`
-- :ref:`file_lib_TrainingStatus.cpp`
-- :ref:`file_lib_TrainingStatus.hpp`
 - :ref:`file_lib_Tran_Mat_Cell.cpp`
 - :ref:`file_lib_Tran_Mat_Cell.hpp`
 - :ref:`file_lib_utils.cpp`

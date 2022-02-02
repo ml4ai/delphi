@@ -358,8 +358,9 @@
 <span class="cm">   ============================================================================</span>
 <span class="cm">  */</span><span class="w"></span>
 
-<span class="w">  </span><span class="c1">// keep track of training progress</span>
+<span class="w">  </span><span class="c1">// keep track of model training and experiment progress</span>
 <span class="w">  </span><span class="kt">float</span><span class="w"> </span><span class="n">training_progress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w">  </span><span class="c1">// Range is [0.0, 1.0]</span>
+<span class="w">  </span><span class="kt">float</span><span class="w"> </span><span class="n">experiment_progress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w">  </span><span class="c1">// Range is [0.0, 1.0]</span>
 
 <span class="w">  </span><span class="c1">// Used to check whether there is a trained model before calling</span>
 <span class="w">  </span><span class="c1">// generate_prediction()</span>
@@ -983,12 +984,12 @@
 <span class="w">            </span><span class="cm">/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
 <span class="cm">                            training-progress</span>
 <span class="cm">            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/</span><span class="w"></span>
-<span class="w">  </span><span class="kt">float</span><span class="w"> </span><span class="nf">get_training_progress</span><span class="p">();</span><span class="w"></span>
-<span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="nf">get_trained</span><span class="p">();</span><span class="w"></span>
-<span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="nf">get_stopped</span><span class="p">();</span><span class="w"></span>
-<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="nf">get_log_likelihood</span><span class="p">();</span><span class="w"></span>
-<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="nf">get_previous_log_likelihood</span><span class="p">();</span><span class="w"></span>
-<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="nf">get_log_likelihood_MAP</span><span class="p">();</span><span class="w"></span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="nf">get_training_progress</span><span class="p">(){</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">training_progress</span><span class="p">;}</span><span class="w"></span>
+<span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="nf">get_trained</span><span class="p">(){</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">trained</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="nf">get_stopped</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">stopped</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="nf">get_log_likelihood</span><span class="p">(){</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">log_likelihood</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="nf">get_previous_log_likelihood</span><span class="p">(){</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">previous_log_likelihood</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="nf">get_log_likelihood_MAP</span><span class="p">(){</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">log_likelihood_MAP</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
 
 <span class="w">            </span><span class="cm">/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
 <span class="cm">                            create-model</span>
@@ -1011,6 +1012,14 @@
 <span class="cm">                          create-experiment</span>
 <span class="cm">            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/</span><span class="w"></span>
 
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">experiment_id</span><span class="o">=</span><span class="s">&quot;not_set&quot;</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">set_experiment_progress</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">progress</span><span class="p">){</span><span class="n">experiment_progress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">progress</span><span class="p">;}</span><span class="w"></span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="nf">get_experiment_progress</span><span class="p">(){</span><span class="k">return</span><span class="w"> </span><span class="n">experiment_progress</span><span class="p">;}</span><span class="w"></span>
+
+<span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">set_experiment_id</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">id</span><span class="p">){</span><span class="n">experiment_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">id</span><span class="p">;}</span><span class="w"></span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="nf">get_experiment_id</span><span class="p">(){</span><span class="k">return</span><span class="w"> </span><span class="n">experiment_id</span><span class="p">;}</span><span class="w"></span>
+
 <span class="w">  </span><span class="n">FormattedProjectionResult</span><span class="w"></span>
 <span class="w">  </span><span class="nf">run_causemos_projection_experiment_from_json_string</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">json_string</span><span class="p">);</span><span class="w"></span>
 
@@ -1024,6 +1033,7 @@
 
 <span class="w">  </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">short</span><span class="w"> </span><span class="nf">freeze_edge_weight</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">target</span><span class="p">,</span><span class="w"></span>
 <span class="w">                          </span><span class="kt">double</span><span class="w"> </span><span class="n">scaled_weight</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">polarity</span><span class="p">);</span><span class="w"></span>
+
 
 <span class="w">  </span><span class="cm">/*</span>
 <span class="cm">   ============================================================================</span>

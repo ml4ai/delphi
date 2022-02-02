@@ -25,6 +25,16 @@ Files
 .. toctree::
    :maxdepth: 5
 
+   file_lib_BaseStatus.cpp.rst
+
+.. toctree::
+   :maxdepth: 5
+
+   file_lib_BaseStatus.hpp.rst
+
+.. toctree::
+   :maxdepth: 5
+
    file_lib_causemos_integration.cpp.rst
 
 .. toctree::
@@ -81,6 +91,16 @@ Files
    :maxdepth: 5
 
    file_lib_exceptions.hpp.rst
+
+.. toctree::
+   :maxdepth: 5
+
+   file_lib_ExperimentStatus.cpp.rst
+
+.. toctree::
+   :maxdepth: 5
+
+   file_lib_ExperimentStatus.hpp.rst
 
 .. toctree::
    :maxdepth: 5
@@ -146,6 +166,16 @@ Files
    :maxdepth: 5
 
    file_lib_KDE.hpp.rst
+
+.. toctree::
+   :maxdepth: 5
+
+   file_lib_ModelStatus.cpp.rst
+
+.. toctree::
+   :maxdepth: 5
+
+   file_lib_ModelStatus.hpp.rst
 
 .. toctree::
    :maxdepth: 5
@@ -231,16 +261,6 @@ Files
    :maxdepth: 5
 
    file_lib_train_model.cpp.rst
-
-.. toctree::
-   :maxdepth: 5
-
-   file_lib_TrainingStatus.cpp.rst
-
-.. toctree::
-   :maxdepth: 5
-
-   file_lib_TrainingStatus.hpp.rst
 
 .. toctree::
    :maxdepth: 5

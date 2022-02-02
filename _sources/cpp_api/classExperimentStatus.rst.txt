@@ -1,0 +1,25 @@
+.. _exhale_class_classExperimentStatus:
+
+Class ExperimentStatus
+======================
+
+- Defined in :ref:`file_lib_ExperimentStatus.hpp`
+
+
+Inheritance Relationships
+-------------------------
+
+Base Type
+*********
+
+- ``public BaseStatus`` (:ref:`exhale_class_classBaseStatus`)
+
+
+Class Documentation
+-------------------
+
+
+.. doxygenclass:: ExperimentStatus
+   :members:
+   :protected-members:
+   :undoc-members:
