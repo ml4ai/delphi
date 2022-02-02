@@ -1215,7 +1215,7 @@ class AnalysisGraph {
    * @return true if freezing the edge is successful
    *         false otherwise
    */
-  bool freeze_edge_weight(std::string source, std::string target,
+  unsigned short freeze_edge_weight(std::string source, std::string target,
                           double scaled_weight, int polarity);
 
   /*

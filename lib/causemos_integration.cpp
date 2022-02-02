@@ -973,23 +973,37 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_file(
    * @return true if freezing the edge is successful
    *         false otherwise
  */
-bool AnalysisGraph::freeze_edge_weight(std::string source_name,
+unsigned short AnalysisGraph::freeze_edge_weight(std::string source_name,
                                        std::string target_name,
                                        double scaled_weight,
                                        int polarity) {
     if (scaled_weight < 0 || scaled_weight > 1) {
-        return false;
+        return 1;
     }
 
-    int source_id = this->add_node(source_name);
-    int target_id = this->add_node(target_name);
+    int source_id = -1;
+    int target_id = -1;
+
+    try {
+        source_id = this->name_to_vertex.at(source_name);
+    } catch(const out_of_range &e) {
+        // Source concept does not exist
+        return 2;
+    }
+
+    try {
+        target_id = this->name_to_vertex.at(target_name);
+    } catch(const out_of_range &e) {
+        // Target concept does not exist
+        return 4;
+    }
 
     pair<EdgeDescriptor, bool> edg = boost::edge(source_id, target_id,
                                                          this->graph);
 
     if (!edg.second) {
         // There is no edge from source concept to target concept
-        return false;
+        return 8;
     }
 
     double theta = scaled_weight * M_PI_2;
@@ -1000,5 +1014,5 @@ bool AnalysisGraph::freeze_edge_weight(std::string source_name,
     this->graph[edg.first].set_theta(theta);
     this->graph[edg.first].freeze();
 
-    return true;
+    return 0;
 }
