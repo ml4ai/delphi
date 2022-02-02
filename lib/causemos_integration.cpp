@@ -967,9 +967,9 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_file(
    * @param source Source concept name
    * @param target Target concept name
    * @param scaled_weight A value in the range [0, 1]. Delphi edge weights are
-   *               angles in the range [0, π]. Values in the range ]0, π/2[
+   *               angles in the range [-π/2, π/2]. Values in the range ]0, π/2[
    *               represents positive polarities and values in the range
-   *               ]π/2, π[ represents negative polarities.
+   *               ]-π/2, 0[ represents negative polarities.
    * @param polarity Polarity of the edge. Should be either 1 or -1.
    * @return 0 freezing the edge is successful
    *         1 scaled_weight outside accepted range
