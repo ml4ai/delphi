@@ -1017,6 +1017,14 @@
 <span class="w">  </span><span class="n">FormattedProjectionResult</span><span class="w"></span>
 <span class="w">  </span><span class="nf">run_causemos_projection_experiment_from_json_file</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">filename</span><span class="p">);</span><span class="w"></span>
 
+
+<span class="w">    </span><span class="cm">/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+<span class="cm">                      edit-weights</span>
+<span class="cm">    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/</span><span class="w"></span>
+
+<span class="w">  </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">short</span><span class="w"> </span><span class="nf">freeze_edge_weight</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">target</span><span class="p">,</span><span class="w"></span>
+<span class="w">                          </span><span class="kt">double</span><span class="w"> </span><span class="n">scaled_weight</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">polarity</span><span class="p">);</span><span class="w"></span>
+
 <span class="w">  </span><span class="cm">/*</span>
 <span class="cm">   ============================================================================</span>
 <span class="cm">   Public: Model serialization (in serialize.cpp)</span>

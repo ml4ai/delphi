@@ -98,36 +98,35 @@
 <dt class="sig sig-object cpp" id="_CPPv49Indicator">
 <span id="_CPPv39Indicator"></span><span id="_CPPv29Indicator"></span><span id="Indicator"></span><span class="target" id="classIndicator"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Indicator</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="k"><span class="pre">public</span></span><span class="w"> </span><a class="reference internal" href="classRV.html#_CPPv42RV" title="RV"><span class="n"><span class="pre">RV</span></span></a><a class="headerlink" href="#_CPPv49Indicator" title="Permalink to this definition"></a><br /></dt>
 <dd><p>The <a class="reference internal" href="#classIndicator"><span class="std std-ref">Indicator</span></a> class represents an abstraction of a concrete, tangible quantity that is in some way representative of a higher level concept (i.e. a node in an :class:<code class="docutils literal notranslate"><span class="pre">delphi.AnalysisGraph.AnalysisGraph</span></code> object.)</p>
-<p><dl class="field-list simple">
-<dt class="field-odd">param source<span class="colon">:</span></dt>
+<dl class="field-list simple">
+<dt class="field-odd">Param source<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The source database (FAO, WDI, etc.) </p>
 </dd>
-<dt class="field-even">param unit<span class="colon">:</span></dt>
+<dt class="field-even">Param unit<span class="colon">:</span></dt>
 <dd class="field-even"><p>The units of the indicator. </p>
 </dd>
-<dt class="field-odd">param mean<span class="colon">:</span></dt>
+<dt class="field-odd">Param mean<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The mean value of the indicator (for performing conditional forecasting queries on the model.) </p>
 </dd>
-<dt class="field-even">param value<span class="colon">:</span></dt>
+<dt class="field-even">Param value<span class="colon">:</span></dt>
 <dd class="field-even"><p>The current value of the indicator (used while performing inference) </p>
 </dd>
-<dt class="field-odd">param stdev<span class="colon">:</span></dt>
+<dt class="field-odd">Param stdev<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The standard deviation of the indicator. </p>
 </dd>
-<dt class="field-even">param time<span class="colon">:</span></dt>
+<dt class="field-even">Param time<span class="colon">:</span></dt>
 <dd class="field-even"><p>The time corresponding to the parameterization of the indicator. </p>
 </dd>
-<dt class="field-odd">param aggaxes<span class="colon">:</span></dt>
+<dt class="field-odd">Param aggaxes<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A list of axes across which the indicator values have been aggregated. Examples: ‘month’, ‘year’, ‘state’, etc. </p>
 </dd>
-<dt class="field-even">param aggregation_method<span class="colon">:</span></dt>
+<dt class="field-even">Param aggregation_method<span class="colon">:</span></dt>
 <dd class="field-even"><p>The method of aggregation across the aggregation axes. Currently defaults to ‘mean’. </p>
 </dd>
-<dt class="field-odd">param timeseries<span class="colon">:</span></dt>
+<dt class="field-odd">Param timeseries<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A time series for the indicator. </p>
 </dd>
 </dl>
-</p>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
 <dl class="cpp function">

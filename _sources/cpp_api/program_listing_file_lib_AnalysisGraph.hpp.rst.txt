@@ -949,6 +949,14 @@ Program Listing for File AnalysisGraph.hpp
      FormattedProjectionResult
      run_causemos_projection_experiment_from_json_file(std::string filename);
    
+   
+       /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                         edit-weights
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+   
+     unsigned short freeze_edge_weight(std::string source, std::string target,
+                             double scaled_weight, int polarity);
+   
      /*
       ============================================================================
       Public: Model serialization (in serialize.cpp)

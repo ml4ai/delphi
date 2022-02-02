@@ -189,6 +189,24 @@
 <dd></dd></dl>
 
 <dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N13AnalysisGraph18freeze_edge_weightENSt6stringENSt6stringEdi">
+<span id="_CPPv3N13AnalysisGraph18freeze_edge_weightENSt6stringENSt6stringEdi"></span><span id="_CPPv2N13AnalysisGraph18freeze_edge_weightENSt6stringENSt6stringEdi"></span><span id="AnalysisGraph::freeze_edge_weight__ss.ss.double.i"></span><span class="target" id="classAnalysisGraph_1ab67ff61339f625c4636e8087ac64606a"></span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">short</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">freeze_edge_weight</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">target</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">scaled_weight</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">polarity</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13AnalysisGraph18freeze_edge_weightENSt6stringENSt6stringEdi" title="Permalink to this definition"></a><br /></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> – Source concept name </p></li>
+<li><p><strong>target</strong> – Target concept name </p></li>
+<li><p><strong>scaled_weight</strong> – A value in the range [0, 1]. Delphi edge weights are angles in the range [0, π]. Values in the range ]0, π/2[ represents positive polarities and values in the range ]π/2, π[ represents negative polarities. </p></li>
+<li><p><strong>polarity</strong> – Polarity of the edge. Should be either 1 or -1. </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>0 freezing the edge is successful 1 scaled_weight outside accepted range 2 Source concept does not exist 4 Target concept does not exist 8 <a class="reference internal" href="classEdge.html#classEdge"><span class="std std-ref">Edge</span></a> does not exist </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N13AnalysisGraph24serialize_to_json_stringEbb">
 <span id="_CPPv3N13AnalysisGraph24serialize_to_json_stringEbb"></span><span id="_CPPv2N13AnalysisGraph24serialize_to_json_stringEbb"></span><span id="AnalysisGraph::serialize_to_json_string__b.b"></span><span class="target" id="classAnalysisGraph_1a34ee1ebabb34253dc02726d94e5083b9"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">serialize_to_json_string</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">verbose</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">true</span></span>, <span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">compact</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">true</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13AnalysisGraph24serialize_to_json_stringEbb" title="Permalink to this definition"></a><br /></dt>
 <dd></dd></dl>
