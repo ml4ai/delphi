@@ -44,9 +44,9 @@ json ModelStatus::get_training_progress_response(string modelId) {
   logInfo("get_training_progress_response");
   json result = get_status(modelId);
   json ret;
+  ret[COL_ID] = modelId;
 
   if(result.empty()) {
-    ret[COL_ID] = modelId;
     ret[COL_STATUS] = "Invalid model ID";
   } else {
     ret[STATUS_PROGRESS] = result[STATUS_PROGRESS];
