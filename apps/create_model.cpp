@@ -474,13 +474,31 @@ int main(int argc, char* argv[]) {
         {{"small", 1, "n1"}, {"large", -1, "n2"}},
   };
 
+  cout << "Creating model\n";
+  AnalysisGraph G = AnalysisGraph::from_causemos_json_file(
+    "../tests/data/delphi/create_model_rain--temperature--yield.json", 0);
 
-    cout << "Creating model\n";
-    AnalysisGraph G = AnalysisGraph::from_causemos_json_file(
-      "../tests/data/delphi/create_model_rain--temperature--yield.json", 0);
-    G.train_model();
-    FormattedProjectionResult proj = G.run_causemos_projection_experiment_from_json_file(
-        "../tests/data/delphi/experiments_rain--temperature--yield.json");
+  unsigned short status = G.freeze_edge_weight(
+                            "wm/concept/environment/meteorology/precipitation",
+                            "wm/concept/agriculture/crop_produce",
+                            0.5, 1);
+  if (status == 0) {
+        G.print_edges();
+  }
+  else {
+      cout << "Error: " << status << endl;
+  }
+
+  string frozen = G.serialize_to_json_string(false);
+  AnalysisGraph G2 = AnalysisGraph::deserialize_from_json_string(frozen, false);
+  G2.print_edges();
+
+  G2.set_n_kde_kernels(100);
+  G2.run_train_model(10, 10);
+  cout << nlohmann::json::parse(G2.generate_create_model_response()).dump(2);
+  FormattedProjectionResult proj;
+  proj = G2.run_causemos_projection_experiment_from_json_file(
+      "../tests/data/delphi/experiments_rain--temperature--yield.json");
   return(0);
 
   test_simple_path_construction();

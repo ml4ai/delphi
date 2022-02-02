@@ -562,6 +562,75 @@ int main(int argc, const char* argv[]) {
             
 	    // ...
 
+	    // train the model in a separate thread.
+            /*
+             If neither "CI" or "DELPHI_N_SAMPLES" is set, we default to a
+             sampling resolution of 1000.
+
+             TODO - we might want to set the default sampling resolution with
+             some kind of heuristic, based on the number of nodes and edges. -
+             Adarsh
+            */
+	    /*
+            size_t kde_kernels = 200;
+            int sampling_resolution = 100; // in all cases
+	    int burn = 10000;
+            if (getenv("CI")) {
+                // When running in a continuous integration run, we set the
+                // sampling resolution to be small to prevent timeouts.
+                kde_kernels = 200;
+                burn = 1000;
+            }
+            else if (getenv("DELPHI_N_SAMPLES")) {
+                // We also enable setting the sampling resolution through the
+                // environment variable "DELPHI_N_SAMPLES", for development and
+                // testing purposes.
+                kde_kernels = (size_t)stoul(getenv("DELPHI_N_SAMPLES"));
+                burn = 100;
+            }
+
+            AnalysisGraph G;
+            G.set_n_kde_kernels(kde_kernels);
+            G.from_causemos_json_dict(json_data, 0, 0);
+
+            sqlite3DB->insert_into_delphimodel(
+                json_data["id"], G.serialize_to_json_string(false));
+
+            auto response_json =
+                nlohmann::json::parse(G.generate_create_model_response());
+
+            try {
+                thread executor_create_model(&Model::train_model,
+                                             sqlite3DB,
+                                             G,
+                                             modelId,
+                                             sampling_resolution,
+                                             burn);
+                executor_create_model.detach();
+                cout << "Training model " << modelId << endl;
+            }
+            catch (std::exception& e) {
+                cout << "Error: unable to start training process" << endl;
+                json error;
+                error["status"] = "server error: training";
+                response << error.dump();
+                return error.dump();
+            }
+
+
+            json result =
+                sqlite3DB->select_causemosasyncexperimentresult_row(modelId);
+            if (result.empty()) {
+                // model ID not in database.
+            }
+            result["modelId"] = modelId;
+            result["status"] = "edges edited";
+
+                string dumpStr = result.dump();
+                res << dumpStr;
+                return dumpStr;
+
+            */
 
 	    json ret;
             ret[ms.STATUS_MODEL_ID] = modelId;
