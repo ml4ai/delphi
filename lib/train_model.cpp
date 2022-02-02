@@ -1,5 +1,5 @@
 #include "AnalysisGraph.hpp"
-#include "TrainingStatus.hpp"
+#include "ModelStatus.hpp"
 #include "data.hpp"
 #include <tqdm.hpp>
 #include <range/v3/all.hpp>
@@ -59,25 +59,6 @@ void AnalysisGraph::train_model(int start_year,
 }
 
 
-bool AnalysisGraph::get_trained(){
-  return this->trained;
-}
-bool AnalysisGraph::get_stopped(){
-  return this->stopped;
-}
-float AnalysisGraph::get_training_progress(){
-  return this->training_progress;
-}
-double AnalysisGraph::get_log_likelihood(){
-  return this-> log_likelihood;
-}
-double AnalysisGraph::get_previous_log_likelihood(){
-  return this-> previous_log_likelihood;
-}
-double AnalysisGraph::get_log_likelihood_MAP(){
-  return this-> log_likelihood_MAP;
-}
-
 void AnalysisGraph::run_train_model(int res,
                                 int burn,
                                 InitialBeta initial_beta,
@@ -94,10 +75,10 @@ void AnalysisGraph::run_train_model(int res,
                                 unordered_map<string, function<double(unsigned int, double)>> ext_concepts
                                 ) {
 
-    TrainingStatus ts;
-    ts.start_updating_db(this);
+    ModelStatus ms;
+    ms.start_updating_db(this);
 
-    float training_step = 1.0 / (res + burn);
+    double training_step = 1.0 / (res + burn);
 
     this->training_progress = 0;
 
@@ -326,7 +307,7 @@ void AnalysisGraph::run_train_model(int res,
 
     this->trained = true;
     this->training_progress= 1.0;
-    ts.stop_updating_db();
+    ms.stop_updating_db();
     RNG::release_instance();
 }
 

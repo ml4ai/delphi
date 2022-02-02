@@ -18,30 +18,39 @@ if [[ $inputFile == "" ]]; then
 
     echo "Please specify a filename."
     echo "Usage: $0 filename"
-
-else
-    # make sure file has an "id" JSON field
-    id=$('jq' -r '.id' < $inputFile)
-
-    if [[ $id == "null" ]]; then
-        echo "please specify an input file with a valid 'id' field"
-    else
-        echo "Creating model id: $id"
-        login="-u me:ivilab4fun"
-        url=$(./get_delphi_url)
-        endpoint="/create-model"
-
-        call="curl -s $login -X POST $url$endpoint -d @$inputFile"
-        echo "Call:"
-        echo $call
-
-        call_time=$(date +%T.%3N)
-        response=$($call)
-        response_time=$(date +%T.%3N)
-
-        echo "Response:"
-        echo $response | jq
-        echo "Server queried: $call_time"
-        echo "Server replied: $response_time"
-    fi
+    exit 1
 fi
+
+# make sure the input is a regular file and it exists
+if test -f "$inputFile"; then
+    echo "Reading input file $inputFile"
+else
+    echo "Could not read input file $inputFile"
+    exit 1
+fi
+
+# make sure file has an "id" JSON field
+id=$('jq' -r '.id' < $inputFile)
+
+if [[ $id == "null" ]]; then
+    echo "please specify an input file with a valid 'id' field"
+    exit 1
+fi
+
+echo "Creating model id: $id"
+login="-u me:ivilab4fun"
+url=$(./get_delphi_url)
+endpoint="/create-model"
+
+call="curl -s $login -X POST $url$endpoint -d @$inputFile"
+echo "Call:"
+echo $call
+
+call_time=$(date +%T.%3N)
+response=$($call)
+response_time=$(date +%T.%3N)
+
+echo "Response:"
+echo $response | jq
+echo "Server queried: $call_time"
+echo "Server replied: $response_time"

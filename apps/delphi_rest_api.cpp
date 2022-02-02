@@ -1,6 +1,7 @@
 #include "AnalysisGraph.hpp"
 #include "DatabaseHelper.hpp"
-#include "TrainingStatus.hpp"
+#include "ModelStatus.hpp"
+#include "ExperimentStatus.hpp"
 #include <assert.h>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/program_options.hpp>
@@ -162,17 +163,55 @@ class Experiment {
             ; // Unknown experiment type
     }
 
-    static void train_model(Database* sqlite3DB,
-                            AnalysisGraph G,
-                            string modelId,
-                            int sampling_resolution,
-                            int burn) {
-        G.run_train_model(sampling_resolution,
-                          burn,
-                          InitialBeta::ZERO,
-                          InitialDerivative::DERI_ZERO);
-        sqlite3DB->insert_into_delphimodel(modelId,
-                                           G.serialize_to_json_string(false));
+};
+
+class Model {
+
+    public:
+
+    // Return empty JSON if model not in training
+    static json check_if_training(ModelStatus ms, string modelId) {
+	json ret;
+
+        // Test if we have a status record of this model ID
+        json model_status = ms.get_status(modelId);
+        if(!model_status.empty()) {
+	
+	    // If we have a record, test if it is trained
+            bool trained = model_status[ms.STATUS_TRAINED];
+            // Advise the user if the existing model is not trained
+            if(!trained) {
+                double progress = model_status[ms.STATUS_PROGRESS];
+                char buf[200];
+                sprintf(buf, "%3.2f", progress);
+                string report =
+                "An existing model with this ID is still training, "
+                + ms.STATUS_PROGRESS
+                + " = "
+                + string(buf);
+                ret[ms.STATUS_MODEL_ID] = modelId;
+                ret[ms.STATUS_STATUS] = report;
+            }
+        }
+
+	return ret;  // empty if model is trained
+    }
+
+    static void train_model(
+        Database* sqlite3DB,
+        AnalysisGraph G,
+        string modelId,
+        int sampling_resolution,
+        int burn
+    ) {
+        G.run_train_model(
+            sampling_resolution,
+            burn,
+            InitialBeta::ZERO,
+            InitialDerivative::DERI_ZERO);
+        sqlite3DB->insert_into_delphimodel(
+            modelId,
+            G.serialize_to_json_string(false));
     }
 };
 
@@ -238,10 +277,12 @@ int main(int argc, const char* argv[]) {
 
     Database* sqlite3DB = new Database();
     Experiment* experiment = new Experiment();
-    TrainingStatus ts;
+    ModelStatus ms;
+    ExperimentStatus es;
     served::multiplexer mux;
 
-    ts.init_db();
+    ms.init_db();
+    es.init_db();
 
     // report status on startup
     cout << systemStatus << endl;
@@ -260,20 +301,25 @@ int main(int argc, const char* argv[]) {
         .post([&sqlite3DB](served::response& response,
                            const served::request& req) {
             nlohmann::json json_data = nlohmann::json::parse(req.body());
+	    ModelStatus ms(sqlite3DB);
 
-            // Find the id field, stop now if not foud.
-            string failEarly = "model ID not found";
-            string modelId = json_data.value("id", failEarly);
-            if (modelId == failEarly) {
-                cout << "Could not find 'id' field in input" << endl;
+	    // input must have a model ID field
+	    if(!json_data.contains(ms.COL_ID)) {
                 json ret_exp;
-                ret_exp["status"] = failEarly;
+                ret_exp["status"] = "model ID not found in input";
                 response << ret_exp.dump();
                 return ret_exp.dump();
             }
 
-            /* dump the input file to screen */
-            // cout << json_data.dump() << endl;
+	    string modelId = json_data[ms.COL_ID];
+
+            // Do not overwrite an existing model if it is still training
+	    json in_training = Model::check_if_training(ms, modelId);
+	    if(!in_training.empty()) {
+                string dumpStr = in_training.dump();
+                response << dumpStr;
+                return dumpStr;
+            }
 
             /*
              If neither "CI" or "DELPHI_N_SAMPLES" is set, we default to a
@@ -311,7 +357,7 @@ int main(int argc, const char* argv[]) {
                 nlohmann::json::parse(G.generate_create_model_response());
 
             try {
-                thread executor_create_model(&Experiment::train_model,
+                thread executor_create_model(&Model::train_model,
                                              sqlite3DB,
                                              G,
                                              json_data["id"],
@@ -351,6 +397,7 @@ int main(int argc, const char* argv[]) {
     */
     mux.handle("/models/{modelId}/experiments/{experimentId}")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
+
             string modelId = req.params["modelId"];
             string experimentId = req.params["experimentId"];
 
@@ -447,37 +494,15 @@ int main(int argc, const char* argv[]) {
     /* openApi 3.0.0
      * Query the training progress for a model.
      */
-    mux.handle("/models/{modelId}/training-progress")
-        .get([&sqlite3DB](served::response& res, const served::request& req) {
-            TrainingStatus ts;
-
-            string modelId = req.params["modelId"]; // should catch missing
-            string query_return = ts.read_from_db(modelId);
-
-            if (query_return.empty()) {
-                json error;
-                error["id"] = modelId;
-                error["status"] = "No training status data found";
-                res << error.dump();
-                return;
-            }
-
-            json cols = json::parse(query_return);
-            string status = cols["status"];
-
-            // contains full debug struct
-            json output = json::parse(status);
-
-            // the API only calls for the training status value, so really this
-            // should only be the value itself, e.g.
-            // output["progressPercentage"].dump(), but the specification also
-            // calls for application/json content, so we send a JSON structure
-            // with only that field.
-            json foo;
-            foo["progressPercentage"] = output["progressPercentage"];
-
-            res << foo.dump();
-        });
+    mux.handle("/models/{modelId}/training-progress").get([&sqlite3DB](
+        served::response& res,
+        const served::request& req
+    ){
+        ModelStatus ms(sqlite3DB);
+        string modelId = req.params["modelId"];
+        json ret = ms.get_training_progress_response(modelId);
+        res << ret.dump();
+    });
 
     /* openApi 3.0.0
      * Post edge indicators for this model
@@ -510,6 +535,7 @@ int main(int argc, const char* argv[]) {
      * TODO This needs to be implemented
      */
     mux.handle("/models/{modelId}/edit-edges")
+
         .post([&sqlite3DB](served::response& res, const served::request& req) {
             string message =
                 "Edit-edges: Currently implemented as a NOP.  It will soon "
@@ -517,35 +543,103 @@ int main(int argc, const char* argv[]) {
                 "rate of change of the target node with respect to the source "
                 "node expressed in terms of angles.";
 
-            string modelId = req.params["modelId"]; // should catch if not found
+	    ModelStatus ms(sqlite3DB);
+            string modelId = req.params["modelId"];
+
+            // Do not edit an untrained model
+            json in_training = Model::check_if_training(ms, modelId);
+            if(!in_training.empty()) {
+                string dumpStr = in_training.dump();
+                res << dumpStr;
+                return dumpStr;
+            }
+
+	    // parse input here
+
+	    // iterate through the array of edges to set weight, 
+	    // extract the parameters and call 
+	    // AnalysisGraph::freeze_edge_weight() for each edge.
+            
+	    // ...
+
+	    // train the model in a separate thread.
+            /*
+             If neither "CI" or "DELPHI_N_SAMPLES" is set, we default to a
+             sampling resolution of 1000.
+
+             TODO - we might want to set the default sampling resolution with
+             some kind of heuristic, based on the number of nodes and edges. -
+             Adarsh
+            */
+	    /*
+            size_t kde_kernels = 200;
+            int sampling_resolution = 100; // in all cases
+	    int burn = 10000;
+            if (getenv("CI")) {
+                // When running in a continuous integration run, we set the
+                // sampling resolution to be small to prevent timeouts.
+                kde_kernels = 200;
+                burn = 1000;
+            }
+            else if (getenv("DELPHI_N_SAMPLES")) {
+                // We also enable setting the sampling resolution through the
+                // environment variable "DELPHI_N_SAMPLES", for development and
+                // testing purposes.
+                kde_kernels = (size_t)stoul(getenv("DELPHI_N_SAMPLES"));
+                burn = 100;
+            }
+
+            AnalysisGraph G;
+            G.set_n_kde_kernels(kde_kernels);
+            G.from_causemos_json_dict(json_data, 0, 0);
+
+            sqlite3DB->insert_into_delphimodel(
+                json_data["id"], G.serialize_to_json_string(false));
+
+            auto response_json =
+                nlohmann::json::parse(G.generate_create_model_response());
+
+            try {
+                thread executor_create_model(&Model::train_model,
+                                             sqlite3DB,
+                                             G,
+                                             modelId,
+                                             sampling_resolution,
+                                             burn);
+                executor_create_model.detach();
+                cout << "Training model " << modelId << endl;
+            }
+            catch (std::exception& e) {
+                cout << "Error: unable to start training process" << endl;
+                json error;
+                error["status"] = "server error: training";
+                response << error.dump();
+                return error.dump();
+            }
+
+
             json result =
                 sqlite3DB->select_causemosasyncexperimentresult_row(modelId);
             if (result.empty()) {
                 // model ID not in database.
             }
             result["modelId"] = modelId;
-            result["status"] = message;
+            result["status"] = "edges edited";
 
-            res << result.dump();
+                string dumpStr = result.dump();
+                res << dumpStr;
+                return dumpStr;
+
+            */
+
+	    json ret;
+            ret[ms.STATUS_MODEL_ID] = modelId;
+	    ret[ms.STATUS_STATUS] = "edit-edges endpoint in development";
+            string dumpStr = ret.dump();
+            res << dumpStr;
+            return dumpStr;
         });
 
-    mux.handle("/models/{modelId}/training-stop")
-        .get([&sqlite3DB](served::response& res, const served::request& req) {
-            TrainingStatus ts;
-            string modelId = req.params["modelId"]; // should catch missing
-
-            string query_return = ts.stop_training(modelId);
-
-            if (query_return.empty()) {
-                json error;
-                error["id"] = modelId;
-                error["status"] = "No training status data found";
-                res << error.dump();
-                return;
-            }
-
-            res << query_return;
-        });
 
     /* openApi 3.0.0
      * Get the status of an existing model
