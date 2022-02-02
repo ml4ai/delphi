@@ -34,7 +34,9 @@ typedef tuple<
     vector<double>,
     vector<double>,
     vector<double>,
-    int>
+    int,
+    double,
+    bool>
     Edge_tuple;
 
 /*
@@ -70,20 +72,18 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
                             indicator_arr["source"].get<string>());
         n.indicators[indicator_index].aggregation_method =
             indicator_arr["func"].get<string>();
-        n.indicators[indicator_index].unit = indicator_arr["unit"].get<int>();
+        n.indicators[indicator_index].unit = indicator_arr["unit"].get<string>();
       }
     }
     for (auto& edge_element : json_data["edges"]) {
       bool edge_added = false;
-      for (Evidence evidence : edge_element[0]["evidence"]) {
-        for (Evidence_Pair evidence_pair : evidence) {
-          tuple<string, int, string> subject = evidence_pair.first;
-          tuple<string, int, string> object = evidence_pair.second;
+      for (auto& evidence : edge_element["evidence"]) {
+          tuple<string, int, string> subject = evidence[0];
+          tuple<string, int, string> object = evidence[1];
           CausalFragment causal_fragment = CausalFragment(
               {get<0>(subject), get<1>(subject), get<2>(subject)},
               {get<0>(object), get<1>(object), get<2>(object)});
           edge_added = this->add_edge(causal_fragment) || edge_added;
-        }
       }
       if (edge_added) {
         string source_id = edge_element["source"].get<string>();
@@ -95,7 +95,11 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
             edge_element["thetas"].get<vector<double>>();
         edg.kde.log_prior_hist =
             edge_element["log_prior_hist"].get<vector<double>>();
-        edg.kde.set_num_bins(edge_element["n_bins"]);
+        edg.kde.set_num_bins(edge_element["n_bins"].get<int>());
+        edg.set_theta(edge_element["theta"].get<double>());
+        if (edge_element["is_frozen"].get<bool>()) {
+            edg.freeze();
+        }
       }
     }
 
@@ -144,6 +148,10 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
           edg.kde.dataset = get<4>(edge_element);
           edg.kde.log_prior_hist = get<5>(edge_element);
           edg.kde.set_num_bins(get<6>(edge_element));
+          edg.set_theta(get<7>(edge_element));
+          if (get<8>(edge_element)) {
+              edg.freeze();
+          }
       }
     }
 

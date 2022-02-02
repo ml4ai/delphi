@@ -223,6 +223,8 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def("prediction_to_array",
            &AnalysisGraph::prediction_to_array,
            "indicator"_a)
+      .def("freeze_edge_weight", &AnalysisGraph::freeze_edge_weight,
+           "source_name", "target_name", "scaled_weight", "polarity")
       .def("set_derivative", &AnalysisGraph::set_derivative)
       .def("set_default_initial_state",
            &AnalysisGraph::set_default_initial_state)
