@@ -874,9 +874,8 @@ string AnalysisGraph::generate_create_model_response() {
         json edge_json = {{"source", this->source(e).name},
                           {"target", this->target(e).name},
                           {"weights", this->trained
-                             ? vector<double>{(mean(this->graph[e].sampled_thetas)
-                                                            + M_PI_2) * M_2_PI - 1}
-                             : vector<double>{0.5}}};
+                                          ? this->graph[e].sampled_thetas
+                                          : vector<double>{0.5}}};
 
         j["relations"].push_back(edge_json);
     }
@@ -967,9 +966,9 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_file(
    * @param source Source concept name
    * @param target Target concept name
    * @param scaled_weight A value in the range [0, 1]. Delphi edge weights are
-   *               angles in the range [-π/2, π/2]. Values in the range ]0, π/2[
+   *               angles in the range [0, π]. Values in the range ]0, π/2[
    *               represents positive polarities and values in the range
-   *               ]-π/2, 0[ represents negative polarities.
+   *               ]π/2, π[ represents negative polarities.
    * @param polarity Polarity of the edge. Should be either 1 or -1.
    * @return 0 freezing the edge is successful
    *         1 scaled_weight outside accepted range
@@ -1010,7 +1009,10 @@ unsigned short AnalysisGraph::freeze_edge_weight(std::string source_name,
         return 8;
     }
 
-    double theta = polarity / abs(polarity) * scaled_weight * M_PI_2;
+    double theta = scaled_weight * M_PI_2;
+    if (polarity < 0) {
+        theta = M_PI - theta;
+    }
 
     this->graph[edg.first].set_theta(theta);
     this->graph[edg.first].freeze();

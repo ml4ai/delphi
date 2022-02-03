@@ -20,10 +20,10 @@ json ModelStatus::compose_status() {
   if (ag != nullptr) {
     string model_id = ag->id;
     if(!model_id.empty()) {
-      status[MODEL_ID] = model_id;
-      status[PROGRESS] =
+      status[COL_ID] = model_id;
+      status[STATUS_PROGRESS] =
 	delphi::utils::round_n(ag->get_training_progress(), 2);
-      status[TRAINED] = ag->get_trained();
+      status[STATUS_TRAINED] = ag->get_trained();
 //      status["stopped"] = ag->get_stopped(); 
 //      status["log_likelihood"] = ag->get_log_likelihood();
 //      status["log_likelihood_previous"] = ag->get_previous_log_likelihood();
@@ -37,5 +37,22 @@ json ModelStatus::compose_status() {
 void ModelStatus::update_db() {
   string model_id = ag->id;
   set_status(model_id, compose_status());
+}
+
+/* Return the training progress for this model */
+json ModelStatus::get_training_progress_response(string modelId) {
+  logInfo("get_training_progress_response");
+  json result = get_status(modelId);
+  json ret;
+  ret[COL_ID] = modelId;
+
+  if(result.empty()) {
+    ret[COL_STATUS] = "Invalid model ID";
+  } else {
+    ret[STATUS_PROGRESS] = result[STATUS_PROGRESS];
+  }
+
+  logInfo("  " + ret.dump());
+  return ret;
 }
 

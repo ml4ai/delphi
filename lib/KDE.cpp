@@ -47,7 +47,7 @@ KDE::KDE(vector<double> thetas, int n_bins)  : n_bins(n_bins) {
 //  int bin_hi = 0;
 
   for (double theta : thetas) {
-//    theta = theta < 0 ? M_PI + theta : theta;
+    theta = theta < 0 ? M_PI + theta : theta;
 
     int bin = this->theta_to_bin(theta);
 //    bin_lo = bin < bin_lo ? bin : bin_lo;
@@ -79,7 +79,7 @@ void KDE::set_num_bins(int n_bins) {
 }
 
 int KDE::theta_to_bin(double theta) {
-    return floor(theta + M_PI_2 / this->delta_theta);
+    return floor(theta / this->delta_theta);
 }
 
 

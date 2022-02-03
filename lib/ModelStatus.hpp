@@ -32,10 +32,15 @@ class ModelStatus : public BaseStatus {
     ) {}
     ~ModelStatus(){}
     void update_db();
+    json get_training_progress_response(string modelId);
+
+    const string TABLE_NAME = "model_status"; // arbitrary
 
     // serialized JSON fields in the status text
-    const string MODEL_ID = "id"; // API
-    const string NODES = "nodes"; // API
-    const string EDGES = "edges"; // API
-    const string TRAINED = "trained";  // arbitrary
+    const string STATUS_MODEL_ID = "model_id"; // arbitrary
+    const string STATUS_PROGRESS = "progressPercentage"; // API
+    const string STATUS_NODES = "nodes"; // API
+    const string STATUS_EDGES = "edges"; // API
+    const string STATUS_STATUS = "status";  // API
+    const string STATUS_TRAINED = "trained";  // arbitrary
 };

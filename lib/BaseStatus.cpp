@@ -65,18 +65,14 @@ void BaseStatus::set_status(string id, json status) {
   insert(query);
 }
 
-/* Return a JSON struct serialized from the 'status' query result row 
- * If the id is not found, return empty JSON */
+/* Return a JSON struct serialized from the 'status' query result row */
 json BaseStatus::get_status(string id) {
-  string info = "get_status(" + id + ") => ";
-  json queryResult = database->select_row(table_name, id, COL_STATUS);
-  if(queryResult.empty()) {
-    logError(info + " ID not found");
-    return queryResult;
-  }
-  string statusString = queryResult[COL_STATUS];
+  string info = "get_status(" + id + ")";
+  logInfo(info);
+  json result = database->select_row(table_name, id, COL_STATUS);
+  string statusString = result[COL_STATUS];
   json status = json::parse(statusString);
-  logInfo(info + status.dump());
+  logInfo("  " + status.dump());
   return status;
 }
 
@@ -100,6 +96,7 @@ void BaseStatus::insert(string query) {
 
   database->insert(query);
 }
+	  
 
 // report the current time
 string BaseStatus::timestamp() {
