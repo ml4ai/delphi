@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Author: Joseph Astier
+
+# Test a delphi REST API endpoint by comparing output to a reference file
+
+modelId=$1
+
+outputFile="model_status_test_result.txt"
+referenceFile="model_status_test_ref.txt"
+
+rm -f $outputFile
+call="./model-status $modelId"
+echo "TEST: $call"
+
+$call > $outputFile
+
+result=$(diff $outputFile $referenceFile)
+
+echo "Result = [$result]"
+
+if [[ $result == "" ]]; then
+  echo "PASS"
+else
+  echo "FAIL"
+fi
