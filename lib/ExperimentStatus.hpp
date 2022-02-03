@@ -36,8 +36,12 @@ class ExperimentStatus : public BaseStatus {
     json get_experiment_progress(string experimentId);
 //    json get_projection_response(string experimentId);
 
-    const string TABLE_NAME = "experiment_status";
-    const string STATUS_EXPERIMENT_ID = "experimentId"; // API
-    const string STATUS_MODEL_ID = "modelId"; // API
-    const string STATUS_TYPE = "experimentType"; // API
+    const string EXPERIMENT_ID = "experimentId"; // API
+    const string MODEL_ID = "modelId"; // API
+    const string TYPE = "experimentType"; // API
+    const string PARAM = "experimentParam"; // API
+    const string START_TIME = "startTime"; // API
+    const string END_TIME = "endTime"; // API
+    const string NUM_TIME_STEPS = "numTimesteps"; // API
+    const string CONSTRAINTS = "constraints"; // API
 };

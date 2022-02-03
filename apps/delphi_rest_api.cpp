@@ -169,34 +169,6 @@ class Model {
 
     public:
 
-    // Return empty JSON if model not in training
-    static json check_if_training(ModelStatus ms, string modelId) {
-	json ret;
-
-        // Test if we have a status record of this model ID
-        json model_status = ms.get_status(modelId);
-        if(!model_status.empty()) {
-	
-	    // If we have a record, test if it is trained
-            bool trained = model_status[ms.STATUS_TRAINED];
-            // Advise the user if the existing model is not trained
-            if(!trained) {
-                double progress = model_status[ms.STATUS_PROGRESS];
-                char buf[200];
-                sprintf(buf, "%3.2f", progress);
-                string report =
-                "An existing model with this ID is still training, "
-                + ms.STATUS_PROGRESS
-                + " = "
-                + string(buf);
-                ret[ms.STATUS_MODEL_ID] = modelId;
-                ret[ms.STATUS_STATUS] = report;
-            }
-        }
-
-	return ret;  // empty if model is trained
-    }
-
     static void train_model(
         Database* sqlite3DB,
         AnalysisGraph G,
@@ -304,21 +276,31 @@ int main(int argc, const char* argv[]) {
 	    ModelStatus ms(sqlite3DB);
 
 	    // input must have a model ID field
-	    if(!json_data.contains(ms.COL_ID)) {
+	    if(!json_data.contains(ms.MODEL_ID)) {
+	        string report = "Input must contain an '" 
+		  + ms.MODEL_ID 
+		  + "' field.";
                 json ret_exp;
-                ret_exp["status"] = "model ID not found in input";
+                ret_exp[ms.MODEL_ID] = "Not found";
+                ret_exp[ms.STATUS] = report;
                 response << ret_exp.dump();
                 return ret_exp.dump();
             }
 
-	    string modelId = json_data[ms.COL_ID];
+	    string modelId = json_data[ms.MODEL_ID];
+
+	    json status = ms.get_status(modelId);
 
             // Do not overwrite an existing model if it is still training
-	    json in_training = Model::check_if_training(ms, modelId);
-	    if(!in_training.empty()) {
-                string dumpStr = in_training.dump();
-                response << dumpStr;
-                return dumpStr;
+	    bool trained = status[ms.TRAINED];
+            if(!trained) {
+              json ret;
+              ret[ms.MODEL_ID] = modelId;
+              ret[ms.PROGRESS] = status[ms.PROGRESS];
+              ret[ms.STATUS] = "Training must be complete before overwriting";
+              string dumpStr = ret.dump();
+              response << dumpStr;
+              return dumpStr;
             }
 
             /*
@@ -500,7 +482,14 @@ int main(int argc, const char* argv[]) {
     ){
         ModelStatus ms(sqlite3DB);
         string modelId = req.params["modelId"];
-        json ret = ms.get_training_progress_response(modelId);
+	json status = ms.get_status(modelId);
+        json ret;
+        ret[ms.MODEL_ID] = modelId;
+	if(status.empty()) {
+            ret[ms.STATUS] = "Invalid model ID";  // Model ID not found
+	} else {
+	    ret[ms.PROGRESS] = status[ms.PROGRESS];
+	}
         res << ret.dump();
     });
 
@@ -545,13 +534,29 @@ int main(int argc, const char* argv[]) {
 
 	    ModelStatus ms(sqlite3DB);
             string modelId = req.params["modelId"];
+	    json status = ms.get_status(modelId);
+
+	    // Model ID not found
+	    if(status.empty()) {
+              json ret;
+              ret[ms.MODEL_ID] = modelId;
+              ret[ms.STATUS] = "Invalid model ID";
+              string dumpStr = ret.dump();
+              res << dumpStr;
+              return dumpStr;
+	    }
 
             // Do not edit an untrained model
-            json in_training = Model::check_if_training(ms, modelId);
-            if(!in_training.empty()) {
-                string dumpStr = in_training.dump();
-                res << dumpStr;
-                return dumpStr;
+	    bool trained = status[ms.TRAINED];
+	    if(!trained) {
+	      json ret;
+	      ret[ms.MODEL_ID] = modelId;
+	      ret[ms.PROGRESS] = status[ms.PROGRESS];
+	      ret[ms.TRAINED] = trained;
+	      ret[ms.STATUS] = "Training must be complete before editing edges";
+              string dumpStr = ret.dump();
+              res << dumpStr;
+              return dumpStr;
             }
 
 	    // parse input here
@@ -633,8 +638,8 @@ int main(int argc, const char* argv[]) {
             */
 
 	    json ret;
-            ret[ms.STATUS_MODEL_ID] = modelId;
-	    ret[ms.STATUS_STATUS] = "edit-edges endpoint in development";
+            ret[ms.MODEL_ID] = modelId;
+	    ret[ms.STATUS] = "edit-edges endpoint in development";
             string dumpStr = ret.dump();
             res << dumpStr;
             return dumpStr;
@@ -675,7 +680,7 @@ int main(int argc, const char* argv[]) {
 
             if (query_result.empty()) {
                 json ret_exp;
-                ret_exp["status"] = "invalid model id";
+                ret_exp["status"] = "Invalid model ID";
                 res << ret_exp.dump();
                 return;
             }
