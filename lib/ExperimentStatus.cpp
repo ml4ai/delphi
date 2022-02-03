@@ -19,8 +19,8 @@ json ExperimentStatus::compose_status() {
   if (ag != nullptr) {
     string experiment_id = ag->get_experiment_id();
     if(!experiment_id.empty()) {
-      status[COL_ID] = experiment_id;
-      status[STATUS_PROGRESS] =
+      status[EXPERIMENT_ID] = experiment_id;
+      status[PROGRESS] =
         delphi::utils::round_n(ag->get_experiment_progress(), 2);
     }
   }
@@ -42,12 +42,12 @@ json ExperimentStatus::get_experiment_progress(string experiment_id) {
   json ret;
 
   if(result.empty()) {
-    ret[COL_ID] = experiment_id;
-    ret[COL_STATUS] = "Invalid experiment ID";
+    ret[EXPERIMENT_ID] = experiment_id;
+    ret[STATUS] = "Invalid experiment ID";
   } else {
-    string statusString = result[COL_STATUS];
+    string statusString = result[STATUS];
     json status = json::parse(statusString);
-    ret[STATUS_PROGRESS] = status[STATUS_PROGRESS];
+    ret[PROGRESS] = status[PROGRESS];
   }
 
   return ret;
