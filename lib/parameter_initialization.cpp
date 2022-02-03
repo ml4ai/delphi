@@ -452,7 +452,7 @@ void AnalysisGraph::construct_theta_pdfs() {
           get(adjective_response_map, obj_adjective, marginalized_responses));
 
       for (auto [x, y] : ranges::views::cartesian_product(subj_responses, obj_responses)) {
-        all_thetas.push_back(atan2(sigma_Y * y, sigma_X * x));
+          all_thetas.push_back(atan((sigma_Y * y) / (sigma_X * x)));
       }
     }
 
