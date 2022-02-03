@@ -169,6 +169,34 @@ class Model {
 
     public:
 
+    // Return empty JSON if model not in training
+    static json check_if_training(ModelStatus ms, string modelId) {
+	json ret;
+
+        // Test if we have a status record of this model ID
+        json model_status = ms.get_status(modelId);
+        if(!model_status.empty()) {
+	
+	    // If we have a record, test if it is trained
+            bool trained = model_status[ms.TRAINED];
+            // Advise the user if the existing model is not trained
+            if(!trained) {
+                double progress = model_status[ms.PROGRESS];
+                char buf[200];
+                sprintf(buf, "%3.2f", progress);
+                string report =
+                "An existing model with this ID is still training, "
+                + ms.PROGRESS
+                + " = "
+                + string(buf);
+                ret[ms.MODEL_ID] = modelId;
+                ret[ms.STATUS] = report;
+            }
+        }
+
+	return ret;  // empty if model is trained
+    }
+
     static void train_model(
         Database* sqlite3DB,
         AnalysisGraph G,
@@ -273,13 +301,14 @@ int main(int argc, const char* argv[]) {
         .post([&sqlite3DB](served::response& response,
                            const served::request& req) {
             nlohmann::json json_data = nlohmann::json::parse(req.body());
+
 	    ModelStatus ms(sqlite3DB);
 
-	    // input must have a model ID field
-	    if(!json_data.contains(ms.MODEL_ID)) {
-	        string report = "Input must contain an '" 
-		  + ms.MODEL_ID 
-		  + "' field.";
+            // input must have a model ID field
+            if(!json_data.contains(ms.MODEL_ID)) {
+                string report = "Input must contain an '"
+                  + ms.MODEL_ID
+                  + "' field.";
                 json ret_exp;
                 ret_exp[ms.MODEL_ID] = "Not found";
                 ret_exp[ms.STATUS] = report;
@@ -287,12 +316,12 @@ int main(int argc, const char* argv[]) {
                 return ret_exp.dump();
             }
 
-	    string modelId = json_data[ms.MODEL_ID];
+            string modelId = json_data[ms.MODEL_ID];
 
-	    json status = ms.get_status(modelId);
+            json status = ms.get_status(modelId);
 
             // Do not overwrite an existing model if it is still training
-	    bool trained = status[ms.TRAINED];
+            bool trained = status[ms.TRAINED];
             if(!trained) {
               json ret;
               ret[ms.MODEL_ID] = modelId;
@@ -303,7 +332,7 @@ int main(int argc, const char* argv[]) {
               return dumpStr;
             }
 
-            /*
+           /*
              If neither "CI" or "DELPHI_N_SAMPLES" is set, we default to a
              sampling resolution of 1000.
 
@@ -313,7 +342,7 @@ int main(int argc, const char* argv[]) {
             */
             size_t kde_kernels = 200;
             int sampling_resolution = 100; // in all cases
-	    int burn = 10000;
+            int burn = 10000;
             if (getenv("CI")) {
                 // When running in a continuous integration run, we set the
                 // sampling resolution to be small to prevent timeouts.
@@ -338,7 +367,7 @@ int main(int argc, const char* argv[]) {
             auto response_json =
                 nlohmann::json::parse(G.generate_create_model_response());
 
-            try {
+	                try {
                 thread executor_create_model(&Model::train_model,
                                              sqlite3DB,
                                              G,
@@ -363,6 +392,10 @@ int main(int argc, const char* argv[]) {
             response << strresult;
             return strresult;
         });
+
+
+
+
 
     /* openApi 3.0.0
          """ Fetch experiment results"""
@@ -482,14 +515,14 @@ int main(int argc, const char* argv[]) {
     ){
         ModelStatus ms(sqlite3DB);
         string modelId = req.params["modelId"];
-	json status = ms.get_status(modelId);
+        json status = ms.get_status(modelId);
         json ret;
         ret[ms.MODEL_ID] = modelId;
-	if(status.empty()) {
+        if(status.empty()) {
             ret[ms.STATUS] = "Invalid model ID";  // Model ID not found
-	} else {
-	    ret[ms.PROGRESS] = status[ms.PROGRESS];
-	}
+        } else {
+            ret[ms.PROGRESS] = status[ms.PROGRESS];
+        }
         res << ret.dump();
     });
 
@@ -534,29 +567,13 @@ int main(int argc, const char* argv[]) {
 
 	    ModelStatus ms(sqlite3DB);
             string modelId = req.params["modelId"];
-	    json status = ms.get_status(modelId);
-
-	    // Model ID not found
-	    if(status.empty()) {
-              json ret;
-              ret[ms.MODEL_ID] = modelId;
-              ret[ms.STATUS] = "Invalid model ID";
-              string dumpStr = ret.dump();
-              res << dumpStr;
-              return dumpStr;
-	    }
 
             // Do not edit an untrained model
-	    bool trained = status[ms.TRAINED];
-	    if(!trained) {
-	      json ret;
-	      ret[ms.MODEL_ID] = modelId;
-	      ret[ms.PROGRESS] = status[ms.PROGRESS];
-	      ret[ms.TRAINED] = trained;
-	      ret[ms.STATUS] = "Training must be complete before editing edges";
-              string dumpStr = ret.dump();
-              res << dumpStr;
-              return dumpStr;
+            json in_training = Model::check_if_training(ms, modelId);
+            if(!in_training.empty()) {
+                string dumpStr = in_training.dump();
+                res << dumpStr;
+                return dumpStr;
             }
 
 	    // parse input here
@@ -680,7 +697,7 @@ int main(int argc, const char* argv[]) {
 
             if (query_result.empty()) {
                 json ret_exp;
-                ret_exp["status"] = "Invalid model ID";
+                ret_exp["status"] = "invalid model id";
                 res << ret_exp.dump();
                 return;
             }
