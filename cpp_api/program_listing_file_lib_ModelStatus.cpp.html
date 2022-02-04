@@ -100,10 +100,10 @@
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ag</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">model_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ag</span><span class="o">-&gt;</span><span class="n">id</span><span class="p">;</span><span class="w"></span>
 <span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">model_id</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="n">status</span><span class="p">[</span><span class="n">COL_ID</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">model_id</span><span class="p">;</span><span class="w"></span>
-<span class="w">      </span><span class="n">status</span><span class="p">[</span><span class="n">STATUS_PROGRESS</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">      </span><span class="n">status</span><span class="p">[</span><span class="n">MODEL_ID</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">model_id</span><span class="p">;</span><span class="w"></span>
+<span class="w">      </span><span class="n">status</span><span class="p">[</span><span class="n">PROGRESS</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
 <span class="w">    </span><span class="n">delphi</span><span class="o">::</span><span class="n">utils</span><span class="o">::</span><span class="n">round_n</span><span class="p">(</span><span class="n">ag</span><span class="o">-&gt;</span><span class="n">get_training_progress</span><span class="p">(),</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span><span class="w"></span>
-<span class="w">      </span><span class="n">status</span><span class="p">[</span><span class="n">STATUS_TRAINED</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ag</span><span class="o">-&gt;</span><span class="n">get_trained</span><span class="p">();</span><span class="w"></span>
+<span class="w">      </span><span class="n">status</span><span class="p">[</span><span class="n">TRAINED</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ag</span><span class="o">-&gt;</span><span class="n">get_trained</span><span class="p">();</span><span class="w"></span>
 <span class="c1">//      status[&quot;stopped&quot;] = ag-&gt;get_stopped();</span>
 <span class="c1">//      status[&quot;log_likelihood&quot;] = ag-&gt;get_log_likelihood();</span>
 <span class="c1">//      status[&quot;log_likelihood_previous&quot;] = ag-&gt;get_previous_log_likelihood();</span>
@@ -117,23 +117,6 @@
 <span class="kt">void</span><span class="w"> </span><span class="nf">ModelStatus::update_db</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">  </span><span class="n">string</span><span class="w"> </span><span class="n">model_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ag</span><span class="o">-&gt;</span><span class="n">id</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="n">set_status</span><span class="p">(</span><span class="n">model_id</span><span class="p">,</span><span class="w"> </span><span class="n">compose_status</span><span class="p">());</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-
-<span class="cm">/* Return the training progress for this model */</span><span class="w"></span>
-<span class="n">json</span><span class="w"> </span><span class="nf">ModelStatus::get_training_progress_response</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">modelId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="n">logInfo</span><span class="p">(</span><span class="s">&quot;get_training_progress_response&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">  </span><span class="n">json</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_status</span><span class="p">(</span><span class="n">modelId</span><span class="p">);</span><span class="w"></span>
-<span class="w">  </span><span class="n">json</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="n">ret</span><span class="p">[</span><span class="n">COL_ID</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">modelId</span><span class="p">;</span><span class="w"></span>
-
-<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">ret</span><span class="p">[</span><span class="n">COL_STATUS</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Invalid model ID&quot;</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">ret</span><span class="p">[</span><span class="n">STATUS_PROGRESS</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result</span><span class="p">[</span><span class="n">STATUS_PROGRESS</span><span class="p">];</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
-
-<span class="w">  </span><span class="n">logInfo</span><span class="p">(</span><span class="s">&quot;  &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">ret</span><span class="p">.</span><span class="n">dump</span><span class="p">());</span><span class="w"></span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
