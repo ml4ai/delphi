@@ -55,7 +55,14 @@ string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
     // To go for a more compressed version of concepts where array index is the
     // concept id
     j["concepts"] = {};
-    j["periods"] = {};
+
+    if (!verbose) {
+        j["periods"] = {};
+        j["has_min"] = {};
+        j["min_val_obs"] = {};
+        j["has_max"] = {};
+        j["max_val_obs"] = {};
+    }
 
     // Concept to indicator mapping. This is an array of array of objects
     // Outer array goes from 0 to this->num_vertices() - 1 and it is indexed by
@@ -72,7 +79,11 @@ string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
             j["concepts"].push_back(
                         {{"concept", n.name},
                          {"cid", this->name_to_vertex.at(n.name)},
-                         {"period", n.period}});
+                         {"period", n.period},
+                         {"has_min", n.has_min},
+                         {"min_val_obs", n.min_val_obs},
+                         {"has_max", n.has_max},
+                         {"max_val_obs", n.max_val_obs}});
 
             for (Indicator &ind : n.indicators) {
                 j["conceptIndicators"][this->name_to_vertex.at(n.name)].push_back(
@@ -91,6 +102,10 @@ string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
             // array index keeps track of the concept id
             j["concepts"][this->name_to_vertex.at(n.name)] = n.name;
             j["periods"][this->name_to_vertex.at(n.name)] = n.period;
+            j["has_min"][this->name_to_vertex.at(n.name)] = n.has_min;
+            j["min_val_obs"][this->name_to_vertex.at(n.name)] = n.min_val_obs;
+            j["has_max"][this->name_to_vertex.at(n.name)] = n.has_max;
+            j["max_val_obs"][this->name_to_vertex.at(n.name)] = n.max_val_obs;
 
             for (Indicator &ind : n.indicators) {
                 // This is a more compressed representation. We do not store iid
