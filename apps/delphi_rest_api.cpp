@@ -297,7 +297,7 @@ int main(int argc, const char* argv[]) {
               json ret;
               ret[ms.MODEL_ID] = modelId;
               ret[ms.PROGRESS] = status[ms.PROGRESS];
-              ret[ms.STATUS] = "Training must be complete before overwriting";
+              ret[ms.STATUS] = "A model with the same ID is still training";
               string dumpStr = ret.dump();
               response << dumpStr;
               return dumpStr;
@@ -383,33 +383,31 @@ int main(int argc, const char* argv[]) {
             string modelId = req.params["modelId"];
             string experimentId = req.params["experimentId"];
 
+	    ExperimentStatus es(sqlite3DB);
+
             json query_result =
                 sqlite3DB->select_causemosasyncexperimentresult_row(
-                    experimentId);
+                    experimentId
+		);
 
-            if (query_result.empty()) { // experimentID not in database.
-                json error;
-                error["modelId"] = modelId;
-                error["experimentId"] = experimentId;
-                error["experimentType"] = "UNKNOWN";
-                error["status"] = "invalid experiment id";
-                error["results"] = "Not found";
-                res << error.dump();
-                return;
-            }
+	    json ret;
+            ret[es.MODEL_ID] = modelId;
+            ret[es.EXPERIMENT_ID] = experimentId;
 
-            string resultstr = query_result["results"];
-            json results = json::parse(resultstr);
+            if (query_result.empty()) { // should not be possible?
+                ret[es.EXPERIMENT_TYPE] = "UNKNOWN";
+                ret[es.STATUS] = "invalid experiment id";
+                ret[es.RESULTS] = "Not found";
+            } else {
+                string resultstr = query_result[es.RESULTS];
+                json results = json::parse(resultstr);
+                ret[es.EXPERIMENT_TYPE] = "TBD"; // TODO decide on this
+                ret[es.STATUS] = "TBD"; // TODO decide on this
+                ret[es.RESULTS] = results["data"];
+            } 
 
-            json output;
-            output["modelId"] = modelId;
-            output["experimentId"] = experimentId;
-            output["experimentType"] = query_result["experimentType"];
-            output["status"] = query_result["status"];
-            //            output["progressPercentage"] = "Not yet implemented";
-            output["results"] = results["data"];
-
-            res << output.dump();
+	    res << ret.dump();
+            return ret;
         });
 
     /* openApi 3.0.0
@@ -426,26 +424,22 @@ int main(int argc, const char* argv[]) {
 	    ExperimentStatus es(sqlite3DB);
 
             json ret;
-            ret[ms.MODEL_ID] = modelId;
+            ret[es.MODEL_ID] = modelId;
 
 	    json status = ms.get_status(modelId);
 
 	    // Model not found
 	    if(status.empty()) {
-              ret[ms.STATUS] = "Invalid model ID";
-              string dumpStr = ret.dump();
-              res << dumpStr;
+              ret[es.STATUS] = "Invalid model ID";
+              res << ret.dump();
               return ret;
 	    }
 
             // Model not trained
 	    bool trained = status[ms.TRAINED];
 	    if(!trained) {
-	      ret[ms.PROGRESS] = status[ms.PROGRESS];
-	      ret[ms.TRAINED] = trained;
-	      ret[ms.STATUS] = "Training must finish before experimenting";
-              string dumpStr = ret.dump();
-              res << dumpStr;
+	      ret[es.STATUS] = "Model training must finish before experimenting";
+              res << ret.dump();
               return ret;
             }
 
@@ -495,6 +489,7 @@ int main(int argc, const char* argv[]) {
 	if(status.empty()) {
             ret[ms.STATUS] = "Invalid model ID";  // Model ID not found
 	} else {
+	    ret[ms.TRAINED] = status[ms.TRAINED];
 	    ret[ms.PROGRESS] = status[ms.PROGRESS];
 	}
         res << ret.dump();
