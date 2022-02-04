@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Author: Joseph Astier
+
+# Test the Delphi REST API by calling the endpoints and comparing 
+# the output to known references.
+
+#modelId=$1
+modelId="3nodes"
+
+./test_model_status $modelId
+./test_training_progress $modelId
+
+
+

@@ -15,6 +15,8 @@ class BaseStatus {
     void insert(string query);
     string table_name = "N/A";
     string class_name = "N/A";
+    const string COL_ID = "id"; // arbitrary
+    const string COL_STATUS = "status"; // arbitrary
 
   protected:
     virtual json compose_status() = 0;
@@ -44,8 +46,7 @@ class BaseStatus {
     void start_updating_db(AnalysisGraph* ag);
     void stop_updating_db();
 
-    const string COL_ID = "id"; // arbitrary
-    const string COL_STATUS = "status"; // arbitrary
-    const string STATUS_PROGRESS = "progressPercentage"; // API
-    const string STATUS_STATUS = "status"; // API
+    const string PROGRESS = "progressPercentage"; // API
+    const string STATUS = "status"; // API
+    const string ERROR = "error"; // arbitrary, not exported
 };

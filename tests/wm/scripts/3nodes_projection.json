@@ -3,7 +3,7 @@
   "experimentParam": {
     "startTime": 1643673600000,
     "endTime": 1672531200000,
-    "numTimesteps": 100000,
+    "numTimesteps": 10,
     "constraints": []
   }
 }
