@@ -403,6 +403,7 @@ int main(int argc, const char* argv[]) {
                 json results = json::parse(resultstr);
                 ret[es.EXPERIMENT_TYPE] = query_result[es.EXPERIMENT_TYPE];
                 ret[es.STATUS] = query_result[es.STATUS];
+                ret[es.PROGRESS] = query_result[es.PROGRESS];
                 ret[es.RESULTS] = results["data"];
             } 
 
@@ -528,38 +529,47 @@ int main(int argc, const char* argv[]) {
     mux.handle("/models/{modelId}/edit-edges")
 
         .post([&sqlite3DB](served::response& res, const served::request& req) {
-            string message =
-                "Edit-edges: Currently implemented as a NOP.  It will soon "
-                "have the semantics of changing the prior distribution of the "
-                "rate of change of the target node with respect to the source "
-                "node expressed in terms of angles.";
 
 	    ModelStatus ms(sqlite3DB);
             string modelId = req.params["modelId"];
-	    json status = ms.get_status(modelId);
 
-	    // Model not found
-	    if(status.empty()) {
+	    // Get the model row from the database
+            json query_result = sqlite3DB->select_delphimodel_row(modelId);
+
+	    // if nothing is found, the model ID is invalid
+	    if(query_result.empty()) {
               json ret;
               ret[ms.MODEL_ID] = modelId;
               ret[ms.STATUS] = "Invalid model ID";
-              string dumpStr = ret.dump();
-              res << dumpStr;
-              return dumpStr;
+              res << ret.dump();
+              return ret;
 	    }
 
-            // Model not trained
-	    bool trained = status[ms.TRAINED];
+	    // deserialize the query result
+            string modelString = query_result["model"];
+	    json model = json::parse(modelString);
+
+            // Return an error if the model is not trained.
+	    bool trained = model[ms.TRAINED];
 	    if(!trained) {
 	      json ret;
 	      ret[ms.MODEL_ID] = modelId;
-	      ret[ms.PROGRESS] = status[ms.PROGRESS];
 	      ret[ms.TRAINED] = trained;
 	      ret[ms.STATUS] = "Training must finish before editing edges";
-              string dumpStr = ret.dump();
-              res << dumpStr;
-              return dumpStr;
+              res << ret.dump();
+              return ret;
             }
+
+
+            res << model.dump();
+	    return model;
+
+	    // return the model for now just so we can see it.
+//            AnalysisGraph G;
+//            G = G.deserialize_from_json_string(model, false);
+
+
+	    
 
 	    // parse input here
 
@@ -637,14 +647,13 @@ int main(int argc, const char* argv[]) {
                 res << dumpStr;
                 return dumpStr;
 
-            */
 
 	    json ret;
             ret[ms.MODEL_ID] = modelId;
 	    ret[ms.STATUS] = "edit-edges endpoint in development";
-            string dumpStr = ret.dump();
-            res << dumpStr;
-            return dumpStr;
+            res << ret.dump();
+            return ret;
+            */
         });
 
 
