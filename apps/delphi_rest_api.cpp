@@ -401,8 +401,8 @@ int main(int argc, const char* argv[]) {
             } else {
                 string resultstr = query_result[es.RESULTS];
                 json results = json::parse(resultstr);
-                ret[es.EXPERIMENT_TYPE] = "TBD"; // TODO decide on this
-                ret[es.STATUS] = "TBD"; // TODO decide on this
+                ret[es.EXPERIMENT_TYPE] = query_result[es.EXPERIMENT_TYPE];
+                ret[es.STATUS] = query_result[es.STATUS];
                 ret[es.RESULTS] = results["data"];
             } 
 
