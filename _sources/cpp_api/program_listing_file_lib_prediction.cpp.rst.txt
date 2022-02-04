@@ -30,6 +30,23 @@ Program Listing for File prediction.cpp
     ============================================================================
    */
    
+   void AnalysisGraph::check_bounds() {
+       int num_verts = this->num_vertices();
+   
+       for (int v = 0; v < num_verts; v++) {
+           Node &n = (*this)[v];
+   
+           if (n.has_min && this->current_latent_state[2 * v] < n.min_val) {
+               this->current_latent_state[2 * v] = n.min_val;
+           }
+   
+           if (n.has_max && this->current_latent_state[2 * v] > n.max_val) {
+               this->current_latent_state[2 * v] = n.max_val;
+           }
+       }
+   }
+   
+   
    void AnalysisGraph::generate_latent_state_sequences(
        double initial_prediction_step) {
    
@@ -108,8 +125,6 @@ Program Listing for File prediction.cpp
                this->current_latent_state[2 * v + 1] =
                    deriv_func(initial_prediction_step, ind.mean);
              }
-   
-             this->predicted_latent_state_sequences[samp][0] = this->current_latent_state;
          } else {
              // Here A = Ad = this->transition_matrix_collection[samp] (discrete)
              // This is the discrete transition matrix to take a single step of
@@ -140,9 +155,10 @@ Program Listing for File prediction.cpp
                this->current_latent_state[2 * v + 1] =
                                      deriv_func(initial_prediction_step, ind.mean);
              }
-   
-             this->predicted_latent_state_sequences[samp][0] = this->current_latent_state;
          }
+   
+         this->check_bounds();
+         this->predicted_latent_state_sequences[samp][0] = this->current_latent_state;
    
          // Clear out perpetual constraints residual from previous sample
          this->perpetual_constraints.clear();
@@ -184,6 +200,7 @@ Program Listing for File prediction.cpp
              this->current_latent_state = A * this->predicted_latent_state_sequences[samp][ts - 1];
              this->update_latent_state_with_generated_derivatives(
                  initial_prediction_step + ts, initial_prediction_step + ts + 1);
+             this->check_bounds();
              this->predicted_latent_state_sequences[samp][ts] = this->current_latent_state;
    
              // Set derivatives for frozen nodes

@@ -60,11 +60,15 @@ Program Listing for File sandbox.cpp
    
        // for (vector<tuple<string, string>, tuple<string, int>> concept_arr :
        // json_data["concepts"])
-       for (auto& concept_arr : json_data["concepts"]) {
-         // print("{0} \n", concept_arr.value()[0]);
-         // this->add_node(get<1>(concept_arr[0]).get<int>());
-         int v = this->add_node(concept_arr["concept"].get<string>());
-         (*this)[v].period = concept_arr["period"].get<int>();
+       for (auto& concept_obj : json_data["concepts"]) {
+         // print("{0} \n", concept_obj.value()[0]);
+         // this->add_node(get<1>(concept_obj[0]).get<int>());
+         int v = this->add_node(concept_obj["concept"].get<string>());
+         (*this)[v].period = concept_obj["period"].get<int>();
+         (*this)[v].has_min = concept_obj["has_min"].get<bool>();
+         (*this)[v].min_val_obs = concept_obj["min_val_obs"].get<double>();
+         (*this)[v].has_max = concept_obj["has_max"].get<bool>();
+         (*this)[v].max_val_obs = concept_obj["max_val_obs"].get<double>();
        }
        for (int v = 0; v < this->num_vertices(); v++) {
          Node& n = (*this)[v];
@@ -118,6 +122,10 @@ Program Listing for File sandbox.cpp
        for (int i = 0; i < json_data["concepts"].size(); i++) {
          int v = this->add_node(json_data["concepts"][i]);
          (*this)[v].period = json_data["periods"][i].get<int>();
+         (*this)[v].has_min = json_data["has_min"][i].get<bool>();
+         (*this)[v].min_val_obs = json_data["min_val_obs"][i].get<double>();
+         (*this)[v].has_max = json_data["has_max"][i].get<bool>();
+         (*this)[v].max_val_obs = json_data["max_val_obs"][i].get<double>();
        }
    
        for (int v = 0; v < this->num_vertices(); v++) {

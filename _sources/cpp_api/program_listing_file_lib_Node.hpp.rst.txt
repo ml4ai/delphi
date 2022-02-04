@@ -44,10 +44,16 @@ Program Listing for File Node.hpp
      std::string center_measure = "median"; // median or mean
      std::string model = "center"; // center, absolute_change, relative_change
    
+     // Tracks whether bounds are available for this node
      bool has_max = false;
      bool has_min = false;
+     // Latent space bounds
      double max_val = std::numeric_limits<double>::max();
      double min_val = std::numeric_limits<double>::min();
+     // Observation space bounds for the first indicator attached to this node
+     // latent bound = observation bound / scaling factor
+     double max_val_obs = std::numeric_limits<double>::max();
+     double min_val_obs = std::numeric_limits<double>::min();
    
      bool visited;
      LatentVar rv;

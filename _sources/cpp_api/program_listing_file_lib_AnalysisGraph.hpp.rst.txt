@@ -801,6 +801,9 @@ Program Listing for File AnalysisGraph.hpp
       ============================================================================
      */
    
+     void check_bounds();
+   
+   
      void generate_latent_state_sequences(double initial_prediction_step);
    
      void perturb_predicted_latent_state_at(int timestep, int sample_number);
