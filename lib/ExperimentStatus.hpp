@@ -34,7 +34,6 @@ class ExperimentStatus : public BaseStatus {
     ~ExperimentStatus(){}
     void update_db();
     json get_experiment_progress(string experimentId);
-//    json get_projection_response(string experimentId);
 
     const string CONSTRAINTS = "constraints"; // API
     const string END_TIME = "endTime"; // API

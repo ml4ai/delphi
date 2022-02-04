@@ -14,6 +14,7 @@
 #include <nlohmann/json.hpp>
 #include <range/v3/all.hpp>
 #include <served/served.hpp>
+#include <served/parameters.hpp>
 #include <sqlite3.h>
 #include <string>
 #include <thread>
@@ -185,6 +186,52 @@ class Model {
             modelId,
             G.serialize_to_json_string(false));
     }
+
+    static size_t get_kde_kernels() {
+        // When running in a continuous integration run, we set the
+        // sampling resolution to be small to prevent timeouts.
+        if (getenv("CI")) {
+            return 200;
+        }
+
+        // We also enable setting the sampling resolution through the
+        // environment variable "DELPHI_N_SAMPLES", for development and
+        // testing purposes.
+        if (getenv("DELPHI_N_SAMPLES")) {
+            return (size_t)stoul(getenv("DELPHI_N_SAMPLES"));
+        } 
+
+	// If no specific environment is set, return a default value
+	return 200;
+    }
+
+
+    /*
+    TODO - we might want to set the default sampling resolution with
+    some kind of heuristic, based on the number of nodes and edges. -
+    Adarsh
+    */
+    static int get_sampling_resolution() {
+        return 100; 
+    }
+
+    static int get_burn() {
+        // When running in a continuous integration run, we set the
+        // burn to a low value to prevent timeouts.
+        if (getenv("CI")) {
+            return 1000;
+        }
+	
+	// if the environment variable "DELPHI_N_SAMPLES" has been set,
+	// we adjust the burn rate as well.
+        if (getenv("DELPHI_N_SAMPLES")) {
+            return 100;
+	}
+
+	// If no specific environment is set, return a default value
+	return 10000;
+    }
+
 };
 
 
@@ -303,30 +350,9 @@ int main(int argc, const char* argv[]) {
               return dumpStr;
             }
 
-            /*
-             If neither "CI" or "DELPHI_N_SAMPLES" is set, we default to a
-             sampling resolution of 1000.
-
-             TODO - we might want to set the default sampling resolution with
-             some kind of heuristic, based on the number of nodes and edges. -
-             Adarsh
-            */
-            size_t kde_kernels = 200;
-            int sampling_resolution = 100; // in all cases
-	    int burn = 10000;
-            if (getenv("CI")) {
-                // When running in a continuous integration run, we set the
-                // sampling resolution to be small to prevent timeouts.
-                kde_kernels = 200;
-                burn = 1000;
-            }
-            else if (getenv("DELPHI_N_SAMPLES")) {
-                // We also enable setting the sampling resolution through the
-                // environment variable "DELPHI_N_SAMPLES", for development and
-                // testing purposes.
-                kde_kernels = (size_t)stoul(getenv("DELPHI_N_SAMPLES"));
-                burn = 100;
-            }
+	    size_t kde_kernels = Model::get_kde_kernels();
+	    int burn = Model::get_burn();
+	    int sampling_resolution = Model::get_sampling_resolution();
 
             AnalysisGraph G;
             G.set_n_kde_kernels(kde_kernels);
@@ -530,91 +556,73 @@ int main(int argc, const char* argv[]) {
 
         .post([&sqlite3DB](served::response& res, const served::request& req) {
 
+        nlohmann::json req_json = nlohmann::json::parse(req.body());
+
+
 	    ModelStatus ms(sqlite3DB);
             string modelId = req.params["modelId"];
+            json ret;
+            ret[ms.MODEL_ID] = modelId;
+
+	    auto relations = req_json["relations"];
+
+	    // test input for edges
+            if(relations.empty()) {
+                // return error
+                ret[ms.STATUS] = "Edges not found in input";
+                res << ret.dump();
+                return ret;
+            }
 
 	    // Get the model row from the database
             json query_result = sqlite3DB->select_delphimodel_row(modelId);
 
 	    // if nothing is found, the model ID is invalid
 	    if(query_result.empty()) {
-              json ret;
-              ret[ms.MODEL_ID] = modelId;
               ret[ms.STATUS] = "Invalid model ID";
               res << ret.dump();
               return ret;
 	    }
 
-	    // deserialize the query result
-            string modelString = query_result["model"];
-	    json model = json::parse(modelString);
+	    // deserialize the model
+	    string modelString = query_result["model"];
+            AnalysisGraph G;
+            G = G.deserialize_from_json_string(modelString, false);
 
             // Return an error if the model is not trained.
-	    bool trained = model[ms.TRAINED];
-	    if(!trained) {
-	      json ret;
-	      ret[ms.MODEL_ID] = modelId;
-	      ret[ms.TRAINED] = trained;
+	    if(!G.get_trained()) {
+	      ret[ms.TRAINED] = false;
 	      ret[ms.STATUS] = "Training must finish before editing edges";
               res << ret.dump();
               return ret;
             }
 
+	    // freeze edges
+	    for(auto relation : relations) {
+	        cout << "Freezing edge:" << endl;
 
-            res << model.dump();
-	    return model;
+		string source = relation["source"];
+		cout << "  Source = " << source << endl;
 
-	    // return the model for now just so we can see it.
-//            AnalysisGraph G;
-//            G = G.deserialize_from_json_string(model, false);
+		string target = relation["target"];
+		cout << "  Target = " << target << endl;
 
+		int polarity = relation["polarity"];
+		cout << "  Polarity = " << polarity << endl;
 
-	    
+		vector<double> weights = relation["weights"];
+		double weight = weights.front();
 
-	    // parse input here
+		cout << "  Weight = " << weight << endl;
+		G.freeze_edge_weight(source, target, weight, polarity);
+	    }
 
-	    // iterate through the array of edges to set weight, 
-	    // extract the parameters and call 
-	    // AnalysisGraph::freeze_edge_weight() for each edge.
-            
-	    // ...
+	    // train model in another thread
+	    size_t kde_kernels = Model::get_kde_kernels();
+	    int burn = Model::get_burn();
+	    int sampling_resolution = Model::get_sampling_resolution();
 
-	    // train the model in a separate thread.
-            /*
-             If neither "CI" or "DELPHI_N_SAMPLES" is set, we default to a
-             sampling resolution of 1000.
-
-             TODO - we might want to set the default sampling resolution with
-             some kind of heuristic, based on the number of nodes and edges. -
-             Adarsh
-            */
-	    /*
-            size_t kde_kernels = 200;
-            int sampling_resolution = 100; // in all cases
-	    int burn = 10000;
-            if (getenv("CI")) {
-                // When running in a continuous integration run, we set the
-                // sampling resolution to be small to prevent timeouts.
-                kde_kernels = 200;
-                burn = 1000;
-            }
-            else if (getenv("DELPHI_N_SAMPLES")) {
-                // We also enable setting the sampling resolution through the
-                // environment variable "DELPHI_N_SAMPLES", for development and
-                // testing purposes.
-                kde_kernels = (size_t)stoul(getenv("DELPHI_N_SAMPLES"));
-                burn = 100;
-            }
-
-            AnalysisGraph G;
             G.set_n_kde_kernels(kde_kernels);
-            G.from_causemos_json_dict(json_data, 0, 0);
-
-            sqlite3DB->insert_into_delphimodel(
-                json_data["id"], G.serialize_to_json_string(false));
-
-            auto response_json =
-                nlohmann::json::parse(G.generate_create_model_response());
 
             try {
                 thread executor_create_model(&Model::train_model,
@@ -630,30 +638,16 @@ int main(int argc, const char* argv[]) {
                 cout << "Error: unable to start training process" << endl;
                 json error;
                 error["status"] = "server error: training";
-                response << error.dump();
-                return error.dump();
+                res << error.dump();
+                return error;
             }
-
-
-            json result =
-                sqlite3DB->select_causemosasyncexperimentresult_row(modelId);
-            if (result.empty()) {
-                // model ID not in database.
-            }
-            result["modelId"] = modelId;
-            result["status"] = "edges edited";
-
-                string dumpStr = result.dump();
-                res << dumpStr;
-                return dumpStr;
-
-
-	    json ret;
-            ret[ms.MODEL_ID] = modelId;
-	    ret[ms.STATUS] = "edit-edges endpoint in development";
+	   
+	    // report
+	    char buf[200];
+	    sprintf(buf, "Edges edited: %d, model is in training.", (int)relations.size());
+	    ret[ms.STATUS] = string(buf);
             res << ret.dump();
             return ret;
-            */
         });
 
 
