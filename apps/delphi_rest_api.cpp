@@ -642,10 +642,15 @@ int main(int argc, const char* argv[]) {
                 return error;
             }
 	   
-	    // report
+	    // report success 
+	    int nEdges = relations.size();
 	    char buf[200];
-	    sprintf(buf, "Edges edited: %d, model is in training.", (int)relations.size());
-	    ret[ms.STATUS] = string(buf);
+	    if(nEdges == 1) {
+	      sprintf(buf, "1 edge");
+	    } else {
+	      sprintf(buf, "%d edges", nEdges);
+	    }
+	    ret[ms.STATUS] = string(buf) + " frozen, model is in training.";
             res << ret.dump();
             return ret;
         });
