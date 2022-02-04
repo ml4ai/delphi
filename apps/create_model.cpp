@@ -489,6 +489,7 @@ int main(int argc, char* argv[]) {
       cout << "Error: " << status << endl;
   }
 
+  FormattedProjectionResult proj;
   string frozen = G.serialize_to_json_string(false);
   AnalysisGraph G2 = AnalysisGraph::deserialize_from_json_string(frozen, false);
   G2.print_edges();
@@ -496,7 +497,6 @@ int main(int argc, char* argv[]) {
   G2.set_n_kde_kernels(100);
   G2.run_train_model(10, 10);
   cout << nlohmann::json::parse(G2.generate_create_model_response()).dump(2);
-  FormattedProjectionResult proj;
   proj = G2.run_causemos_projection_experiment_from_json_file(
       "../tests/data/delphi/experiments_rain--temperature--yield.json");
   return(0);

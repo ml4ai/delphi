@@ -77,6 +77,15 @@ void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json
 
         indicator_name = indicator["name"].get<string>();
 
+        if (!indicator["minValue"].is_null()) {
+            n.has_min = true;
+            n.min_val_obs = indicator["minValue"].get<double>();
+        }
+        if (!indicator["maxValue"].is_null()) {
+            n.has_max = true;
+            n.max_val_obs = indicator["maxValue"].get<double>();
+        }
+
         int ind_idx = this->set_indicator(n.name, indicator_name, indicator_source);
 
         if (ind_idx == -1) {

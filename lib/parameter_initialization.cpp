@@ -241,6 +241,13 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
           // Set mean and standard deviation of the concept based on the mean
           // and the standard deviation of the first indicator attached to it.
           if (i == 0) {
+              if (n.has_min) {
+                  n.min_val = n.min_val_obs / n.indicators[0].mean;
+              }
+              if (n.has_max) {
+                  n.max_val = n.max_val_obs / n.indicators[0].mean;
+              }
+
               transform(mean_sequence.begin(), mean_sequence.end(),
                         mean_sequence.begin(),
                       [&](double v){return v / n.indicators[0].mean;});

@@ -996,6 +996,17 @@ class AnalysisGraph {
   */
 
   /**
+   * Check whether each latent state value is within the minimum and maximum
+   * range of values for the first indicator attached to each latent node, if
+   * such bounds are provided for that indicator.
+   *
+   * Latent state bounds are computed by dividing the observation bound by the
+   * scaling factor of the first indicator attached to that node.
+   */
+  void check_bounds();
+
+
+  /**
    * Generate a collection of latent state sequences from the likelihood
    * model given a collection of sampled
    * (initial latent state,  transition matrix) pairs.
