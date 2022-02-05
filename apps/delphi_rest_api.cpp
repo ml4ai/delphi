@@ -336,18 +336,23 @@ int main(int argc, const char* argv[]) {
 
 	    string modelId = json_data[ms.MODEL_ID];
 
+            // If this model does not exist, set initial status state
 	    json status = ms.get_status(modelId);
-
-            // Do not overwrite an existing model if it is still training
-	    bool trained = status[ms.TRAINED];
-            if(!trained) {
-              json ret;
-              ret[ms.MODEL_ID] = modelId;
-              ret[ms.PROGRESS] = status[ms.PROGRESS];
-              ret[ms.STATUS] = "A model with the same ID is still training";
-              string dumpStr = ret.dump();
-              response << dumpStr;
-              return dumpStr;
+            if(status.empty()) {
+                ms.set_initial_status(modelId);
+            }
+            // If this model does exist, do not overwrite if training.
+            else {
+                bool trained = status[ms.TRAINED];
+                if(!trained) {
+                  json ret;
+                  ret[ms.MODEL_ID] = modelId;
+                  ret[ms.PROGRESS] = status[ms.PROGRESS];
+                  ret[ms.STATUS] = "A model with the same ID is still training";
+		  string dumpStr = ret.dump();
+                  response << dumpStr; 
+                  return dumpStr; 
+                }     
             }
 
 	    size_t kde_kernels = Model::get_kde_kernels();
