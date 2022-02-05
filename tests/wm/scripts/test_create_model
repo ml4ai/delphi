@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # Author: Joseph Astier
-
-# Test the model training
+#
+# Create a model and then query the training progress once
+# per second until it finishes.
 
 inputFile=$1
 login="-u me:ivilab4fun"
