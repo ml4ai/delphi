@@ -32,6 +32,7 @@ class ModelStatus : public BaseStatus {
     ) {}
     ~ModelStatus(){}
     void update_db();
+    void set_initial_status(string modelId);
 
     // serialized JSON fields in the status text
     const string MODEL_ID = "id"; // API

@@ -33,6 +33,14 @@ json ModelStatus::compose_status() {
   return status;
 }
 
+/* Compose the status for a new, untrained model */
+void ModelStatus::set_initial_status(string modelId) {
+  json status;
+  status[MODEL_ID] = modelId;
+  status[PROGRESS] = 0.0;
+  set_status(modelId, status);
+}
+
 /* write the current Model status to our table */
 void ModelStatus::update_db() {
   string model_id = ag->id;
