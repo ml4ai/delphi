@@ -232,6 +232,37 @@ class Model {
 	return 10000;
     }
 
+    // freeze the edge and return a status string (Empty means OK)
+    static string freeze_edge(
+        AnalysisGraph G,
+        string source_name,
+        string target_name,
+        double scaled_weight,
+        int polarity
+    ){
+        switch (G.freeze_edge_weight(
+            source_name,
+	    target_name,
+	    scaled_weight,
+	    polarity
+        )) {
+            case 1: return "scaled_weight " 
+                + to_string(scaled_weight) 
+                + " outside accepted range";
+            case 2: return "Source concept '" 
+                + source_name
+                + "' does not exist";
+            case 4: return "Target concept '"
+                + target_name
+                + "' does not exist";
+            case 8: return "There is no edge from '" 
+                + source_name 
+                + "' to '" 
+                + target_name 
+                + "'";
+            default: return "";
+	}
+    }
 };
 
 
@@ -578,48 +609,42 @@ int main(int argc, const char* argv[]) {
                 res << ret.dump();
                 return ret;
             }
+	    
+	    // check status of model
+	    json status = ms.get_status(modelId);
+	    double progress = status[ms.PROGRESS];
+	    if(progress < 1) {
+	      ret[ms.TRAINED] = false;
+	      ret[ms.PROGRESS] = status[ms.PROGRESS];
+	      ret[ms.STATUS] = "Training must finish before editing edges";
+              res << ret.dump();
+              return ret;
+            }
 
 	    // Get the model row from the database
             json query_result = sqlite3DB->select_delphimodel_row(modelId);
-
-	    // if nothing is found, the model ID is invalid
-	    if(query_result.empty()) {
-              ret[ms.STATUS] = "Invalid model ID";
-              res << ret.dump();
-              return ret;
-	    }
 
 	    // deserialize the model
 	    string modelString = query_result["model"];
             AnalysisGraph G;
             G = G.deserialize_from_json_string(modelString, false);
 
-            // Return an error if the model is not trained.
-	    if(!G.get_trained()) {
-	      ret[ms.TRAINED] = false;
-	      ret[ms.STATUS] = "Training must finish before editing edges";
-              res << ret.dump();
-              return ret;
-            }
-
 	    // freeze edges
 	    for(auto relation : relations) {
-	        cout << "Freezing edge:" << endl;
-
 		string source = relation["source"];
-		cout << "  Source = " << source << endl;
-
 		string target = relation["target"];
-		cout << "  Target = " << target << endl;
-
-		int polarity = relation["polarity"];
-		cout << "  Polarity = " << polarity << endl;
-
 		vector<double> weights = relation["weights"];
 		double weight = weights.front();
+		int polarity = relation["polarity"];
 
-		cout << "  Weight = " << weight << endl;
-		G.freeze_edge_weight(source, target, weight, polarity);
+		// test the return value
+		string errorReport = 
+                    Model::freeze_edge(G, source, target, weight, polarity);
+		if(!errorReport.empty()) {
+                    ret[ms.STATUS] = errorReport;
+                    res << ret.dump();
+                    return ret;
+		}
 	    }
 
 	    // train model in another thread
