@@ -495,7 +495,7 @@ int main(int argc, char* argv[]) {
   G2.print_edges();
 
   G2.set_n_kde_kernels(100);
-  G2.run_train_model(10, 10);
+  G2.run_train_model("create_model_cpp",10, 10);
   cout << nlohmann::json::parse(G2.generate_create_model_response()).dump(2);
   proj = G2.run_causemos_projection_experiment_from_json_file(
       "../tests/data/delphi/experiments_rain--temperature--yield.json");

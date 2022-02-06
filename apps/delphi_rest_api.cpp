@@ -173,17 +173,18 @@ class Model {
     static void train_model(
         Database* sqlite3DB,
         AnalysisGraph G,
-        string modelId,
+        string model_id,
         int sampling_resolution,
         int burn
     ) {
         G.run_train_model(
+            model_id,
             sampling_resolution,
             burn,
             InitialBeta::ZERO,
             InitialDerivative::DERI_ZERO);
         sqlite3DB->insert_into_delphimodel(
-            modelId,
+            model_id,
             G.serialize_to_json_string(false));
     }
 
