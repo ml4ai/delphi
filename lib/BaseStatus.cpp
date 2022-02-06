@@ -8,7 +8,7 @@
 #include <chrono>
 #include <nlohmann/json.hpp>
 
-//#define SHOW_LOGS  // define this to see info and error messages
+#define SHOW_LOGS  // define this to see info and error messages
 
 using namespace std;
 using namespace delphi::utils;
@@ -65,11 +65,34 @@ void BaseStatus::set_status(string id, json status) {
   insert(query);
 }
 
+void BaseStatus::set_initial_status(string model_id) {
+}
+
+
+bool BaseStatus::exists(string id) {
+  return exists(get_status(id));
+}
+
+bool BaseStatus::exists(json status) {
+  return !status.empty();
+}
+
+bool BaseStatus::is_busy(string id) {
+  return is_busy(get_status(id));
+}
+
+bool BaseStatus::is_busy(json status) {
+  if (status.empty()) return false;
+  double progress = status[PROGRESS];
+  return (progress < 1.0);
+}
+
+
 /* Return a JSON struct serialized from the 'status' query result row 
  * If the id is not found, return empty JSON */
 json BaseStatus::get_status(string id) {
   string info = "get_status(" + id + ") => ";
-  json queryResult = database->select_row(table_name, id, COL_STATUS);
+   json queryResult = database->select_row(table_name, id, COL_STATUS);
   if(queryResult.empty()) {
     logError(info + " ID not found");
     return queryResult;

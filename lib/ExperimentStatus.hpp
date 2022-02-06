@@ -34,6 +34,7 @@ class ExperimentStatus : public BaseStatus {
     ~ExperimentStatus(){}
     void update_db();
     json get_experiment_progress(string experimentId);
+    void set_initial_status(string modelId);
 
     const string CONSTRAINTS = "constraints"; // API
     const string END_TIME = "endTime"; // API

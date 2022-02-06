@@ -13,6 +13,11 @@ using namespace std;
 using namespace delphi::utils;
 using json = nlohmann::json;
 
+
+void ExperimentStatus::set_initial_status(string experiment_id) {
+	// TODO this is same as ModelStatus
+}
+
 /* write out the status as a string for the database */
 json ExperimentStatus::compose_status() {
   json status;

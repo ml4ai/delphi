@@ -180,9 +180,8 @@ class Model {
         G.run_train_model(
             model_id,
             sampling_resolution,
-            burn,
-            InitialBeta::ZERO,
-            InitialDerivative::DERI_ZERO);
+            burn
+	);
         sqlite3DB->insert_into_delphimodel(
             model_id,
             G.serialize_to_json_string(false));
@@ -326,6 +325,9 @@ int main(int argc, const char* argv[]) {
         return 1;
     }
 
+    // report status on startup
+    cout << systemStatus << endl;
+
     Database* sqlite3DB = new Database();
     Experiment* experiment = new Experiment();
     ModelStatus ms;
@@ -334,9 +336,6 @@ int main(int argc, const char* argv[]) {
 
     ms.init_db();
     es.init_db();
-
-    // report status on startup
-    cout << systemStatus << endl;
 
     /* Allow users to check if the REST API is running */
     mux.handle("/status").get(
@@ -352,11 +351,12 @@ int main(int argc, const char* argv[]) {
         .post([&sqlite3DB](served::response& response,
                            const served::request& req) {
             nlohmann::json json_data = nlohmann::json::parse(req.body());
-	    ModelStatus ms(sqlite3DB);
+
+	    ModelStatus ms;
 
 	    // input must have a model ID field
 	    if(!json_data.contains(ms.MODEL_ID)) {
-	        string report = "Input must contain an '" 
+	        string report = "Input must contain an id field" 
 		  + ms.MODEL_ID 
 		  + "' field.";
                 json ret_exp;
@@ -367,25 +367,21 @@ int main(int argc, const char* argv[]) {
             }
 
 	    string modelId = json_data[ms.MODEL_ID];
-
-            // If this model does not exist, set initial status state
 	    json status = ms.get_status(modelId);
-            if(status.empty()) {
-                ms.set_initial_status(modelId);
+
+            // do not overwrite model if it is training
+            if (ms.is_busy(status)) {
+                json ret;
+                ret[ms.MODEL_ID] = modelId;
+                ret[ms.PROGRESS] = status[ms.PROGRESS];
+                ret[ms.STATUS] = "A model with the same ID is still training";
+                string dumpStr = ret.dump();
+                response << dumpStr; 
+                return dumpStr; 
             }
-            // If this model does exist, do not overwrite if training.
-            else {
-                bool trained = status[ms.TRAINED];
-                if(!trained) {
-                  json ret;
-                  ret[ms.MODEL_ID] = modelId;
-                  ret[ms.PROGRESS] = status[ms.PROGRESS];
-                  ret[ms.STATUS] = "A model with the same ID is still training";
-		  string dumpStr = ret.dump();
-                  response << dumpStr; 
-                  return dumpStr; 
-                }     
-            }
+
+	    // otherwise, create and train model.
+            ms.set_initial_status(modelId);
 
 	    size_t kde_kernels = Model::get_kde_kernels();
 	    int burn = Model::get_burn();
@@ -396,7 +392,9 @@ int main(int argc, const char* argv[]) {
             G.from_causemos_json_dict(json_data, 0, 0);
 
             sqlite3DB->insert_into_delphimodel(
-                json_data["id"], G.serialize_to_json_string(false));
+                modelId, 
+		G.serialize_to_json_string(false)
+            );
 
             auto response_json =
                 nlohmann::json::parse(G.generate_create_model_response());
@@ -405,7 +403,7 @@ int main(int argc, const char* argv[]) {
                 thread executor_create_model(&Model::train_model,
                                              sqlite3DB,
                                              G,
-                                             json_data["id"],
+					     modelId,
                                              sampling_resolution,
                                              burn);
                 executor_create_model.detach();
@@ -418,9 +416,6 @@ int main(int argc, const char* argv[]) {
                 response << error.dump();
                 return error.dump();
             }
-
-            // response << response_json.dump();
-            // return response_json.dump();
 
             string strresult = response_json.dump();
             response << strresult;
