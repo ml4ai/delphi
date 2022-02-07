@@ -63,7 +63,8 @@ for model_id, model in enumerate(models):
                                                   grounding_score_cutoff=grounding_score_cutoff,
                                                   kde_kernels=kde_kernels)
         G.set_random_seed(seed)
-        G.run_train_model(res=res,
+        G.run_train_model("take_model_snapshot",
+                          res=res,
                           burn=burn,
                           initial_beta=initial_beta,
                           initial_derivative=initial_derivative,

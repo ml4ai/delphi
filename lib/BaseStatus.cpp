@@ -17,28 +17,29 @@ using json = nlohmann::json;
 /* Start the thread that posts the status to the datbase */
 void BaseStatus::scheduler() {
   logInfo("scheduler()");
-  while(!done_updating_db()){
+  while(!stop_recording){
     this_thread::sleep_for(std::chrono::seconds(1));
     if(pThread != nullptr) {
-      update_db();
+      record_status();
     }
   }
 }
 
 /* Begin posting progress updates to the database on a regular interval */
-void BaseStatus::start_updating_db(AnalysisGraph *ag){
+void BaseStatus::start_recording_progress(){
   logInfo("start_updating_db()");
-  this->ag = ag;
-  update_db();
+  stop_recording = false;
+  record_status();
   if(pThread == nullptr) {
     pThread = new thread(&BaseStatus::scheduler, this);
   }
 }
 
 /* Stop posting progress updates to the database */
-void BaseStatus::stop_updating_db(){
+void BaseStatus::stop_recording_progress(){
   logInfo("stop_updating_db()");
-  update_db();
+  stop_recording = true;
+  record_status();
   if (pThread != nullptr) {
     if(pThread->joinable()) {
       pThread->join();
@@ -65,11 +66,31 @@ void BaseStatus::set_status(string id, json status) {
   insert(query);
 }
 
+
+bool BaseStatus::exists() {
+  return exists(get_status());
+}
+
+bool BaseStatus::exists(json status) {
+  return !status.empty();
+}
+
+bool BaseStatus::is_busy() {
+  return is_busy(get_status());
+}
+
+bool BaseStatus::is_busy(json status) {
+  if (status.empty()) return false;
+  double progress = status[PROGRESS];
+  return (progress < 1.0);
+}
+
 /* Return a JSON struct serialized from the 'status' query result row 
  * If the id is not found, return empty JSON */
-json BaseStatus::get_status(string id) {
+json BaseStatus::get_status() {
+  string id = get_id();
   string info = "get_status(" + id + ") => ";
-  json queryResult = database->select_row(table_name, id, COL_STATUS);
+   json queryResult = database->select_row(table_name, id, COL_STATUS);
   if(queryResult.empty()) {
     logError(info + " ID not found");
     return queryResult;
@@ -80,9 +101,47 @@ json BaseStatus::get_status(string id) {
   return status;
 }
 
+void BaseStatus::startup() {
+  create_table();
+  clean_table();
+}
+
+/* delete any entries with incomplete training status */
+void BaseStatus::clean_table() {
+
+  // get all the ids from our table
+  string query = "SELECT " + COL_ID + " from " + table_name + ";";
+  logInfo("Query: " + query);
+
+  vector<string> ids = database->read_column_text(query);
+  for(string id : ids) {
+    clean_record(id);
+  }
+}
+
+
+void BaseStatus::clean_record(string id) {
+  vector<string> status_strings = 
+    database->read_column_text_query_where(table_name, COL_STATUS, COL_ID, id);
+
+  for(string status_string : status_strings) {
+    json status = json::parse(status_string);
+    string report = "Inspecting status record '" + id + "': ";
+
+    double progress = status[PROGRESS];
+    if(progress < 1.0) {
+      logInfo(report + "FAIL  (stale progress, deleting record)");
+      database->delete_rows(table_name, COL_ID, id);
+    } 
+    else {
+      logInfo(report + "PASS");
+    }
+  }
+}
+
+
 /* create the table if we need it.  */
-void BaseStatus::init_db() {
-  logInfo("init_db()");
+void BaseStatus::create_table() {
   string query = "CREATE TABLE IF NOT EXISTS " 
     + table_name 
     + " (" 
