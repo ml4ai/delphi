@@ -116,8 +116,7 @@ int main(int argc, char* argv[]) {
 //        exit(0);
 //        {
 //          Timer t = Timer("Train", durations);
-//          G1.run_train_model("timer_cpp",
-//                             res,
+//          G1.run_train_model(res,
 //                             burn,
 //                             InitialBeta::ZERO,
 //                             InitialDerivative::DERI_ZERO,

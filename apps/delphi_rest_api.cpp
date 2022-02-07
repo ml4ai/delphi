@@ -174,14 +174,15 @@ class Model {
         Database* sqlite3DB,
         AnalysisGraph G,
         string model_id,
-        int sampling_resolution,
+        int res,
         int burn
     ) {
 	G.id = model_id;
-        G.run_train_model("foobar", sampling_resolution, burn);
+        G.run_train_model(res, burn);
         sqlite3DB->insert_into_delphimodel(
             model_id,
-            G.serialize_to_json_string(false));
+            G.serialize_to_json_string(false)
+        );
     }
 
     static size_t get_kde_kernels() {

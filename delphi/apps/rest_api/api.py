@@ -18,8 +18,7 @@ bp = Blueprint("rest_api", __name__)
 
 
 def train_model(G, modelID, sampling_resolution, burn, app):
-    G.run_train_model("api_py_model",
-                      sampling_resolution,
+    G.run_train_model(sampling_resolution,
                       burn,
                       InitialBeta.ZERO,
                       InitialDerivative.DERI_ZERO)

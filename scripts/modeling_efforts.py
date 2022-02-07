@@ -105,8 +105,7 @@ if __name__ == "__main__":
     draw_CAG(G, 'modeling_efforts_CAG.png')
 
     print('\nTraining Model')
-    G.run_train_model("modeling_efforts_py",
-                      res=200,
+    G.run_train_model(res=200,
                       burn=1000,
                       initial_beta=InitialBeta.ZERO,
                       initial_derivative=InitialDerivative.DERI_ZERO,

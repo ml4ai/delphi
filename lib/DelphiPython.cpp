@@ -180,7 +180,6 @@ PYBIND11_MODULE(DelphiPython, m) {
            "use_continuous"_a = true)
       .def("run_train_model",
            &AnalysisGraph::run_train_model,
-           "model_id"_a = "DelphiPython_cpp",
            "res"_a = 200,
            "burn"_a = 10000,
            "initial_beta"_a = InitialBeta::ZERO,

@@ -142,8 +142,7 @@ if __name__ == "__main__":
 
     print('\nTraining Model')
     use_continuous = False if causemos_create_model == "synthetic" else True
-    G.run_train_model("debugger_py_new_model",
-                      res=200,
+    G.run_train_model(res=200,
                       burn=1000,
                       initial_beta=InitialBeta.ZERO,
                       initial_derivative=InitialDerivative.DERI_ZERO,

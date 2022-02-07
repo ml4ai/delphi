@@ -1482,8 +1482,7 @@ class AnalysisGraph {
                    bool use_heuristic = false,
                    bool use_continuous = true);
 
-  void run_train_model(std::string model_id = "not set",
-		   int res = 200,
+  void run_train_model(int res = 200,
                    int burn = 10000,
                    InitialBeta initial_beta = InitialBeta::ZERO,
                    InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO,
