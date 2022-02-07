@@ -8,7 +8,7 @@
 #include <chrono>
 #include <nlohmann/json.hpp>
 
-#define SHOW_LOGS  // define this to see info and error messages
+//#define SHOW_LOGS  // define this to see info and error messages
 
 using namespace std;
 using namespace delphi::utils;
