@@ -93,29 +93,16 @@
 <span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">delphi</span><span class="o">::</span><span class="nn">utils</span><span class="p">;</span><span class="w"></span>
 <span class="k">using</span><span class="w"> </span><span class="n">json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="p">;</span><span class="w"></span>
 
-
 <span class="cm">/* write out the status as a string for the database */</span><span class="w"></span>
 <span class="n">json</span><span class="w"> </span><span class="nf">ModelStatus::compose_status</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">  </span><span class="n">json</span><span class="w"> </span><span class="n">status</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ag</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">model_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ag</span><span class="o">-&gt;</span><span class="n">id</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">model_id</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="n">status</span><span class="p">[</span><span class="n">MODEL_ID</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">model_id</span><span class="p">;</span><span class="w"></span>
-<span class="w">      </span><span class="n">status</span><span class="p">[</span><span class="n">PROGRESS</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
-<span class="w">    </span><span class="n">delphi</span><span class="o">::</span><span class="n">utils</span><span class="o">::</span><span class="n">round_n</span><span class="p">(</span><span class="n">ag</span><span class="o">-&gt;</span><span class="n">get_training_progress</span><span class="p">(),</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span><span class="w"></span>
-<span class="w">      </span><span class="n">status</span><span class="p">[</span><span class="n">TRAINED</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ag</span><span class="o">-&gt;</span><span class="n">get_trained</span><span class="p">();</span><span class="w"></span>
-<span class="c1">//      status[&quot;stopped&quot;] = ag-&gt;get_stopped();</span>
-<span class="c1">//      status[&quot;log_likelihood&quot;] = ag-&gt;get_log_likelihood();</span>
-<span class="c1">//      status[&quot;log_likelihood_previous&quot;] = ag-&gt;get_previous_log_likelihood();</span>
-<span class="c1">//      status[&quot;log_likelihood_map&quot;] = ag-&gt;get_log_likelihood_MAP();</span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="n">status</span><span class="p">[</span><span class="n">MODEL_ID</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">model_id</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="n">status</span><span class="p">[</span><span class="n">PROGRESS</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">delphi</span><span class="o">::</span><span class="n">utils</span><span class="o">::</span><span class="n">round_n</span><span class="p">(</span><span class="n">progress</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">status</span><span class="p">;</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
 <span class="cm">/* write the current Model status to our table */</span><span class="w"></span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">ModelStatus::update_db</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="n">string</span><span class="w"> </span><span class="n">model_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ag</span><span class="o">-&gt;</span><span class="n">id</span><span class="p">;</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">ModelStatus::record_status</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">  </span><span class="n">set_status</span><span class="p">(</span><span class="n">model_id</span><span class="p">,</span><span class="w"> </span><span class="n">compose_status</span><span class="p">());</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 </pre></div>

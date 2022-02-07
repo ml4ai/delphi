@@ -133,13 +133,14 @@
 <span class="w">          </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">set_observed_state_sequence_from_data</span><span class="p">(</span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">county</span><span class="p">);</span><span class="w"></span>
 <span class="w">      </span><span class="p">}</span><span class="w"></span>
 
-<span class="w">      </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">run_train_model</span><span class="p">(</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">burn</span><span class="p">,</span><span class="w"> </span><span class="n">initial_beta</span><span class="p">,</span><span class="w"> </span><span class="n">initial_derivative</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">run_train_model</span><span class="p">(</span><span class="s">&quot;train_model_fix_this&quot;</span><span class="p">,</span><span class="n">res</span><span class="p">,</span><span class="w"> </span><span class="n">burn</span><span class="p">,</span><span class="w"> </span><span class="n">initial_beta</span><span class="p">,</span><span class="w"> </span><span class="n">initial_derivative</span><span class="p">,</span><span class="w"></span>
 <span class="w">                            </span><span class="n">use_heuristic</span><span class="p">,</span><span class="w"> </span><span class="n">use_continuous</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="p">}</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
 
-<span class="kt">void</span><span class="w"> </span><span class="nf">AnalysisGraph::run_train_model</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">res</span><span class="p">,</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">AnalysisGraph::run_train_model</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">model_id</span><span class="p">,</span><span class="w"></span>
+<span class="w">                        </span><span class="kt">int</span><span class="w"> </span><span class="n">res</span><span class="p">,</span><span class="w"></span>
 <span class="w">                                </span><span class="kt">int</span><span class="w"> </span><span class="n">burn</span><span class="p">,</span><span class="w"></span>
 <span class="w">                                </span><span class="n">InitialBeta</span><span class="w"> </span><span class="n">initial_beta</span><span class="p">,</span><span class="w"></span>
 <span class="w">                                </span><span class="n">InitialDerivative</span><span class="w"> </span><span class="n">initial_derivative</span><span class="p">,</span><span class="w"></span>
@@ -152,15 +153,18 @@
 <span class="w">                                </span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">concept_models</span><span class="p">,</span><span class="w"></span>
 <span class="w">                                </span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">concept_min_vals</span><span class="p">,</span><span class="w"></span>
 <span class="w">                                </span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">concept_max_vals</span><span class="p">,</span><span class="w"></span>
-<span class="w">                                </span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">function</span><span class="o">&lt;</span><span class="kt">double</span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="p">)</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">ext_concepts</span><span class="w"></span>
-<span class="w">                                </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-
-<span class="w">    </span><span class="n">ModelStatus</span><span class="w"> </span><span class="n">ms</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">ms</span><span class="p">.</span><span class="n">start_updating_db</span><span class="p">(</span><span class="k">this</span><span class="p">);</span><span class="w"></span>
+<span class="w">                                </span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">function</span><span class="o">&lt;</span><span class="kt">double</span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="p">)</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">ext_concepts</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 
 <span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">training_step</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">res</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">burn</span><span class="p">);</span><span class="w"></span>
 
-<span class="w">    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">training_progress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">ModelStatus</span><span class="w"> </span><span class="n">ms</span><span class="p">(</span><span class="n">model_id</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">ms</span><span class="p">.</span><span class="n">start_recording_progress</span><span class="p">();</span><span class="w"></span>
+
+
+<span class="c1">//    this-&gt;training_progress = 0;</span>
+<span class="w">    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">trained</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;AnalysisGraph::run_train_model, model_id = &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">model_id</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
 
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">train_timesteps</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">      </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">n_timesteps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">observed_state_sequence</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="w"></span>
@@ -280,7 +284,7 @@
 
 <span class="w">    </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Burning &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">burn</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; samples out...&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
 <span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">trange</span><span class="p">(</span><span class="n">burn</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">training_progress</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">training_step</span><span class="p">;</span><span class="w"></span>
+<span class="w">      </span><span class="n">ms</span><span class="p">.</span><span class="n">increment_progress</span><span class="p">(</span><span class="n">training_step</span><span class="p">);</span><span class="w"></span>
 
 <span class="w">       </span><span class="p">{</span><span class="w"></span>
 <span class="w">          </span><span class="cp">#ifdef TIME</span>
@@ -317,7 +321,7 @@
 <span class="w">    </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Sampling &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">res</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; samples from posterior...&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
 <span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">trange</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">res</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">      </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">training_progress</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">training_step</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">ms</span><span class="p">.</span><span class="n">increment_progress</span><span class="p">(</span><span class="n">training_step</span><span class="p">);</span><span class="w"></span>
 
 <span class="w">        </span><span class="cp">#ifdef TIME</span>
 <span class="c1">//                durations.first.clear();</span>
@@ -386,8 +390,8 @@
 <span class="w">    </span><span class="p">}</span><span class="w"></span>
 
 <span class="w">    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">trained</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">training_progress</span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">ms</span><span class="p">.</span><span class="n">stop_updating_db</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="n">ms</span><span class="p">.</span><span class="n">set_progress</span><span class="p">(</span><span class="mf">1.0</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">ms</span><span class="p">.</span><span class="n">stop_recording_progress</span><span class="p">();</span><span class="w"></span>
 <span class="w">    </span><span class="n">RNG</span><span class="o">::</span><span class="n">release_instance</span><span class="p">();</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 

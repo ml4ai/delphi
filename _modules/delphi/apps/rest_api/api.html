@@ -96,7 +96,8 @@
 
 
 <div class="viewcode-block" id="train_model"><a class="viewcode-back" href="../../../../delphi.apps.rest_api.html#delphi.apps.rest_api.api.train_model">[docs]</a><span class="k">def</span> <span class="nf">train_model</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">modelID</span><span class="p">,</span> <span class="n">sampling_resolution</span><span class="p">,</span> <span class="n">burn</span><span class="p">,</span> <span class="n">app</span><span class="p">):</span>
-    <span class="n">G</span><span class="o">.</span><span class="n">run_train_model</span><span class="p">(</span><span class="n">sampling_resolution</span><span class="p">,</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">run_train_model</span><span class="p">(</span><span class="s2">&quot;api_py_model&quot;</span><span class="p">,</span>
+                      <span class="n">sampling_resolution</span><span class="p">,</span>
                       <span class="n">burn</span><span class="p">,</span>
                       <span class="n">InitialBeta</span><span class="o">.</span><span class="n">ZERO</span><span class="p">,</span>
                       <span class="n">InitialDerivative</span><span class="o">.</span><span class="n">DERI_ZERO</span><span class="p">)</span>
