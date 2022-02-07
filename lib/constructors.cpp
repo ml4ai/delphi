@@ -233,7 +233,6 @@ AnalysisGraph::AnalysisGraph(const AnalysisGraph& rhs) {
   this->generated_latent_sequence = rhs.generated_latent_sequence;
   this->generated_concept = rhs.generated_concept;
 
-  this->training_progress = rhs.training_progress;
   this->trained = rhs.trained;
   this->stopped = rhs.stopped;
 
@@ -379,7 +378,6 @@ AnalysisGraph& AnalysisGraph::operator=(AnalysisGraph rhs) {
     swap(generated_latent_sequence, rhs.generated_latent_sequence);
     swap(generated_concept, rhs.generated_concept);
 
-    swap(training_progress, rhs.training_progress);
     swap(trained, rhs.trained);
     swap(stopped, rhs.stopped);
 

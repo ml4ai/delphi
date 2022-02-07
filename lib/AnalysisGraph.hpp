@@ -281,10 +281,6 @@ class AnalysisGraph {
    ============================================================================
   */
 
-  // keep track of model training and experiment progress
-  float training_progress = 0.0;  // Range is [0.0, 1.0]
-  float experiment_progress = 0.0;  // Range is [0.0, 1.0]
-
   // Used to check whether there is a trained model before calling
   // generate_prediction()
   bool trained = false;
@@ -1165,7 +1161,6 @@ class AnalysisGraph {
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                             training-progress
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-  double get_training_progress(){ return training_progress;}
   bool get_trained(){ return trained; }
   bool get_stopped() { return stopped; }
   double get_log_likelihood(){ return log_likelihood; }
@@ -1203,14 +1198,6 @@ class AnalysisGraph {
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                           create-experiment
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-  std::string experiment_id="not_set";
-
-  void set_experiment_progress(double progress){experiment_progress = progress;}
-  double get_experiment_progress(){return experiment_progress;}
-
-  void set_experiment_id(std::string id){experiment_id = id;}
-  std::string get_experiment_id(){return experiment_id;}
 
   FormattedProjectionResult
   run_causemos_projection_experiment_from_json_string(std::string json_string);

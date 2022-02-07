@@ -4,8 +4,6 @@
 #include <thread>
 #include <nlohmann/json.hpp>
 
-class AnalysisGraph;
-
 using namespace std;
 using json = nlohmann::json;
 
@@ -13,37 +11,29 @@ using json = nlohmann::json;
 class ModelStatus : public BaseStatus {
 
   private:
-    double progress = 0.0;  // Range is [0.0, 1.0]
-    bool trained = false;
-    bool stopped = false;
-    string model_id = "N/A";
-    void scheduler();
+    string model_id = "model_id_not_set";
 
   protected:
-    bool done_updating_db(){return trained || stopped ;}
     json compose_status();
+    void record_status();
+    string get_id(){return model_id;}
 
   public:
-    ModelStatus() : BaseStatus(
+    ModelStatus(string id) : BaseStatus(
       new Database(), 
       "model_status",
       "ModelStatus"
-    ) {}
-    ModelStatus(Database* database) : BaseStatus(
+    ), model_id(id) {}
+    ModelStatus(string id, Database* database) : BaseStatus(
       database, 
       "model_status",
       "ModelStatus"
-    ) {}
+    ), model_id(id) {}
     ~ModelStatus(){}
-    void update_db();
-    void set_initial_status(string modelId = "N/A");
-    void begin_recording_training();
-    void set_progress(double p = 0.0) {progress = p;}
-    double get_progress() {return progress;}
+    static string get_model_id_field_name(){return "id";} // API
 
     // serialized JSON fields in the status text
-    const string MODEL_ID = "id"; // API
+    const string MODEL_ID = get_model_id_field_name(); 
     const string NODES = "nodes"; // API
     const string EDGES = "edges"; // API
-    const string TRAINED = "trained";  // arbitrary
 };

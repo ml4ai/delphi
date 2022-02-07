@@ -14,19 +14,25 @@ class BaseStatus {
     BaseStatus(){}
     Database* database = nullptr;
     void insert(string query);
+    void create_table();
+    void clean_table();
+    void clean_record(string id);
     const string table_name = "N/A";
     const string class_name = "N/A";
     const string COL_ID = "id"; // arbitrary, not exported
     const string COL_STATUS = "status"; // arbitrary, not exported
+    bool stop_recording = true;
 
   protected:
+    bool stopped = false;  // private?
+    double progress = 0.0;  // private?
     virtual json compose_status() = 0;
-    virtual bool done_updating_db() = 0;
-
+    virtual void record_status() = 0;
     void scheduler();
     void logInfo(string message);
     void logError(string message);
-    AnalysisGraph* ag = nullptr;
+    void set_status(string id, json status);
+    virtual string get_id() = 0;
     std::thread *pThread = nullptr;
     string timestamp();
     BaseStatus(
@@ -40,18 +46,21 @@ class BaseStatus {
     ~BaseStatus(){}
 
   public:
-    virtual void set_initial_status(string id) = 0;
-    virtual void update_db() = 0;
-    void init_db();
-    json get_status(string id);
-    void set_status(string id, json status);
-    void start_updating_db(AnalysisGraph* ag);
-    void stop_updating_db();
-    bool is_busy(json status);
-    bool is_busy(string id);
-    bool exists(string id);
+    void startup();
+    json get_status();
+    void start_recording_progress();
+    void stop_recording_progress();
+    void set_progress(double p) {progress = p;}
+    void increment_progress(double i) {progress += i;}
+    double get_progress(){return progress;}
+    void set_initial_status(){record_status();}
+
     bool exists(json status);
+    bool exists();
+    bool is_busy(json status);
+    bool is_busy();
 
     const string PROGRESS = "progressPercentage"; // API
     const string STATUS = "status"; // API
+    const string STOPPED = "stopped"; // arbitrary, not exported
 };

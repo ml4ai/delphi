@@ -77,8 +77,14 @@ void AnalysisGraph::run_train_model(string model_id,
 
     double training_step = 1.0 / (res + burn);
 
-    this->training_progress = 0;
+    ModelStatus ms(model_id);
+
+    ms.start_recording_progress();
+
+
+//    this->training_progress = 0;
     this->trained = false;
+    cout << "AnalysisGraph::run_train_model, model_id = " << model_id << endl;
 
     if (train_timesteps < 0) {
       this->n_timesteps = this->observed_state_sequence.size();
@@ -198,7 +204,7 @@ void AnalysisGraph::run_train_model(string model_id,
 
     cout << "\nBurning " << burn << " samples out..." << endl;
     for (int i : trange(burn)) {
-      this->training_progress += training_step;
+      ms.increment_progress(training_step);
 
        {
           #ifdef TIME
@@ -235,7 +241,7 @@ void AnalysisGraph::run_train_model(string model_id,
     cout << "\nSampling " << this->res << " samples from posterior..." << endl;
     for (int i : trange(this->res - 1)) {
       {
-        this->training_progress += training_step;
+        ms.increment_progress(training_step);
 
         #ifdef TIME
 //                durations.first.clear();
@@ -304,7 +310,8 @@ void AnalysisGraph::run_train_model(string model_id,
     }
 
     this->trained = true;
-    this->training_progress= 1.0;
+    ms.set_progress(1.0);
+    ms.stop_recording_progress();
     RNG::release_instance();
 }
 
