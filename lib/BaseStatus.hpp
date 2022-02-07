@@ -30,8 +30,8 @@ class BaseStatus {
     virtual void record_status() = 0;
     virtual string get_id() = 0;
     void scheduler();
-    void logInfo(string message);
     void logError(string message);
+    void logInfo(string message);
     void set_status(string id, json status);
     std::thread *pThread = nullptr;
     string timestamp();
@@ -54,9 +54,7 @@ class BaseStatus {
     void increment_progress(double i) {progress += i;}
     double get_progress(){return progress;}
     void set_initial_status(){record_status();}
-
-    bool exists(json status);
-    bool exists();
+    void logMessage(string message);
     bool is_busy(json status);
     bool is_busy();
 
