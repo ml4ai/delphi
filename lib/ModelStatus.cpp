@@ -17,7 +17,7 @@ using json = nlohmann::json;
 json ModelStatus::compose_status() {
   json status;
   status[MODEL_ID] = model_id;
-  status[PROGRESS] = delphi::utils::round_n(progress, 2);
+  status[PROGRESS] = delphi::utils::round_n(get_progress(), 2);
   return status;
 }
 
