@@ -1077,6 +1077,8 @@ class AnalysisGraph {
   ~AnalysisGraph() {}
 
   std::string id;
+  std::string experiment_id = "experiment_id_not_set";
+
   std::string to_json_string(int indent = 0);
   bool data_heuristic = false;
 
@@ -1480,8 +1482,7 @@ class AnalysisGraph {
                    bool use_heuristic = false,
                    bool use_continuous = true);
 
-  void run_train_model(std::string model_id = "not set",
-		   int res = 200,
+  void run_train_model(int res = 200,
                    int burn = 10000,
                    InitialBeta initial_beta = InitialBeta::ZERO,
                    InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO,

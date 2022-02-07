@@ -174,17 +174,15 @@ class Model {
         Database* sqlite3DB,
         AnalysisGraph G,
         string model_id,
-        int sampling_resolution,
+        int res,
         int burn
     ) {
-        G.run_train_model(
-            model_id,
-            sampling_resolution,
-            burn
-	);
+	G.id = model_id;
+        G.run_train_model(res, burn);
         sqlite3DB->insert_into_delphimodel(
             model_id,
-            G.serialize_to_json_string(false));
+            G.serialize_to_json_string(false)
+        );
     }
 
     static size_t get_kde_kernels() {
@@ -330,10 +328,11 @@ int main(int argc, const char* argv[]) {
 
     Database* sqlite3DB = new Database();
     Experiment* experiment = new Experiment();
-    ModelStatus ms("startup", sqlite3DB);
-    ExperimentStatus es("startup", sqlite3DB);
     served::multiplexer mux;
 
+    // prepare the model and experiment databases for use
+    ModelStatus ms("startup", sqlite3DB);
+    ExperimentStatus es("startup", "startup", sqlite3DB);
     ms.startup();
     es.startup();
 
@@ -443,7 +442,7 @@ int main(int argc, const char* argv[]) {
             string modelId = req.params["modelId"];
             string experimentId = req.params["experimentId"];
 
-	    ExperimentStatus es(experimentId, sqlite3DB);
+	    ExperimentStatus es(modelId, experimentId, sqlite3DB);
 
             json query_result =
                 sqlite3DB->select_causemosasyncexperimentresult_row(
@@ -512,8 +511,7 @@ int main(int argc, const char* argv[]) {
             boost::uuids::uuid uuid = boost::uuids::random_generator()();
             string experiment_id = to_string(uuid);
 
-	    ExperimentStatus es(experiment_id, sqlite3DB);
-
+	    ExperimentStatus es(modelId, experiment_id, sqlite3DB);
 
             sqlite3DB->insert_into_causemosasyncexperimentresult(
                 experiment_id, "in progress", experiment_type, "");

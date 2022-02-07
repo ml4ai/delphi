@@ -17,7 +17,7 @@ using json = nlohmann::json;
 /* Start the thread that posts the status to the datbase */
 void BaseStatus::scheduler() {
   logInfo("scheduler()");
-  while(!stop_recording){
+  while(training){
     this_thread::sleep_for(std::chrono::seconds(1));
     if(pThread != nullptr) {
       record_status();
@@ -28,7 +28,7 @@ void BaseStatus::scheduler() {
 /* Begin posting progress updates to the database on a regular interval */
 void BaseStatus::start_recording_progress(){
   logInfo("start_updating_db()");
-  stop_recording = false;
+  training = true;
   record_status();
   if(pThread == nullptr) {
     pThread = new thread(&BaseStatus::scheduler, this);
@@ -38,7 +38,7 @@ void BaseStatus::start_recording_progress(){
 /* Stop posting progress updates to the database */
 void BaseStatus::stop_recording_progress(){
   logInfo("stop_updating_db()");
-  stop_recording = true;
+  training = false;
   record_status();
   if (pThread != nullptr) {
     if(pThread->joinable()) {

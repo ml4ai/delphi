@@ -53,14 +53,13 @@ void AnalysisGraph::train_model(int start_year,
           this->set_observed_state_sequence_from_data(country, state, county);
       }
 
-      this->run_train_model("train_model_fix_this",res, burn, initial_beta, initial_derivative,
+      this->run_train_model(res, burn, initial_beta, initial_derivative,
                             use_heuristic, use_continuous);
   }
 }
 
 
-void AnalysisGraph::run_train_model(string model_id,
-		                int res,
+void AnalysisGraph::run_train_model(int res,
                                 int burn,
                                 InitialBeta initial_beta,
                                 InitialDerivative initial_derivative,
@@ -77,14 +76,11 @@ void AnalysisGraph::run_train_model(string model_id,
 
     double training_step = 1.0 / (res + burn);
 
-    ModelStatus ms(model_id);
+    ModelStatus ms(this->id);
 
     ms.start_recording_progress();
 
-
-//    this->training_progress = 0;
     this->trained = false;
-    cout << "AnalysisGraph::run_train_model, model_id = " << model_id << endl;
 
     if (train_timesteps < 0) {
       this->n_timesteps = this->observed_state_sequence.size();

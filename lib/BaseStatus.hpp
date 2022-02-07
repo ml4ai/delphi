@@ -21,18 +21,18 @@ class BaseStatus {
     const string class_name = "N/A";
     const string COL_ID = "id"; // arbitrary, not exported
     const string COL_STATUS = "status"; // arbitrary, not exported
-    bool stop_recording = true;
+    bool training = false; // true when updating database
+    bool stopped = false; // by human intervention
+    double progress = 0.0; // values = [0.0, 1.0]
 
   protected:
-    bool stopped = false;  // private?
-    double progress = 0.0;  // private?
     virtual json compose_status() = 0;
     virtual void record_status() = 0;
+    virtual string get_id() = 0;
     void scheduler();
     void logInfo(string message);
     void logError(string message);
     void set_status(string id, json status);
-    virtual string get_id() = 0;
     std::thread *pThread = nullptr;
     string timestamp();
     BaseStatus(

@@ -18,7 +18,7 @@ using json = nlohmann::json;
 json ExperimentStatus::compose_status() {
   json status;
   status[EXPERIMENT_ID] = experiment_id;
-  status[PROGRESS] = progress;
+  status[PROGRESS] = get_progress();
   status[STATUS] = "not yet implemented!";
   return status;
 }
@@ -28,4 +28,3 @@ void ExperimentStatus::record_status() {
   logInfo("update_db()");
   set_status(experiment_id, compose_status());
 }
-

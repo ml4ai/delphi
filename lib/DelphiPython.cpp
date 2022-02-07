@@ -32,6 +32,7 @@ PYBIND11_MODULE(DelphiPython, m) {
   py::class_<AnalysisGraph>(m, "AnalysisGraph")
       .def(py::init())
       .def_readwrite("id", &AnalysisGraph::id)
+      .def_readwrite("experiment_id", &AnalysisGraph::experiment_id)
       .def("to_json_string", &AnalysisGraph::to_json_string, "indent"_a = 0)
       .def("from_json_string", &AnalysisGraph::from_json_string)
       .def("generate_create_model_response", &AnalysisGraph::generate_create_model_response)
@@ -179,7 +180,6 @@ PYBIND11_MODULE(DelphiPython, m) {
            "use_continuous"_a = true)
       .def("run_train_model",
            &AnalysisGraph::run_train_model,
-           "model_id"_a = "DelphiPython_cpp",
            "res"_a = 200,
            "burn"_a = 10000,
            "initial_beta"_a = InitialBeta::ZERO,
