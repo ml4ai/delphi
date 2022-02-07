@@ -178,6 +178,7 @@ AnalysisGraph AnalysisGraph::from_json_string(string json_string) {
   auto data = nlohmann::json::parse(json_string);
   AnalysisGraph G;
   G.id = data["id"];
+  G.experiment_id = data["experiment_id"];
   for (auto e : data["edges"]) {
     string source = e["source"].get<string>();
     string target = e["target"].get<string>();
@@ -303,6 +304,7 @@ AnalysisGraph::AnalysisGraph(const AnalysisGraph& rhs) {
 
   // Copying public members
   this->id = rhs.id;
+  this->experiment_id = rhs.experiment_id;
   this->data_heuristic = rhs.data_heuristic;
 
   for_each(rhs.node_indices(), [&](int v) {
@@ -440,6 +442,8 @@ AnalysisGraph& AnalysisGraph::operator=(AnalysisGraph rhs) {
     swap(initial_latent_state_collection, rhs.initial_latent_state_collection);
     swap(synthetic_latent_state_sequence, rhs.synthetic_latent_state_sequence);
     swap(synthetic_data_experiment, rhs.synthetic_data_experiment);
+
+    swap(experiment_id, rhs.experiment_id);
 
     // Copying public members
     swap(id, rhs.id);

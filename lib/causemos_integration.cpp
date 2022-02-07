@@ -514,6 +514,10 @@ void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data,
   if (json_data["id"].is_null()){return;}
   this->id = json_data["id"].get<string>();
 
+  if(json_data.contains("experiment_id")){
+    this->experiment_id = json_data["experiment_id"].get<string>();
+  }
+
   auto statements = json_data["statements"];
 
   for (auto stmt : statements) {

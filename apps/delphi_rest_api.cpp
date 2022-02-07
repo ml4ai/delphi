@@ -177,7 +177,8 @@ class Model {
         int sampling_resolution,
         int burn
     ) {
-        G.run_train_model(model_id, sampling_resolution, burn);
+	G.id = model_id;
+        G.run_train_model("foobar", sampling_resolution, burn);
         sqlite3DB->insert_into_delphimodel(
             model_id,
             G.serialize_to_json_string(false));

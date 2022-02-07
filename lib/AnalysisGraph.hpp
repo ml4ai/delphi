@@ -1077,6 +1077,8 @@ class AnalysisGraph {
   ~AnalysisGraph() {}
 
   std::string id;
+  std::string experiment_id = "experiment_id_not_set";
+
   std::string to_json_string(int indent = 0);
   bool data_heuristic = false;
 

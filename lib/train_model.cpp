@@ -77,7 +77,7 @@ void AnalysisGraph::run_train_model(string model_id,
 
     double training_step = 1.0 / (res + burn);
 
-    ModelStatus ms(model_id);
+    ModelStatus ms(this->id);
 
     ms.start_recording_progress();
 
