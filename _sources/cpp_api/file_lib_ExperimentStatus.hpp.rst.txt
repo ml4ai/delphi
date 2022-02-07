@@ -43,6 +43,8 @@ Included By
 -----------
 
 
+- :ref:`file_lib_causemos_integration.cpp`
+
 - :ref:`file_lib_ExperimentStatus.cpp`
 
 - :ref:`file_lib_prediction.cpp`

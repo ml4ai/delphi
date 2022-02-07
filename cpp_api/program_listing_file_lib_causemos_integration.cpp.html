@@ -81,6 +81,7 @@
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// CauseMos integration methods</span>
 
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;AnalysisGraph.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ExperimentStatus.hpp&quot;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;utils.hpp&quot;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;fmt/format.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;fstream&gt;</span><span class="cp"></span>
@@ -752,6 +753,8 @@
 <span class="n">FormattedProjectionResult</span><span class="w"></span>
 <span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">run_causemos_projection_experiment_from_json_dict</span><span class="p">(</span><span class="w"></span>
 <span class="w">                                              </span><span class="k">const</span><span class="w"> </span><span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="w"> </span><span class="o">&amp;</span><span class="n">json_data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">ExperimentStatus</span><span class="w"> </span><span class="nf">es</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">experiment_id</span><span class="p">);</span><span class="w"></span>
 
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">json_data</span><span class="p">[</span><span class="s">&quot;experimentParam&quot;</span><span class="p">].</span><span class="n">is_null</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="n">BadCausemosInputException</span><span class="p">(</span><span class="s">&quot;Experiment parameters null&quot;</span><span class="p">);</span><span class="w"></span>

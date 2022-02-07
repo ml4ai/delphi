@@ -147,14 +147,6 @@
 <span class="p">}</span><span class="w"></span>
 
 
-<span class="kt">bool</span><span class="w"> </span><span class="nf">BaseStatus::exists</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">exists</span><span class="p">(</span><span class="n">get_status</span><span class="p">());</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-
-<span class="kt">bool</span><span class="w"> </span><span class="nf">BaseStatus::exists</span><span class="p">(</span><span class="n">json</span><span class="w"> </span><span class="n">status</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="o">!</span><span class="n">status</span><span class="p">.</span><span class="n">empty</span><span class="p">();</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-
 <span class="kt">bool</span><span class="w"> </span><span class="nf">BaseStatus::is_busy</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">is_busy</span><span class="p">(</span><span class="n">get_status</span><span class="p">());</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
@@ -260,18 +252,23 @@
 <span class="p">}</span><span class="w"></span>
 
 
-<span class="cm">/* Report a message to stdout */</span><span class="w"></span>
+<span class="cm">/* Report a message to cout */</span><span class="w"></span>
 <span class="kt">void</span><span class="w"> </span><span class="nf">BaseStatus::logInfo</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">text</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="cp">#ifdef SHOW_LOGS</span>
 <span class="w">  </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">timestamp</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">class_name</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; INFO: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
 <span class="cp">#endif</span>
 <span class="p">}</span><span class="w"></span>
 
-<span class="cm">/* Report an error to stderr */</span><span class="w"></span>
+<span class="cm">/* Report an error to cerr */</span><span class="w"></span>
 <span class="kt">void</span><span class="w"> </span><span class="nf">BaseStatus::logError</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">text</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="cp">#ifdef SHOW_LOGS</span>
 <span class="w">  </span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">timestamp</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">class_name</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; ERROR: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
 <span class="cp">#endif</span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="cm">/* Write anything to cout */</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">BaseStatus::logMessage</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">text</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">timestamp</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
