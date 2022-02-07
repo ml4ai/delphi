@@ -148,6 +148,7 @@ class Experiment {
 
         AnalysisGraph G;
         G = G.deserialize_from_json_string(model, false);
+	G.experiment_id = experiment_id;
 
         if (experiment_type == "PROJECTION")
             runProjectionExperiment(
@@ -610,7 +611,7 @@ int main(int argc, const char* argv[]) {
 
 	    // check existence of model
 	    json model_status = ms.get_status();
-	    if(!ms.exists(model_status)) {
+	    if(model_status.empty()) {
 	      string report = "Model does not exist. "
 	        "Please create model before editing.";
 	      ret[ms.STATUS] = report;

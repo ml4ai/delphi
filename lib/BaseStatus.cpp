@@ -67,14 +67,6 @@ void BaseStatus::set_status(string id, json status) {
 }
 
 
-bool BaseStatus::exists() {
-  return exists(get_status());
-}
-
-bool BaseStatus::exists(json status) {
-  return !status.empty();
-}
-
 bool BaseStatus::is_busy() {
   return is_busy(get_status());
 }
@@ -180,16 +172,21 @@ string BaseStatus::timestamp() {
 }
 
 
-/* Report a message to stdout */
+/* Report a message to cout */
 void BaseStatus::logInfo(string text) {
 #ifdef SHOW_LOGS
   cout << timestamp() << " " << class_name << " INFO: " << text << endl;
 #endif
 }
 
-/* Report an error to stderr */
+/* Report an error to cerr */
 void BaseStatus::logError(string text) {
 #ifdef SHOW_LOGS
   cerr << timestamp() << " " << class_name << " ERROR: " << text << endl;
 #endif
+}
+
+/* Write anything to cout */
+void BaseStatus::logMessage(string text) {
+  cerr << timestamp() << " " << text << endl;
 }
