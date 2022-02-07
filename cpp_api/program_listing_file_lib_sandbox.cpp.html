@@ -118,6 +118,7 @@
 <span class="kt">void</span><span class="w"> </span><span class="nf">AnalysisGraph::from_delphi_json_dict</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="o">&amp;</span><span class="w"> </span><span class="n">json_data</span><span class="p">,</span><span class="w"></span>
 <span class="w">                                          </span><span class="kt">bool</span><span class="w"> </span><span class="n">verbose</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">  </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">json_data</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">];</span><span class="w"></span>
+<span class="w">  </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">experiment_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">json_data</span><span class="p">[</span><span class="s">&quot;experiment_id&quot;</span><span class="p">];</span><span class="w"></span>
 
 <span class="w">  </span><span class="c1">// int conceptIndicators_arrSize = 0;</span>
 <span class="w">  </span><span class="c1">// if (sizeof(json_data[&quot;conceptIndicators&quot;])){ int conceptIndicators_arrSize</span>

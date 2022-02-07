@@ -98,7 +98,7 @@
 <span class="n">json</span><span class="w"> </span><span class="nf">ExperimentStatus::compose_status</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">  </span><span class="n">json</span><span class="w"> </span><span class="n">status</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="n">status</span><span class="p">[</span><span class="n">EXPERIMENT_ID</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">experiment_id</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="n">status</span><span class="p">[</span><span class="n">PROGRESS</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">progress</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="n">status</span><span class="p">[</span><span class="n">PROGRESS</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_progress</span><span class="p">();</span><span class="w"></span>
 <span class="w">  </span><span class="n">status</span><span class="p">[</span><span class="n">STATUS</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;not yet implemented!&quot;</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">status</span><span class="p">;</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>

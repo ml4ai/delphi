@@ -27,6 +27,7 @@ Program Listing for File ExperimentStatus.hpp
      private:
        void scheduler();
        string experiment_id = "experiment_id_not_set";
+       string model_id = "model_id_not_set";
    
      protected:
        json compose_status();
@@ -34,16 +35,25 @@ Program Listing for File ExperimentStatus.hpp
        string get_id(){return experiment_id;}
    
      public:
-       ExperimentStatus(string id) : BaseStatus(
+       ExperimentStatus(
+           string model_id, 
+           string experiment_id
+       ) : BaseStatus(
          new Database(), 
          "experiment_status",
          "ExperimentStatus"
-       ), experiment_id(id){}
-       ExperimentStatus(string id, Database* database) : BaseStatus(
+       ), experiment_id(experiment_id), model_id(model_id){}
+   
+       ExperimentStatus(
+           string model_id,
+           string experiment_id,
+           Database* database
+       ) : BaseStatus(
          database, 
          "experiment_status",
          "ExperimentStatus"
-       ), experiment_id(id){}
+       ), experiment_id(experiment_id), model_id(model_id){}
+   
        ~ExperimentStatus(){}
    
        static string get_experiment_id_field_name(){return "experimentId";} // API

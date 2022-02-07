@@ -95,6 +95,7 @@
 <span class="w">  </span><span class="k">private</span><span class="o">:</span><span class="w"></span>
 <span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">scheduler</span><span class="p">();</span><span class="w"></span>
 <span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">experiment_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;experiment_id_not_set&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">model_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;model_id_not_set&quot;</span><span class="p">;</span><span class="w"></span>
 
 <span class="w">  </span><span class="k">protected</span><span class="o">:</span><span class="w"></span>
 <span class="w">    </span><span class="n">json</span><span class="w"> </span><span class="n">compose_status</span><span class="p">();</span><span class="w"></span>
@@ -102,16 +103,25 @@
 <span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="nf">get_id</span><span class="p">(){</span><span class="k">return</span><span class="w"> </span><span class="n">experiment_id</span><span class="p">;}</span><span class="w"></span>
 
 <span class="w">  </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
-<span class="w">    </span><span class="n">ExperimentStatus</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">BaseStatus</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="n">ExperimentStatus</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="n">string</span><span class="w"> </span><span class="n">model_id</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="n">string</span><span class="w"> </span><span class="n">experiment_id</span><span class="w"></span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">BaseStatus</span><span class="p">(</span><span class="w"></span>
 <span class="w">      </span><span class="k">new</span><span class="w"> </span><span class="n">Database</span><span class="p">(),</span><span class="w"></span>
 <span class="w">      </span><span class="s">&quot;experiment_status&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">      </span><span class="s">&quot;ExperimentStatus&quot;</span><span class="w"></span>
-<span class="w">    </span><span class="p">),</span><span class="w"> </span><span class="n">experiment_id</span><span class="p">(</span><span class="n">id</span><span class="p">){}</span><span class="w"></span>
-<span class="w">    </span><span class="n">ExperimentStatus</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">Database</span><span class="o">*</span><span class="w"> </span><span class="n">database</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">BaseStatus</span><span class="p">(</span><span class="w"></span>
+<span class="w">    </span><span class="p">),</span><span class="w"> </span><span class="n">experiment_id</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">),</span><span class="w"> </span><span class="n">model_id</span><span class="p">(</span><span class="n">model_id</span><span class="p">){}</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">ExperimentStatus</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="n">string</span><span class="w"> </span><span class="n">model_id</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="n">string</span><span class="w"> </span><span class="n">experiment_id</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="n">Database</span><span class="o">*</span><span class="w"> </span><span class="n">database</span><span class="w"></span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">BaseStatus</span><span class="p">(</span><span class="w"></span>
 <span class="w">      </span><span class="n">database</span><span class="p">,</span><span class="w"></span>
 <span class="w">      </span><span class="s">&quot;experiment_status&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">      </span><span class="s">&quot;ExperimentStatus&quot;</span><span class="w"></span>
-<span class="w">    </span><span class="p">),</span><span class="w"> </span><span class="n">experiment_id</span><span class="p">(</span><span class="n">id</span><span class="p">){}</span><span class="w"></span>
+<span class="w">    </span><span class="p">),</span><span class="w"> </span><span class="n">experiment_id</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">),</span><span class="w"> </span><span class="n">model_id</span><span class="p">(</span><span class="n">model_id</span><span class="p">){}</span><span class="w"></span>
+
 <span class="w">    </span><span class="o">~</span><span class="n">ExperimentStatus</span><span class="p">(){}</span><span class="w"></span>
 
 <span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="n">get_experiment_id_field_name</span><span class="p">(){</span><span class="k">return</span><span class="w"> </span><span class="s">&quot;experimentId&quot;</span><span class="p">;}</span><span class="w"> </span><span class="c1">// API</span>

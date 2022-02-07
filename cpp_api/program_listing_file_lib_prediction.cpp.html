@@ -126,7 +126,10 @@
 
 
 <span class="w">  </span><span class="c1">// configure monitoring of experiment progress</span>
-<span class="w">  </span><span class="n">ExperimentStatus</span><span class="w"> </span><span class="n">es</span><span class="p">(</span><span class="s">&quot;AnalysisGraph::generate_latent_state_sequences&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">ExperimentStatus</span><span class="w"> </span><span class="n">es</span><span class="p">(</span><span class="w"></span>
+<span class="w">      </span><span class="s">&quot;AnalysisGraph::generate_latent_state_sequences&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="s">&quot;foo&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">progress_step</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.01</span><span class="p">;</span><span class="w">  </span><span class="c1">// 100 sample steps</span>
 <span class="w">  </span><span class="n">es</span><span class="p">.</span><span class="n">start_recording_progress</span><span class="p">();</span><span class="w"></span>
 
