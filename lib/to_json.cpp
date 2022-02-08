@@ -46,7 +46,9 @@ string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
     nlohmann::json j;
     j["id"] = this->id;
     j["experiment_id"] = this->experiment_id;
+    cout << "\n\n**** start ****\n\n";
 
+    sleep(20);
     // This is an unordered_map:
     // concept name → Boost graph vertex id
     // Indicator assignment and observations are recorded according to this id.
@@ -258,7 +260,7 @@ string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
             }
         }
     }
-
+cout << "\n\n**** done ****\n\n";
     return j.dump(4);
 }
 

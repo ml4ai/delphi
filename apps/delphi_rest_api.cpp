@@ -180,11 +180,13 @@ class Model {
     ) {
 	G.id = model_id;
         G.run_train_model(res, burn);
+        cout << "\napi trained\n";
         sqlite3DB->insert_into_delphimodel(
             model_id,
             G.serialize_to_json_string(false)
         );
-    }
+        cout << "\nwrote to db\n";
+   }
 
     static size_t get_kde_kernels() {
         // When running in a continuous integration run, we set the

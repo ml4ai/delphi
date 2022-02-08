@@ -237,6 +237,7 @@ void AnalysisGraph::run_train_model(int res,
 
     cout << "\nSampling " << this->res << " samples from posterior..." << endl;
     for (int i : trange(this->res - 1)) {
+        sleep(1);
       {
         ms.increment_progress(training_step);
 
