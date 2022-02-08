@@ -211,7 +211,7 @@ class Model {
     Adarsh
     */
     static int get_sampling_resolution() {
-        return 100; 
+        return 100;
     }
 
     static int get_burn() {
@@ -233,7 +233,7 @@ class Model {
 
     // freeze the edge and return a status string (Empty means OK)
     static string freeze_edge(
-        AnalysisGraph G,
+        AnalysisGraph& G,
         string source_name,
         string target_name,
         double scaled_weight,
