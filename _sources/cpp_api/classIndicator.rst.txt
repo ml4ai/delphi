@@ -20,6 +20,7 @@ Class Documentation
 
 
 .. doxygenclass:: Indicator
+   :project: My Project
    :members:
    :protected-members:
    :undoc-members:

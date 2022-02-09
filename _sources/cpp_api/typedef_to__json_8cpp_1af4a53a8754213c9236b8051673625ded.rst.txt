@@ -11,3 +11,4 @@ Typedef Documentation
 
 
 .. doxygentypedef:: Evidence
+   :project: My Project

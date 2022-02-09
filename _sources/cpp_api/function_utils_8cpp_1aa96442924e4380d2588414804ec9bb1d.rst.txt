@@ -11,3 +11,4 @@ Function Documentation
 
 
 .. doxygenfunction:: delphi::utils::log_normpdf(double, double, double)
+   :project: My Project

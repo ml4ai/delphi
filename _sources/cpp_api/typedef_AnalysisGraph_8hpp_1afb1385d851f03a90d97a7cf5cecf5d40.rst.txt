@@ -11,3 +11,4 @@ Typedef Documentation
 
 
 .. doxygentypedef:: Derivatives
+   :project: My Project

@@ -20,6 +20,7 @@ Class Documentation
 
 
 .. doxygenclass:: LatentVar
+   :project: My Project
    :members:
    :protected-members:
    :undoc-members:

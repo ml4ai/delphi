@@ -11,3 +11,4 @@ Typedef Documentation
 
 
 .. doxygentypedef:: ConceptIndicatorData
+   :project: My Project

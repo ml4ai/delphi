@@ -11,3 +11,4 @@ Typedef Documentation
 
 
 .. doxygentypedef:: FormattedProjectionResult
+   :project: My Project

@@ -11,3 +11,4 @@ Typedef Documentation
 
 
 .. doxygentypedef:: ConceptIndicatorEpochs
+   :project: My Project

@@ -11,3 +11,4 @@ Typedef Documentation
 
 
 .. doxygentypedef:: AdjectiveResponseMap
+   :project: My Project

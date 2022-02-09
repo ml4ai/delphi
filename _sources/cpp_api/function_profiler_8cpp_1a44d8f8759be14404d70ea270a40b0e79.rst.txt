@@ -11,3 +11,4 @@ Function Documentation
 
 
 .. doxygenfunction:: compute_matrix_exponential(const Eigen::Ref<const Eigen::MatrixXd>, double)
+   :project: My Project

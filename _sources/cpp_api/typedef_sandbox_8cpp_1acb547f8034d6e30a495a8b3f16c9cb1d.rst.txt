@@ -11,3 +11,4 @@ Typedef Documentation
 
 
 .. doxygentypedef:: Edge_tuple
+   :project: My Project

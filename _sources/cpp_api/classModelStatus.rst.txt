@@ -20,6 +20,7 @@ Class Documentation
 
 
 .. doxygenclass:: ModelStatus
+   :project: My Project
    :members:
    :protected-members:
    :undoc-members:

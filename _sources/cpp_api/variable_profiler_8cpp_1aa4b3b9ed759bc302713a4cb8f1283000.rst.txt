@@ -11,3 +11,4 @@ Variable Documentation
 
 
 .. doxygenvariable:: g_display_mutex
+   :project: My Project

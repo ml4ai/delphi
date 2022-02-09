@@ -11,3 +11,4 @@ Typedef Documentation
 
 
 .. doxygentypedef:: DiGraph
+   :project: My Project

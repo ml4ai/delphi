@@ -11,3 +11,4 @@ Typedef Documentation
 
 
 .. doxygentypedef:: Predictions
+   :project: My Project

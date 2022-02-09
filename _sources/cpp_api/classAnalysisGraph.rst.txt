@@ -11,6 +11,7 @@ Class Documentation
 
 
 .. doxygenclass:: AnalysisGraph
+   :project: My Project
    :members:
    :protected-members:
    :undoc-members:

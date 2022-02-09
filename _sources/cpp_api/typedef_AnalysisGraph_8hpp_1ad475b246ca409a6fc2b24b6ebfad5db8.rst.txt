@@ -11,3 +11,4 @@ Typedef Documentation
 
 
 .. doxygentypedef:: ConstraintSchedule
+   :project: My Project

@@ -11,3 +11,4 @@ Typedef Documentation
 
 
 .. doxygentypedef:: MMapIterator
+   :project: My Project

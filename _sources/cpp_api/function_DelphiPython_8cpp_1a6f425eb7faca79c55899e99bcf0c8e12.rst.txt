@@ -11,3 +11,4 @@ Function Documentation
 
 
 .. doxygenfunction:: PYBIND11_MODULE(DelphiPython, m)
+   :project: My Project

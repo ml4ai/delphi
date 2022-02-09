@@ -11,3 +11,4 @@ Typedef Documentation
 
 
 .. doxygentypedef:: ObservedStateSequence
+   :project: My Project

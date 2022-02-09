@@ -11,3 +11,4 @@ Typedef Documentation
 
 
 .. doxygentypedef:: EdgeIterator
+   :project: My Project

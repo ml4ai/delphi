@@ -11,3 +11,4 @@ Enum Documentation
 
 
 .. doxygenenum:: InitialDerivative
+   :project: My Project

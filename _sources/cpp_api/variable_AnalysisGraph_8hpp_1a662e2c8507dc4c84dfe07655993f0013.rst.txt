@@ -11,3 +11,4 @@ Variable Documentation
 
 
 .. doxygenvariable:: tuning_param
+   :project: My Project

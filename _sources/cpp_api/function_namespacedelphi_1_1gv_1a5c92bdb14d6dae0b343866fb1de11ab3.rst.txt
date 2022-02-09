@@ -11,3 +11,4 @@ Function Documentation
 
 
 .. doxygenfunction:: delphi::gv::add_node(Agraph_t *, std::string)
+   :project: My Project

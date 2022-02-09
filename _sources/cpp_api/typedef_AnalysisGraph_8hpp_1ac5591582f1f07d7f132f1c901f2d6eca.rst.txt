@@ -11,3 +11,4 @@ Typedef Documentation
 
 
 .. doxygentypedef:: EdgeDescriptor
+   :project: My Project

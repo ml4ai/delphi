@@ -11,6 +11,7 @@ Class Documentation
 
 
 .. doxygenclass:: GraphData
+   :project: My Project
    :members:
    :protected-members:
    :undoc-members:

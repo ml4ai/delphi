@@ -11,3 +11,4 @@ Function Documentation
 
 
 .. doxygenfunction:: select_random_element(std::vector<T>, std::mt19937&, std::uniform_real_distribution<double>&)
+   :project: My Project

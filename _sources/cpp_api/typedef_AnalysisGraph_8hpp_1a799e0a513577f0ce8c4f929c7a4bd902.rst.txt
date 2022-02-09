@@ -11,3 +11,4 @@ Typedef Documentation
 
 
 .. doxygentypedef:: CausalFragmentCollection
+   :project: My Project

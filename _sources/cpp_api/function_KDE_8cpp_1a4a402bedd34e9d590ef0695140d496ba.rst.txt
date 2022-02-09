@@ -11,3 +11,4 @@ Function Documentation
 
 
 .. doxygenfunction:: sample_from_normal(std::mt19937, double, double)
+   :project: My Project

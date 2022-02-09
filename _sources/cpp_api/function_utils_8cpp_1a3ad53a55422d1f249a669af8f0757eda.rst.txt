@@ -11,3 +11,4 @@ Function Documentation
 
 
 .. doxygenfunction:: delphi::utils::sum(const std::vector<double>&)
+   :project: My Project
