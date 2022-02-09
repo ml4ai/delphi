@@ -1,9 +1,13 @@
 #pragma once
-#include "DatabaseHelper.hpp"
-#include <thread>
-#include <nlohmann/json.hpp>
 
-class AnalysisGraph;
+#include <sqlite3.h>
+#include "AnalysisGraph.hpp"
+#include "DatabaseHelper.hpp"
+#include "utils.hpp"
+#include <thread>
+#include <ctime>
+#include <chrono>
+#include <nlohmann/json.hpp>
 
 using namespace std;
 using json = nlohmann::json;
@@ -11,54 +15,50 @@ using json = nlohmann::json;
 class BaseStatus {
 
   private:
-    BaseStatus(){}
     Database* database = nullptr;
-    void insert(string query);
+    std::thread *pThread = nullptr;
+    bool recording = false;
+    string timestamp();
+    string class_name = "N/A";
+    string table_name = "N/A";
     void create_table();
     void clean_table();
-    void clean_record(string id);
-    const string table_name = "N/A";
-    const string class_name = "N/A";
-    const string COL_ID = "id"; // arbitrary, not exported
-    const string COL_STATUS = "status"; // arbitrary, not exported
-    bool training = false; // true when updating database
-    bool stopped = false; // by human intervention
-    double progress = 0.0; // values = [0.0, 1.0]
+    void clean_row(string id);
 
   protected:
-    virtual json compose_status() = 0;
-    virtual void record_status() = 0;
-    virtual string get_id() = 0;
     void scheduler();
-    void logError(string message);
-    void logInfo(string message);
-    void set_status(string id, json status);
-    std::thread *pThread = nullptr;
-    string timestamp();
+    void log_error(string msg);
+    void log_info(string msg);
+    bool is_training(string id);
+    json read_row(string id);
+    void write_row(string id, json status);
+    virtual void update_db() = 0;
+    virtual string get_id() = 0;
+    float progress = 0.0;
+    string state = "not created";
+
+  public:
     BaseStatus(
       Database* database,
       const string table_name,
       const string class_name
-    ) : 
+    ) :
       database(database),
       table_name(table_name),
       class_name(class_name){}
     ~BaseStatus(){}
 
-  public:
-    void startup();
+    void clean_db();
     json get_status();
-    void start_recording_progress();
-    void stop_recording_progress();
-    void set_progress(double p) {progress = p;}
-    void increment_progress(double i) {progress += i;}
-    double get_progress(){return progress;}
-    void set_initial_status(){record_status();}
-    void logMessage(string message);
-    bool is_busy(json status);
-    bool is_busy();
+    bool start_training();
+    void start_recording();
+    void stop_recording();
+    void set_progress(float p) { progress = p;}
+    void increment_progress(float i) { progress += i;}
 
-    const string PROGRESS = "progressPercentage"; // API
-    const string STATUS = "status"; // API
-    const string STOPPED = "stopped"; // arbitrary, not exported
+    // serialized JSON fields in the status text
+    const string COL_ID = "id"; // database column, not exported
+    const string COL_STATUS = "status"; // database column, not exported
+    const string PROGRESS = "progressPercentage"; // JSON field, API
+    const string STATUS = "status"; // JSON field, ?
 };

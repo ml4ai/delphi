@@ -1,6 +1,14 @@
 #include <sqlite3.h>
 #include "AnalysisGraph.hpp"
-#include "BaseStatus.hpp"
+#include "DatabaseHelper.hpp"
+#include "ModelStatus.hpp"
+#include "utils.hpp"
+#include <thread>
+#include <ctime>
+#include <chrono>
+#include <nlohmann/json.hpp>
+#include <sqlite3.h>
+#include "AnalysisGraph.hpp"
 #include "DatabaseHelper.hpp"
 #include "ModelStatus.hpp"
 #include "utils.hpp"
@@ -9,20 +17,43 @@
 #include <chrono>
 #include <nlohmann/json.hpp>
 
+#define SHOW_LOGS
+
 using namespace std;
 using namespace delphi::utils;
 using json = nlohmann::json;
 
-/* write out the status as a string for the database */
-json ModelStatus::compose_status() {
+// Start the training process for a model. 
+bool ModelStatus::start_training() {
+
+  // Enter critical section. 
+  sqlite3_mutex* mx = sqlite3_mutex_alloc(SQLITE_MUTEX_FAST);
+  if(mx == nullptr) {
+    log_error("Database error, cannot train model");
+    return false;
+  }
+  sqlite3_mutex_enter(mx);
+
+  // if there is no model with this ID in training, create one
+  if(!is_training(model_id)) {
+    state = "initiating";
+    update_db();
+    sqlite3_mutex_leave(mx);
+    sqlite3_mutex_free(mx);
+    return true;
+  }
+
+  // otherwise you will have to wait until it finishes
+  sqlite3_mutex_leave(mx);
+  sqlite3_mutex_free(mx);
+  return false;
+}
+
+void ModelStatus::update_db() {
   json status;
-  status[MODEL_ID] = model_id;
-  status[PROGRESS] = delphi::utils::round_n(get_progress(), 2);
-  return status;
-}
+  status[COL_ID] = model_id;
+  status[PROGRESS] = progress;
+  status[STATUS] = state;
 
-/* write the current Model status to our table */
-void ModelStatus::record_status() {
-  set_status(model_id, compose_status());
+  write_row(model_id, status);
 }
-

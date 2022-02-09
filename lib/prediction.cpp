@@ -59,7 +59,7 @@ void AnalysisGraph::generate_latent_state_sequences(
       "foo"
   );
   double progress_step = 0.01;  // 100 sample steps
-  es.start_recording_progress();
+  es.start_recording();
 
   cout << "\nPredicting for " << this->pred_timesteps << " time steps..." << endl;
 
@@ -280,7 +280,7 @@ void AnalysisGraph::generate_latent_state_sequences(
 
    // finalize experiment progress monitoring
    es.set_progress(1.0);
-   es.stop_recording_progress();
+   es.stop_recording();
 }
 
 
