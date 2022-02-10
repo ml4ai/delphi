@@ -131,7 +131,7 @@
 <span class="w">      </span><span class="s">&quot;foo&quot;</span><span class="w"></span>
 <span class="w">  </span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">progress_step</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.01</span><span class="p">;</span><span class="w">  </span><span class="c1">// 100 sample steps</span>
-<span class="w">  </span><span class="n">es</span><span class="p">.</span><span class="n">start_recording_progress</span><span class="p">();</span><span class="w"></span>
+<span class="w">  </span><span class="n">es</span><span class="p">.</span><span class="n">start_recording</span><span class="p">();</span><span class="w"></span>
 
 <span class="w">  </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Predicting for &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">pred_timesteps</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; time steps...&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
 
@@ -350,7 +350,7 @@
 
 <span class="w">   </span><span class="c1">// finalize experiment progress monitoring</span>
 <span class="w">   </span><span class="n">es</span><span class="p">.</span><span class="n">set_progress</span><span class="p">(</span><span class="mf">1.0</span><span class="p">);</span><span class="w"></span>
-<span class="w">   </span><span class="n">es</span><span class="p">.</span><span class="n">stop_recording_progress</span><span class="p">();</span><span class="w"></span>
+<span class="w">   </span><span class="n">es</span><span class="p">.</span><span class="n">stop_recording</span><span class="p">();</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
 

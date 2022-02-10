@@ -158,7 +158,7 @@
 
 <span class="w">    </span><span class="n">ModelStatus</span><span class="w"> </span><span class="n">ms</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">id</span><span class="p">);</span><span class="w"></span>
 
-<span class="w">    </span><span class="n">ms</span><span class="p">.</span><span class="n">start_recording_progress</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="n">ms</span><span class="p">.</span><span class="n">start_recording</span><span class="p">();</span><span class="w"></span>
 
 <span class="w">    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">trained</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"></span>
 
@@ -388,7 +388,7 @@
 
 <span class="w">    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">trained</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w"></span>
 <span class="w">    </span><span class="n">ms</span><span class="p">.</span><span class="n">set_progress</span><span class="p">(</span><span class="mf">1.0</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">ms</span><span class="p">.</span><span class="n">stop_recording_progress</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="n">ms</span><span class="p">.</span><span class="n">stop_recording</span><span class="p">();</span><span class="w"></span>
 <span class="w">    </span><span class="n">RNG</span><span class="o">::</span><span class="n">release_instance</span><span class="p">();</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
