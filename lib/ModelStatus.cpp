@@ -52,7 +52,7 @@ bool ModelStatus::start_training() {
 void ModelStatus::update_db() {
   json status;
   status[COL_ID] = model_id;
-  status[PROGRESS] = progress;
+  status[PROGRESS] = delphi::utils::round_n(progress, 2);
   status[STATUS] = state;
 
   write_row(model_id, status);

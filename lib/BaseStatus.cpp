@@ -17,7 +17,7 @@
 #include <chrono>
 #include <nlohmann/json.hpp>
 
-#define SHOW_LOGS   // define for cout debug messages
+//#define SHOW_LOGS   // define for cout debug messages
 
 using namespace std;
 using namespace delphi::utils;
@@ -106,7 +106,7 @@ void BaseStatus::clean_row(string id) {
   log_info("clean_row(" + id + ") => " + status.dump());
 
 
-  float row_progress = status[PROGRESS];
+  double row_progress = status[PROGRESS];
   if(row_progress < 1.0) {
     log_info(report + "FAIL (stale progress, deleting record)");
     database->delete_rows(table_name, "id", id);
@@ -121,7 +121,7 @@ bool BaseStatus::is_training(string id) {
   if(status.empty()) 
     return false;
   else {
-    float row_progress = status[PROGRESS];
+    double row_progress = status[PROGRESS];
     return (row_progress < 1.0);
   }
 }

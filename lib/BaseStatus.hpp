@@ -34,7 +34,7 @@ class BaseStatus {
     void write_row(string id, json status);
     json get_status_with_id(string id);
     virtual void update_db() = 0;
-    float progress = 0.0;
+    double progress = 0.0;
     string state = "not created";
 
   public:
@@ -52,8 +52,8 @@ class BaseStatus {
     bool start_training();
     void start_recording();
     void stop_recording();
-    void set_progress(float p) { progress = p;}
-    void increment_progress(float i) { progress += i;}
+    void set_progress(double p) { progress = p;}
+    void increment_progress(double i) { progress += i;}
     virtual json get_status() = 0;
 
     // serialized JSON fields in the status text
