@@ -44,6 +44,9 @@ class ExperimentStatus : public BaseStatus {
 
     ~ExperimentStatus(){}
     json get_status(){ return get_status_with_id(experiment_id);}
+    void start_recording() {_start_recording("in progress"); }
+    void stop_recording() {_stop_recording("completed"); }
+
 
     const string CONSTRAINTS = "constraints"; // API
     const string END_TIME = "endTime"; // API

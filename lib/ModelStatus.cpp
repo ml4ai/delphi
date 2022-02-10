@@ -34,7 +34,7 @@ bool ModelStatus::start_training() {
   sqlite3_mutex_enter(mx);
 
   // if there is no model with this ID in training, create one
-  if(!is_training(model_id)) {
+  if(!is_running(model_id)) {
     state = "Created";
     update_db();
     sqlite3_mutex_leave(mx);
@@ -57,4 +57,3 @@ void ModelStatus::update_db() {
 
   write_row(model_id, status);
 }
-

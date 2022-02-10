@@ -30,12 +30,14 @@ class BaseStatus {
     void scheduler();
     void log_error(string msg);
     void log_info(string msg);
-    bool is_training(string id);
+    bool is_running(string id); 
     void write_row(string id, json status);
     json get_status_with_id(string id);
     virtual void update_db() = 0;
     double progress = 0.0;
     string state = "not created";
+    void _start_recording(string status);
+    void _stop_recording(string status);
 
   public:
     BaseStatus(
@@ -49,9 +51,6 @@ class BaseStatus {
     ~BaseStatus(){}
 
     void clean_db();
-    bool start_training();
-    void start_recording();
-    void stop_recording();
     void set_progress(double p) { progress = p;}
     void increment_progress(double i) { progress += i;}
     virtual json get_status() = 0;

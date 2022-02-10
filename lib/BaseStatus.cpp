@@ -41,9 +41,9 @@ void BaseStatus::scheduler() {
 }
 
 /* Begin posting progress updates to the database on a regular interval */
-void BaseStatus::start_recording(){
+void BaseStatus::_start_recording(string state){
   log_info("start_updating_db()");
-  state = "training";
+  this->state = state;
   recording = true;
   update_db();
   if(pThread == nullptr) {
@@ -52,10 +52,10 @@ void BaseStatus::start_recording(){
 }
 
 /* Stop posting progress updates to the database */
-void BaseStatus::stop_recording(){
+void BaseStatus::_stop_recording(string state){
   log_info("stop_updating_db()");
   recording = false;
-  state = "trained";
+  this->state = state;
   update_db();
   if (pThread != nullptr) {
     if(pThread->joinable()) {
@@ -116,7 +116,7 @@ void BaseStatus::clean_row(string id) {
   }
 }
 
-bool BaseStatus::is_training(string id) {
+bool BaseStatus::is_running(string id) {
   json status = get_status_with_id(id);
   if(status.empty()) 
     return false;

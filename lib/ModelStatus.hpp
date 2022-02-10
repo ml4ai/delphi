@@ -37,6 +37,9 @@ class ModelStatus : public BaseStatus {
     ~ModelStatus(){log_info("ModelStatus destroyed for " + model_id);}
     bool start_training();
     json get_status(){ return get_status_with_id(model_id);}
+    void start_recording() {_start_recording("training"); }
+    void stop_recording() {_stop_recording("ready"); }
+
 
     // serialized JSON fields in the status text
     const string MODEL_ID = "id";  // API
