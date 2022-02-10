@@ -1,7 +1,13 @@
 #pragma once
+
+#include <sqlite3.h>
+#include "AnalysisGraph.hpp"
 #include "DatabaseHelper.hpp"
 #include "BaseStatus.hpp"
+#include "utils.hpp"
 #include <thread>
+#include <ctime>
+#include <chrono>
 #include <nlohmann/json.hpp>
 
 using namespace std;
@@ -11,29 +17,29 @@ using json = nlohmann::json;
 class ModelStatus : public BaseStatus {
 
   private:
-    string model_id = "model_id_not_set";
+    string model_id = "N/A";
 
   protected:
-    json compose_status();
+    void update_db();
     void record_status();
-    string get_id(){return model_id;}
 
   public:
     ModelStatus(string id) : BaseStatus(
-      new Database(), 
+      new Database(),
       "model_status",
       "ModelStatus"
-    ), model_id(id) {}
+    ), model_id(id) {log_info("ModelStatus created for " + id);}
     ModelStatus(string id, Database* database) : BaseStatus(
-      database, 
+      database,
       "model_status",
       "ModelStatus"
-    ), model_id(id) {}
-    ~ModelStatus(){}
-    static string get_model_id_field_name(){return "id";} // API
+    ), model_id(id) {log_info("ModelStatus created for " + id);}
+    ~ModelStatus(){log_info("ModelStatus destroyed for " + model_id);}
+    bool start_training();
+    json get_status(){ return get_status_with_id(model_id);}
 
     // serialized JSON fields in the status text
-    const string MODEL_ID = get_model_id_field_name(); 
+    const string MODEL_ID = "id";  // API
     const string NODES = "nodes"; // API
     const string EDGES = "edges"; // API
 };
