@@ -37,6 +37,7 @@ class ModelStatus : public BaseStatus {
     ~ModelStatus(){}
     bool start_training();
     void record_status();
+    json get_status(){return read_status(model_id);}
 
     // serialized JSON fields in the status text
     const string MODEL_ID = "id";  // API

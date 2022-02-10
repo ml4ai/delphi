@@ -49,6 +49,7 @@ bool ModelStatus::start_training() {
   return false;
 }
 
+// set our database status with local vars
 void ModelStatus::update_db() {
   json status;
   status[COL_ID] = model_id;

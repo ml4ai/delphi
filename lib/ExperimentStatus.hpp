@@ -45,6 +45,7 @@ class ExperimentStatus : public BaseStatus {
     ), experiment_id(experiment_id), model_id(model_id){}
 
     ~ExperimentStatus(){}
+    json get_status(){return read_status(experiment_id);}
 
     const string CONSTRAINTS = "constraints"; // API
     const string END_TIME = "endTime"; // API

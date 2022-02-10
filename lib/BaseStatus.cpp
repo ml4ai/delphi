@@ -98,12 +98,13 @@ void BaseStatus::clean_table() {
 void BaseStatus::clean_row(string id) {
   string report = "Inspecting " + table_name + " record '" + id + "': ";
 
-  json row = read_row(id);
+  json status = read_status(id);
+  
+  log_info("clean_row(" + id + ") => " + status.dump());
 
-  string status_string = row[COL_STATUS];
-  json status = json::parse(status_string);
-  float progress = status[PROGRESS];
-  if(progress < 1.0) {
+
+  float row_progress = status[PROGRESS];
+  if(row_progress < 1.0) {
     log_info(report + "FAIL (stale progress, deleting record)");
     database->delete_rows(table_name, "id", id);
   }
@@ -113,26 +114,13 @@ void BaseStatus::clean_row(string id) {
 }
 
 bool BaseStatus::is_training(string id) {
-  json row = read_row(id);
-  if(row.empty()) 
+  json status = read_status(id);
+  if(status.empty()) 
     return false;
   else {
-    string status_string = row[COL_STATUS];
-    json status = json::parse(status_string);
-    float status_progress = status[PROGRESS];
-    return (status_progress < 1.0);
+    float row_progress = status[PROGRESS];
+    return (row_progress < 1.0);
   }
-}
-
-// return the staus column deserialized as JSON
-json BaseStatus::get_status() {
-  json row = read_row(get_id());
-  if(row.empty()) {
-    return row;  // returning empty JSON means the id is not in our table
-  }
-  string statusString = row[COL_STATUS];
-  json ret = json::parse(statusString);
-  return ret;
 }
 
 // report the current time
@@ -154,12 +142,13 @@ string BaseStatus::timestamp() {
     return string(timebuf);
 }
 
-json BaseStatus::read_row(string id) {
-  return database -> select_row(
+json BaseStatus::read_status(string id) {
+  json ret = database -> select_row(
     table_name,
     id,
     COL_STATUS
   );
+  return ret;
 }
 
 void BaseStatus::write_row(string id, json status) {

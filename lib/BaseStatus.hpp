@@ -30,8 +30,8 @@ class BaseStatus {
     void log_error(string msg);
     void log_info(string msg);
     bool is_training(string id);
-    json read_row(string id);
     void write_row(string id, json status);
+    json read_status(string id);
     virtual void update_db() = 0;
     virtual string get_id() = 0;
     float progress = 0.0;
@@ -49,7 +49,6 @@ class BaseStatus {
     ~BaseStatus(){}
 
     void clean_db();
-    json get_status();
     bool start_training();
     void start_recording();
     void stop_recording();
