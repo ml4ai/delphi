@@ -23,20 +23,19 @@ using namespace std;
 using namespace delphi::utils;
 using json = nlohmann::json;
 
-// Start the training process for a model. 
+// Start the training process for a model. Make sure only one
+// process does this for a given model ID
 bool ModelStatus::start_training() {
-
-  // Enter critical section. 
   sqlite3_mutex* mx = sqlite3_mutex_alloc(SQLITE_MUTEX_FAST);
   if(mx == nullptr) {
-    log_error("Database error, cannot train model");
+    log_error("Could not create model status, database error");
     return false;
   }
   sqlite3_mutex_enter(mx);
 
   // if there is no model with this ID in training, create one
   if(!is_training(model_id)) {
-    state = "initiating";
+    state = "Created";
     update_db();
     sqlite3_mutex_leave(mx);
     sqlite3_mutex_free(mx);

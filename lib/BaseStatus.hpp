@@ -33,7 +33,6 @@ class BaseStatus {
     void write_row(string id, json status);
     json read_status(string id);
     virtual void update_db() = 0;
-    virtual string get_id() = 0;
     float progress = 0.0;
     string state = "not created";
 

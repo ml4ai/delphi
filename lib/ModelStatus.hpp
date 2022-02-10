@@ -21,20 +21,19 @@ class ModelStatus : public BaseStatus {
 
   protected:
     void update_db();
-    string get_id(){return model_id;}
 
   public:
     ModelStatus(string id) : BaseStatus(
       new Database(),
       "model_status",
       "ModelStatus"
-    ), model_id(id) {}
+    ), model_id(id) {log_info("ModelStatus created for " + id);}
     ModelStatus(string id, Database* database) : BaseStatus(
       database,
       "model_status",
       "ModelStatus"
-    ), model_id(id) {}
-    ~ModelStatus(){}
+    ), model_id(id) {log_info("ModelStatus created for " + id);}
+    ~ModelStatus(){log_info("ModelStatus destroyed for " + model_id);}
     bool start_training();
     void record_status();
     json get_status(){return read_status(model_id);}

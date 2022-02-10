@@ -20,9 +20,7 @@ class ExperimentStatus : public BaseStatus {
   protected:
     json compose_status();
     void record_status();
-    string get_id(){return experiment_id;}
     void update_db();
-
 
   public:
     ExperimentStatus(

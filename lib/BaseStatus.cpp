@@ -17,7 +17,7 @@
 #include <chrono>
 #include <nlohmann/json.hpp>
 
-#define SHOW_LOGS
+//#define SHOW_LOGS   // define for cout debug messages
 
 using namespace std;
 using namespace delphi::utils;
@@ -42,6 +42,7 @@ void BaseStatus::scheduler() {
 /* Begin posting progress updates to the database on a regular interval */
 void BaseStatus::start_recording(){
   log_info("start_updating_db()");
+  state = "training";
   recording = true;
   update_db();
   if(pThread == nullptr) {
@@ -53,6 +54,7 @@ void BaseStatus::start_recording(){
 void BaseStatus::stop_recording(){
   log_info("stop_updating_db()");
   recording = false;
+  state = "trained";
   update_db();
   if (pThread != nullptr) {
     if(pThread->joinable()) {
@@ -143,18 +145,24 @@ string BaseStatus::timestamp() {
 }
 
 json BaseStatus::read_status(string id) {
-  json ret = database -> select_row(
+  json row = database -> select_row(
     table_name,
     id,
     COL_STATUS
   );
-  return ret;
+
+  string statusString = row[COL_STATUS];
+  json status = json::parse(statusString);
+
+  log_info("read_status (" + id + ") " + status.dump());
+  return status;
 }
 
 void BaseStatus::write_row(string id, json status) {
+  log_info("write_row (" + id + ") " + status.dump());
   string query = "INSERT OR REPLACE INTO "
     + table_name
-    + " VALUES '"
+    + " VALUES ('"
     + id
     + "', '"
     + status.dump()
