@@ -14,12 +14,17 @@ using namespace std;
 using namespace delphi::utils;
 using json = nlohmann::json;
 
-void ExperimentStatus::update_db() {
+/* write out the status as a string for the database */
+json ExperimentStatus::compose_status() {
   json status;
-  status[MODEL_ID] = model_id;
   status[EXPERIMENT_ID] = experiment_id;
-  status[PROGRESS] = progress;
-  status[STATUS] = (progress < 1.0) ? "in progress" : "completed";
+  status[PROGRESS] = get_progress();
+  status[STATUS] = "not yet implemented!";
+  return status;
+}
 
-  write_row(experiment_id, status);
+/* write the current Model status to our table */
+void ExperimentStatus::record_status() {
+  logInfo("update_db()");
+  set_status(experiment_id, compose_status());
 }

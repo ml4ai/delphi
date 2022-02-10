@@ -211,7 +211,7 @@ class Model {
     Adarsh
     */
     static int get_sampling_resolution() {
-        return 100; 
+        return 100;
     }
 
     static int get_burn() {
@@ -334,8 +334,8 @@ int main(int argc, const char* argv[]) {
     // prepare the model and experiment databases for use
     ModelStatus ms("startup", sqlite3DB);
     ExperimentStatus es("startup", "startup", sqlite3DB);
-    ms.clean_db();
-    es.clean_db();
+    ms.startup();
+    es.startup();
 
     /* Allow users to check if the REST API is running */
     mux.handle("/status").get(
@@ -352,7 +352,7 @@ int main(int argc, const char* argv[]) {
                            const served::request& req) {
             nlohmann::json json_data = nlohmann::json::parse(req.body());
 
-	    string model_id_field = "id";
+	    string model_id_field = ModelStatus::get_model_id_field_name();
 
 	    // input must have a model ID field
 	    if(!json_data.contains(model_id_field)) {
@@ -369,9 +369,10 @@ int main(int argc, const char* argv[]) {
 	    string modelId = json_data[model_id_field];
 	    ModelStatus ms(modelId, sqlite3DB);
 
+	    json status = ms.get_status();
+
             // do not overwrite model if it is training
-            if (!ms.start_training()) {
-		json status = ms.get_status();
+            if (ms.is_busy(status)) {
                 json ret;
                 ret[ms.MODEL_ID] = modelId;
                 ret[ms.PROGRESS] = status[ms.PROGRESS];
@@ -380,6 +381,9 @@ int main(int argc, const char* argv[]) {
                 response << dumpStr; 
                 return dumpStr; 
             }
+
+	    // otherwise, create and train model.
+            ms.set_initial_status();
 
 	    size_t kde_kernels = Model::get_kde_kernels();
 	    int burn = Model::get_burn();
@@ -479,23 +483,26 @@ int main(int argc, const char* argv[]) {
 
 	    ModelStatus ms(modelId, sqlite3DB);
 
+	    string experiment_id_field_name = 
+	      ExperimentStatus::get_experiment_id_field_name();
+	    string model_id_field_name = 
+	      ExperimentStatus::get_model_id_field_name();
+
             json ret;
-            ret[ms.MODEL_ID] = modelId;
+            ret[model_id_field_name] = modelId;
 
 	    json modelStatus = ms.get_status();
 
 	    // Model not found
 	    if(modelStatus.empty()) {
-              ret[ms.STATUS] = "Invalid model ID";
+              ret["status"] = "Invalid model ID";
               res << ret.dump();
               return ret;
 	    }
 
             // Model not trained
-	    float progress = modelStatus[ms.PROGRESS];
-	    if(progress < 1.0) {
-	      ret[ms.PROGRESS] = progress;
-	      ret[ms.STATUS] = 
+	    if(ms.is_busy(modelStatus)) {
+	      ret["status"] = 
 	        "Model training must finish before experimenting";
               res << ret.dump();
               return ret;
@@ -602,24 +609,23 @@ int main(int argc, const char* argv[]) {
                 return ret;
             }
 
-	    json modelStatus = ms.get_status();
-	    
-            // Model not found
-            if(modelStatus.empty()) {
-              ret[ms.STATUS] = "Model does not exist. "
-                "Please create model before editing.";
+	    // check existence of model
+	    json model_status = ms.get_status();
+	    if(model_status.empty()) {
+	      string report = "Model does not exist. "
+	        "Please create model before editing.";
+	      ret[ms.STATUS] = report;
               res << ret.dump();
               return ret;
-            }   
-
-            // Model not trained
-            float progress = modelStatus[ms.PROGRESS];
-            if(progress < 1.0) {
-              ret[ms.PROGRESS] = progress;
+            }
+	    
+	    // The model must be fully trained before it can be edited.
+	    if(ms.is_busy(model_status)) {
+	      ret[ms.PROGRESS] = model_status[ms.PROGRESS];
 	      ret[ms.STATUS] = "Training must finish before editing.";
               res << ret.dump();
               return ret;
-            }  
+            }
 
 	    // Get the model row from the database
             json query_result = sqlite3DB->select_delphimodel_row(modelId);

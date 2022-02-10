@@ -78,7 +78,7 @@ void AnalysisGraph::run_train_model(int res,
 
     ModelStatus ms(this->id);
 
-    ms.start_recording();
+    ms.start_recording_progress();
 
     this->trained = false;
 
@@ -172,6 +172,7 @@ void AnalysisGraph::run_train_model(int res,
 
     this->edge_sample_pool.clear();
     for (EdgeDescriptor ed : this->edges()) {
+        this->graph[ed].sampled_thetas.clear();
         if (!this->graph[ed].is_frozen()) {
             this->edge_sample_pool.push_back(ed);
         }
@@ -285,7 +286,7 @@ void AnalysisGraph::run_train_model(int res,
       */
     }
 
-    if (this->MAP_sample_number < int(this->res) - 1) {
+    if (this->MAP_sample_number < int(this->res)) {
       this->sample_from_posterior();
       this->transition_matrix_collection[this->res - 1] = this->A_original;
       this->initial_latent_state_collection[this->res - 1] = this->s0;
@@ -307,7 +308,7 @@ void AnalysisGraph::run_train_model(int res,
 
     this->trained = true;
     ms.set_progress(1.0);
-    ms.stop_recording();
+    ms.stop_recording_progress();
     RNG::release_instance();
 }
 
