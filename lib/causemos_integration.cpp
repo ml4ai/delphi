@@ -228,7 +228,6 @@ void AnalysisGraph::infer_modeling_period(
                         this->observation_timesteps_sorted.end(),
                         observation_timestep_gaps.begin());
 
-    /*
     // Compute number of epochs between data points
     unordered_map<long, int> gap_frequencies;
     unordered_map<long, int>::iterator itr;
@@ -278,7 +277,6 @@ void AnalysisGraph::infer_modeling_period(
           frequent_gap = gap;
         }
     }
-     */
 
     // num_modeling_timesteps_per_one_observation_timestep is the number of
     // observation timesteps taken as one modeling timestep.
