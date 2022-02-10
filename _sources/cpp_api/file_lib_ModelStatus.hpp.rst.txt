@@ -29,23 +29,13 @@ Includes
 --------
 
 
-- ``AnalysisGraph.hpp`` (:ref:`file_lib_AnalysisGraph.hpp`)
-
 - ``BaseStatus.hpp`` (:ref:`file_lib_BaseStatus.hpp`)
 
 - ``DatabaseHelper.hpp`` (:ref:`file_lib_DatabaseHelper.hpp`)
 
-- ``chrono``
-
-- ``ctime``
-
 - ``nlohmann/json.hpp``
 
-- ``sqlite3.h``
-
 - ``thread``
-
-- ``utils.hpp`` (:ref:`file_lib_utils.hpp`)
 
 
 

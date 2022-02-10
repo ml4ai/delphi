@@ -11,15 +11,11 @@ Program Listing for File BaseStatus.hpp
 .. code-block:: cpp
 
    #pragma once
-   
-   #include <sqlite3.h>
-   #include "AnalysisGraph.hpp"
    #include "DatabaseHelper.hpp"
-   #include "utils.hpp"
    #include <thread>
-   #include <ctime>
-   #include <chrono>
    #include <nlohmann/json.hpp>
+   
+   class AnalysisGraph;
    
    using namespace std;
    using json = nlohmann::json;
@@ -27,48 +23,54 @@ Program Listing for File BaseStatus.hpp
    class BaseStatus {
    
      private:
+       BaseStatus(){}
        Database* database = nullptr;
-       std::thread *pThread = nullptr;
-       bool recording = false;
-       string timestamp();
-       string class_name = "N/A";
-       string table_name = "N/A";
+       void insert(string query);
        void create_table();
        void clean_table();
-       void clean_row(string id);
-       json read_row(string id);
+       void clean_record(string id);
+       const string table_name = "N/A";
+       const string class_name = "N/A";
+       const string COL_ID = "id"; // arbitrary, not exported
+       const string COL_STATUS = "status"; // arbitrary, not exported
+       bool training = false; // true when updating database
+       bool stopped = false; // by human intervention
+       double progress = 0.0; // values = [0.0, 1.0]
    
      protected:
+       virtual json compose_status() = 0;
+       virtual void record_status() = 0;
+       virtual string get_id() = 0;
        void scheduler();
-       void log_error(string msg);
-       void log_info(string msg);
-       bool is_busy(string id); 
-       void write_row(string id, json status);
-       json get_status_with_id(string id);
-       virtual void update_db() = 0;
-       double progress = 0.0;
-   
-     public:
+       void logError(string message);
+       void logInfo(string message);
+       void set_status(string id, json status);
+       std::thread *pThread = nullptr;
+       string timestamp();
        BaseStatus(
          Database* database,
          const string table_name,
          const string class_name
-       ) :
+       ) : 
          database(database),
          table_name(table_name),
          class_name(class_name){}
        ~BaseStatus(){}
    
-       void clean_db();
-       void set_progress(double p) { progress = p;}
-       void increment_progress(double i) { progress += i;}
-       virtual json get_status() = 0;
-       void start_recording();
-       void stop_recording();
+     public:
+       void startup();
+       json get_status();
+       void start_recording_progress();
+       void stop_recording_progress();
+       void set_progress(double p) {progress = p;}
+       void increment_progress(double i) {progress += i;}
+       double get_progress(){return progress;}
+       void set_initial_status(){record_status();}
+       void logMessage(string message);
+       bool is_busy(json status);
+       bool is_busy();
    
-       // serialized JSON fields in the status text
-       const string COL_ID = "id"; // database column, not exported
-       const string COL_STATUS = "status"; // database column, not exported
-       const string PROGRESS = "progressPercentage"; // JSON field, API
-       const string STATUS = "status"; // JSON field, ?
+       const string PROGRESS = "progressPercentage"; // API
+       const string STATUS = "status"; // API
+       const string STOPPED = "stopped"; // arbitrary, not exported
    };

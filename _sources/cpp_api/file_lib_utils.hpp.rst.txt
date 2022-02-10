@@ -53,8 +53,6 @@ Included By
 
 - :ref:`file_lib_Edge.hpp`
 
-- :ref:`file_lib_BaseStatus.hpp`
-
 - :ref:`file_lib_BaseStatus.cpp`
 
 - :ref:`file_lib_causemos_integration.cpp`
@@ -64,8 +62,6 @@ Included By
 - :ref:`file_lib_data.cpp`
 
 - :ref:`file_lib_ExperimentStatus.cpp`
-
-- :ref:`file_lib_ModelStatus.hpp`
 
 - :ref:`file_lib_ModelStatus.cpp`
 

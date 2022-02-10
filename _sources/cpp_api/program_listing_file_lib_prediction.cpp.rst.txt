@@ -63,7 +63,7 @@ Program Listing for File prediction.cpp
          "foo"
      );
      double progress_step = 0.01;  // 100 sample steps
-     es.start_recording();
+     es.start_recording_progress();
    
      cout << "\nPredicting for " << this->pred_timesteps << " time steps..." << endl;
    
@@ -282,7 +282,7 @@ Program Listing for File prediction.cpp
    
       // finalize experiment progress monitoring
       es.set_progress(1.0);
-      es.stop_recording();
+      es.stop_recording_progress();
    }
    
    

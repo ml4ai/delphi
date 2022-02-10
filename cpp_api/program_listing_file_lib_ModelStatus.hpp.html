@@ -79,15 +79,9 @@
 <span id="program-listing-file-lib-modelstatus-hpp"></span><h1>Program Listing for File ModelStatus.hpp<a class="headerlink" href="#program-listing-for-file-modelstatus-hpp" title="Permalink to this headline"></a></h1>
 <p>↰ <a class="reference internal" href="file_lib_ModelStatus.hpp.html#file-lib-modelstatus-hpp"><span class="std std-ref">Return to documentation for file</span></a> (<code class="docutils literal notranslate"><span class="pre">lib/ModelStatus.hpp</span></code>)</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma once</span>
-
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sqlite3.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;AnalysisGraph.hpp&quot;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;DatabaseHelper.hpp&quot;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;BaseStatus.hpp&quot;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;utils.hpp&quot;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;thread&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ctime&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;chrono&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;nlohmann/json.hpp&gt;</span><span class="cp"></span>
 
 <span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">std</span><span class="p">;</span><span class="w"></span>
@@ -97,29 +91,29 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">ModelStatus</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">BaseStatus</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 
 <span class="w">  </span><span class="k">private</span><span class="o">:</span><span class="w"></span>
-<span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">model_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;N/A&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">model_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;model_id_not_set&quot;</span><span class="p">;</span><span class="w"></span>
 
 <span class="w">  </span><span class="k">protected</span><span class="o">:</span><span class="w"></span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">update_db</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="n">json</span><span class="w"> </span><span class="n">compose_status</span><span class="p">();</span><span class="w"></span>
 <span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">record_status</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="nf">get_id</span><span class="p">(){</span><span class="k">return</span><span class="w"> </span><span class="n">model_id</span><span class="p">;}</span><span class="w"></span>
 
 <span class="w">  </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
 <span class="w">    </span><span class="n">ModelStatus</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">BaseStatus</span><span class="p">(</span><span class="w"></span>
 <span class="w">      </span><span class="k">new</span><span class="w"> </span><span class="n">Database</span><span class="p">(),</span><span class="w"></span>
 <span class="w">      </span><span class="s">&quot;model_status&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">      </span><span class="s">&quot;ModelStatus&quot;</span><span class="w"></span>
-<span class="w">    </span><span class="p">),</span><span class="w"> </span><span class="n">model_id</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="n">log_info</span><span class="p">(</span><span class="s">&quot;ModelStatus created for &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">id</span><span class="p">);}</span><span class="w"></span>
+<span class="w">    </span><span class="p">),</span><span class="w"> </span><span class="n">model_id</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
 <span class="w">    </span><span class="n">ModelStatus</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">Database</span><span class="o">*</span><span class="w"> </span><span class="n">database</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">BaseStatus</span><span class="p">(</span><span class="w"></span>
 <span class="w">      </span><span class="n">database</span><span class="p">,</span><span class="w"></span>
 <span class="w">      </span><span class="s">&quot;model_status&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">      </span><span class="s">&quot;ModelStatus&quot;</span><span class="w"></span>
-<span class="w">    </span><span class="p">),</span><span class="w"> </span><span class="n">model_id</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="n">log_info</span><span class="p">(</span><span class="s">&quot;ModelStatus created for &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">id</span><span class="p">);}</span><span class="w"></span>
-<span class="w">    </span><span class="o">~</span><span class="n">ModelStatus</span><span class="p">(){</span><span class="n">log_info</span><span class="p">(</span><span class="s">&quot;ModelStatus destroyed for &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">model_id</span><span class="p">);}</span><span class="w"></span>
-<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">start_training</span><span class="p">();</span><span class="w"></span>
-<span class="w">    </span><span class="n">json</span><span class="w"> </span><span class="nf">get_status</span><span class="p">(){</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">get_status_with_id</span><span class="p">(</span><span class="n">model_id</span><span class="p">);}</span><span class="w"></span>
+<span class="w">    </span><span class="p">),</span><span class="w"> </span><span class="n">model_id</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+<span class="w">    </span><span class="o">~</span><span class="n">ModelStatus</span><span class="p">(){}</span><span class="w"></span>
+<span class="w">    </span><span class="k">static</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="n">get_model_id_field_name</span><span class="p">(){</span><span class="k">return</span><span class="w"> </span><span class="s">&quot;id&quot;</span><span class="p">;}</span><span class="w"> </span><span class="c1">// API</span>
 
 <span class="w">    </span><span class="c1">// serialized JSON fields in the status text</span>
-<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="n">MODEL_ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;id&quot;</span><span class="p">;</span><span class="w">  </span><span class="c1">// API</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="n">MODEL_ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_model_id_field_name</span><span class="p">();</span><span class="w"></span>
 <span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="n">NODES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;nodes&quot;</span><span class="p">;</span><span class="w"> </span><span class="c1">// API</span>
 <span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="n">EDGES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;edges&quot;</span><span class="p">;</span><span class="w"> </span><span class="c1">// API</span>
 <span class="p">};</span><span class="w"></span>
