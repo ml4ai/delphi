@@ -35,9 +35,6 @@ class BaseStatus {
     json get_status_with_id(string id);
     virtual void update_db() = 0;
     double progress = 0.0;
-    string state = "not created";
-    void _start_recording(string status);
-    void _stop_recording(string status);
 
   public:
     BaseStatus(
@@ -54,6 +51,8 @@ class BaseStatus {
     void set_progress(double p) { progress = p;}
     void increment_progress(double i) { progress += i;}
     virtual json get_status() = 0;
+    void start_recording();
+    void stop_recording();
 
     // serialized JSON fields in the status text
     const string COL_ID = "id"; // database column, not exported

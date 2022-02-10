@@ -41,9 +41,8 @@ void BaseStatus::scheduler() {
 }
 
 /* Begin posting progress updates to the database on a regular interval */
-void BaseStatus::_start_recording(string state){
+void BaseStatus::start_recording(){
   log_info("start_updating_db()");
-  this->state = state;
   recording = true;
   update_db();
   if(pThread == nullptr) {
@@ -52,10 +51,9 @@ void BaseStatus::_start_recording(string state){
 }
 
 /* Stop posting progress updates to the database */
-void BaseStatus::_stop_recording(string state){
+void BaseStatus::stop_recording(){
   log_info("stop_updating_db()");
   recording = false;
-  this->state = state;
   update_db();
   if (pThread != nullptr) {
     if(pThread->joinable()) {

@@ -19,7 +19,7 @@ void ExperimentStatus::update_db() {
   status[MODEL_ID] = model_id;
   status[EXPERIMENT_ID] = experiment_id;
   status[PROGRESS] = progress;
-  status[STATUS] = state;
+  status[STATUS] = (progress < 1.0) ? "in progress" : "completed";
 
   write_row(experiment_id, status);
 }

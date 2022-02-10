@@ -41,7 +41,6 @@ bool ModelStatus::start_training() {
   }
 
   // begin training
-  state = "Created";
   update_db();
   sqlite3_mutex_leave(mx);
   sqlite3_mutex_free(mx);
@@ -53,7 +52,7 @@ void ModelStatus::update_db() {
   json status;
   status[COL_ID] = model_id;
   status[PROGRESS] = delphi::utils::round_n(progress, 2);
-  status[STATUS] = state;
+  status[STATUS] = (progress < 1.0) ? "training" : "ready";
 
   write_row(model_id, status);
 }
