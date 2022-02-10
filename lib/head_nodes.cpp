@@ -52,8 +52,11 @@ void AnalysisGraph::generate_head_node_latent_sequence(int node_id,
         for (int ts = 0; ts < num_timesteps; ts++) {
           //int partition = ts % n.period;
           //this->generated_latent_sequence[ts] = n.centers[partition];
-          int partition = ts % n.generated_monthly_latent_centers_for_a_year.size(); // (% 12)
-          this->generated_latent_sequence[ts] = n.generated_monthly_latent_centers_for_a_year[partition];
+          // TODO: This partitioning works only for num_modeling_timesteps_per_one_observation_timestep == 1
+          // for others (ts * num_modeling_timesteps_per_one_observation_timestep) % n.period might work
+          // given num_modeling_timesteps_per_one_observation_timestep is integer
+          int partition = ts % n.period;
+          this->generated_latent_sequence[ts] = n.generated_latent_centers_for_a_period[partition];
 
           apply_constraint_at(ts, node_id);
         }
@@ -84,9 +87,9 @@ void AnalysisGraph::generate_head_node_latent_sequence(int node_id,
       if (sample) {
         for (int ts = 0; ts < num_timesteps; ts++) {
           //int partition = ts % n.period;
-          int partition = ts % n.generated_monthly_latent_spreads_for_a_year.size(); // (% 12)
+          int partition = ts % n.period;
           this->generated_latent_sequence[ts] +=
-              n.generated_monthly_latent_spreads_for_a_year[partition] * norm_dist(this->rand_num_generator);
+              n.generated_latent_spreads_for_a_period[partition] * norm_dist(this->rand_num_generator);
         }
       }
       else if (seq_no > -1) {
@@ -97,11 +100,11 @@ void AnalysisGraph::generate_head_node_latent_sequence(int node_id,
 
         for (int ts = 0; ts < num_timesteps; ts++) {
           //int partition = ts % n.period;
-          int partition = ts % n.generated_monthly_latent_spreads_for_a_year.size(); // (% 12)
+          int partition = ts % n.period;
           //this->generated_latent_sequence[ts] +=
-          //    (turn - half_sections) * n.generated_monthly_latent_spreads_for_a_year[partition];
+          //    (turn - half_sections) * n.generated_latent_spreads_for_a_period[partition];
           this->generated_latent_sequence[ts] +=
-              n.generated_monthly_latent_spreads_for_a_year[partition] * deviation;
+              n.generated_latent_spreads_for_a_period[partition] * deviation;
           apply_constraint_at(ts, node_id);
         }
       }

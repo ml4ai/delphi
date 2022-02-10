@@ -1,5 +1,6 @@
 #pragma once
 
+#include "definitions.h"
 #include <Eigen/Dense>
 #include <unsupported/Eigen/MatrixFunctions>
 
@@ -299,8 +300,15 @@ class AnalysisGraph {
   long train_start_epoch = -1;
   long train_end_epoch = -1;
   double pred_start_timestep = -1;
-  std::vector<double> observation_timestep_gaps;
+  // Number of zero based observation timesteps to each observation point.
+  // When data aggregation level is MONTHLY, this is the number of months
+  // When data aggregation level is YEARLY, this is the number of years
+  std::vector<long> observation_timesteps_sorted;
+  std::vector<double> modeling_timestep_gaps;
   std::vector<double> observation_timestep_unique_gaps;
+  // Currently Delphi could work either with monthly data or yearly data
+  // but not with some monthly and some yearly
+  DataAggregationLevel model_data_agg_level = DataAggregationLevel::MONTHLY;
 
   #ifdef MULTI_THREADING
     // A future cannot be copied. So we need to specify a copy assign
@@ -308,7 +316,7 @@ class AnalysisGraph {
     std::vector<std::future<Eigen::MatrixXd>> matrix_exponential_futures;
   #endif
   std::unordered_map<double, Eigen::MatrixXd> e_A_ts;
-  long modeling_period = 1; // Number of epochs per one modeling timestep
+  long num_modeling_timesteps_per_one_observation_timestep = 1;
 
   std::unordered_map<int, std::function<double(unsigned int, double)>> external_concepts;
   std::vector<unsigned int> concept_sample_pool;
@@ -565,7 +573,7 @@ class AnalysisGraph {
    * the caller. The caller should declare these variables and pass them here so
    * that after the execution of this method, the caller can access the results.
    *
-   * @param concept_indicator_epochs : Chronologically ordered observation epoch
+   * @param concept_indicator_observation_timesteps : Chronologically ordered observation epoch
    *                                  sequences for each indicator extracted
    *                                  from the JSON data in the create model
    *                                  request. This data structure is populated
@@ -582,9 +590,8 @@ class AnalysisGraph {
    * @returns epochs_sorted         : A sorted list of epochs where observations
    *                                  are present for at least one indicator
    */
-  std::vector<long>
-  infer_modeling_period(
-                        const ConceptIndicatorEpochs &concept_indicator_epochs,
+  void infer_modeling_period(
+                        const ConceptIndicatorEpochs & concept_indicator_observation_timesteps,
                         long &shortest_gap,
                         long &longest_gap,
                         long &frequent_gap,
@@ -617,7 +624,7 @@ class AnalysisGraph {
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
   // Epoch --> (year, month, date)
-  std::tuple<int, int, int> timestamp_to_year_month_date(long timestamp);
+  std::tuple<int, int, int> epoch_to_year_month_date(long epoch);
 
   void extract_projection_constraints(
                                 const nlohmann::json &projection_constraints, long skip_steps);

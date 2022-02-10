@@ -148,8 +148,8 @@ void AnalysisGraph::generate_synthetic_data(unsigned int num_obs,
       n.centers.push_back(center);
       n.spreads.push_back(spread);
       int month = offset + gap_size * p;
-      n.generated_monthly_latent_centers_for_a_year[month] = center;
-      n.generated_monthly_latent_spreads_for_a_year[month] = spread;
+      n.generated_latent_centers_for_a_period[month] = center;
+      n.generated_latent_spreads_for_a_period[month] = spread;
       filled_months.push_back(month);
     }
     this->interpolate_missing_months(filled_months, n);
@@ -169,14 +169,14 @@ void AnalysisGraph::generate_synthetic_data(unsigned int num_obs,
   this->generate_observed_state_sequences();
 
   this->observed_state_sequence.clear();
-  this->observation_timestep_gaps.clear();
+  this->modeling_timestep_gaps.clear();
   this->n_timesteps = num_obs;
 
   // Access (concept is a vertex in the CAG)
   // [ timestep ][ concept ][ indicator ][ observation ]
   this->observed_state_sequence = ObservedStateSequence(this->n_timesteps);
-  this->observation_timestep_gaps = vector<double>(this->n_timesteps, 1);
-  this->observation_timestep_gaps[0] = 0;
+  this->modeling_timestep_gaps = vector<double>(this->n_timesteps, 1);
+  this->modeling_timestep_gaps[0] = 0;
 
   int num_verts = this->num_vertices();
   // Fill in observed state sequence
@@ -220,35 +220,27 @@ void AnalysisGraph::interpolate_missing_months(vector<int> &filled_months, Node 
       for (int month_missing = 1;
       month_missing <= num_missing_months;
       month_missing++) {
-        n.generated_monthly_latent_centers_for_a_year
-        [(month_start + month_missing) % 12] =
+        n.generated_latent_centers_for_a_period[(month_start + month_missing) % 12] =
             ((num_missing_months - month_missing + 1) *
-            n.generated_monthly_latent_centers_for_a_year
-            [month_start] +
+            n.generated_latent_centers_for_a_period[month_start] +
             (month_missing)*n
-            .generated_monthly_latent_centers_for_a_year
-            [month_end]) /
+            .generated_latent_centers_for_a_period[month_end]) /
             (num_missing_months + 1);
 
-        n.generated_monthly_latent_spreads_for_a_year
-        [(month_start + month_missing) % 12] =
+        n.generated_latent_spreads_for_a_period[(month_start + month_missing) % 12] =
             ((num_missing_months - month_missing + 1) *
-            n.generated_monthly_latent_spreads_for_a_year
-            [month_start] +
+            n.generated_latent_spreads_for_a_period[month_start] +
             (month_missing)*n
-            .generated_monthly_latent_spreads_for_a_year
-            [month_end]) /
+            .generated_latent_spreads_for_a_period[month_end]) /
             (num_missing_months + 1);
       }
     }
   } else if (filled_months.size() == 1) {
-    for (int month = 0; month < n.generated_monthly_latent_centers_for_a_year.size(); month++) {
-      n.generated_monthly_latent_centers_for_a_year[month] =
-          n.generated_monthly_latent_centers_for_a_year
-          [filled_months[0]];
-      n.generated_monthly_latent_spreads_for_a_year[month] =
-          n.generated_monthly_latent_spreads_for_a_year
-          [filled_months[0]];
+    for (int month = 0; month < n.generated_latent_centers_for_a_period.size(); month++) {
+      n.generated_latent_centers_for_a_period[month] =
+          n.generated_latent_centers_for_a_period[filled_months[0]];
+      n.generated_latent_spreads_for_a_period[month] =
+          n.generated_latent_spreads_for_a_period[filled_months[0]];
     }
   }
 }

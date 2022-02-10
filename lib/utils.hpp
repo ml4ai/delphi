@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include "definitions.h"
 
 namespace delphi::utils {
 
@@ -86,7 +87,10 @@ double log_normpdf(double x, double mean, double sd);
 nlohmann::json load_json(std::string filename);
 
 /** Compute the number of months between two dates **/
-int months_between(std::tuple<int, int, int> earlier_date, std::tuple<int, int, int> latter_date);
+int observation_timesteps_between(std::tuple<int, int, int> earlier_date,
+                                  std::tuple<int, int, int> latter_date,
+                                  DataAggregationLevel agg_level
+                                               = DataAggregationLevel::MONTHLY);
 
 /** Get current date & time in human readable format **/
 std::string get_timestamp();
