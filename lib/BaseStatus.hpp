@@ -30,7 +30,7 @@ class BaseStatus {
     void scheduler();
     void log_error(string msg);
     void log_info(string msg);
-    bool is_running(string id); 
+    bool is_busy(string id); 
     void write_row(string id, json status);
     json get_status_with_id(string id);
     virtual void update_db() = 0;

@@ -105,7 +105,6 @@ void BaseStatus::clean_row(string id) {
   
   log_info("clean_row(" + id + ") => " + status.dump());
 
-
   double row_progress = status[PROGRESS];
   if(row_progress < 1.0) {
     log_info(report + "FAIL (stale progress, deleting record)");
@@ -116,7 +115,8 @@ void BaseStatus::clean_row(string id) {
   }
 }
 
-bool BaseStatus::is_running(string id) {
+// return true if the progress exists and has not yet finished
+bool BaseStatus::is_busy(string id) {
   json status = get_status_with_id(id);
   if(status.empty()) 
     return false;

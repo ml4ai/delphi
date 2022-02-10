@@ -33,19 +33,19 @@ bool ModelStatus::start_training() {
   }
   sqlite3_mutex_enter(mx);
 
-  // if there is no model with this ID in training, create one
-  if(!is_running(model_id)) {
-    state = "Created";
-    update_db();
+  // Do not start training if the model is already training
+  if(is_busy(model_id)) {
     sqlite3_mutex_leave(mx);
     sqlite3_mutex_free(mx);
-    return true;
+    return false;
   }
 
-  // otherwise you will have to wait until it finishes
+  // begin training
+  state = "Created";
+  update_db();
   sqlite3_mutex_leave(mx);
   sqlite3_mutex_free(mx);
-  return false;
+  return true;
 }
 
 // set our database status with local vars
