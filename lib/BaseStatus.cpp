@@ -17,7 +17,7 @@
 #include <chrono>
 #include <nlohmann/json.hpp>
 
-//#define SHOW_LOGS   // define for cout debug messages
+#define SHOW_LOGS   // define for cout debug messages
 
 using namespace std;
 using namespace delphi::utils;
@@ -27,6 +27,7 @@ void BaseStatus::clean_db() {
   create_table();
   clean_table();
 }
+
 
 /* Start the thread that posts the status to the datbase */
 void BaseStatus::scheduler() {
@@ -100,7 +101,7 @@ void BaseStatus::clean_table() {
 void BaseStatus::clean_row(string id) {
   string report = "Inspecting " + table_name + " record '" + id + "': ";
 
-  json status = read_status(id);
+  json status = get_status_with_id(id);
   
   log_info("clean_row(" + id + ") => " + status.dump());
 
@@ -116,7 +117,7 @@ void BaseStatus::clean_row(string id) {
 }
 
 bool BaseStatus::is_training(string id) {
-  json status = read_status(id);
+  json status = get_status_with_id(id);
   if(status.empty()) 
     return false;
   else {
@@ -144,19 +145,26 @@ string BaseStatus::timestamp() {
     return string(timebuf);
 }
 
-json BaseStatus::read_status(string id) {
-  json row = database -> select_row(
+// return the entire database row for this id
+json BaseStatus::read_row(string id) {
+  return database -> select_row(
     table_name,
     id,
     COL_STATUS
   );
+}
 
+// return the status json for this ID
+json BaseStatus::get_status_with_id(string id) {
+  json row = read_row(id);
+  if(row.empty()) {
+    return row;
+  }
   string statusString = row[COL_STATUS];
   json status = json::parse(statusString);
-
-  log_info("read_status (" + id + ") " + status.dump());
   return status;
 }
+
 
 void BaseStatus::write_row(string id, json status) {
   log_info("write_row (" + id + ") " + status.dump());

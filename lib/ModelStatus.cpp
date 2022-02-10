@@ -57,3 +57,4 @@ void ModelStatus::update_db() {
 
   write_row(model_id, status);
 }
+

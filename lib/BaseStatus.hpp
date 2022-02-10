@@ -24,6 +24,7 @@ class BaseStatus {
     void create_table();
     void clean_table();
     void clean_row(string id);
+    json read_row(string id);
 
   protected:
     void scheduler();
@@ -31,7 +32,7 @@ class BaseStatus {
     void log_info(string msg);
     bool is_training(string id);
     void write_row(string id, json status);
-    json read_status(string id);
+    json get_status_with_id(string id);
     virtual void update_db() = 0;
     float progress = 0.0;
     string state = "not created";
@@ -53,6 +54,7 @@ class BaseStatus {
     void stop_recording();
     void set_progress(float p) { progress = p;}
     void increment_progress(float i) { progress += i;}
+    virtual json get_status() = 0;
 
     // serialized JSON fields in the status text
     const string COL_ID = "id"; // database column, not exported

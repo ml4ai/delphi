@@ -23,4 +23,3 @@ void ExperimentStatus::update_db() {
 
   write_row(experiment_id, status);
 }
-

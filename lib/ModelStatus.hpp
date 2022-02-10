@@ -21,6 +21,7 @@ class ModelStatus : public BaseStatus {
 
   protected:
     void update_db();
+    void record_status();
 
   public:
     ModelStatus(string id) : BaseStatus(
@@ -35,8 +36,7 @@ class ModelStatus : public BaseStatus {
     ), model_id(id) {log_info("ModelStatus created for " + id);}
     ~ModelStatus(){log_info("ModelStatus destroyed for " + model_id);}
     bool start_training();
-    void record_status();
-    json get_status(){return read_status(model_id);}
+    json get_status(){ return get_status_with_id(model_id);}
 
     // serialized JSON fields in the status text
     const string MODEL_ID = "id";  // API
