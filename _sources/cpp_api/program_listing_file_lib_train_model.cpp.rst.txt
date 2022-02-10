@@ -90,7 +90,7 @@ Program Listing for File train_model.cpp
    
        ModelStatus ms(this->id);
    
-       ms.start_recording_progress();
+       ms.start_recording();
    
        this->trained = false;
    
@@ -184,7 +184,6 @@ Program Listing for File train_model.cpp
    
        this->edge_sample_pool.clear();
        for (EdgeDescriptor ed : this->edges()) {
-           this->graph[ed].sampled_thetas.clear();
            if (!this->graph[ed].is_frozen()) {
                this->edge_sample_pool.push_back(ed);
            }
@@ -298,7 +297,7 @@ Program Listing for File train_model.cpp
          */
        }
    
-       if (this->MAP_sample_number < int(this->res)) {
+       if (this->MAP_sample_number < int(this->res) - 1) {
          this->sample_from_posterior();
          this->transition_matrix_collection[this->res - 1] = this->A_original;
          this->initial_latent_state_collection[this->res - 1] = this->s0;
@@ -320,7 +319,7 @@ Program Listing for File train_model.cpp
    
        this->trained = true;
        ms.set_progress(1.0);
-       ms.stop_recording_progress();
+       ms.stop_recording();
        RNG::release_instance();
    }
    
