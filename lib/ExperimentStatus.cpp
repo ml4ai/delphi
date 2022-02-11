@@ -1,5 +1,4 @@
 #include <sqlite3.h>
-#include "AnalysisGraph.hpp"
 #include "BaseStatus.hpp"
 #include "DatabaseHelper.hpp"
 #include "ExperimentStatus.hpp"
@@ -15,11 +14,12 @@ using namespace delphi::utils;
 using json = nlohmann::json;
 
 void ExperimentStatus::update_db() {
-  json status;
-  status[MODEL_ID] = model_id;
-  status[EXPERIMENT_ID] = experiment_id;
-  status[PROGRESS] = progress;
-  status[STATUS] = (progress < 1.0) ? "in progress" : "completed";
+  json data;
+  data[MODEL_ID] = model_id;
+  data[EXPERIMENT_ID] = experiment_id;
+  data[PROGRESS] = progress;
+  data[BUSY] = busy;
+  data[STATUS] = status;
 
-  write_row(experiment_id, status);
+  write_row(experiment_id, data);
 }

@@ -1,5 +1,4 @@
 #include <sqlite3.h>
-#include "AnalysisGraph.hpp"
 #include "DatabaseHelper.hpp"
 #include "BaseStatus.hpp"
 #include "utils.hpp"
@@ -8,7 +7,6 @@
 #include <chrono>
 #include <nlohmann/json.hpp>
 #include <sqlite3.h>
-#include "AnalysisGraph.hpp"
 #include "DatabaseHelper.hpp"
 #include "BaseStatus.hpp"
 #include "utils.hpp"
@@ -29,7 +27,7 @@ void BaseStatus::clean_db() {
 }
 
 
-/* Start the thread that posts the status to the datbase */
+/* Start the thread that writes the data to the table */
 void BaseStatus::scheduler() {
   log_info("scheduler()");
   while(recording){
@@ -71,9 +69,9 @@ void BaseStatus::create_table() {
     + table_name
     + " ("
     + COL_ID
-    + " TEXT PRIMARY KEY, "
-    + COL_STATUS
-    + " TEXT NOT NULL);";
+    + " VARCHAR PRIMARY KEY, "
+    + COL_DATA
+    + " VARCHAR NOT NULL);";
 
   log_info(query);
   database->insert(query);
@@ -98,14 +96,20 @@ void BaseStatus::clean_table() {
 // are declared lost and get deleted.
 void BaseStatus::clean_row(string id) {
   string report = "Inspecting " + table_name + " record '" + id + "': ";
+  json row = read_row(id);
+  log_info("clean_row(" + id + ") => " + row.dump());
 
-  json status = get_status_with_id(id);
-  
-  log_info("clean_row(" + id + ") => " + status.dump());
+  string dataString = row[COL_DATA];
+  json data = json::parse(dataString);
 
-  double row_progress = status[PROGRESS];
+  double row_progress = data[PROGRESS];
+  bool busy = data[BUSY]
   if(row_progress < 1.0) {
     log_info(report + "FAIL (stale progress, deleting record)");
+    database->delete_rows(table_name, "id", id);
+  }
+  else if(busy) {
+    log_info(report + "FAIL (stale lock, deleting record)");
     database->delete_rows(table_name, "id", id);
   }
   else {
@@ -114,18 +118,18 @@ void BaseStatus::clean_row(string id) {
 }
 
 // return true if the progress exists and has not yet finished
-bool BaseStatus::is_busy(string id) {
-  json status = get_status_with_id(id);
-  if(status.empty()) 
+bool BaseStatus::is_busy() {
+  json data = get_data(get_id());
+  if(data.empty()) 
     return false;
   else {
-    bool foo = status[BUSY];
-    return foo;
+    bool busy = data[BUSY];
+    return busy;
   }
 }
 
 // Attempt to lock this status
-bool BaseStatus::lock_with_id(string id) {
+bool BaseStatus::lock() {
   sqlite3_mutex* mx = sqlite3_mutex_alloc(SQLITE_MUTEX_FAST);
   if(mx == nullptr) {
     log_error("Could not create mutex, database error");
@@ -136,7 +140,7 @@ bool BaseStatus::lock_with_id(string id) {
   sqlite3_mutex_enter(mx);
 
   // exit critical section if the status is busy
-  if(is_busy(id)) {
+  if(is_busy()) {
     sqlite3_mutex_leave(mx);
     sqlite3_mutex_free(mx);
     return false;  // already locked
@@ -154,16 +158,18 @@ bool BaseStatus::lock_with_id(string id) {
   return true; // success
 }
 
-void BaseStatus::set_status_with_id(string status_report) {
-  json status = get_status_with_id(id);
-  status[STATUS] = status_report;
-  write_row(id, status);
+void BaseStatus::set_status() {
+  string id = get_id();
+  json data = get_data(id);
+  data[STATUS] = status;
+  write_row(id, data);
 }
 
-void BaseStatus::unlock_with_id(string id) {
-  json status = get_status_with_id(id);
-  status[BUSY] = false;
-  write_row(id, status);
+void BaseStatus::unlock() {
+  string id = get_id();
+  json data = get_data(id);
+  data[BUSY] = false;
+  write_row(id, data);
 }
 
 // report the current time
@@ -185,35 +191,34 @@ string BaseStatus::timestamp() {
     return string(timebuf);
 }
 
+// return the data json for this ID
+json BaseStatus::get_data() {
+  json row = read_row(get_id());
+  if(row.empty()) {
+    return row;
+  }
+  string dataString = row[COL_DATA];
+  json data = json::parse(dataString);
+  return data;
+}
+
 // return the entire database row for this id
 json BaseStatus::read_row(string id) {
   return database -> select_row(
     table_name,
     id,
-    COL_STATUS
+    COL_DATA
   );
 }
 
-// return the status json for this ID
-json BaseStatus::get_status_with_id(string id) {
-  json row = read_row(id);
-  if(row.empty()) {
-    return row;
-  }
-  string statusString = row[COL_STATUS];
-  json status = json::parse(statusString);
-  return status;
-}
-
-
-void BaseStatus::write_row(string id, json status) {
-  log_info("write_row (" + id + ") " + status.dump());
+void BaseStatus::write_row(string id, json data) {
+  log_info("write_row (" + id + ") " + data.dump());
   string query = "INSERT OR REPLACE INTO "
     + table_name
     + " VALUES ('"
     + id
     + "', '"
-    + status.dump()
+    + data.dump()
     +  "');";
 
    log_info(query);

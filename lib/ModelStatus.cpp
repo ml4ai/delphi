@@ -1,5 +1,4 @@
 #include <sqlite3.h>
-#include "AnalysisGraph.hpp"
 #include "DatabaseHelper.hpp"
 #include "ModelStatus.hpp"
 #include "utils.hpp"
@@ -8,7 +7,6 @@
 #include <chrono>
 #include <nlohmann/json.hpp>
 #include <sqlite3.h>
-#include "AnalysisGraph.hpp"
 #include "DatabaseHelper.hpp"
 #include "ModelStatus.hpp"
 #include "utils.hpp"

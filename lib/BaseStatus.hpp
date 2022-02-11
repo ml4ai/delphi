@@ -1,7 +1,6 @@
 #pragma once
 
 #include <sqlite3.h>
-#include "AnalysisGraph.hpp"
 #include "DatabaseHelper.hpp"
 #include "utils.hpp"
 #include <thread>
@@ -32,10 +31,9 @@ class BaseStatus {
     void log_info(string msg);
     bool is_busy(string id); 
     void write_row(string id, json status);
-    json get_status_with_id(string id);
+    json get_data_with_id(string id);
     virtual void update_db() = 0;
-    bool lock_with_id(string id);
-    bool unlock_with_id(string id);
+    virtual string get_id() = 0;
     double progress = 0.0;
     bool busy = false;
     string status = "Not created"; // reading, training, writing, ready
@@ -54,14 +52,16 @@ class BaseStatus {
     void clean_db();
     void set_progress(double p) { progress = p;}
     void increment_progress(double i) { progress += i;}
-    virtual json get_status() = 0;
+    virtual json get_data() = 0;
     void start_recording();
     void stop_recording();
+    bool lock();
+    bool unlock();
+    void set_status(string status);
 
     // serialized JSON fields in the status text
     const string COL_ID = "id"; // database column, not exported
-    const string COL_STATUS = "status"; // database column, not exported
+    const string COL_DATA = "data"; // database column, not exported
     const string PROGRESS = "progressPercentage"; // JSON field, API
     const string STATUS = "status"; // JSON field
-    const string BUSY = "busy"; // JSON field
-};
+    const string BUSY = "busy"; // JSON field, not exported

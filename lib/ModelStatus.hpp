@@ -1,7 +1,6 @@
 #pragma once
 
 #include <sqlite3.h>
-#include "AnalysisGraph.hpp"
 #include "DatabaseHelper.hpp"
 #include "BaseStatus.hpp"
 #include "utils.hpp"
@@ -35,9 +34,7 @@ class ModelStatus : public BaseStatus {
       "ModelStatus"
     ), model_id(id) {log_info("ModelStatus created for " + id);}
     ~ModelStatus(){log_info("ModelStatus destroyed for " + model_id);}
-    bool lock() { return lock_with_id(model_id);} 
-    bool unlock() { return unlock_with_id(model_id);} 
-    json get_status(){ return get_status_with_id(model_id);}
+    string get_id(){return model_id;}
 
     // serialized JSON fields in the status text
     const string MODEL_ID = "id"; // API
