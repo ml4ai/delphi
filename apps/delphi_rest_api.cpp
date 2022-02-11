@@ -371,10 +371,10 @@ int main(int argc, const char* argv[]) {
 
             // do not overwrite model if it is training
             if (!ms.lock()) {
-		json status = ms.get_status();
+		json modelStatus = ms.get_data();
                 json ret;
                 ret[ms.MODEL_ID] = modelId;
-                ret[ms.PROGRESS] = status[ms.PROGRESS];
+                ret[ms.PROGRESS] = modelStatus[ms.PROGRESS];
                 ret[ms.STATUS] = "A model with the same ID is still training";
                 string dumpStr = ret.dump();
                 response << dumpStr; 
@@ -482,7 +482,7 @@ int main(int argc, const char* argv[]) {
             json ret;
             ret[ms.MODEL_ID] = modelId;
 
-	    json modelStatus = ms.get_status();
+	    json modelStatus = ms.get_data();
 
 	    // Model not found
 	    if(modelStatus.empty()) {
@@ -491,12 +491,12 @@ int main(int argc, const char* argv[]) {
               return ret;
 	    }
 
-            // Model not trained
-	    float progress = modelStatus[ms.PROGRESS];
-	    if(progress < 1.0) {
-	      ret[ms.PROGRESS] = progress;
+            // Model busy
+	    bool busy = modelStatus[ms.BUSY];
+	    if(busy) {
+	      ret[ms.PROGRESS] = modelStatus[ms.PROGRESS];
 	      ret[ms.STATUS] = 
-	        "Model training must finish before experimenting";
+	        "Model is busy.";
               res << ret.dump();
               return ret;
             }
@@ -543,13 +543,13 @@ int main(int argc, const char* argv[]) {
         string modelId = req.params["modelId"];
 
         ModelStatus ms(modelId, sqlite3DB);
-	json status = ms.get_status();
+	json data = ms.get_data();
         json ret;
         ret[ms.MODEL_ID] = modelId;
-	if(status.empty()) {
+	if(data.empty()) {
             ret[ms.STATUS] = "Invalid model ID";  // Model ID not found
 	} else {
-	    ret[ms.PROGRESS] = status[ms.PROGRESS];
+	    ret[ms.PROGRESS] = data[ms.PROGRESS];
 	}
         res << ret.dump();
     });
@@ -602,7 +602,7 @@ int main(int argc, const char* argv[]) {
                 return ret;
             }
 
-	    json modelStatus = ms.get_status();
+	    json modelStatus = ms.get_data();
 	    
             // Model not found
             if(modelStatus.empty()) {
@@ -616,15 +616,14 @@ int main(int argc, const char* argv[]) {
 	    if(!ms.lock()) {
                 ret[ms.PROGRESS] = modelStatus[ms.PROGRESS];
     	        ret[ms.STATUS] = "Model is busy ("
-                    + modelStatus[ms.STATUS] + 
+                    + (string)modelStatus[ms.STATUS] + 
                     ") Please wait for it to finish";
                 res << ret.dump();
                 return ret;
             }  
 
 	    // beyond this point we have exclusive control of this model
-            ms.status = "Deserializing model";
-	    ms.update_db();
+            ms.set_status("Deserializing model");
             
 	    // Get the model row from the database
             json query_result = sqlite3DB->select_delphimodel_row(modelId);
@@ -634,8 +633,7 @@ int main(int argc, const char* argv[]) {
             AnalysisGraph G;
             G = G.deserialize_from_json_string(modelString, false);
 
-            ms.status = "Freezing edges";
-	    ms.update_db();
+            ms.set_status("Freezing edges");
 
 	    // freeze edges
 	    for(auto relation : relations) {
@@ -655,8 +653,7 @@ int main(int argc, const char* argv[]) {
 		}
 	    }
 
-            ms.status = "Training";
-	    ms.update_db();
+            ms.set_status("Training");
 
 	    // train model in another thread
 	    size_t kde_kernels = Model::get_kde_kernels();

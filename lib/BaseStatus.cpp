@@ -18,14 +18,12 @@
 //#define SHOW_LOGS   // define for cout debug messages
 
 using namespace std;
-using namespace delphi::utils;
 using json = nlohmann::json;
 
 void BaseStatus::clean_db() {
   create_table();
   clean_table();
 }
-
 
 /* Start the thread that writes the data to the table */
 void BaseStatus::scheduler() {
@@ -95,7 +93,7 @@ void BaseStatus::clean_table() {
 // called only at startup, any rows in the table with incomplete training
 // are declared lost and get deleted.
 void BaseStatus::clean_row(string id) {
-  string report = "Inspecting " + table_name + " record '" + id + "': ";
+
   json row = read_row(id);
   log_info("clean_row(" + id + ") => " + row.dump());
 
@@ -103,7 +101,8 @@ void BaseStatus::clean_row(string id) {
   json data = json::parse(dataString);
 
   double row_progress = data[PROGRESS];
-  bool busy = data[BUSY]
+  bool busy = data[BUSY];
+  string report = "Inspecting " + table_name + " record '" + id + "': ";
   if(row_progress < 1.0) {
     log_info(report + "FAIL (stale progress, deleting record)");
     database->delete_rows(table_name, "id", id);
@@ -119,7 +118,7 @@ void BaseStatus::clean_row(string id) {
 
 // return true if the progress exists and has not yet finished
 bool BaseStatus::is_busy() {
-  json data = get_data(get_id());
+  json data = get_data();
   if(data.empty()) 
     return false;
   else {
@@ -158,18 +157,16 @@ bool BaseStatus::lock() {
   return true; // success
 }
 
-void BaseStatus::set_status() {
-  string id = get_id();
-  json data = get_data(id);
+void BaseStatus::set_status(string status) {
+  json data = get_data();
   data[STATUS] = status;
-  write_row(id, data);
+  write_row(get_id(), data);
 }
 
 void BaseStatus::unlock() {
-  string id = get_id();
-  json data = get_data(id);
+  json data = get_data();
   data[BUSY] = false;
-  write_row(id, data);
+  write_row(get_id(), data);
 }
 
 // report the current time

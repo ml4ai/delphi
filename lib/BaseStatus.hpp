@@ -29,9 +29,8 @@ class BaseStatus {
     void scheduler();
     void log_error(string msg);
     void log_info(string msg);
-    bool is_busy(string id); 
+    bool is_busy(); 
     void write_row(string id, json status);
-    json get_data_with_id(string id);
     virtual void update_db() = 0;
     virtual string get_id() = 0;
     double progress = 0.0;
@@ -52,11 +51,11 @@ class BaseStatus {
     void clean_db();
     void set_progress(double p) { progress = p;}
     void increment_progress(double i) { progress += i;}
-    virtual json get_data() = 0;
+    json get_data();
     void start_recording();
     void stop_recording();
     bool lock();
-    bool unlock();
+    void unlock();
     void set_status(string status);
 
     // serialized JSON fields in the status text
@@ -65,3 +64,4 @@ class BaseStatus {
     const string PROGRESS = "progressPercentage"; // JSON field, API
     const string STATUS = "status"; // JSON field
     const string BUSY = "busy"; // JSON field, not exported
+};
