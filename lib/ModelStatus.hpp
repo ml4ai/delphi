@@ -35,11 +35,12 @@ class ModelStatus : public BaseStatus {
       "ModelStatus"
     ), model_id(id) {log_info("ModelStatus created for " + id);}
     ~ModelStatus(){log_info("ModelStatus destroyed for " + model_id);}
-    bool start_training();
+    bool lock() { return lock_with_id(model_id);} 
+    bool unlock() { return unlock_with_id(model_id);} 
     json get_status(){ return get_status_with_id(model_id);}
 
     // serialized JSON fields in the status text
-    const string MODEL_ID = "id";  // API
+    const string MODEL_ID = "id"; // API
     const string NODES = "nodes"; // API
     const string EDGES = "edges"; // API
 };

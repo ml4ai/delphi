@@ -119,9 +119,51 @@ bool BaseStatus::is_busy(string id) {
   if(status.empty()) 
     return false;
   else {
-    double row_progress = status[PROGRESS];
-    return (row_progress < 1.0);
+    bool foo = status[BUSY];
+    return foo;
   }
+}
+
+// Attempt to lock this status
+bool BaseStatus::lock_with_id(string id) {
+  sqlite3_mutex* mx = sqlite3_mutex_alloc(SQLITE_MUTEX_FAST);
+  if(mx == nullptr) {
+    log_error("Could not create mutex, database error");
+    return false;  // could not lock
+  }
+
+  // enter critical section
+  sqlite3_mutex_enter(mx);
+
+  // exit critical section if the status is busy
+  if(is_busy(id)) {
+    sqlite3_mutex_leave(mx);
+    sqlite3_mutex_free(mx);
+    return false;  // already locked
+  }
+
+  // reset progress and lock this status
+  progress = 0.0;
+  busy = true;
+  status = "locked";
+  update_db();
+
+  // exit critical section
+  sqlite3_mutex_leave(mx);
+  sqlite3_mutex_free(mx);
+  return true; // success
+}
+
+void BaseStatus::set_status_with_id(string status_report) {
+  json status = get_status_with_id(id);
+  status[STATUS] = status_report;
+  write_row(id, status);
+}
+
+void BaseStatus::unlock_with_id(string id) {
+  json status = get_status_with_id(id);
+  status[BUSY] = false;
+  write_row(id, status);
 }
 
 // report the current time

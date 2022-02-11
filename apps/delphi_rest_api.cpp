@@ -370,7 +370,7 @@ int main(int argc, const char* argv[]) {
 	    ModelStatus ms(modelId, sqlite3DB);
 
             // do not overwrite model if it is training
-            if (!ms.start_training()) {
+            if (!ms.lock()) {
 		json status = ms.get_status();
                 json ret;
                 ret[ms.MODEL_ID] = modelId;
@@ -612,15 +612,20 @@ int main(int argc, const char* argv[]) {
               return ret;
             }   
 
-            // Model not trained
-            float progress = modelStatus[ms.PROGRESS];
-            if(progress < 1.0) {
-              ret[ms.PROGRESS] = progress;
-	      ret[ms.STATUS] = "Training must finish before editing.";
-              res << ret.dump();
-              return ret;
+            // try to get the lock for this model
+	    if(!ms.lock()) {
+                ret[ms.PROGRESS] = modelStatus[ms.PROGRESS];
+    	        ret[ms.STATUS] = "Model is busy ("
+                    + modelStatus[ms.STATUS] + 
+                    ") Please wait for it to finish";
+                res << ret.dump();
+                return ret;
             }  
 
+	    // beyond this point we have exclusive control of this model
+            ms.status = "Deserializing model";
+	    ms.update_db();
+            
 	    // Get the model row from the database
             json query_result = sqlite3DB->select_delphimodel_row(modelId);
 
@@ -628,6 +633,9 @@ int main(int argc, const char* argv[]) {
 	    string modelString = query_result["model"];
             AnalysisGraph G;
             G = G.deserialize_from_json_string(modelString, false);
+
+            ms.status = "Freezing edges";
+	    ms.update_db();
 
 	    // freeze edges
 	    for(auto relation : relations) {
@@ -646,6 +654,9 @@ int main(int argc, const char* argv[]) {
                     return ret;
 		}
 	    }
+
+            ms.status = "Training";
+	    ms.update_db();
 
 	    // train model in another thread
 	    size_t kde_kernels = Model::get_kde_kernels();
@@ -667,15 +678,15 @@ int main(int argc, const char* argv[]) {
             catch (std::exception& e) {
                 cout << "Error: unable to start training process" << endl;
                 json error;
-                error["status"] = "server error: training";
+                error["status"] = "server error: edged-edges training";
                 res << error.dump();
                 return error;
             }
 	   
 	    // report success 
-	    ret[ms.STATUS] = to_string(nEdges)
-	      +  (nEdges == 1) ? " edge" : " edges"
-	      + " frozen, model is in training.";
+	    ret[ms.STATUS] = "Edges frozen: "
+              + to_string(relations.size())
+              + ". Model is in training.";
             res << ret.dump();
             return ret;
         });

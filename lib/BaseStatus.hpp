@@ -34,7 +34,11 @@ class BaseStatus {
     void write_row(string id, json status);
     json get_status_with_id(string id);
     virtual void update_db() = 0;
+    bool lock_with_id(string id);
+    bool unlock_with_id(string id);
     double progress = 0.0;
+    bool busy = false;
+    string status = "Not created"; // reading, training, writing, ready
 
   public:
     BaseStatus(
@@ -58,5 +62,6 @@ class BaseStatus {
     const string COL_ID = "id"; // database column, not exported
     const string COL_STATUS = "status"; // database column, not exported
     const string PROGRESS = "progressPercentage"; // JSON field, API
-    const string STATUS = "status"; // JSON field, ?
+    const string STATUS = "status"; // JSON field
+    const string BUSY = "busy"; // JSON field
 };
