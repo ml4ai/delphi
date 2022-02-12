@@ -145,6 +145,7 @@ bool BaseStatus::lock() {
   
   // lock this status.
   data[BUSY] = true;
+  data[PROGRESS] = 0.0;
   write_row(get_id(), data);
 
   // exit critical section
