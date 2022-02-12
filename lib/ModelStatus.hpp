@@ -19,13 +19,21 @@ class ModelStatus : public BaseStatus {
     string model_id = "N/A";
 
   protected:
-    void update_db();
-    void sync_to_db();
     void init_row();
 
   public:
-    ModelStatus(string id);
-    ModelStatus(string id, Database* database);
+    ModelStatus(string id) : BaseStatus(
+      new Database(),
+      "model_status",
+      "ModelStatus"
+    ), model_id(id) {}
+
+    ModelStatus(string id, Database* database) : BaseStatus(
+      database,
+      "model_status",
+      "ModelStatus"
+    ), model_id(id) {}
+
     ~ModelStatus(){}
 
     string get_id(){return model_id;}

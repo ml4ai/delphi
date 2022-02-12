@@ -23,19 +23,16 @@ class BaseStatus {
     void create_table();
     void clean_table();
     void clean_row(string id);
+    void write_progress();
     json read_row(string id);
 
   protected:
     void scheduler();
-    bool busy = false;
     void log_error(string msg);
     void log_info(string msg);
-    virtual void update_db() = 0;
     virtual void init_row() = 0;
     virtual string get_id() = 0;
-    virtual void sync_to_db() = 0;
     double progress = 0.0;
-    string status = "Not created"; // reading, training, writing, ready
     void write_row(string id, json data);
 
   public:
@@ -52,7 +49,6 @@ class BaseStatus {
     json get_data();
     void clean_db();
     void set_progress(double p) { progress = p;}
-//    bool exists(){return(!get_data().empty());}
     void increment_progress(double i) { progress += i;}
     bool lock();
     void unlock();
@@ -60,10 +56,12 @@ class BaseStatus {
     void begin_recording_progress(string status);
     void finish_recording_progress(string status);
 
-    // serialized JSON fields in the status text
+    // database columns
     const string COL_ID = "id"; // database column, not exported
     const string COL_DATA = "data"; // database column, not exported
-    const string PROGRESS = "progressPercentage"; // JSON field, API
-    const string STATUS = "status"; // JSON field
-    const string BUSY = "busy"; // JSON field, not exported
+
+    // serialized JSON fields in the status text
+    const string PROGRESS = "progressPercentage"; // double [0,1]
+    const string STATUS = "status"; // string, a short description of current state
+    const string BUSY = "busy"; // boolean, true if locked
 };

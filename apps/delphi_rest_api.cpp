@@ -179,10 +179,9 @@ class Model {
         int res,
         int burn
     ) {
-	
 	G.id = model_id;
         G.run_train_model(res, burn);
-	ms.set_status("Serializing into database");
+	ms.set_status("trained, writing to database");
         sqlite3DB->insert_into_delphimodel(
             model_id,
             G.serialize_to_json_string(false)
@@ -384,6 +383,7 @@ int main(int argc, const char* argv[]) {
             }
 	    
 	    // create the model on the database
+            ms.set_status("Creating Model");
 
 	    size_t kde_kernels = Model::get_kde_kernels();
 	    int burn = Model::get_burn();
@@ -393,6 +393,7 @@ int main(int argc, const char* argv[]) {
             G.set_n_kde_kernels(kde_kernels);
             G.from_causemos_json_dict(req_json, 0, 0);
 
+            ms.set_status("Writing untrained Model to database");
             sqlite3DB->insert_into_delphimodel(
                 modelId, 
 		G.serialize_to_json_string(false)

@@ -16,8 +16,6 @@ class ExperimentStatus : public BaseStatus {
     string model_id = "N/A";
 
   protected:
-    void sync_to_db();
-    void update_db();
     void init_row();
 
   public:
@@ -41,6 +39,7 @@ class ExperimentStatus : public BaseStatus {
     ), experiment_id(experiment_id), model_id(model_id){}
 
     ~ExperimentStatus(){}
+
     string get_id(){ return experiment_id;}
 
     const string CONSTRAINTS = "constraints"; // API

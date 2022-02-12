@@ -30,7 +30,7 @@ void BaseStatus::scheduler() {
   while(recording){
     this_thread::sleep_for(std::chrono::seconds(1));
     if(pThread != nullptr) {
-      update_db();
+      write_progress();
     }
   }
 }
@@ -39,7 +39,7 @@ void BaseStatus::scheduler() {
 void BaseStatus::begin_recording_progress(string status){
   set_status(status);
   progress = 0.0;
-  update_db();  // update progress?
+  write_progress();
 
   recording = true;
   if(pThread == nullptr) {
@@ -51,7 +51,7 @@ void BaseStatus::begin_recording_progress(string status){
 void BaseStatus::finish_recording_progress(string status){
   set_status(status);
   progress = 1.0;
-  update_db();  // update progress?
+  write_progress(); 
 
   recording = false;
   if (pThread != nullptr) {
@@ -89,7 +89,8 @@ void BaseStatus::clean_table() {
   for(string id : ids) {
     clean_row(id);
   }
-  log_info("Table is clean");
+
+  log_info("Done.");
 }
 
 // called only at startup, any rows in the table with incomplete training
@@ -127,7 +128,7 @@ bool BaseStatus::lock() {
   // enter critical section (blocking method)
   sqlite3_mutex_enter(mx);
 
-  // if this status does not exist, create it now
+  // if this status does not exist, start one from the beginning
   if(get_data().empty()) {
     init_row();
   }
@@ -155,6 +156,13 @@ bool BaseStatus::lock() {
 void BaseStatus::set_status(string status) {
   json data = get_data();
   data[STATUS] = status;
+  write_row(get_id(), data);
+}
+
+// write our local progress var to the database
+void BaseStatus::write_progress() {
+  json data = get_data();
+  data[PROGRESS] = delphi::utils::round_n(progress, 2);
   write_row(get_id(), data);
 }
 
