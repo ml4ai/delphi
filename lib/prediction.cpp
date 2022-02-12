@@ -52,14 +52,13 @@ void AnalysisGraph::generate_latent_state_sequences(
       this->res,
       vector<VectorXd>(this->pred_timesteps, VectorXd(this->num_vertices() * 2)));
 
-
   // configure monitoring of experiment progress
   ExperimentStatus es(
       "AnalysisGraph::generate_latent_state_sequences",
-      "foo"
+      this->id
   );
   double progress_step = 0.01;  // 100 sample steps
-  es.start_recording();
+  es.begin_recording_progress("In progress");
 
   cout << "\nPredicting for " << this->pred_timesteps << " time steps..." << endl;
 
@@ -279,10 +278,8 @@ void AnalysisGraph::generate_latent_state_sequences(
   }
 
    // finalize experiment progress monitoring
-   es.set_progress(1.0);
-   es.stop_recording();
+   es.finish_recording_progress("Complete");
 }
-
 
 /*
  * Applying constraints (interventions) to latent states

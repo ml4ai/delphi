@@ -15,7 +15,7 @@
 #include <chrono>
 #include <nlohmann/json.hpp>
 
-//#define SHOW_LOGS   // define for cout debug messages
+#define SHOW_LOGS   // define for cout debug messages
 
 using namespace std;
 using json = nlohmann::json;
@@ -27,7 +27,6 @@ void BaseStatus::clean_db() {
 
 /* Start the thread that writes the data to the table */
 void BaseStatus::scheduler() {
-  log_info("scheduler()");
   while(recording){
     this_thread::sleep_for(std::chrono::seconds(1));
     if(pThread != nullptr) {
@@ -37,20 +36,24 @@ void BaseStatus::scheduler() {
 }
 
 /* Begin posting progress updates to the database on a regular interval */
-void BaseStatus::start_recording(){
-  log_info("start_updating_db()");
+void BaseStatus::begin_recording_progress(string status){
+  set_status(status);
+  progress = 0.0;
+  update_db();  // update progress?
+
   recording = true;
-  update_db();
   if(pThread == nullptr) {
     pThread = new thread(&BaseStatus::scheduler, this);
   }
 }
 
 /* Stop posting progress updates to the database */
-void BaseStatus::stop_recording(){
-  log_info("stop_updating_db()");
+void BaseStatus::finish_recording_progress(string status){
+  set_status(status);
+  progress = 1.0;
+  update_db();  // update progress?
+
   recording = false;
-  update_db();
   if (pThread != nullptr) {
     if(pThread->joinable()) {
       pThread->join();
@@ -59,7 +62,6 @@ void BaseStatus::stop_recording(){
   }
   pThread = nullptr;
 }
-
 
 /* create the table if we need it.  */
 void BaseStatus::create_table() {
@@ -71,23 +73,23 @@ void BaseStatus::create_table() {
     + COL_DATA
     + " VARCHAR NOT NULL);";
 
-  log_info(query);
   database->insert(query);
 }
 
 /* delete any entries with incomplete training status */
 void BaseStatus::clean_table() {
+  log_info("Cleaning table '" + table_name + "' of incomplete records");
   string query = "SELECT " 
     + COL_ID
     + " from "
     + table_name
     + ";";
 
-  log_info(query);
   vector<string> ids = database->read_column_text(query);
   for(string id : ids) {
     clean_row(id);
   }
+  log_info("Table is clean");
 }
 
 // called only at startup, any rows in the table with incomplete training
@@ -95,8 +97,6 @@ void BaseStatus::clean_table() {
 void BaseStatus::clean_row(string id) {
 
   json row = read_row(id);
-  log_info("clean_row(" + id + ") => " + row.dump());
-
   string dataString = row[COL_DATA];
   json data = json::parse(dataString);
 
@@ -116,40 +116,35 @@ void BaseStatus::clean_row(string id) {
   }
 }
 
-// return true if the progress exists and has not yet finished
-bool BaseStatus::is_busy() {
-  json data = get_data();
-  if(data.empty()) 
-    return false;
-  else {
-    bool busy = data[BUSY];
-    return busy;
-  }
-}
-
-// Attempt to lock this status
+// Attempt to lock this status 
 bool BaseStatus::lock() {
-  sqlite3_mutex* mx = sqlite3_mutex_alloc(SQLITE_MUTEX_FAST);
+  sqlite3_mutex* mx = sqlite3_mutex_alloc(SQLITE_MUTEX_RECURSIVE);
   if(mx == nullptr) {
     log_error("Could not create mutex, database error");
-    return false;  // could not lock
+    return false; // error
   }
 
-  // enter critical section
+  // enter critical section (blocking method)
   sqlite3_mutex_enter(mx);
 
+  // if this status does not exist, create it now
+  if(get_data().empty()) {
+    init_row();
+  }
+
+  json data = get_data();
+
   // exit critical section if the status is busy
-  if(is_busy()) {
+  bool busy = data[BUSY];
+  if(busy) {
     sqlite3_mutex_leave(mx);
     sqlite3_mutex_free(mx);
     return false;  // already locked
   }
-
-  // reset progress and lock this status
-  progress = 0.0;
-  busy = true;
-  status = "locked";
-  update_db();
+  
+  // lock this status.
+  data[BUSY] = true;
+  write_row(get_id(), data);
 
   // exit critical section
   sqlite3_mutex_leave(mx);
@@ -201,15 +196,15 @@ json BaseStatus::get_data() {
 
 // return the entire database row for this id
 json BaseStatus::read_row(string id) {
-  return database -> select_row(
+  json row = database -> select_row(
     table_name,
     id,
     COL_DATA
   );
+  return row;
 }
 
 void BaseStatus::write_row(string id, json data) {
-  log_info("write_row (" + id + ") " + data.dump());
   string query = "INSERT OR REPLACE INTO "
     + table_name
     + " VALUES ('"
@@ -217,8 +212,6 @@ void BaseStatus::write_row(string id, json data) {
     + "', '"
     + data.dump()
     +  "');";
-
-   log_info(query);
    database->insert(query);
 }
 

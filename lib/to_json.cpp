@@ -43,6 +43,11 @@ string AnalysisGraph::to_json_string(int indent) {
 }
 
 string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
+
+    cout << "AnalysisGraph::serialize_to_json_string sleeping..." << endl;
+  this_thread::sleep_for(std::chrono::seconds(10));
+
+    cout << "AnalysisGraph::serialize_to_json_string awake..." << endl;
     nlohmann::json j;
     j["id"] = this->id;
     j["experiment_id"] = this->experiment_id;

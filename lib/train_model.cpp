@@ -78,7 +78,7 @@ void AnalysisGraph::run_train_model(int res,
 
     ModelStatus ms(this->id);
 
-    ms.start_recording();
+    ms.begin_recording_progress("Training");
 
     this->trained = false;
 
@@ -307,8 +307,7 @@ void AnalysisGraph::run_train_model(int res,
     }
 
     this->trained = true;
-    ms.set_progress(1.0);
-    ms.stop_recording();
+    ms.finish_recording_progress("Trained");
     RNG::release_instance();
 }
 

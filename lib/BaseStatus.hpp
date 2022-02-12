@@ -27,36 +27,38 @@ class BaseStatus {
 
   protected:
     void scheduler();
+    bool busy = false;
     void log_error(string msg);
     void log_info(string msg);
-    bool is_busy(); 
-    void write_row(string id, json status);
     virtual void update_db() = 0;
+    virtual void init_row() = 0;
     virtual string get_id() = 0;
+    virtual void sync_to_db() = 0;
     double progress = 0.0;
-    bool busy = false;
     string status = "Not created"; // reading, training, writing, ready
+    void write_row(string id, json data);
 
   public:
     BaseStatus(
       Database* database,
       const string table_name,
       const string class_name
-    ) :
-      database(database),
+    ) : database(database),
       table_name(table_name),
-      class_name(class_name){}
+      class_name(class_name) {}
+
     ~BaseStatus(){}
 
+    json get_data();
     void clean_db();
     void set_progress(double p) { progress = p;}
+//    bool exists(){return(!get_data().empty());}
     void increment_progress(double i) { progress += i;}
-    json get_data();
-    void start_recording();
-    void stop_recording();
     bool lock();
     void unlock();
     void set_status(string status);
+    void begin_recording_progress(string status);
+    void finish_recording_progress(string status);
 
     // serialized JSON fields in the status text
     const string COL_ID = "id"; // database column, not exported

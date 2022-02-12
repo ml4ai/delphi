@@ -20,20 +20,14 @@ class ModelStatus : public BaseStatus {
 
   protected:
     void update_db();
-    void record_status();
+    void sync_to_db();
+    void init_row();
 
   public:
-    ModelStatus(string id) : BaseStatus(
-      new Database(),
-      "model_status",
-      "ModelStatus"
-    ), model_id(id) {log_info("ModelStatus created for " + id);}
-    ModelStatus(string id, Database* database) : BaseStatus(
-      database,
-      "model_status",
-      "ModelStatus"
-    ), model_id(id) {log_info("ModelStatus created for " + id);}
-    ~ModelStatus(){log_info("ModelStatus destroyed for " + model_id);}
+    ModelStatus(string id);
+    ModelStatus(string id, Database* database);
+    ~ModelStatus(){}
+
     string get_id(){return model_id;}
 
     // serialized JSON fields in the status text

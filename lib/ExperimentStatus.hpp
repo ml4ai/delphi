@@ -16,9 +16,9 @@ class ExperimentStatus : public BaseStatus {
     string model_id = "N/A";
 
   protected:
-    json compose_status();
-    void record_status();
+    void sync_to_db();
     void update_db();
+    void init_row();
 
   public:
     ExperimentStatus(
