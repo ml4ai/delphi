@@ -144,6 +144,11 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
           std_sequence.clear();
           ts_sequence.clear();
           for (int ts = 0; ts < this->n_timesteps; ts++) {
+              if (this->observed_state_sequence[ts][v].empty()) {
+                  // This concept has no indicator specified in the create-model
+                  // call
+                  continue;
+              }
               vector<double> &obs_at_ts = this->observed_state_sequence[ts][v][i];
 
               if (!obs_at_ts.empty()) {
@@ -157,7 +162,7 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
           }
 
           if (mean_sequence.empty()) {
-              return;
+              continue;
           }
 
           // Set the indicator standard deviation
@@ -242,15 +247,23 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
           // and the standard deviation of the first indicator attached to it.
           if (i == 0) {
               if (n.has_min) {
-                  n.min_val = n.min_val_obs / n.indicators[0].mean;
+                  if (n.indicators[0].mean > 0) {
+                      n.min_val = n.min_val_obs / n.indicators[0].mean;
+                  } else if (n.indicators[0].mean < 0) {
+                      n.max_val = n.min_val_obs / n.indicators[0].mean;
+                  }
               }
               if (n.has_max) {
-                  n.max_val = n.max_val_obs / n.indicators[0].mean;
+                  if (n.indicators[0].mean > 0) {
+                      n.max_val = n.max_val_obs / n.indicators[0].mean;
+                  } else if (n.indicators[0].mean < 0) {
+                      n.min_val = n.max_val_obs / n.indicators[0].mean;
+                  }
               }
 
               transform(mean_sequence.begin(), mean_sequence.end(),
                         mean_sequence.begin(),
-                      [&](double v){return v / n.indicators[0].mean;});
+                      [&](double obs_mean){return obs_mean / n.indicators[0].mean;});
 
               for (int ts = 0; ts < ts_sequence.size(); ts++) {
                   // TODO: I feel that this partitioning is worng. Should be corrected as:

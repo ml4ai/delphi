@@ -50,7 +50,7 @@ void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json
         string indicator_name = "Qualitative measure of {}"_format(n.name);
         string indicator_source = "Delphi";
 
-        if (json_indicators[n.name].is_null()) {
+        if (!json_indicators.contains(n.name)) {
             // In this case we do not have any observation data to train the model
             this->set_indicator(n.name, indicator_name, indicator_source);
             n.get_indicator(indicator_name).set_mean(1.0);
@@ -92,20 +92,6 @@ void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json
             n.period = indicator["period"].get<int>();
         }
 
-        if (n.period == 1) {
-            if (this->head_nodes.find(v) != this->head_nodes.end()) {
-                // Head nodes with period > 1 are modeled using the seasonality
-                // period == 1 => this is not a seasonal node
-                // To prevent this from modeled as seasonal,
-                // remove it from head nodes
-                // TODO: There is a terminology confusion since this is still a
-                // head node, but we are removing it from head nodes to
-                // prevent it from being modeled seasonally.
-                this->head_nodes.erase(v);
-                this->body_nodes.insert(v);
-            }
-        }
-
         if (!indicator["resolution"].is_null()) {
             string resolution = indicator["resolution"].get<string>();
             if (resolution.compare("month") == 0) {
@@ -122,7 +108,8 @@ void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json
         }
         else if (first_resolution != n.agg_level) {
             cout << "\n* * * WARNING: Mixed resolution observations! * * *\n";
-            cout << "\t" << n.name << " has resolution " << n.agg_level << endl;
+            cout << "\t" << n.name << " has resolution " <<
+                (n.agg_level == DataAggregationLevel::YEARLY ? "yearly" : "monthly") << endl;
             cout << "\tDelphi is currently not designed to model mixed resolution data\n";
             cout << "\tThe predictions will be unintuitive\n\n";
         }
@@ -562,6 +549,13 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
 
         for (int v = 0; v < num_verts; v++) {
             Node& n = (*this)[v];
+
+            if (concept_indicator_data[v].empty()) {
+                // This concept has no indicator specified in the create-model
+                // call
+                continue;
+            }
+
             this->observed_state_sequence[ts][v] = vector<vector<double>>(n.indicators.size());
 
             for (int i = 0; i < n.indicators.size(); i++) {
@@ -593,13 +587,15 @@ void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data,
   // TODO: If model id is not present, we might want to not create the model
   // and send a failure response. At the moment we just create a blank model,
   // which could lead to future bugs that are hard to debug.
-  if (json_data["id"].is_null()){return;}
+  if (!json_data.contains("id")){return;}
   this->id = json_data["id"].get<string>();
+
+  if (!json_data.contains("statements")) {return;}
 
   auto statements = json_data["statements"];
 
   for (auto stmt : statements) {
-    if (stmt["belief"].is_null() or
+    if (!stmt.contains("belief") or
         stmt["belief"].get<double>() < belief_score_cutoff) {
       continue;
     }
@@ -652,7 +648,7 @@ void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data,
 
     // Add the edge to the graph if it is not in it already
     for (auto evid : evidence) {
-      if (evid["evidence_context"].is_null()) {
+      if (!evid.contains("evidence_context")) {
         continue;
       }
 
@@ -697,7 +693,7 @@ void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data,
     }
   }
 
-  if (json_data["conceptIndicators"].is_null()) {
+  if (!json_data.contains("conceptIndicators")) {
     // No indicator data provided.
     // TODO: What is the best action here?
     //throw runtime_error("No indicator information provided");

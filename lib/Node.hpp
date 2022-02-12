@@ -31,7 +31,7 @@ class Node {
   std::vector<double> generated_latent_centers_for_a_period;
   std::vector<double> generated_latent_spreads_for_a_period;
 
-  std::string center_measure = "median"; // median or mean
+  std::string center_measure = "mean"; // median or mean
   std::string model = "center"; // center, absolute_change, relative_change
 
   // Tracks whether bounds are available for this node

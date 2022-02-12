@@ -1459,7 +1459,9 @@
           "timestamp": 1593561600000
         }
       ],
-      "numLevels": 31
+      "numLevels": 31,
+      "period": 12,
+      "resolution": "month"
     },
     "wm/concept/environment/meteorology/precipitation": {
       "name": "Precipitation",
@@ -2896,7 +2898,9 @@
           "timestamp": 1598918400000
         }
       ],
-      "numLevels": 31
+      "numLevels": 31,
+      "period": 12,
+      "resolution": "month"
     }
   }
 }

@@ -118,11 +118,27 @@ if __name__ == "__main__":
          ""],
         ["../tests/data/delphi/causemos_create.json",                   # 8. Oldest test data
          "../tests/data/delphi/causemos_experiments_projection_input.json"],
-        ["../tests/data/delphi/create_model_rain--temperature--yield.json",    # 9. rain-temperature CAG
+        ["../tests/data/delphi/create_model_rain--temperature--yield.json",    # 9. rain-temperature-yield CAG
          "../tests/data/delphi/experiments_rain--temperature--yield.json"],
         ["../tests/data/delphi/create_model_rain--temperature.json",    # 10. rain-temperature CAG
          "../tests/data/delphi/experiments_rain--temperature--yield.json"],
-        ["synthetic", "synthetic"]                                      # 11. synthetic
+        ["synthetic", "synthetic"],                                      # 11. synthetic
+        ["../tests/data/delphi/model_sea_level_3_nodes_month.json",     # 12. sea level 3 node month
+         "../tests/data/delphi/experiment_sea_level_month.json"],
+        ["../tests/data/delphi/model_sea_level_3_nodes_year.json",      # 13. sea level 3 node year
+         "../tests/data/delphi/experiment_sea_level_year.json"],
+        ["../tests/data/delphi/model_nino34_2_nodes_month.json",        # 14. nino34 2 node month
+         "../tests/data/delphi/experiment_nino34_month.json"],
+        ["../tests/data/delphi/model_nino34_2_nodes_year.json",         # 15. nino34 2 node year
+         "../tests/data/delphi/experiment_nino34_year.json"],
+        ["../tests/data/delphi/model_predator_2_nodes_month.json",      # 16. predator 2 node month
+         "../tests/data/delphi/experiment_predator_month.json"],
+        ["../tests/data/delphi/model_predator_2_nodes_year.json",       # 17. predator 2 node year
+         "../tests/data/delphi/experiment_predator_year.json"],
+        ["../tests/data/delphi/model_food_security_12_nodes_month.json",    # 18. food security 12 node month
+         "../tests/data/delphi/experiment_food_security_month.json"],
+        ["../tests/data/delphi/create_model_seasonal_test.json",         # 19. nino34 2 node is May2021 format
+         "../tests/data/delphi/experiments_seasonal_test.json"]
     ]
 
     input_idx = 9

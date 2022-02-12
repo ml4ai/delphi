@@ -1,0 +1,257 @@
+{
+  "id": "b4ad9df0-c632-4d4d-a4b2-0c2e55fb7b76",
+  "conceptIndicators": {
+    "SYNTHETIC Predators Foxes": {
+      "func": "last",
+      "maxValue": 250.41666666666666,
+      "minValue": 0,
+      "name": "[SYNTHETIC] Predators (Foxes) 0",
+      "numLevels": 31,
+      "period": 12,
+      "resolution": "year",
+      "values": [
+        {
+          "timestamp": 1420070400000,
+          "value": 47.666666666666664
+        },
+        {
+          "timestamp": 1451606400000,
+          "value": 90.58333333333333
+        },
+        {
+          "timestamp": 1483228800000,
+          "value": 41.5
+        },
+        {
+          "timestamp": 1514764800000,
+          "value": 141.91666666666666
+        },
+        {
+          "timestamp": 1546300800000,
+          "value": 65.41666666666667
+        }
+      ]
+    },
+    "SYNTHETIC Prey Rabbits": {
+      "func": "last",
+      "maxValue": 490.58333333333326,
+      "minValue": 0,
+      "name": "[SYNTHETIC] Prey (Rabbits) 1",
+      "numLevels": 31,
+      "period": 12,
+      "resolution": "year",
+      "values": [
+        {
+          "timestamp": 1420070400000,
+          "value": 264.3333333333333
+        },
+        {
+          "timestamp": 1451606400000,
+          "value": 38.083333333333336
+        },
+        {
+          "timestamp": 1483228800000,
+          "value": 166.83333333333334
+        },
+        {
+          "timestamp": 1514764800000,
+          "value": 82.16666666666667
+        },
+        {
+          "timestamp": 1546300800000,
+          "value": 111.5
+        }
+      ]
+    }
+  },
+  "statements": [
+    {
+      "id": "stub_statement",
+      "belief": 1,
+      "evidence": [
+        {
+          "document_context": {
+
+          },
+          "evidence_context": {
+            "obj_polarity": -1,
+            "obj_adjectives": [
+
+            ],
+            "subj_polarity": 1,
+            "subj_adjectives": [
+
+            ]
+          }
+        }
+      ],
+      "subj": {
+        "factor": "user",
+        "concept": "SYNTHETIC Predators Foxes",
+        "concept_score": 1,
+        "adjectives": [
+
+        ],
+        "polarity": 1,
+        "theme": "user",
+        "theme_property": "user",
+        "process": "user",
+        "process_property": "user"
+      },
+      "obj": {
+        "factor": "user",
+        "concept": "SYNTHETIC Predators Foxes",
+        "concept_score": 1,
+        "adjectives": [
+
+        ],
+        "polarity": -1,
+        "theme": "user",
+        "theme_property": "user",
+        "process": "user",
+        "process_property": "user"
+      }
+    },
+    {
+      "id": "stub_statement",
+      "belief": 1,
+      "evidence": [
+        {
+          "document_context": {
+
+          },
+          "evidence_context": {
+            "obj_polarity": -1,
+            "obj_adjectives": [
+
+            ],
+            "subj_polarity": 1,
+            "subj_adjectives": [
+
+            ]
+          }
+        }
+      ],
+      "subj": {
+        "factor": "user",
+        "concept": "SYNTHETIC Predators Foxes",
+        "concept_score": 1,
+        "adjectives": [
+
+        ],
+        "polarity": 1,
+        "theme": "user",
+        "theme_property": "user",
+        "process": "user",
+        "process_property": "user"
+      },
+      "obj": {
+        "factor": "user",
+        "concept": "SYNTHETIC Prey Rabbits",
+        "concept_score": 1,
+        "adjectives": [
+
+        ],
+        "polarity": -1,
+        "theme": "user",
+        "theme_property": "user",
+        "process": "user",
+        "process_property": "user"
+      }
+    },
+    {
+      "id": "stub_statement",
+      "belief": 1,
+      "evidence": [
+        {
+          "document_context": {
+
+          },
+          "evidence_context": {
+            "obj_polarity": 1,
+            "obj_adjectives": [
+
+            ],
+            "subj_polarity": 1,
+            "subj_adjectives": [
+
+            ]
+          }
+        }
+      ],
+      "subj": {
+        "factor": "user",
+        "concept": "SYNTHETIC Prey Rabbits",
+        "concept_score": 1,
+        "adjectives": [
+
+        ],
+        "polarity": 1,
+        "theme": "user",
+        "theme_property": "user",
+        "process": "user",
+        "process_property": "user"
+      },
+      "obj": {
+        "factor": "user",
+        "concept": "SYNTHETIC Predators Foxes",
+        "concept_score": 1,
+        "adjectives": [
+
+        ],
+        "polarity": 1,
+        "theme": "user",
+        "theme_property": "user",
+        "process": "user",
+        "process_property": "user"
+      }
+    },
+    {
+      "id": "stub_statement",
+      "belief": 1,
+      "evidence": [
+        {
+          "document_context": {
+
+          },
+          "evidence_context": {
+            "obj_polarity": 1,
+            "obj_adjectives": [
+
+            ],
+            "subj_polarity": 1,
+            "subj_adjectives": [
+
+            ]
+          }
+        }
+      ],
+      "subj": {
+        "factor": "user",
+        "concept": "SYNTHETIC Prey Rabbits",
+        "concept_score": 1,
+        "adjectives": [
+
+        ],
+        "polarity": 1,
+        "theme": "user",
+        "theme_property": "user",
+        "process": "user",
+        "process_property": "user"
+      },
+      "obj": {
+        "factor": "user",
+        "concept": "SYNTHETIC Prey Rabbits",
+        "concept_score": 1,
+        "adjectives": [
+
+        ],
+        "polarity": 1,
+        "theme": "user",
+        "theme_property": "user",
+        "process": "user",
+        "process_property": "user"
+      }
+    }
+  ]
+}

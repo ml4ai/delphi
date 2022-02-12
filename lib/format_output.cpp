@@ -122,6 +122,11 @@ CompleteState AnalysisGraph::get_complete_state() {
 
             //for (int ts = 0; ts < this->n_timesteps; ts++) {
             for (int ts = 0; ts < this->observed_state_sequence.size(); ts++) {
+                if (this->observed_state_sequence[ts][vert_id].empty()) {
+                    // This concept has no indicator specified in the create-model
+                    // call
+                    continue;
+                }
                 for (double obs : this->observed_state_sequence[ts][vert_id][ind_id]) {
                     data["Time Step"].push_back(ts);
                     data["Data"].push_back(obs);
