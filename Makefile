@@ -13,7 +13,7 @@ test: extensions
 	--ignore=tests/data tests
 
 test_wm: extensions
-	time pytest tests/wm
+	time pytest -s tests/wm
 
 
 pypi_upload:
