@@ -6,6 +6,7 @@
 #include "Indicator.hpp"
 #include "exceptions.hpp"
 #include <limits.h>
+#include "definitions.h"
 
 class Node {
   public:
@@ -14,6 +15,7 @@ class Node {
   double std = 1;
   std::vector<double> generated_latent_sequence = {};
   int period = 1;
+  DataAggregationLevel agg_level = DataAggregationLevel::MONTHLY;
   // Access:
   //  {partition --> ([time step], [data value])}
   std::unordered_map<int, std::pair<std::vector<int>, std::vector<double>>> partitioned_data = {};
@@ -26,10 +28,10 @@ class Node {
   std::vector<double> centers = {};
   std::vector<double> spreads = {};
   std::vector<double> changes = {};
-  std::vector<double> generated_monthly_latent_centers_for_a_year = std::vector<double>(12, 0);
-  std::vector<double> generated_monthly_latent_spreads_for_a_year = std::vector<double>(12, 0);
+  std::vector<double> generated_latent_centers_for_a_period;
+  std::vector<double> generated_latent_spreads_for_a_period;
 
-  std::string center_measure = "median"; // median or mean
+  std::string center_measure = "mean"; // median or mean
   std::string model = "center"; // center, absolute_change, relative_change
 
   // Tracks whether bounds are available for this node

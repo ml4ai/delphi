@@ -119,14 +119,21 @@ nlohmann::json load_json(string filename) {
   return j;
 }
 
-/** Compute the number of months between two dates **/
-int months_between(tuple<int, int, int> earlier_date, tuple<int, int, int> latter_date) {
+/** Compute the number of timesteps (months or years) between two dates **/
+int observation_timesteps_between(tuple<int, int, int> earlier_date,
+                                  tuple<int, int, int> latter_date,
+                                  DataAggregationLevel agg_level) {
   int earlier_year = get<0>(earlier_date);
   int earlier_month = get<1>(earlier_date);
   int latter_year = get<0>(latter_date);
   int latter_month = get<1>(latter_date);
 
-  return 12 * (latter_year - earlier_year) + (latter_month - earlier_month);
+  if (agg_level == DataAggregationLevel::YEARLY) {
+      return latter_year - earlier_year;
+  }
+  else {
+      return 12 * (latter_year - earlier_year) + (latter_month - earlier_month);
+  }
 }
 
 std::string get_timestamp() {
