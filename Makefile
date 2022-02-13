@@ -13,7 +13,9 @@ test: extensions
 	--ignore=tests/data tests
 
 test_wm: extensions
-	time pytest -s tests/wm
+	pytest -s tests/wm/test_cpp_evaluation.py
+	pytest -s tests/wm/test_cpp_extensions.py
+	pytest -s tests/wm/test_rest_api.py
 
 
 pypi_upload:
