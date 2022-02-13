@@ -5,7 +5,7 @@ from tqdm import trange
 import numpy as np
 import seaborn as sns
 
-
+'''
 def test_cpp_extensions_preds():
     statements = [
         (
@@ -31,7 +31,7 @@ def test_cpp_extensions_preds():
     )
     preds = G.generate_prediction(2015, 1, 2016, 12)
     pred_plot(preds, "New asylum seeking applicants", save_as="pred_plot.pdf")
-
+'''
 
 def test_delete_indicator():
     statements = [
