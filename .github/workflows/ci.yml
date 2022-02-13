@@ -79,7 +79,9 @@ jobs:
         pip install -e .[test]
 
         # Run the Python WM test suite
-        make test_wm
+        pytest -s tests/wm/test_cpp_evaluation.py
+        pytest -s tests/wm/test_cpp_extensions.py
+        pytest -s tests/wm/test_rest_api.py
 
         pwd
         echo "### Building and running Python tests"
