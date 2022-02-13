@@ -49,10 +49,6 @@ void BaseStatus::begin_recording_progress(string status){
 
 /* Stop posting progress updates to the database */
 void BaseStatus::finish_recording_progress(string status){
-  set_status(status);
-  progress = 1.0;
-  write_progress(); 
-
   recording = false;
   if (pThread != nullptr) {
     if(pThread->joinable()) {
@@ -61,6 +57,12 @@ void BaseStatus::finish_recording_progress(string status){
     delete pThread;
   }
   pThread = nullptr;
+
+  json data = get_data();
+
+  data[STATUS] = status;
+  data[PROGRESS] = 1.0;
+  write_row(get_id(), data);
 }
 
 /* create the table if we need it.  */
@@ -117,7 +119,7 @@ void BaseStatus::clean_row(string id) {
   }
 }
 
-// Attempt to lock this status 
+// Attempt to lock this status by setting the 'busy' flag to true.
 bool BaseStatus::lock() {
   sqlite3_mutex* mx = sqlite3_mutex_alloc(SQLITE_MUTEX_RECURSIVE);
   if(mx == nullptr) {
@@ -128,7 +130,7 @@ bool BaseStatus::lock() {
   // enter critical section (blocking method)
   sqlite3_mutex_enter(mx);
 
-  // if this status does not exist, start one from the beginning
+  // if this status does not exist on the datbase, start one.
   if(get_data().empty()) {
     init_row();
   }
@@ -143,15 +145,19 @@ bool BaseStatus::lock() {
     return false;  // already locked
   }
   
-  // lock this status.
+  // set the lock
   data[BUSY] = true;
   data[PROGRESS] = 0.0;
   write_row(get_id(), data);
+  
+  // check the lock 
+  json check = get_data();
+  bool ret = check[BUSY];
 
   // exit critical section
   sqlite3_mutex_leave(mx);
   sqlite3_mutex_free(mx);
-  return true; // success
+  return ret;
 }
 
 void BaseStatus::set_status(string status) {
