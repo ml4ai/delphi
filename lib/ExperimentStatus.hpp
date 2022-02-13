@@ -14,26 +14,36 @@ class ExperimentStatus : public BaseStatus {
 
   private:
     void scheduler();
-    bool done_updating();
+    string experiment_id = "N/A";
+    string model_id = "N/A";
 
   protected:
-    bool done_updating_db(){return true;}
     json compose_status();
+    void record_status();
+    void update_db();
 
   public:
-    ExperimentStatus() : BaseStatus(
+    ExperimentStatus(
+        string model_id, 
+        string experiment_id
+    ) : BaseStatus(
       new Database(), 
       "experiment_status",
       "ExperimentStatus"
-    ){}
-    ExperimentStatus(Database* database) : BaseStatus(
+    ), experiment_id(experiment_id), model_id(model_id){}
+
+    ExperimentStatus(
+        string model_id,
+        string experiment_id,
+        Database* database
+    ) : BaseStatus(
       database, 
       "experiment_status",
       "ExperimentStatus"
-    ){}
+    ), experiment_id(experiment_id), model_id(model_id){}
+
     ~ExperimentStatus(){}
-    void update_db();
-    json get_experiment_progress(string experimentId);
+    json get_status(){ return get_status_with_id(experiment_id);}
 
     const string CONSTRAINTS = "constraints"; // API
     const string END_TIME = "endTime"; // API

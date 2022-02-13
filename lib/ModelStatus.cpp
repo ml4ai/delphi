@@ -1,6 +1,14 @@
 #include <sqlite3.h>
 #include "AnalysisGraph.hpp"
-#include "BaseStatus.hpp"
+#include "DatabaseHelper.hpp"
+#include "ModelStatus.hpp"
+#include "utils.hpp"
+#include <thread>
+#include <ctime>
+#include <chrono>
+#include <nlohmann/json.hpp>
+#include <sqlite3.h>
+#include "AnalysisGraph.hpp"
 #include "DatabaseHelper.hpp"
 #include "ModelStatus.hpp"
 #include "utils.hpp"
@@ -9,33 +17,42 @@
 #include <chrono>
 #include <nlohmann/json.hpp>
 
+#define SHOW_LOGS
+
 using namespace std;
 using namespace delphi::utils;
 using json = nlohmann::json;
 
-
-/* write out the status as a string for the database */
-json ModelStatus::compose_status() {
-  json status;
-  if (ag != nullptr) {
-    string model_id = ag->id;
-    if(!model_id.empty()) {
-      status[MODEL_ID] = model_id;
-      status[PROGRESS] =
-	delphi::utils::round_n(ag->get_training_progress(), 2);
-      status[TRAINED] = ag->get_trained();
-//      status["stopped"] = ag->get_stopped(); 
-//      status["log_likelihood"] = ag->get_log_likelihood();
-//      status["log_likelihood_previous"] = ag->get_previous_log_likelihood();
-//      status["log_likelihood_map"] = ag->get_log_likelihood_MAP();
-    }
+// Start the training process for a model. Make sure only one
+// process does this for a given model ID
+bool ModelStatus::start_training() {
+  sqlite3_mutex* mx = sqlite3_mutex_alloc(SQLITE_MUTEX_FAST);
+  if(mx == nullptr) {
+    log_error("Could not create model status, database error");
+    return false;
   }
-  return status;
+  sqlite3_mutex_enter(mx);
+
+  // Do not start training if the model is already training
+  if(is_busy(model_id)) {
+    sqlite3_mutex_leave(mx);
+    sqlite3_mutex_free(mx);
+    return false;
+  }
+
+  // begin training
+  update_db();
+  sqlite3_mutex_leave(mx);
+  sqlite3_mutex_free(mx);
+  return true;
 }
 
-/* write the current Model status to our table */
+// set our database status with local vars
 void ModelStatus::update_db() {
-  string model_id = ag->id;
-  set_status(model_id, compose_status());
-}
+  json status;
+  status[COL_ID] = model_id;
+  status[PROGRESS] = delphi::utils::round_n(progress, 2);
+  status[STATUS] = (progress < 1.0) ? "training" : "ready";
 
+  write_row(model_id, status);
+}

@@ -7,17 +7,32 @@
 #include <ctime>
 #include <chrono>
 #include <nlohmann/json.hpp>
+#include <sqlite3.h>
+#include "AnalysisGraph.hpp"
+#include "DatabaseHelper.hpp"
+#include "BaseStatus.hpp"
+#include "utils.hpp"
+#include <thread>
+#include <ctime>
+#include <chrono>
+#include <nlohmann/json.hpp>
 
-//#define SHOW_LOGS  // define this to see info and error messages
+//#define SHOW_LOGS   // define for cout debug messages
 
 using namespace std;
 using namespace delphi::utils;
 using json = nlohmann::json;
 
+void BaseStatus::clean_db() {
+  create_table();
+  clean_table();
+}
+
+
 /* Start the thread that posts the status to the datbase */
 void BaseStatus::scheduler() {
-  logInfo("scheduler()");
-  while(!done_updating_db()){
+  log_info("scheduler()");
+  while(recording){
     this_thread::sleep_for(std::chrono::seconds(1));
     if(pThread != nullptr) {
       update_db();
@@ -26,9 +41,9 @@ void BaseStatus::scheduler() {
 }
 
 /* Begin posting progress updates to the database on a regular interval */
-void BaseStatus::start_updating_db(AnalysisGraph *ag){
-  logInfo("start_updating_db()");
-  this->ag = ag;
+void BaseStatus::start_recording(){
+  log_info("start_updating_db()");
+  recording = true;
   update_db();
   if(pThread == nullptr) {
     pThread = new thread(&BaseStatus::scheduler, this);
@@ -36,8 +51,9 @@ void BaseStatus::start_updating_db(AnalysisGraph *ag){
 }
 
 /* Stop posting progress updates to the database */
-void BaseStatus::stop_updating_db(){
-  logInfo("stop_updating_db()");
+void BaseStatus::stop_recording(){
+  log_info("stop_updating_db()");
+  recording = false;
   update_db();
   if (pThread != nullptr) {
     if(pThread->joinable()) {
@@ -48,57 +64,64 @@ void BaseStatus::stop_updating_db(){
   pThread = nullptr;
 }
 
-/* write the progress status to the database */
-void BaseStatus::set_status(string id, json status) {
-  string statusStr = status.dump();
-  string info = "set_status(" + id + ", " + statusStr + ")";
-  logInfo(info);
-
-  string query = "INSERT OR REPLACE INTO " 
-    + table_name
-    + " VALUES ('"
-    + id
-    + "', '"
-    + statusStr
-    +  "');";
-
-  insert(query);
-}
-
-/* Return a JSON struct serialized from the 'status' query result row 
- * If the id is not found, return empty JSON */
-json BaseStatus::get_status(string id) {
-  string info = "get_status(" + id + ") => ";
-  json queryResult = database->select_row(table_name, id, COL_STATUS);
-  if(queryResult.empty()) {
-    logError(info + " ID not found");
-    return queryResult;
-  }
-  string statusString = queryResult[COL_STATUS];
-  json status = json::parse(statusString);
-  logInfo(info + status.dump());
-  return status;
-}
 
 /* create the table if we need it.  */
-void BaseStatus::init_db() {
-  logInfo("init_db()");
-  string query = "CREATE TABLE IF NOT EXISTS " 
-    + table_name 
-    + " (" 
-    + COL_ID 
-    + " TEXT PRIMARY KEY, " 
-    + COL_STATUS 
+void BaseStatus::create_table() {
+  string query = "CREATE TABLE IF NOT EXISTS "
+    + table_name
+    + " ("
+    + COL_ID
+    + " TEXT PRIMARY KEY, "
+    + COL_STATUS
     + " TEXT NOT NULL);";
 
-  insert(query);
+  log_info(query);
+  database->insert(query);
 }
 
-void BaseStatus::insert(string query) {
-  string info = "insert('" + query + "')";
-  logInfo(info);
+/* delete any entries with incomplete training status */
+void BaseStatus::clean_table() {
+  string query = "SELECT " 
+    + COL_ID
+    + " from "
+    + table_name
+    + ";";
 
-  database->insert(query);
+  log_info(query);
+  vector<string> ids = database->read_column_text(query);
+  for(string id : ids) {
+    clean_row(id);
+  }
+}
+
+// called only at startup, any rows in the table with incomplete training
+// are declared lost and get deleted.
+void BaseStatus::clean_row(string id) {
+  string report = "Inspecting " + table_name + " record '" + id + "': ";
+
+  json status = get_status_with_id(id);
+  
+  log_info("clean_row(" + id + ") => " + status.dump());
+
+  double row_progress = status[PROGRESS];
+  if(row_progress < 1.0) {
+    log_info(report + "FAIL (stale progress, deleting record)");
+    database->delete_rows(table_name, "id", id);
+  }
+  else {
+    log_info(report + "PASS");
+  }
+}
+
+// return true if the progress exists and has not yet finished
+bool BaseStatus::is_busy(string id) {
+  json status = get_status_with_id(id);
+  if(status.empty()) 
+    return false;
+  else {
+    double row_progress = status[PROGRESS];
+    return (row_progress < 1.0);
+  }
 }
 
 // report the current time
@@ -120,17 +143,51 @@ string BaseStatus::timestamp() {
     return string(timebuf);
 }
 
+// return the entire database row for this id
+json BaseStatus::read_row(string id) {
+  return database -> select_row(
+    table_name,
+    id,
+    COL_STATUS
+  );
+}
 
-/* Report a message to stdout */
-void BaseStatus::logInfo(string text) {
+// return the status json for this ID
+json BaseStatus::get_status_with_id(string id) {
+  json row = read_row(id);
+  if(row.empty()) {
+    return row;
+  }
+  string statusString = row[COL_STATUS];
+  json status = json::parse(statusString);
+  return status;
+}
+
+
+void BaseStatus::write_row(string id, json status) {
+  log_info("write_row (" + id + ") " + status.dump());
+  string query = "INSERT OR REPLACE INTO "
+    + table_name
+    + " VALUES ('"
+    + id
+    + "', '"
+    + status.dump()
+    +  "');";
+
+   log_info(query);
+   database->insert(query);
+}
+
+/* Report a message to cout */
+void BaseStatus::log_info(string msg) {
 #ifdef SHOW_LOGS
-  cout << timestamp() << " " << class_name << " INFO: " << text << endl;
+  cout << timestamp() << " " << class_name << " INFO: " << msg << endl;
 #endif
 }
 
-/* Report an error to stderr */
-void BaseStatus::logError(string text) {
+/* Report an error to cerr */
+void BaseStatus::log_error(string msg) {
 #ifdef SHOW_LOGS
-  cerr << timestamp() << " " << class_name << " ERROR: " << text << endl;
+  cout << timestamp() << " " << class_name << " ERROR: " << msg << endl;
 #endif
 }

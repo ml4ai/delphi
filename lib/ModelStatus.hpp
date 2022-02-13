@@ -1,10 +1,14 @@
 #pragma once
+
+#include <sqlite3.h>
+#include "AnalysisGraph.hpp"
 #include "DatabaseHelper.hpp"
 #include "BaseStatus.hpp"
+#include "utils.hpp"
 #include <thread>
+#include <ctime>
+#include <chrono>
 #include <nlohmann/json.hpp>
-
-class AnalysisGraph;
 
 using namespace std;
 using json = nlohmann::json;
@@ -13,29 +17,29 @@ using json = nlohmann::json;
 class ModelStatus : public BaseStatus {
 
   private:
-    void scheduler();
+    string model_id = "N/A";
 
   protected:
-    bool done_updating_db(){return ag->get_trained();}
-    json compose_status();
+    void update_db();
+    void record_status();
 
   public:
-    ModelStatus() : BaseStatus(
-      new Database(), 
+    ModelStatus(string id) : BaseStatus(
+      new Database(),
       "model_status",
       "ModelStatus"
-    ) {}
-    ModelStatus(Database* database) : BaseStatus(
-      database, 
+    ), model_id(id) {log_info("ModelStatus created for " + id);}
+    ModelStatus(string id, Database* database) : BaseStatus(
+      database,
       "model_status",
       "ModelStatus"
-    ) {}
-    ~ModelStatus(){}
-    void update_db();
+    ), model_id(id) {log_info("ModelStatus created for " + id);}
+    ~ModelStatus(){log_info("ModelStatus destroyed for " + model_id);}
+    bool start_training();
+    json get_status(){ return get_status_with_id(model_id);}
 
     // serialized JSON fields in the status text
-    const string MODEL_ID = "id"; // API
+    const string MODEL_ID = "id";  // API
     const string NODES = "nodes"; // API
     const string EDGES = "edges"; // API
-    const string TRAINED = "trained";  // arbitrary
 };

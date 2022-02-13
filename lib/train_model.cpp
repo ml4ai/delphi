@@ -72,15 +72,15 @@ void AnalysisGraph::run_train_model(int res,
                                 unordered_map<string, string> concept_models,
                                 unordered_map<string, double> concept_min_vals,
                                 unordered_map<string, double> concept_max_vals,
-                                unordered_map<string, function<double(unsigned int, double)>> ext_concepts
-                                ) {
-
-    ModelStatus ms;
-    ms.start_updating_db(this);
+                                unordered_map<string, function<double(unsigned int, double)>> ext_concepts) {
 
     double training_step = 1.0 / (res + burn);
 
-    this->training_progress = 0;
+    ModelStatus ms(this->id);
+
+    ms.start_recording();
+
+    this->trained = false;
 
     if (train_timesteps < 0) {
       this->n_timesteps = this->observed_state_sequence.size();
@@ -184,6 +184,7 @@ void AnalysisGraph::run_train_model(int res,
 
     this->edge_sample_pool.clear();
     for (EdgeDescriptor ed : this->edges()) {
+        this->graph[ed].sampled_thetas.clear();
         if (!this->graph[ed].is_frozen()) {
             this->edge_sample_pool.push_back(ed);
         }
@@ -212,7 +213,7 @@ void AnalysisGraph::run_train_model(int res,
 
     cout << "\nBurning " << burn << " samples out..." << endl;
     for (int i : trange(burn)) {
-      this->training_progress += training_step;
+      ms.increment_progress(training_step);
 
        {
           #ifdef TIME
@@ -249,7 +250,7 @@ void AnalysisGraph::run_train_model(int res,
     cout << "\nSampling " << this->res << " samples from posterior..." << endl;
     for (int i : trange(this->res - 1)) {
       {
-        this->training_progress += training_step;
+        ms.increment_progress(training_step);
 
         #ifdef TIME
 //                durations.first.clear();
@@ -297,7 +298,7 @@ void AnalysisGraph::run_train_model(int res,
       */
     }
 
-    if (this->MAP_sample_number < int(this->res) - 1) {
+    if (this->MAP_sample_number < int(this->res)) {
       this->sample_from_posterior();
       this->transition_matrix_collection[this->res - 1] = this->A_original;
       this->initial_latent_state_collection[this->res - 1] = this->s0;
@@ -318,8 +319,8 @@ void AnalysisGraph::run_train_model(int res,
     }
 
     this->trained = true;
-    this->training_progress= 1.0;
-    ms.stop_updating_db();
+    ms.set_progress(1.0);
+    ms.stop_recording();
     RNG::release_instance();
 }
 

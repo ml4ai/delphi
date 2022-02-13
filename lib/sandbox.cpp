@@ -48,6 +48,7 @@ typedef tuple<
 void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
                                           bool verbose) {
   this->id = json_data["id"];
+  this->experiment_id = json_data["experiment_id"];
 
   // int conceptIndicators_arrSize = 0;
   // if (sizeof(json_data["conceptIndicators"])){ int conceptIndicators_arrSize

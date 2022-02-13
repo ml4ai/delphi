@@ -1,9 +1,13 @@
 #pragma once
-#include "DatabaseHelper.hpp"
-#include <thread>
-#include <nlohmann/json.hpp>
 
-class AnalysisGraph;
+#include <sqlite3.h>
+#include "AnalysisGraph.hpp"
+#include "DatabaseHelper.hpp"
+#include "utils.hpp"
+#include <thread>
+#include <ctime>
+#include <chrono>
+#include <nlohmann/json.hpp>
 
 using namespace std;
 using json = nlohmann::json;
@@ -12,41 +16,47 @@ class BaseStatus {
 
   private:
     Database* database = nullptr;
-    void insert(string query);
-    string table_name = "N/A";
+    std::thread *pThread = nullptr;
+    bool recording = false;
+    string timestamp();
     string class_name = "N/A";
-    const string COL_ID = "id"; // arbitrary
-    const string COL_STATUS = "status"; // arbitrary
+    string table_name = "N/A";
+    void create_table();
+    void clean_table();
+    void clean_row(string id);
+    json read_row(string id);
 
   protected:
-    virtual json compose_status() = 0;
-    virtual bool done_updating_db() = 0;
-
     void scheduler();
-    void logInfo(string message);
-    void logError(string message);
-    AnalysisGraph* ag = nullptr;
-    std::thread *pThread = nullptr;
-    string timestamp();
+    void log_error(string msg);
+    void log_info(string msg);
+    bool is_busy(string id); 
+    void write_row(string id, json status);
+    json get_status_with_id(string id);
+    virtual void update_db() = 0;
+    double progress = 0.0;
+
+  public:
     BaseStatus(
       Database* database,
-      string table_name,
-      string class_name
-    ) : 
+      const string table_name,
+      const string class_name
+    ) :
       database(database),
       table_name(table_name),
       class_name(class_name){}
     ~BaseStatus(){}
 
-  public:
-    virtual void update_db() = 0;
-    void init_db();
-    json get_status(string id);
-    void set_status(string id, json status);
-    void start_updating_db(AnalysisGraph* ag);
-    void stop_updating_db();
+    void clean_db();
+    void set_progress(double p) { progress = p;}
+    void increment_progress(double i) { progress += i;}
+    virtual json get_status() = 0;
+    void start_recording();
+    void stop_recording();
 
-    const string PROGRESS = "progressPercentage"; // API
-    const string STATUS = "status"; // API
-    const string ERROR = "error"; // arbitrary, not exported
+    // serialized JSON fields in the status text
+    const string COL_ID = "id"; // database column, not exported
+    const string COL_STATUS = "status"; // database column, not exported
+    const string PROGRESS = "progressPercentage"; // JSON field, API
+    const string STATUS = "status"; // JSON field, ?
 };

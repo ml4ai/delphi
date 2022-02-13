@@ -14,6 +14,7 @@ using fmt::print;
 string AnalysisGraph::to_json_string(int indent) {
   nlohmann::json j;
   j["id"] = this->id;
+  j["experiment_id"] = this->experiment_id;
   j["edges"] = {};
   vector<tuple<string, string, vector<double>>> data;
   for (auto e : this->edges()) {
@@ -44,6 +45,7 @@ string AnalysisGraph::to_json_string(int indent) {
 string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
     nlohmann::json j;
     j["id"] = this->id;
+    j["experiment_id"] = this->experiment_id;
 
     // This is an unordered_map:
     // concept name → Boost graph vertex id
@@ -265,6 +267,7 @@ string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
 void AnalysisGraph::export_create_model_json_string() {
   nlohmann::json j;
   j["id"] = this->id;
+  j["experiment_id"] = this->experiment_id;
   j["statements"] = {};
   j["statements"].push_back({{"belief", 1}});
   j["conceptIndicators"] = {};

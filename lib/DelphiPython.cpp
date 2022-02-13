@@ -32,6 +32,7 @@ PYBIND11_MODULE(DelphiPython, m) {
   py::class_<AnalysisGraph>(m, "AnalysisGraph")
       .def(py::init())
       .def_readwrite("id", &AnalysisGraph::id)
+      .def_readwrite("experiment_id", &AnalysisGraph::experiment_id)
       .def("to_json_string", &AnalysisGraph::to_json_string, "indent"_a = 0)
       .def("from_json_string", &AnalysisGraph::from_json_string)
       .def("generate_create_model_response", &AnalysisGraph::generate_create_model_response)

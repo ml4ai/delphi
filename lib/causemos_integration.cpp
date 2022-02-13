@@ -1,6 +1,7 @@
 // CauseMos integration methods
 
 #include "AnalysisGraph.hpp"
+#include "ExperimentStatus.hpp"
 #include "utils.hpp"
 #include <fmt/format.h>
 #include <fstream>
@@ -592,6 +593,10 @@ void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data,
 
   if (!json_data.contains("statements")) {return;}
 
+  if(json_data.contains("experiment_id")){
+    this->experiment_id = json_data["experiment_id"].get<string>();
+  }
+
   auto statements = json_data["statements"];
 
   for (auto stmt : statements) {
@@ -767,6 +772,8 @@ void AnalysisGraph::extract_projection_constraints(
 FormattedProjectionResult
 AnalysisGraph::run_causemos_projection_experiment_from_json_dict(
                                               const nlohmann::json &json_data) {
+
+    ExperimentStatus es(this->id, this->experiment_id);
 
     if (json_data["experimentParam"].is_null()) {
         throw BadCausemosInputException("Experiment parameters null");
