@@ -74,16 +74,12 @@ jobs:
 
         # Install a version of pyparsing to fix a CI bug
         pip install pyparsing==2.4.7
-        pip install SQLAlchemy==1.3.18
-        pip install flask==1.1.2
 
         # Install delphi in editable mode
         pip install -e .[test]
 
         # Run the Python WM test suite
-        pytest -s tests/wm/test_cpp_evaluation.py
-        pytest -s tests/wm/test_cpp_extensions.py
-        pytest -s tests/wm/test_rest_api.py
+        make test_wm
 
         pwd
         echo "### Building and running Python tests"
