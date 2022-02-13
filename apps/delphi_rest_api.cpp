@@ -487,7 +487,8 @@ int main(int argc, const char* argv[]) {
 	    }
 
             // Model busy
-	    if((bool)model_data[ms.BUSY]) {
+	    bool model_busy = model_data[ms.BUSY];
+	    if(model_busy) {
                 ret[ms.PROGRESS] = model_data[ms.PROGRESS];
                 ret[ms.STATUS] = "Model is busy(" 
                     + (string)model_data[ms.STATUS] 
@@ -500,7 +501,7 @@ int main(int argc, const char* argv[]) {
             boost::uuids::uuid uuid = boost::uuids::random_generator()();
             string experiment_id = to_string(uuid);
 
-	    ExperimentStatus es(modelId, experiment_id, sqlite3DB);
+	    ExperimentStatus es(experiment_id, modelId, sqlite3DB);
 
             sqlite3DB->insert_into_causemosasyncexperimentresult(
                 experiment_id, "in progress", experiment_type, "");

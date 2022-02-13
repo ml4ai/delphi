@@ -16,12 +16,11 @@ class ExperimentStatus : public BaseStatus {
     string model_id = "N/A";
 
   protected:
-    void init_row();
 
   public:
     ExperimentStatus(
-        string model_id, 
-        string experiment_id
+        string experiment_id,
+        string model_id 
     ) : BaseStatus(
       new Database(), 
       "experiment_status",
@@ -29,8 +28,8 @@ class ExperimentStatus : public BaseStatus {
     ), experiment_id(experiment_id), model_id(model_id){}
 
     ExperimentStatus(
-        string model_id,
         string experiment_id,
+        string model_id,
         Database* database
     ) : BaseStatus(
       database, 
@@ -41,6 +40,7 @@ class ExperimentStatus : public BaseStatus {
     ~ExperimentStatus(){}
 
     string get_id(){ return experiment_id;}
+    void init_row();
 
     const string CONSTRAINTS = "constraints"; // API
     const string END_TIME = "endTime"; // API

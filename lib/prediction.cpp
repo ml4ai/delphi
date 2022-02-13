@@ -54,7 +54,7 @@ void AnalysisGraph::generate_latent_state_sequences(
 
   // configure monitoring of experiment progress
   ExperimentStatus es(
-      "AnalysisGraph::generate_latent_state_sequences",
+      this->experiment_id,
       this->id
   );
   double progress_step = 0.01;  // 100 sample steps

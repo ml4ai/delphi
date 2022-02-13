@@ -30,7 +30,6 @@ class BaseStatus {
     void scheduler();
     void log_error(string msg);
     void log_info(string msg);
-    virtual void init_row() = 0;
     virtual string get_id() = 0;
     double progress = 0.0;
     void write_row(string id, json data);
@@ -48,6 +47,7 @@ class BaseStatus {
 
     json get_data();
     void clean_db();
+    virtual void init_row() = 0;
     void set_progress(double p) { progress = p;}
     void increment_progress(double i) { progress += i;}
     bool lock();

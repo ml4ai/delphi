@@ -99,24 +99,44 @@ void BaseStatus::clean_table() {
 // are declared lost and get deleted.
 void BaseStatus::clean_row(string id) {
 
+  string report = "Inspecting " + table_name + " record '" + id + "': ";
+
   json row = read_row(id);
+  if(row.empty()) {
+    log_info(report + "FAIL (missing record, deleting row)");
+    database->delete_rows(table_name, "id", id);
+    return;
+  }
+
   string dataString = row[COL_DATA];
+  if(dataString.empty()) {
+    log_info(report + "FAIL (missing raw data, deleting row)");
+    database->delete_rows(table_name, "id", id);
+    return;
+  }
+
   json data = json::parse(dataString);
+  if(data.empty()) {
+    log_info(report + "FAIL (missing data, deleting row)");
+    database->delete_rows(table_name, "id", id);
+    return;
+  }
 
   double row_progress = data[PROGRESS];
-  bool busy = data[BUSY];
-  string report = "Inspecting " + table_name + " record '" + id + "': ";
   if(row_progress < 1.0) {
-    log_info(report + "FAIL (stale progress, deleting record)");
+    log_info(report + "FAIL (stale progress, deleting row)");
     database->delete_rows(table_name, "id", id);
+    return;
   }
-  else if(busy) {
-    log_info(report + "FAIL (stale lock, deleting record)");
+
+  bool busy = data[BUSY];
+  if(busy) {
+    log_info(report + "FAIL (stale lock, deleting row)");
     database->delete_rows(table_name, "id", id);
+    return;
   }
-  else {
-    log_info(report + "PASS");
-  }
+
+  log_info(report + "PASS");
 }
 
 // Attempt to lock this status by setting the 'busy' flag to true.
@@ -157,7 +177,7 @@ bool BaseStatus::lock() {
   // exit critical section
   sqlite3_mutex_leave(mx);
   sqlite3_mutex_free(mx);
-  return ret;
+  return ret; 
 }
 
 void BaseStatus::set_status(string status) {
