@@ -74,6 +74,8 @@ jobs:
 
         # Install a version of pyparsing to fix a CI bug
         pip install pyparsing==2.4.7
+        pip ntstall SQLAlchemy==1.3.18
+        pip ntstall flask==1.1.2
 
         # Install delphi in editable mode
         pip install -e .[test]
