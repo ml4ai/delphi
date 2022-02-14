@@ -51,7 +51,7 @@ class BaseStatus {
     void set_progress(double p) { progress = p;}
     void increment_progress(double i) { progress += i;}
     bool lock();
-    void unlock();
+    bool unlock();
     void set_status(string status);
     void begin_recording_progress(string status);
     void finish_recording_progress(string status);

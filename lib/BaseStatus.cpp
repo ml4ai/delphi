@@ -180,6 +180,32 @@ bool BaseStatus::lock() {
   return locked; 
 }
 
+
+// Attempt to lock this status by setting the 'busy' flag to true.
+bool BaseStatus::unlock() {
+  sqlite3_mutex* mx = sqlite3_mutex_alloc(SQLITE_MUTEX_RECURSIVE);
+  if(mx == nullptr) {
+    log_error("Could not create mutex, database error");
+    return false; // error
+  }
+
+  // enter critical section (blocking method)
+  sqlite3_mutex_enter(mx);
+
+  json data = get_data();
+  data[BUSY] = false;
+  write_row(get_id(), data);
+
+  // check the lock 
+  json check = get_data();
+  bool locked = check[BUSY];
+
+  // exit critical section
+  sqlite3_mutex_leave(mx);
+  sqlite3_mutex_free(mx);
+  return !locked; 
+}
+
 void BaseStatus::set_status(string status) {
   json data = get_data();
   data[STATUS] = status;
@@ -193,11 +219,6 @@ void BaseStatus::write_progress() {
   write_row(get_id(), data);
 }
 
-void BaseStatus::unlock() {
-  json data = get_data();
-  data[BUSY] = false;
-  write_row(get_id(), data);
-}
 
 // report the current time
 string BaseStatus::timestamp() {
