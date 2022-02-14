@@ -43,6 +43,8 @@ Includes
 
 - ``boost/range/iterator_range.hpp``
 
+- ``definitions.h`` (:ref:`file_lib_definitions.h`)
+
 - ``fmt/format.h``
 
 - ``graphviz_interface.hpp`` (:ref:`file_lib_graphviz_interface.hpp`)

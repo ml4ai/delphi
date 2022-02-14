@@ -1,0 +1,20 @@
+
+.. _program_listing_file_lib_definitions.h:
+
+Program Listing for File definitions.h
+======================================
+
+|exhale_lsh| :ref:`Return to documentation for file <file_lib_definitions.h>` (``lib/definitions.h``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. code-block:: cpp
+
+   //
+   // Created by Manujinda Wathugala on 2/7/22.
+   //
+   
+   #ifndef DELPHI_DEFINITIONS_H
+   #define DELPHI_DEFINITIONS_H
+   enum DataAggregationLevel { NONE, MONTHLY, YEARLY };
+   #endif // DELPHI_DEFINITIONS_H

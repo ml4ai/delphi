@@ -31,6 +31,8 @@ Includes
 
 - ``Indicator.hpp`` (:ref:`file_lib_Indicator.hpp`)
 
+- ``definitions.h`` (:ref:`file_lib_definitions.h`)
+
 - ``exceptions.hpp`` (:ref:`file_lib_exceptions.hpp`)
 
 - ``iostream``

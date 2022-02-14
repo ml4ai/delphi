@@ -1,0 +1,14 @@
+.. _exhale_enum_definitions_8h_1afa0b0a781acd33167168a555b01ac0b5:
+
+Enum DataAggregationLevel
+=========================
+
+- Defined in :ref:`file_lib_definitions.h`
+
+
+Enum Documentation
+------------------
+
+
+.. doxygenenum:: DataAggregationLevel
+   :project: My Project

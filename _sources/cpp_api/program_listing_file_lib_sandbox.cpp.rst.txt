@@ -170,11 +170,13 @@ Program Listing for File sandbox.cpp
        this->training_range = json_data["training_range"];
      }
    
-     this->modeling_period = json_data["modeling_period"].get<long>();
+     this->num_modeling_timesteps_per_one_observation_timestep = json_data["num_modeling_timesteps_per_one_observation_timestep"].get<long>();
      this->train_start_epoch = json_data["train_start_epoch"].get<long>();
      this->train_end_epoch = json_data["train_end_epoch"].get<long>();
      this->n_timesteps = json_data["train_timesteps"].get<int>();
-     this->observation_timestep_gaps = json_data["observation_timestep_gaps"].get<vector<double>>();
+     this->modeling_timestep_gaps = json_data["modeling_timestep_gaps"].get<vector<double>>();
+     this->observation_timesteps_sorted = json_data["observation_timesteps_sorted"].get<vector<long>>();
+     this->model_data_agg_level = json_data["model_data_agg_level"].get<DataAggregationLevel>();
    
      this->observed_state_sequence =
          json_data["observations"].get<ObservedStateSequence>();

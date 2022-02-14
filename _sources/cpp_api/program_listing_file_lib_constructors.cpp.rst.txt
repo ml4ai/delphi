@@ -177,11 +177,11 @@ Program Listing for File constructors.cpp
        }
      }
    
-     G.modeling_period = 1;
+     G.num_modeling_timesteps_per_one_observation_timestep = 1;
      G.train_start_epoch = 0;
-     G.observation_timestep_gaps.clear();
-     G.observation_timestep_gaps = vector<double>(G.n_timesteps, 1.0);
-     G.observation_timestep_gaps[0] = 0;
+     G.modeling_timestep_gaps.clear();
+     G.modeling_timestep_gaps = vector<double>(G.n_timesteps, 1.0);
+     G.modeling_timestep_gaps[0] = 0;
    
      return G;
    }
@@ -246,11 +246,13 @@ Program Listing for File constructors.cpp
      this->train_start_epoch = rhs.train_start_epoch;
      this->train_end_epoch = rhs.train_end_epoch;
      this->pred_start_timestep = rhs.pred_start_timestep;
-     this->observation_timestep_gaps = rhs.observation_timestep_gaps;
+     this->observation_timesteps_sorted = rhs.observation_timesteps_sorted;
+     this->modeling_timestep_gaps = rhs.modeling_timestep_gaps;
      this->observation_timestep_unique_gaps = rhs.observation_timestep_unique_gaps;
+     this->model_data_agg_level = rhs.model_data_agg_level;
    
      this->e_A_ts = rhs.e_A_ts;
-     this->modeling_period = rhs.modeling_period;
+     this->num_modeling_timesteps_per_one_observation_timestep = rhs.num_modeling_timesteps_per_one_observation_timestep;
    
      this->external_concepts = rhs.external_concepts;
      this->concept_sample_pool = rhs.concept_sample_pool;
@@ -391,11 +393,13 @@ Program Listing for File constructors.cpp
        swap(train_start_epoch, rhs.train_start_epoch);
        swap(train_end_epoch, rhs.train_end_epoch);
        swap(pred_start_timestep, rhs.pred_start_timestep);
-       swap(observation_timestep_gaps, rhs.observation_timestep_gaps);
+       swap(observation_timesteps_sorted, rhs.observation_timesteps_sorted);
+       swap(modeling_timestep_gaps, rhs.modeling_timestep_gaps);
        swap(observation_timestep_unique_gaps, rhs.observation_timestep_unique_gaps);
+       swap(model_data_agg_level, rhs.model_data_agg_level);
    
        swap(e_A_ts, rhs.e_A_ts);
-       swap(modeling_period, rhs.modeling_period);
+       swap(num_modeling_timesteps_per_one_observation_timestep, rhs.num_modeling_timesteps_per_one_observation_timestep);
    
        swap(external_concepts, rhs.external_concepts);
        swap(concept_sample_pool, rhs.concept_sample_pool);

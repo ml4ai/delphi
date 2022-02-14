@@ -75,6 +75,11 @@ Files
 .. toctree::
    :maxdepth: 5
 
+   file_lib_definitions.h.rst
+
+.. toctree::
+   :maxdepth: 5
+
    file_lib_DelphiPython.cpp.rst
 
 .. toctree::

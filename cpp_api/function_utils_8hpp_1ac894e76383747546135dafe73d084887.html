@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Function delphi::utils::months_between(tuple&lt;int, int, int&gt;, tuple&lt;int, int, int&gt;) &mdash; delphi  documentation</title>
+  <title>Function delphi::utils::observation_timesteps_between(std::tuple&lt;int, int, int&gt;, std::tuple&lt;int, int, int&gt;, DataAggregationLevel) &mdash; delphi  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
@@ -22,8 +22,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Function delphi::utils::months_between(std::tuple&lt;int, int, int&gt;, std::tuple&lt;int, int, int&gt;)" href="function_utils_8hpp_1adcd0a1ab80ad4308ce298be143a7a0f6.html" />
-    <link rel="prev" title="Function delphi::utils::median_absolute_deviation" href="function_utils_8cpp_1ac952c30af8cfbacd0a58a73113d0789b.html" /> 
+    <link rel="next" title="Template Function delphi::utils::printVec" href="function_utils_8hpp_1a87276512fe3002f663e6b24b77b4a711.html" />
+    <link rel="prev" title="Function delphi::utils::observation_timesteps_between(tuple&lt;int, int, int&gt;, tuple&lt;int, int, int&gt;, DataAggregationLevel)" href="function_utils_8cpp_1aaae7a910508942e1d3976ba64a413778.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -75,8 +75,8 @@
 <li class="toctree-l4"><a class="reference internal" href="function_utils_8cpp_1a51aa680dfa9e531651beb5abeec6a687.html">Function delphi::utils::mean</a></li>
 <li class="toctree-l4"><a class="reference internal" href="function_utils_8cpp_1ae428d52963e445053bb7c74e5f736d7f.html">Function delphi::utils::median</a></li>
 <li class="toctree-l4"><a class="reference internal" href="function_utils_8cpp_1ac952c30af8cfbacd0a58a73113d0789b.html">Function delphi::utils::median_absolute_deviation</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">Function delphi::utils::months_between(tuple&lt;int, int, int&gt;, tuple&lt;int, int, int&gt;)</a></li>
-<li class="toctree-l4"><a class="reference internal" href="function_utils_8hpp_1adcd0a1ab80ad4308ce298be143a7a0f6.html">Function delphi::utils::months_between(std::tuple&lt;int, int, int&gt;, std::tuple&lt;int, int, int&gt;)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="function_utils_8cpp_1aaae7a910508942e1d3976ba64a413778.html">Function delphi::utils::observation_timesteps_between(tuple&lt;int, int, int&gt;, tuple&lt;int, int, int&gt;, DataAggregationLevel)</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Function delphi::utils::observation_timesteps_between(std::tuple&lt;int, int, int&gt;, std::tuple&lt;int, int, int&gt;, DataAggregationLevel)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="function_utils_8hpp_1a87276512fe3002f663e6b24b77b4a711.html">Template Function delphi::utils::printVec</a></li>
 <li class="toctree-l4"><a class="reference internal" href="function_utils_8cpp_1ae842ea8ed7501a712ce0ea54a8f559f0.html">Function delphi::utils::round_n</a></li>
 <li class="toctree-l4"><a class="reference internal" href="function_utils_8cpp_1abfdecb988b94bbc23cbeaba6fe83bca3.html">Function delphi::utils::sqr</a></li>
@@ -115,9 +115,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="library_root.html">C++ API</a> &raquo;</li>
-      <li>Function delphi::utils::months_between(tuple&lt;int, int, int&gt;, tuple&lt;int, int, int&gt;)</li>
+      <li>Function delphi::utils::observation_timesteps_between(std::tuple&lt;int, int, int&gt;, std::tuple&lt;int, int, int&gt;, DataAggregationLevel)</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/cpp_api/function_utils_8cpp_1a7098ce710f9d380630e83ae2cd93a1e0.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/cpp_api/function_utils_8hpp_1ac894e76383747546135dafe73d084887.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -125,16 +125,16 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="function-delphi-utils-months-between-tuple-int-int-int-tuple-int-int-int">
-<span id="exhale-function-utils-8cpp-1a7098ce710f9d380630e83ae2cd93a1e0"></span><h1>Function delphi::utils::months_between(tuple&lt;int, int, int&gt;, tuple&lt;int, int, int&gt;)<a class="headerlink" href="#function-delphi-utils-months-between-tuple-int-int-int-tuple-int-int-int" title="Permalink to this headline"></a></h1>
+  <section id="function-delphi-utils-observation-timesteps-between-std-tuple-int-int-int-std-tuple-int-int-int-dataaggregationlevel">
+<span id="exhale-function-utils-8hpp-1ac894e76383747546135dafe73d084887"></span><h1>Function delphi::utils::observation_timesteps_between(std::tuple&lt;int, int, int&gt;, std::tuple&lt;int, int, int&gt;, DataAggregationLevel)<a class="headerlink" href="#function-delphi-utils-observation-timesteps-between-std-tuple-int-int-int-std-tuple-int-int-int-dataaggregationlevel" title="Permalink to this headline"></a></h1>
 <ul class="simple">
-<li><p>Defined in <a class="reference internal" href="file_lib_utils.cpp.html#file-lib-utils-cpp"><span class="std std-ref">File utils.cpp</span></a></p></li>
+<li><p>Defined in <a class="reference internal" href="file_lib_utils.hpp.html#file-lib-utils-hpp"><span class="std std-ref">File utils.hpp</span></a></p></li>
 </ul>
 <section id="function-documentation">
 <h2>Function Documentation<a class="headerlink" href="#function-documentation" title="Permalink to this headline"></a></h2>
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N6delphi5utils14months_betweenE5tupleIiiiE5tupleIiiiE">
-<span id="_CPPv3N6delphi5utils14months_betweenE5tupleIiiiE5tupleIiiiE"></span><span id="_CPPv2N6delphi5utils14months_betweenE5tupleIiiiE5tupleIiiiE"></span><span id="delphi::utils::months_between__tuple:i.i.i:.tuple:i.i.i:"></span><span class="target" id="utils_8cpp_1a7098ce710f9d380630e83ae2cd93a1e0"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">delphi</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">utils</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">months_between</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">tuple</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">earlier_date</span></span>, <span class="n"><span class="pre">tuple</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">latter_date</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6delphi5utils14months_betweenE5tupleIiiiE5tupleIiiiE" title="Permalink to this definition"></a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6delphi5utils29observation_timesteps_betweenENSt5tupleIiiiEENSt5tupleIiiiEE20DataAggregationLevel">
+<span id="_CPPv3N6delphi5utils29observation_timesteps_betweenENSt5tupleIiiiEENSt5tupleIiiiEE20DataAggregationLevel"></span><span id="_CPPv2N6delphi5utils29observation_timesteps_betweenENSt5tupleIiiiEENSt5tupleIiiiEE20DataAggregationLevel"></span><span id="delphi::utils::observation_timesteps_between__std::tuple:i.i.i:.std::tuple:i.i.i:.DataAggregationLevel"></span><span class="target" id="utils_8hpp_1ac894e76383747546135dafe73d084887"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">delphi</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">utils</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">observation_timesteps_between</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">tuple</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">earlier_date</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">tuple</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">latter_date</span></span>, <a class="reference internal" href="enum_definitions_8h_1afa0b0a781acd33167168a555b01ac0b5.html#_CPPv420DataAggregationLevel" title="DataAggregationLevel"><span class="n"><span class="pre">DataAggregationLevel</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">agg_level</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="enum_definitions_8h_1afa0b0a781acd33167168a555b01ac0b5.html#_CPPv420DataAggregationLevel" title="DataAggregationLevel"><span class="n"><span class="pre">DataAggregationLevel</span></span></a><span class="p"><span class="pre">::</span></span><a class="reference internal" href="enum_definitions_8h_1afa0b0a781acd33167168a555b01ac0b5.html#_CPPv4N20DataAggregationLevel7MONTHLYE" title="DataAggregationLevel::MONTHLY"><span class="n"><span class="pre">MONTHLY</span></span></a><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6delphi5utils29observation_timesteps_betweenENSt5tupleIiiiEENSt5tupleIiiiEE20DataAggregationLevel" title="Permalink to this definition"></a><br /></dt>
 <dd><p>Compute the number of months between two dates </p>
 </dd></dl>
 
@@ -145,8 +145,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="function_utils_8cpp_1ac952c30af8cfbacd0a58a73113d0789b.html" class="btn btn-neutral float-left" title="Function delphi::utils::median_absolute_deviation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="function_utils_8hpp_1adcd0a1ab80ad4308ce298be143a7a0f6.html" class="btn btn-neutral float-right" title="Function delphi::utils::months_between(std::tuple&lt;int, int, int&gt;, std::tuple&lt;int, int, int&gt;)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="function_utils_8cpp_1aaae7a910508942e1d3976ba64a413778.html" class="btn btn-neutral float-left" title="Function delphi::utils::observation_timesteps_between(tuple&lt;int, int, int&gt;, tuple&lt;int, int, int&gt;, DataAggregationLevel)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="function_utils_8hpp_1a87276512fe3002f663e6b24b77b4a711.html" class="btn btn-neutral float-right" title="Template Function delphi::utils::printVec" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

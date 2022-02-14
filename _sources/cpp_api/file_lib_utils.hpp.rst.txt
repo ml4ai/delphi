@@ -29,6 +29,8 @@ Includes
 --------
 
 
+- ``definitions.h`` (:ref:`file_lib_definitions.h`)
+
 - ``fmt/format.h``
 
 - ``iostream``
@@ -103,7 +105,7 @@ Functions
 
 - :ref:`exhale_function_utils_8hpp_1a20dedc59789fac7a584b05141573e609`
 
-- :ref:`exhale_function_utils_8hpp_1adcd0a1ab80ad4308ce298be143a7a0f6`
+- :ref:`exhale_function_utils_8hpp_1ac894e76383747546135dafe73d084887`
 
 - :ref:`exhale_function_utils_8hpp_1a87276512fe3002f663e6b24b77b4a711`
 

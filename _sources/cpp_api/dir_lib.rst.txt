@@ -22,6 +22,7 @@ Files
 - :ref:`file_lib_database.cpp`
 - :ref:`file_lib_DatabaseHelper.cpp`
 - :ref:`file_lib_DatabaseHelper.hpp`
+- :ref:`file_lib_definitions.h`
 - :ref:`file_lib_DelphiPython.cpp`
 - :ref:`file_lib_DiGraph.hpp`
 - :ref:`file_lib_Edge.hpp`
