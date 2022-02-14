@@ -973,8 +973,11 @@ string AnalysisGraph::generate_create_model_response() {
                           {"target", this->target(e).name},
                           {"weights", this->trained
                              ? vector<double>{(mean(this->graph[e].sampled_thetas)
-                                                            + M_PI_2) * M_2_PI - 1}
-                             : vector<double>{0.5}}};
+                                                         + M_PI_2) * M_2_PI - 1}
+                             : this->graph[e].is_frozen()
+                                ? vector<double>{(this->graph[e].get_theta()
+                                                         + M_PI_2) * M_2_PI - 1}
+                                : vector<double>{0.5}}};
 
         j["relations"].push_back(edge_json);
     }
@@ -1112,6 +1115,8 @@ unsigned short AnalysisGraph::freeze_edge_weight(std::string source_name,
 
     this->graph[edg.first].set_theta(theta);
     this->graph[edg.first].freeze();
+
+    this->trained = false;
 
     return 0;
 }

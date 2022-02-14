@@ -478,8 +478,52 @@ int main(int argc, char* argv[]) {
   AnalysisGraph G = AnalysisGraph::from_causemos_json_file(
     "../tests/data/delphi/create_model_rain--temperature--yield.json", 0);
 
+  cout << "\nOriginal\n" << G.generate_create_model_response() << "\n-----------------------\n" << endl;
+
+  G = AnalysisGraph::deserialize_from_json_string(G.serialize_to_json_string(false), false);
+
+  cout << "\nAfter serializing and deserializing\n" << G.generate_create_model_response() << "\n-----------------------\n" << endl;
+
   G.set_n_kde_kernels(100);
   G.run_train_model(10, 10);
+
+  cout << "\nAfter training\n" << G.generate_create_model_response() << "\n-----------------------\n" << endl;
+
+  G = AnalysisGraph::deserialize_from_json_string(G.serialize_to_json_string(false), false);
+
+  cout << "\nAfter training and serializing and deserializing\n" << G.generate_create_model_response() << "\n-----------------------\n" << endl;
+
+  G.freeze_edge_weight(
+      "wm/concept/environment/meteorology/precipitation",
+      "wm/concept/agriculture/crop_produce",
+      0.25, 1);  // 0.392699 radians
+
+  cout << "\nAfter freezing edge\n" << G.generate_create_model_response() << "\n-----------------------\n" << endl;
+
+  G = AnalysisGraph::deserialize_from_json_string(G.serialize_to_json_string(false), false);
+
+  cout << "\nAfter freezing edge and serializing and deserializing\n" << G.generate_create_model_response() << "\n-----------------------\n" << endl;
+
+  G.set_n_kde_kernels(100);
+  G.run_train_model(10, 10);
+
+  cout << "\nAfter freezing edge and serializing and deserializing and training\n" << G.generate_create_model_response() << "\n-----------------------\n" << endl;
+
+  G = AnalysisGraph::deserialize_from_json_string(G.serialize_to_json_string(false), false);
+
+  cout << "\nAfter all\n" << G.generate_create_model_response() << "\n-----------------------\n" << endl;
+
+  return 0;
+
+  G.freeze_edge_weight(
+      "wm/concept/environment/meteorology/precipitation",
+      "wm/concept/environment/meteorology/temperature",
+      0.75, 1);
+
+  cout << G.generate_create_model_response() << "\n-----------------------\n" << endl;
+
+  return 0;
+
   string initial_model = G.serialize_to_json_string(false);
 
   AnalysisGraph G2 = AnalysisGraph::deserialize_from_json_string(initial_model, false);
