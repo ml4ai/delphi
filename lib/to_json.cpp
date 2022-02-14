@@ -209,11 +209,13 @@ string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
         j["training_range"] = this->training_range;
     }
 
-    j["modeling_period"] = this->modeling_period;
+    j["num_modeling_timesteps_per_one_observation_timestep"] = this->num_modeling_timesteps_per_one_observation_timestep;
     j["train_start_epoch"] = this->train_start_epoch;
     j["train_end_epoch"] = this->train_end_epoch;
     j["train_timesteps"] = this->n_timesteps;
-    j["observation_timestep_gaps"] = this->observation_timestep_gaps;
+    j["modeling_timestep_gaps"] = this->modeling_timestep_gaps;
+    j["observation_timesteps_sorted"] = this->observation_timesteps_sorted;
+    j["model_data_agg_level"] = this->model_data_agg_level;
 
     // This contains all the observations. Indexing goes by
     // [ timestep ][ concept ][ indicator ][ observation ]

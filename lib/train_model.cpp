@@ -37,9 +37,9 @@ void AnalysisGraph::train_model(int start_year,
   this->n_timesteps = this->calculate_num_timesteps(start_year, start_month,
                                                       end_year,   end_month);
 
-  this->observation_timestep_gaps.clear();
-  this->observation_timestep_gaps = vector<double>(this->n_timesteps, 1.0);
-  this->observation_timestep_gaps[0] = 0;
+  this->modeling_timestep_gaps.clear();
+  this->modeling_timestep_gaps = vector<double>(this->n_timesteps, 1.0);
+  this->modeling_timestep_gaps[0] = 0;
 
   if(this->n_timesteps > 0) {
       if (!synthetic_data_experiment && !causemos_call) {
@@ -165,8 +165,20 @@ void AnalysisGraph::run_train_model(int res,
 //    this->concept_sample_pool = vector<unsigned int>(train_vertices.begin(),
 //                                                     train_vertices.end());
     for (int vert : train_vertices) {
+      Node& n = (*this)[vert];
       if (this->head_nodes.find(vert) == this->head_nodes.end()) {
         this->concept_sample_pool.push_back(vert);
+      } else if (n.period == 1) {
+          // Head nodes with period > 1 are modeled using the seasonality
+          // period == 1 => this is not a seasonal node
+          // To prevent this from modeled as seasonal,
+          // remove it from head nodes
+          // TODO: There is a terminology confusion since this is still a
+          // head node, but we are removing it from head nodes to
+          // prevent it from being modeled seasonally.
+          this->concept_sample_pool.push_back(vert);
+          this->head_nodes.erase(vert);
+          this->body_nodes.insert(vert);
       }
     }
 
