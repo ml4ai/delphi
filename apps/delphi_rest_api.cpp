@@ -174,16 +174,20 @@ class Model {
     static void train_model(
         Database* sqlite3DB,
         AnalysisGraph G,
+	ModelStatus ms,
         string model_id,
         int res,
         int burn
     ) {
 	G.id = model_id;
         G.run_train_model(res, burn);
+	ms.set_status("trained, writing to database");
         sqlite3DB->insert_into_delphimodel(
             model_id,
             G.serialize_to_json_string(false)
         );
+        ms.set_status("Ready.");
+	ms.unlock();
     }
 
     static size_t get_kde_kernels() {
@@ -350,36 +354,36 @@ int main(int argc, const char* argv[]) {
     mux.handle("create-model")
         .post([&sqlite3DB](served::response& response,
                            const served::request& req) {
-            nlohmann::json json_data = nlohmann::json::parse(req.body());
+            nlohmann::json req_json = nlohmann::json::parse(req.body());
 
-	    string model_id_field = "id";
-
-	    // input must have a model ID field
-	    if(!json_data.contains(model_id_field)) {
-	        string report = "Model input must contain '"
-		+ model_id_field
-		+ "'field";
+	    // input must have a model ID field, which is "id" per the API
+	    if(!req_json.contains("id")) {
                 json ret;
-		ret[model_id_field] = "Not found";
-                ret["status"] = "Model input must contain an id field";
+		ret["id"] = "Not found";
+                ret["status"] = "Model input must contain an 'id' field";
                 response << ret.dump();
                 return ret.dump();
             }
 
-	    string modelId = json_data[model_id_field];
+	    string modelId = req_json["id"];
 	    ModelStatus ms(modelId, sqlite3DB);
 
             // do not overwrite model if it is training
-            if (!ms.start_training()) {
-		json status = ms.get_status();
+            if (!ms.lock()) {
+		json model_data = ms.get_data();
                 json ret;
                 ret[ms.MODEL_ID] = modelId;
-                ret[ms.PROGRESS] = status[ms.PROGRESS];
-                ret[ms.STATUS] = "A model with the same ID is still training";
+                ret[ms.PROGRESS] = model_data[ms.PROGRESS];
+                ret[ms.STATUS] = "Model is busy(" 
+                    + (string)model_data[ms.STATUS] 
+		    + "), please wait until it before overwriting.";
                 string dumpStr = ret.dump();
                 response << dumpStr; 
                 return dumpStr; 
             }
+	    
+	    // create the model on the database
+            ms.set_status("Creating Model");
 
 	    size_t kde_kernels = Model::get_kde_kernels();
 	    int burn = Model::get_burn();
@@ -387,8 +391,9 @@ int main(int argc, const char* argv[]) {
 
             AnalysisGraph G;
             G.set_n_kde_kernels(kde_kernels);
-            G.from_causemos_json_dict(json_data, 0, 0);
+            G.from_causemos_json_dict(req_json, 0, 0);
 
+            ms.set_status("Writing untrained Model to database");
             sqlite3DB->insert_into_delphimodel(
                 modelId, 
 		G.serialize_to_json_string(false)
@@ -401,11 +406,11 @@ int main(int argc, const char* argv[]) {
                 thread executor_create_model(&Model::train_model,
                                              sqlite3DB,
                                              G,
+					     ms,
 					     modelId,
                                              sampling_resolution,
                                              burn);
                 executor_create_model.detach();
-                cout << "Training model " << modelId << endl;
             }
             catch (std::exception& e) {
                 cout << "Error: unable to start training process" << endl;
@@ -449,19 +454,10 @@ int main(int argc, const char* argv[]) {
 	    json ret;
             ret[es.MODEL_ID] = modelId;
             ret[es.EXPERIMENT_ID] = experimentId;
-
-            if (query_result.empty()) { // should not be possible?
-                ret[es.EXPERIMENT_TYPE] = "UNKNOWN";
-                ret[es.STATUS] = "invalid experiment id";
-                ret[es.RESULTS] = "Not found";
-            } else {
-                string resultstr = query_result[es.RESULTS];
-                json results = json::parse(resultstr);
-                ret[es.EXPERIMENT_TYPE] = query_result[es.EXPERIMENT_TYPE];
-                ret[es.STATUS] = query_result[es.STATUS];
-                ret[es.PROGRESS] = query_result[es.PROGRESS];
-                ret[es.RESULTS] = results["data"];
-            } 
+            ret[es.EXPERIMENT_TYPE] = query_result[es.EXPERIMENT_TYPE];
+            ret[es.STATUS] = query_result[es.STATUS];
+            ret[es.PROGRESS] = query_result[es.PROGRESS];
+            ret[es.RESULTS] = query_result["data"];
 
 	    res << ret.dump();
             return ret;
@@ -477,35 +473,35 @@ int main(int argc, const char* argv[]) {
             auto request_body = nlohmann::json::parse(req.body());
             string modelId = req.params["modelId"]; 
 
-	    ModelStatus ms(modelId, sqlite3DB);
-
             json ret;
-            ret[ms.MODEL_ID] = modelId;
+            ret["modelId"] = modelId;
 
-	    json modelStatus = ms.get_status();
+	    ModelStatus ms(modelId, sqlite3DB);
+	    json model_data = ms.get_data();
 
 	    // Model not found
-	    if(modelStatus.empty()) {
-              ret[ms.STATUS] = "Invalid model ID";
-              res << ret.dump();
-              return ret;
+	    if(model_data.empty()) {
+                ret[ms.STATUS] = "Invalid model ID";
+                res << ret.dump();
+                return ret;
 	    }
 
-            // Model not trained
-	    float progress = modelStatus[ms.PROGRESS];
-	    if(progress < 1.0) {
-	      ret[ms.PROGRESS] = progress;
-	      ret[ms.STATUS] = 
-	        "Model training must finish before experimenting";
-              res << ret.dump();
-              return ret;
+            // Model busy
+	    bool model_busy = model_data[ms.BUSY];
+	    if(model_busy) {
+                ret[ms.PROGRESS] = model_data[ms.PROGRESS];
+                ret[ms.STATUS] = "Model is busy(" 
+                    + (string)model_data[ms.STATUS] 
+                    + "), please wait until it finishes before overwriting.";
+                res << ret.dump();
+                return ret;
             }
 
             string experiment_type = request_body["experimentType"];
             boost::uuids::uuid uuid = boost::uuids::random_generator()();
             string experiment_id = to_string(uuid);
 
-	    ExperimentStatus es(modelId, experiment_id, sqlite3DB);
+	    ExperimentStatus es(experiment_id, modelId, sqlite3DB);
 
             sqlite3DB->insert_into_causemosasyncexperimentresult(
                 experiment_id, "in progress", experiment_type, "");
@@ -521,7 +517,6 @@ int main(int argc, const char* argv[]) {
             catch (std::exception& e) {
 		string report = "Error: unable to start experiment process";
                 cout << report << endl;
-
                 ret[es.STATUS] = report;
                 res << ret.dump();
                 return ret;
@@ -543,14 +538,19 @@ int main(int argc, const char* argv[]) {
         string modelId = req.params["modelId"];
 
         ModelStatus ms(modelId, sqlite3DB);
-	json status = ms.get_status();
+	json model_data = ms.get_data();
         json ret;
         ret[ms.MODEL_ID] = modelId;
-	if(status.empty()) {
-            ret[ms.STATUS] = "Invalid model ID";  // Model ID not found
-	} else {
-	    ret[ms.PROGRESS] = status[ms.PROGRESS];
-	}
+
+	if(model_data.empty()) {
+            ret[ms.STATUS] = "Model ID not found";
+            res << ret.dump();
+	    return;
+        }
+
+        ret[ms.PROGRESS] = model_data[ms.PROGRESS];
+        ret[ms.STATUS] = model_data[ms.STATUS];
+        ret[ms.BUSY] = model_data[ms.BUSY];
         res << ret.dump();
     });
 
@@ -586,7 +586,6 @@ int main(int argc, const char* argv[]) {
 
         nlohmann::json req_json = nlohmann::json::parse(req.body());
 
-
             string modelId = req.params["modelId"];
 	    ModelStatus ms(modelId, sqlite3DB);
             json ret;
@@ -602,25 +601,28 @@ int main(int argc, const char* argv[]) {
                 return ret;
             }
 
-	    json modelStatus = ms.get_status();
-	    
+	    json model_data = ms.get_data();
+
             // Model not found
-            if(modelStatus.empty()) {
-              ret[ms.STATUS] = "Model does not exist. "
-                "Please create model before editing.";
-              res << ret.dump();
-              return ret;
+            if(model_data.empty()) {
+                ret[ms.STATUS] = "Model does not exist.";
+                res << ret.dump();
+                return ret;
             }   
 
-            // Model not trained
-            float progress = modelStatus[ms.PROGRESS];
-            if(progress < 1.0) {
-              ret[ms.PROGRESS] = progress;
-	      ret[ms.STATUS] = "Training must finish before editing.";
-              res << ret.dump();
-              return ret;
+            // See if this model is available for training
+	    if(!ms.lock()) {
+                ret[ms.PROGRESS] = model_data[ms.PROGRESS];
+                ret[ms.STATUS] = "Model is busy(" 
+                    + (string)model_data[ms.STATUS] 
+		    + "), please wait until it finished before editing.";
+                res << ret.dump();
+                return ret;
             }  
 
+	    // beyond this point we have exclusive control of this model
+            ms.set_status("Deserializing model");
+            
 	    // Get the model row from the database
             json query_result = sqlite3DB->select_delphimodel_row(modelId);
 
@@ -628,6 +630,8 @@ int main(int argc, const char* argv[]) {
 	    string modelString = query_result["model"];
             AnalysisGraph G;
             G = G.deserialize_from_json_string(modelString, false);
+
+            ms.set_status("Freezing edges");
 
 	    // freeze edges
 	    for(auto relation : relations) {
@@ -647,6 +651,7 @@ int main(int argc, const char* argv[]) {
 		}
 	    }
 
+
 	    // train model in another thread
 	    size_t kde_kernels = Model::get_kde_kernels();
 	    int burn = Model::get_burn();
@@ -663,6 +668,7 @@ int main(int argc, const char* argv[]) {
                 thread executor_create_model(&Model::train_model,
                                              sqlite3DB,
                                              G,
+					     ms,
                                              modelId,
                                              sampling_resolution,
                                              burn);
@@ -672,20 +678,15 @@ int main(int argc, const char* argv[]) {
             catch (std::exception& e) {
                 cout << "Error: unable to start training process" << endl;
                 json error;
-                error["status"] = "server error: training";
+                error["status"] = "server error: edged-edges training";
                 res << error.dump();
                 return error;
             }
 	   
 	    // report success 
-	    int nEdges = relations.size();
-	    char buf[200];
-	    if(nEdges == 1) {
-	      sprintf(buf, "1 edge");
-	    } else {
-	      sprintf(buf, "%d edges", nEdges);
-	    }
-	    ret[ms.STATUS] = string(buf) + " frozen, model is in training.";
+	    ret[ms.STATUS] = "Edges frozen: "
+              + to_string(relations.size())
+              + ". Model is in training.";
             res << ret.dump();
             return ret;
         });

@@ -1,0 +1,247 @@
+{
+  "id": "dyse-graph-like1",
+  "conceptIndicators": {
+    "wm/process/conflict/attack": {
+      "func": "last",
+      "maxValue": 21583.27870967742,
+      "minValue": -9399.397419354837,
+      "name": "Battle Related Deaths (Number Of People) 0",
+      "numLevels": 31,
+      "period": 12,
+      "resolution": "month",
+      "values": [
+        {
+          "value": 1789,
+          "timestamp": 599616000000
+        },
+        {
+          "value": 3672.2444444444445,
+          "timestamp": 631152000000
+        },
+        {
+          "value": 2871.0222222222224,
+          "timestamp": 662688000000
+        },
+        {
+          "value": 1588.4888888888888,
+          "timestamp": 694224000000
+        },
+        {
+          "value": 1857.5813953488373,
+          "timestamp": 725846400000
+        },
+        {
+          "value": 1861.7073170731708,
+          "timestamp": 757382400000
+        },
+        {
+          "value": 1703.75,
+          "timestamp": 788918400000
+        },
+        {
+          "value": 1709.342105263158,
+          "timestamp": 820454400000
+        },
+        {
+          "value": 1990.1891891891892,
+          "timestamp": 852076800000
+        },
+        {
+          "value": 1922.6486486486488,
+          "timestamp": 883612800000
+        },
+        {
+          "value": 3641.8205128205127,
+          "timestamp": 915148800000
+        },
+        {
+          "value": 4427.135135135135,
+          "timestamp": 946684800000
+        },
+        {
+          "value": 1272.820512820513,
+          "timestamp": 978307200000
+        },
+        {
+          "value": 1330.7096774193549,
+          "timestamp": 1009843200000
+        },
+        {
+          "value": 1389.6896551724137,
+          "timestamp": 1041379200000
+        },
+        {
+          "value": 1118.942857142857,
+          "timestamp": 1072915200000
+        },
+        {
+          "value": 928.1612903225806,
+          "timestamp": 1104537600000
+        },
+        {
+          "value": 1562.0333333333333,
+          "timestamp": 1136073600000
+        },
+        {
+          "value": 1434.9655172413793,
+          "timestamp": 1167609600000
+        },
+        {
+          "value": 2594.4594594594596,
+          "timestamp": 1199145600000
+        },
+        {
+          "value": 6162.25,
+          "timestamp": 1230768000000
+        },
+        {
+          "value": 1882.6923076923076,
+          "timestamp": 1262304000000
+        },
+        {
+          "value": 2118.542857142857,
+          "timestamp": 1293840000000
+        },
+        {
+          "value": 5219.4838709677415,
+          "timestamp": 1325376000000
+        },
+        {
+          "value": 5874.181818181818,
+          "timestamp": 1356998400000
+        },
+        {
+          "value": 9622.027777777777,
+          "timestamp": 1388534400000
+        },
+        {
+          "value": 11212.4,
+          "timestamp": 1420070400000
+        },
+        {
+          "value": 11255.72,
+          "timestamp": 1451606400000
+        },
+        {
+          "value": 8511.282608695652,
+          "timestamp": 1483228800000
+        },
+        {
+          "value": 5425.5625,
+          "timestamp": 1514764800000
+        },
+        {
+          "value": 6099.448979591837,
+          "timestamp": 1546300800000
+        }
+      ]
+    },
+    "wm/process/population/death": {
+      "func": "last",
+      "maxValue": 1,
+      "minValue": 0,
+      "name": "Abstract 1",
+      "numLevels": 31,
+      "period": 1,
+      "resolution": "month",
+      "values": [
+        {
+          "value": 0.5,
+          "timestamp": 1483228800000
+        },
+        {
+          "value": 0.5,
+          "timestamp": 1485907200000
+        },
+        {
+          "value": 0.5,
+          "timestamp": 1488326400000
+        }
+      ]
+    }
+  },
+  "statements": [
+    {
+      "evidence": [
+        {
+          "document_context": {
+            "publisher_name": "AllAfrica, Inc.",
+            "file_type": "application/json",
+            "author": "",
+            "origin": {
+              "byod_tag": "Default",
+              "assembly_request_id": "init",
+              "modified_at": 1627678011022
+            },
+            "document_source": "",
+            "publication_date": {
+              "date": 1608163200000,
+              "month": 12,
+              "year": 2020,
+              "day": 17
+            },
+            "label": [],
+            "title": "PM Roble Orders for Speedy Investigation Into Military Officers' Killing in Galmudug",
+            "analysis": {
+              "sentiment": "",
+              "sentiment_score": 0,
+              "subjectivity_score": 0,
+              "subjectivity": "",
+              "stance": ""
+            },
+            "doc_id": "1e0b27e73c4bf9e2d3d91ca4701f637d"
+          },
+          "evidence_context": {
+            "source_api": "hume",
+            "obj_adjectives": [],
+            "contradiction_words": [],
+            "subj_adjectives": [],
+            "agents_text": [
+              "ambushed",
+              "killed"
+            ],
+            "hedging_words": [],
+            "text": "At least five Somali military officials were killed and three others wounded when gunmen ambushed a military convoy near the town of Guri-El in central Somalia's Galmudug state on 9th December.",
+            "source_hash": -8464615531485596000
+          }
+        }
+      ],
+      "obj": {
+        "geo_context": {
+          "name": "Somalia",
+          "location": {
+            "lon": 48,
+            "lat": 6
+          }
+        },
+        "process": "",
+        "time_context": {},
+        "theme_property": "",
+        "concept": "wm/process/population/death",
+        "concept_score": 0.7,
+        "theme": "wm/process/population/death",
+        "process_property": "",
+        "factor": "killed",
+        "polarity": 1,
+        "adjectives": []
+      },
+      "id": "95288364-43cd-4801-8b87-5415eb975ef3",
+      "matches_hash": 6137603527399362,
+      "modified_at": 1636734208841,
+      "subj": {
+        "geo_context": {},
+        "process": "",
+        "time_context": {},
+        "theme_property": "",
+        "concept": "wm/process/conflict/attack",
+        "concept_score": 0.7,
+        "theme": "wm/process/conflict/attack",
+        "process_property": "",
+        "factor": "ambushed",
+        "polarity": 1,
+        "adjectives": []
+      },
+      "belief": 0.65
+    }
+  ]
+}

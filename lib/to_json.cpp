@@ -43,6 +43,7 @@ string AnalysisGraph::to_json_string(int indent) {
 }
 
 string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
+
     nlohmann::json j;
     j["id"] = this->id;
     j["experiment_id"] = this->experiment_id;
