@@ -122,14 +122,14 @@ void BaseStatus::clean_row(string id) {
     return;
   }
 
-  double row_progress = data[PROGRESS];
+  double row_progress = data.value(PROGRESS,0.0);
   if(row_progress < 1.0) {
     log_info(report + "FAIL (stale progress, deleting row)");
     database->delete_rows(table_name, "id", id);
     return;
   }
 
-  bool busy = data[BUSY];
+  bool busy = data.value(BUSY, true);
   if(busy) {
     log_info(report + "FAIL (stale lock, deleting row)");
     database->delete_rows(table_name, "id", id);
@@ -172,12 +172,12 @@ bool BaseStatus::lock() {
   
   // check the lock 
   json check = get_data();
-  bool ret = check[BUSY];
+  bool locked = check[BUSY];
 
   // exit critical section
   sqlite3_mutex_leave(mx);
   sqlite3_mutex_free(mx);
-  return ret; 
+  return locked; 
 }
 
 void BaseStatus::set_status(string status) {
