@@ -179,7 +179,7 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
       json_data["observations"].get<ObservedStateSequence>();
   this->set_indicator_means_and_standard_deviations();
 
-    if(json_data["trained"].is_null()) {
+    if(!json_data.contains("trained") || json_data["trained"].is_null()) {
         this->trained = false;
     } else {
         this->trained = json_data["trained"];

@@ -659,6 +659,11 @@ int main(int argc, const char* argv[]) {
 
             G.set_n_kde_kernels(kde_kernels);
 
+            sqlite3DB->insert_into_delphimodel(
+                modelId,
+                G.serialize_to_json_string(false)
+            );
+
             try {
                 thread executor_create_model(&Model::train_model,
                                              sqlite3DB,
