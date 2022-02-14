@@ -123,6 +123,7 @@
 <span class="p">}</span><span class="w"></span>
 
 <span class="n">string</span><span class="w"> </span><span class="nf">AnalysisGraph::serialize_to_json_string</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">verbose</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">compact</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+
 <span class="w">    </span><span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="w"> </span><span class="n">j</span><span class="p">;</span><span class="w"></span>
 <span class="w">    </span><span class="n">j</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">id</span><span class="p">;</span><span class="w"></span>
 <span class="w">    </span><span class="n">j</span><span class="p">[</span><span class="s">&quot;experiment_id&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">experiment_id</span><span class="p">;</span><span class="w"></span>

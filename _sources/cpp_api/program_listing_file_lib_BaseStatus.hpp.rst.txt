@@ -13,7 +13,6 @@ Program Listing for File BaseStatus.hpp
    #pragma once
    
    #include <sqlite3.h>
-   #include "AnalysisGraph.hpp"
    #include "DatabaseHelper.hpp"
    #include "utils.hpp"
    #include <thread>
@@ -36,39 +35,45 @@ Program Listing for File BaseStatus.hpp
        void create_table();
        void clean_table();
        void clean_row(string id);
+       void write_progress();
        json read_row(string id);
    
      protected:
        void scheduler();
        void log_error(string msg);
        void log_info(string msg);
-       bool is_busy(string id); 
-       void write_row(string id, json status);
-       json get_status_with_id(string id);
-       virtual void update_db() = 0;
+       virtual string get_id() = 0;
        double progress = 0.0;
+       void write_row(string id, json data);
    
      public:
        BaseStatus(
          Database* database,
          const string table_name,
          const string class_name
-       ) :
-         database(database),
+       ) : database(database),
          table_name(table_name),
-         class_name(class_name){}
+         class_name(class_name) {}
+   
        ~BaseStatus(){}
    
+       json get_data();
        void clean_db();
+       virtual void init_row() = 0;
        void set_progress(double p) { progress = p;}
        void increment_progress(double i) { progress += i;}
-       virtual json get_status() = 0;
-       void start_recording();
-       void stop_recording();
+       bool lock();
+       bool unlock();
+       void set_status(string status);
+       void begin_recording_progress(string status);
+       void finish_recording_progress(string status);
+   
+       // database columns
+       const string COL_ID = "id"; // database column, not exported
+       const string COL_DATA = "data"; // database column, not exported
    
        // serialized JSON fields in the status text
-       const string COL_ID = "id"; // database column, not exported
-       const string COL_STATUS = "status"; // database column, not exported
-       const string PROGRESS = "progressPercentage"; // JSON field, API
-       const string STATUS = "status"; // JSON field, ?
+       const string PROGRESS = "progressPercentage"; // double [0,1]
+       const string STATUS = "status"; // string, a short description of current state
+       const string BUSY = "busy"; // boolean, true if locked
    };
