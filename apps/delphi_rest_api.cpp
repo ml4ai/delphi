@@ -186,10 +186,10 @@ class Model {
             model_id,
             G.serialize_to_json_string(false)
         );
+        ms.finalize("Ready");
 	if(!ms.unlock()) {
 	  cout << "Model " << model_id << " unlock failed" << endl;
 	}
-        ms.finalize("Ready!");
     }
 
     static size_t get_kde_kernels() {
