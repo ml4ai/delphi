@@ -20,6 +20,13 @@
 using namespace std;
 using json = nlohmann::json;
 
+
+BaseStatus::~BaseStatus() {
+  if(mutex != nullptr) {
+    sqlite3_mutex_free(mutex);
+  }
+}
+
 /* Start the thread that writes the data to the table */
 void BaseStatus::scheduler() {
   while(recording){
@@ -76,43 +83,22 @@ void BaseStatus::clean_db(){
   }
 }
 
-// Lock the database 
-sqlite3_mutex* BaseStatus::enter_critical_section() {
-  sqlite3_mutex* mx = sqlite3_mutex_alloc(SQLITE_MUTEX_RECURSIVE);
-  if(mx == nullptr) {
-    log_error("Could not create mutex, database error"); // error
-    return mx;
-  }
-  // enter critical section (blocking method)
-  sqlite3_mutex_enter(mx);
-  return mx;
-}
-
-// Unlock the database
-void BaseStatus::exit_critical_section(sqlite3_mutex* mx) {
-  sqlite3_mutex_leave(mx);
-  sqlite3_mutex_free(mx);
-  mx = nullptr;
-}
 
 // Attempt to lock this status by setting the 'busy' flag to true.
 bool BaseStatus::lock() {
-  sqlite3_mutex* mx = enter_critical_section();
-  if(mx == nullptr) {
-    return false; // We did not get a mutex.  This should never happen
-  }
 
   // Enter critical section and get (or create) the row for this status
+  lock_mutex();
   if(get_data().empty()) {
-    init_row();
+    initialize();
   }
   json data = get_data();
 
   // exit critical section if the status is busy
   bool busy = data[BUSY];
   if(busy) {
-    exit_critical_section(mx);
-    return false;  // This status is busy
+    unlock_mutex();
+    return false; 
   }
   
   // set the lock
@@ -123,26 +109,8 @@ bool BaseStatus::lock() {
   bool locked = check[BUSY];
 
   // exit critical section with the lock state
-  exit_critical_section(mx);
+  unlock_mutex();
   return locked; 
-}
-
-// Attempt to unlock this status by setting the 'busy' flag to false.
-bool BaseStatus::unlock() {
-  sqlite3_mutex* mx = enter_critical_section();
-  if(mx == nullptr) {
-    return false; // error
-  }
-
-  // free the lock
-  json data = get_data();
-  data[BUSY] = false;
-  write_row(get_id(), data);
-  json check = get_data();
-  bool locked = check[BUSY];
-
-  exit_critical_section(mx);
-  return !locked; 
 }
 
 void BaseStatus::set_status(string status) {

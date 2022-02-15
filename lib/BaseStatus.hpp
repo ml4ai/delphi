@@ -21,8 +21,9 @@ class BaseStatus {
     string class_name = "N/A";
     string table_name = "N/A";
     void write_progress();
-    sqlite3_mutex* enter_critical_section();
-    void exit_critical_section(sqlite3_mutex* mx);
+    sqlite3_mutex* mutex = sqlite3_mutex_alloc(SQLITE_MUTEX_RECURSIVE);
+    void lock_mutex(){sqlite3_mutex_enter(mutex);}
+    void unlock_mutex(){sqlite3_mutex_leave(mutex);}
 
   protected:
     void scheduler();
@@ -45,15 +46,14 @@ class BaseStatus {
       table_name(table_name),
       class_name(class_name) {}
 
-    ~BaseStatus(){}
+    ~BaseStatus();
 
     void clean_db();
     json get_data();
-    virtual void init_row() = 0;
+    virtual void initialize() = 0;
     void set_progress(double p) { progress = p;}
     void increment_progress(double i) { progress += i;}
     bool lock();
-    bool unlock();
     void set_status(string status);
     void begin_recording_progress(string status);
     void finish_recording_progress(string status);

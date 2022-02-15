@@ -21,6 +21,7 @@ using namespace std;
 using namespace delphi::utils;
 using json = nlohmann::json;
 
+// set our data to the end state
 void ModelStatus::finalize(string status) {
   progress = 1.0;
   json data;
@@ -32,7 +33,7 @@ void ModelStatus::finalize(string status) {
 }
 
 // set our data to the start state
-void ModelStatus::init_row() {
+void ModelStatus::initialize() {
   progress = 0.0;
   json data;
   data[MODEL_ID] = model_id;

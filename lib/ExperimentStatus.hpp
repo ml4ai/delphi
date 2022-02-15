@@ -41,7 +41,7 @@ class ExperimentStatus : public BaseStatus {
     ~ExperimentStatus(){}
 
     string get_id(){ return experiment_id;}
-    void init_row();
+    void initialize();
     void finalize(string status);
 
     const string CONSTRAINTS = "constraints"; // API

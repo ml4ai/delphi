@@ -15,7 +15,7 @@ using json = nlohmann::json;
 
 
 // set our data to the start state
-void ExperimentStatus::init_row() {
+void ExperimentStatus::initialize() {
   progress = 0.0;
   json data;
   data[MODEL_ID] = model_id;
@@ -26,6 +26,7 @@ void ExperimentStatus::init_row() {
   write_row(experiment_id, data);
 }
 
+// set our data to the end state
 void ExperimentStatus::finalize(string status) {
   log_info("finalize " + experiment_id);
 }

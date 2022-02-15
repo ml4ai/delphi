@@ -20,7 +20,7 @@ class ModelStatus : public BaseStatus {
     void prune_row(string id);
 
   protected:
-    void init_row();
+    void initialize();
     void clean_table();
 
   public:
