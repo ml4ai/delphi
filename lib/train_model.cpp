@@ -74,7 +74,7 @@ void AnalysisGraph::run_train_model(int res,
                                 unordered_map<string, double> concept_max_vals,
                                 unordered_map<string, function<double(unsigned int, double)>> ext_concepts) {
 
-    double training_step = 1.0 / (res + burn);
+    double training_step = 0.99 / (res + burn);
 
     ModelStatus ms(this->id);
 
