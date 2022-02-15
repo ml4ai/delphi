@@ -17,9 +17,11 @@ class ModelStatus : public BaseStatus {
 
   private:
     string model_id = "N/A";
+    void prune_row(string id);
 
   protected:
     void init_row();
+    void clean_table();
 
   public:
     ModelStatus(string id) : BaseStatus(
@@ -37,6 +39,7 @@ class ModelStatus : public BaseStatus {
     ~ModelStatus(){}
 
     string get_id(){return model_id;}
+    void finalize(string status);
 
     // serialized JSON fields in the status text
     const string MODEL_ID = "id"; // API

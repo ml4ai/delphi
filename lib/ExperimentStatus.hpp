@@ -16,6 +16,7 @@ class ExperimentStatus : public BaseStatus {
     string model_id = "N/A";
 
   protected:
+    void prune_row(string id);
 
   public:
     ExperimentStatus(
@@ -41,6 +42,7 @@ class ExperimentStatus : public BaseStatus {
 
     string get_id(){ return experiment_id;}
     void init_row();
+    void finalize(string status);
 
     const string CONSTRAINTS = "constraints"; // API
     const string END_TIME = "endTime"; // API
