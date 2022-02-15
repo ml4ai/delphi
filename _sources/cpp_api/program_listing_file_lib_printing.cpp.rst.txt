@@ -144,3 +144,32 @@ Program Listing for File printing.cpp
        std::cout << "End year   : " << this->training_range.second.first << std::endl;
        std::cout << "End month  : " << this->training_range.second.second << std::endl;
    }
+   
+   void AnalysisGraph::print_MAP_estimate() {
+       if (this->MAP_sample_number < 0) {
+           cout << "\n\nModel " << this->id << " is not trained.\n";
+           cout << "\tCould not print the MAP estimate.\n\n";
+           return;
+       }
+   
+       cout << "\n\nMAP estimate sample number: " << this->MAP_sample_number << endl;
+       cout << "\n\nMAP log-likelihood: " << this->log_likelihood_MAP << endl;
+   
+       cout << "\nInitial derivatives:\n";
+       for (int v = 0; v < this->num_vertices(); v++) {
+           Node &n = (*this)[v];
+           cout << this->initial_latent_state_collection
+                             [this->MAP_sample_number](2 * v + 1);
+           cout << " : " << n.name << endl;
+       }
+   
+       cout << "\nEdge weights:\n";
+       for (EdgeDescriptor e : this->edges()) {
+           cout <<this->graph[e].sampled_thetas[this->MAP_sample_number];
+           cout << " : (" << (*this)[boost::source(e, this->graph)].name << ", "
+                << (*this)[boost::target(e, this->graph)].name << ")" << " - "
+                << (this->graph[e].is_frozen()
+                        ? "Frozen at " + to_string(this->graph[e].get_theta())
+                        : "Free") << endl;
+       }
+   }

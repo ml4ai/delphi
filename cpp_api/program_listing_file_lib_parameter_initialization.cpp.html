@@ -138,6 +138,15 @@
 <span class="p">}</span><span class="w"></span>
 
 <span class="kt">void</span><span class="w"> </span><span class="nf">AnalysisGraph::init_betas_to</span><span class="p">(</span><span class="n">InitialBeta</span><span class="w"> </span><span class="n">ib</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">MAP_sample_number</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// Warm start using the MAP estimate of the previous training run</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">EdgeDescriptor</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">edges</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">set_theta</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">sampled_thetas</span><span class="p">[</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">MAP_sample_number</span><span class="p">]);</span><span class="w"></span>
+<span class="w">      </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">compute_logpdf_theta</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+
 <span class="w">  </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">ib</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">  </span><span class="c1">// Initialize the initial β for this edge</span>
 <span class="w">  </span><span class="c1">// Note: I am repeating the loop within each case for efficiency.</span>
@@ -556,6 +565,10 @@
 <span class="w">                                         </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">norm_dist</span><span class="p">);</span><span class="w"></span>
 
 <span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">edges</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">edge</span><span class="p">(</span><span class="n">e</span><span class="p">).</span><span class="n">kde</span><span class="p">.</span><span class="n">log_prior_hist</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">continue</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+
 <span class="w">    </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">all_thetas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span><span class="w"></span>
 
 <span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">Statement</span><span class="w"> </span><span class="n">stmt</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="n">e</span><span class="p">].</span><span class="n">evidence</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>

@@ -219,6 +219,8 @@ Program Listing for File sandbox.cpp
                this->initial_latent_state_collection[samp] = this->s0;
                this->transition_matrix_collection[samp] = this->A_original;
            }
+           this->MAP_sample_number = json_data["MAP_sample_number"];
+           this->log_likelihood_MAP = json_data["log_likelihood_MAP"];
        }
    }
    /*
