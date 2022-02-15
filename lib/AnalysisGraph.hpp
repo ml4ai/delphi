@@ -231,7 +231,7 @@ class AnalysisGraph {
   size_t res;
 
   // Number of KDE kernels
-  size_t n_kde_kernels = 1000;
+  size_t n_kde_kernels = 200;
 
   /*
    ============================================================================
@@ -1646,6 +1646,8 @@ class AnalysisGraph {
   void print_cells_affected_by_beta(int source, int target);
 
   void print_training_range();
+
+  void print_MAP_estimate();
 
   /*
    ============================================================================

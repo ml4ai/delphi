@@ -502,7 +502,14 @@ void AnalysisGraph::set_default_initial_state(InitialDerivative id) {
     this->s0(i) = 1.0;
   }
 
-  if (id == InitialDerivative::DERI_PRIOR) {
+  if (this->MAP_sample_number > -1) {
+    // Warm start using the MAP estimate of the previous training run
+    for (int i = 1; i < num_els; i += 2) {
+      this->s0(i) = this->initial_latent_state_collection
+                                                   [this->MAP_sample_number](i);
+    }
+  }
+  else if (id == InitialDerivative::DERI_PRIOR) {
     double derivative_prior_std = sqrt(this->derivative_prior_variance);
     for (int i = 1; i < num_els; i += 2) {
       this->s0(i) = derivative_prior_std *
