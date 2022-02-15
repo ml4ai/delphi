@@ -53,9 +53,9 @@ Functions
 
 - :ref:`exhale_function_namespacedelphi_1_1gv_1a5c92bdb14d6dae0b343866fb1de11ab3`
 
-- :ref:`exhale_function_namespacedelphi_1_1gv_1ad46d9752afa0f4b4b46a7ad97d4f7787`
-
 - :ref:`exhale_function_namespacedelphi_1_1gv_1afb796639cb31d11c61d0093a0c3b742e`
+
+- :ref:`exhale_function_namespacedelphi_1_1gv_1ad46d9752afa0f4b4b46a7ad97d4f7787`
 
 - :ref:`exhale_function_namespacedelphi_1_1gv_1ad168113ebae2b23a41c3a3baa5317b7f`
 
