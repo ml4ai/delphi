@@ -28,7 +28,14 @@ void ExperimentStatus::initialize() {
 
 // set our data to the end state
 void ExperimentStatus::finalize(string status) {
-  log_info("finalize " + experiment_id);
+  progress = 1.0;
+  json data;
+  data[MODEL_ID] = model_id;
+  data[EXPERIMENT_ID] = experiment_id;
+  data[PROGRESS] = progress;
+  data[STATUS] = "Complete";
+  data[BUSY] = false;
+  write_row(experiment_id, data);
 }
 
 
