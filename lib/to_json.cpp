@@ -239,6 +239,8 @@ string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
         j["continuous"] = this->continuous;
         j["data_heuristic"] = this->data_heuristic;
         j["causemos_call"] = this->causemos_call;
+        j["MAP_sample_number"] = this->MAP_sample_number;
+        j["log_likelihood_MAP"] = this->log_likelihood_MAP;
 
         int num_verts = this->num_vertices();
         int num_els_per_mat = num_verts * num_verts;

@@ -61,6 +61,15 @@ void AnalysisGraph::initialize_parameters(int res,
 }
 
 void AnalysisGraph::init_betas_to(InitialBeta ib) {
+  if (this->MAP_sample_number > -1) {
+    // Warm start using the MAP estimate of the previous training run
+    for (EdgeDescriptor e : this->edges()) {
+      this->graph[e].set_theta(this->graph[e].sampled_thetas[this->MAP_sample_number]);
+      this->graph[e].compute_logpdf_theta();
+    }
+    return;
+  }
+
   switch (ib) {
   // Initialize the initial β for this edge
   // Note: I am repeating the loop within each case for efficiency.
@@ -479,6 +488,10 @@ void AnalysisGraph::construct_theta_pdfs() {
                                          this->norm_dist);
 
   for (auto e : this->edges()) {
+    if (!this->edge(e).kde.log_prior_hist.empty()) {
+      continue;
+    }
+
     vector<double> all_thetas = {};
 
     for (Statement stmt : this->graph[e].evidence) {
