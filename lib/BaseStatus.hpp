@@ -21,9 +21,6 @@ class BaseStatus {
     string class_name = "N/A";
     string table_name = "N/A";
     void write_progress();
-    sqlite3_mutex* mutex = sqlite3_mutex_alloc(SQLITE_MUTEX_RECURSIVE);
-    void lock_mutex(){sqlite3_mutex_enter(mutex);}
-    void unlock_mutex(){sqlite3_mutex_leave(mutex);}
 
   protected:
     void scheduler();
@@ -42,10 +39,7 @@ class BaseStatus {
       Database* database,
       const string table_name,
       const string class_name
-    ) : database(database),
-      table_name(table_name),
-      class_name(class_name) {}
-
+    );
     ~BaseStatus();
 
     void clean_db();

@@ -367,7 +367,7 @@ int main(int argc, const char* argv[]) {
 	    string modelId = req_json["id"];
 	    ModelStatus ms(modelId, sqlite3DB);
 
-            // do not overwrite model if it is training
+            // do not overwrite model if it is busy
             if (!ms.lock()) {
 		json model_data = ms.get_data();
                 json ret;

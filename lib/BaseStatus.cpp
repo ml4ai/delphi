@@ -20,11 +20,17 @@
 using namespace std;
 using json = nlohmann::json;
 
+BaseStatus::BaseStatus(
+  Database* database,
+  const string table_name,
+  const string class_name
+) : database(database),
+    table_name(table_name),
+    class_name(class_name) {
+}
+
 
 BaseStatus::~BaseStatus() {
-  if(mutex != nullptr) {
-    sqlite3_mutex_free(mutex);
-  }
 }
 
 /* Start the thread that writes the data to the table */
@@ -88,7 +94,6 @@ void BaseStatus::clean_db(){
 bool BaseStatus::lock() {
 
   // Enter critical section and get (or create) the row for this status
-  lock_mutex();
   if(get_data().empty()) {
     initialize();
   }
@@ -97,7 +102,6 @@ bool BaseStatus::lock() {
   // exit critical section if the status is busy
   bool busy = data[BUSY];
   if(busy) {
-    unlock_mutex();
     return false; 
   }
   
@@ -109,7 +113,6 @@ bool BaseStatus::lock() {
   bool locked = check[BUSY];
 
   // exit critical section with the lock state
-  unlock_mutex();
   return locked; 
 }
 
