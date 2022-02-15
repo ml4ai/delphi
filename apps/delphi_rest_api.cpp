@@ -442,27 +442,31 @@ int main(int argc, const char* argv[]) {
     */
     mux.handle("/models/{modelId}/experiments/{experimentId}")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
-
             string modelId = req.params["modelId"];
             string experimentId = req.params["experimentId"];
 
-	    ExperimentStatus es(modelId, experimentId, sqlite3DB);
+            ExperimentStatus es(experimentId, modelId, sqlite3DB);
 
             json query_result =
                 sqlite3DB->select_causemosasyncexperimentresult_row(
                     experimentId
-		);
+                );
 
-	    json ret;
+            json ret;
             ret[es.MODEL_ID] = modelId;
             ret[es.EXPERIMENT_ID] = experimentId;
+
+            string resultstr = query_result[es.RESULTS];
+            json results = json::parse(resultstr);
             ret[es.EXPERIMENT_TYPE] = query_result[es.EXPERIMENT_TYPE];
             ret[es.STATUS] = query_result[es.STATUS];
             ret[es.PROGRESS] = query_result[es.PROGRESS];
-            ret[es.RESULTS] = query_result["data"];
+            ret[es.RESULTS] = results["data"];
 
-	    res << ret.dump();
+            res << ret.dump();
             return ret;
+
+
         });
 
     /* openApi 3.0.0
