@@ -452,21 +452,23 @@ int main(int argc, const char* argv[]) {
                     experimentId
                 );
 
+	    json es_data = es.get_data();
+	    double progress = es_data.value(es.PROGRESS, 0.0);
+
+            string resultstr = query_result[es.RESULTS];
+            json results = json::parse(resultstr);
+
             json ret;
             ret[es.MODEL_ID] = modelId;
             ret[es.EXPERIMENT_ID] = experimentId;
 
-            string resultstr = query_result[es.RESULTS];
-            json results = json::parse(resultstr);
             ret[es.EXPERIMENT_TYPE] = query_result[es.EXPERIMENT_TYPE];
             ret[es.STATUS] = query_result[es.STATUS];
-            ret[es.PROGRESS] = query_result[es.PROGRESS];
+            ret[es.PROGRESS] = progress;
             ret[es.RESULTS] = results["data"];
 
             res << ret.dump();
             return ret;
-
-
         });
 
     /* openApi 3.0.0
