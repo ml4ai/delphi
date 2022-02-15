@@ -32,11 +32,6 @@ Program Listing for File BaseStatus.cpp
    using namespace std;
    using json = nlohmann::json;
    
-   void BaseStatus::clean_db() {
-     create_table();
-     clean_table();
-   }
-   
    /* Start the thread that writes the data to the table */
    void BaseStatus::scheduler() {
      while(recording){
@@ -69,16 +64,13 @@ Program Listing for File BaseStatus.cpp
        delete pThread;
      }
      pThread = nullptr;
-   
-     json data = get_data();
-   
-     data[STATUS] = status;
-     data[PROGRESS] = 1.0;
-     write_row(get_id(), data);
+     set_status(status);
    }
    
+   /* purge table of partial records */
+   void BaseStatus::clean_db(){
+   
    /* create the table if we need it.  */
-   void BaseStatus::create_table() {
      string query = "CREATE TABLE IF NOT EXISTS "
        + table_name
        + " ("
@@ -88,67 +80,12 @@ Program Listing for File BaseStatus.cpp
        + " VARCHAR NOT NULL);";
    
      database->insert(query);
-   }
    
-   /* delete any entries with incomplete training status */
-   void BaseStatus::clean_table() {
-     log_info("Cleaning table '" + table_name + "' of incomplete records");
-     string query = "SELECT " 
-       + COL_ID
-       + " from "
-       + table_name
-       + ";";
-   
-     vector<string> ids = database->read_column_text(query);
+     // prune rows per table
+     vector<string> ids = get_ids();
      for(string id : ids) {
-       clean_row(id);
+       prune_row(id);
      }
-   
-     log_info("Done.");
-   }
-   
-   // called only at startup, any rows in the table with incomplete training
-   // are declared lost and get deleted.
-   void BaseStatus::clean_row(string id) {
-   
-     string report = "Inspecting " + table_name + " record '" + id + "': ";
-   
-     json row = read_row(id);
-     if(row.empty()) {
-       log_info(report + "FAIL (missing record, deleting row)");
-       database->delete_rows(table_name, "id", id);
-       return;
-     }
-   
-     string dataString = row[COL_DATA];
-     if(dataString.empty()) {
-       log_info(report + "FAIL (missing raw data, deleting row)");
-       database->delete_rows(table_name, "id", id);
-       return;
-     }
-   
-     json data = json::parse(dataString);
-     if(data.empty()) {
-       log_info(report + "FAIL (missing data, deleting row)");
-       database->delete_rows(table_name, "id", id);
-       return;
-     }
-   
-     double row_progress = data.value(PROGRESS,0.0);
-     if(row_progress < 1.0) {
-       log_info(report + "FAIL (stale progress, deleting row)");
-       database->delete_rows(table_name, "id", id);
-       return;
-     }
-   
-     bool busy = data.value(BUSY, true);
-     if(busy) {
-       log_info(report + "FAIL (stale lock, deleting row)");
-       database->delete_rows(table_name, "id", id);
-       return;
-     }
-   
-     log_info(report + "PASS");
    }
    
    // Lock the database 
@@ -274,6 +211,7 @@ Program Listing for File BaseStatus.cpp
      return row;
    }
    
+   // write this data to the table at the primary key
    void BaseStatus::write_row(string id, json data) {
      string query = "INSERT OR REPLACE INTO "
        + table_name
@@ -281,6 +219,27 @@ Program Listing for File BaseStatus.cpp
        + id
        + "', '"
        + data.dump()
+       +  "');";
+      database->insert(query);
+   }
+   
+   // return all the primary keys in the table.
+   vector<string> BaseStatus::get_ids() {
+     string query = "SELECT "
+       + COL_ID
+       + " from "
+       + table_name
+       +  ";";
+   
+     return database->read_column_text(query);
+   }
+   
+   // delete the row with this primary key from the table
+   void BaseStatus::delete_row(string id) {
+     string query = "DELETE FROM "
+       + table_name
+       + " WHERE (id = '"
+       + id
        +  "');";
       database->insert(query);
    }

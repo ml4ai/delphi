@@ -37,3 +37,14 @@ Program Listing for File ExperimentStatus.cpp
      data[BUSY] = false;
      write_row(experiment_id, data);
    }
+   
+   void ExperimentStatus::finalize(string status) {
+     log_info("finalize " + experiment_id);
+   }
+   
+   
+   // experiment status rows are not archived
+   void ExperimentStatus::prune_row(string id) {
+     log_info("Pruning (deleting) row " + id);
+     delete_row(id);
+   }

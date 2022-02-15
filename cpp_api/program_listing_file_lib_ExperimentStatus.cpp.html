@@ -105,6 +105,17 @@
 <span class="w">  </span><span class="n">data</span><span class="p">[</span><span class="n">BUSY</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="n">write_row</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">);</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">ExperimentStatus::finalize</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">status</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">log_info</span><span class="p">(</span><span class="s">&quot;finalize &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">experiment_id</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+
+<span class="c1">// experiment status rows are not archived</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">ExperimentStatus::prune_row</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">log_info</span><span class="p">(</span><span class="s">&quot;Pruning (deleting) row &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">id</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">delete_row</span><span class="p">(</span><span class="n">id</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 </section>

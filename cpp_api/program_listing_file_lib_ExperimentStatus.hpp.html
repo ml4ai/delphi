@@ -96,6 +96,7 @@
 <span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">model_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;N/A&quot;</span><span class="p">;</span><span class="w"></span>
 
 <span class="w">  </span><span class="k">protected</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">prune_row</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">id</span><span class="p">);</span><span class="w"></span>
 
 <span class="w">  </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
 <span class="w">    </span><span class="n">ExperimentStatus</span><span class="p">(</span><span class="w"></span>
@@ -121,6 +122,7 @@
 
 <span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">get_id</span><span class="p">(){</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">experiment_id</span><span class="p">;}</span><span class="w"></span>
 <span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">init_row</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">finalize</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">status</span><span class="p">);</span><span class="w"></span>
 
 <span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="n">CONSTRAINTS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;constraints&quot;</span><span class="p">;</span><span class="w"> </span><span class="c1">// API</span>
 <span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="n">END_TIME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;endTime&quot;</span><span class="p">;</span><span class="w"> </span><span class="c1">// API</span>
