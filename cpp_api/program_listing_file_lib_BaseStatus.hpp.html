@@ -105,6 +105,8 @@
 <span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">clean_row</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">id</span><span class="p">);</span><span class="w"></span>
 <span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">write_progress</span><span class="p">();</span><span class="w"></span>
 <span class="w">    </span><span class="n">json</span><span class="w"> </span><span class="nf">read_row</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">id</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">sqlite3_mutex</span><span class="o">*</span><span class="w"> </span><span class="nf">enter_critical_section</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">exit_critical_section</span><span class="p">(</span><span class="n">sqlite3_mutex</span><span class="o">*</span><span class="w"> </span><span class="n">mx</span><span class="p">);</span><span class="w"></span>
 
 <span class="w">  </span><span class="k">protected</span><span class="o">:</span><span class="w"></span>
 <span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">scheduler</span><span class="p">();</span><span class="w"></span>

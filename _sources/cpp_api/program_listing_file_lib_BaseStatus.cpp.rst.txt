@@ -151,70 +151,72 @@ Program Listing for File BaseStatus.cpp
      log_info(report + "PASS");
    }
    
-   // Attempt to lock this status by setting the 'busy' flag to true.
-   bool BaseStatus::lock() {
+   // Lock the database 
+   sqlite3_mutex* BaseStatus::enter_critical_section() {
      sqlite3_mutex* mx = sqlite3_mutex_alloc(SQLITE_MUTEX_RECURSIVE);
      if(mx == nullptr) {
-       log_error("Could not create mutex, database error");
-       return false; // error
+       log_error("Could not create mutex, database error"); // error
+       return mx;
      }
-   
      // enter critical section (blocking method)
      sqlite3_mutex_enter(mx);
+     return mx;
+   }
    
-     // if this status does not exist on the datbase, start one.
+   // Unlock the database
+   void BaseStatus::exit_critical_section(sqlite3_mutex* mx) {
+     sqlite3_mutex_leave(mx);
+     sqlite3_mutex_free(mx);
+     mx = nullptr;
+   }
+   
+   // Attempt to lock this status by setting the 'busy' flag to true.
+   bool BaseStatus::lock() {
+     sqlite3_mutex* mx = enter_critical_section();
+     if(mx == nullptr) {
+       return false; // We did not get a mutex.  This should never happen
+     }
+   
+     // Enter critical section and get (or create) the row for this status
      if(get_data().empty()) {
        init_row();
      }
-   
      json data = get_data();
    
      // exit critical section if the status is busy
      bool busy = data[BUSY];
      if(busy) {
-       sqlite3_mutex_leave(mx);
-       sqlite3_mutex_free(mx);
-       return false;  // already locked
+       exit_critical_section(mx);
+       return false;  // This status is busy
      }
      
      // set the lock
      data[BUSY] = true;
      data[PROGRESS] = 0.0;
      write_row(get_id(), data);
-     
-     // check the lock 
      json check = get_data();
      bool locked = check[BUSY];
    
-     // exit critical section
-     sqlite3_mutex_leave(mx);
-     sqlite3_mutex_free(mx);
+     // exit critical section with the lock state
+     exit_critical_section(mx);
      return locked; 
    }
    
-   
-   // Attempt to lock this status by setting the 'busy' flag to true.
+   // Attempt to unlock this status by setting the 'busy' flag to false.
    bool BaseStatus::unlock() {
-     sqlite3_mutex* mx = sqlite3_mutex_alloc(SQLITE_MUTEX_RECURSIVE);
+     sqlite3_mutex* mx = enter_critical_section();
      if(mx == nullptr) {
-       log_error("Could not create mutex, database error");
        return false; // error
      }
    
-     // enter critical section (blocking method)
-     sqlite3_mutex_enter(mx);
-   
+     // free the lock
      json data = get_data();
      data[BUSY] = false;
      write_row(get_id(), data);
-   
-     // check the lock 
      json check = get_data();
      bool locked = check[BUSY];
    
-     // exit critical section
-     sqlite3_mutex_leave(mx);
-     sqlite3_mutex_free(mx);
+     exit_critical_section(mx);
      return !locked; 
    }
    

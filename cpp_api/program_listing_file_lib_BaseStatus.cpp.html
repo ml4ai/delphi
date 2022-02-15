@@ -219,70 +219,72 @@
 <span class="w">  </span><span class="n">log_info</span><span class="p">(</span><span class="n">report</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;PASS&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
-<span class="c1">// Attempt to lock this status by setting the &#39;busy&#39; flag to true.</span>
-<span class="kt">bool</span><span class="w"> </span><span class="nf">BaseStatus::lock</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="c1">// Lock the database</span>
+<span class="n">sqlite3_mutex</span><span class="o">*</span><span class="w"> </span><span class="nf">BaseStatus::enter_critical_section</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">  </span><span class="n">sqlite3_mutex</span><span class="o">*</span><span class="w"> </span><span class="n">mx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sqlite3_mutex_alloc</span><span class="p">(</span><span class="n">SQLITE_MUTEX_RECURSIVE</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">mx</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">log_error</span><span class="p">(</span><span class="s">&quot;Could not create mutex, database error&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"> </span><span class="c1">// error</span>
+<span class="w">    </span><span class="n">log_error</span><span class="p">(</span><span class="s">&quot;Could not create mutex, database error&quot;</span><span class="p">);</span><span class="w"> </span><span class="c1">// error</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">mx</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="p">}</span><span class="w"></span>
-
 <span class="w">  </span><span class="c1">// enter critical section (blocking method)</span>
 <span class="w">  </span><span class="n">sqlite3_mutex_enter</span><span class="p">(</span><span class="n">mx</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">mx</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 
-<span class="w">  </span><span class="c1">// if this status does not exist on the datbase, start one.</span>
+<span class="c1">// Unlock the database</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">BaseStatus::exit_critical_section</span><span class="p">(</span><span class="n">sqlite3_mutex</span><span class="o">*</span><span class="w"> </span><span class="n">mx</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">sqlite3_mutex_leave</span><span class="p">(</span><span class="n">mx</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">sqlite3_mutex_free</span><span class="p">(</span><span class="n">mx</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">mx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="c1">// Attempt to lock this status by setting the &#39;busy&#39; flag to true.</span>
+<span class="kt">bool</span><span class="w"> </span><span class="nf">BaseStatus::lock</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">sqlite3_mutex</span><span class="o">*</span><span class="w"> </span><span class="n">mx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">enter_critical_section</span><span class="p">();</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">mx</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"> </span><span class="c1">// We did not get a mutex.  This should never happen</span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">  </span><span class="c1">// Enter critical section and get (or create) the row for this status</span>
 <span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">get_data</span><span class="p">().</span><span class="n">empty</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="n">init_row</span><span class="p">();</span><span class="w"></span>
 <span class="w">  </span><span class="p">}</span><span class="w"></span>
-
 <span class="w">  </span><span class="n">json</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_data</span><span class="p">();</span><span class="w"></span>
 
 <span class="w">  </span><span class="c1">// exit critical section if the status is busy</span>
 <span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="n">busy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="n">BUSY</span><span class="p">];</span><span class="w"></span>
 <span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">busy</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">sqlite3_mutex_leave</span><span class="p">(</span><span class="n">mx</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">sqlite3_mutex_free</span><span class="p">(</span><span class="n">mx</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w">  </span><span class="c1">// already locked</span>
+<span class="w">    </span><span class="n">exit_critical_section</span><span class="p">(</span><span class="n">mx</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w">  </span><span class="c1">// This status is busy</span>
 <span class="w">  </span><span class="p">}</span><span class="w"></span>
 
 <span class="w">  </span><span class="c1">// set the lock</span>
 <span class="w">  </span><span class="n">data</span><span class="p">[</span><span class="n">BUSY</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="n">data</span><span class="p">[</span><span class="n">PROGRESS</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="n">write_row</span><span class="p">(</span><span class="n">get_id</span><span class="p">(),</span><span class="w"> </span><span class="n">data</span><span class="p">);</span><span class="w"></span>
-
-<span class="w">  </span><span class="c1">// check the lock</span>
 <span class="w">  </span><span class="n">json</span><span class="w"> </span><span class="n">check</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_data</span><span class="p">();</span><span class="w"></span>
 <span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="n">locked</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">check</span><span class="p">[</span><span class="n">BUSY</span><span class="p">];</span><span class="w"></span>
 
-<span class="w">  </span><span class="c1">// exit critical section</span>
-<span class="w">  </span><span class="n">sqlite3_mutex_leave</span><span class="p">(</span><span class="n">mx</span><span class="p">);</span><span class="w"></span>
-<span class="w">  </span><span class="n">sqlite3_mutex_free</span><span class="p">(</span><span class="n">mx</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// exit critical section with the lock state</span>
+<span class="w">  </span><span class="n">exit_critical_section</span><span class="p">(</span><span class="n">mx</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">locked</span><span class="p">;</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
-
-<span class="c1">// Attempt to lock this status by setting the &#39;busy&#39; flag to true.</span>
+<span class="c1">// Attempt to unlock this status by setting the &#39;busy&#39; flag to false.</span>
 <span class="kt">bool</span><span class="w"> </span><span class="nf">BaseStatus::unlock</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="n">sqlite3_mutex</span><span class="o">*</span><span class="w"> </span><span class="n">mx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sqlite3_mutex_alloc</span><span class="p">(</span><span class="n">SQLITE_MUTEX_RECURSIVE</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">sqlite3_mutex</span><span class="o">*</span><span class="w"> </span><span class="n">mx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">enter_critical_section</span><span class="p">();</span><span class="w"></span>
 <span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">mx</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">log_error</span><span class="p">(</span><span class="s">&quot;Could not create mutex, database error&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"> </span><span class="c1">// error</span>
 <span class="w">  </span><span class="p">}</span><span class="w"></span>
 
-<span class="w">  </span><span class="c1">// enter critical section (blocking method)</span>
-<span class="w">  </span><span class="n">sqlite3_mutex_enter</span><span class="p">(</span><span class="n">mx</span><span class="p">);</span><span class="w"></span>
-
+<span class="w">  </span><span class="c1">// free the lock</span>
 <span class="w">  </span><span class="n">json</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_data</span><span class="p">();</span><span class="w"></span>
 <span class="w">  </span><span class="n">data</span><span class="p">[</span><span class="n">BUSY</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="n">write_row</span><span class="p">(</span><span class="n">get_id</span><span class="p">(),</span><span class="w"> </span><span class="n">data</span><span class="p">);</span><span class="w"></span>
-
-<span class="w">  </span><span class="c1">// check the lock</span>
 <span class="w">  </span><span class="n">json</span><span class="w"> </span><span class="n">check</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_data</span><span class="p">();</span><span class="w"></span>
 <span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="n">locked</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">check</span><span class="p">[</span><span class="n">BUSY</span><span class="p">];</span><span class="w"></span>
 
-<span class="w">  </span><span class="c1">// exit critical section</span>
-<span class="w">  </span><span class="n">sqlite3_mutex_leave</span><span class="p">(</span><span class="n">mx</span><span class="p">);</span><span class="w"></span>
-<span class="w">  </span><span class="n">sqlite3_mutex_free</span><span class="p">(</span><span class="n">mx</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">exit_critical_section</span><span class="p">(</span><span class="n">mx</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="o">!</span><span class="n">locked</span><span class="p">;</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
