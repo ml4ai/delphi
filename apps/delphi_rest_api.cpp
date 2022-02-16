@@ -565,7 +565,7 @@ int main(int argc, const char* argv[]) {
 
         ret[ms.PROGRESS] = model_data[ms.PROGRESS];
         ret[ms.STATUS] = model_data[ms.STATUS];
-        ret[ms.BUSY] = model_data[ms.BUSY];
+//        ret[ms.BUSY] = model_data[ms.BUSY];
         res << ret.dump();
     });
 
