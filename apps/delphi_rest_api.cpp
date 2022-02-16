@@ -446,7 +446,6 @@ int main(int argc, const char* argv[]) {
 
             string modelId = req.params["modelId"];
             string experimentId = req.params["experimentId"];
-	    
 
             ExperimentStatus es(experimentId, modelId, sqlite3DB);
 
@@ -454,7 +453,6 @@ int main(int argc, const char* argv[]) {
                 sqlite3DB->select_causemosasyncexperimentresult_row(
                     experimentId
                 );
-
 
             json ret;
             ret[es.MODEL_ID] = modelId;
@@ -660,6 +658,7 @@ int main(int argc, const char* argv[]) {
 		string errorReport = 
                     Model::freeze_edge(G, source, target, weight, polarity);
 		if(!errorReport.empty()) {
+		    ms.set_data(model_data);  // restore model state
                     ret[ms.STATUS] = errorReport;
                     res << ret.dump();
                     return ret;

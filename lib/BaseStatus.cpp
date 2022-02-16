@@ -129,7 +129,6 @@ void BaseStatus::write_progress() {
   write_row(get_id(), data);
 }
 
-
 // report the current time
 string BaseStatus::timestamp() {
     char timebuf[200];

@@ -49,6 +49,7 @@ class BaseStatus {
     void increment_progress(double i) { progress += i;}
     bool lock();
     void set_status(string status);
+    void set_data(json data){write_row(get_id(), data);}
     void begin_recording_progress(string status);
     void finish_recording_progress(string status);
     virtual void finalize(string status) = 0;
