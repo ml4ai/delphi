@@ -123,7 +123,7 @@ class Experiment {
             result["experimentType"],
             result["results"].dump());
 
-	es.finalize(result["status"]);
+        es.finalize(result["status"]);
     }
 
     static void runExperiment(Database* sqlite3DB,
@@ -443,8 +443,10 @@ int main(int argc, const char* argv[]) {
     */
     mux.handle("/models/{modelId}/experiments/{experimentId}")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
+
             string modelId = req.params["modelId"];
             string experimentId = req.params["experimentId"];
+	    
 
             ExperimentStatus es(experimentId, modelId, sqlite3DB);
 
@@ -453,20 +455,24 @@ int main(int argc, const char* argv[]) {
                     experimentId
                 );
 
-	    json es_data = es.get_data();
-	    double progress = es_data.value(es.PROGRESS, 0.0);
-
-            string resultstr = query_result[es.RESULTS];
-            json results = json::parse(resultstr);
 
             json ret;
             ret[es.MODEL_ID] = modelId;
             ret[es.EXPERIMENT_ID] = experimentId;
 
-            ret[es.EXPERIMENT_TYPE] = query_result[es.EXPERIMENT_TYPE];
-            ret[es.STATUS] = query_result[es.STATUS];
-            ret[es.PROGRESS] = progress;
-            ret[es.RESULTS] = results["data"];
+	    if (query_result.empty()) { // bad modelId or experimentId
+                ret[es.STATUS] = "invalid experiment id";
+                ret[es.RESULTS] = "Not found";
+            } else {
+                string resultstr = query_result[es.RESULTS];
+                json results = json::parse(resultstr);
+	        json es_data = es.get_data();
+	        double progress = es_data.value(es.PROGRESS, 0.0);
+                ret[es.EXPERIMENT_TYPE] = query_result[es.EXPERIMENT_TYPE];
+                ret[es.STATUS] = query_result[es.STATUS];
+                ret[es.PROGRESS] = query_result[es.PROGRESS];
+                ret[es.RESULTS] = results["data"];
+            }
 
             res << ret.dump();
             return ret;
