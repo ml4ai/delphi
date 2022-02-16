@@ -79,6 +79,8 @@ class Experiment {
                 modelId, G.serialize_to_json_string(false));
         }
 
+        ExperimentStatus es(experiment_id, modelId, sqlite3DB);
+
         json result =
             sqlite3DB->select_causemosasyncexperimentresult_row(experiment_id);
 
@@ -120,6 +122,8 @@ class Experiment {
             result["status"],
             result["experimentType"],
             result["results"].dump());
+
+	es.finalize(result["status"]);
     }
 
     static void runExperiment(Database* sqlite3DB,
