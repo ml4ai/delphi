@@ -41,8 +41,8 @@ void AnalysisGraph::initialize_parameters(int res,
     this->derivative_prior_variance = 0.1;
     this->set_default_initial_state(initial_derivative);
     //this->generate_head_node_latent_sequences(-1, this->n_timesteps);
-    this->generate_head_node_latent_sequences(-1, accumulate(this->observation_timestep_gaps.begin() + 1,
-                                                             this->observation_timestep_gaps.end(), 0) + 1);
+    this->generate_head_node_latent_sequences(-1, accumulate(this->modeling_timestep_gaps.begin() + 1,
+                                                             this->modeling_timestep_gaps.end(), 0) + 1);
     this->set_log_likelihood();
     this->log_likelihood_MAP = -(DBL_MAX - 1);
 
@@ -61,6 +61,15 @@ void AnalysisGraph::initialize_parameters(int res,
 }
 
 void AnalysisGraph::init_betas_to(InitialBeta ib) {
+  if (this->MAP_sample_number > -1) {
+    // Warm start using the MAP estimate of the previous training run
+    for (EdgeDescriptor e : this->edges()) {
+      this->graph[e].set_theta(this->graph[e].sampled_thetas[this->MAP_sample_number]);
+      this->graph[e].compute_logpdf_theta();
+    }
+    return;
+  }
+
   switch (ib) {
   // Initialize the initial β for this edge
   // Note: I am repeating the loop within each case for efficiency.
@@ -144,6 +153,11 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
           std_sequence.clear();
           ts_sequence.clear();
           for (int ts = 0; ts < this->n_timesteps; ts++) {
+              if (this->observed_state_sequence[ts][v].empty()) {
+                  // This concept has no indicator specified in the create-model
+                  // call
+                  continue;
+              }
               vector<double> &obs_at_ts = this->observed_state_sequence[ts][v][i];
 
               if (!obs_at_ts.empty()) {
@@ -157,7 +171,7 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
           }
 
           if (mean_sequence.empty()) {
-              return;
+              continue;
           }
 
           // Set the indicator standard deviation
@@ -241,9 +255,24 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
           // Set mean and standard deviation of the concept based on the mean
           // and the standard deviation of the first indicator attached to it.
           if (i == 0) {
+              if (n.has_min) {
+                  if (n.indicators[0].mean > 0) {
+                      n.min_val = n.min_val_obs / n.indicators[0].mean;
+                  } else if (n.indicators[0].mean < 0) {
+                      n.max_val = n.min_val_obs / n.indicators[0].mean;
+                  }
+              }
+              if (n.has_max) {
+                  if (n.indicators[0].mean > 0) {
+                      n.max_val = n.max_val_obs / n.indicators[0].mean;
+                  } else if (n.indicators[0].mean < 0) {
+                      n.min_val = n.max_val_obs / n.indicators[0].mean;
+                  }
+              }
+
               transform(mean_sequence.begin(), mean_sequence.end(),
                         mean_sequence.begin(),
-                      [&](double v){return v / n.indicators[0].mean;});
+                      [&](double obs_mean){return obs_mean / n.indicators[0].mean;});
 
               for (int ts = 0; ts < ts_sequence.size(); ts++) {
                   // TODO: I feel that this partitioning is worng. Should be corrected as:
@@ -251,91 +280,116 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
                   // zero based contiguous sequence and then take the modules
                   // int((ts_sequence[ts] - ts_sequence[0]) * n.period / 12) % n.period
                   //int partition = ts_sequence[ts] % n.period;
-                  int partition = int((ts_sequence[ts] - ts_sequence[0]) * n.period / 12) % n.period;
+                  //int partition = int((ts_sequence[ts] - ts_sequence[0]) * n.period / 12) % n.period;
+                  int partition = this->observation_timesteps_sorted[ts] % n.period;
                   n.partitioned_data[partition].first.push_back(ts_sequence[ts]);
                   n.partitioned_data[partition].second.push_back(mean_sequence[ts]);
               }
 
               double center;
-              vector<int> filled_months;
+              vector<int> filled_observation_timesteps_within_a_period;
               n.centers = vector<double>(n.period + 1);
               n.spreads = vector<double>(n.period);
+              n.generated_latent_centers_for_a_period = std::vector<double>(n.period, 0);
+              n.generated_latent_spreads_for_a_period = std::vector<double>(n.period, 0);
               for (const auto & [ partition, data ] : n.partitioned_data) {
                   if (n.center_measure.compare("mean") == 0) {
-                      center = delphi::utils::mean(n.partitioned_data[partition].second);
+                      center = delphi::utils::mean(data.second);
                   } else {
-                      center = delphi::utils::median(n.partitioned_data[partition].second);
+                      center = delphi::utils::median(data.second);
                   }
                   n.centers[partition] = center;
 
                   double spread = 0;
-                  if (n.partitioned_data[partition].second.size() > 1) {
+                  if (data.second.size() > 1) {
                       if (n.center_measure.compare("mean") == 0) {
                           spread = delphi::utils::standard_deviation(center,
-                                                                     n.partitioned_data[partition].second);
+                                                                     data.second);
                       } else {
                           spread = delphi::utils::median_absolute_deviation(center,
-                                                                            n.partitioned_data[partition].second);
+                                                                            data.second);
                       }
                   }
                   n.spreads[partition] = spread;
 
-                  if (!n.partitioned_data[partition].first.empty()) {
-                      int month = n.partitioned_data[partition].first[0] % 12;
-                      n.generated_monthly_latent_centers_for_a_year[month] = center;
-                      n.generated_monthly_latent_spreads_for_a_year[month] = spread;
-                      filled_months.push_back(month);
+                  if (!data.first.empty()) {
+                      //int observation_timestep_within_a_period =
+                      //    this->observation_timesteps_sorted[data.first[0]] %
+                      //    n.period;
+                      n.generated_latent_centers_for_a_period[partition]
+                          = center;
+                      n.generated_latent_spreads_for_a_period[partition]
+                          = spread;
+                      filled_observation_timesteps_within_a_period.push_back(
+                          partition);
                   }
               }
 
-              sort(filled_months.begin(), filled_months.end());
+              sort(filled_observation_timesteps_within_a_period.begin(),
+                   filled_observation_timesteps_within_a_period.end());
 
               // Interpolate values for the missing months
-              if (filled_months.size() > 1) {
-                  for (int i = 0; i < filled_months.size(); i++) {
-                      int month_start = filled_months[i];
-                      int month_end = filled_months[(i + 1) % filled_months.size()];
+              if (filled_observation_timesteps_within_a_period.size() > 1) {
+                  for (int i = 0; i < filled_observation_timesteps_within_a_period.size(); i++) {
+                      int observation_timestep_within_a_period_start =
+                          filled_observation_timesteps_within_a_period[i];
+                      int observation_timestep_within_a_period_end =
+                          filled_observation_timesteps_within_a_period
+                              [(i + 1) %
+                               filled_observation_timesteps_within_a_period
+                                   .size()];
 
-                      int num_missing_months = 0;
-                      if (month_end > month_start) {
-                          num_missing_months = month_end - month_start - 1;
+                      int num_missing_observation_timesteps = 0;
+                      if (observation_timestep_within_a_period_end >
+                          observation_timestep_within_a_period_start) {
+                          num_missing_observation_timesteps =
+                              observation_timestep_within_a_period_end -
+                              observation_timestep_within_a_period_start - 1;
                       }
                       else {
-                          num_missing_months = (11 - month_start) + month_end;
+                          num_missing_observation_timesteps = (n.period - 1 -
+                               observation_timestep_within_a_period_start) +
+                              observation_timestep_within_a_period_end;
                       }
 
-                      for (int month_missing = 1;
-                           month_missing <= num_missing_months;
-                           month_missing++) {
-                          n.generated_monthly_latent_centers_for_a_year
-                              [(month_start + month_missing) % 12] =
-                              ((num_missing_months - month_missing + 1) *
-                                   n.generated_monthly_latent_centers_for_a_year
-                                       [month_start] +
-                               (month_missing)*n
-                                   .generated_monthly_latent_centers_for_a_year
-                                       [month_end]) /
-                              (num_missing_months + 1);
+                      for (int missing_observation_timestep = 1;
+                           missing_observation_timestep <= num_missing_observation_timesteps;
+                           missing_observation_timestep++) {
+                          n.generated_latent_centers_for_a_period
+                              [(observation_timestep_within_a_period_start +
+                                missing_observation_timestep) % n.period] =
+                              ((num_missing_observation_timesteps -
+                                missing_observation_timestep + 1) *
+                                   n.generated_latent_centers_for_a_period
+                                       [observation_timestep_within_a_period_start] +
+                               (missing_observation_timestep) *
+                                   n.generated_latent_centers_for_a_period
+                                       [observation_timestep_within_a_period_end]) /
+                              (num_missing_observation_timesteps + 1);
 
-                          n.generated_monthly_latent_spreads_for_a_year
-                          [(month_start + month_missing) % 12] =
-                              ((num_missing_months - month_missing + 1) *
-                               n.generated_monthly_latent_spreads_for_a_year
-                               [month_start] +
-                               (month_missing)*n
-                                   .generated_monthly_latent_spreads_for_a_year
-                               [month_end]) /
-                              (num_missing_months + 1);
+                          n.generated_latent_spreads_for_a_period
+                              [(observation_timestep_within_a_period_start +
+                                missing_observation_timestep) % n.period] =
+                              ((num_missing_observation_timesteps -
+                                missing_observation_timestep + 1) *
+                               n.generated_latent_spreads_for_a_period
+                                       [observation_timestep_within_a_period_start] +
+                               (missing_observation_timestep) *
+                               n.generated_latent_spreads_for_a_period
+                                       [observation_timestep_within_a_period_end]) /
+                              (num_missing_observation_timesteps + 1);
                       }
                   }
-              } else if (filled_months.size() == 1) {
-                  for (int month = 0; month < n.generated_monthly_latent_centers_for_a_year.size(); month++) {
-                      n.generated_monthly_latent_centers_for_a_year[month] =
-                          n.generated_monthly_latent_centers_for_a_year
-                          [filled_months[0]];
-                      n.generated_monthly_latent_spreads_for_a_year[month] =
-                          n.generated_monthly_latent_spreads_for_a_year
-                          [filled_months[0]];
+              } else if (filled_observation_timesteps_within_a_period.size() == 1) {
+                  for (int observation_timestep = 0;
+                       observation_timestep < n.generated_latent_centers_for_a_period.size();
+                       observation_timestep++) {
+                      n.generated_latent_centers_for_a_period[observation_timestep] =
+                          n.generated_latent_centers_for_a_period
+                              [filled_observation_timesteps_within_a_period[0]];
+                      n.generated_latent_spreads_for_a_period[observation_timestep] =
+                          n.generated_latent_spreads_for_a_period
+                              [filled_observation_timesteps_within_a_period[0]];
                  }
               }
 
@@ -434,6 +488,10 @@ void AnalysisGraph::construct_theta_pdfs() {
                                          this->norm_dist);
 
   for (auto e : this->edges()) {
+    if (!this->edge(e).kde.log_prior_hist.empty()) {
+      continue;
+    }
+
     vector<double> all_thetas = {};
 
     for (Statement stmt : this->graph[e].evidence) {
@@ -452,7 +510,7 @@ void AnalysisGraph::construct_theta_pdfs() {
           get(adjective_response_map, obj_adjective, marginalized_responses));
 
       for (auto [x, y] : ranges::views::cartesian_product(subj_responses, obj_responses)) {
-        all_thetas.push_back(atan2(sigma_Y * y, sigma_X * x));
+          all_thetas.push_back(atan((sigma_Y * y) / (sigma_X * x)));
       }
     }
 

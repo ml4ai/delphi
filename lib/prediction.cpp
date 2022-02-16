@@ -1,4 +1,5 @@
 #include "AnalysisGraph.hpp"
+#include "ExperimentStatus.hpp"
 #include <range/v3/all.hpp>
 #include <unsupported/Eigen/MatrixFunctions>
 #include <boost/range/adaptors.hpp>
@@ -17,6 +18,31 @@ using fmt::print;
  ============================================================================
 */
 
+/**
+   * Check whether each latent state value is within the minimum and maximum
+   * range of values for the first indicator attached to each latent node, if
+   * such bounds are provided for that indicator.
+   *
+   * Latent state bounds are computed by dividing the observation bound by the
+   * scaling factor of the first indicator attached to that node.
+ */
+void AnalysisGraph::check_bounds() {
+    int num_verts = this->num_vertices();
+
+    for (int v = 0; v < num_verts; v++) {
+        Node &n = (*this)[v];
+
+        if (n.has_min && this->current_latent_state[2 * v] < n.min_val) {
+            this->current_latent_state[2 * v] = n.min_val;
+        }
+
+        if (n.has_max && this->current_latent_state[2 * v] > n.max_val) {
+            this->current_latent_state[2 * v] = n.max_val;
+        }
+    }
+}
+
+
 void AnalysisGraph::generate_latent_state_sequences(
     double initial_prediction_step) {
 
@@ -26,7 +52,16 @@ void AnalysisGraph::generate_latent_state_sequences(
       this->res,
       vector<VectorXd>(this->pred_timesteps, VectorXd(this->num_vertices() * 2)));
 
+  // configure monitoring of experiment progress
+  ExperimentStatus es(
+      this->experiment_id,
+      this->id
+  );
+  double progress_step = 0.01;  // 100 sample steps
+  es.begin_recording_progress("In progress");
+
   cout << "\nPredicting for " << this->pred_timesteps << " time steps..." << endl;
+
   for (int samp : tq::trange(this->res)) {
       // The sampled transition matrices would be either of matrix exponential
       // (continuous) version or discretized version depending on whether the
@@ -87,8 +122,6 @@ void AnalysisGraph::generate_latent_state_sequences(
             this->current_latent_state[2 * v + 1] =
                 deriv_func(initial_prediction_step, ind.mean);
           }
-
-          this->predicted_latent_state_sequences[samp][0] = this->current_latent_state;
           /////////////////
       } else {
           // Here A = Ad = this->transition_matrix_collection[samp] (discrete)
@@ -120,9 +153,10 @@ void AnalysisGraph::generate_latent_state_sequences(
             this->current_latent_state[2 * v + 1] =
                                   deriv_func(initial_prediction_step, ind.mean);
           }
-
-          this->predicted_latent_state_sequences[samp][0] = this->current_latent_state;
       }
+
+      this->check_bounds();
+      this->predicted_latent_state_sequences[samp][0] = this->current_latent_state;
 
       // Clear out perpetual constraints residual from previous sample
       this->perpetual_constraints.clear();
@@ -164,6 +198,7 @@ void AnalysisGraph::generate_latent_state_sequences(
           this->current_latent_state = A * this->predicted_latent_state_sequences[samp][ts - 1];
           this->update_latent_state_with_generated_derivatives(
               initial_prediction_step + ts, initial_prediction_step + ts + 1);
+          this->check_bounds();
           this->predicted_latent_state_sequences[samp][ts] = this->current_latent_state;
 
           // Set derivatives for frozen nodes
@@ -238,7 +273,12 @@ void AnalysisGraph::generate_latent_state_sequences(
               }
           }
       }
+      // update experiment progress
+      es.increment_progress(progress_step);
   }
+
+   // finalize experiment progress monitoring
+   es.finish_recording_progress("Complete");
 }
 
 /*

@@ -165,11 +165,11 @@ AnalysisGraph::from_causal_fragments_with_data(pair<vector<CausalFragment>,
     }
   }
 
-  G.modeling_period = 1;
+  G.num_modeling_timesteps_per_one_observation_timestep = 1;
   G.train_start_epoch = 0;
-  G.observation_timestep_gaps.clear();
-  G.observation_timestep_gaps = vector<double>(G.n_timesteps, 1.0);
-  G.observation_timestep_gaps[0] = 0;
+  G.modeling_timestep_gaps.clear();
+  G.modeling_timestep_gaps = vector<double>(G.n_timesteps, 1.0);
+  G.modeling_timestep_gaps[0] = 0;
 
   return G;
 }
@@ -178,6 +178,7 @@ AnalysisGraph AnalysisGraph::from_json_string(string json_string) {
   auto data = nlohmann::json::parse(json_string);
   AnalysisGraph G;
   G.id = data["id"];
+  G.experiment_id = data["experiment_id"];
   for (auto e : data["edges"]) {
     string source = e["source"].get<string>();
     string target = e["target"].get<string>();
@@ -233,7 +234,6 @@ AnalysisGraph::AnalysisGraph(const AnalysisGraph& rhs) {
   this->generated_latent_sequence = rhs.generated_latent_sequence;
   this->generated_concept = rhs.generated_concept;
 
-  this->training_progress = rhs.training_progress;
   this->trained = rhs.trained;
   this->stopped = rhs.stopped;
 
@@ -244,11 +244,13 @@ AnalysisGraph::AnalysisGraph(const AnalysisGraph& rhs) {
   this->train_start_epoch = rhs.train_start_epoch;
   this->train_end_epoch = rhs.train_end_epoch;
   this->pred_start_timestep = rhs.pred_start_timestep;
-  this->observation_timestep_gaps = rhs.observation_timestep_gaps;
+  this->observation_timesteps_sorted = rhs.observation_timesteps_sorted;
+  this->modeling_timestep_gaps = rhs.modeling_timestep_gaps;
   this->observation_timestep_unique_gaps = rhs.observation_timestep_unique_gaps;
+  this->model_data_agg_level = rhs.model_data_agg_level;
 
   this->e_A_ts = rhs.e_A_ts;
-  this->modeling_period = rhs.modeling_period;
+  this->num_modeling_timesteps_per_one_observation_timestep = rhs.num_modeling_timesteps_per_one_observation_timestep;
 
   this->external_concepts = rhs.external_concepts;
   this->concept_sample_pool = rhs.concept_sample_pool;
@@ -304,6 +306,7 @@ AnalysisGraph::AnalysisGraph(const AnalysisGraph& rhs) {
 
   // Copying public members
   this->id = rhs.id;
+  this->experiment_id = rhs.experiment_id;
   this->data_heuristic = rhs.data_heuristic;
 
   for_each(rhs.node_indices(), [&](int v) {
@@ -379,7 +382,6 @@ AnalysisGraph& AnalysisGraph::operator=(AnalysisGraph rhs) {
     swap(generated_latent_sequence, rhs.generated_latent_sequence);
     swap(generated_concept, rhs.generated_concept);
 
-    swap(training_progress, rhs.training_progress);
     swap(trained, rhs.trained);
     swap(stopped, rhs.stopped);
 
@@ -390,11 +392,13 @@ AnalysisGraph& AnalysisGraph::operator=(AnalysisGraph rhs) {
     swap(train_start_epoch, rhs.train_start_epoch);
     swap(train_end_epoch, rhs.train_end_epoch);
     swap(pred_start_timestep, rhs.pred_start_timestep);
-    swap(observation_timestep_gaps, rhs.observation_timestep_gaps);
+    swap(observation_timesteps_sorted, rhs.observation_timesteps_sorted);
+    swap(modeling_timestep_gaps, rhs.modeling_timestep_gaps);
     swap(observation_timestep_unique_gaps, rhs.observation_timestep_unique_gaps);
+    swap(model_data_agg_level, rhs.model_data_agg_level);
 
     swap(e_A_ts, rhs.e_A_ts);
-    swap(modeling_period, rhs.modeling_period);
+    swap(num_modeling_timesteps_per_one_observation_timestep, rhs.num_modeling_timesteps_per_one_observation_timestep);
 
     swap(external_concepts, rhs.external_concepts);
     swap(concept_sample_pool, rhs.concept_sample_pool);
@@ -442,6 +446,8 @@ AnalysisGraph& AnalysisGraph::operator=(AnalysisGraph rhs) {
     swap(initial_latent_state_collection, rhs.initial_latent_state_collection);
     swap(synthetic_latent_state_sequence, rhs.synthetic_latent_state_sequence);
     swap(synthetic_data_experiment, rhs.synthetic_data_experiment);
+
+    swap(experiment_id, rhs.experiment_id);
 
     // Copying public members
     swap(id, rhs.id);

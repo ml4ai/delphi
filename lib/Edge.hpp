@@ -87,13 +87,13 @@ class Edge {
 
   void set_theta(double theta) {
       if (!this->frozen) {
-          if (0 <= theta && theta <= M_PI) {
+          if (-M_PI_2 < theta && theta < M_PI_2) {
               this->theta = theta;
           }
-          else if (-M_PI <= theta && theta < 0) {
-              this->theta = M_PI + theta;
+          else if (-3 * M_PI_2 < theta && theta < -M_PI_2) {
+              this->theta = theta + M_PI;
           }
-          else if (M_PI < theta && theta <= 2 * M_PI) {
+          else if (M_PI_2 < theta && theta < 3 * M_PI_2) {
               this->theta = theta - M_PI;
           }
           else {

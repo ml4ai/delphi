@@ -1,5 +1,6 @@
 #pragma once
 
+#include "definitions.h"
 #include <Eigen/Dense>
 #include <unsupported/Eigen/MatrixFunctions>
 
@@ -230,7 +231,7 @@ class AnalysisGraph {
   size_t res;
 
   // Number of KDE kernels
-  size_t n_kde_kernels = 1000;
+  size_t n_kde_kernels = 200;
 
   /*
    ============================================================================
@@ -281,9 +282,6 @@ class AnalysisGraph {
    ============================================================================
   */
 
-  // keep track of training progress
-  float training_progress = 0.0;  // Range is [0.0, 1.0]
-
   // Used to check whether there is a trained model before calling
   // generate_prediction()
   bool trained = false;
@@ -298,8 +296,15 @@ class AnalysisGraph {
   long train_start_epoch = -1;
   long train_end_epoch = -1;
   double pred_start_timestep = -1;
-  std::vector<double> observation_timestep_gaps;
+  // Number of zero based observation timesteps to each observation point.
+  // When data aggregation level is MONTHLY, this is the number of months
+  // When data aggregation level is YEARLY, this is the number of years
+  std::vector<long> observation_timesteps_sorted;
+  std::vector<double> modeling_timestep_gaps;
   std::vector<double> observation_timestep_unique_gaps;
+  // Currently Delphi could work either with monthly data or yearly data
+  // but not with some monthly and some yearly
+  DataAggregationLevel model_data_agg_level = DataAggregationLevel::MONTHLY;
 
   #ifdef MULTI_THREADING
     // A future cannot be copied. So we need to specify a copy assign
@@ -307,7 +312,7 @@ class AnalysisGraph {
     std::vector<std::future<Eigen::MatrixXd>> matrix_exponential_futures;
   #endif
   std::unordered_map<double, Eigen::MatrixXd> e_A_ts;
-  long modeling_period = 1; // Number of epochs per one modeling timestep
+  long num_modeling_timesteps_per_one_observation_timestep = 1;
 
   std::unordered_map<int, std::function<double(unsigned int, double)>> external_concepts;
   std::vector<unsigned int> concept_sample_pool;
@@ -564,7 +569,7 @@ class AnalysisGraph {
    * the caller. The caller should declare these variables and pass them here so
    * that after the execution of this method, the caller can access the results.
    *
-   * @param concept_indicator_epochs : Chronologically ordered observation epoch
+   * @param concept_indicator_observation_timesteps : Chronologically ordered observation epoch
    *                                  sequences for each indicator extracted
    *                                  from the JSON data in the create model
    *                                  request. This data structure is populated
@@ -581,9 +586,8 @@ class AnalysisGraph {
    * @returns epochs_sorted         : A sorted list of epochs where observations
    *                                  are present for at least one indicator
    */
-  std::vector<long>
-  infer_modeling_period(
-                        const ConceptIndicatorEpochs &concept_indicator_epochs,
+  void infer_modeling_period(
+                        const ConceptIndicatorEpochs & concept_indicator_observation_timesteps,
                         long &shortest_gap,
                         long &longest_gap,
                         long &frequent_gap,
@@ -616,7 +620,7 @@ class AnalysisGraph {
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
   // Epoch --> (year, month, date)
-  std::tuple<int, int, int> timestamp_to_year_month_date(long timestamp);
+  std::tuple<int, int, int> epoch_to_year_month_date(long epoch);
 
   void extract_projection_constraints(
                                 const nlohmann::json &projection_constraints, long skip_steps);
@@ -995,6 +999,17 @@ class AnalysisGraph {
   */
 
   /**
+   * Check whether each latent state value is within the minimum and maximum
+   * range of values for the first indicator attached to each latent node, if
+   * such bounds are provided for that indicator.
+   *
+   * Latent state bounds are computed by dividing the observation bound by the
+   * scaling factor of the first indicator attached to that node.
+   */
+  void check_bounds();
+
+
+  /**
    * Generate a collection of latent state sequences from the likelihood
    * model given a collection of sampled
    * (initial latent state,  transition matrix) pairs.
@@ -1078,6 +1093,8 @@ class AnalysisGraph {
   ~AnalysisGraph() {}
 
   std::string id;
+  std::string experiment_id = "experiment_id_not_set";
+
   std::string to_json_string(int indent = 0);
   bool data_heuristic = false;
 
@@ -1162,12 +1179,11 @@ class AnalysisGraph {
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                             training-progress
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-  float get_training_progress();
-  bool get_trained();
-  bool get_stopped();
-  double get_log_likelihood();
-  double get_previous_log_likelihood();
-  double get_log_likelihood_MAP();
+  bool get_trained(){ return trained; }
+  bool get_stopped() { return stopped; }
+  double get_log_likelihood(){ return log_likelihood; }
+  double get_previous_log_likelihood(){ return previous_log_likelihood; }
+  double get_log_likelihood_MAP(){ return log_likelihood_MAP; }
 
             /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                             create-model
@@ -1206,6 +1222,30 @@ class AnalysisGraph {
 
   FormattedProjectionResult
   run_causemos_projection_experiment_from_json_file(std::string filename);
+
+
+    /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                      edit-weights
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+  /**
+   *
+   * @param source Source concept name
+   * @param target Target concept name
+   * @param scaled_weight A value in the range [0, 1]. Delphi edge weights are
+   *               angles in the range [-π/2, π/2]. Values in the range ]0, π/2[
+   *               represents positive polarities and values in the range
+   *               ]-π/2, 0[ represents negative polarities.
+   * @param polarity Polarity of the edge. Should be either 1 or -1.
+   * @return 0 freezing the edge is successful
+   *         1 scaled_weight outside accepted range
+   *         2 Source concept does not exist
+   *         4 Target concept does not exist
+   *         8 Edge does not exist
+   */
+  unsigned short freeze_edge_weight(std::string source, std::string target,
+                          double scaled_weight, int polarity);
+
 
   /*
    ============================================================================
@@ -1615,6 +1655,8 @@ class AnalysisGraph {
   void print_cells_affected_by_beta(int source, int target);
 
   void print_training_range();
+
+  void print_MAP_estimate();
 
   /*
    ============================================================================

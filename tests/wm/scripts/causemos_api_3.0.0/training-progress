@@ -11,6 +11,8 @@
 
 modelId=$1
 
+verbose=0
+
 if [[ $modelId == "" ]]; then
 
     echo "please specify a modelId"
@@ -22,17 +24,21 @@ else
     endpoint="/models/$modelId/training-progress"
     url=$(./get_delphi_url)
 
+    call_time=$(date +%T.%3N)
     call="curl -s $login $url$endpoint"
 
-    echo "Call:"
-    echo $call
-
-    call_time=$(date +%T.%3N)
     response=$($call)
     response_time=$(date +%T.%3N)
 
+fi
+
+if [[ $verbose == 1 ]]; then
+    echo "Call:"
+    echo $call
     echo "Response:"
     echo $response | jq
     echo "Server queried: $call_time"
     echo "Server replied: $response_time"
+else
+    echo $response | jq
 fi

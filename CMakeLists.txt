@@ -61,6 +61,7 @@ endif()
 find_package(SQLite3 REQUIRED)
 
 add_library(Delphi
+  lib/definitions.h
   lib/parameter_initialization.cpp
   lib/to_json.cpp
   lib/data.cpp
@@ -89,7 +90,9 @@ add_library(Delphi
   lib/database.cpp
   lib/DatabaseHelper.cpp
   lib/head_nodes.cpp
-  lib/TrainingStatus.cpp
+  lib/BaseStatus.cpp
+  lib/ModelStatus.cpp
+  lib/ExperimentStatus.cpp
   lib/profiler.cpp
   lib/CSVWriter.hpp
   lib/fourier.cpp)

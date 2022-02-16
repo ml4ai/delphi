@@ -34,7 +34,9 @@ typedef tuple<
     vector<double>,
     vector<double>,
     vector<double>,
-    int>
+    int,
+    double,
+    bool>
     Edge_tuple;
 
 /*
@@ -46,6 +48,7 @@ typedef tuple<
 void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
                                           bool verbose) {
   this->id = json_data["id"];
+  this->experiment_id = json_data["experiment_id"];
 
   // int conceptIndicators_arrSize = 0;
   // if (sizeof(json_data["conceptIndicators"])){ int conceptIndicators_arrSize
@@ -55,11 +58,15 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
 
     // for (vector<tuple<string, string>, tuple<string, int>> concept_arr :
     // json_data["concepts"])
-    for (auto& concept_arr : json_data["concepts"]) {
-      // print("{0} \n", concept_arr.value()[0]);
-      // this->add_node(get<1>(concept_arr[0]).get<int>());
-      int v = this->add_node(concept_arr["concept"].get<string>());
-      (*this)[v].period = concept_arr["period"].get<int>();
+    for (auto& concept_obj : json_data["concepts"]) {
+      // print("{0} \n", concept_obj.value()[0]);
+      // this->add_node(get<1>(concept_obj[0]).get<int>());
+      int v = this->add_node(concept_obj["concept"].get<string>());
+      (*this)[v].period = concept_obj["period"].get<int>();
+      (*this)[v].has_min = concept_obj["has_min"].get<bool>();
+      (*this)[v].min_val_obs = concept_obj["min_val_obs"].get<double>();
+      (*this)[v].has_max = concept_obj["has_max"].get<bool>();
+      (*this)[v].max_val_obs = concept_obj["max_val_obs"].get<double>();
     }
     for (int v = 0; v < this->num_vertices(); v++) {
       Node& n = (*this)[v];
@@ -70,20 +77,18 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
                             indicator_arr["source"].get<string>());
         n.indicators[indicator_index].aggregation_method =
             indicator_arr["func"].get<string>();
-        n.indicators[indicator_index].unit = indicator_arr["unit"].get<int>();
+        n.indicators[indicator_index].unit = indicator_arr["unit"].get<string>();
       }
     }
     for (auto& edge_element : json_data["edges"]) {
       bool edge_added = false;
-      for (Evidence evidence : edge_element[0]["evidence"]) {
-        for (Evidence_Pair evidence_pair : evidence) {
-          tuple<string, int, string> subject = evidence_pair.first;
-          tuple<string, int, string> object = evidence_pair.second;
+      for (auto& evidence : edge_element["evidence"]) {
+          tuple<string, int, string> subject = evidence[0];
+          tuple<string, int, string> object = evidence[1];
           CausalFragment causal_fragment = CausalFragment(
               {get<0>(subject), get<1>(subject), get<2>(subject)},
               {get<0>(object), get<1>(object), get<2>(object)});
           edge_added = this->add_edge(causal_fragment) || edge_added;
-        }
       }
       if (edge_added) {
         string source_id = edge_element["source"].get<string>();
@@ -95,7 +100,11 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
             edge_element["thetas"].get<vector<double>>();
         edg.kde.log_prior_hist =
             edge_element["log_prior_hist"].get<vector<double>>();
-        edg.kde.set_num_bins(edge_element["n_bins"]);
+        edg.kde.set_num_bins(edge_element["n_bins"].get<int>());
+        edg.set_theta(edge_element["theta"].get<double>());
+        if (edge_element["is_frozen"].get<bool>()) {
+            edg.freeze();
+        }
       }
     }
 
@@ -111,6 +120,10 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
     for (int i = 0; i < json_data["concepts"].size(); i++) {
       int v = this->add_node(json_data["concepts"][i]);
       (*this)[v].period = json_data["periods"][i].get<int>();
+      (*this)[v].has_min = json_data["has_min"][i].get<bool>();
+      (*this)[v].min_val_obs = json_data["min_val_obs"][i].get<double>();
+      (*this)[v].has_max = json_data["has_max"][i].get<bool>();
+      (*this)[v].max_val_obs = json_data["max_val_obs"][i].get<double>();
     }
 
     for (int v = 0; v < this->num_vertices(); v++) {
@@ -144,23 +157,29 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
           edg.kde.dataset = get<4>(edge_element);
           edg.kde.log_prior_hist = get<5>(edge_element);
           edg.kde.set_num_bins(get<6>(edge_element));
+          edg.set_theta(get<7>(edge_element));
+          if (get<8>(edge_element)) {
+              edg.freeze();
+          }
       }
     }
 
     this->training_range = json_data["training_range"];
   }
 
-  this->modeling_period = json_data["modeling_period"].get<long>();
+  this->num_modeling_timesteps_per_one_observation_timestep = json_data["num_modeling_timesteps_per_one_observation_timestep"].get<long>();
   this->train_start_epoch = json_data["train_start_epoch"].get<long>();
   this->train_end_epoch = json_data["train_end_epoch"].get<long>();
   this->n_timesteps = json_data["train_timesteps"].get<int>();
-  this->observation_timestep_gaps = json_data["observation_timestep_gaps"].get<vector<double>>();
+  this->modeling_timestep_gaps = json_data["modeling_timestep_gaps"].get<vector<double>>();
+  this->observation_timesteps_sorted = json_data["observation_timesteps_sorted"].get<vector<long>>();
+  this->model_data_agg_level = json_data["model_data_agg_level"].get<DataAggregationLevel>();
 
   this->observed_state_sequence =
       json_data["observations"].get<ObservedStateSequence>();
   this->set_indicator_means_and_standard_deviations();
 
-    if(json_data["trained"].is_null()) {
+    if(!json_data.contains("trained") || json_data["trained"].is_null()) {
         this->trained = false;
     } else {
         this->trained = json_data["trained"];
@@ -197,6 +216,8 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
             this->initial_latent_state_collection[samp] = this->s0;
             this->transition_matrix_collection[samp] = this->A_original;
         }
+        this->MAP_sample_number = json_data["MAP_sample_number"];
+        this->log_likelihood_MAP = json_data["log_likelihood_MAP"];
     }
 }
 /*

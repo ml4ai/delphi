@@ -32,6 +32,7 @@ PYBIND11_MODULE(DelphiPython, m) {
   py::class_<AnalysisGraph>(m, "AnalysisGraph")
       .def(py::init())
       .def_readwrite("id", &AnalysisGraph::id)
+      .def_readwrite("experiment_id", &AnalysisGraph::experiment_id)
       .def("to_json_string", &AnalysisGraph::to_json_string, "indent"_a = 0)
       .def("from_json_string", &AnalysisGraph::from_json_string)
       .def("generate_create_model_response", &AnalysisGraph::generate_create_model_response)
@@ -144,6 +145,7 @@ PYBIND11_MODULE(DelphiPython, m) {
            "target"_a)
       .def("print_name_to_vertex", &AnalysisGraph::print_name_to_vertex)
       .def("print_training_range", &AnalysisGraph::print_training_range)
+      .def("print_MAP_estimate", &AnalysisGraph::print_MAP_estimate)
       .def("map_concepts_to_indicators",
            &AnalysisGraph::map_concepts_to_indicators,
            "n"_a = 1,
@@ -223,6 +225,8 @@ PYBIND11_MODULE(DelphiPython, m) {
       .def("prediction_to_array",
            &AnalysisGraph::prediction_to_array,
            "indicator"_a)
+      .def("freeze_edge_weight", &AnalysisGraph::freeze_edge_weight,
+           "source_name", "target_name", "scaled_weight", "polarity")
       .def("set_derivative", &AnalysisGraph::set_derivative)
       .def("set_default_initial_state",
            &AnalysisGraph::set_default_initial_state)

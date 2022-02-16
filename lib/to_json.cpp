@@ -14,6 +14,7 @@ using fmt::print;
 string AnalysisGraph::to_json_string(int indent) {
   nlohmann::json j;
   j["id"] = this->id;
+  j["experiment_id"] = this->experiment_id;
   j["edges"] = {};
   vector<tuple<string, string, vector<double>>> data;
   for (auto e : this->edges()) {
@@ -42,8 +43,10 @@ string AnalysisGraph::to_json_string(int indent) {
 }
 
 string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
+
     nlohmann::json j;
     j["id"] = this->id;
+    j["experiment_id"] = this->experiment_id;
 
     // This is an unordered_map:
     // concept name → Boost graph vertex id
@@ -55,7 +58,14 @@ string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
     // To go for a more compressed version of concepts where array index is the
     // concept id
     j["concepts"] = {};
-    j["periods"] = {};
+
+    if (!verbose) {
+        j["periods"] = {};
+        j["has_min"] = {};
+        j["min_val_obs"] = {};
+        j["has_max"] = {};
+        j["max_val_obs"] = {};
+    }
 
     // Concept to indicator mapping. This is an array of array of objects
     // Outer array goes from 0 to this->num_vertices() - 1 and it is indexed by
@@ -72,7 +82,11 @@ string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
             j["concepts"].push_back(
                         {{"concept", n.name},
                          {"cid", this->name_to_vertex.at(n.name)},
-                         {"period", n.period}});
+                         {"period", n.period},
+                         {"has_min", n.has_min},
+                         {"min_val_obs", n.min_val_obs},
+                         {"has_max", n.has_max},
+                         {"max_val_obs", n.max_val_obs}});
 
             for (Indicator &ind : n.indicators) {
                 j["conceptIndicators"][this->name_to_vertex.at(n.name)].push_back(
@@ -91,6 +105,10 @@ string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
             // array index keeps track of the concept id
             j["concepts"][this->name_to_vertex.at(n.name)] = n.name;
             j["periods"][this->name_to_vertex.at(n.name)] = n.period;
+            j["has_min"][this->name_to_vertex.at(n.name)] = n.has_min;
+            j["min_val_obs"][this->name_to_vertex.at(n.name)] = n.min_val_obs;
+            j["has_max"][this->name_to_vertex.at(n.name)] = n.has_max;
+            j["max_val_obs"][this->name_to_vertex.at(n.name)] = n.max_val_obs;
 
             for (Indicator &ind : n.indicators) {
                 // This is a more compressed representation. We do not store iid
@@ -149,8 +167,8 @@ string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
                               {obj.adjective, obj.polarity, obj.concept_name}};
         }
         if (verbose) {
-            j["edges"].push_back({{"source",name_to_vertex.at(source.name)},
-                                {"target", name_to_vertex.at(target.name)},
+            j["edges"].push_back({{"source", source.name},
+                                {"target", target.name},
                                 {"kernels", compact ? vector<double>()
                                                     : this->edge(e).kde.dataset},
                                 {"evidence", evidence},
@@ -158,7 +176,9 @@ string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
                                 {"log_prior_hist",
                                    compact ? vector<double>()
                                            : this->edge(e).kde.log_prior_hist},
-                                {"n_bins", this->edge(e).kde.n_bins}});
+                                {"n_bins", this->edge(e).kde.n_bins},
+                                {"theta", this->edge(e).get_theta()},
+                                {"is_frozen", this->edge(e).is_frozen()}});
         }
         else {
             // This is a more compressed version of edges. We do not utilize space
@@ -172,7 +192,9 @@ string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
                                                 : this->edge(e).kde.dataset,
                                             compact ? vector<double>()
                                                 : this->edge(e).kde.log_prior_hist,
-                                            this->edge(e).kde.n_bins));
+                                            this->edge(e).kde.n_bins,
+                                            this->edge(e).get_theta(),
+                                            this->edge(e).is_frozen()));
         }
     }
 
@@ -187,11 +209,13 @@ string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
         j["training_range"] = this->training_range;
     }
 
-    j["modeling_period"] = this->modeling_period;
+    j["num_modeling_timesteps_per_one_observation_timestep"] = this->num_modeling_timesteps_per_one_observation_timestep;
     j["train_start_epoch"] = this->train_start_epoch;
     j["train_end_epoch"] = this->train_end_epoch;
     j["train_timesteps"] = this->n_timesteps;
-    j["observation_timestep_gaps"] = this->observation_timestep_gaps;
+    j["modeling_timestep_gaps"] = this->modeling_timestep_gaps;
+    j["observation_timesteps_sorted"] = this->observation_timesteps_sorted;
+    j["model_data_agg_level"] = this->model_data_agg_level;
 
     // This contains all the observations. Indexing goes by
     // [ timestep ][ concept ][ indicator ][ observation ]
@@ -215,6 +239,8 @@ string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
         j["continuous"] = this->continuous;
         j["data_heuristic"] = this->data_heuristic;
         j["causemos_call"] = this->causemos_call;
+        j["MAP_sample_number"] = this->MAP_sample_number;
+        j["log_likelihood_MAP"] = this->log_likelihood_MAP;
 
         int num_verts = this->num_vertices();
         int num_els_per_mat = num_verts * num_verts;
@@ -244,6 +270,7 @@ string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
 void AnalysisGraph::export_create_model_json_string() {
   nlohmann::json j;
   j["id"] = this->id;
+  j["experiment_id"] = this->experiment_id;
   j["statements"] = {};
   j["statements"].push_back({{"belief", 1}});
   j["conceptIndicators"] = {};

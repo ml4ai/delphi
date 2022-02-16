@@ -1,6 +1,7 @@
 // CauseMos integration methods
 
 #include "AnalysisGraph.hpp"
+#include "ExperimentStatus.hpp"
 #include "utils.hpp"
 #include <fmt/format.h>
 #include <fstream>
@@ -41,6 +42,8 @@ void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json
 
     long epoch;
 
+    DataAggregationLevel first_resolution = DataAggregationLevel::NONE;
+
     for (int v = 0; v < num_verts; v++) {
         Node& n = (*this)[v];
         // At the moment we are only attaching one indicator per node
@@ -48,7 +51,7 @@ void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json
         string indicator_name = "Qualitative measure of {}"_format(n.name);
         string indicator_source = "Delphi";
 
-        if (json_indicators[n.name].is_null()) {
+        if (!json_indicators.contains(n.name)) {
             // In this case we do not have any observation data to train the model
             this->set_indicator(n.name, indicator_name, indicator_source);
             n.get_indicator(indicator_name).set_mean(1.0);
@@ -76,6 +79,41 @@ void AnalysisGraph::extract_concept_indicator_mapping_and_observations_from_json
         }
 
         indicator_name = indicator["name"].get<string>();
+
+        if (!indicator["minValue"].is_null()) {
+            n.has_min = true;
+            n.min_val_obs = indicator["minValue"].get<double>();
+        }
+        if (!indicator["maxValue"].is_null()) {
+            n.has_max = true;
+            n.max_val_obs = indicator["maxValue"].get<double>();
+        }
+
+        if (!indicator["period"].is_null()) {
+            n.period = indicator["period"].get<int>();
+        }
+
+        if (!indicator["resolution"].is_null()) {
+            string resolution = indicator["resolution"].get<string>();
+            if (resolution.compare("month") == 0) {
+                n.agg_level = DataAggregationLevel::MONTHLY;
+            }
+            else if (resolution.compare("year") == 0) {
+                n.agg_level = DataAggregationLevel::YEARLY;
+            }
+        }
+
+        if (first_resolution == DataAggregationLevel::NONE) {
+            first_resolution = n.agg_level;
+            this->model_data_agg_level = n.agg_level;
+        }
+        else if (first_resolution != n.agg_level) {
+            cout << "\n* * * WARNING: Mixed resolution observations! * * *\n";
+            cout << "\t" << n.name << " has resolution " <<
+                (n.agg_level == DataAggregationLevel::YEARLY ? "yearly" : "monthly") << endl;
+            cout << "\tDelphi is currently not designed to model mixed resolution data\n";
+            cout << "\tThe predictions will be unintuitive\n\n";
+        }
 
         int ind_idx = this->set_indicator(n.name, indicator_name, indicator_source);
 
@@ -154,33 +192,38 @@ double AnalysisGraph::epoch_to_timestep(long epoch, long train_start_epoch,
  * frequent gap as the modeling frequency. When more than one gap is most
  * frequent, we take the smallest such gap.
  */
-vector<long> AnalysisGraph::infer_modeling_period(
-                        const ConceptIndicatorEpochs &concept_indicator_epochs,
+void AnalysisGraph::infer_modeling_period(
+                        const ConceptIndicatorEpochs & concept_indicator_observation_timesteps,
                         long &shortest_gap,
                         long &longest_gap,
                         long &frequent_gap,
                         int &highest_frequency) {
 
-    unordered_set<long> epochs_all;
+    unordered_set<long> observation_timesteps_all;
 
-    for (vector<long> ind_epochs : concept_indicator_epochs) {
-        epochs_all.insert(ind_epochs.begin(), ind_epochs.end());
+    for (vector<long> ind_observation_timesteps : concept_indicator_observation_timesteps) {
+        observation_timesteps_all.insert(ind_observation_timesteps.begin(),
+                                         ind_observation_timesteps.end());
     }
 
-    vector<long> epochs_sorted(epochs_all.begin(), epochs_all.end());
-    sort(epochs_sorted.begin(), epochs_sorted.end());
+    this->observation_timesteps_sorted = vector<long>(observation_timesteps_all.begin(),
+                                                      observation_timesteps_all.end());
+    sort(this->observation_timesteps_sorted.begin(),
+         this->observation_timesteps_sorted.end());
 
-    vector<long> gaps(epochs_sorted.size());
-    adjacent_difference(epochs_sorted.begin(), epochs_sorted.end(), gaps.begin());
+    vector<long> observation_timestep_gaps(this->observation_timesteps_sorted.size());
+    adjacent_difference(this->observation_timesteps_sorted.begin(),
+                        this->observation_timesteps_sorted.end(),
+                        observation_timestep_gaps.begin());
 
     // Compute number of epochs between data points
     unordered_map<long, int> gap_frequencies;
     unordered_map<long, int>::iterator itr;
 
-    for (int gap = 1; gap < gaps.size(); gap++) {
+    for (int gap = 1; gap < observation_timestep_gaps.size(); gap++) {
         // Check whether two adjacent data points with the same gap of
         // epochs in between is already found.
-        itr = gap_frequencies.find(gaps[gap]);
+        itr = gap_frequencies.find(observation_timestep_gaps[gap]);
 
         if (itr != gap_frequencies.end()) {
             // There were previous adjacent pairs of data points with
@@ -191,7 +234,7 @@ vector<long> AnalysisGraph::infer_modeling_period(
             // This is the first data point that is gap epochs
             // away from its previous data point. Start recording this new
             // frequency.
-            gap_frequencies.insert(make_pair(gaps[gap], 1));
+            gap_frequencies.insert(make_pair(observation_timestep_gaps[gap], 1));
         }
     }
 
@@ -212,7 +255,7 @@ vector<long> AnalysisGraph::infer_modeling_period(
         }
 
         if (highest_frequency == freq) {
-            // In case of multiple gaps having the same highest frequency,
+            // In case of multiple observation_timestep_gaps having the same highest frequency,
             // note down the shortest highest frequency gap
             if (frequent_gap > gap) {
               frequent_gap = gap;
@@ -223,24 +266,50 @@ vector<long> AnalysisGraph::infer_modeling_period(
         }
     }
 
-    this->modeling_period = frequent_gap;
+    // num_modeling_timesteps_per_one_observation_timestep is the number of
+    // observation timesteps taken as one modeling timestep.
+    // Let us assume we have observations at observation timesteps
+    // 0, 4, 10, 14, 22
+    // Then, to advance the system from one observation timestep to the next
+    // we have to use following observation timestep gaps:
+    // 4, 6, 4, 8
+    // If we use num_modeling_timesteps_per_one_observation_timestep = 1, we
+    // have to calculate matrix exponentials for 4, 6 and 8 to advance the system.
+    // However, if we instead use
+    // num_modeling_timesteps_per_one_observation_timestep = gcd(4, 6, 8) = 2,
+    // we could compute matrix exponentials for 2, 3, 4.
+    // But, then if we later (during projection) have to advance the system by 1
+    // observation timestep, we have to compute a matrix exponential for 0.5.
+    // If we use
+    // num_modeling_timesteps_per_one_observation_timestep = min(4, 6, 8) = 4,
+    // we have to compute matrix exponentials for 1, 1.5, 2 and to advance the
+    // system by 1 observation timestep we have to compute a matrix exponential
+    // for 0.25.
+    // In general, to advance the system by t observation timesteps, we have to
+    // compute a matrix exponential for
+    // t/num_modeling_timesteps_per_one_observation_timestep.
+    // For the current naive seasonal head node model to work,
+    // num_modeling_timesteps_per_one_observation_timestep **MUST** be 1
+    this->num_modeling_timesteps_per_one_observation_timestep = 1; // one timestep //frequent_gap;
 
-    vector<double> observation_timesteps(epochs_sorted.size());
-    transform(epochs_sorted.begin(), epochs_sorted.end(), observation_timesteps.begin(),
-             [&](long epoch) {
-                 //return this->epoch_to_timestep(epoch, this->train_start_epoch,
-                 //                               this->modeling_period);
-                 return this->epoch_to_timestep(epoch, 0,
-                                                this->modeling_period);
+    vector<double> modeling_timesteps(this->observation_timesteps_sorted.size());
+    transform(this->observation_timesteps_sorted.begin(),
+              this->observation_timesteps_sorted.end(),
+              modeling_timesteps.begin(),
+             [&](long observation_timestep) {
+                 //return this->epoch_to_timestep(observation_timestep, this->train_start_epoch,
+                 //                               this->num_modeling_timesteps_per_one_observation_timestep);
+                 //return this->epoch_to_timestep(
+                 //    observation_timestep, 0,
+                 //                               this->num_modeling_timesteps_per_one_observation_timestep);
+                 return observation_timestep / this->num_modeling_timesteps_per_one_observation_timestep;
               });
 
-    this->observation_timestep_gaps.clear();
-    this->observation_timestep_gaps = vector<double>(observation_timesteps.size());
-    adjacent_difference(observation_timesteps.begin(),
-                        observation_timesteps.end(),
-                        this->observation_timestep_gaps.begin());
-
-    return epochs_sorted;
+    this->modeling_timestep_gaps.clear();
+    this->modeling_timestep_gaps = vector<double>(modeling_timesteps.size());
+    adjacent_difference(modeling_timesteps.begin(),
+                        modeling_timesteps.end(),
+                        this->modeling_timestep_gaps.begin());
 }
 
 
@@ -248,7 +317,7 @@ void AnalysisGraph::infer_concept_period(const ConceptIndicatorEpochs &concept_i
   double milliseconds_per_day = 24 * 60 * 60 * 1000.0;
   int min_days_global = INT32_MAX;
   int start_day = INT32_MAX;
-  this->modeling_period = 1;
+  this->num_modeling_timesteps_per_one_observation_timestep = 1;
 
   for (int concept_id = 0; concept_id < concept_indicator_epochs.size();
        concept_id++) {
@@ -265,18 +334,19 @@ void AnalysisGraph::infer_concept_period(const ConceptIndicatorEpochs &concept_i
     transform(ind_epochs.begin(), ind_epochs.end(),
         year_month_dates.begin(),
               [&](long epoch) {
-                return this->timestamp_to_year_month_date(epoch);
+                return this->epoch_to_year_month_date(epoch);
               });
 
     vector<int> gaps_in_months(year_month_dates.size() - 1);
 
     int shortest_monthly_gap_ind = INT32_MAX;
     for (int ts = 0; ts < year_month_dates.size() - 1; ts++) {
-      int months = delphi::utils::months_between(year_month_dates[ts], year_month_dates[ts + 1]);
-      gaps_in_months[ts] = months;
+      int observation_timesteps = delphi::utils::observation_timesteps_between(
+            year_month_dates[ts], year_month_dates[ts + 1]);
+      gaps_in_months[ts] = observation_timesteps;
 
-      if (months < shortest_monthly_gap_ind) {
-        shortest_monthly_gap_ind = months;
+      if (observation_timesteps < shortest_monthly_gap_ind) {
+        shortest_monthly_gap_ind = observation_timesteps;
       }
     }
 
@@ -350,7 +420,7 @@ void AnalysisGraph::infer_concept_period(const ConceptIndicatorEpochs &concept_i
     }
     */
     this->graph[concept_id].period = period;
-    this->modeling_period = lcm(this->modeling_period, period);
+    this->num_modeling_timesteps_per_one_observation_timestep = lcm(this->num_modeling_timesteps_per_one_observation_timestep, period);
 
     for (auto yyyy_mm_dd : year_month_dates) {
       cout << "(" << get<0>(yyyy_mm_dd) << "-" << get<1>(yyyy_mm_dd) << "-" << get<2>(yyyy_mm_dd) << "), ";
@@ -395,37 +465,47 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
     int highest_frequency = 0;
 
     this->n_timesteps = 0;
-    vector<long> epochs_sorted;
 
-    unordered_map<int, unordered_set<long>> monthly_to_epoch;
+    unordered_map<int, unordered_set<long>> observation_timestep_to_epochs;
 
     if (this->train_start_epoch <= this->train_end_epoch) {
-        // Convert epochs to months making train_start_epoch = 0
-        tuple<int, int, int> train_start_date = this->timestamp_to_year_month_date(this->train_start_epoch);
-        tuple<int, int, int> train_end_date = this->timestamp_to_year_month_date(this->train_end_epoch);
+        // Convert epochs to observation timesteps making train_start_epoch = 0
+        tuple<int, int, int> train_start_date =
+            this->epoch_to_year_month_date(this->train_start_epoch);
+        tuple<int, int, int> train_end_date =
+            this->epoch_to_year_month_date(this->train_end_epoch);
 
         for (int v = 0; v < num_verts; v++) {
-            int shortest_monthly_gap_ind = INT32_MAX;
+            Node& n = (*this)[v];
+            // int shortest_monthly_gap_ind = INT32_MAX;
             for (int obs = 0; obs < concept_indicator_epochs[v].size(); obs++) {
                 long epoch = concept_indicator_epochs[v][obs];
-                tuple<int, int, int> obs_date = this->timestamp_to_year_month_date(epoch);
-                int month = delphi::utils::months_between(train_start_date, obs_date);
-                concept_indicator_epochs[v][obs] = month;
+                tuple<int, int, int> obs_date =
+                    this->epoch_to_year_month_date(epoch);
+                int observation_timestep = delphi::utils::observation_timesteps_between(
+                    train_start_date, obs_date, n.agg_level);
 
-                monthly_to_epoch[month].insert(epoch);
+                // We reuse this variable to store concept_indicator_timesteps
+                concept_indicator_epochs[v][obs] = observation_timestep;
 
+                observation_timestep_to_epochs[observation_timestep].insert(epoch);
+
+                /*
                 // TODO: There are cases this period estimation goes wrong. Need revision.
                 // e.g. observation months: 1, 3, 5, 8, 10, 12
                 // The good solution is to get the gcd of all the observation gaps for a indicator
                 if (obs > 0) {
+                    // TODO: Since we don't sort concept_indicator_epochs[v] this calculation is wrong
                     int gap = concept_indicator_epochs[v][obs] -
                               concept_indicator_epochs[v][obs - 1];
                     if (gap < shortest_monthly_gap_ind) {
                         shortest_monthly_gap_ind = gap;
                     }
                 }
+                */
             }
 
+            /*
             int period = 1;
             if (shortest_monthly_gap_ind == 1) {
               // Monthly
@@ -444,18 +524,16 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
               period = 2;
             }
             this->graph[v].period = period;
+            */
         }
 //        cout << "Inferring periods\n";
 //        this->infer_concept_period(concept_indicator_epochs);
 
         // Some training data has been provided
-        epochs_sorted = this->infer_modeling_period(concept_indicator_epochs,
-                                                    shortest_gap,
-                                                    longest_gap,
-                                                    frequent_gap,
-                                                    highest_frequency);
+        this->infer_modeling_period(concept_indicator_epochs, shortest_gap,
+                                    longest_gap, frequent_gap, highest_frequency);
 
-        this->n_timesteps = epochs_sorted.size();
+        this->n_timesteps = this->observation_timesteps_sorted.size();
     }
 
     this->observed_state_sequence.clear();
@@ -472,12 +550,20 @@ AnalysisGraph::set_observed_state_sequence_from_json_dict(
 
         for (int v = 0; v < num_verts; v++) {
             Node& n = (*this)[v];
+
+            if (concept_indicator_data[v].empty()) {
+                // This concept has no indicator specified in the create-model
+                // call
+                continue;
+            }
+
             this->observed_state_sequence[ts][v] = vector<vector<double>>(n.indicators.size());
 
             for (int i = 0; i < n.indicators.size(); i++) {
                 this->observed_state_sequence[ts][v][i] = vector<double>();
 
-                for (long epochs_in_ts : monthly_to_epoch[epochs_sorted[ts]]) {
+                for (long epochs_in_ts :
+                     observation_timestep_to_epochs[this->observation_timesteps_sorted[ts]]) {
                     pair<multimap<long, double>::iterator,
                          multimap<long, double>::iterator>
                         obs = concept_indicator_data[v][i].equal_range(epochs_in_ts);
@@ -502,13 +588,19 @@ void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data,
   // TODO: If model id is not present, we might want to not create the model
   // and send a failure response. At the moment we just create a blank model,
   // which could lead to future bugs that are hard to debug.
-  if (json_data["id"].is_null()){return;}
+  if (!json_data.contains("id")){return;}
   this->id = json_data["id"].get<string>();
+
+  if (!json_data.contains("statements")) {return;}
+
+  if(json_data.contains("experiment_id")){
+    this->experiment_id = json_data["experiment_id"].get<string>();
+  }
 
   auto statements = json_data["statements"];
 
   for (auto stmt : statements) {
-    if (stmt["belief"].is_null() or
+    if (!stmt.contains("belief") or
         stmt["belief"].get<double>() < belief_score_cutoff) {
       continue;
     }
@@ -561,7 +653,7 @@ void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data,
 
     // Add the edge to the graph if it is not in it already
     for (auto evid : evidence) {
-      if (evid["evidence_context"].is_null()) {
+      if (!evid.contains("evidence_context")) {
         continue;
       }
 
@@ -606,7 +698,7 @@ void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data,
     }
   }
 
-  if (json_data["conceptIndicators"].is_null()) {
+  if (!json_data.contains("conceptIndicators")) {
     // No indicator data provided.
     // TODO: What is the best action here?
     //throw runtime_error("No indicator information provided");
@@ -623,15 +715,15 @@ void AnalysisGraph::from_causemos_json_dict(const nlohmann::json &json_data,
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 std::tuple<int, int, int>
-AnalysisGraph::timestamp_to_year_month_date(long timestamp) {
+AnalysisGraph::epoch_to_year_month_date(long epoch) {
     // The HMI uses milliseconds. So they multiply time-stamps by 1000.
     // Before converting them back to year and month, we have to divide
     // by 1000.
-    timestamp /=  1000;
+    epoch /=  1000;
 
     // Convert the time-step to year and month.
     // We are converting it according to GMT.
-    struct tm *ptm = gmtime(&timestamp);
+    struct tm *ptm = gmtime(&epoch);
     int year = 1900 + ptm->tm_year;
     int month = 1 + ptm->tm_mon;
     int date = ptm->tm_mday;
@@ -681,6 +773,8 @@ FormattedProjectionResult
 AnalysisGraph::run_causemos_projection_experiment_from_json_dict(
                                               const nlohmann::json &json_data) {
 
+    ExperimentStatus es(this->id, this->experiment_id);
+
     if (json_data["experimentParam"].is_null()) {
         throw BadCausemosInputException("Experiment parameters null");
     }
@@ -722,19 +816,23 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_dict(
     } else {
       /*
       this->pred_start_timestep = this->epoch_to_timestep(
-          proj_start_epoch, this->train_start_epoch, this->modeling_period);
+          proj_start_epoch, this->train_start_epoch, this->num_modeling_timesteps_per_one_observation_timestep);
       double pred_end_timestep = this->epoch_to_timestep(
-          proj_end_epoch, this->train_start_epoch, this->modeling_period);
+          proj_end_epoch, this->train_start_epoch, this->num_modeling_timesteps_per_one_observation_timestep);
       this->delta_t = (pred_end_timestep - this->pred_start_timestep) /
                       (this->pred_timesteps - 1.0);
       */
-      tuple<int, int, int> train_start_date = this->timestamp_to_year_month_date(this->train_start_epoch);
-      tuple<int, int, int> pred_start_date = this->timestamp_to_year_month_date(proj_start_epoch);
-      this->pred_start_timestep = delphi::utils::months_between(train_start_date, pred_start_date);
+      tuple<int, int, int> train_start_date =
+          this->epoch_to_year_month_date(this->train_start_epoch);
+      tuple<int, int, int> pred_start_date =
+          this->epoch_to_year_month_date(proj_start_epoch);
+      this->pred_start_timestep = delphi::utils::observation_timesteps_between(
+          train_start_date, pred_start_date, this->model_data_agg_level);
       this->delta_t = 1;
 
-      tuple<int, int, int> pred_end_date = this->timestamp_to_year_month_date(proj_end_epoch);
-      //int num_pred_months = delphi::utils::months_between(pred_start_date, pred_end_date);
+      tuple<int, int, int> pred_end_date =
+          this->epoch_to_year_month_date(proj_end_epoch);
+      //int num_pred_months = delphi::utils::observation_timesteps_between(pred_start_date, pred_end_date);
       //cout << "(" << get<0>(pred_end_date) << "-" << get<1>(pred_end_date) << "-" << get<2>(pred_end_date) << "), ";
       //cout << "(" << get<0>(pred_start_date) << "-" << get<1>(pred_start_date) << "-" << get<2>(pred_start_date) << "), ";
 
@@ -874,8 +972,15 @@ string AnalysisGraph::generate_create_model_response() {
         json edge_json = {{"source", this->source(e).name},
                           {"target", this->target(e).name},
                           {"weights", this->trained
-                                          ? this->graph[e].sampled_thetas
-                                          : vector<double>{0.5}}};
+                          ? vector<double>{((this->graph[e].is_frozen()
+                                             ? this->graph[e].get_theta()
+                                             : mean(this->graph[e].sampled_thetas))
+                                                         + M_PI_2) * M_2_PI - 1
+                                          }
+                          : this->graph[e].is_frozen()
+                                ? vector<double>{(this->graph[e].get_theta()
+                                                         + M_PI_2) * M_2_PI - 1}
+                                : vector<double>{0.5}}};
 
         j["relations"].push_back(edge_json);
     }
@@ -954,4 +1059,67 @@ AnalysisGraph::run_causemos_projection_experiment_from_json_file(
         // projection parameters.
         return FormattedProjectionResult();
     }
+}
+
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                  edit-weights
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/**
+   *
+   * @param source Source concept name
+   * @param target Target concept name
+   * @param scaled_weight A value in the range [0, 1]. Delphi edge weights are
+   *               angles in the range [-π/2, π/2]. Values in the range ]0, π/2[
+   *               represents positive polarities and values in the range
+   *               ]-π/2, 0[ represents negative polarities.
+   * @param polarity Polarity of the edge. Should be either 1 or -1.
+   * @return 0 freezing the edge is successful
+   *         1 scaled_weight outside accepted range
+   *         2 Source concept does not exist
+   *         4 Target concept does not exist
+   *         8 Edge does not exist
+ */
+unsigned short AnalysisGraph::freeze_edge_weight(std::string source_name,
+                                       std::string target_name,
+                                       double scaled_weight,
+                                       int polarity) {
+    if (scaled_weight < 0 || scaled_weight > 1) {
+        return 1;
+    }
+
+    int source_id = -1;
+    int target_id = -1;
+
+    try {
+        source_id = this->name_to_vertex.at(source_name);
+    } catch(const out_of_range &e) {
+        // Source concept does not exist
+        return 2;
+    }
+
+    try {
+        target_id = this->name_to_vertex.at(target_name);
+    } catch(const out_of_range &e) {
+        // Target concept does not exist
+        return 4;
+    }
+
+    pair<EdgeDescriptor, bool> edg = boost::edge(source_id, target_id,
+                                                         this->graph);
+
+    if (!edg.second) {
+        // There is no edge from source concept to target concept
+        return 8;
+    }
+
+    double theta = polarity / abs(polarity) * scaled_weight * M_PI_2;
+
+    this->graph[edg.first].set_theta(theta);
+    this->graph[edg.first].freeze();
+
+    this->trained = false;
+
+    return 0;
 }

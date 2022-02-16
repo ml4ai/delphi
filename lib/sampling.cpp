@@ -92,8 +92,8 @@ void AnalysisGraph::set_transition_matrix_from_betas() {
   if (this->continuous) {
     // Initialize matrix exponential pre-calculation related data structures.
     unordered_set<double> gaps_set = unordered_set<double>(
-                                   this->observation_timestep_gaps.begin() + 1,
-                                   this->observation_timestep_gaps.end());
+                                   this->modeling_timestep_gaps.begin() + 1,
+                                   this->modeling_timestep_gaps.end());
     gaps_set.insert(1); // Due to the current head node model
     this->observation_timestep_unique_gaps = vector<double>(gaps_set.begin(),
                                                             gaps_set.end());
@@ -223,7 +223,11 @@ void AnalysisGraph::set_log_likelihood() {
             this->current_latent_state[2 * v + 1] = deriv_func(ts, ind.mean);
           }
 
-          for (int ts_gap = 0; ts_gap < this->observation_timestep_gaps[ts];
+          // For the current naive seasonal head node model to work, we have to
+          // advance the system on modeling timestep at a time for all the
+          // timesteps where there are no observations till we hit a
+          // timestep with data to compute the log likelihood
+          for (int ts_gap = 0; ts_gap < this->modeling_timestep_gaps[ts];
                ts_gap++) {
             this->update_latent_state_with_generated_derivatives(
                 ts_monthly, ts_monthly + 1);
@@ -247,7 +251,7 @@ void AnalysisGraph::set_log_likelihood() {
 
       for (int ts = 1; ts < this->n_timesteps; ts++) {
         this->current_latent_state =
-            this->e_A_ts[this->observation_timestep_gaps[ts]]
+            this->e_A_ts[this->modeling_timestep_gaps[ts]]
             * this->current_latent_state;
         this->update_latent_state_with_generated_derivatives(ts, ts + 1);
         this->set_log_likelihood_helper(ts);
@@ -266,7 +270,7 @@ void AnalysisGraph::set_log_likelihood() {
               this->current_latent_state[2 * v + 1] = deriv_func(ts, ind.mean);
           }
 
-          for (int ts_gap = 0; ts_gap < this->observation_timestep_gaps[ts]; ts_gap++) {
+          for (int ts_gap = 0; ts_gap < this->modeling_timestep_gaps[ts]; ts_gap++) {
               this->update_latent_state_with_generated_derivatives(
                 ts_monthly, ts_monthly + 1);
               this->current_latent_state =
@@ -498,7 +502,14 @@ void AnalysisGraph::set_default_initial_state(InitialDerivative id) {
     this->s0(i) = 1.0;
   }
 
-  if (id == InitialDerivative::DERI_PRIOR) {
+  if (this->MAP_sample_number > -1) {
+    // Warm start using the MAP estimate of the previous training run
+    for (int i = 1; i < num_els; i += 2) {
+      this->s0(i) = this->initial_latent_state_collection
+                                                   [this->MAP_sample_number](i);
+    }
+  }
+  else if (id == InitialDerivative::DERI_PRIOR) {
     double derivative_prior_std = sqrt(this->derivative_prior_variance);
     for (int i = 1; i < num_els; i += 2) {
       this->s0(i) = derivative_prior_std *

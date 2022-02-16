@@ -1,0 +1,12 @@
+{
+  "relations": [
+    {
+      "source": "wm/concept/crisis_or_disaster/conflict",
+      "target": "wm/concept/goods/food_price_or_cost",
+      "polarity": 1,
+      "weights": [
+        0.25
+      ]
+    }
+  ]
+}

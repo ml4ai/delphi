@@ -1,5 +1,5 @@
 #include "AnalysisGraph.hpp"
-#include "TrainingStatus.hpp"
+#include "ModelStatus.hpp"
 #include "data.hpp"
 #include <tqdm.hpp>
 #include <range/v3/all.hpp>
@@ -37,9 +37,9 @@ void AnalysisGraph::train_model(int start_year,
   this->n_timesteps = this->calculate_num_timesteps(start_year, start_month,
                                                       end_year,   end_month);
 
-  this->observation_timestep_gaps.clear();
-  this->observation_timestep_gaps = vector<double>(this->n_timesteps, 1.0);
-  this->observation_timestep_gaps[0] = 0;
+  this->modeling_timestep_gaps.clear();
+  this->modeling_timestep_gaps = vector<double>(this->n_timesteps, 1.0);
+  this->modeling_timestep_gaps[0] = 0;
 
   if(this->n_timesteps > 0) {
       if (!synthetic_data_experiment && !causemos_call) {
@@ -59,25 +59,6 @@ void AnalysisGraph::train_model(int start_year,
 }
 
 
-bool AnalysisGraph::get_trained(){
-  return this->trained;
-}
-bool AnalysisGraph::get_stopped(){
-  return this->stopped;
-}
-float AnalysisGraph::get_training_progress(){
-  return this->training_progress;
-}
-double AnalysisGraph::get_log_likelihood(){
-  return this-> log_likelihood;
-}
-double AnalysisGraph::get_previous_log_likelihood(){
-  return this-> previous_log_likelihood;
-}
-double AnalysisGraph::get_log_likelihood_MAP(){
-  return this-> log_likelihood_MAP;
-}
-
 void AnalysisGraph::run_train_model(int res,
                                 int burn,
                                 InitialBeta initial_beta,
@@ -91,15 +72,15 @@ void AnalysisGraph::run_train_model(int res,
                                 unordered_map<string, string> concept_models,
                                 unordered_map<string, double> concept_min_vals,
                                 unordered_map<string, double> concept_max_vals,
-                                unordered_map<string, function<double(unsigned int, double)>> ext_concepts
-                                ) {
+                                unordered_map<string, function<double(unsigned int, double)>> ext_concepts) {
 
-    TrainingStatus ts;
-    ts.start_updating_db(this);
+    double training_step = 0.99 / (res + burn);
 
-    float training_step = 1.0 / (res + burn);
+    ModelStatus ms(this->id);
 
-    this->training_progress = 0;
+    ms.begin_recording_progress("Training");
+
+    this->trained = false;
 
     if (train_timesteps < 0) {
       this->n_timesteps = this->observed_state_sequence.size();
@@ -184,13 +165,26 @@ void AnalysisGraph::run_train_model(int res,
 //    this->concept_sample_pool = vector<unsigned int>(train_vertices.begin(),
 //                                                     train_vertices.end());
     for (int vert : train_vertices) {
+      Node& n = (*this)[vert];
       if (this->head_nodes.find(vert) == this->head_nodes.end()) {
         this->concept_sample_pool.push_back(vert);
+      } else if (n.period == 1) {
+          // Head nodes with period > 1 are modeled using the seasonality
+          // period == 1 => this is not a seasonal node
+          // To prevent this from modeled as seasonal,
+          // remove it from head nodes
+          // TODO: There is a terminology confusion since this is still a
+          // head node, but we are removing it from head nodes to
+          // prevent it from being modeled seasonally.
+          this->concept_sample_pool.push_back(vert);
+          this->head_nodes.erase(vert);
+          this->body_nodes.insert(vert);
       }
     }
 
     this->edge_sample_pool.clear();
     for (EdgeDescriptor ed : this->edges()) {
+        this->graph[ed].sampled_thetas.clear();
         if (!this->graph[ed].is_frozen()) {
             this->edge_sample_pool.push_back(ed);
         }
@@ -219,7 +213,7 @@ void AnalysisGraph::run_train_model(int res,
 
     cout << "\nBurning " << burn << " samples out..." << endl;
     for (int i : trange(burn)) {
-      this->training_progress += training_step;
+      ms.increment_progress(training_step);
 
        {
           #ifdef TIME
@@ -256,7 +250,7 @@ void AnalysisGraph::run_train_model(int res,
     cout << "\nSampling " << this->res << " samples from posterior..." << endl;
     for (int i : trange(this->res - 1)) {
       {
-        this->training_progress += training_step;
+        ms.increment_progress(training_step);
 
         #ifdef TIME
 //                durations.first.clear();
@@ -304,7 +298,7 @@ void AnalysisGraph::run_train_model(int res,
       */
     }
 
-    if (this->MAP_sample_number < int(this->res) - 1) {
+    if (this->MAP_sample_number < int(this->res)) {
       this->sample_from_posterior();
       this->transition_matrix_collection[this->res - 1] = this->A_original;
       this->initial_latent_state_collection[this->res - 1] = this->s0;
@@ -325,8 +319,7 @@ void AnalysisGraph::run_train_model(int res,
     }
 
     this->trained = true;
-    this->training_progress= 1.0;
-    ts.stop_updating_db();
+    ms.finish_recording_progress("Trained");
     RNG::release_instance();
 }
 

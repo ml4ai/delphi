@@ -1,0 +1,625 @@
+{
+  "id": "334000c1-ffed-4a6f-b2b7-cf58bf43e644",
+  "conceptIndicators": {
+    "SYNTHETIC Prey Rabbits": {
+      "func": "last",
+      "maxValue": 805,
+      "minValue": -392,
+      "name": "Synthetic Predator-Prey Data (no stochasticity) 0",
+      "numLevels": 31,
+      "period": 12,
+      "resolution": "month",
+      "values": [
+        {
+          "value": 100,
+          "timestamp": 1443657600000
+        },
+        {
+          "value": 218,
+          "timestamp": 1446336000000
+        },
+        {
+          "value": 388,
+          "timestamp": 1448928000000
+        },
+        {
+          "value": 220,
+          "timestamp": 1451606400000
+        },
+        {
+          "value": 37,
+          "timestamp": 1454284800000
+        },
+        {
+          "value": 11,
+          "timestamp": 1456790400000
+        },
+        {
+          "value": 7,
+          "timestamp": 1459468800000
+        },
+        {
+          "value": 8,
+          "timestamp": 1462060800000
+        },
+        {
+          "value": 13,
+          "timestamp": 1464739200000
+        },
+        {
+          "value": 25,
+          "timestamp": 1467331200000
+        },
+        {
+          "value": 54,
+          "timestamp": 1470009600000
+        },
+        {
+          "value": 120,
+          "timestamp": 1472688000000
+        },
+        {
+          "value": 259,
+          "timestamp": 1475280000000
+        },
+        {
+          "value": 401,
+          "timestamp": 1477958400000
+        },
+        {
+          "value": 148,
+          "timestamp": 1480550400000
+        },
+        {
+          "value": 26,
+          "timestamp": 1483228800000
+        },
+        {
+          "value": 10,
+          "timestamp": 1485907200000
+        },
+        {
+          "value": 7,
+          "timestamp": 1488326400000
+        },
+        {
+          "value": 9,
+          "timestamp": 1491004800000
+        },
+        {
+          "value": 15,
+          "timestamp": 1493596800000
+        },
+        {
+          "value": 30,
+          "timestamp": 1496275200000
+        },
+        {
+          "value": 64,
+          "timestamp": 1498867200000
+        },
+        {
+          "value": 144,
+          "timestamp": 1501545600000
+        },
+        {
+          "value": 301,
+          "timestamp": 1504224000000
+        },
+        {
+          "value": 382,
+          "timestamp": 1506816000000
+        },
+        {
+          "value": 97,
+          "timestamp": 1509494400000
+        },
+        {
+          "value": 19,
+          "timestamp": 1512086400000
+        },
+        {
+          "value": 8,
+          "timestamp": 1514764800000
+        },
+        {
+          "value": 7,
+          "timestamp": 1517443200000
+        },
+        {
+          "value": 10,
+          "timestamp": 1519862400000
+        },
+        {
+          "value": 17,
+          "timestamp": 1522540800000
+        },
+        {
+          "value": 35,
+          "timestamp": 1525132800000
+        },
+        {
+          "value": 77,
+          "timestamp": 1527811200000
+        },
+        {
+          "value": 171,
+          "timestamp": 1530403200000
+        },
+        {
+          "value": 342,
+          "timestamp": 1533081600000
+        },
+        {
+          "value": 332,
+          "timestamp": 1535760000000
+        },
+        {
+          "value": 65,
+          "timestamp": 1538352000000
+        },
+        {
+          "value": 15,
+          "timestamp": 1541030400000
+        },
+        {
+          "value": 8,
+          "timestamp": 1543622400000
+        },
+        {
+          "value": 7,
+          "timestamp": 1546300800000
+        },
+        {
+          "value": 11,
+          "timestamp": 1548979200000
+        },
+        {
+          "value": 20,
+          "timestamp": 1551398400000
+        },
+        {
+          "value": 41,
+          "timestamp": 1554076800000
+        },
+        {
+          "value": 90,
+          "timestamp": 1556668800000
+        },
+        {
+          "value": 200,
+          "timestamp": 1559347200000
+        },
+        {
+          "value": 377,
+          "timestamp": 1561939200000
+        },
+        {
+          "value": 263,
+          "timestamp": 1564617600000
+        },
+        {
+          "value": 45,
+          "timestamp": 1567296000000
+        },
+        {
+          "value": 12,
+          "timestamp": 1569888000000
+        },
+        {
+          "value": 7,
+          "timestamp": 1572566400000
+        },
+        {
+          "value": 8,
+          "timestamp": 1575158400000
+        }
+      ]
+    },
+    "SYNTHETIC Predators Foxes": {
+      "func": "last",
+      "maxValue": 561,
+      "minValue": 0,
+      "name": "Synthetic Predator-Prey Data (no stochasticity) 1",
+      "numLevels": 31,
+      "period": 12,
+      "resolution": "month",
+      "values": [
+        {
+          "value": 20,
+          "timestamp": 1443657600000
+        },
+        {
+          "value": 25,
+          "timestamp": 1446336000000
+        },
+        {
+          "value": 73,
+          "timestamp": 1448928000000
+        },
+        {
+          "value": 253,
+          "timestamp": 1451606400000
+        },
+        {
+          "value": 258,
+          "timestamp": 1454284800000
+        },
+        {
+          "value": 174,
+          "timestamp": 1456790400000
+        },
+        {
+          "value": 110,
+          "timestamp": 1459468800000
+        },
+        {
+          "value": 69,
+          "timestamp": 1462060800000
+        },
+        {
+          "value": 44,
+          "timestamp": 1464739200000
+        },
+        {
+          "value": 29,
+          "timestamp": 1467331200000
+        },
+        {
+          "value": 21,
+          "timestamp": 1470009600000
+        },
+        {
+          "value": 20,
+          "timestamp": 1472688000000
+        },
+        {
+          "value": 30,
+          "timestamp": 1475280000000
+        },
+        {
+          "value": 103,
+          "timestamp": 1477958400000
+        },
+        {
+          "value": 279,
+          "timestamp": 1480550400000
+        },
+        {
+          "value": 239,
+          "timestamp": 1483228800000
+        },
+        {
+          "value": 157,
+          "timestamp": 1485907200000
+        },
+        {
+          "value": 99,
+          "timestamp": 1488326400000
+        },
+        {
+          "value": 62,
+          "timestamp": 1491004800000
+        },
+        {
+          "value": 40,
+          "timestamp": 1493596800000
+        },
+        {
+          "value": 27,
+          "timestamp": 1496275200000
+        },
+        {
+          "value": 20,
+          "timestamp": 1498867200000
+        },
+        {
+          "value": 20,
+          "timestamp": 1501545600000
+        },
+        {
+          "value": 37,
+          "timestamp": 1504224000000
+        },
+        {
+          "value": 144,
+          "timestamp": 1506816000000
+        },
+        {
+          "value": 287,
+          "timestamp": 1509494400000
+        },
+        {
+          "value": 219,
+          "timestamp": 1512086400000
+        },
+        {
+          "value": 142,
+          "timestamp": 1514764800000
+        },
+        {
+          "value": 89,
+          "timestamp": 1517443200000
+        },
+        {
+          "value": 56,
+          "timestamp": 1519862400000
+        },
+        {
+          "value": 36,
+          "timestamp": 1522540800000
+        },
+        {
+          "value": 25,
+          "timestamp": 1525132800000
+        },
+        {
+          "value": 20,
+          "timestamp": 1527811200000
+        },
+        {
+          "value": 21,
+          "timestamp": 1530403200000
+        },
+        {
+          "value": 46,
+          "timestamp": 1533081600000
+        },
+        {
+          "value": 190,
+          "timestamp": 1535760000000
+        },
+        {
+          "value": 282,
+          "timestamp": 1538352000000
+        },
+        {
+          "value": 201,
+          "timestamp": 1541030400000
+        },
+        {
+          "value": 128,
+          "timestamp": 1543622400000
+        },
+        {
+          "value": 81,
+          "timestamp": 1546300800000
+        },
+        {
+          "value": 51,
+          "timestamp": 1548979200000
+        },
+        {
+          "value": 33,
+          "timestamp": 1551398400000
+        },
+        {
+          "value": 23,
+          "timestamp": 1554076800000
+        },
+        {
+          "value": 19,
+          "timestamp": 1556668800000
+        },
+        {
+          "value": 23,
+          "timestamp": 1559347200000
+        },
+        {
+          "value": 61,
+          "timestamp": 1561939200000
+        },
+        {
+          "value": 234,
+          "timestamp": 1564617600000
+        },
+        {
+          "value": 269,
+          "timestamp": 1567296000000
+        },
+        {
+          "value": 184,
+          "timestamp": 1569888000000
+        },
+        {
+          "value": 117,
+          "timestamp": 1572566400000
+        },
+        {
+          "value": 73,
+          "timestamp": 1575158400000
+        }
+      ]
+    }
+  },
+  "statements": [
+    {
+      "id": "stub_statement",
+      "belief": 1,
+      "evidence": [
+        {
+          "document_context": {
+
+          },
+          "evidence_context": {
+            "obj_polarity": 1,
+            "obj_adjectives": [
+
+            ],
+            "subj_polarity": 1,
+            "subj_adjectives": [
+
+            ]
+          }
+        }
+      ],
+      "subj": {
+        "factor": "user",
+        "concept": "SYNTHETIC Prey Rabbits",
+        "concept_score": 1,
+        "adjectives": [
+
+        ],
+        "polarity": 1,
+        "theme": "user",
+        "theme_property": "user",
+        "process": "user",
+        "process_property": "user"
+      },
+      "obj": {
+        "factor": "user",
+        "concept": "SYNTHETIC Prey Rabbits",
+        "concept_score": 1,
+        "adjectives": [
+
+        ],
+        "polarity": 1,
+        "theme": "user",
+        "theme_property": "user",
+        "process": "user",
+        "process_property": "user"
+      }
+    },
+    {
+      "id": "stub_statement",
+      "belief": 1,
+      "evidence": [
+        {
+          "document_context": {
+
+          },
+          "evidence_context": {
+            "obj_polarity": 1,
+            "obj_adjectives": [
+
+            ],
+            "subj_polarity": 1,
+            "subj_adjectives": [
+
+            ]
+          }
+        }
+      ],
+      "subj": {
+        "factor": "user",
+        "concept": "SYNTHETIC Prey Rabbits",
+        "concept_score": 1,
+        "adjectives": [
+
+        ],
+        "polarity": 1,
+        "theme": "user",
+        "theme_property": "user",
+        "process": "user",
+        "process_property": "user"
+      },
+      "obj": {
+        "factor": "user",
+        "concept": "SYNTHETIC Predators Foxes",
+        "concept_score": 1,
+        "adjectives": [
+
+        ],
+        "polarity": 1,
+        "theme": "user",
+        "theme_property": "user",
+        "process": "user",
+        "process_property": "user"
+      }
+    },
+    {
+      "id": "stub_statement",
+      "belief": 1,
+      "evidence": [
+        {
+          "document_context": {
+
+          },
+          "evidence_context": {
+            "obj_polarity": -1,
+            "obj_adjectives": [
+
+            ],
+            "subj_polarity": 1,
+            "subj_adjectives": [
+
+            ]
+          }
+        }
+      ],
+      "subj": {
+        "factor": "user",
+        "concept": "SYNTHETIC Predators Foxes",
+        "concept_score": 1,
+        "adjectives": [
+
+        ],
+        "polarity": 1,
+        "theme": "user",
+        "theme_property": "user",
+        "process": "user",
+        "process_property": "user"
+      },
+      "obj": {
+        "factor": "user",
+        "concept": "SYNTHETIC Prey Rabbits",
+        "concept_score": 1,
+        "adjectives": [
+
+        ],
+        "polarity": -1,
+        "theme": "user",
+        "theme_property": "user",
+        "process": "user",
+        "process_property": "user"
+      }
+    },
+    {
+      "id": "stub_statement",
+      "belief": 1,
+      "evidence": [
+        {
+          "document_context": {
+
+          },
+          "evidence_context": {
+            "obj_polarity": -1,
+            "obj_adjectives": [
+
+            ],
+            "subj_polarity": 1,
+            "subj_adjectives": [
+
+            ]
+          }
+        }
+      ],
+      "subj": {
+        "factor": "user",
+        "concept": "SYNTHETIC Predators Foxes",
+        "concept_score": 1,
+        "adjectives": [
+
+        ],
+        "polarity": 1,
+        "theme": "user",
+        "theme_property": "user",
+        "process": "user",
+        "process_property": "user"
+      },
+      "obj": {
+        "factor": "user",
+        "concept": "SYNTHETIC Predators Foxes",
+        "concept_score": 1,
+        "adjectives": [
+
+        ],
+        "polarity": -1,
+        "theme": "user",
+        "theme_property": "user",
+        "process": "user",
+        "process_property": "user"
+      }
+    }
+  ]
+}
