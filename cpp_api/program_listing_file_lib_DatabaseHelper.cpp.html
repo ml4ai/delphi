@@ -233,6 +233,8 @@
 <span class="kt">void</span><span class="w"> </span><span class="n">Database</span><span class="o">::</span><span class="n">insert</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">insert_query</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">zErrMsg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
 <span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sqlite3_exec</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="w"> </span><span class="n">insert_query</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span><span class="w"> </span><span class="n">callback</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">zErrMsg</span><span class="p">);</span><span class="w"></span>
+
+<span class="c1">//    cout &lt;&lt; &quot;Database::insert(&quot; &lt;&lt; insert_query &lt;&lt; &quot;) returned &quot; &lt;&lt; rc &lt;&lt; endl;</span>
 <span class="p">}</span><span class="w"></span>
 
 <span class="cm">/*</span>

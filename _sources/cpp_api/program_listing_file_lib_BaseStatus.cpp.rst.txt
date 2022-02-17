@@ -32,22 +32,33 @@ Program Listing for File BaseStatus.cpp
    using namespace std;
    using json = nlohmann::json;
    
+   BaseStatus::BaseStatus(
+     Database* database,
+     const string table_name,
+     const string class_name
+   ) : database(database),
+       table_name(table_name),
+       class_name(class_name) {
+   }
+   
+   
+   BaseStatus::~BaseStatus() {
+   }
+   
    /* Start the thread that writes the data to the table */
    void BaseStatus::scheduler() {
      while(recording){
        this_thread::sleep_for(std::chrono::seconds(1));
        if(pThread != nullptr) {
-         write_progress();
+         json data = get_data();
+         data[PROGRESS] = delphi::utils::round_n(progress, 2);
+         write_row(get_id(), data);
        }
      }
    }
    
    /* Begin posting progress updates to the database on a regular interval */
-   void BaseStatus::begin_recording_progress(string status){
-     set_status(status);
-     progress = 0.0;
-     write_progress();
-   
+   void BaseStatus::start_recording_progress(){
      recording = true;
      if(pThread == nullptr) {
        pThread = new thread(&BaseStatus::scheduler, this);
@@ -55,7 +66,7 @@ Program Listing for File BaseStatus.cpp
    }
    
    /* Stop posting progress updates to the database */
-   void BaseStatus::finish_recording_progress(string status){
+   void BaseStatus::stop_recording_progress(){
      recording = false;
      if (pThread != nullptr) {
        if(pThread->joinable()) {
@@ -64,7 +75,6 @@ Program Listing for File BaseStatus.cpp
        delete pThread;
      }
      pThread = nullptr;
-     set_status(status);
    }
    
    /* purge table of partial records */
@@ -81,95 +91,59 @@ Program Listing for File BaseStatus.cpp
    
      database->insert(query);
    
-     // prune rows per table
      vector<string> ids = get_ids();
+     log_info("Validating " + table_name + " table...");
      for(string id : ids) {
        prune_row(id);
      }
+     log_info("Done.");
    }
    
-   // Lock the database 
-   sqlite3_mutex* BaseStatus::enter_critical_section() {
-     sqlite3_mutex* mx = sqlite3_mutex_alloc(SQLITE_MUTEX_RECURSIVE);
-     if(mx == nullptr) {
-       log_error("Could not create mutex, database error"); // error
-       return mx;
-     }
-     // enter critical section (blocking method)
-     sqlite3_mutex_enter(mx);
-     return mx;
-   }
+   void BaseStatus::prune_row(string id) {
    
-   // Unlock the database
-   void BaseStatus::exit_critical_section(sqlite3_mutex* mx) {
-     sqlite3_mutex_leave(mx);
-     sqlite3_mutex_free(mx);
-     mx = nullptr;
-   }
+     json row = read_row(id);
    
-   // Attempt to lock this status by setting the 'busy' flag to true.
-   bool BaseStatus::lock() {
-     sqlite3_mutex* mx = enter_critical_section();
-     if(mx == nullptr) {
-       return false; // We did not get a mutex.  This should never happen
+     // row does not exist
+     if(row.empty()) {
+       log_info(" Pruning " + id + " FAIL (missing record, deleting row)");
+       delete_row(id);
+       return;
      }
    
-     // Enter critical section and get (or create) the row for this status
-     if(get_data().empty()) {
-       init_row();
+     // No string in data column
+     string dataString = row[COL_DATA];
+     if(dataString.empty()) {
+       log_info(" Pruning " + id + " FAIL (missing raw data, deleting row)");
+       delete_row(id);
+       return;
      }
-     json data = get_data();
    
-     // exit critical section if the status is busy
-     bool busy = data[BUSY];
+     // No JSON from data string
+     json data = json::parse(dataString);
+     if(data.empty()) {
+       log_info(" Pruning " + dataString + " FAIL (missing data, deleting row)");
+       delete_row(id);
+       return;
+     }
+   
+     // progress below 1.0
+     double row_progress = data.value(PROGRESS,0.0);
+     if(row_progress < 1.0) {
+       log_info(" Pruning " + dataString + " FAIL (stale progress, deleting row)");
+       delete_row(id);
+       return;
+     }
+   
+     // busy flag set high
+     bool busy = data.value(BUSY, true);
      if(busy) {
-       exit_critical_section(mx);
-       return false;  // This status is busy
-     }
-     
-     // set the lock
-     data[BUSY] = true;
-     data[PROGRESS] = 0.0;
-     write_row(get_id(), data);
-     json check = get_data();
-     bool locked = check[BUSY];
-   
-     // exit critical section with the lock state
-     exit_critical_section(mx);
-     return locked; 
-   }
-   
-   // Attempt to unlock this status by setting the 'busy' flag to false.
-   bool BaseStatus::unlock() {
-     sqlite3_mutex* mx = enter_critical_section();
-     if(mx == nullptr) {
-       return false; // error
+       log_info(" Pruning " + dataString + " FAIL (stale lock, deleting row)");
+       delete_row(id);
+       return;
      }
    
-     // free the lock
-     json data = get_data();
-     data[BUSY] = false;
-     write_row(get_id(), data);
-     json check = get_data();
-     bool locked = check[BUSY];
-   
-     exit_critical_section(mx);
-     return !locked; 
+     log_info(" Keeping " + dataString);
    }
-   
-   void BaseStatus::set_status(string status) {
-     json data = get_data();
-     data[STATUS] = status;
-     write_row(get_id(), data);
-   }
-   
-   // write our local progress var to the database
-   void BaseStatus::write_progress() {
-     json data = get_data();
-     data[PROGRESS] = delphi::utils::round_n(progress, 2);
-     write_row(get_id(), data);
-   }
-   
    
    // report the current time
    string BaseStatus::timestamp() {
