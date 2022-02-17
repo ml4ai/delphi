@@ -1084,6 +1084,9 @@ class AnalysisGraph {
   void partition_data_according_to_period(int hn_id, std::vector<double> &mean_sequence,
                                           std::vector<int> &ts_sequence);
 
+  std::pair<Eigen::MatrixXd, Eigen::VectorXd>
+      assemble_sinusoidal_generating_LDS(unsigned short components);
+
   public:
   AnalysisGraph() {
      one_off_constraints.clear();

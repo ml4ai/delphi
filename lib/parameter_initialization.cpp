@@ -165,6 +165,33 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
                   ts_sequence.push_back(ts);
                   mean_sequence.push_back(delphi::utils::mean(obs_at_ts));
                   std_sequence.push_back(delphi::utils::standard_deviation(mean_sequence.back(), obs_at_ts));
+
+                  if (i == 0 && n.period > 1 &&
+                      this->head_nodes.find(v) != this->head_nodes.end()) {
+                      // Only use observations of the 1st indicator attached to
+                      // each concept. Seasonal Fourier model is applied only to
+                      // head nodes with period > 1.
+
+                      // For all the concepts ts = 0 is the start
+                      int partition = ts % n.period;
+
+                      // Note: if there are multiple observations for some
+                      // time steps, the length of time step vector and the
+                      // observation vector will be different.
+                      n.partitioned_data[partition].first.push_back(ts);
+
+                      // Partition the raw observations for now.
+                      // Since we fit the seasonal Fourier model for the latent
+                      // variables, we have to divide these raw observations by
+                      // the scaling factor (for now we are using the mean) of
+                      // the first indicator, which we do not know at the moment
+                      // (we are in the process of computing the mean) before
+                      // fitting the fourier curve.
+                      n.partitioned_data[partition].second.insert(
+                                     n.partitioned_data[partition].second.end(),
+                                     obs_at_ts.begin(),
+                                     obs_at_ts.end());
+                  }
               } //else {
                 // This is a missing observation
                 //}
@@ -270,6 +297,13 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
                   }
               }
 
+              for (auto& [parititon, obs_in_parititon]: n.partitioned_data) {
+                  transform(obs_in_parititon.second.begin(), obs_in_parititon.second.end(),
+                            obs_in_parititon.second.begin(),
+                            [&](double obs){return obs / n.indicators[0].mean;});
+              }
+
+              /*
               transform(mean_sequence.begin(), mean_sequence.end(),
                         mean_sequence.begin(),
                       [&](double obs_mean){return obs_mean / n.indicators[0].mean;});
@@ -285,6 +319,7 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
                   n.partitioned_data[partition].first.push_back(ts_sequence[ts]);
                   n.partitioned_data[partition].second.push_back(mean_sequence[ts]);
               }
+               */
 
               double center;
               vector<int> filled_observation_timesteps_within_a_period;
