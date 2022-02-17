@@ -38,17 +38,15 @@ void BaseStatus::scheduler() {
   while(recording){
     this_thread::sleep_for(std::chrono::seconds(1));
     if(pThread != nullptr) {
-      write_progress();
+      json data = get_data();
+      data[PROGRESS] = delphi::utils::round_n(progress, 2);
+      write_row(get_id(), data);
     }
   }
 }
 
 /* Begin posting progress updates to the database on a regular interval */
-void BaseStatus::begin_recording_progress(string status){
-  set_status(status);
-  progress = 0.0;
-  write_progress();
-
+void BaseStatus::start_recording_progress(){
   recording = true;
   if(pThread == nullptr) {
     pThread = new thread(&BaseStatus::scheduler, this);
@@ -56,7 +54,7 @@ void BaseStatus::begin_recording_progress(string status){
 }
 
 /* Stop posting progress updates to the database */
-void BaseStatus::finish_recording_progress(string status){
+void BaseStatus::stop_recording_progress(){
   recording = false;
   if (pThread != nullptr) {
     if(pThread->joinable()) {
@@ -65,7 +63,6 @@ void BaseStatus::finish_recording_progress(string status){
     delete pThread;
   }
   pThread = nullptr;
-  set_status(status);
 }
 
 /* purge table of partial records */
@@ -82,51 +79,58 @@ void BaseStatus::clean_db(){
 
   database->insert(query);
 
-  // prune rows per table
   vector<string> ids = get_ids();
+  log_info("Validating " + table_name + " table...");
   for(string id : ids) {
     prune_row(id);
   }
+  log_info("Done.");
 }
 
+void BaseStatus::prune_row(string id) {
 
-// Attempt to lock this status by setting the 'busy' flag to true.
-bool BaseStatus::lock() {
+  json row = read_row(id);
 
-  // Enter critical section and get (or create) the row for this status
-  if(get_data().empty()) {
-    initialize();
+  // row does not exist
+  if(row.empty()) {
+    log_info(" Pruning " + id + " FAIL (missing record, deleting row)");
+    delete_row(id);
+    return;
   }
-  json data = get_data();
 
-  // exit critical section if the status is busy
-  bool busy = data[BUSY];
+  // No string in data column
+  string dataString = row[COL_DATA];
+  if(dataString.empty()) {
+    log_info(" Pruning " + id + " FAIL (missing raw data, deleting row)");
+    delete_row(id);
+    return;
+  }
+
+  // No JSON from data string
+  json data = json::parse(dataString);
+  if(data.empty()) {
+    log_info(" Pruning " + dataString + " FAIL (missing data, deleting row)");
+    delete_row(id);
+    return;
+  }
+
+  // progress below 1.0
+  double row_progress = data.value(PROGRESS,0.0);
+  if(row_progress < 1.0) {
+    log_info(" Pruning " + dataString + " FAIL (stale progress, deleting row)");
+    delete_row(id);
+    return;
+  }
+
+  // busy flag set high
+  bool busy = data.value(BUSY, true);
   if(busy) {
-    return false; 
+    log_info(" Pruning " + dataString + " FAIL (stale lock, deleting row)");
+    delete_row(id);
+    return;
   }
-  
-  // set the lock
-  data[BUSY] = true;
-  data[PROGRESS] = 0.0;
-  write_row(get_id(), data);
-  json check = get_data();
-  bool locked = check[BUSY];
 
-  // exit critical section with the lock state
-  return locked; 
-}
-
-void BaseStatus::set_status(string status) {
-  json data = get_data();
-  data[STATUS] = status;
-  write_row(get_id(), data);
-}
-
-// write our local progress var to the database
-void BaseStatus::write_progress() {
-  json data = get_data();
-  data[PROGRESS] = delphi::utils::round_n(progress, 2);
-  write_row(get_id(), data);
+  log_info(" Keeping " + dataString);
 }
 
 // report the current time

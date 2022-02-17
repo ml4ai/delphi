@@ -14,25 +14,26 @@ using json = nlohmann::json;
 class BaseStatus {
 
   private:
+    string class_name = "N/A";
+    string table_name = "N/A";
     Database* database = nullptr;
     std::thread *pThread = nullptr;
     bool recording = false;
     string timestamp();
-    string class_name = "N/A";
-    string table_name = "N/A";
-    void write_progress();
+    void prune_row(string id);
+    void scheduler();
+    vector<string> get_ids();
 
   protected:
-    void scheduler();
     void log_error(string msg);
     void log_info(string msg);
     virtual string get_id() = 0;
     double progress = 0.0;
     json read_row(string id);
     void write_row(string id, json data);
-    virtual void prune_row(string id) = 0;
     void delete_row(string id);
-    vector<string> get_ids();
+    void start_recording_progress();
+    void stop_recording_progress();
 
   public:
     BaseStatus(
@@ -44,15 +45,7 @@ class BaseStatus {
 
     void clean_db();
     json get_data();
-    virtual void initialize() = 0;
-    void set_progress(double p) { progress = p;}
     void increment_progress(double i) { progress += i;}
-    bool lock();
-    void set_status(string status);
-    void set_data(json data){write_row(get_id(), data);}
-    void begin_recording_progress(string status);
-    void finish_recording_progress(string status);
-    virtual void finalize(string status) = 0;
 
     // database columns
     const string COL_ID = "id"; // database column, not exported

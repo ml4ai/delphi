@@ -15,71 +15,40 @@ using json = nlohmann::json;
 
 
 // set our data to the start state
-void ExperimentStatus::initialize() {
-  progress = 0.0;
-  json data;
-  data[MODEL_ID] = model_id;
-  data[EXPERIMENT_ID] = experiment_id;
-  data[PROGRESS] = progress;
-  data[STATUS] = "empty";
-  data[BUSY] = false;
-  write_row(experiment_id, data);
+void ExperimentStatus::enter_initial_state() {
+  set_state(0.0, "Empty", false);
+}
+
+// set our data to begin preliminary data reading
+void ExperimentStatus::enter_reading_state() {
+  set_state(0.0, "Creating experiment", true);
+}
+
+// set our data to begin recording progress
+void ExperimentStatus::enter_working_state() {
+  set_state(0.0, "In progress", true);
+  start_recording_progress();
+}
+
+// set our data to begin writing to database
+void ExperimentStatus::enter_writing_state() {
+  stop_recording_progress();
+  set_state(0.99, "Writing to database", true);
 }
 
 // set our data to the end state
-void ExperimentStatus::finalize(string status) {
-  progress = 1.0;
-  json data;
-  data[MODEL_ID] = model_id;
-  data[EXPERIMENT_ID] = experiment_id;
-  data[PROGRESS] = progress;
-  data[STATUS] = "Complete";
-  data[BUSY] = false;
-  write_row(experiment_id, data);
+void ExperimentStatus::enter_finished_state() {
+  set_state(1.0, "Complete", false);
 }
 
-
-// experiment status rows are not archived
-void ExperimentStatus::prune_row(string id) {
-
-  log_info("pruning row " + id);
-
-  json row = read_row(id);
-  string report = row.dump();
-
-  if(row.empty()) {
-    log_info(report + " FAIL (missing record, deleting row)");
-    delete_row(id);
-    return;
-  }
-
-  string dataString = row[COL_DATA];
-  if(dataString.empty()) {
-    log_info(report + " FAIL (missing raw data, deleting row)");
-    delete_row(id);
-    return;
-  }
-
-  json data = json::parse(dataString);
-  if(data.empty()) {
-    log_info(report + " FAIL (missing data, deleting row)");
-    delete_row(id);
-    return;
-  }
-
-  double row_progress = data.value(PROGRESS,0.0);
-  if(row_progress < 1.0) {
-    log_info(report + " FAIL (stale progress, deleting row)");
-    delete_row(id);
-    return;
-  }
-
-  bool busy = data.value(BUSY, true);
-  if(busy) {
-    log_info(report + " FAIL (stale lock, deleting row)");
-    delete_row(id);
-    return;
-  }
-
-  log_info(report + " PASS");
+// set the complete data for the database row
+void ExperimentStatus::set_state(double progress, string status, bool busy) {
+  this->progress = progress;
+  json data;
+  data[EXPERIMENT_ID] = experiment_id;
+  data[MODEL_ID] = model_id;
+  data[PROGRESS] = progress;
+  data[STATUS] = status;
+  data[BUSY] = busy;
+  write_row(experiment_id, data);
 }

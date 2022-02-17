@@ -17,11 +17,9 @@ class ModelStatus : public BaseStatus {
 
   private:
     string model_id = "N/A";
-    void prune_row(string id);
 
   protected:
-    void initialize();
-    void clean_table();
+    void set_state(double progress, string status, bool busy);
 
   public:
     ModelStatus(string id) : BaseStatus(
@@ -39,7 +37,11 @@ class ModelStatus : public BaseStatus {
     ~ModelStatus(){}
 
     string get_id(){return model_id;}
-    void finalize(string status);
+    void enter_initial_state();
+    void enter_reading_state();
+    void enter_working_state();
+    void enter_writing_state();
+    void enter_finished_state();
 
     // serialized JSON fields in the status text
     const string MODEL_ID = "id"; // API
