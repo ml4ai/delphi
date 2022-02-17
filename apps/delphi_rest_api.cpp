@@ -70,6 +70,7 @@ class Experiment {
         double endTime = request_body["experimentParam"]["endTime"];
         int numTimesteps = request_body["experimentParam"]["numTimesteps"];
 
+
         FormattedProjectionResult causemos_experiment_result =
             G.run_causemos_projection_experiment_from_json_string(
                 request.body());
@@ -120,6 +121,9 @@ class Experiment {
             result["status"],
             result["experimentType"],
             result["results"].dump());
+
+        ExperimentStatus es(experiment_id, modelId, sqlite3DB);
+        es.enter_finished_state();
     }
 
     static void runExperiment(Database* sqlite3DB,
@@ -129,10 +133,12 @@ class Experiment {
         auto request_body = nlohmann::json::parse(request.body());
         string experiment_type = request_body["experimentType"];
 
+	ModelStatus ms(modelId, sqlite3DB);
+
         json query_result = sqlite3DB->select_delphimodel_row(modelId);
 
-        if (query_result.empty()) {
-            // Model ID not in database. Should be an incorrect model ID
+        if (ms.get_data().empty()) {
+            // Model ID not in database.
             query_result = sqlite3DB->select_causemosasyncexperimentresult_row(
                 experiment_id);
             sqlite3DB->insert_into_causemosasyncexperimentresult(
@@ -143,8 +149,12 @@ class Experiment {
             return;
         }
 
+	ExperimentStatus es(experiment_id, modelId, sqlite3DB);
+	es.enter_reading_state();
+
         string model = query_result["model"];
         bool trained = nlohmann::json::parse(model)["trained"];
+
 
         AnalysisGraph G;
         G = G.deserialize_from_json_string(model, false);
@@ -181,15 +191,12 @@ class Model {
     ) {
 	G.id = model_id;
         G.run_train_model(res, burn);
-	ms.set_status("trained, writing to database");
+	ms.enter_writing_state();
         sqlite3DB->insert_into_delphimodel(
             model_id,
             G.serialize_to_json_string(false)
         );
-        ms.finalize("Ready");
-	if(!ms.unlock()) {
-	  cout << "Model " << model_id << " unlock failed" << endl;
-	}
+	ms.enter_finished_state();
     }
 
     static size_t get_kde_kernels() {
@@ -235,38 +242,6 @@ class Model {
 
 	// If no specific environment is set, return a default value
 	return 10000;
-    }
-
-    // freeze the edge and return a status string (Empty means OK)
-    static string freeze_edge(
-        AnalysisGraph& G,
-        string source_name,
-        string target_name,
-        double scaled_weight,
-        int polarity
-    ){
-        switch (G.freeze_edge_weight(
-            source_name,
-	    target_name,
-	    scaled_weight,
-	    polarity
-        )) {
-            case 1: return "scaled_weight " 
-                + to_string(scaled_weight) 
-                + " outside accepted range";
-            case 2: return "Source concept '" 
-                + source_name
-                + "' does not exist";
-            case 4: return "Target concept '"
-                + target_name
-                + "' does not exist";
-            case 8: return "There is no edge from '" 
-                + source_name 
-                + "' to '" 
-                + target_name 
-                + "'";
-            default: return "";
-	}
     }
 };
 
@@ -370,14 +345,21 @@ int main(int argc, const char* argv[]) {
 	    string modelId = req_json["id"];
 	    ModelStatus ms(modelId, sqlite3DB);
 
-            // do not overwrite model if it is training
-            if (!ms.lock()) {
-		json model_data = ms.get_data();
+	    // check for existence of record, add if needed.
+	    if(ms.get_data().empty()) {
+              ms.enter_initial_state();
+            }
+
+            json model_status_data = ms.get_data();
+	    bool model_busy = model_status_data[ms.BUSY];
+
+            // do not overwrite model if it is busy
+            if (model_busy) {
                 json ret;
                 ret[ms.MODEL_ID] = modelId;
-                ret[ms.PROGRESS] = model_data[ms.PROGRESS];
-                ret[ms.STATUS] = "Model is busy(" 
-                    + (string)model_data[ms.STATUS] 
+                ret[ms.PROGRESS] = model_status_data[ms.PROGRESS];
+                ret[ms.STATUS] = "Model is busy (" 
+                    + (string)model_status_data[ms.STATUS] 
 		    + "), please wait until it before overwriting.";
                 string dumpStr = ret.dump();
                 response << dumpStr; 
@@ -385,7 +367,7 @@ int main(int argc, const char* argv[]) {
             }
 	    
 	    // create the model on the database
-            ms.set_status("Creating Model");
+            ms.enter_reading_state();
 
 	    size_t kde_kernels = Model::get_kde_kernels();
 	    int burn = Model::get_burn();
@@ -395,7 +377,6 @@ int main(int argc, const char* argv[]) {
             G.set_n_kde_kernels(kde_kernels);
             G.from_causemos_json_dict(req_json, 0, 0);
 
-            ms.set_status("Writing untrained Model to database");
             sqlite3DB->insert_into_delphimodel(
                 modelId, 
 		G.serialize_to_json_string(false)
@@ -442,31 +423,49 @@ int main(int argc, const char* argv[]) {
     */
     mux.handle("/models/{modelId}/experiments/{experimentId}")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
+
             string modelId = req.params["modelId"];
             string experimentId = req.params["experimentId"];
 
             ExperimentStatus es(experimentId, modelId, sqlite3DB);
+
+            json ret;
+            ret[es.MODEL_ID] = modelId;
+            ret[es.EXPERIMENT_ID] = experimentId;
+
+	    json es_data = es.get_data();
+	    if(!es_data.empty()) {
+	      bool busy = es_data[es.BUSY];
+	      if(busy) {
+	        ret[es.PROGRESS] = es_data[es.PROGRESS];
+	        ret[es.STATUS] = 
+		  "Experiment is busy, please wait for it to finish.";
+                res << ret.dump();
+                return ret;
+              }
+            }
 
             json query_result =
                 sqlite3DB->select_causemosasyncexperimentresult_row(
                     experimentId
                 );
 
-            json ret;
-            ret[es.MODEL_ID] = modelId;
-            ret[es.EXPERIMENT_ID] = experimentId;
-
-            string resultstr = query_result[es.RESULTS];
-            json results = json::parse(resultstr);
-            ret[es.EXPERIMENT_TYPE] = query_result[es.EXPERIMENT_TYPE];
-            ret[es.STATUS] = query_result[es.STATUS];
-            ret[es.PROGRESS] = query_result[es.PROGRESS];
-            ret[es.RESULTS] = results["data"];
+	    if (query_result.empty()) { // bad modelId or experimentId
+                ret[es.STATUS] = "invalid experiment id";
+                ret[es.RESULTS] = "Not found";
+            } else {
+                string resultstr = query_result[es.RESULTS];
+                json results = json::parse(resultstr);
+	        double progress = es_data.value(es.PROGRESS, 0.0);
+                ret[es.EXPERIMENT_TYPE] = query_result[es.EXPERIMENT_TYPE];
+                ret[es.STATUS] = query_result[es.STATUS];
+                //ret[es.PROGRESS] = query_result[es.PROGRESS];
+                ret[es.PROGRESS] = progress;
+                ret[es.RESULTS] = results["data"];
+            }
 
             res << ret.dump();
             return ret;
-
-
         });
 
     /* openApi 3.0.0
@@ -508,6 +507,8 @@ int main(int argc, const char* argv[]) {
             string experiment_id = to_string(uuid);
 
 	    ExperimentStatus es(experiment_id, modelId, sqlite3DB);
+	    es.enter_initial_state();
+	    es.enter_reading_state();
 
             sqlite3DB->insert_into_causemosasyncexperimentresult(
                 experiment_id, "in progress", experiment_type, "");
@@ -556,7 +557,6 @@ int main(int argc, const char* argv[]) {
 
         ret[ms.PROGRESS] = model_data[ms.PROGRESS];
         ret[ms.STATUS] = model_data[ms.STATUS];
-        ret[ms.BUSY] = model_data[ms.BUSY];
         res << ret.dump();
     });
 
@@ -593,21 +593,12 @@ int main(int argc, const char* argv[]) {
         nlohmann::json req_json = nlohmann::json::parse(req.body());
 
             string modelId = req.params["modelId"];
+
 	    ModelStatus ms(modelId, sqlite3DB);
+	    json model_data = ms.get_data();
+
             json ret;
             ret[ms.MODEL_ID] = modelId;
-
-	    auto relations = req_json["relations"];
-
-	    // test input for edges
-            if(relations.empty()) {
-                // return error
-                ret[ms.STATUS] = "Edges not found in input";
-                res << ret.dump();
-                return ret;
-            }
-
-	    json model_data = ms.get_data();
 
             // Model not found
             if(model_data.empty()) {
@@ -616,19 +607,26 @@ int main(int argc, const char* argv[]) {
                 return ret;
             }   
 
+	    auto relations = req_json["relations"];
+
+	    // Edges not found
+            if(relations.empty()) {
+                ret[ms.STATUS] = "Edges not found in input";
+                res << ret.dump();
+                return ret;
+            }
+
             // See if this model is available for training
-	    if(!ms.lock()) {
+	    bool busy = model_data[ms.BUSY];
+	    if(busy) {
                 ret[ms.PROGRESS] = model_data[ms.PROGRESS];
                 ret[ms.STATUS] = "Model is busy(" 
                     + (string)model_data[ms.STATUS] 
-		    + "), please wait until it finished before editing.";
+		    + "), please wait until it finishes before editing.";
                 res << ret.dump();
                 return ret;
             }  
 
-	    // beyond this point we have exclusive control of this model
-            ms.set_status("Deserializing model");
-            
 	    // Get the model row from the database
             json query_result = sqlite3DB->select_delphimodel_row(modelId);
 
@@ -637,26 +635,49 @@ int main(int argc, const char* argv[]) {
             AnalysisGraph G;
             G = G.deserialize_from_json_string(modelString, false);
 
-            ms.set_status("Freezing edges");
-
 	    // freeze edges
 	    for(auto relation : relations) {
-		string source = relation["source"];
-		string target = relation["target"];
+		string source_name = relation["source"];
+		string target_name = relation["target"];
 		vector<double> weights = relation["weights"];
-		double weight = weights.front();
+		double scaled_weight = weights.front();
 		int polarity = relation["polarity"];
 
 		// test the return value
-		string errorReport = 
-                    Model::freeze_edge(G, source, target, weight, polarity);
-		if(!errorReport.empty()) {
-                    ret[ms.STATUS] = errorReport;
+		unsigned short retcode = G.freeze_edge_weight(
+                    source_name,
+                    target_name,
+                    scaled_weight,
+                    polarity
+                );
+
+		if (retcode) {
+                    switch (retcode) {
+                        case 1: ret[ms.STATUS] = "scaled_weight "
+                            + to_string(scaled_weight)
+                            + " outside accepted range";
+                        break;
+                        case 2: ret[ms.STATUS] = "Source concept '"
+                            + source_name
+                            + "' does not exist";
+                        break;
+                        case 4: ret[ms.STATUS] = "Target concept '"
+                            + target_name
+                            + "' does not exist";
+                        break;
+                        case 8: ret[ms.STATUS] = "There is no edge from '"
+                            + source_name
+                            + "' to '"
+                            + target_name
+                            + "'";
+                        break;
+                        default: 
+                        break;
+                    }
                     res << ret.dump();
                     return ret;
 		}
 	    }
-
 
 	    // train model in another thread
 	    size_t kde_kernels = Model::get_kde_kernels();

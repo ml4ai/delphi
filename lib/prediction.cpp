@@ -53,12 +53,9 @@ void AnalysisGraph::generate_latent_state_sequences(
       vector<VectorXd>(this->pred_timesteps, VectorXd(this->num_vertices() * 2)));
 
   // configure monitoring of experiment progress
-  ExperimentStatus es(
-      this->experiment_id,
-      this->id
-  );
-  double progress_step = 0.01;  // 100 sample steps
-  es.begin_recording_progress("In progress");
+  ExperimentStatus es(this->experiment_id, this->id);
+  double progress_step = 1.0/101.0;  // finish with progress at 0.99
+  es.enter_working_state();
 
   cout << "\nPredicting for " << this->pred_timesteps << " time steps..." << endl;
 
@@ -277,8 +274,8 @@ void AnalysisGraph::generate_latent_state_sequences(
       es.increment_progress(progress_step);
   }
 
-   // finalize experiment progress monitoring
-   es.finish_recording_progress("Complete");
+   // finish experiment progress monitoring
+   es.enter_writing_state();
 }
 
 /*

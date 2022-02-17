@@ -16,7 +16,7 @@ class ExperimentStatus : public BaseStatus {
     string model_id = "N/A";
 
   protected:
-    void prune_row(string id);
+    void set_state(double progress, string status, bool busy);
 
   public:
     ExperimentStatus(
@@ -41,8 +41,11 @@ class ExperimentStatus : public BaseStatus {
     ~ExperimentStatus(){}
 
     string get_id(){ return experiment_id;}
-    void init_row();
-    void finalize(string status);
+    void enter_initial_state();
+    void enter_reading_state();
+    void enter_working_state();
+    void enter_writing_state();
+    void enter_finished_state();
 
     const string CONSTRAINTS = "constraints"; // API
     const string END_TIME = "endTime"; // API

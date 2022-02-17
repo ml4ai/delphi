@@ -153,6 +153,8 @@ json Database::select_causemosasyncexperimentresult_row(string modelId) {
 void Database::insert(string insert_query) {
     char* zErrMsg = 0;
     int rc = sqlite3_exec(db, insert_query.c_str(), callback, 0, &zErrMsg);
+
+//    cout << "Database::insert(" << insert_query << ") returned " << rc << endl;
 }
 
 /*
