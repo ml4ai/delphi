@@ -14,50 +14,38 @@ using json = nlohmann::json;
 class BaseStatus {
 
   private:
+    string class_name = "N/A";
+    string table_name = "N/A";
     Database* database = nullptr;
     std::thread *pThread = nullptr;
     bool recording = false;
     string timestamp();
-    string class_name = "N/A";
-    string table_name = "N/A";
-    void write_progress();
-    sqlite3_mutex* enter_critical_section();
-    void exit_critical_section(sqlite3_mutex* mx);
+    void prune_row(string id);
+    void scheduler();
+    vector<string> get_ids();
 
   protected:
-    void scheduler();
     void log_error(string msg);
     void log_info(string msg);
     virtual string get_id() = 0;
     double progress = 0.0;
     json read_row(string id);
     void write_row(string id, json data);
-    virtual void prune_row(string id) = 0;
     void delete_row(string id);
-    vector<string> get_ids();
+    void start_recording_progress();
+    void stop_recording_progress();
 
   public:
     BaseStatus(
       Database* database,
       const string table_name,
       const string class_name
-    ) : database(database),
-      table_name(table_name),
-      class_name(class_name) {}
-
-    ~BaseStatus(){}
+    );
+    ~BaseStatus();
 
     void clean_db();
     json get_data();
-    virtual void init_row() = 0;
-    void set_progress(double p) { progress = p;}
     void increment_progress(double i) { progress += i;}
-    bool lock();
-    bool unlock();
-    void set_status(string status);
-    void begin_recording_progress(string status);
-    void finish_recording_progress(string status);
-    virtual void finalize(string status) = 0;
 
     // database columns
     const string COL_ID = "id"; // database column, not exported
