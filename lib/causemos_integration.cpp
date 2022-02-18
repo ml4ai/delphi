@@ -1085,10 +1085,6 @@ unsigned short AnalysisGraph::freeze_edge_weight(std::string source_name,
                                        std::string target_name,
                                        double scaled_weight,
                                        int polarity) {
-    if (scaled_weight < 0 || scaled_weight > 1) {
-        return 1;
-    }
-
     int source_id = -1;
     int target_id = -1;
 
@@ -1114,8 +1110,21 @@ unsigned short AnalysisGraph::freeze_edge_weight(std::string source_name,
         return 8;
     }
 
+    if (polarity == 0) {
+        this->graph[edg.first].unfreeze();
+        // Prevent initializing the model parameters to the MAP estimate of the
+        // previous training run to give a warm start to training
+        this->MAP_sample_number = -1;
+        return 0;
+    }
+
+    if (scaled_weight < 0 || scaled_weight >= 1) {
+        return 1;
+    }
+
     double theta = polarity / abs(polarity) * scaled_weight * M_PI_2;
 
+    this->graph[edg.first].unfreeze();
     this->graph[edg.first].set_theta(theta);
     this->graph[edg.first].freeze();
 
