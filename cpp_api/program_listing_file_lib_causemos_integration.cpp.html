@@ -1124,10 +1124,6 @@
 <span class="w">                                       </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">target_name</span><span class="p">,</span><span class="w"></span>
 <span class="w">                                       </span><span class="kt">double</span><span class="w"> </span><span class="n">scaled_weight</span><span class="p">,</span><span class="w"></span>
 <span class="w">                                       </span><span class="kt">int</span><span class="w"> </span><span class="n">polarity</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">scaled_weight</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">scaled_weight</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-
 <span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">source_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"></span>
 <span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">target_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"></span>
 
@@ -1153,8 +1149,21 @@
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span><span class="w"></span>
 <span class="w">    </span><span class="p">}</span><span class="w"></span>
 
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">polarity</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="n">edg</span><span class="p">.</span><span class="n">first</span><span class="p">].</span><span class="n">unfreeze</span><span class="p">();</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Prevent initializing the model parameters to the MAP estimate of the</span>
+<span class="w">        </span><span class="c1">// previous training run to give a warm start to training</span>
+<span class="w">        </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">MAP_sample_number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">scaled_weight</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">scaled_weight</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+
 <span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">theta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">polarity</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">abs</span><span class="p">(</span><span class="n">polarity</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">scaled_weight</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">M_PI_2</span><span class="p">;</span><span class="w"></span>
 
+<span class="w">    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="n">edg</span><span class="p">.</span><span class="n">first</span><span class="p">].</span><span class="n">unfreeze</span><span class="p">();</span><span class="w"></span>
 <span class="w">    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="n">edg</span><span class="p">.</span><span class="n">first</span><span class="p">].</span><span class="n">set_theta</span><span class="p">(</span><span class="n">theta</span><span class="p">);</span><span class="w"></span>
 <span class="w">    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">graph</span><span class="p">[</span><span class="n">edg</span><span class="p">.</span><span class="n">first</span><span class="p">].</span><span class="n">freeze</span><span class="p">();</span><span class="w"></span>
 
