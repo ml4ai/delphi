@@ -2,7 +2,7 @@
   "experimentType": "PROJECTION",
   "experimentParam": {
     "numTimesteps": 60,
-    "startTime": -3250368000000,
+    "startTime": 662688000000,
     "endTime": 1417392000000,
     "constraints": []
   }
