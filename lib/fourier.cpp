@@ -242,7 +242,10 @@ AnalysisGraph::compute_fourier_coefficients_from_least_square_optimization() {
     /* Setting up the linear system Ux = y to solve for the
      * Fourier coefficients using the least squares optimization */
     Eigen::MatrixXd U = Eigen::MatrixXd::Zero(tot_observations, max_k * 2 + 1);
-    U.col(0) = Eigen::VectorXd::Constant(tot_observations, 0.5);
+    // Setting the coefficient for cos(0) term (α₀). In the traditional Fourier
+    // decomposition this is 0.5 and when α₀ is used, we have to divide it by 2.
+    // To avoid this additional division, here we use 1 instead.
+    U.col(0) = Eigen::VectorXd::Ones(tot_observations);
     Eigen::VectorXd y = Eigen::VectorXd::Zero(tot_observations);
 
     unsigned int row = 0;
@@ -295,7 +298,11 @@ AnalysisGraph::compute_fourier_coefficients_from_least_square_optimization() {
 
         // Sinusoidal coefficient vector to calculate initial value for concept v
         Eigen::VectorXd v0 = Eigen::VectorXd::Zero(fourier_coefficients.size());
-        v0(0) = 0.5;
+        // Coefficient for cos(0) term (α₀). In the traditional Fourier
+        // decomposition this to 0.5. When we compute α₀ we include this factor
+        // into α₀ (Instead of computing α₀ as in the traditional Fourier series,
+        // we compute α₀/2 straightaway).
+        v0(0) = 1;
 
         for (int concept_freq_idx = 0; concept_freq_idx < concept_freqs.size();
              concept_freq_idx++) {
