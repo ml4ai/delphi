@@ -1092,7 +1092,7 @@ class AnalysisGraph {
    * @return A vector of all the effective frequencies
    */
   std::vector<double> generate_frequencies_for_period(int components,
-                                                       int period);
+                                                      int period);
 
   /**
    * Assemble the LDS to generate sinusoidals of desired frequencies
@@ -1102,7 +1102,7 @@ class AnalysisGraph {
    *         0 radians in the initial angle.
    */
   std::pair<Eigen::MatrixXd, Eigen::VectorXd>
-    assemble_sinusoidal_generating_LDS(std::vector<double> freqs);
+    assemble_sinusoidal_generating_LDS(std::vector<double> &freqs);
 
   /*
   std::pair<Eigen::MatrixXd, Eigen::VectorXd>
@@ -1122,13 +1122,12 @@ class AnalysisGraph {
    *         col 2ω+1 contains λω cos(λω t)
    *         with ω = 1, 2, ... & λ = 2π/period
    */
-  Eigen::MatrixXd generate_sinusoidal_values_for_bins(Eigen::MatrixXd A_sin_base,
-                                                      Eigen::VectorXd s0_sin,
+  Eigen::MatrixXd generate_sinusoidal_values_for_bins(Eigen::MatrixXd &A_sin_base,
+                                                      Eigen::VectorXd &s0_sin,
                                                       int period);
 
-  void check_sines(Eigen::MatrixXd A_sin_base,
-                                                    Eigen::VectorXd s0_sin,
-                                                    int period);
+  void check_sines(Eigen::MatrixXd &A_sin_base, Eigen::VectorXd &s0_sin,
+                   int period);
 
 
   public:
