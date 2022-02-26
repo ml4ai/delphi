@@ -1084,10 +1084,55 @@ class AnalysisGraph {
   void partition_data_according_to_period(int hn_id, std::vector<double> &mean_sequence,
                                           std::vector<int> &ts_sequence);
 
+  /**
+   * Generates a vector of all the effective frequencies for a particular period
+   * @param components: The number of pure sinusoidal frequencies to generate
+   * @param period: The period of the variable(s) being modeled by Fourier
+   *                decomposition.
+   * @return A vector of all the effective frequencies
+   */
+  std::vector<double> generate_frequencies_for_period(int components,
+                                                       int period);
+
+  /**
+   * Assemble the LDS to generate sinusoidals of desired frequencies
+   * @param freqs: A vector of effective frequencies
+   *              (λω; ω = 1, 2, ... & λ = 2π/period)
+   * @return pair (base transition matrix, initial state)
+   *         0 radians in the initial angle.
+   */
   std::pair<Eigen::MatrixXd, Eigen::VectorXd>
-      assemble_sinusoidal_generating_LDS(unsigned short components);
+    assemble_sinusoidal_generating_LDS(std::vector<double> freqs);
+
+  /*
+  std::pair<Eigen::MatrixXd, Eigen::VectorXd>
+    assemble_sinusoidal_generating_LDS(unsigned short components,
+                                       unsigned short period);
+  */
+
+  /**
+   * Generate a matrix of sinusoidal values of all the desired frequencies for
+   * all the bin locations.
+   * @param A_sin_base: Base transition matrix for sinusoidal generating LDS
+   * @param s0_sin: Initial state (0 radians0) for sinusoidal generating LDS
+   * @param period: Period of the time series being fitted
+   * @return A matrix of required sinusoidal values.
+   *         row t contains sinusoidals for bin t (radians)
+   *         col 2ω contains sin(λω t)
+   *         col 2ω+1 contains λω cos(λω t)
+   *         with ω = 1, 2, ... & λ = 2π/period
+   */
+  Eigen::MatrixXd generate_sinusoidal_values_for_bins(Eigen::MatrixXd A_sin_base,
+                                                      Eigen::VectorXd s0_sin,
+                                                      int period);
+
+  void check_sines(Eigen::MatrixXd A_sin_base,
+                                                    Eigen::VectorXd s0_sin,
+                                                    int period);
+
 
   public:
+    void compute_fourier_coefficients_from_least_square_optimization();
   AnalysisGraph() {
      one_off_constraints.clear();
      perpetual_constraints.clear();
