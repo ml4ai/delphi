@@ -165,6 +165,65 @@ AnalysisGraph::generate_sinusoidal_values_for_bins(Eigen::MatrixXd &A_sin_base,
     return sinusoidals;
 }
 
+/**
+   * Computes the Fourier coefficients to fit a seasonal curve to partitioned
+   * observations using the least square optimization.
+   * @param sinusoidals Sinusoidal values of required frequencies at each bin
+   *        position. Row b contains all the sinusoidal values for bin b.
+   *        sinusoidals(b, 2(i-1))     =    sin(λi b)
+   *        sinusoidals(b, 2(i-1) + 1) = λi cos(λi b)
+   * @return The Fourier coefficients in the order: α₀, β₁, α₁, β₂, α₂, ...
+   *         α₀ is the coefficient for    cos(0)/2  term
+   *         αᵢ is the coefficient for λi cos(λi b) term
+   *         βᵢ is the coefficient for    sin(λi b) term
+   *
+   *         with i = 1, 2, ... & λ = 2π/period & b = 0, 1, ..., period - 1
+ */
+Eigen::VectorXd
+AnalysisGraph::compute_fourier_coefficients_from_least_square_optimization(
+                                                Eigen::MatrixXd &sinusoidals) {
+    int tot_observations = 24; // Total observations for a concept
+    unordered_map<int, pair<vector<int>, vector<double>>> partitioned_data =
+        {{0, {{},{-0.2, 0, 0.2}}},
+         {1, {{},{1.8, 2, 2.2}}},
+         {2, {{},{5.8, 6, 6.2}}},
+         {3, {{},{3.8, 4, 4.2}}},
+         {4, {{},{2.8, 3, 3.2}}},
+         {5, {{},{7.8, 8, 8.2}}},
+         {6, {{},{4.8, 5, 5.2}}},
+         {7, {{},{3.8, 4, 4.2}}}
+        };
+
+    /* Setting up the linear system Ux = y to solve for the
+     * Fourier coefficients using the least squares optimization */
+    // Adding one additional column for cos(0) term
+    Eigen::MatrixXd U = Eigen::MatrixXd::Zero(tot_observations, sinusoidals.cols() + 1);
+    // Setting the coefficient for cos(0) term (α₀). In the traditional Fourier
+    // decomposition this is 0.5 and when α₀ is used, we have to divide it by 2.
+    // To avoid this additional division, here we use 1 instead.
+    U.col(0) = Eigen::VectorXd::Ones(tot_observations); // ≡ cos(0)
+    Eigen::VectorXd y = Eigen::VectorXd::Zero(tot_observations);
+
+    unsigned int row = 0;
+
+    // Iterate through all the bins (partitions)
+    for (auto [bin, data]: partitioned_data) {
+
+        // Iterate through all the observations in one bin
+        for (double obs: data.second) {
+            U.block(row, 1, 1, sinusoidals.cols()) =
+                                                           sinusoidals.row(bin);
+            y(row) = obs;
+            row++;
+        }
+    }
+
+    Eigen::VectorXd fourier_coefficients =
+        U.bdcSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(y);
+
+    return fourier_coefficients;
+}
+
 void AnalysisGraph::check_sines(Eigen::MatrixXd &A_sin_base,
                                 Eigen::VectorXd &s0_sin, int period) {
 
@@ -198,7 +257,7 @@ void AnalysisGraph::check_sines(Eigen::MatrixXd &A_sin_base,
 
 // 1090
 void
-AnalysisGraph::compute_fourier_coefficients_from_least_square_optimization() {
+AnalysisGraph::fit_seasonal_head_node_model_via_fourier_decomposition() {
     std::unordered_set<double> frequency_set;
 
     int period = 8;
@@ -207,17 +266,6 @@ AnalysisGraph::compute_fourier_coefficients_from_least_square_optimization() {
     // max_k < period / 2 (Nyquist theorem)
     int max_k = 4;
     int k = 2;
-    int tot_observations = 24; // Total observations for a concept
-    unordered_map<int, pair<vector<int>, vector<double>>> partitioned_data =
-        {{0, {{},{-0.2, 0, 0.2}}},
-         {1, {{},{1.8, 2, 2.2}}},
-         {2, {{},{5.8, 6, 6.2}}},
-         {3, {{},{3.8, 4, 4.2}}},
-         {4, {{},{2.8, 3, 3.2}}},
-         {5, {{},{7.8, 8, 8.2}}},
-         {6, {{},{4.8, 5, 5.2}}},
-         {7, {{},{3.8, 4, 4.2}}}
-        };
 
     // Generate the maximum number of sinusoidal frequencies needed for the
     // period. By the Nyquist theorem this number is floor(period / 2)
@@ -238,27 +286,9 @@ AnalysisGraph::compute_fourier_coefficients_from_least_square_optimization() {
                                                                s0_sin_max_k,
                                                                period);
 
-    /* Setting up the linear system Ux = y to solve for the
-     * Fourier coefficients using the least squares optimization */
-    Eigen::MatrixXd U = Eigen::MatrixXd::Zero(tot_observations, max_k * 2 + 1);
-    // Setting the coefficient for cos(0) term (α₀). In the traditional Fourier
-    // decomposition this is 0.5 and when α₀ is used, we have to divide it by 2.
-    // To avoid this additional division, here we use 1 instead.
-    U.col(0) = Eigen::VectorXd::Ones(tot_observations);
-    Eigen::VectorXd y = Eigen::VectorXd::Zero(tot_observations);
-
-    unsigned int row = 0;
-    for (auto [bin, data]: partitioned_data) {
-        for (double obs: data.second) {
-            U.block(row, 1, 1, max_k * 2) =
-                                                           sinusoidals.row(bin);
-            y(row) = obs;
-            row++;
-        }
-    }
-
     Eigen::VectorXd fourier_coefficients =
-        U.bdcSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(y);
+        this->compute_fourier_coefficients_from_least_square_optimization(
+                                                                   sinusoidals);
 
     // By evaluating the root mean squared error on the validation set, decide
     // the frequencies to be used to model this concept

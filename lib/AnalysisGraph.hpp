@@ -1129,9 +1129,25 @@ class AnalysisGraph {
   void check_sines(Eigen::MatrixXd &A_sin_base, Eigen::VectorXd &s0_sin,
                    int period);
 
+  /**
+   * Computes the Fourier coefficients to fit a seasonal curve to partitioned
+   * observations using the least square optimization.
+   * @param sinusoidals Sinusoidal values of required frequencies at each bin
+   *        position. Row b contains all the sinusoidal values for bin b.
+   *        sinusoidals(b, 2(i-1))     =    sin(λi b)
+   *        sinusoidals(b, 2(i-1) + 1) = λi cos(λi b)
+   * @return The Fourier coefficients in the order: α₀, β₁, α₁, β₂, α₂, ...
+   *         α₀ is the coefficient for    cos(0)/2  term
+   *         αᵢ is the coefficient for λi cos(λi b) term
+   *         βᵢ is the coefficient for    sin(λi b) term
+   *
+   *         with i = 1, 2, ... & λ = 2π/period & b = 0, 1, ..., period - 1
+   */
+  Eigen::VectorXd compute_fourier_coefficients_from_least_square_optimization(
+                                                  Eigen::MatrixXd &sinusoidals);
 
   public:
-    void compute_fourier_coefficients_from_least_square_optimization();
+    void fit_seasonal_head_node_model_via_fourier_decomposition();
   AnalysisGraph() {
      one_off_constraints.clear();
      perpetual_constraints.clear();
