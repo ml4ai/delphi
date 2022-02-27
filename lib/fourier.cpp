@@ -61,7 +61,7 @@ vector<double> AnalysisGraph::generate_frequencies_for_period(int components,
    *         0 radians in the initial angle.
  */
 pair<Eigen::MatrixXd, Eigen::VectorXd>
-AnalysisGraph::assemble_sinusoidal_generating_LDS(vector<double> &freqs) {
+AnalysisGraph::assemble_sinusoidal_generating_LDS(const vector<double> &freqs) {
     unsigned short comps_2 = freqs.size() * 2;
     Eigen::MatrixXd A_sin = Eigen::MatrixXd::Zero(comps_2, comps_2);
     Eigen::VectorXd s0_sin = Eigen::VectorXd::Zero(comps_2);
@@ -139,8 +139,8 @@ AnalysisGraph::assemble_sinusoidal_generating_LDS(unsigned short components,
    *         with ω = 1, 2, ... & λ = 2π/period
  */
 Eigen::MatrixXd
-AnalysisGraph::generate_sinusoidal_values_for_bins(Eigen::MatrixXd &A_sin_base,
-                                                   Eigen::VectorXd &s0_sin,
+AnalysisGraph::generate_sinusoidal_values_for_bins(const Eigen::MatrixXd &A_sin_base,
+                                                   const Eigen::VectorXd &s0_sin,
                                                    int period) {
     // Transition matrix to advance the sinusoidal generation LDS from one bin
     // to the next.
@@ -181,7 +181,7 @@ AnalysisGraph::generate_sinusoidal_values_for_bins(Eigen::MatrixXd &A_sin_base,
  */
 Eigen::VectorXd
 AnalysisGraph::compute_fourier_coefficients_from_least_square_optimization(
-                                                Eigen::MatrixXd &sinusoidals) {
+                                           const Eigen::MatrixXd &sinusoidals) {
     int tot_observations = 24; // Total observations for a concept
     unordered_map<int, pair<vector<int>, vector<double>>> partitioned_data =
         {{0, {{},{-0.2, 0, 0.2}}},
@@ -224,8 +224,8 @@ AnalysisGraph::compute_fourier_coefficients_from_least_square_optimization(
     return fourier_coefficients;
 }
 
-void AnalysisGraph::check_sines(Eigen::MatrixXd &A_sin_base,
-                                Eigen::VectorXd &s0_sin, int period) {
+void AnalysisGraph::check_sines(const Eigen::MatrixXd &A_sin_base,
+                                const Eigen::VectorXd &s0_sin, int period) {
 
     CSVWriter writer("sines.csv");
     double step = 0.25;

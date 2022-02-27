@@ -1102,7 +1102,7 @@ class AnalysisGraph {
    *         0 radians in the initial angle.
    */
   std::pair<Eigen::MatrixXd, Eigen::VectorXd>
-    assemble_sinusoidal_generating_LDS(std::vector<double> &freqs);
+    assemble_sinusoidal_generating_LDS(const std::vector<double> &freqs);
 
   /*
   std::pair<Eigen::MatrixXd, Eigen::VectorXd>
@@ -1122,12 +1122,9 @@ class AnalysisGraph {
    *         col 2ω+1 contains λω cos(λω t)
    *         with ω = 1, 2, ... & λ = 2π/period
    */
-  Eigen::MatrixXd generate_sinusoidal_values_for_bins(Eigen::MatrixXd &A_sin_base,
-                                                      Eigen::VectorXd &s0_sin,
+  Eigen::MatrixXd generate_sinusoidal_values_for_bins(const Eigen::MatrixXd &A_sin_base,
+                                                      const Eigen::VectorXd &s0_sin,
                                                       int period);
-
-  void check_sines(Eigen::MatrixXd &A_sin_base, Eigen::VectorXd &s0_sin,
-                   int period);
 
   /**
    * Computes the Fourier coefficients to fit a seasonal curve to partitioned
@@ -1144,7 +1141,10 @@ class AnalysisGraph {
    *         with i = 1, 2, ... & λ = 2π/period & b = 0, 1, ..., period - 1
    */
   Eigen::VectorXd compute_fourier_coefficients_from_least_square_optimization(
-                                                  Eigen::MatrixXd &sinusoidals);
+                                            const Eigen::MatrixXd &sinusoidals);
+
+  void check_sines(const Eigen::MatrixXd &A_sin_base,
+                   const Eigen::VectorXd &s0_sin, int period);
 
   public:
     void fit_seasonal_head_node_model_via_fourier_decomposition();
