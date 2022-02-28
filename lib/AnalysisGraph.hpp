@@ -1152,7 +1152,7 @@ class AnalysisGraph {
                                   const Eigen::VectorXd &fourier_coefficients,
                                   int n_components);
 
-  void determine_the_best_number_of_components(
+  double determine_the_best_number_of_components(
                                    const Eigen::MatrixXd &A_concept_period_base,
                                    const Eigen::VectorXd &s0_concept_period,
                                    int period,

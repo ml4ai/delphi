@@ -340,10 +340,11 @@ AnalysisGraph::assemble_LDS_for_head_nodes_with_the_same_period(
     return make_pair(A_concept_period_base, s0_concept_period);
 }
 
-void AnalysisGraph::determine_the_best_number_of_components(const Eigen::MatrixXd &A_concept_period_base,
-                                                            const Eigen::VectorXd &s0_concept_period,
-                                                            int period,
-                                                            int n_components) {
+double AnalysisGraph::determine_the_best_number_of_components(
+                                   const Eigen::MatrixXd &A_concept_period_base,
+                                   const Eigen::VectorXd &s0_concept_period,
+                                   int period,
+                                   int n_components) {
 
     int num_verts = 1; // This should be the number of concepts with this period
     // Bin i refer to the midpoint between bin i and (i+1) % period
@@ -357,7 +358,7 @@ void AnalysisGraph::determine_the_best_number_of_components(const Eigen::MatrixX
          {6, {4.8, 5, 5.2}},
          {7, {3.8, 4, 4.2}}
         };
-    unordered_map<int, vector<double>> between_bin_midpoints =
+    unordered_map<int, vector<double>> between_bin_midpoints1 =
         {{0, {0, 0, 0}},
          {1, {2, 2, 2}},
          {2, {6, 6, 6}},
@@ -367,7 +368,7 @@ void AnalysisGraph::determine_the_best_number_of_components(const Eigen::MatrixX
          {6, {5, 5, 5}},
          {7, {4, 4, 4}}
         };
-    unordered_map<int, vector<double>> between_bin_midpoints1 =
+    unordered_map<int, vector<double>> between_bin_midpoints =
         {{0, {1, 1.2, 0.8}},
          {1, {4, 4.2, 3.8}},
          {2, {5, 5.2, 4.8}},
@@ -397,30 +398,30 @@ void AnalysisGraph::determine_the_best_number_of_components(const Eigen::MatrixX
 
     // Evolve the system for 1 period of time steps at between bin midpoints
     Eigen::MatrixXd preds = Eigen::MatrixXd::Zero(lds_size, period);
-//    preds.col(0) = A_till_first_midpoint
-//                   * s0_concept_period.head(lds_size);
-    preds.col(0) = s0_concept_period;
+    preds.col(0) = A_till_first_midpoint * s0_concept_period;
+//    preds.col(0) = s0_concept_period;
 
     for (int col = 1; col < period; col++) {
         preds.col(col) = A_step * preds.col(col - 1);
     }
 
+    double rmse; // TODO: We have to handle rmses for multiple concepts
     for (int v = 0; v < num_verts; v++) { // TODO: We need a way to index head nodes with a certain period only
         vector<double> errors;
         int v_preds_row = 2 * v;
 
-        for (auto [midpoint, vals] :
-             between_bin_midpoints) { // TODO: should be the midpoints for the node in consideration
+        for (auto [midpoint, vals] : between_bin_midpoints) { // TODO: should be the midpoints for the node in consideration
             for (double val : vals) {
                 errors.push_back(val - preds(v_preds_row, midpoint));
             }
         }
 
-        double rmse = sqrt(
+        rmse = sqrt(
             inner_product(errors.begin(), errors.end(), errors.begin(), 0.0) /
             errors.size());
         cout << n_components << " : " << rmse << endl;
     }
+    return rmse;
 }
 
 void AnalysisGraph::check_sines(const Eigen::MatrixXd &A_sin_base,
@@ -486,6 +487,8 @@ AnalysisGraph::fit_seasonal_head_node_model_via_fourier_decomposition() {
                                                                period);
 
     // TODO: We have to iterate through different number of components from here onward
+    double best_rmse = numeric_limits<double>::infinity();
+    double best_components = 0;
     for (int components = 0; components <= max_k; components++) {
         Eigen::VectorXd fourier_coefficients =
             this->compute_fourier_coefficients_from_least_square_optimization(
@@ -498,9 +501,15 @@ AnalysisGraph::fit_seasonal_head_node_model_via_fourier_decomposition() {
                                    A_sin_max_k_base, s0_sin_max_k, period_freqs,
                                    fourier_coefficients, components);
 
-        determine_the_best_number_of_components(
+        double rmse = determine_the_best_number_of_components(
                  A_concept_period_base, s0_concept_period, period, components);
+
+        if (rmse < best_rmse) {
+            best_rmse = rmse;
+            best_components = components;
+        }
 
         this->check_sines(A_concept_period_base, s0_concept_period, period);
     }
+    cout << "Best: " << best_components << " : " << best_rmse << endl;
 }
