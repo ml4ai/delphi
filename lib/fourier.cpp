@@ -40,7 +40,7 @@ vector<double> AnalysisGraph::generate_frequencies_for_period(int components,
     vector<double> freqs(components);
 
     // λ is the amount we have to stretch/shrink pure sinusoidal curves to make
-    // one cycle = period radians
+    // one sine cycle = period radians
     double lambda = 2.0 * M_PI / period;
 
     // ω is the frequency of each stretched/shrunk sinusoidal curve.
@@ -58,11 +58,11 @@ vector<double> AnalysisGraph::generate_frequencies_for_period(int components,
    * @param freqs A vector of effective frequencies
    *              (2πω / period; ω = 1, 2, ...)
    * @return pair (base transition matrix, initial state)
-   *         0 radians in the initial angle.
+   *         0 radians is the initial angle.
  */
 pair<Eigen::MatrixXd, Eigen::VectorXd>
 AnalysisGraph::assemble_sinusoidal_generating_LDS(const vector<double> &freqs) {
-    unsigned short comps_2 = freqs.size() * 2;
+    int comps_2 = freqs.size() * 2;
     Eigen::MatrixXd A_sin = Eigen::MatrixXd::Zero(comps_2, comps_2);
     Eigen::VectorXd s0_sin = Eigen::VectorXd::Zero(comps_2);
 
@@ -130,7 +130,7 @@ AnalysisGraph::assemble_sinusoidal_generating_LDS(unsigned short components,
    * Generate a matrix of sinusoidal values of all the desired frequencies for
    * all the bin locations.
    * @param A_sin_base: Base transition matrix for sinusoidal generating LDS
-   * @param s0_sin: Initial state (0 radians0) for sinusoidal generating LDS
+   * @param s0_sin: Initial state (0 radians) for sinusoidal generating LDS
    * @param period: Period of the time series being fitted
    * @return A matrix of required sinusoidal values.
    *         row t contains sinusoidals for bin t (radians)
@@ -142,7 +142,7 @@ Eigen::MatrixXd
 AnalysisGraph::generate_sinusoidal_values_for_bins(const Eigen::MatrixXd &A_sin_base,
                                                    const Eigen::VectorXd &s0_sin,
                                                    int period) {
-    // Transition matrix to advance the sinusoidal generation LDS from one bin
+    // Transition matrix to advance the sinusoidal generating LDS from one bin
     // to the next.
     Eigen::MatrixXd A_sin_step = A_sin_base.exp();
 
@@ -181,7 +181,8 @@ AnalysisGraph::generate_sinusoidal_values_for_bins(const Eigen::MatrixXd &A_sin_
  */
 Eigen::VectorXd
 AnalysisGraph::compute_fourier_coefficients_from_least_square_optimization(
-                                           const Eigen::MatrixXd &sinusoidals) {
+                                           const Eigen::MatrixXd &sinusoidals,
+                                           int n_components) {
     int tot_observations = 24; // Total observations for a concept
     unordered_map<int, pair<vector<int>, vector<double>>> partitioned_data =
         {{0, {{},{-0.2, 0, 0.2}}},
@@ -194,10 +195,13 @@ AnalysisGraph::compute_fourier_coefficients_from_least_square_optimization(
          {7, {{},{3.8, 4, 4.2}}}
         };
 
+    int tot_sinusoidal_rows = 2 * n_components;
+
     /* Setting up the linear system Ux = y to solve for the
      * Fourier coefficients using the least squares optimization */
     // Adding one additional column for cos(0) term
-    Eigen::MatrixXd U = Eigen::MatrixXd::Zero(tot_observations, sinusoidals.cols() + 1);
+    Eigen::MatrixXd U = Eigen::MatrixXd::Zero(tot_observations,
+                                              tot_sinusoidal_rows + 1);
     // Setting the coefficient for cos(0) term (α₀). In the traditional Fourier
     // decomposition this is 0.5 and when α₀ is used, we have to divide it by 2.
     // To avoid this additional division, here we use 1 instead.
@@ -211,8 +215,9 @@ AnalysisGraph::compute_fourier_coefficients_from_least_square_optimization(
 
         // Iterate through all the observations in one bin
         for (double obs: data.second) {
-            U.block(row, 1, 1, sinusoidals.cols()) =
-                                                           sinusoidals.row(bin);
+            U.block(row, 1, 1, tot_sinusoidal_rows) =
+                                   sinusoidals.block(bin, 0, 1,
+                                                     tot_sinusoidal_rows);
             y(row) = obs;
             row++;
         }
@@ -224,10 +229,205 @@ AnalysisGraph::compute_fourier_coefficients_from_least_square_optimization(
     return fourier_coefficients;
 }
 
+/**
+ * Assemble the LDS to generate all the head nodes with the same frequency. This
+ * LDS is used to evolve the system to between bin midpoints to find the best
+ * number of frequencies to be used to fit each head node.
+ * @param A_sin_base: Base transition matrix to generate sinusoidals with all the
+ *                   possible effective frequencies.
+ * @param s0_sin: Initial state of the LDS that generates sinusoidal curves
+ * @param period_freqs: All the effective frequencies that could be used to fit a
+ *                     concept with the period common to concepts being modeled
+ * @param fourier_coefficients: Should not be passed as a parameter. Should be part of each Node. Fourier coefficients to fit each concept.
+ * @return pair (base transition matrix, initial state) for the LDS with the
+ *         maximum effective size (with the maximum number of sinusoidals) to
+ *         generate all the head nodes that share a common period
+ *         0 radians is the initial angle.
+ */
+pair<Eigen::MatrixXd, Eigen::VectorXd>
+AnalysisGraph::assemble_LDS_for_head_nodes_with_the_same_period(
+                                const Eigen::MatrixXd &A_sin_base,
+                                const Eigen::VectorXd &s0_sin,
+                                const vector<double> &period_freqs,
+                                const Eigen::VectorXd &fourier_coefficients,
+                                int n_components) {
+    // TODO: Should iterate through all the head nodes with same period and add dot and dot dot rows to the transition matirx and s0
+    // TODO: Should get the fourier_coefficients from each concept
+
+    int num_verts = 1; // This should be the number of concepts with this period
+    int tot_sinusoidal_rows = 2 * n_components;
+    int tot_rows = 2 * num_verts + tot_sinusoidal_rows;
+
+    unordered_map<double, int> frequency_to_idx;
+    for (int i = 0; i < n_components; i++) {
+        frequency_to_idx[period_freqs[i]] = 2 * (num_verts + i);
+    }
+
+    Eigen::MatrixXd A_concept_period_base = Eigen::MatrixXd::Zero(tot_rows, tot_rows);
+    A_concept_period_base.bottomRightCorner(tot_sinusoidal_rows,
+                                            tot_sinusoidal_rows) =
+             A_sin_base.topLeftCorner(tot_sinusoidal_rows, tot_sinusoidal_rows);
+
+    Eigen::VectorXd s0_concept_period = Eigen::VectorXd::Zero(tot_rows);
+    s0_concept_period.tail(tot_sinusoidal_rows) =
+                                               s0_sin.head(tot_sinusoidal_rows);
+
+    for (int v = 0; v < num_verts; v++) { //TODO: We need a way to index head nodes with a certain period only
+
+        int dot_row = 2 * v;
+        int dot_dot_row = dot_row + 1;
+
+        // Sinusoidal coefficient vector to calculate initial value for concept v
+        Eigen::VectorXd v0 = Eigen::VectorXd::Zero(fourier_coefficients.size());
+        // Coefficient for cos(0) term (α₀). In the traditional Fourier
+        // decomposition this to 0.5. When we compute α₀ we include this factor
+        // into α₀ (Instead of computing α₀ as in the traditional Fourier series,
+        // we compute α₀/2 straightaway).
+        v0(0) = 1;
+
+        for (int concept_freq_idx = 0; concept_freq_idx < n_components;
+             concept_freq_idx++) {
+
+            double concept_freq = period_freqs[concept_freq_idx]; // λω
+            double concept_freq_squared = concept_freq * concept_freq;
+
+            int concept_freq_idx_2 = concept_freq_idx * 2;
+            int beta_omega_idx = concept_freq_idx_2 + 1;
+            int alpha_omega_idx = concept_freq_idx_2 + 2;
+
+            // Coefficient for sin(λω t) terms ≡ β_ω
+            double beta_omega = fourier_coefficients[beta_omega_idx];
+            // Coefficient for λω cos(λω t) terms ≡ α_ω
+            double alpha_omega = fourier_coefficients[alpha_omega_idx];
+
+            int sin_idx = frequency_to_idx[concept_freq];
+            int cos_idx = sin_idx + 1;
+
+            // Setting coefficients of the first derivative of the head node v
+            // They are in row 2v in the transition matrix
+
+            // Setting coefficients for sin terms: -freq^2 * cos_coefficient
+            A_concept_period_base(dot_row, sin_idx) = -concept_freq_squared *
+                                                 alpha_omega;
+
+            // Setting coefficients for cos terms: sin_coefficient
+            A_concept_period_base(dot_row, cos_idx) = beta_omega;
+
+            // Setting coefficients of the second derivative of the head node v
+            // They are in row 2 * v + 1 in the transition matrix
+
+            // Setting coefficients for sin terms: -freq^2 * sin_coefficient
+            A_concept_period_base(dot_dot_row, sin_idx) = -concept_freq_squared *
+                                                     beta_omega;
+
+            // Setting coefficients for cos terms: -freq^2 * cos_coefficient
+            A_concept_period_base(dot_dot_row, cos_idx) = -concept_freq_squared *
+                                                     alpha_omega;
+
+            // Populating the sinusoidal coefficient vector to compute the
+            // initial value for the concept v
+            v0(beta_omega_idx) = s0_concept_period(sin_idx);
+            v0(alpha_omega_idx) = s0_concept_period(cos_idx);
+        }
+
+        // Setting the initial value for concept v
+        s0_concept_period(dot_row) = fourier_coefficients.dot(v0);
+
+        // Setting the initial derivative for concept v
+        s0_concept_period(dot_dot_row) = A_concept_period_base.row(dot_row).dot(s0_concept_period);
+    }
+
+    return make_pair(A_concept_period_base, s0_concept_period);
+}
+
+void AnalysisGraph::determine_the_best_number_of_components(const Eigen::MatrixXd &A_concept_period_base,
+                                                            const Eigen::VectorXd &s0_concept_period,
+                                                            int period,
+                                                            int n_components) {
+
+    int num_verts = 1; // This should be the number of concepts with this period
+    // Bin i refer to the midpoint between bin i and (i+1) % period
+    unordered_map<int, vector<double>> between_bin_midpoints2 =
+        {{0, {-0.2, 0, 0.2}},
+         {1, {1.8, 2, 2.2}},
+         {2, {5.8, 6, 6.2}},
+         {3, {3.8, 4, 4.2}},
+         {4, {2.8, 3, 3.2}},
+         {5, {7.8, 8, 8.2}},
+         {6, {4.8, 5, 5.2}},
+         {7, {3.8, 4, 4.2}}
+        };
+    unordered_map<int, vector<double>> between_bin_midpoints =
+        {{0, {0, 0, 0}},
+         {1, {2, 2, 2}},
+         {2, {6, 6, 6}},
+         {3, {4, 4, 4}},
+         {4, {3, 3, 3}},
+         {5, {8, 8, 8}},
+         {6, {5, 5, 5}},
+         {7, {4, 4, 4}}
+        };
+    unordered_map<int, vector<double>> between_bin_midpoints1 =
+        {{0, {1, 1.2, 0.8}},
+         {1, {4, 4.2, 3.8}},
+         {2, {5, 5.2, 4.8}},
+         {3, {3.5, 3.7, 3.3}},
+         {4, {5.5, 5.7, 5.3}},
+         {5, {6.5, 6.7, 6.3}},
+         {6, {4.5, 4.7, 4.3}},
+         {7, {2.1, 2}}
+        };
+    /*
+    // Bin i refer to the midpoint between bin i and (i+1) % period
+    unordered_map<double, vector<double>> between_bin_mid_point_linear_interpolated_values =
+        {{0.5, {1, 1.2, 0.8}},
+         {1.5, {4, 4.2, 3.8}},
+         {2.5, {5, 5.2, 4.8}},
+         {3.5, {3.5, 3.7, 3.3}},
+         {4.5, {5.5, 5.7, 5.3}},
+         {5.5, {6.5, 6.7, 6.3}},
+         {6.5, {4.5, 4.7, 4.3}},
+         {7.5, {2.1, 2}}
+        };
+    */
+    Eigen::MatrixXd A_till_first_midpoint = (A_concept_period_base * 0.5).exp();
+    Eigen::MatrixXd A_step = A_concept_period_base.exp();
+
+    int lds_size = 2 * (num_verts + n_components);
+
+    // Evolve the system for 1 period of time steps at between bin midpoints
+    Eigen::MatrixXd preds = Eigen::MatrixXd::Zero(lds_size, period);
+//    preds.col(0) = A_till_first_midpoint
+//                   * s0_concept_period.head(lds_size);
+    preds.col(0) = s0_concept_period;
+
+    for (int col = 1; col < period; col++) {
+        preds.col(col) = A_step * preds.col(col - 1);
+    }
+
+    for (int v = 0; v < num_verts; v++) { // TODO: We need a way to index head nodes with a certain period only
+        vector<double> errors;
+        int v_preds_row = 2 * v;
+
+        for (auto [midpoint, vals] :
+             between_bin_midpoints) { // TODO: should be the midpoints for the node in consideration
+            for (double val : vals) {
+                errors.push_back(val - preds(v_preds_row, midpoint));
+            }
+        }
+
+        double rmse = sqrt(
+            inner_product(errors.begin(), errors.end(), errors.begin(), 0.0) /
+            errors.size());
+        cout << n_components << " : " << rmse << endl;
+    }
+}
+
 void AnalysisGraph::check_sines(const Eigen::MatrixXd &A_sin_base,
                                 const Eigen::VectorXd &s0_sin, int period) {
 
-    CSVWriter writer("sines.csv");
+    CSVWriter writer("sines_" +
+                     to_string(s0_sin.size() / 2) + ".csv");
     double step = 0.25;
     int tot_points = 2 * period * int(1/step) + 1;
     // Transition matrix to advance the sinusoidal generation LDS from one bin
@@ -265,7 +465,6 @@ AnalysisGraph::fit_seasonal_head_node_model_via_fourier_decomposition() {
     // the best number of components to be used.
     // max_k < period / 2 (Nyquist theorem)
     int max_k = 4;
-    int k = 2;
 
     // Generate the maximum number of sinusoidal frequencies needed for the
     // period. By the Nyquist theorem this number is floor(period / 2)
@@ -279,111 +478,29 @@ AnalysisGraph::fit_seasonal_head_node_model_via_fourier_decomposition() {
     // components. This includes all the sinusoidals needed for every lesser
     // number of components we are going to try out.
     auto [A_sin_max_k_base, s0_sin_max_k] =
-                this->assemble_sinusoidal_generating_LDS(period_freqs);
+                        this->assemble_sinusoidal_generating_LDS(period_freqs);
 
     Eigen::MatrixXd sinusoidals = this->generate_sinusoidal_values_for_bins(
                                                                A_sin_max_k_base,
                                                                s0_sin_max_k,
                                                                period);
 
-    Eigen::VectorXd fourier_coefficients =
-        this->compute_fourier_coefficients_from_least_square_optimization(
-                                                                   sinusoidals);
+    // TODO: We have to iterate through different number of components from here onward
+    for (int components = 0; components <= max_k; components++) {
+        Eigen::VectorXd fourier_coefficients =
+            this->compute_fourier_coefficients_from_least_square_optimization(
+                                                       sinusoidals, components);
 
-    // By evaluating the root mean squared error on the validation set, decide
-    // the frequencies to be used to model this concept
-    vector<double> concept_freqs = period_freqs;
+        // Assemble the sinusoidal generating LDS with the maximum number of
+        // components to generate all the head nodes with this period. This includes all the sinusoidals needed for every lesser number of components we are going to try out.
+        auto [A_concept_period_base, s0_concept_period] =
+            this->assemble_LDS_for_head_nodes_with_the_same_period(
+                                   A_sin_max_k_base, s0_sin_max_k, period_freqs,
+                                   fourier_coefficients, components);
 
-    // After deciding the best number of components for each concept, we add
-    // them to a global set of frequencies needed
-    frequency_set.insert(concept_freqs.begin(), concept_freqs.end());
+        determine_the_best_number_of_components(
+                 A_concept_period_base, s0_concept_period, period, components);
 
-    int num_verts = 1; // The number of vertices in the CAG
-
-    // Once we are done with deciding all the frequencies required for the
-    // system, we create the frequency to transition matrix index map
-    vector<double> frequency_vec(frequency_set.begin(), frequency_set.end());
-    sort(frequency_vec.begin(), frequency_vec.end());
-    unordered_map<double, int> frequency_to_idx;
-    for (int i = 0; i < frequency_vec.size(); i++) {
-        frequency_to_idx[frequency_vec[i]] = 2 * (num_verts + i);
+        this->check_sines(A_concept_period_base, s0_concept_period, period);
     }
-
-    int tot_components = max_k;  // This should change to all the components for all the head nodes
-    int tot_rows = 2 * (num_verts + tot_components);
-
-    this->A_original = Eigen::MatrixXd::Zero(tot_rows, tot_rows);
-    this->A_original.bottomRightCorner(2 * tot_components,
-                                       2 * tot_components) = A_sin_max_k_base;
-
-    this->s0 = Eigen::VectorXd::Zero(tot_rows);
-    this->s0.tail(2 * tot_components) = s0_sin_max_k;
-
-
-    for (int v = 0; v < num_verts; v++) {
-
-        int dot_row = 2 * v;
-        int dot_dot_row = dot_row + 1;
-
-        // Sinusoidal coefficient vector to calculate initial value for concept v
-        Eigen::VectorXd v0 = Eigen::VectorXd::Zero(fourier_coefficients.size());
-        // Coefficient for cos(0) term (α₀). In the traditional Fourier
-        // decomposition this to 0.5. When we compute α₀ we include this factor
-        // into α₀ (Instead of computing α₀ as in the traditional Fourier series,
-        // we compute α₀/2 straightaway).
-        v0(0) = 1;
-
-        for (int concept_freq_idx = 0; concept_freq_idx < concept_freqs.size();
-             concept_freq_idx++) {
-
-            double concept_freq = concept_freqs[concept_freq_idx]; // λω
-            double concept_freq_squared = concept_freq * concept_freq;
-
-            int concept_freq_idx_2 = concept_freq_idx * 2;
-            int beta_omega_idx = concept_freq_idx_2 + 1;
-            int alpha_omega_idx = concept_freq_idx_2 + 2;
-
-            // Coefficient for sin(λω t) terms ≡ β_ω
-            double beta_omega = fourier_coefficients[beta_omega_idx];
-            // Coefficient for λω cos(λω t) terms ≡ α_ω
-            double alpha_omega = fourier_coefficients[alpha_omega_idx];
-
-            int sin_idx = frequency_to_idx[concept_freq];
-            int cos_idx = sin_idx + 1;
-
-            // Setting coefficients of the first derivative of the head node v
-            // They are in row 2v in the transition matrix
-
-            // Setting coefficients for sin terms: -freq^2 * cos_coefficient
-            this->A_original(dot_row, sin_idx) = -concept_freq_squared *
-                                                 alpha_omega;
-
-            // Setting coefficients for cos terms: sin_coefficient
-            this->A_original(dot_row, cos_idx) = beta_omega;
-
-            // Setting coefficients of the second derivative of the head node v
-            // They are in row 2 * v + 1 in the transition matrix
-
-            // Setting coefficients for sin terms: -freq^2 * sin_coefficient
-            this->A_original(dot_dot_row, sin_idx) = -concept_freq_squared *
-                                                     beta_omega;
-
-            // Setting coefficients for cos terms: -freq^2 * cos_coefficient
-            this->A_original(dot_dot_row, cos_idx) = -concept_freq_squared *
-                                                     alpha_omega;
-
-            // Populating the sinusoidal coefficient vector to compute the
-            // initial value for the concept v
-            v0(beta_omega_idx) = this->s0(sin_idx);
-            v0(alpha_omega_idx) = this->s0(cos_idx);
-        }
-
-        // Setting the initial value for concept v
-        this->s0(dot_row) = fourier_coefficients.dot(v0);
-
-        // Setting the initial derivative for concept v
-        this->s0(dot_dot_row) = this->A_original.row(dot_row).dot(this->s0);
-    }
-
-    this->check_sines(this->A_original, this->s0, period);
 }
