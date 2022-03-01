@@ -7,6 +7,7 @@
 #include "exceptions.hpp"
 #include <limits.h>
 #include "definitions.h"
+#include <Eigen/Dense>
 
 class Node {
   public:
@@ -16,6 +17,17 @@ class Node {
   std::vector<double> generated_latent_sequence = {};
   int period = 1;
   DataAggregationLevel agg_level = DataAggregationLevel::MONTHLY;
+
+  // Utilized only for head nodes with period > 1
+  int tot_observations = 0;
+  Eigen::VectorXd fourier_coefficients;
+  double best_rmse = std::numeric_limits<double>::infinity();
+  int best_n_components = 0;
+  bool rmse_is_reducing = true;
+  // Partition i refer to the midpoint between partitions i and (i+1) % period
+  // Access:
+  //  {partition --> [data value]}
+  std::unordered_map<int, std::vector<double>> between_bin_midpoints;
   // Access:
   //  {partition --> ([time step], [data value])}
   std::unordered_map<int, std::pair<std::vector<int>, std::vector<double>>> partitioned_data = {};

@@ -179,54 +179,47 @@ AnalysisGraph::generate_sinusoidal_values_for_bins(const Eigen::MatrixXd &A_sin_
    *
    *         with i = 1, 2, ... & λ = 2π/period & b = 0, 1, ..., period - 1
  */
-Eigen::VectorXd
+void
 AnalysisGraph::compute_fourier_coefficients_from_least_square_optimization(
                                            const Eigen::MatrixXd &sinusoidals,
-                                           int n_components) {
-    int tot_observations = 24; // Total observations for a concept
-    unordered_map<int, pair<vector<int>, vector<double>>> partitioned_data =
-        {{0, {{},{-0.2, 0, 0.2}}},
-         {1, {{},{1.8, 2, 2.2}}},
-         {2, {{},{5.8, 6, 6.2}}},
-         {3, {{},{3.8, 4, 4.2}}},
-         {4, {{},{2.8, 3, 3.2}}},
-         {5, {{},{7.8, 8, 8.2}}},
-         {6, {{},{4.8, 5, 5.2}}},
-         {7, {{},{3.8, 4, 4.2}}}
-        };
-
+                                           int n_components,
+                                           vector<int> &head_node_ids) {
     int tot_sinusoidal_rows = 2 * n_components;
 
-    /* Setting up the linear system Ux = y to solve for the
-     * Fourier coefficients using the least squares optimization */
-    // Adding one additional column for cos(0) term
-    Eigen::MatrixXd U = Eigen::MatrixXd::Zero(tot_observations,
-                                              tot_sinusoidal_rows + 1);
-    // Setting the coefficient for cos(0) term (α₀). In the traditional Fourier
-    // decomposition this is 0.5 and when α₀ is used, we have to divide it by 2.
-    // To avoid this additional division, here we use 1 instead.
-    U.col(0) = Eigen::VectorXd::Ones(tot_observations); // ≡ cos(0)
-    Eigen::VectorXd y = Eigen::VectorXd::Zero(tot_observations);
+    for (auto hn_id: head_node_ids) {
+        Node& hn = (*this)[hn_id];
 
-    unsigned int row = 0;
+        /* Setting up the linear system Ux = y to solve for the
+         * Fourier coefficients using the least squares optimization */
+        // Adding one additional column for cos(0) term
+        Eigen::MatrixXd U = Eigen::MatrixXd::Zero(hn.tot_observations,
+                                                  tot_sinusoidal_rows + 1);
 
-    // Iterate through all the bins (partitions)
-    for (auto [bin, data]: partitioned_data) {
+        // Setting the coefficient for cos(0) term (α₀). In the traditional
+        // Fourier decomposition this is 0.5 and when α₀ is used, we have to
+        // divide it by 2.
+        // To avoid this additional division, here we use 1 instead.
+        U.col(0) = Eigen::VectorXd::Ones(hn.tot_observations); // ≡ cos(0)
+        Eigen::VectorXd y = Eigen::VectorXd::Zero(hn.tot_observations);
 
-        // Iterate through all the observations in one bin
-        for (double obs: data.second) {
-            U.block(row, 1, 1, tot_sinusoidal_rows) =
-                                   sinusoidals.block(bin, 0, 1,
-                                                     tot_sinusoidal_rows);
-            y(row) = obs;
-            row++;
+        int row = 0;
+
+        // Iterate through all the bins (partitions)
+        for (auto [bin, data] : hn.partitioned_data) {
+
+            // Iterate through all the observations in one bin
+            for (double obs : data.second) {
+                U.block(row, 1, 1, tot_sinusoidal_rows) =
+                                      sinusoidals.block(bin, 0,
+                                                        1, tot_sinusoidal_rows);
+                y(row) = obs;
+                row++;
+            }
         }
+
+        hn.fourier_coefficients =
+            U.bdcSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(y);
     }
-
-    Eigen::VectorXd fourier_coefficients =
-        U.bdcSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(y);
-
-    return fourier_coefficients;
 }
 
 /**
@@ -238,7 +231,9 @@ AnalysisGraph::compute_fourier_coefficients_from_least_square_optimization(
  * @param s0_sin: Initial state of the LDS that generates sinusoidal curves
  * @param period_freqs: All the effective frequencies that could be used to fit a
  *                     concept with the period common to concepts being modeled
- * @param fourier_coefficients: Should not be passed as a parameter. Should be part of each Node. Fourier coefficients to fit each concept.
+ * @param fourier_coefficients: Should not be passed as a parameter. Should be
+ *                              part of each Node. Fourier coefficients to fit
+ *                              each concept.
  * @return pair (base transition matrix, initial state) for the LDS with the
  *         maximum effective size (with the maximum number of sinusoidals) to
  *         generate all the head nodes that share a common period
@@ -249,21 +244,26 @@ AnalysisGraph::assemble_LDS_for_head_nodes_with_the_same_period(
                                 const Eigen::MatrixXd &A_sin_base,
                                 const Eigen::VectorXd &s0_sin,
                                 const vector<double> &period_freqs,
-                                const Eigen::VectorXd &fourier_coefficients,
-                                int n_components) {
-    // TODO: Should iterate through all the head nodes with same period and add dot and dot dot rows to the transition matirx and s0
-    // TODO: Should get the fourier_coefficients from each concept
+                                int n_components,
+                                unordered_map<int, int> &hn_to_mat_row,
+                                const Eigen::MatrixXd &A_concept_base) {
 
-    int num_verts = 1; // This should be the number of concepts with this period
+    int num_verts = hn_to_mat_row.size();
+    int tot_concept_rows = 2 * num_verts;
     int tot_sinusoidal_rows = 2 * n_components;
-    int tot_rows = 2 * num_verts + tot_sinusoidal_rows;
+    int tot_rows = tot_concept_rows + tot_sinusoidal_rows;
 
     unordered_map<double, int> frequency_to_idx;
     for (int i = 0; i < n_components; i++) {
-        frequency_to_idx[period_freqs[i]] = 2 * (num_verts + i);
+        frequency_to_idx[period_freqs[i]] = tot_concept_rows + 2 * i;
     }
 
-    Eigen::MatrixXd A_concept_period_base = Eigen::MatrixXd::Zero(tot_rows, tot_rows);
+    Eigen::MatrixXd A_concept_period_base = Eigen::MatrixXd::Zero(tot_rows,
+                                                                  tot_rows);
+
+    A_concept_period_base.topLeftCorner(tot_concept_rows,
+                                        tot_concept_rows) = A_concept_base;
+
     A_concept_period_base.bottomRightCorner(tot_sinusoidal_rows,
                                             tot_sinusoidal_rows) =
              A_sin_base.topLeftCorner(tot_sinusoidal_rows, tot_sinusoidal_rows);
@@ -272,13 +272,14 @@ AnalysisGraph::assemble_LDS_for_head_nodes_with_the_same_period(
     s0_concept_period.tail(tot_sinusoidal_rows) =
                                                s0_sin.head(tot_sinusoidal_rows);
 
-    for (int v = 0; v < num_verts; v++) { //TODO: We need a way to index head nodes with a certain period only
+    for (auto [hn_id, dot_row]: hn_to_mat_row) {
+    Node& hn = (*this)[hn_id];
 
-        int dot_row = 2 * v;
         int dot_dot_row = dot_row + 1;
 
         // Sinusoidal coefficient vector to calculate initial value for concept v
-        Eigen::VectorXd v0 = Eigen::VectorXd::Zero(fourier_coefficients.size());
+        Eigen::VectorXd v0 = Eigen::VectorXd::Zero(hn.fourier_coefficients.size());
+
         // Coefficient for cos(0) term (α₀). In the traditional Fourier
         // decomposition this to 0.5. When we compute α₀ we include this factor
         // into α₀ (Instead of computing α₀ as in the traditional Fourier series,
@@ -296,9 +297,9 @@ AnalysisGraph::assemble_LDS_for_head_nodes_with_the_same_period(
             int alpha_omega_idx = concept_freq_idx_2 + 2;
 
             // Coefficient for sin(λω t) terms ≡ β_ω
-            double beta_omega = fourier_coefficients[beta_omega_idx];
+            double beta_omega = hn.fourier_coefficients[beta_omega_idx];
             // Coefficient for λω cos(λω t) terms ≡ α_ω
-            double alpha_omega = fourier_coefficients[alpha_omega_idx];
+            double alpha_omega = hn.fourier_coefficients[alpha_omega_idx];
 
             int sin_idx = frequency_to_idx[concept_freq];
             int cos_idx = sin_idx + 1;
@@ -331,7 +332,7 @@ AnalysisGraph::assemble_LDS_for_head_nodes_with_the_same_period(
         }
 
         // Setting the initial value for concept v
-        s0_concept_period(dot_row) = fourier_coefficients.dot(v0);
+        s0_concept_period(dot_row) = hn.fourier_coefficients.dot(v0);
 
         // Setting the initial derivative for concept v
         s0_concept_period(dot_dot_row) = A_concept_period_base.row(dot_row).dot(s0_concept_period);
@@ -340,57 +341,15 @@ AnalysisGraph::assemble_LDS_for_head_nodes_with_the_same_period(
     return make_pair(A_concept_period_base, s0_concept_period);
 }
 
-double AnalysisGraph::determine_the_best_number_of_components(
+void AnalysisGraph::determine_the_best_number_of_components(
                                    const Eigen::MatrixXd &A_concept_period_base,
                                    const Eigen::VectorXd &s0_concept_period,
                                    int period,
-                                   int n_components) {
+                                   int n_components,
+                                   unordered_map<int, int> &hn_to_mat_row) {
 
-    int num_verts = 1; // This should be the number of concepts with this period
-    // Bin i refer to the midpoint between bin i and (i+1) % period
-    unordered_map<int, vector<double>> between_bin_midpoints2 =
-        {{0, {-0.2, 0, 0.2}},
-         {1, {1.8, 2, 2.2}},
-         {2, {5.8, 6, 6.2}},
-         {3, {3.8, 4, 4.2}},
-         {4, {2.8, 3, 3.2}},
-         {5, {7.8, 8, 8.2}},
-         {6, {4.8, 5, 5.2}},
-         {7, {3.8, 4, 4.2}}
-        };
-    unordered_map<int, vector<double>> between_bin_midpoints1 =
-        {{0, {0, 0, 0}},
-         {1, {2, 2, 2}},
-         {2, {6, 6, 6}},
-         {3, {4, 4, 4}},
-         {4, {3, 3, 3}},
-         {5, {8, 8, 8}},
-         {6, {5, 5, 5}},
-         {7, {4, 4, 4}}
-        };
-    unordered_map<int, vector<double>> between_bin_midpoints =
-        {{0, {1, 1.2, 0.8}},
-         {1, {4, 4.2, 3.8}},
-         {2, {5, 5.2, 4.8}},
-         {3, {3.5, 3.7, 3.3}},
-         {4, {5.5, 5.7, 5.3}},
-         {5, {6.5, 6.7, 6.3}},
-         {6, {4.5, 4.7, 4.3}},
-         {7, {2.1, 2}}
-        };
-    /*
-    // Bin i refer to the midpoint between bin i and (i+1) % period
-    unordered_map<double, vector<double>> between_bin_mid_point_linear_interpolated_values =
-        {{0.5, {1, 1.2, 0.8}},
-         {1.5, {4, 4.2, 3.8}},
-         {2.5, {5, 5.2, 4.8}},
-         {3.5, {3.5, 3.7, 3.3}},
-         {4.5, {5.5, 5.7, 5.3}},
-         {5.5, {6.5, 6.7, 6.3}},
-         {6.5, {4.5, 4.7, 4.3}},
-         {7.5, {2.1, 2}}
-        };
-    */
+    int num_verts = hn_to_mat_row.size();
+
     Eigen::MatrixXd A_till_first_midpoint = (A_concept_period_base * 0.5).exp();
     Eigen::MatrixXd A_step = A_concept_period_base.exp();
 
@@ -405,23 +364,29 @@ double AnalysisGraph::determine_the_best_number_of_components(
         preds.col(col) = A_step * preds.col(col - 1);
     }
 
-    double rmse; // TODO: We have to handle rmses for multiple concepts
-    for (int v = 0; v < num_verts; v++) { // TODO: We need a way to index head nodes with a certain period only
+    for (auto [hn_id, v_preds_row]: hn_to_mat_row) {
+        Node& hn = (*this)[hn_id];
         vector<double> errors;
-        int v_preds_row = 2 * v;
 
-        for (auto [midpoint, vals] : between_bin_midpoints) { // TODO: should be the midpoints for the node in consideration
+        for (auto [midpoint, vals] : hn.between_bin_midpoints) {
             for (double val : vals) {
                 errors.push_back(val - preds(v_preds_row, midpoint));
             }
         }
 
-        rmse = sqrt(
-            inner_product(errors.begin(), errors.end(), errors.begin(), 0.0) /
-            errors.size());
+        double rmse = sqrt(
+            inner_product(errors.begin(), errors.end(), errors.begin(), 0.0)
+                                                               / errors.size());
+
         cout << n_components << " : " << rmse << endl;
+        if (hn.rmse_is_reducing) {
+            hn.rmse_is_reducing = (rmse < hn.best_rmse);
+            if (hn.rmse_is_reducing) {
+                hn.best_rmse = rmse;
+                hn.best_n_components = n_components;
+            }
+        }
     }
-    return rmse;
 }
 
 void AnalysisGraph::check_sines(const Eigen::MatrixXd &A_sin_base,
@@ -459,57 +424,175 @@ void AnalysisGraph::check_sines(const Eigen::MatrixXd &A_sin_base,
 // 1090
 void
 AnalysisGraph::fit_seasonal_head_node_model_via_fourier_decomposition() {
+
+    // TODO: Just for debugging delete
+    this->set_indicator_means_and_standard_deviations();
+
+    // Group seasonal head nodes according to their seasonality.
+    unordered_map<int, vector<int>> period_to_head_nodes;
+
+    for (int head_node_id: this->head_nodes) {
+        Node& hn = (*this)[head_node_id];
+
+        // TODO: Just for debugging delete
+        hn.period = 8;
+        hn.tot_observations = 24; // Total observations for a concept
+        hn.partitioned_data =
+            {{0, {{},{-0.2, 0, 0.2}}},
+             {1, {{},{1.8, 2, 2.2}}},
+             {2, {{},{5.8, 6, 6.2}}},
+             {3, {{},{3.8, 4, 4.2}}},
+             {4, {{},{2.8, 3, 3.2}}},
+             {5, {{},{7.8, 8, 8.2}}},
+             {6, {{},{4.8, 5, 5.2}}},
+             {7, {{},{3.8, 4, 4.2}}}
+            };
+        hn.between_bin_midpoints =
+            {{0, {1, 1.2, 0.8}},
+             {1, {4, 4.2, 3.8}},
+             {2, {5, 5.2, 4.8}},
+             {3, {3.5, 3.7, 3.3}},
+             {4, {5.5, 5.7, 5.3}},
+             {5, {6.5, 6.7, 6.3}},
+             {6, {4.5, 4.7, 4.3}},
+             {7, {2.1, 2}}
+            };
+//        {{0, {0, 0, 0}},
+//         {1, {2, 2, 2}},
+//         {2, {6, 6, 6}},
+//         {3, {4, 4, 4}},
+//         {4, {3, 3, 3}},
+//         {5, {8, 8, 8}},
+//         {6, {5, 5, 5}},
+//         {7, {4, 4, 4}}
+//        };
+        /*
+        unordered_map<int, vector<double>> between_bin_midpoints2 =
+            {{0, {-0.2, 0, 0.2}},
+             {1, {1.8, 2, 2.2}},
+             {2, {5.8, 6, 6.2}},
+             {3, {3.8, 4, 4.2}},
+             {4, {2.8, 3, 3.2}},
+             {5, {7.8, 8, 8.2}},
+             {6, {4.8, 5, 5.2}},
+             {7, {3.8, 4, 4.2}}
+            };
+        unordered_map<int, vector<double>> between_bin_midpoints1 =
+            {{0, {0, 0, 0}},
+             {1, {2, 2, 2}},
+             {2, {6, 6, 6}},
+             {3, {4, 4, 4}},
+             {4, {3, 3, 3}},
+             {5, {8, 8, 8}},
+             {6, {5, 5, 5}},
+             {7, {4, 4, 4}}
+            };
+        unordered_map<int, vector<double>> between_bin_midpoints =
+            {{0, {1, 1.2, 0.8}},
+             {1, {4, 4.2, 3.8}},
+             {2, {5, 5.2, 4.8}},
+             {3, {3.5, 3.7, 3.3}},
+             {4, {5.5, 5.7, 5.3}},
+             {5, {6.5, 6.7, 6.3}},
+             {6, {4.5, 4.7, 4.3}},
+             {7, {2.1, 2}}
+            };
+        // Bin i refer to the midpoint between bin i and (i+1) % period
+        unordered_map<double, vector<double>> between_bin_mid_point_linear_interpolated_values =
+            {{0.5, {1, 1.2, 0.8}},
+             {1.5, {4, 4.2, 3.8}},
+             {2.5, {5, 5.2, 4.8}},
+             {3.5, {3.5, 3.7, 3.3}},
+             {4.5, {5.5, 5.7, 5.3}},
+             {5.5, {6.5, 6.7, 6.3}},
+             {6.5, {4.5, 4.7, 4.3}},
+             {7.5, {2.1, 2}}
+            };
+        */
+
+        period_to_head_nodes[hn.period].push_back(head_node_id);
+    }
+
+    // TODO: Just for debugging delete
+    for (auto [p, hn_ids]: period_to_head_nodes) {
+        for (auto hn_id: hn_ids) {
+            Node& hn = (*this)[hn_id];
+            cout << p << " - " << hn.name << " - " << hn.tot_observations << "\n";
+        }
+    }
+
     std::unordered_set<double> frequency_set;
 
-    int period = 8;
-    // The maximum number of components we are going to evaluate in search of
-    // the best number of components to be used.
-    // max_k < period / 2 (Nyquist theorem)
-    int max_k = 4;
+    for (auto [period, hn_ids]: period_to_head_nodes) {
+        Node& hn = (*this)[hn_ids[0]];  // TODO: Just for debugging delete
 
-    // Generate the maximum number of sinusoidal frequencies needed for the
-    // period. By the Nyquist theorem this number is floor(period / 2)
-    // The actual number of frequencies used to model a concept could be less
-    // than this, which is decided by computing the root mean
-    // squared error of the predictions for each number of components
-    vector<double> period_freqs = this->generate_frequencies_for_period(max_k,
-                                                                        period);
+        // The maximum number of components we are going to evaluate in search
+        // of the best number of components to be used.
+        // max_k < period / 2 (Nyquist theorem)
+        int max_k = 4;
 
-    // Assemble the sinusoidal generating LDS with the maximum number of
-    // components. This includes all the sinusoidals needed for every lesser
-    // number of components we are going to try out.
-    auto [A_sin_max_k_base, s0_sin_max_k] =
-                        this->assemble_sinusoidal_generating_LDS(period_freqs);
-
-    Eigen::MatrixXd sinusoidals = this->generate_sinusoidal_values_for_bins(
-                                                               A_sin_max_k_base,
-                                                               s0_sin_max_k,
-                                                               period);
-
-    // TODO: We have to iterate through different number of components from here onward
-    double best_rmse = numeric_limits<double>::infinity();
-    double best_components = 0;
-    for (int components = 0; components <= max_k; components++) {
-        Eigen::VectorXd fourier_coefficients =
-            this->compute_fourier_coefficients_from_least_square_optimization(
-                                                       sinusoidals, components);
+        // Generate the maximum number of sinusoidal frequencies needed for the
+        // period. By the Nyquist theorem this number is floor(period / 2)
+        // The actual number of frequencies used to model a concept could be
+        // less than this, which is decided by computing the root mean squared
+        // error of the predictions for each number of components
+        vector<double> period_freqs =
+                           this->generate_frequencies_for_period(max_k, period);
 
         // Assemble the sinusoidal generating LDS with the maximum number of
-        // components to generate all the head nodes with this period. This includes all the sinusoidals needed for every lesser number of components we are going to try out.
-        auto [A_concept_period_base, s0_concept_period] =
-            this->assemble_LDS_for_head_nodes_with_the_same_period(
-                                   A_sin_max_k_base, s0_sin_max_k, period_freqs,
-                                   fourier_coefficients, components);
+        // components. This includes all the sinusoidals needed for every lesser
+        // number of components we are going to try out.
+        auto [A_sin_max_k_base, s0_sin_max_k] =
+            this->assemble_sinusoidal_generating_LDS(period_freqs);
 
-        double rmse = determine_the_best_number_of_components(
-                 A_concept_period_base, s0_concept_period, period, components);
+        Eigen::MatrixXd sinusoidals = this->generate_sinusoidal_values_for_bins(
+            A_sin_max_k_base, s0_sin_max_k, period);
 
-        if (rmse < best_rmse) {
-            best_rmse = rmse;
-            best_components = components;
+        // Assign transition matrix rows to head nodes with this period.
+        // NOTE: At this moment we do not need to reformat the head node vector
+        //       this way. We could just use the head node vector as it is and
+        //       compute the transition matrix row based on the index at which
+        //       each head node is at.
+        //       I am doing this thinking to reuse the
+        //       assemble_LDS_for_head_nodes_with_the_same_period() method to
+        //       assemble the final LDS with all the nodes with body nodes
+        //       included. At the moment, in that system, head nodes does not
+        //       occupy a contiguous range of rows in the transition matrix.
+        unordered_map<int, int> hn_to_mat_row;
+        for (int v = 0; v < hn_ids.size(); v++) {
+            hn_to_mat_row[hn_ids[v]] = 2 * v;
         }
 
-        this->check_sines(A_concept_period_base, s0_concept_period, period);
+        // Again creating a dummy zero matrix to make
+        // assemble_LDS_for_head_nodes_with_the_same_period() method more general
+        int n_concept_rows = 2 * hn_ids.size();
+        Eigen::MatrixXd A_concept_base_dummy = Eigen::MatrixXd::Zero(
+                                                                n_concept_rows,
+                                                                n_concept_rows);
+
+        for (int components = 0; components <= max_k; components++) {
+            this->compute_fourier_coefficients_from_least_square_optimization(
+                                            sinusoidals, components, hn_ids);
+
+            // Assemble the LDS that generates the head nodes with this
+            // period using this number of components.
+            auto [A_concept_period_base, s0_concept_period] =
+                this->assemble_LDS_for_head_nodes_with_the_same_period(
+                                                          A_sin_max_k_base,
+                                                          s0_sin_max_k,
+                                                          period_freqs,
+                                                          components,
+                                                          hn_to_mat_row,
+                                                          A_concept_base_dummy);
+
+            determine_the_best_number_of_components(A_concept_period_base,
+                                                    s0_concept_period,
+                                                    period,
+                                                    components,
+                                                 hn_to_mat_row);
+
+            this->check_sines(A_concept_period_base, s0_concept_period, period);
+        }
+        cout << "Best: " << hn.best_n_components << " : " << hn.best_rmse << endl;
     }
-    cout << "Best: " << best_components << " : " << best_rmse << endl;
 }

@@ -191,6 +191,7 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
                                      n.partitioned_data[partition].second.end(),
                                      obs_at_ts.begin(),
                                      obs_at_ts.end());
+                      n.tot_observations += obs_at_ts.size();
                   }
               } //else {
                 // This is a missing observation

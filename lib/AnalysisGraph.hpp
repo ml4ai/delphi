@@ -1140,23 +1140,26 @@ class AnalysisGraph {
    *
    *         with i = 1, 2, ... & λ = 2π/period & b = 0, 1, ..., period - 1
    */
-  Eigen::VectorXd compute_fourier_coefficients_from_least_square_optimization(
+  void compute_fourier_coefficients_from_least_square_optimization(
                                             const Eigen::MatrixXd &sinusoidals,
-                                            int n_components);
+                                            int n_components,
+                                            std::vector<int> &head_node_ids);
 
   std::pair<Eigen::MatrixXd, Eigen::VectorXd>
   assemble_LDS_for_head_nodes_with_the_same_period(
                                   const Eigen::MatrixXd &A_sin_base,
                                   const Eigen::VectorXd &s0_sin,
                                   const std::vector<double> &period_freqs,
-                                  const Eigen::VectorXd &fourier_coefficients,
-                                  int n_components);
+                                  int n_components,
+                                  std::unordered_map<int, int> &hn_to_mat_row,
+                                  const Eigen::MatrixXd &A_concept_base);
 
-  double determine_the_best_number_of_components(
+  void determine_the_best_number_of_components(
                                    const Eigen::MatrixXd &A_concept_period_base,
                                    const Eigen::VectorXd &s0_concept_period,
                                    int period,
-                                   int n_components);
+                                   int n_components,
+                                   std::unordered_map<int, int> &hn_to_mat_row);
 
   void check_sines(const Eigen::MatrixXd &A_sin_base,
                    const Eigen::VectorXd &s0_sin, int period);
