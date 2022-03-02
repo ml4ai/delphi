@@ -1,6 +1,8 @@
 #include "DatabaseHelper.hpp"
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <thread>
+
 
 using namespace std;
 using json = nlohmann::json;
@@ -150,28 +152,25 @@ json Database::select_causemosasyncexperimentresult_row(string modelId) {
 /*
     Execute insert query string on any table
 */
-void Database::insert(string insert_query) {
-    char* zErrMsg = 0;
-    int rc = sqlite3_exec(db, insert_query.c_str(), callback, 0, &zErrMsg);
-
-//    cout << "Database::insert(" << insert_query << ") returned " << rc << endl;
+bool Database::insert(string insert_query) {
+    return exec_query(insert_query);
 }
 
 /*
     Execute insert/replace query string on delphimodel table for 1 row
 */
-void Database::insert_into_delphimodel(string id, string model) {
+bool Database::insert_into_delphimodel(string id, string model) {
     string query =
         "INSERT OR REPLACE INTO delphimodel ('id', 'model') VALUES ('" + id +
         "', '" + model + "');";
-    this->insert(query);
+    return insert(query);
 }
 
 /*
     Execute insert/replace query string on causemosasyncexperimentresult table
    for 1 row
 */
-void Database::insert_into_causemosasyncexperimentresult(string id,
+bool Database::insert_into_causemosasyncexperimentresult(string id,
                                                          string status,
                                                          string experimentType,
                                                          string results) {
@@ -180,13 +179,13 @@ void Database::insert_into_causemosasyncexperimentresult(string id,
                    id + "', '" + status + "', '" + experimentType + "', '" +
                    results + "'); ";
 
-    this->insert(query);
+    return insert(query);
 }
 
 /*
     Execute update query string on any table for 1 column with where condition
 */
-void Database::update_row(string table_name,
+bool Database::update_row(string table_name,
                           string column_name,
                           string value,
                           string where_column_name,
@@ -194,16 +193,44 @@ void Database::update_row(string table_name,
     string update_table_query = "UPDATE " + table_name + " SET " + column_name +
                                 " = '" + value + "' WHERE " +
                                 where_column_name + " = '" + where_value + "';";
-    int rc = sqlite3_exec(db, update_table_query.c_str(), callback, 0, NULL);
+    return exec_query(update_table_query);
 }
 
 /*
     Execute update query string on any table for 1 column with where condition
 */
-void Database::delete_rows(string table_name,
+bool Database::delete_rows(string table_name,
                            string where_column_name,
                            string where_value) {
     string delete_table_query = "DELETE FROM  " + table_name + " WHERE " +
                                 where_column_name + " = '" + where_value + "';";
-    int rc = sqlite3_exec(db, delete_table_query.c_str(), callback, 0, NULL);
+    return exec_query(delete_table_query);
+}
+
+/* Execute the query on the database, retry if busy, report errors */
+bool Database::exec_query(string query) {
+
+  int max_attempts = 100;  // usually only takes a few attempts.
+  string fn = "DatabaseHelper::exec ";
+
+  for(int i = 0; i < max_attempts; i ++) {
+    int rc = sqlite3_exec(db, query.c_str(), callback, 0, NULL);
+    switch (rc) {
+      case SQLITE_OK:  // success
+        if(i > 0) {
+          cout << fn << "succeeded after " << i+1 << " attempts " << endl;
+        }
+        return true;
+      case SQLITE_BUSY:  // blocked by busy db, wait a moment and retry
+        this_thread::sleep_for(std::chrono::seconds(1));
+        break;
+      default:  // failure
+        cout << fn << "failed with error code: " << rc << endl;
+        return false;
+    }
+  }
+
+  // maxed out the number of attempts, something is wrong.
+  cout << fn << "could not execute after " << max_attempts << " attempts";
+  return false;
 }
