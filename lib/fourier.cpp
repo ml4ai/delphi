@@ -409,6 +409,7 @@ bool AnalysisGraph::determine_the_best_number_of_components(
                 rmses_are_reducing = true;
                 hn.best_rmse = rmse;
                 hn.best_n_components = n_components;
+                hn.best_fourier_coefficients = hn.fourier_coefficients;
             }
         }
     }
@@ -549,7 +550,7 @@ AnalysisGraph::fit_seasonal_head_node_model_via_fourier_decomposition() {
         }
     }
 
-    std::unordered_set<double> frequency_set;
+    std::unordered_set<double> fourier_frequency_set;
 
     for (auto [period, hn_ids]: period_to_head_nodes) {
         Node& hn = (*this)[hn_ids[0]];  // TODO: Just for debugging delete
@@ -628,5 +629,15 @@ AnalysisGraph::fit_seasonal_head_node_model_via_fourier_decomposition() {
             }
         }
         cout << "Best: " << hn.best_n_components << " : " << hn.best_rmse << endl;
+        // Accumulate all the fourier frequencies needed to model all the head
+        // nodes with this period
+        int max_n_components_for_period = 0;
+        for (auto hn_id: hn_ids) {
+            Node& hn = (*this)[hn_id];
+            if (hn.best_n_components > max_n_components_for_period) {
+                max_n_components_for_period = hn.best_n_components;
+            }
+        }
+        fourier_frequency_set.insert(period_freqs.begin(), period_freqs.begin() + max_n_components_for_period);
     }
 }

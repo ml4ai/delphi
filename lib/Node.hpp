@@ -21,6 +21,7 @@ class Node {
   // Utilized only for head nodes with period > 1
   int tot_observations = 0;
   Eigen::VectorXd fourier_coefficients;
+  Eigen::VectorXd best_fourier_coefficients;
   double best_rmse = std::numeric_limits<double>::infinity();
   int best_n_components = 0;
   bool rmse_is_reducing = true;
