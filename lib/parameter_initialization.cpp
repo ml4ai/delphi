@@ -273,6 +273,10 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
           else if (aggregation_method.compare("median") == 0) {
               mean = delphi::utils::median(mean_sequence);
           }
+
+          // TODO: Just for debugging delete
+          mean = 1;
+
           if (mean != 0) {
               ind.set_mean(mean);
           } else {
@@ -304,11 +308,34 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
                             [&](double obs){return obs / n.indicators[0].mean;});
               }
 
-              /*
               transform(mean_sequence.begin(), mean_sequence.end(),
                         mean_sequence.begin(),
                       [&](double obs_mean){return obs_mean / n.indicators[0].mean;});
 
+              // Computing the midpoints
+              if (n.period > 1 &&
+                  this->head_nodes.find(v) != this->head_nodes.end()) {
+                  // Midpoints are only needed for head nodes with period > 1 to
+                  // fit the Fourier decomposition based seasonal model.
+                  for (int mean_seq_idx = 0;
+                       mean_seq_idx < ts_sequence.size() - 1;
+                       mean_seq_idx++) {
+                      if (ts_sequence[mean_seq_idx] ==
+                          ts_sequence[mean_seq_idx + 1] - 1) {
+                          // We have two consecutive time points with
+                          // observations So, we could compute a between bin
+                          // midpoint. We place the midpoints between bin b and
+                          // bin (b+1) % period in midpoint bin b
+                          int partition = ts_sequence[mean_seq_idx] % n.period;
+                          n.between_bin_midpoints[partition].push_back(
+                              (mean_sequence[mean_seq_idx] +
+                               mean_sequence[mean_seq_idx + 1]) /
+                              2.0);
+                      }
+                  }
+              }
+
+              /*
               for (int ts = 0; ts < ts_sequence.size(); ts++) {
                   // TODO: I feel that this partitioning is worng. Should be corrected as:
                   // First we convert the observation time steps for an indicator into a
@@ -320,7 +347,7 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
                   n.partitioned_data[partition].first.push_back(ts_sequence[ts]);
                   n.partitioned_data[partition].second.push_back(mean_sequence[ts]);
               }
-               */
+              */
 
               double center;
               vector<int> filled_observation_timesteps_within_a_period;

@@ -179,6 +179,13 @@ AnalysisGraph::generate_sinusoidal_values_for_bins(const Eigen::MatrixXd &A_sin_
    *
    *         with i = 1, 2, ... & λ = 2π/period & b = 0, 1, ..., period - 1
  */
+// NOTE: This method could be made a method of the Node class. The best
+//       architecture would be to make a subclass, HeadNode, of Node class and
+//       including this method there. At the moment we incrementally create the
+//       graph while identifying head nodes, we are using Node objects
+//       everywhere. To follow the HeadNode subclass specialization route, we
+//       either have to replace Node objects with HeadNode objects or do a first
+//       pass through the input to identify head nodes and then create the graph.
 void
 AnalysisGraph::compute_fourier_coefficients_from_least_square_optimization(
                                            const Eigen::MatrixXd &sinusoidals,
@@ -365,8 +372,19 @@ void AnalysisGraph::determine_the_best_number_of_components(
     }
 
     for (auto [hn_id, v_preds_row]: hn_to_mat_row) {
+        // NOTE: This for loop could be made a method of the Node class. The best
+        //       architecture would be to make a subclass, HeadNode, of Node class and
+        //       including this for loop as a method there. At the moment we incrementally create the
+        //       graph while identifying head nodes, we are using Node objects
+        //       everywhere. To follow the HeadNode subclass specialization route, we
+        //       either have to replace Node objects with HeadNode objects or do a first
+        //       pass through the input to identify head nodes and then create the graph.
         Node& hn = (*this)[hn_id];
         vector<double> errors;
+
+        // TODO: Just for debugging delete
+        //for (auto [midpoint, vals] : hn.partitioned_data) {
+            //for (double val : vals.second) {
 
         for (auto [midpoint, vals] : hn.between_bin_midpoints) {
             for (double val : vals) {
@@ -435,6 +453,7 @@ AnalysisGraph::fit_seasonal_head_node_model_via_fourier_decomposition() {
         Node& hn = (*this)[head_node_id];
 
         // TODO: Just for debugging delete
+        /*
         hn.period = 8;
         hn.tot_observations = 24; // Total observations for a concept
         hn.partitioned_data =
@@ -457,6 +476,7 @@ AnalysisGraph::fit_seasonal_head_node_model_via_fourier_decomposition() {
              {6, {4.5, 4.7, 4.3}},
              {7, {2.1, 2}}
             };
+        */
 //        {{0, {0, 0, 0}},
 //         {1, {2, 2, 2}},
 //         {2, {6, 6, 6}},
@@ -529,7 +549,8 @@ AnalysisGraph::fit_seasonal_head_node_model_via_fourier_decomposition() {
         // The maximum number of components we are going to evaluate in search
         // of the best number of components to be used.
         // max_k < period / 2 (Nyquist theorem)
-        int max_k = 4;
+        // TODO: Just for debugging. Change to period / 2 // Integer division
+        int max_k = 6;
 
         // Generate the maximum number of sinusoidal frequencies needed for the
         // period. By the Nyquist theorem this number is floor(period / 2)
