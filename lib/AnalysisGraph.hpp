@@ -1154,7 +1154,7 @@ class AnalysisGraph {
                                   std::unordered_map<int, int> &hn_to_mat_row,
                                   const Eigen::MatrixXd &A_concept_base);
 
-  void determine_the_best_number_of_components(
+  bool determine_the_best_number_of_components(
                                    const Eigen::MatrixXd &A_concept_period_base,
                                    const Eigen::VectorXd &s0_concept_period,
                                    int period,

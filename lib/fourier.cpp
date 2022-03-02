@@ -348,7 +348,7 @@ AnalysisGraph::assemble_LDS_for_head_nodes_with_the_same_period(
     return make_pair(A_concept_period_base, s0_concept_period);
 }
 
-void AnalysisGraph::determine_the_best_number_of_components(
+bool AnalysisGraph::determine_the_best_number_of_components(
                                    const Eigen::MatrixXd &A_concept_period_base,
                                    const Eigen::VectorXd &s0_concept_period,
                                    int period,
@@ -370,6 +370,12 @@ void AnalysisGraph::determine_the_best_number_of_components(
     for (int col = 1; col < period; col++) {
         preds.col(col) = A_step * preds.col(col - 1);
     }
+
+    // Track whether the rmse for at least one concept got reduced for this
+    // number of components. This means we have to check the rmse for
+    // n_components. Monitoring this allows us to stop training when rmses are
+    // not reducing for all the concepts with the specified period.
+    bool rmses_are_reducing = false;
 
     for (auto [hn_id, v_preds_row]: hn_to_mat_row) {
         // NOTE: This for loop could be made a method of the Node class. The best
@@ -400,11 +406,13 @@ void AnalysisGraph::determine_the_best_number_of_components(
         if (hn.rmse_is_reducing) {
             hn.rmse_is_reducing = (rmse < hn.best_rmse);
             if (hn.rmse_is_reducing) {
+                rmses_are_reducing = true;
                 hn.best_rmse = rmse;
                 hn.best_n_components = n_components;
             }
         }
     }
+    return rmses_are_reducing;
 }
 
 void AnalysisGraph::check_sines(const Eigen::MatrixXd &A_sin_base,
@@ -606,13 +614,18 @@ AnalysisGraph::fit_seasonal_head_node_model_via_fourier_decomposition() {
                                                           hn_to_mat_row,
                                                           A_concept_base_dummy);
 
-            determine_the_best_number_of_components(A_concept_period_base,
-                                                    s0_concept_period,
-                                                    period,
-                                                    components,
-                                                 hn_to_mat_row);
+            bool rmses_are_reducing = determine_the_best_number_of_components(
+                                                          A_concept_period_base,
+                                                          s0_concept_period,
+                                                          period,
+                                                          components,
+                                                       hn_to_mat_row);
 
             this->check_sines(A_concept_period_base, s0_concept_period, period);
+
+            if (!rmses_are_reducing) {
+                break;
+            }
         }
         cout << "Best: " << hn.best_n_components << " : " << hn.best_rmse << endl;
     }
