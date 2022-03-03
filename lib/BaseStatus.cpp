@@ -61,10 +61,7 @@ void BaseStatus::initialize() {
   // add valid data to new table
   for(json row: rows) {
     string id = row.value(COL_ID,"");
-
-    // FIXME this should be any key not equal to the id
     string dataString = row.value(COL_DATA, "");
-
     json data = json::parse(dataString);
     if(!data.empty()) {
       bool busy = data.value(BUSY, false);
