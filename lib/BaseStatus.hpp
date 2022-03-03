@@ -13,14 +13,14 @@ using json = nlohmann::json;
 class BaseStatus {
 
   private:
-    string class_name = "N/A";
-    string table_name = "N/A";
-    string primary_key = "N/A";
-    Database* database = nullptr;
-    std::thread *pThread = nullptr;
-    bool recording = false;
-    double progress = 0.0;
-    bool delete_database = false; 
+    string class_name = "N/A";  // extending class
+    string table_name = "N/A";  // table of extending class
+    string primary_key = "N/A"; // primary key of table
+    Database* database = nullptr; // connection to Delphi DB
+    std::thread *pThread = nullptr; // for timed updates to database
+    bool recording = false;  // true if timed updates are happening
+    double progress = 0.0; // training of model or completion of projection
+    bool delete_database = false; // true if we created a new database
     void scheduler();
     bool insert_query(string query);
     string timestamp();
