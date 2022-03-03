@@ -1,25 +1,5 @@
-#include <sqlite3.h>
-#include "DatabaseHelper.hpp"
 #include "ModelStatus.hpp"
-#include "utils.hpp"
-#include <thread>
-#include <ctime>
-#include <chrono>
 #include <nlohmann/json.hpp>
-#include <sqlite3.h>
-#include "DatabaseHelper.hpp"
-#include "ModelStatus.hpp"
-#include "utils.hpp"
-#include <thread>
-#include <ctime>
-#include <chrono>
-#include <nlohmann/json.hpp>
-
-#define SHOW_LOGS
-
-using namespace std;
-using namespace delphi::utils;
-using json = nlohmann::json;
 
 // set our data to the start state
 void ModelStatus::enter_initial_state() {
@@ -50,11 +30,11 @@ void ModelStatus::enter_finished_state() {
 
 // set the complete data for the database row
 void ModelStatus::set_state(double progress, string status, bool busy) {
-  this->progress = progress;
-  json data;
+  set_progress(progress);
+  nlohmann::json data;
   data[MODEL_ID] = model_id;
   data[PROGRESS] = progress;
   data[STATUS] = status;
   data[BUSY] = busy;
-  write_row(model_id, data);
+  write_data(data);
 }

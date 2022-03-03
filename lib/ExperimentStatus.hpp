@@ -1,5 +1,5 @@
 #pragma once
-#include "DatabaseHelper.hpp"
+
 #include "BaseStatus.hpp"
 #include <thread>
 #include <nlohmann/json.hpp>
@@ -23,9 +23,9 @@ class ExperimentStatus : public BaseStatus {
         string experiment_id,
         string model_id 
     ) : BaseStatus(
-      new Database(), 
       "experiment_status",
-      "ExperimentStatus"
+      "ExperimentStatus",
+      experiment_id
     ), experiment_id(experiment_id), model_id(model_id){}
 
     ExperimentStatus(
@@ -33,9 +33,10 @@ class ExperimentStatus : public BaseStatus {
         string model_id,
         Database* database
     ) : BaseStatus(
-      database, 
       "experiment_status",
-      "ExperimentStatus"
+      "ExperimentStatus",
+      experiment_id,
+      database
     ), experiment_id(experiment_id), model_id(model_id){}
 
     ~ExperimentStatus(){}

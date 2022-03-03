@@ -23,15 +23,16 @@ class ModelStatus : public BaseStatus {
 
   public:
     ModelStatus(string id) : BaseStatus(
-      new Database(),
       "model_status",
-      "ModelStatus"
+      "ModelStatus",
+      model_id
     ), model_id(id) {}
 
     ModelStatus(string id, Database* database) : BaseStatus(
-      database,
       "model_status",
-      "ModelStatus"
+      "ModelStatus",
+      model_id,
+      database
     ), model_id(id) {}
 
     ~ModelStatus(){}

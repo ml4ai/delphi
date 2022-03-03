@@ -39,7 +39,6 @@ int callback(void* NotUsed, int argc, char** argv, char** azColName) {
    the column value of any table Query format: SELECT <column_name> from
    <table_name>; SELECT <column_name> from <table_name>  WHERE
    <where_column_name> = <where_value> ;
-
 */
 vector<string> Database::read_column_text(string query) {
     vector<string> matches;
