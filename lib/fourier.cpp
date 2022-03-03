@@ -280,7 +280,7 @@ AnalysisGraph::assemble_LDS_for_head_nodes_with_the_same_period(
                                                s0_sin.head(tot_sinusoidal_rows);
 
     for (auto [hn_id, dot_row]: hn_to_mat_row) {
-    Node& hn = (*this)[hn_id];
+        Node& hn = (*this)[hn_id];
 
         int dot_dot_row = dot_row + 1;
 
@@ -293,10 +293,10 @@ AnalysisGraph::assemble_LDS_for_head_nodes_with_the_same_period(
         // we compute α₀/2 straightaway).
         v0(0) = 1;
 
-        for (int concept_freq_idx = 0; concept_freq_idx < n_components;
+        for (int concept_freq_idx = 0; concept_freq_idx < hn.n_components;
              concept_freq_idx++) {
 
-            double concept_freq = period_freqs[concept_freq_idx]; // λω
+            double concept_freq = hn.fourier_freqs[concept_freq_idx]; // λω
             double concept_freq_squared = concept_freq * concept_freq;
 
             int concept_freq_idx_2 = concept_freq_idx * 2;
@@ -553,13 +553,13 @@ AnalysisGraph::fit_seasonal_head_node_model_via_fourier_decomposition() {
     std::unordered_set<double> fourier_frequency_set;
 
     for (auto [period, hn_ids]: period_to_head_nodes) {
-        Node& hn = (*this)[hn_ids[0]];  // TODO: Just for debugging delete
+        //Node& hn = (*this)[hn_ids[0]];  // TODO: Just for debugging delete
 
         // The maximum number of components we are going to evaluate in search
         // of the best number of components to be used.
         // max_k < period / 2 (Nyquist theorem)
         // TODO: Just for debugging. Change to period / 2 // Integer division
-        int max_k = 6;
+        int max_k = period / 2;
 
         // Generate the maximum number of sinusoidal frequencies needed for the
         // period. By the Nyquist theorem this number is floor(period / 2)
@@ -591,6 +591,14 @@ AnalysisGraph::fit_seasonal_head_node_model_via_fourier_decomposition() {
         unordered_map<int, int> hn_to_mat_row;
         for (int v = 0; v < hn_ids.size(); v++) {
             hn_to_mat_row[hn_ids[v]] = 2 * v;
+
+            // TODO: Just for debugging.
+            cout << "node id: " << hn_ids[v] << " - mat row: " << 2 * v << "\n";
+
+            // Again in the light of reusing the LDS assembly code to assemble
+            // the full matrix
+            Node& hn = (*this)[hn_ids[v]];
+            hn.fourier_freqs = period_freqs;
         }
 
         // Again creating a dummy zero matrix to make
@@ -601,6 +609,13 @@ AnalysisGraph::fit_seasonal_head_node_model_via_fourier_decomposition() {
                                                                 n_concept_rows);
 
         for (int components = 0; components <= max_k; components++) {
+            for (auto hn_id: hn_ids) {
+                // Again in the light of reusing the LDS assembly code to assemble
+                // the full matrix
+                Node& hn = (*this)[hn_id];
+                hn.n_components = components;
+            }
+
             this->compute_fourier_coefficients_from_least_square_optimization(
                                             sinusoidals, components, hn_ids);
 
@@ -622,22 +637,78 @@ AnalysisGraph::fit_seasonal_head_node_model_via_fourier_decomposition() {
                                                           components,
                                                        hn_to_mat_row);
 
-            this->check_sines(A_concept_period_base, s0_concept_period, period);
-
             if (!rmses_are_reducing) {
                 break;
             }
         }
-        cout << "Best: " << hn.best_n_components << " : " << hn.best_rmse << endl;
+
+        Node& hn_dbg = (*this)[hn_ids[0]];  // TODO: Just for debugging delete
+        cout << "Best: " << hn_dbg.best_n_components << " : " << hn_dbg.best_rmse << endl;
+
         // Accumulate all the fourier frequencies needed to model all the head
         // nodes with this period
         int max_n_components_for_period = 0;
         for (auto hn_id: hn_ids) {
             Node& hn = (*this)[hn_id];
+
+            // In the assemble_LDS_for_head_nodes_with_the_same_period() method
+            // Node object members: n_components and fourier_coefficients are
+            // accessed.
+            // When we assemble the final transition matrix with all the fitted
+            // seasonal head nodes and all the body nodes, we have to use Node
+            // object members: best_n_components and best_fourier_coefficients,
+            // for the final system to utilize the fitted seasonal models.
+            // Therefore, we reassign best_n_components and
+            // best_fourier_coefficient to n_components and
+            // fourier_coefficients members so that we could reuse the
+            // assemble_LDS_for_head_nodes_with_the_same_period() method
+            // seamlessly without any change or state checking at the time of
+            // assembling the transition matrix for the final complete system.
+            hn.n_components = hn.best_n_components;
+            hn.fourier_coefficients = hn.best_fourier_coefficients;
+            hn.best_fourier_coefficients.resize(0);  // To save some memory
+
             if (hn.best_n_components > max_n_components_for_period) {
                 max_n_components_for_period = hn.best_n_components;
             }
         }
         fourier_frequency_set.insert(period_freqs.begin(), period_freqs.begin() + max_n_components_for_period);
     }
+
+    // TODO: Just for debugging. Move to transition matrix assembly pari in
+    // sampling.cpp to include all the body nodes as well. For the moment testing
+    // Assemble the final LDS with all the variables
+    vector<double> all_freqs(fourier_frequency_set.begin(), fourier_frequency_set.end());
+    sort(all_freqs.begin(), all_freqs.end());
+
+    auto [A_sin_all_base, s0_sin_all] =
+        this->assemble_sinusoidal_generating_LDS(all_freqs);
+
+
+    // TODO: This should change to actual head node ids when assembling with all concepts
+    unordered_map<int, int> hn_to_mat_row;
+    int row = 0;
+    for (int hn_id: this->head_nodes) {
+        hn_to_mat_row[hn_id] = row;
+        row += 2;
+    }
+
+    // TODO: Should be the actual transition matrix without sinusoidal part
+    int n_concept_rows = 2 * this->head_nodes.size();
+    Eigen::MatrixXd A_concept_base_dummy = Eigen::MatrixXd::Zero(
+        n_concept_rows,
+        n_concept_rows);
+
+    auto [A_concept_full_base, s0_concept_full] =
+        this->assemble_LDS_for_head_nodes_with_the_same_period(
+            A_sin_all_base,
+            s0_sin_all,
+            all_freqs,
+            all_freqs.size(),
+            hn_to_mat_row,
+            A_concept_base_dummy);
+
+    cout << A_concept_full_base << "\n";
+
+    this->check_sines(A_concept_full_base, s0_concept_full, 12);
 }

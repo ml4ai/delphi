@@ -22,7 +22,9 @@ class Node {
   int tot_observations = 0;
   Eigen::VectorXd fourier_coefficients;
   Eigen::VectorXd best_fourier_coefficients;
+  std::vector<double> fourier_freqs;
   double best_rmse = std::numeric_limits<double>::infinity();
+  int n_components;
   int best_n_components = 0;
   bool rmse_is_reducing = true;
   // Partition i refer to the midpoint between partitions i and (i+1) % period
