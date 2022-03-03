@@ -9,7 +9,6 @@
 #include <boost/uuid/uuid_generators.hpp> // generators
 #include <boost/uuid/uuid_io.hpp>         // streaming operators etc.
 #include <boost/asio/ip/host_name.hpp>    // hostname
-#include <ctime>
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <range/v3/all.hpp>
@@ -137,7 +136,7 @@ class Experiment {
 
         json query_result = sqlite3DB->select_delphimodel_row(modelId);
 
-        if (ms.get_data().empty()) {
+        if (ms.read_data().empty()) {
             // Model ID not in database.
             query_result = sqlite3DB->select_causemosasyncexperimentresult_row(
                 experiment_id);
@@ -245,40 +244,34 @@ class Model {
     }
 };
 
-
 // System runtime parameters returned by the 'status' endpoint
 std::string getSystemStatus() {
 
-    // report the host machine name
-    const auto host_name = boost::asio::ip::host_name(); 
+  // report the host machine name
+  const auto host_name = boost::asio::ip::host_name(); 
 
-    // report the run mode.  CI is used for debugging.
-    const auto run_mode = getenv("CI") ? "CI" : "normal";
+  // report the run mode.  CI is used for debugging.
+  const auto run_mode = getenv("CI") ? "CI" : "normal";
 
-    // report the start time
-    char timebuf[200];
-    time_t t;
-    struct tm *now;
-    const char* fmt = "%F %T";
-    t = time(NULL);
-    now = gmtime(&t);
-    if (now == NULL) {
-      perror("gmtime error");
-      exit(EXIT_FAILURE);
-    }
-    if (strftime(timebuf, sizeof(timebuf), fmt, now) == 0) {
-      fprintf(stderr, "strftime returned 0");
-      exit(EXIT_FAILURE);
-    }
+  // report the start time
+  timeval curTime;
+  gettimeofday(&curTime, NULL);
+  int milli = curTime.tv_usec / 1000;
 
-    std::string system_status = "The Delphi REST API was started on "
-      + host_name
-      + " in "
-      + run_mode
-      + " mode at UTC "
-      + timebuf;
+  char buffer [80];
+  strftime(buffer, 80, "%Y-%m-%d %H:%M:%S", localtime(&curTime.tv_sec));
 
-    return system_status;
+  char current_time[84] = "";
+  sprintf(current_time, "%s:%03d", buffer, milli);
+
+  std::string system_status = "The Delphi REST API was started on "
+    + host_name
+    + " in "
+    + run_mode
+    + " mode at UTC "
+    + current_time;
+
+  return system_status;
 }
 
 // the system status only has to be generated once.
@@ -315,8 +308,8 @@ int main(int argc, const char* argv[]) {
     // prepare the model and experiment databases for use
     ModelStatus ms("startup", sqlite3DB);
     ExperimentStatus es("startup", "startup", sqlite3DB);
-    ms.clean_db();
-    es.clean_db();
+    ms.initialize();
+    es.initialize();
 
     /* Allow users to check if the REST API is running */
     mux.handle("/status").get(
@@ -346,11 +339,11 @@ int main(int argc, const char* argv[]) {
 	    ModelStatus ms(modelId, sqlite3DB);
 
 	    // check for existence of record, add if needed.
-	    if(ms.get_data().empty()) {
+	    if(ms.read_data().empty()) {
               ms.enter_initial_state();
             }
 
-            json model_status_data = ms.get_data();
+            json model_status_data = ms.read_data();
 	    bool model_busy = model_status_data[ms.BUSY];
 
             // do not overwrite model if it is busy
@@ -433,7 +426,7 @@ int main(int argc, const char* argv[]) {
             ret[es.MODEL_ID] = modelId;
             ret[es.EXPERIMENT_ID] = experimentId;
 
-	    json es_data = es.get_data();
+	    json es_data = es.read_data();
 	    if(!es_data.empty()) {
 	      bool busy = es_data[es.BUSY];
 	      if(busy) {
@@ -482,7 +475,7 @@ int main(int argc, const char* argv[]) {
             ret["modelId"] = modelId;
 
 	    ModelStatus ms(modelId, sqlite3DB);
-	    json model_data = ms.get_data();
+	    json model_data = ms.read_data();
 
 	    // Model not found
 	    if(model_data.empty()) {
@@ -545,7 +538,7 @@ int main(int argc, const char* argv[]) {
         string modelId = req.params["modelId"];
 
         ModelStatus ms(modelId, sqlite3DB);
-	json model_data = ms.get_data();
+	json model_data = ms.read_data();
         json ret;
         ret[ms.MODEL_ID] = modelId;
 
@@ -595,7 +588,7 @@ int main(int argc, const char* argv[]) {
             string modelId = req.params["modelId"];
 
 	    ModelStatus ms(modelId, sqlite3DB);
-	    json model_data = ms.get_data();
+	    json model_data = ms.read_data();
 
             json ret;
             ret[ms.MODEL_ID] = modelId;
