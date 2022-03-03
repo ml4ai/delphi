@@ -28,8 +28,8 @@ void ExperimentStatus::enter_writing_state() {
 }
 
 // set our data to the end state
-void ExperimentStatus::enter_finished_state() {
-  set_state(1.0, "Complete", false);
+void ExperimentStatus::enter_finished_state(string status) {
+  set_state(1.0, status, false);
 }
 
 // set the complete data for the database row

@@ -24,8 +24,8 @@ void ModelStatus::enter_writing_state() {
 }
 
 // set our data to the end state
-void ModelStatus::enter_finished_state() {
-  set_state(1.0, "Trained", false);
+void ModelStatus::enter_finished_state(string status) {
+  set_state(1.0, status, false);
 }
 
 // set the complete data for the database row

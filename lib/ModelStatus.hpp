@@ -42,7 +42,7 @@ class ModelStatus : public BaseStatus {
     void enter_reading_state();
     void enter_working_state();
     void enter_writing_state();
-    void enter_finished_state();
+    void enter_finished_state(string status);
 
     // serialized JSON fields in the status text
     const string MODEL_ID = "id"; // API

@@ -46,7 +46,7 @@ class ExperimentStatus : public BaseStatus {
     void enter_reading_state();
     void enter_working_state();
     void enter_writing_state();
-    void enter_finished_state();
+    void enter_finished_state(string status);
 
     const string CONSTRAINTS = "constraints"; // API
     const string END_TIME = "endTime"; // API
