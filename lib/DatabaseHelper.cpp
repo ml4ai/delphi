@@ -181,31 +181,6 @@ bool Database::insert_into_causemosasyncexperimentresult(string id,
     return insert(query);
 }
 
-/*
-    Execute update query string on any table for 1 column with where condition
-*/
-bool Database::update_row(string table_name,
-                          string column_name,
-                          string value,
-                          string where_column_name,
-                          string where_value) {
-    string update_table_query = "UPDATE " + table_name + " SET " + column_name +
-                                " = '" + value + "' WHERE " +
-                                where_column_name + " = '" + where_value + "';";
-    return exec_query(update_table_query);
-}
-
-/*
-    Execute update query string on any table for 1 column with where condition
-*/
-bool Database::delete_rows(string table_name,
-                           string where_column_name,
-                           string where_value) {
-    string delete_table_query = "DELETE FROM  " + table_name + " WHERE " +
-                                where_column_name + " = '" + where_value + "';";
-    return exec_query(delete_table_query);
-}
-
 /* Execute the query on the database, retry if busy, report errors */
 bool Database::exec_query(string query) {
 

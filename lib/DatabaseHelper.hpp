@@ -44,15 +44,5 @@ class Database {
                                                  std::string experimentType,
                                                  std::string results);
 
-  bool update_row(std::string table_name,
-                  std::string column_name,
-                  std::string value,
-                  std::string where_column_name,
-                  std::string where_value);
-
-  bool delete_rows(std::string table_name,
-                   std::string where_column_name,
-                   std::string where_value);
-
   bool exec_query(std::string query);
 };
