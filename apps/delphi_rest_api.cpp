@@ -69,19 +69,27 @@ class Experiment {
         double endTime = request_body["experimentParam"]["endTime"];
         int numTimesteps = request_body["experimentParam"]["numTimesteps"];
 
-
         FormattedProjectionResult causemos_experiment_result =
             G.run_causemos_projection_experiment_from_json_string(
                 request.body());
 
+        ExperimentStatus es(experiment_id, modelId, sqlite3DB);
+
         if (!trained) {
-            sqlite3DB->insert_into_delphimodel(
-                modelId, G.serialize_to_json_string(false));
+            if(!sqlite3DB->insert_into_delphimodel(
+                modelId, G.serialize_to_json_string(false))) {
+		es.enter_finished_state("Could not insert model into database");
+		return;
+	    }
         }
 
         json result =
             sqlite3DB->select_causemosasyncexperimentresult_row(experiment_id);
 
+	if(result.empty()) {
+            es.enter_finished_state("Could find experiment in database");
+	    return;  // experiment not found
+	}
         /*
             A rudimentary test to see if the projection failed. We check whether
             the number time steps is equal to the number of elements in the
@@ -115,14 +123,19 @@ class Experiment {
             }
         }
 
-        sqlite3DB->insert_into_causemosasyncexperimentresult(
+	if(!sqlite3DB->insert_into_causemosasyncexperimentresult(
             result["id"],
             result["status"],
             result["experimentType"],
-            result["results"].dump());
-
-        ExperimentStatus es(experiment_id, modelId, sqlite3DB);
-        es.enter_finished_state();
+            result["results"].dump()
+        )) {
+            es.enter_finished_state(
+                "Unable to insert experiment into database"
+            );
+	}
+	else {
+            es.enter_finished_state((string)result["status"]);
+	}
     }
 
     static void runExperiment(Database* sqlite3DB,
@@ -133,6 +146,7 @@ class Experiment {
         string experiment_type = request_body["experimentType"];
 
 	ModelStatus ms(modelId, sqlite3DB);
+	ExperimentStatus es(experiment_id, modelId, sqlite3DB);
 
         json query_result = sqlite3DB->select_delphimodel_row(modelId);
 
@@ -140,40 +154,42 @@ class Experiment {
             // Model ID not in database.
             query_result = sqlite3DB->select_causemosasyncexperimentresult_row(
                 experiment_id);
-            sqlite3DB->insert_into_causemosasyncexperimentresult(
+            if(!sqlite3DB->insert_into_causemosasyncexperimentresult(
                 query_result["id"],
                 "failed",
                 query_result["experimentType"],
-                query_result["results"]);
-            return;
+                query_result["results"])
+             ) {
+                es.enter_finished_state(
+                    "Unable to insert experiment into database"
+                );
+		return;
+	    }
+
         }
 
-	ExperimentStatus es(experiment_id, modelId, sqlite3DB);
 	es.enter_reading_state();
 
         string model = query_result["model"];
         bool trained = nlohmann::json::parse(model)["trained"];
 
-
         AnalysisGraph G;
         G = G.deserialize_from_json_string(model, false);
 	G.experiment_id = experiment_id;
 
-        if (experiment_type == "PROJECTION")
+	if(experiment_type == "PROJECTION") {
             runProjectionExperiment(
-                sqlite3DB, request, modelId, experiment_id, G, trained);
-        else if (experiment_type == "GOAL_OPTIMIZATION")
-            ; // Not yet implemented
-        else if (experiment_type == "SENSITIVITY_ANALYSIS")
-            ; // Not yet implemented
-        else if (experiment_type == "MODEL_VALIDATION")
-            ; // Not yet implemented
-        else if (experiment_type == "BACKCASTING")
-            ; // Not yet implemented
-        else
-            ; // Unknown experiment type
-    }
+                sqlite3DB, request, modelId, experiment_id, G, trained
+            );
+	}
 
+        /* experiment types not implemented:
+        GOAL_OPTIMIZATION
+        SENSITIVITY_ANALYSIS
+        MODEL_VALIDATION
+        BACKCASTING
+        */
+    }
 };
 
 class Model {
@@ -191,11 +207,16 @@ class Model {
 	G.id = model_id;
         G.run_train_model(res, burn);
 	ms.enter_writing_state();
-        sqlite3DB->insert_into_delphimodel(
+        if(!sqlite3DB->insert_into_delphimodel(
             model_id,
             G.serialize_to_json_string(false)
-        );
-	ms.enter_finished_state();
+        )) {
+            ms.enter_finished_state(
+                "Error, unable to insert trained model into database"
+            );
+	    return;
+	} 
+	ms.enter_finished_state("Trained");
     }
 
     static size_t get_kde_kernels() {
@@ -370,10 +391,15 @@ int main(int argc, const char* argv[]) {
             G.set_n_kde_kernels(kde_kernels);
             G.from_causemos_json_dict(req_json, 0, 0);
 
-            sqlite3DB->insert_into_delphimodel(
+            if(!sqlite3DB->insert_into_delphimodel(
                 modelId, 
 		G.serialize_to_json_string(false)
-            );
+            )) {
+                json error;
+                error["status"] = "server error: unable to insert into delphimodel";
+                response << error.dump();
+                return error.dump();
+	    }
 
             auto response_json =
                 nlohmann::json::parse(G.generate_create_model_response());
@@ -503,8 +529,15 @@ int main(int argc, const char* argv[]) {
 	    es.enter_initial_state();
 	    es.enter_reading_state();
 
-            sqlite3DB->insert_into_causemosasyncexperimentresult(
-                experiment_id, "in progress", experiment_type, "");
+            if(!sqlite3DB->insert_into_causemosasyncexperimentresult(
+                experiment_id, "in progress", experiment_type, "")
+            ) {
+                string report = "Unable to insert experiment into database";
+                es.enter_finished_state(report);
+                ret[es.STATUS] = report;
+                res << ret.dump();
+                return ret;
+	    }
 
             try {
                 thread executor_experiment(&Experiment::runExperiment,
@@ -516,6 +549,7 @@ int main(int argc, const char* argv[]) {
             }
             catch (std::exception& e) {
 		string report = "Error: unable to start experiment process";
+                es.enter_finished_state(report);
                 cout << report << endl;
                 ret[es.STATUS] = report;
                 res << ret.dump();
@@ -679,10 +713,13 @@ int main(int argc, const char* argv[]) {
 
             G.set_n_kde_kernels(kde_kernels);
 
-            sqlite3DB->insert_into_delphimodel(
+            if(!sqlite3DB->insert_into_delphimodel(
                 modelId,
                 G.serialize_to_json_string(false)
-            );
+            )) {
+                ret[ms.STATUS] = "server error: unable to insert into delphi model";
+                res << ret.dump();
+	    }
 
             try {
                 thread executor_create_model(&Model::train_model,
