@@ -427,7 +427,13 @@ AnalysisGraph::assemble_head_node_modeling_LDS(
 }
 
 /**
- *
+ * Evolves the Fourier decomposition based seasonal head node model assembled
+ * for head nodes that share the same period for one period at between bin
+ * midpoints. Then computes the variable wise root mean squared error for the
+ * predictions against binned data, notes down the parameters when any rmse
+ * reduces. The parameter n_components should be the same number of sinusoidal
+ * frequencies used when assembling the supplied Fourier decomposition based
+ * seasonal head node model LDS (A_hn_period_base and s0_hn_period).
  * @param A_hn_period_base: Transition matrix for the LDS that models seasonal
  *                          head nodes with the same period.
  * @param s0_hn_period: Initial state for the LDS modeling seasonal head nodes
@@ -532,7 +538,12 @@ bool AnalysisGraph::determine_the_best_number_of_components(
 }
 
 /**
- *
+ * Evolves the provided LDS (A_base and _s0) for n_time_steps modeling time
+ * steps and outputs the prediction matrix to a csv file:
+ *      col 2i   - Predictions for variable i in the system
+ *      col 2i+1 - Derivatives for variable i in the system
+ *      Each row is a time step
+ * Predicts four steps for each modeling time step.
  * @param A_base: Base transition matrix that define the LDS.
  * @param _s0: Initial state of the system (t₀ = 0 radians). Used _s0 instead of
  *             s0 because s0 is the member variable that represent the initial
