@@ -14,8 +14,6 @@ class Database {
 
   ~Database();
 
-  void create_table();
-
   std::vector<std::string> read_column_text(std::string query);
 
   std::vector<std::string> read_column_text_query(std::string table_name,
@@ -37,22 +35,14 @@ class Database {
 
   nlohmann::json select_causemosasyncexperimentresult_row(std::string modelId);
 
-  void insert(std::string insert_query);
+  bool insert(std::string insert_query);
 
-  void insert_into_delphimodel(std::string id, std::string model);
+  bool insert_into_delphimodel(std::string id, std::string model);
 
-  void insert_into_causemosasyncexperimentresult(std::string id,
+  bool insert_into_causemosasyncexperimentresult(std::string id,
                                                  std::string status,
                                                  std::string experimentType,
                                                  std::string results);
 
-  void update_row(std::string table_name,
-                  std::string column_name,
-                  std::string value,
-                  std::string where_column_name,
-                  std::string where_value);
-
-  void delete_rows(std::string table_name,
-                   std::string where_column_name,
-                   std::string where_value);
+  bool exec_query(std::string query);
 };

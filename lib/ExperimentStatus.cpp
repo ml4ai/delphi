@@ -1,18 +1,9 @@
-#include <sqlite3.h>
-#include "BaseStatus.hpp"
-#include "DatabaseHelper.hpp"
 #include "ExperimentStatus.hpp"
-#include "utils.hpp"
-#include <thread>
-#include <ctime>
-#include <chrono>
 #include <nlohmann/json.hpp>
-#include "BaseStatus.hpp"
 
 using namespace std;
 using namespace delphi::utils;
 using json = nlohmann::json;
-
 
 // set our data to the start state
 void ExperimentStatus::enter_initial_state() {
@@ -37,18 +28,21 @@ void ExperimentStatus::enter_writing_state() {
 }
 
 // set our data to the end state
-void ExperimentStatus::enter_finished_state() {
-  set_state(1.0, "Complete", false);
+void ExperimentStatus::enter_finished_state(string status) {
+  set_state(1.0, status, false);
 }
 
 // set the complete data for the database row
-void ExperimentStatus::set_state(double progress, string status, bool busy) {
-  this->progress = progress;
+void ExperimentStatus::set_state(
+    double progress, 
+    string status,
+    bool busy) {
+  set_progress(progress);
   json data;
   data[EXPERIMENT_ID] = experiment_id;
   data[MODEL_ID] = model_id;
   data[PROGRESS] = progress;
   data[STATUS] = status;
   data[BUSY] = busy;
-  write_row(experiment_id, data);
+  write_data(data);
 }
