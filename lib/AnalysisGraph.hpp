@@ -1086,18 +1086,18 @@ class AnalysisGraph {
 
   /**
    * Generates a vector of all the effective frequencies for a particular period
-   * @param components: The number of pure sinusoidal frequencies to generate
+   * @param n_components: The number of pure sinusoidal frequencies to generate
    * @param period: The period of the variable(s) being modeled by Fourier
-   *                decomposition.
+   *                decomposition. All variable(s) share the same period.
    * @return A vector of all the effective frequencies
    */
-  std::vector<double> generate_frequencies_for_period(int components,
-                                                      int period);
+  std::vector<double> generate_frequencies_for_period(int period,
+                                                      int n_components);
 
   /**
-   * Assemble the LDS to generate sinusoidals of desired frequencies
+   * Assemble the LDS to generate sinusoidals of desired effective frequencies
    * @param freqs: A vector of effective frequencies
-   *              (λω; ω = 1, 2, ... & λ = 2π/period)
+   *               (λω; ω = 1, 2, ... & λ = 2π/period)
    * @return pair (base transition matrix, initial state)
    *         0 radians is the initial angle.
    */
@@ -1111,28 +1111,55 @@ class AnalysisGraph {
   */
 
   /**
-   * Generate a matrix of sinusoidal values of all the desired frequencies for
-   * all the bin locations.
+   * Generate a matrix of sinusoidal values of all the desired effective
+   * frequencies for all the bin locations.
    * @param A_sin_base: Base transition matrix for sinusoidal generating LDS
    * @param s0_sin: Initial state (0 radians) for sinusoidal generating LDS
-   * @param period: Period of the time series being fitted
+   * @param period: Period shared by the time series that will be fitted using
+   *                the generated sinusoidal values. This period must be the
+   *                same period used to generate the vector of effective
+   *                frequencies used to assemble the transition matrix
+   *                A_sin_base and the initial state s0_sin.
    * @return A matrix of required sinusoidal values.
    *         row t contains sinusoidals for bin t (radians)
    *         col 2ω contains sin(λω t)
    *         col 2ω+1 contains λω cos(λω t)
+   *
    *         with ω = 1, 2, ... & λ = 2π/period
    */
   Eigen::MatrixXd generate_sinusoidal_values_for_bins(const Eigen::MatrixXd &A_sin_base,
                                                       const Eigen::VectorXd &s0_sin,
                                                       int period);
 
+  // NOTE: This method could be made a method of the Node class. The best
+  //       architecture would be to make a subclass, HeadNode, of Node class and
+  //       include this method there. At the moment we incrementally create the
+  //       graph while identifying head nodes, we are using Node objects
+  //       everywhere. To follow the HeadNode subclass specialization route, we
+  //       either have to replace Node objects with HeadNode objects or do a
+  //       first pass through the input to identify head nodes and then create
+  //        the graph.
   /**
-   * Computes the Fourier coefficients to fit a seasonal curve to partitioned
-   * observations using the least square optimization.
-   * @param sinusoidals Sinusoidal values of required frequencies at each bin
-   *        position. Row b contains all the sinusoidal values for bin b.
-   *        sinusoidals(b, 2(i-1))     =    sin(λi b)
-   *        sinusoidals(b, 2(i-1) + 1) = λi cos(λi b)
+   * For each head node, computes the Fourier coefficients to fit a seasonal
+   * curve to partitioned observations (bins) using the least square
+   * optimization.
+   * @param sinusoidals: Sinusoidal values of required effective frequencies at
+   *                     each bin position. Row b contains all the sinusoidal
+   *                     values for bin b.
+   *                        sinusoidals(b, 2(ω-1))     =    sin(λω b)
+   *                        sinusoidals(b, 2(ω-1) + 1) = λω cos(λω b)
+   *                    with ω = 1, 2, ... & λ = 2π/period
+   * @param n_components: The number of different sinusoidal frequencies used to
+   *                      fit the seasonal head node model. The supplied
+   *                      sinusoidals matrix could have sinusoidal values for
+   *                      higher frequencies than needed
+   *                      (number of columns > 2 * n_components). This method
+   *                      utilizes only the first 2 * n_components columns.
+   * @param head_node_ids: A list of head nodes with the period matching the
+   *                       period represented in the provided sinusoidals. The
+   *                       period of all the head nodes in this list must be the
+   *                       same as the period parameter used when generating the
+   *                       sinusoidals.
    * @return The Fourier coefficients in the order: α₀, β₁, α₁, β₂, α₂, ...
    *         α₀ is the coefficient for    cos(0)/2  term
    *         αᵢ is the coefficient for λi cos(λi b) term
@@ -1145,26 +1172,98 @@ class AnalysisGraph {
                                             int n_components,
                                             std::vector<int> &head_node_ids);
 
+  /**
+  * Assembles the LDS to generate the head nodes specified in the hn_to_mat_row
+  * map.
+  * @param A_sin_base: Base transition matrix to generate sinusoidals with all
+  *                    the possible effective frequencies.
+  * @param s0_sin: Initial state of the LDS that generates sinusoidal curves.
+  * @param n_components: The number of different sinusoidal frequencies used to
+  *                      fit the seasonal head nodes. The sinusoidal generating
+  *                      LDS provided (A_sin_base, s0_sin) could generate more
+  *                      sinusoidals of higher frequencies. This method uses
+  *                      only the lowest n_components frequencies to assemble
+  *                      the complete system.
+  * @param hn_to_mat_row: A map that maps each head node being modeled to the
+  *                       transition matrix rows and state vector rows.
+  *                       Each concept is allocated to two consecutive rows.
+  *                       In the transition matrix:
+  *                             even row) for first derivative and
+  *                             odd  row) for second derivative
+  *                       In the state vector:
+  *                             even row) the value
+  *                             odd  row) for first derivative and
+  *                       This map indicates the even row numbers each concept
+  *                       is assigned to.
+  * @param A_concept_base: Base transition matrix that models the relationships
+  *                        between concepts that are being modeled by the
+  *                        assembled LDS.
+  * @return pair (base transition matrix, initial state) for the complete LDS
+  *         with the specified number of sinusoidal frequencies (n_components)
+  *         0 radians is the initial angle.
+  */
   std::pair<Eigen::MatrixXd, Eigen::VectorXd>
-  assemble_LDS_for_head_nodes_with_the_same_period(
+  assemble_head_node_modeling_LDS(
                                   const Eigen::MatrixXd &A_sin_base,
                                   const Eigen::VectorXd &s0_sin,
-                                  const std::vector<double> &period_freqs,
                                   int n_components,
-                                  std::unordered_map<int, int> &hn_to_mat_row,
+                                  std::unordered_map<int, int> & hn_to_mat_row,
                                   const Eigen::MatrixXd &A_concept_base);
 
+  /**
+   *
+   * @param A_hn_period_base: Transition matrix for the LDS that models seasonal
+   *                          head nodes with the same period.
+   * @param s0_hn_period: Initial state for the LDS modeling seasonal head nodes
+   *                      with the same period. t₀ = 0 radians.
+   * @param period: Period of the seasonal head nodes modeled by the LDS defined
+   *                by A_hn_period_base and s0_hn_period.
+   * @param n_components: Total number of sinusoidal frequencies used to model
+   *                      all the seasonal head nodes in this LDS.
+   * @param hn_to_mat_row: A map that maps each head node being modeled to the
+   *                       transition matrix rows and state vector rows.
+   *                       Each concept is allocated to two consecutive rows.
+   *                       In the transition matrix:
+   *                             even row) for first derivative
+   *                             odd  row) for second derivative
+   *                       In the state vector:
+   *                             even row) the value
+   *                             odd  row) for first derivative
+   *                       This map indicates the even row numbers each concept
+   *                       is assigned to.
+   * @return A boolean value indicating whether the Fourier decomposition based
+   *         seasonal head node model got improved for any of the head nodes
+   *         specified in hn_to_mat_row.
+   *              true  ⇒ Got improved. Should check for n_components + 1
+   *              false ⇒ Did not improve. No point in checking for
+   *                      n_components + 1. Stop early.
+   */
   bool determine_the_best_number_of_components(
-                                   const Eigen::MatrixXd &A_concept_period_base,
-                                   const Eigen::VectorXd &s0_concept_period,
+                                   const Eigen::MatrixXd & A_hn_period_base,
+                                   const Eigen::VectorXd & s0_hn_period,
                                    int period,
                                    int n_components,
                                    std::unordered_map<int, int> &hn_to_mat_row);
 
-  void check_sines(const Eigen::MatrixXd &A_sin_base,
-                   const Eigen::VectorXd &s0_sin, int period);
+  /**
+   *
+   * @param A_base: Base transition matrix that define the LDS.
+   * @param _s0: Initial state of the system (t₀ = 0 radians). Used _s0 instead of
+   *             s0 because s0 is the member variable that represent the initial
+   *             state of the final system that is used by the AnalysisGraph
+   *             object.
+   * @param n_time_steps: The number of modeling time steps (full time steps,
+   *                      e.g. months) to evolve the system.
+   */
+  void predictions_to_csv(const Eigen::MatrixXd &A_base,
+                          const Eigen::VectorXd &_s0, int n_time_steps);
 
   public:
+    // TODO: Should be private
+    /**
+     * The main driver method that fits the Fourier decomposition based seasonal
+     * model to all the seasonal head nodes.
+     */
     void fit_seasonal_head_node_model_via_fourier_decomposition();
   AnalysisGraph() {
      one_off_constraints.clear();
