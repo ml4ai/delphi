@@ -31,8 +31,6 @@ Includes
 
 - ``BaseStatus.hpp`` (:ref:`file_lib_BaseStatus.hpp`)
 
-- ``DatabaseHelper.hpp`` (:ref:`file_lib_DatabaseHelper.hpp`)
-
 - ``nlohmann/json.hpp``
 
 - ``thread``

@@ -12,13 +12,12 @@ Program Listing for File BaseStatus.hpp
 
    #pragma once
    
-   #include <sqlite3.h>
+   #include "BaseStatus.hpp"
    #include "DatabaseHelper.hpp"
-   #include "utils.hpp"
-   #include <thread>
-   #include <ctime>
-   #include <chrono>
    #include <nlohmann/json.hpp>
+   #include <sqlite3.h>
+   #include <thread>
+   #include "utils.hpp"
    
    using namespace std;
    using json = nlohmann::json;
@@ -26,45 +25,56 @@ Program Listing for File BaseStatus.hpp
    class BaseStatus {
    
      private:
-       string class_name = "N/A";
-       string table_name = "N/A";
-       Database* database = nullptr;
-       std::thread *pThread = nullptr;
-       bool recording = false;
-       string timestamp();
-       void prune_row(string id);
+       string class_name = "N/A";  // extending class
+       string table_name = "N/A";  // table of extending class
+       string primary_key = "N/A"; // primary key of table
+       Database* database = nullptr; // connection to Delphi DB
+       std::thread *pThread = nullptr; // for timed updates to database
+       bool recording = false;  // true if timed updates are happening
+       double progress = 0.0; // training of model or completion of projection
+       bool delete_database = false; // true if we created a new database
        void scheduler();
-       vector<string> get_ids();
+       bool insert_query(string query);
+       string timestamp();
    
      protected:
-       void log_error(string msg);
-       void log_info(string msg);
-       virtual string get_id() = 0;
-       double progress = 0.0;
-       json read_row(string id);
-       void write_row(string id, json data);
-       void delete_row(string id);
+       void set_progress(double p){ progress = p;}
        void start_recording_progress();
        void stop_recording_progress();
+       bool write_data(json data);
+       void log_info(string msg);
+       void log_error(string msg);
    
      public:
        BaseStatus(
-         Database* database,
-         const string table_name,
-         const string class_name
-       );
+           const string class_name,
+           const string table_name,
+           const string primary_key
+       ):database(new Database()),
+         class_name(class_name),
+         table_name(table_name),
+         primary_key(primary_key),
+         delete_database(true){}
+       BaseStatus(
+           const string class_name,
+           const string table_name,
+           const string primary_key,
+       Database* database
+       ):database(database),
+         class_name(class_name),
+         table_name(table_name),
+         primary_key(primary_key){}
        ~BaseStatus();
-   
-       void clean_db();
-       json get_data();
+       void initialize();
+       json read_data();
        void increment_progress(double i) { progress += i;}
    
-       // database columns
+       // database table columns
        const string COL_ID = "id"; // database column, not exported
        const string COL_DATA = "data"; // database column, not exported
    
-       // serialized JSON fields in the status text
+       // serialized JSON fields
        const string PROGRESS = "progressPercentage"; // double [0,1]
-       const string STATUS = "status"; // string, a short description of current state
+       const string STATUS = "status"; // string, current state
        const string BUSY = "busy"; // boolean, true if locked
    };

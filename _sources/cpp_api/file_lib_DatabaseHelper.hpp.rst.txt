@@ -43,17 +43,11 @@ Included By
 -----------
 
 
-- :ref:`file_lib_BaseStatus.cpp`
-
 - :ref:`file_lib_BaseStatus.hpp`
 
-- :ref:`file_lib_ExperimentStatus.hpp`
+- :ref:`file_lib_BaseStatus.cpp`
 
 - :ref:`file_lib_DatabaseHelper.cpp`
-
-- :ref:`file_lib_ExperimentStatus.cpp`
-
-- :ref:`file_lib_ModelStatus.cpp`
 
 - :ref:`file_lib_ModelStatus.hpp`
 

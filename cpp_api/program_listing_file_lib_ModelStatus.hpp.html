@@ -103,15 +103,16 @@
 
 <span class="w">  </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
 <span class="w">    </span><span class="n">ModelStatus</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">BaseStatus</span><span class="p">(</span><span class="w"></span>
-<span class="w">      </span><span class="k">new</span><span class="w"> </span><span class="n">Database</span><span class="p">(),</span><span class="w"></span>
 <span class="w">      </span><span class="s">&quot;model_status&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="s">&quot;ModelStatus&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="s">&quot;ModelStatus&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="n">model_id</span><span class="w"></span>
 <span class="w">    </span><span class="p">),</span><span class="w"> </span><span class="n">model_id</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
 
 <span class="w">    </span><span class="n">ModelStatus</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">Database</span><span class="o">*</span><span class="w"> </span><span class="n">database</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">BaseStatus</span><span class="p">(</span><span class="w"></span>
-<span class="w">      </span><span class="n">database</span><span class="p">,</span><span class="w"></span>
 <span class="w">      </span><span class="s">&quot;model_status&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="s">&quot;ModelStatus&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="s">&quot;ModelStatus&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="n">model_id</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="n">database</span><span class="w"></span>
 <span class="w">    </span><span class="p">),</span><span class="w"> </span><span class="n">model_id</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
 
 <span class="w">    </span><span class="o">~</span><span class="n">ModelStatus</span><span class="p">(){}</span><span class="w"></span>
@@ -121,7 +122,7 @@
 <span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">enter_reading_state</span><span class="p">();</span><span class="w"></span>
 <span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">enter_working_state</span><span class="p">();</span><span class="w"></span>
 <span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">enter_writing_state</span><span class="p">();</span><span class="w"></span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">enter_finished_state</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">enter_finished_state</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">status</span><span class="p">);</span><span class="w"></span>
 
 <span class="w">    </span><span class="c1">// serialized JSON fields in the status text</span>
 <span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="n">MODEL_ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;id&quot;</span><span class="p">;</span><span class="w"> </span><span class="c1">// API</span>

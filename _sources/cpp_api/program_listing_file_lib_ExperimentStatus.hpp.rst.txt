@@ -11,7 +11,7 @@ Program Listing for File ExperimentStatus.hpp
 .. code-block:: cpp
 
    #pragma once
-   #include "DatabaseHelper.hpp"
+   
    #include "BaseStatus.hpp"
    #include <thread>
    #include <nlohmann/json.hpp>
@@ -35,9 +35,9 @@ Program Listing for File ExperimentStatus.hpp
            string experiment_id,
            string model_id 
        ) : BaseStatus(
-         new Database(), 
          "experiment_status",
-         "ExperimentStatus"
+         "ExperimentStatus",
+         experiment_id
        ), experiment_id(experiment_id), model_id(model_id){}
    
        ExperimentStatus(
@@ -45,9 +45,10 @@ Program Listing for File ExperimentStatus.hpp
            string model_id,
            Database* database
        ) : BaseStatus(
-         database, 
          "experiment_status",
-         "ExperimentStatus"
+         "ExperimentStatus",
+         experiment_id,
+         database
        ), experiment_id(experiment_id), model_id(model_id){}
    
        ~ExperimentStatus(){}
@@ -57,7 +58,7 @@ Program Listing for File ExperimentStatus.hpp
        void enter_reading_state();
        void enter_working_state();
        void enter_writing_state();
-       void enter_finished_state();
+       void enter_finished_state(string status);
    
        const string CONSTRAINTS = "constraints"; // API
        const string END_TIME = "endTime"; // API

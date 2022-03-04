@@ -79,7 +79,7 @@
 <span id="program-listing-file-lib-experimentstatus-hpp"></span><h1>Program Listing for File ExperimentStatus.hpp<a class="headerlink" href="#program-listing-for-file-experimentstatus-hpp" title="Permalink to this headline"></a></h1>
 <p>↰ <a class="reference internal" href="file_lib_ExperimentStatus.hpp.html#file-lib-experimentstatus-hpp"><span class="std std-ref">Return to documentation for file</span></a> (<code class="docutils literal notranslate"><span class="pre">lib/ExperimentStatus.hpp</span></code>)</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma once</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;DatabaseHelper.hpp&quot;</span><span class="cp"></span>
+
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;BaseStatus.hpp&quot;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;thread&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;nlohmann/json.hpp&gt;</span><span class="cp"></span>
@@ -103,9 +103,9 @@
 <span class="w">        </span><span class="n">string</span><span class="w"> </span><span class="n">experiment_id</span><span class="p">,</span><span class="w"></span>
 <span class="w">        </span><span class="n">string</span><span class="w"> </span><span class="n">model_id</span><span class="w"></span>
 <span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">BaseStatus</span><span class="p">(</span><span class="w"></span>
-<span class="w">      </span><span class="k">new</span><span class="w"> </span><span class="n">Database</span><span class="p">(),</span><span class="w"></span>
 <span class="w">      </span><span class="s">&quot;experiment_status&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="s">&quot;ExperimentStatus&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="s">&quot;ExperimentStatus&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="n">experiment_id</span><span class="w"></span>
 <span class="w">    </span><span class="p">),</span><span class="w"> </span><span class="n">experiment_id</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">),</span><span class="w"> </span><span class="n">model_id</span><span class="p">(</span><span class="n">model_id</span><span class="p">){}</span><span class="w"></span>
 
 <span class="w">    </span><span class="n">ExperimentStatus</span><span class="p">(</span><span class="w"></span>
@@ -113,9 +113,10 @@
 <span class="w">        </span><span class="n">string</span><span class="w"> </span><span class="n">model_id</span><span class="p">,</span><span class="w"></span>
 <span class="w">        </span><span class="n">Database</span><span class="o">*</span><span class="w"> </span><span class="n">database</span><span class="w"></span>
 <span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">BaseStatus</span><span class="p">(</span><span class="w"></span>
-<span class="w">      </span><span class="n">database</span><span class="p">,</span><span class="w"></span>
 <span class="w">      </span><span class="s">&quot;experiment_status&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="s">&quot;ExperimentStatus&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="s">&quot;ExperimentStatus&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="n">experiment_id</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="n">database</span><span class="w"></span>
 <span class="w">    </span><span class="p">),</span><span class="w"> </span><span class="n">experiment_id</span><span class="p">(</span><span class="n">experiment_id</span><span class="p">),</span><span class="w"> </span><span class="n">model_id</span><span class="p">(</span><span class="n">model_id</span><span class="p">){}</span><span class="w"></span>
 
 <span class="w">    </span><span class="o">~</span><span class="n">ExperimentStatus</span><span class="p">(){}</span><span class="w"></span>
@@ -125,7 +126,7 @@
 <span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">enter_reading_state</span><span class="p">();</span><span class="w"></span>
 <span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">enter_working_state</span><span class="p">();</span><span class="w"></span>
 <span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">enter_writing_state</span><span class="p">();</span><span class="w"></span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">enter_finished_state</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">enter_finished_state</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">status</span><span class="p">);</span><span class="w"></span>
 
 <span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="n">CONSTRAINTS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;constraints&quot;</span><span class="p">;</span><span class="w"> </span><span class="c1">// API</span>
 <span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="n">END_TIME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;endTime&quot;</span><span class="p">;</span><span class="w"> </span><span class="c1">// API</span>

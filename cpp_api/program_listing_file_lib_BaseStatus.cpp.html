@@ -78,54 +78,106 @@
   <section id="program-listing-for-file-basestatus-cpp">
 <span id="program-listing-file-lib-basestatus-cpp"></span><h1>Program Listing for File BaseStatus.cpp<a class="headerlink" href="#program-listing-for-file-basestatus-cpp" title="Permalink to this headline"></a></h1>
 <p>↰ <a class="reference internal" href="file_lib_BaseStatus.cpp.html#file-lib-basestatus-cpp"><span class="std std-ref">Return to documentation for file</span></a> (<code class="docutils literal notranslate"><span class="pre">lib/BaseStatus.cpp</span></code>)</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sqlite3.h&gt;</span><span class="cp"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;BaseStatus.hpp&quot;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;DatabaseHelper.hpp&quot;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;BaseStatus.hpp&quot;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;utils.hpp&quot;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;thread&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ctime&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;chrono&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;nlohmann/json.hpp&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sqlite3.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;DatabaseHelper.hpp&quot;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;BaseStatus.hpp&quot;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;utils.hpp&quot;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;thread&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ctime&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;utils.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sys/time.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;chrono&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;nlohmann/json.hpp&gt;</span><span class="cp"></span>
 
-<span class="cp">#define SHOW_LOGS   </span><span class="c1">// define for cout debug messages</span>
+<span class="cp">#define SHOW_INFO_LOGS   </span><span class="c1">// define for cout debug messages</span>
+<span class="cp">#define SHOW_ERROR_LOGS  </span><span class="c1">// define for cout debug messages</span>
 
 <span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">std</span><span class="p">;</span><span class="w"></span>
 <span class="k">using</span><span class="w"> </span><span class="n">json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="p">;</span><span class="w"></span>
 
-<span class="n">BaseStatus</span><span class="o">::</span><span class="n">BaseStatus</span><span class="p">(</span><span class="w"></span>
-<span class="w">  </span><span class="n">Database</span><span class="o">*</span><span class="w"> </span><span class="n">database</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="n">table_name</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="n">class_name</span><span class="w"></span>
-<span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">database</span><span class="p">(</span><span class="n">database</span><span class="p">),</span><span class="w"></span>
-<span class="w">    </span><span class="n">table_name</span><span class="p">(</span><span class="n">table_name</span><span class="p">),</span><span class="w"></span>
-<span class="w">    </span><span class="n">class_name</span><span class="p">(</span><span class="n">class_name</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-
-
 <span class="n">BaseStatus</span><span class="o">::~</span><span class="n">BaseStatus</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// if we created a new Database, delete it</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">delete_database</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">delete</span><span class="p">(</span><span class="n">database</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
-<span class="cm">/* Start the thread that writes the data to the table */</span><span class="w"></span>
-<span class="kt">void</span><span class="w"> </span><span class="n">BaseStatus</span><span class="o">::</span><span class="n">scheduler</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="k">while</span><span class="p">(</span><span class="n">recording</span><span class="p">){</span><span class="w"></span>
-<span class="w">    </span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">seconds</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">pThread</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="n">json</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_data</span><span class="p">();</span><span class="w"></span>
-<span class="w">      </span><span class="n">data</span><span class="p">[</span><span class="n">PROGRESS</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">delphi</span><span class="o">::</span><span class="n">utils</span><span class="o">::</span><span class="n">round_n</span><span class="p">(</span><span class="n">progress</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span><span class="w"></span>
-<span class="w">      </span><span class="n">write_row</span><span class="p">(</span><span class="n">get_id</span><span class="p">(),</span><span class="w"> </span><span class="n">data</span><span class="p">);</span><span class="w"></span>
+<span class="kt">bool</span><span class="w"> </span><span class="n">BaseStatus</span><span class="o">::</span><span class="n">insert_query</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">query</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">database</span><span class="o">-&gt;</span><span class="n">insert</span><span class="p">(</span><span class="n">query</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="n">log_error</span><span class="p">(</span><span class="s">&quot;Could not insert query: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">query</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="c1">// Make a clean start with valid data</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">BaseStatus</span><span class="o">::</span><span class="n">initialize</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+
+<span class="w">  </span><span class="n">log_info</span><span class="p">(</span><span class="s">&quot;BaseStatus::initialize&quot;</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">  </span><span class="c1">// get rows for from table</span>
+<span class="w">  </span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ids</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">database</span><span class="o">-&gt;</span><span class="n">read_column_text_query</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span><span class="w"> </span><span class="n">COL_ID</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">vector</span><span class="o">&lt;</span><span class="n">json</span><span class="o">&gt;</span><span class="w"> </span><span class="n">rows</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">ids</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">rows</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">database</span><span class="o">-&gt;</span><span class="n">select_row</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">COL_DATA</span><span class="p">));</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">  </span><span class="c1">// drop existing table to remove obsolete table versions</span>
+<span class="w">  </span><span class="n">string</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;DROP TABLE &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">table_name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;;&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">insert_query</span><span class="p">(</span><span class="n">query</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">  </span><span class="c1">// create new table with latest definition</span>
+<span class="w">  </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;CREATE TABLE &quot;</span><span class="w"></span>
+<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="n">table_name</span><span class="w"></span>
+<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; (&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="n">COL_ID</span><span class="w"></span>
+<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; VARCHAR PRIMARY KEY, &quot;</span><span class="w"></span>
+<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="n">COL_DATA</span><span class="w"></span>
+<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; VARCHAR NOT NULL);&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">insert_query</span><span class="p">(</span><span class="n">query</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">  </span><span class="c1">// add valid data to new table</span>
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="n">json</span><span class="w"> </span><span class="n">row</span><span class="o">:</span><span class="w"> </span><span class="n">rows</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">row</span><span class="p">.</span><span class="n">value</span><span class="p">(</span><span class="n">COL_ID</span><span class="p">,</span><span class="s">&quot;&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">dataString</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">row</span><span class="p">.</span><span class="n">value</span><span class="p">(</span><span class="n">COL_DATA</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">json</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">json</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span><span class="n">dataString</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">data</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="kt">bool</span><span class="w"> </span><span class="n">busy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">value</span><span class="p">(</span><span class="n">BUSY</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span><span class="w"></span>
+<span class="w">      </span><span class="kt">double</span><span class="w"> </span><span class="n">progress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">value</span><span class="p">(</span><span class="n">PROGRESS</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">);</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">busy</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">progress</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mf">1.0</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;INSERT INTO &quot;</span><span class="w"></span>
+<span class="w">          </span><span class="o">+</span><span class="w"> </span><span class="n">table_name</span><span class="w"></span>
+<span class="w">          </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; VALUES (&#39;&quot;</span><span class="w"></span>
+<span class="w">          </span><span class="o">+</span><span class="w"> </span><span class="n">id</span><span class="w"></span>
+<span class="w">          </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;&#39;, &#39;&quot;</span><span class="w"></span>
+<span class="w">          </span><span class="o">+</span><span class="w"> </span><span class="n">dataString</span><span class="w"></span>
+<span class="w">          </span><span class="o">+</span><span class="w">  </span><span class="s">&quot;&#39;);&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">insert_query</span><span class="p">(</span><span class="n">query</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">          </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="n">log_info</span><span class="p">(</span><span class="s">&quot;keeping &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">dataString</span><span class="p">);</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">log_info</span><span class="p">(</span><span class="s">&quot;pruning &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">dataString</span><span class="p">);</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
 <span class="w">    </span><span class="p">}</span><span class="w"></span>
 <span class="w">  </span><span class="p">}</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
-<span class="cm">/* Begin posting progress updates to the database on a regular interval */</span><span class="w"></span>
+<span class="c1">// Start the thread that writes the data to the table</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">BaseStatus</span><span class="o">::</span><span class="n">scheduler</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">while</span><span class="p">(</span><span class="n">recording</span><span class="p">){</span><span class="w"></span>
+<span class="w">    </span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep_for</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">seconds</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">pThread</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="n">json</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">read_data</span><span class="p">();</span><span class="w"></span>
+<span class="w">      </span><span class="n">data</span><span class="p">[</span><span class="n">PROGRESS</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">delphi</span><span class="o">::</span><span class="n">utils</span><span class="o">::</span><span class="n">round_n</span><span class="p">(</span><span class="n">progress</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span><span class="w"></span>
+<span class="w">      </span><span class="n">write_data</span><span class="p">(</span><span class="n">data</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="c1">// Begin posting progress updates to the database</span>
 <span class="kt">void</span><span class="w"> </span><span class="n">BaseStatus</span><span class="o">::</span><span class="n">start_recording_progress</span><span class="p">(){</span><span class="w"></span>
 <span class="w">  </span><span class="n">recording</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">pThread</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -133,7 +185,7 @@
 <span class="w">  </span><span class="p">}</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
-<span class="cm">/* Stop posting progress updates to the database */</span><span class="w"></span>
+<span class="c1">// Stop posting progress updates to the database</span>
 <span class="kt">void</span><span class="w"> </span><span class="n">BaseStatus</span><span class="o">::</span><span class="n">stop_recording_progress</span><span class="p">(){</span><span class="w"></span>
 <span class="w">  </span><span class="n">recording</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pThread</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -145,157 +197,74 @@
 <span class="w">  </span><span class="n">pThread</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
-<span class="cm">/* purge table of partial records */</span><span class="w"></span>
-<span class="kt">void</span><span class="w"> </span><span class="n">BaseStatus</span><span class="o">::</span><span class="n">clean_db</span><span class="p">(){</span><span class="w"></span>
+<span class="c1">// return the data JSON for the primary key</span>
+<span class="n">json</span><span class="w"> </span><span class="n">BaseStatus</span><span class="o">::</span><span class="n">read_data</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 
-<span class="cm">/* create the table if we need it.  */</span><span class="w"></span>
-<span class="w">  </span><span class="n">string</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;CREATE TABLE IF NOT EXISTS &quot;</span><span class="w"></span>
-<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="n">table_name</span><span class="w"></span>
-<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; (&quot;</span><span class="w"></span>
-<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="n">COL_ID</span><span class="w"></span>
-<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; VARCHAR PRIMARY KEY, &quot;</span><span class="w"></span>
-<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="n">COL_DATA</span><span class="w"></span>
-<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; VARCHAR NOT NULL);&quot;</span><span class="p">;</span><span class="w"></span>
-
-<span class="w">  </span><span class="n">database</span><span class="o">-&gt;</span><span class="n">insert</span><span class="p">(</span><span class="n">query</span><span class="p">);</span><span class="w"></span>
-
-<span class="w">  </span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ids</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_ids</span><span class="p">();</span><span class="w"></span>
-<span class="w">  </span><span class="n">log_info</span><span class="p">(</span><span class="s">&quot;Validating &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">table_name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; table...&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">ids</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">prune_row</span><span class="p">(</span><span class="n">id</span><span class="p">);</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
-<span class="w">  </span><span class="n">log_info</span><span class="p">(</span><span class="s">&quot;Done.&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-
-<span class="kt">void</span><span class="w"> </span><span class="n">BaseStatus</span><span class="o">::</span><span class="n">prune_row</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-
-<span class="w">  </span><span class="n">json</span><span class="w"> </span><span class="n">row</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">read_row</span><span class="p">(</span><span class="n">id</span><span class="p">);</span><span class="w"></span>
-
-<span class="w">  </span><span class="c1">// row does not exist</span>
-<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">row</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">log_info</span><span class="p">(</span><span class="s">&quot; Pruning &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; FAIL (missing record, deleting row)&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">delete_row</span><span class="p">(</span><span class="n">id</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
-
-<span class="w">  </span><span class="c1">// No string in data column</span>
-<span class="w">  </span><span class="n">string</span><span class="w"> </span><span class="n">dataString</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">row</span><span class="p">[</span><span class="n">COL_DATA</span><span class="p">];</span><span class="w"></span>
-<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">dataString</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">log_info</span><span class="p">(</span><span class="s">&quot; Pruning &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; FAIL (missing raw data, deleting row)&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">delete_row</span><span class="p">(</span><span class="n">id</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
-
-<span class="w">  </span><span class="c1">// No JSON from data string</span>
-<span class="w">  </span><span class="n">json</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">json</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span><span class="n">dataString</span><span class="p">);</span><span class="w"></span>
-<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">log_info</span><span class="p">(</span><span class="s">&quot; Pruning &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">dataString</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; FAIL (missing data, deleting row)&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">delete_row</span><span class="p">(</span><span class="n">id</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
-
-<span class="w">  </span><span class="c1">// progress below 1.0</span>
-<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">row_progress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">value</span><span class="p">(</span><span class="n">PROGRESS</span><span class="p">,</span><span class="mf">0.0</span><span class="p">);</span><span class="w"></span>
-<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">row_progress</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">1.0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">log_info</span><span class="p">(</span><span class="s">&quot; Pruning &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">dataString</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; FAIL (stale progress, deleting row)&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">delete_row</span><span class="p">(</span><span class="n">id</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
-
-<span class="w">  </span><span class="c1">// busy flag set high</span>
-<span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="n">busy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">value</span><span class="p">(</span><span class="n">BUSY</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span><span class="w"></span>
-<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">busy</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">log_info</span><span class="p">(</span><span class="s">&quot; Pruning &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">dataString</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; FAIL (stale lock, deleting row)&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">delete_row</span><span class="p">(</span><span class="n">id</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
-
-<span class="w">  </span><span class="n">log_info</span><span class="p">(</span><span class="s">&quot; Keeping &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">dataString</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-
-<span class="c1">// report the current time</span>
-<span class="n">string</span><span class="w"> </span><span class="n">BaseStatus</span><span class="o">::</span><span class="n">timestamp</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">timebuf</span><span class="p">[</span><span class="mi">200</span><span class="p">];</span><span class="w"></span>
-<span class="w">    </span><span class="kt">time_t</span><span class="w"> </span><span class="n">t</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">tm</span><span class="w"> </span><span class="o">*</span><span class="n">now</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">fmt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;%F %T&quot;</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">now</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gmtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">t</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">now</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="n">perror</span><span class="p">(</span><span class="s">&quot;gmtime error&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">      </span><span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">strftime</span><span class="p">(</span><span class="n">timebuf</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">timebuf</span><span class="p">),</span><span class="w"> </span><span class="n">fmt</span><span class="p">,</span><span class="w"> </span><span class="n">now</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;strftime returned 0&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">      </span><span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">string</span><span class="p">(</span><span class="n">timebuf</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-
-<span class="c1">// return the data json for this ID</span>
-<span class="n">json</span><span class="w"> </span><span class="n">BaseStatus</span><span class="o">::</span><span class="n">get_data</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="n">json</span><span class="w"> </span><span class="n">row</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">read_row</span><span class="p">(</span><span class="n">get_id</span><span class="p">());</span><span class="w"></span>
-<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">row</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">row</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
-<span class="w">  </span><span class="n">string</span><span class="w"> </span><span class="n">dataString</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">row</span><span class="p">[</span><span class="n">COL_DATA</span><span class="p">];</span><span class="w"></span>
-<span class="w">  </span><span class="n">json</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">json</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span><span class="n">dataString</span><span class="p">);</span><span class="w"></span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">data</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-
-<span class="c1">// return the entire database row for this id</span>
-<span class="n">json</span><span class="w"> </span><span class="n">BaseStatus</span><span class="o">::</span><span class="n">read_row</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// get the entire database row</span>
 <span class="w">  </span><span class="n">json</span><span class="w"> </span><span class="n">row</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">database</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">select_row</span><span class="p">(</span><span class="w"></span>
 <span class="w">    </span><span class="n">table_name</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="n">id</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">primary_key</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="n">COL_DATA</span><span class="w"></span>
 <span class="w">  </span><span class="p">);</span><span class="w"></span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">row</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">  </span><span class="c1">// If a row is returned by the query, return whatever data it has</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">row</span><span class="p">.</span><span class="n">empty</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">row</span><span class="p">.</span><span class="n">contains</span><span class="p">(</span><span class="n">COL_DATA</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">dataString</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">row</span><span class="p">.</span><span class="n">value</span><span class="p">(</span><span class="n">COL_DATA</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">json</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">json</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span><span class="n">dataString</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">contains</span><span class="p">(</span><span class="n">BUSY</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">contains</span><span class="p">(</span><span class="n">PROGRESS</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">contains</span><span class="p">(</span><span class="n">STATUS</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">data</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">  </span><span class="c1">// otherwise report error and do not populate JSON</span>
+<span class="w">  </span><span class="n">log_error</span><span class="p">(</span><span class="s">&quot;read_data failed&quot;</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">  </span><span class="n">json</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
-<span class="c1">// write this data to the table at the primary key</span>
-<span class="kt">void</span><span class="w"> </span><span class="n">BaseStatus</span><span class="o">::</span><span class="n">write_row</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">json</span><span class="w"> </span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="c1">// write data at the primary key row, return true if successful.</span>
+<span class="kt">bool</span><span class="w"> </span><span class="n">BaseStatus</span><span class="o">::</span><span class="n">write_data</span><span class="p">(</span><span class="n">json</span><span class="w"> </span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">string</span><span class="w"> </span><span class="n">dataString</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">dump</span><span class="p">();</span><span class="w"></span>
+<span class="w">  </span><span class="n">log_info</span><span class="p">(</span><span class="s">&quot;write_data, &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">dataString</span><span class="p">);</span><span class="w"></span>
+
 <span class="w">  </span><span class="n">string</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;INSERT OR REPLACE INTO &quot;</span><span class="w"></span>
 <span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="n">table_name</span><span class="w"></span>
 <span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; VALUES (&#39;&quot;</span><span class="w"></span>
-<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="n">id</span><span class="w"></span>
+<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="n">primary_key</span><span class="w"></span>
 <span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;&#39;, &#39;&quot;</span><span class="w"></span>
-<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">dump</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="n">dataString</span><span class="w"></span>
 <span class="w">    </span><span class="o">+</span><span class="w">  </span><span class="s">&quot;&#39;);&quot;</span><span class="p">;</span><span class="w"></span>
-<span class="w">   </span><span class="n">database</span><span class="o">-&gt;</span><span class="n">insert</span><span class="p">(</span><span class="n">query</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">insert_query</span><span class="p">(</span><span class="n">query</span><span class="p">);</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
-<span class="c1">// return all the primary keys in the table.</span>
-<span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">BaseStatus</span><span class="o">::</span><span class="n">get_ids</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="n">string</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;SELECT &quot;</span><span class="w"></span>
-<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="n">COL_ID</span><span class="w"></span>
-<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; from &quot;</span><span class="w"></span>
-<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="n">table_name</span><span class="w"></span>
-<span class="w">    </span><span class="o">+</span><span class="w">  </span><span class="s">&quot;;&quot;</span><span class="p">;</span><span class="w"></span>
-
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">database</span><span class="o">-&gt;</span><span class="n">read_column_text</span><span class="p">(</span><span class="n">query</span><span class="p">);</span><span class="w"></span>
+<span class="c1">// return current time like this:  2022-02-17 14:33:52:016</span>
+<span class="n">string</span><span class="w"> </span><span class="n">BaseStatus</span><span class="o">::</span><span class="n">timestamp</span><span class="p">(){</span><span class="w"></span>
+<span class="w">  </span><span class="n">timeval</span><span class="w"> </span><span class="n">curTime</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="n">gettimeofday</span><span class="p">(</span><span class="o">&amp;</span><span class="n">curTime</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">milli</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">curTime</span><span class="p">.</span><span class="n">tv_usec</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1000</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="kt">char</span><span class="w"> </span><span class="n">buffer</span><span class="w"> </span><span class="p">[</span><span class="mi">80</span><span class="p">];</span><span class="w"></span>
+<span class="w">  </span><span class="n">strftime</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="mi">80</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%Y-%m-%d %H:%M:%S&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">localtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">curTime</span><span class="p">.</span><span class="n">tv_sec</span><span class="p">));</span><span class="w"></span>
+<span class="w">  </span><span class="kt">char</span><span class="w"> </span><span class="n">currentTime</span><span class="p">[</span><span class="mi">84</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="n">sprintf</span><span class="p">(</span><span class="n">currentTime</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%s:%03d&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">milli</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">string</span><span class="p">(</span><span class="n">currentTime</span><span class="p">);</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
-<span class="c1">// delete the row with this primary key from the table</span>
-<span class="kt">void</span><span class="w"> </span><span class="n">BaseStatus</span><span class="o">::</span><span class="n">delete_row</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="n">string</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;DELETE FROM &quot;</span><span class="w"></span>
-<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="n">table_name</span><span class="w"></span>
-<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; WHERE (id = &#39;&quot;</span><span class="w"></span>
-<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="n">id</span><span class="w"></span>
-<span class="w">    </span><span class="o">+</span><span class="w">  </span><span class="s">&quot;&#39;);&quot;</span><span class="p">;</span><span class="w"></span>
-<span class="w">   </span><span class="n">database</span><span class="o">-&gt;</span><span class="n">insert</span><span class="p">(</span><span class="n">query</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-
-<span class="cm">/* Report a message to cout */</span><span class="w"></span>
+<span class="c1">// Report a message to cout</span>
 <span class="kt">void</span><span class="w"> </span><span class="n">BaseStatus</span><span class="o">::</span><span class="n">log_info</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">msg</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="cp">#ifdef SHOW_LOGS</span>
+<span class="cp">#ifdef SHOW_INFO_LOGS</span>
 <span class="w">  </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">timestamp</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">class_name</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; INFO: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">msg</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
 <span class="cp">#endif</span>
 <span class="p">}</span><span class="w"></span>
 
-<span class="cm">/* Report an error to cerr */</span><span class="w"></span>
+<span class="c1">// Report an error to cerr</span>
 <span class="kt">void</span><span class="w"> </span><span class="n">BaseStatus</span><span class="o">::</span><span class="n">log_error</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">msg</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="cp">#ifdef SHOW_LOGS</span>
+<span class="cp">#ifdef SHOW_ERROR_LOGS</span>
 <span class="w">  </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">timestamp</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">class_name</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; ERROR: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">msg</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
 <span class="cp">#endif</span>
 <span class="p">}</span><span class="w"></span>
