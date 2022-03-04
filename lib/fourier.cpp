@@ -538,6 +538,56 @@ bool AnalysisGraph::determine_the_best_number_of_components(
 }
 
 /**
+ * Assembles the complete LDS for all the seasonal head nodes combining the best
+ * Fourier decomposition based seasonal model for each head node.
+ * @param fourier_frequency_set: A set of all the sinusoidal frequencies needed
+ *                               to model all the seasonal head nodes.
+ * @return The final LDS that models all the seasonal head nodes.
+ */
+pair<Eigen::MatrixXd, Eigen::VectorXd>
+AnalysisGraph::assemble_all_seasonal_head_node_modeling_LDS(
+                                  unordered_set<double> fourier_frequency_set) {
+
+    // Prepare all the sinusoidal frequencies needed to model all the
+    // seasonal head nodes possibly with various periods.
+    vector<double> all_freqs(fourier_frequency_set.begin(),
+                             fourier_frequency_set.end());
+
+    // This is not as essential step. But it makes the transition matrix more
+    // ordered, easily inspectable and helps debugging.
+    sort(all_freqs.begin(), all_freqs.end());
+
+    auto [A_sin_all_base, s0_sin_all] =
+                            this->assemble_sinusoidal_generating_LDS(all_freqs);
+
+    // Assign transition matrix rows to seasonal head nodes.
+    // NOTE: At this moment we do not need to reformat the head node vector
+    //       this way. We could just use the head node vector as it is and
+    //       compute the transition matrix row based on the index at which
+    //       each head node is at.
+    //       I am doing this to make assemble_head_node_modeling_LDS()
+    //       method more generalized so that I could reuse it to assemble
+    //       the final complete LDS with all the nodes (seasonal head nodes
+    //       with different periods and body nodes).
+    //       At the moment, in the complete system, head nodes does not
+    //       occupy a contiguous range of rows in the transition matrix.
+    unordered_map<int, int> hn_to_mat_row;
+    int row = 0;
+    for (int hn_id: this->head_nodes) {
+        hn_to_mat_row[hn_id] = row;
+        row += 2;
+    }
+
+    auto [A_concept_full_base, s0_concept_full] =
+                        this->assemble_head_node_modeling_LDS(A_sin_all_base,
+                                                              s0_sin_all,
+                                                              all_freqs.size(),
+                                                              hn_to_mat_row);
+
+    return make_pair(A_concept_full_base, s0_concept_full);
+}
+
+/**
  * Evolves the provided LDS (A_base and _s0) for n_time_steps modeling time
  * steps and outputs the prediction matrix to a csv file:
  *      col 2i   - Predictions for variable i in the system
@@ -721,30 +771,8 @@ void AnalysisGraph::fit_seasonal_head_node_model_via_fourier_decomposition() {
                             period_freqs.begin() + max_n_components_for_period);
     }
 
-    // TODO: Just for debugging. Move to transition matrix assembly pari in
-    // sampling.cpp to include all the body nodes as well. For the moment testing
-    // Assemble the final LDS with all the variables
-    vector<double> all_freqs(fourier_frequency_set.begin(),
-                             fourier_frequency_set.end());
-    sort(all_freqs.begin(), all_freqs.end());
-
-    auto [A_sin_all_base, s0_sin_all] =
-                            this->assemble_sinusoidal_generating_LDS(all_freqs);
-
-
-    // TODO: This should change to actual head node ids when assembling with all concepts
-    unordered_map<int, int> hn_to_mat_row;
-    int row = 0;
-    for (int hn_id: this->head_nodes) {
-        hn_to_mat_row[hn_id] = row;
-        row += 2;
-    }
-
     auto [A_concept_full_base, s0_concept_full] =
-                    this->assemble_head_node_modeling_LDS(A_sin_all_base,
-                                                          s0_sin_all,
-                                                          all_freqs.size(),
-                                                          hn_to_mat_row);
+      this->assemble_all_seasonal_head_node_modeling_LDS(fourier_frequency_set);
 
     cout << A_concept_full_base << "\n";
 

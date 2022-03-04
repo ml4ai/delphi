@@ -1271,6 +1271,17 @@ class AnalysisGraph {
                                    std::unordered_map<int, int> &hn_to_mat_row);
 
   /**
+   * Assembles the complete LDS for all the seasonal head nodes combining the best
+   * Fourier decomposition based seasonal model for each head node.
+   * @param fourier_frequency_set: A set of all the sinusoidal frequencies needed
+   *                               to model all the seasonal head nodes.
+   * @return The final LDS that models all the seasonal head nodes.
+   */
+  std::pair<Eigen::MatrixXd, Eigen::VectorXd>
+      assemble_all_seasonal_head_node_modeling_LDS(std::unordered_set<double>
+                                                         fourier_frequency_set);
+
+  /**
    * Evolves the provided LDS (A_base and _s0) for n_time_steps modeling time
    * steps and outputs the prediction matrix to a csv file:
    *      col 2i   - Predictions for variable i in the system
