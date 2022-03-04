@@ -134,6 +134,43 @@ AnalysisGraph::assemble_sinusoidal_generating_LDS(unsigned short components,
  */
 
 /**
+ * Evolves the provided LDS (A_base and _s0) n_modeling_time_steps (e.g. months)
+ * taking step_size steps each time. For example, if the step_size is 0.25,
+ * there will be 4 prediction points per one modeling time step.
+ * @param A_base: Base transition matrix that define the LDS.
+ * @param _s0: Initial state of the system. Used _s0 instead of s0 because s0 is
+ *             the member variable that represent the initial state of the final
+ *             system that is used by the AnalysisGraph object.
+ * @param n_modeling_time_steps: The number of modeling time steps (full time
+ *                               steps, e.g. months) to evolve the system.
+ * @param step_size: Amount to advance the system at each step.
+ * @return A matrix of evolved values. Each column has values for one step.
+ *              row 2i   - Values for variable i in the system
+ *              row 2i+1 - Derivatives for variable i in the system
+ */
+Eigen::MatrixXd AnalysisGraph::evolve_LDS(const Eigen::MatrixXd &A_base,
+                                          const Eigen::VectorXd &_s0,
+                                          int n_modeling_time_steps,
+                                          double step_size) {
+    int tot_steps = int(n_modeling_time_steps / step_size);
+    int lds_size = _s0.size();
+
+    // Transition matrix to advance the system one step_size forward
+    Eigen::MatrixXd A_step = (A_base * step_size).exp();
+
+    // A matrix to accumulate predictions of the system
+    Eigen::MatrixXd preds = Eigen::MatrixXd::Zero(lds_size, tot_steps);
+    preds.col(0) = _s0;
+
+    // Evolve the LDS one step_size at a time for desired number of steps
+    for (int col = 1; col < tot_steps; col++) {
+        preds.col(col) = A_step * preds.col(col - 1);
+    }
+
+    return preds;
+}
+
+/**
    * Generate a matrix of sinusoidal values of all the desired effective
    * frequencies for all the bin locations.
    * @param A_sin_base: Base transition matrix for sinusoidal generating LDS
@@ -155,22 +192,13 @@ AnalysisGraph::generate_sinusoidal_values_for_bins(
                                               const Eigen::MatrixXd &A_sin_base,
                                               const Eigen::VectorXd &s0_sin,
                                               int period) {
-    // Transition matrix to advance the sinusoidal generating LDS from one bin
-    // to the next.
-    Eigen::MatrixXd A_sin_step = A_sin_base.exp();
-
-    // A matrix to accumulate sinusoidals of all the effective frequencies for
-    // all the bin locations required for the Fourier curve fitting.
-    Eigen::MatrixXd sinusoidals = Eigen::MatrixXd::Zero(s0_sin.size(), period);
-    sinusoidals.col(0) = s0_sin;
-
     // Evolve the sinusoidal generating LDS one step at a time for a whole
     // period to generate all the sinusoidal values required for the Fourier
     // reconstruction of the seasonal time series. Column t provides
     // sinusoidal values required for bin t.
-    for (int col = 1; col < period; col++) {
-        sinusoidals.col(col) = A_sin_step * sinusoidals.col(col - 1);
-    }
+    Eigen::MatrixXd sinusoidals = this->evolve_LDS(A_sin_base, s0_sin, period,
+                                                                             1);
+
     // Transpose the sinusoidal matrix so that row t contains the sinusoidal
     // values for bin t.
     sinusoidals.transposeInPlace();
@@ -433,24 +461,15 @@ bool AnalysisGraph::determine_the_best_number_of_components(
                                    int n_components,
                                    unordered_map<int, int> &hn_to_mat_row) {
 
-    // The number of head nodes being modeled in this LDS.
-    int num_hn = hn_to_mat_row.size();
-
     Eigen::MatrixXd A_till_first_midpoint = (A_hn_period_base * 0.5).exp();
-    Eigen::MatrixXd A_step = A_hn_period_base.exp();
-
-    int lds_size = 2 * (num_hn + n_components);
 
     // Evolve the system for 1 period of time steps at between bin midpoints.
     // Column b of preds contain the predictions for the midpoint between bin
     // b and bin (b + 1) % period.
-    Eigen::MatrixXd preds = Eigen::MatrixXd::Zero(lds_size, period);
-    preds.col(0) = A_till_first_midpoint * s0_hn_period;
-//    preds.col(0) = s0_hn_period;
-
-    for (int col = 1; col < period; col++) {
-        preds.col(col) = A_step * preds.col(col - 1);
-    }
+    Eigen::MatrixXd preds = this->evolve_LDS(A_hn_period_base,
+                                             A_till_first_midpoint *
+                                                                   s0_hn_period,
+                                             period, 1);
 
     // Track whether the rmse for at least one head node got reduced for this
     // number of components. This means we have to check the rmse for
@@ -528,21 +547,12 @@ void AnalysisGraph::predictions_to_csv(const Eigen::MatrixXd &A_base,
 
     CSVWriter writer("head_node_predictions_" +
                      to_string(_s0.size() / 2) + ".csv");
-    double step_size = 0.25;
-    int tot_steps = int(n_time_steps / step_size);
     int lds_size = _s0.size();
 
-    // Transition matrix to advance the system one step_size forward
-    Eigen::MatrixXd A_step = (A_base * step_size).exp();
-
-    // A matrix to accumulate predictions of the system
-    Eigen::MatrixXd preds = Eigen::MatrixXd::Zero(lds_size, tot_steps);
-    preds.col(0) = _s0;
-
     // Evolve the LDS one step_size at a time for desired number of steps
-    for (int col = 1; col < tot_steps; col++) {
-        preds.col(col) = A_step * preds.col(col - 1);
-    }
+    Eigen::MatrixXd preds = this->evolve_LDS(A_base, _s0, n_time_steps, 0.25);
+
+    int tot_steps = preds.cols();
 
     // Transpose the prediction matrix so that
     //      col 2i   - Predictions for variable i in the system

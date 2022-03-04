@@ -1095,6 +1095,26 @@ class AnalysisGraph {
                                                       int n_components);
 
   /**
+   * Evolves the provided LDS (A_base and _s0) n_modeling_time_steps (e.g.
+   * months) taking step_size steps each time. For example, if the step_size is
+   * 0.25, there will be 4 prediction points per one modeling time step.
+   * @param A_base: Base transition matrix that define the LDS.
+   * @param _s0: Initial state of the system. Used _s0 instead of s0 because s0
+   *             is the member variable that represent the initial state of the
+   *             final system that is used by the AnalysisGraph object.
+   * @param n_modeling_time_steps: The number of modeling time steps (full time
+   *                               steps, e.g. months) to evolve the system.
+   * @param step_size: Amount to advance the system at each step.
+   * @return A matrix of evolved values. Each column has values for one step.
+   *              row 2i   - Values for variable i in the system
+   *              row 2i+1 - Derivatives for variable i in the system
+   */
+  Eigen::MatrixXd evolve_LDS(const Eigen::MatrixXd &A_base,
+                             const Eigen::VectorXd &_s0,
+                             int n_modeling_time_steps,
+                             double step_size = 1);
+
+      /**
    * Assemble the LDS to generate sinusoidals of desired effective frequencies
    * @param freqs: A vector of effective frequencies
    *               (λω; ω = 1, 2, ... & λ = 2π/period)
