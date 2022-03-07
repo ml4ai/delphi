@@ -31,6 +31,7 @@ const double tuning_param = 1.0;
 enum InitialBeta { ZERO, ONE, HALF, MEAN, MEDIAN, PRIOR, RANDOM };
 //enum class InitialBeta : char { ZERO, ONE, HALF, MEAN, MEDIAN, PRIOR, RANDOM };
 enum InitialDerivative { DERI_ZERO, DERI_PRIOR };
+enum HeadNodeModel { HNM_NAIVE, HNM_FOURIER };
 
 typedef std::unordered_map<std::string, std::vector<double>>
     AdjectiveResponseMap;
@@ -275,6 +276,7 @@ class AnalysisGraph {
   std::unordered_set<int> head_nodes = {};
   std::vector<double> generated_latent_sequence;
   int generated_concept;
+  HeadNodeModel head_node_model = HeadNodeModel::HNM_NAIVE;//HeadNodeModel::HNM_FOURIER;//
 
   /*
    ============================================================================
@@ -1205,6 +1207,10 @@ class AnalysisGraph {
    *                      sinusoidals of higher frequencies. This method uses
    *                      only the lowest n_components frequencies to assemble
    *                      the complete system.
+   * @param n_concepts: The number of concepts being modeled by thi LDS. For the
+   *                    LDS to correctly include all the seasonal head nodes
+   *                    specified in hn_to_mat_row:
+   *                    n_concepts ≥ hn_to_mat_row.size()
    * @param hn_to_mat_row: A map that maps each head node being modeled to the
    *                       transition matrix rows and state vector rows.
    *                       Each concept is allocated to two consecutive rows.
@@ -1216,9 +1222,6 @@ class AnalysisGraph {
    *                             odd  row) for first derivative and
    *                       This map indicates the even row numbers each concept
    *                       is assigned to.
-   * @param A_concept_base: Base transition matrix that models the relationships
-   *                        between concepts that are being modeled by the
-   *                        assembled LDS.
    * @return pair (base transition matrix, initial state) for the complete LDS
    *         with the specified number of sinusoidal frequencies (n_components)
    *         0 radians is the initial angle.
@@ -1227,6 +1230,7 @@ class AnalysisGraph {
   assemble_head_node_modeling_LDS(const Eigen::MatrixXd &A_sin_base,
                                   const Eigen::VectorXd &s0_sin,
                                   int n_components,
+                                  int n_concepts,
                                   std::unordered_map<int, int> &hn_to_mat_row);
 
   /**
@@ -1271,15 +1275,40 @@ class AnalysisGraph {
                                    std::unordered_map<int, int> &hn_to_mat_row);
 
   /**
-   * Assembles the complete LDS for all the seasonal head nodes combining the best
-   * Fourier decomposition based seasonal model for each head node.
-   * @param fourier_frequency_set: A set of all the sinusoidal frequencies needed
-   *                               to model all the seasonal head nodes.
-   * @return The final LDS that models all the seasonal head nodes.
+   * Assembles the complete LDS for all the seasonal head nodes combining the
+   * best Fourier decomposition based seasonal model for each head node.
+   * @param fourier_frequency_set: A set of all the sinusoidal frequencies
+   *                               needed to model all the seasonal head nodes.
+   * @param n_concepts: The number of concepts being modeled by thi LDS. For the
+   *                    LDS to correctly include all the seasonal head nodes
+   *                    specified in hn_to_mat_row:
+   *                    n_concepts ≥ hn_to_mat_row.size()
+   * @param hn_to_mat_row: A map that maps each head node being modeled to the
+   *                       transition matrix rows and state vector rows.
+   *                       Each concept is allocated to two consecutive rows.
+   *                       In the transition matrix:
+   *                             even row) for first derivative
+   *                             odd  row) for second derivative
+   *                       In the state vector:
+   *                             even row) the value
+   *                             odd  row) for first derivative and
+   *                       This map indicates the even row numbers each concept
+   *                       is assigned to.
+   * @return The final LDS that models all the seasonal head nodes. Pairs of
+   *         zero rows are left where the LDS would be modeling body nodes. For
+   *         the transition matrix to be completed, the top left 2 * n_concepts
+   *         by 2 * n_concepts square black of the returned transition matrix
+   *         should be filled according to the relationships specified by the
+   *         CAG. The respective rows of the initial state should also be filled
+   *         accordingly.
    */
   std::pair<Eigen::MatrixXd, Eigen::VectorXd>
-      assemble_all_seasonal_head_node_modeling_LDS(std::unordered_set<double>
-                                                         fourier_frequency_set);
+      assemble_all_seasonal_head_node_modeling_LDS(
+                               std::unordered_set<double> fourier_frequency_set,
+                               int n_concepts,
+                               std::unordered_map<int, int> &hn_to_mat_row);
+
+  void assemble_base_LDS(InitialDerivative id);
 
   /**
    * Evolves the provided LDS (A_base and _s0) for n_time_steps modeling time
@@ -1301,11 +1330,21 @@ class AnalysisGraph {
 
   public:
     // TODO: Should be private
-    /**
-     * The main driver method that fits the Fourier decomposition based seasonal
-     * model to all the seasonal head nodes.
-     */
-    void fit_seasonal_head_node_model_via_fourier_decomposition();
+  /**
+   * The main driver method that fits the Fourier decomposition based seasonal
+   * model to all the seasonal head nodes.
+   * @return The final LDS that models all the seasonal head nodes combining the
+   *         best Fourier decomposition based seasonal model for each head node.
+   *         Pairs of zero rows are left where the LDS would be modeling body
+   *         bodes. For the transition matrix to be completed, the top left
+   *         2 * n_concepts by 2 * n_concepts square black of the returned
+   *         transition matrix should be filled according to the relationships
+   *         specified by the CAG.
+   *         The respective rows of the initial state should also be filled
+   *         accordingly.
+   */
+  std::pair<Eigen::MatrixXd, Eigen::VectorXd>
+  fit_seasonal_head_node_model_via_fourier_decomposition();
   AnalysisGraph() {
      one_off_constraints.clear();
      perpetual_constraints.clear();

@@ -18,8 +18,34 @@ using Eigen::VectorXd;
  ============================================================================
 */
 
+void AnalysisGraph::assemble_base_LDS(InitialDerivative id) {
+    this->set_transition_matrix_from_betas();
+    this->derivative_prior_variance = 0.1;
+    this->set_default_initial_state(id);
+
+    if (this->continuous &&
+                          this->head_node_model == HeadNodeModel::HNM_FOURIER) {
+        auto [A_fourier_full_base, s0_fourier_full] =
+                       fit_seasonal_head_node_model_via_fourier_decomposition();
+
+        int n_verts = this->num_vertices();
+        int n_concept_rows = 2 * n_verts;
+        A_fourier_full_base.topLeftCorner(n_concept_rows, n_concept_rows) =
+                                                               this->A_original;
+        this->A_original = A_fourier_full_base;
+
+        for (int bn_id: this->body_nodes) {
+            int bn_val_row = 2 * bn_id;
+            s0_fourier_full(bn_val_row) = this->s0(bn_val_row);
+            s0_fourier_full(bn_val_row + 1) = this->s0(bn_val_row + 1);
+        }
+        this->s0 = s0_fourier_full;
+    }
+}
+
 void AnalysisGraph::set_base_transition_matrix() {
-  int num_verts = this->num_vertices();
+  int n_verts = this->num_vertices();
+  int lds_size = 2 * n_verts;
 
   // A base transition matrix with the entries that does not change across
   // samples (A_c : continuous).
@@ -51,21 +77,22 @@ void AnalysisGraph::set_base_transition_matrix() {
    *  three rows for each variable and some of the off diagonal elements
    *  of rows with index % 3 = 1 would be non zero.
    */
-  this->A_original = Eigen::MatrixXd::Zero(num_verts * 2, num_verts * 2);
+  this->A_original = Eigen::MatrixXd::Zero(lds_size, lds_size);
 
   if (this->continuous) {
-    for (int vert = 0; vert < 2 * num_verts; vert += 2) {
-        this->A_original(vert, vert + 1) = 1;
+    for (int vert = 0; vert < n_verts; vert++) {
+        if (this->head_node_model == HeadNodeModel::HNM_FOURIER &&
+                          this->head_nodes.find(vert) != this->head_nodes.end())
+            continue;
+        int dot_row = 2 * vert;
+        this->A_original(dot_row, dot_row + 1) = 1;
     }
   }
   else {
     // Discretized version
     // A_d = I + A_c × Δt
     // Fill the Δts
-    //for (int vert = 0; vert < 2 * num_verts; vert += 2) {
-    //    this->A_original(vert, vert + 1) = this->delta_t;
-    //}
-    for (int vert = 0; vert < 2 * num_verts; vert++) {
+    for (int vert = 0; vert < lds_size; vert++) {
         // Filling the diagonal (Adding I)
         this->A_original(vert, vert) = 1;
 
@@ -91,10 +118,11 @@ void AnalysisGraph::set_transition_matrix_from_betas() {
 
   if (this->continuous) {
     // Initialize matrix exponential pre-calculation related data structures.
-    unordered_set<double> gaps_set = unordered_set<double>(
-                                   this->modeling_timestep_gaps.begin() + 1,
+    unordered_set<double> gaps_set(this->modeling_timestep_gaps.begin() + 1,
                                    this->modeling_timestep_gaps.end());
-    gaps_set.insert(1); // Due to the current head node model
+    if (this->head_node_model == HeadNodeModel::HNM_NAIVE) {
+        gaps_set.insert(1); // Due to the current head node model
+    }
     this->observation_timestep_unique_gaps = vector<double>(gaps_set.begin(),
                                                             gaps_set.end());
     #ifdef MULTI_THREADING
@@ -205,7 +233,6 @@ void AnalysisGraph::set_log_likelihood() {
         #endif
       }
       this->current_latent_state = this->s0;
-      int ts_monthly = 0;
 
       {
         #ifdef TIME
@@ -215,27 +242,39 @@ void AnalysisGraph::set_log_likelihood() {
           this->mcmc_part_duration.second.push_back(this->num_edges());
           Timer t_part = Timer("Log Likelihood", this->mcmc_part_duration);
         #endif
-        for (int ts = 0; ts < this->n_timesteps; ts++) {
+        if (this->head_node_model == HeadNodeModel::HNM_NAIVE) {
+          int ts_monthly = 0;
+          for (int ts = 0; ts < this->n_timesteps; ts++) {
 
-          // Set derivatives for frozen nodes
-          for (const auto& [v, deriv_func] : this->external_concepts) {
-            const Indicator& ind = this->graph[v].indicators[0];
-            this->current_latent_state[2 * v + 1] = deriv_func(ts, ind.mean);
+            // Set derivatives for frozen nodes
+            for (const auto& [v, deriv_func] : this->external_concepts) {
+              const Indicator& ind = this->graph[v].indicators[0];
+              this->current_latent_state[2 * v + 1] = deriv_func(ts, ind.mean);
+            }
+
+            // For the current naive seasonal head node model to work, we have
+            // to advance the system on modeling timestep at a time for all the
+            // timesteps where there are no observations till we hit a
+            // timestep with data to compute the log likelihood
+            for (int ts_gap = 0; ts_gap < this->modeling_timestep_gaps[ts];
+                                                                     ts_gap++) {
+              this->update_latent_state_with_generated_derivatives(ts_monthly,
+                                                                ts_monthly + 1);
+              this->current_latent_state =
+                                   this->e_A_ts[1] * this->current_latent_state;
+              ts_monthly++;
+            }
+            this->set_log_likelihood_helper(ts);
           }
+        } else { /// HeadNodeModel::HNM_FOURIER
+          this->set_log_likelihood_helper(0);
 
-          // For the current naive seasonal head node model to work, we have to
-          // advance the system on modeling timestep at a time for all the
-          // timesteps where there are no observations till we hit a
-          // timestep with data to compute the log likelihood
-          for (int ts_gap = 0; ts_gap < this->modeling_timestep_gaps[ts];
-               ts_gap++) {
-            this->update_latent_state_with_generated_derivatives(
-                ts_monthly, ts_monthly + 1);
+          for (int ts = 1; ts < this->n_timesteps; ts++) {
             this->current_latent_state =
-                this->e_A_ts[1] * this->current_latent_state;
-            ts_monthly++;
+                    this->e_A_ts[this->modeling_timestep_gaps[ts]]
+                                                   * this->current_latent_state;
+            this->set_log_likelihood_helper(ts);
           }
-          set_log_likelihood_helper(ts);
         }
       }
       #ifdef TIME
@@ -243,41 +282,37 @@ void AnalysisGraph::set_log_likelihood() {
         this->writer.write_row(this->mcmc_part_duration.second.begin(),
                                this->mcmc_part_duration.second.end());
       #endif
-
-      /*
-      this->update_latent_state_with_generated_derivatives(0, 1);
-
-      this->set_log_likelihood_helper(0);
-
-      for (int ts = 1; ts < this->n_timesteps; ts++) {
-        this->current_latent_state =
-            this->e_A_ts[this->modeling_timestep_gaps[ts]]
-            * this->current_latent_state;
-        this->update_latent_state_with_generated_derivatives(ts, ts + 1);
-        this->set_log_likelihood_helper(ts);
-      }
-      */
   } else {
       // Discretized version
       this->current_latent_state = this->s0;
-      int ts_monthly = 0;
 
-      for (int ts = 0; ts < this->n_timesteps; ts++) {
+      if (this->head_node_model == HeadNodeModel::HNM_NAIVE) {
+          int ts_monthly = 0;
 
-          // Set derivatives for frozen nodes
-          for (const auto & [ v, deriv_func ] : this->external_concepts) {
-              const Indicator& ind = this->graph[v].indicators[0];
-              this->current_latent_state[2 * v + 1] = deriv_func(ts, ind.mean);
+          for (int ts = 0; ts < this->n_timesteps; ts++) {
+
+              // Set derivatives for frozen nodes
+              for (const auto& [v, deriv_func] : this->external_concepts) {
+                  const Indicator& ind = this->graph[v].indicators[0];
+                  this->current_latent_state[2 * v + 1] =
+                                                       deriv_func(ts, ind.mean);
+              }
+
+              for (int ts_gap = 0; ts_gap < this->modeling_timestep_gaps[ts];
+                                                                     ts_gap++) {
+                  this->update_latent_state_with_generated_derivatives(
+                                                    ts_monthly, ts_monthly + 1);
+                  this->current_latent_state =
+                                  this->A_original * this->current_latent_state;
+                  ts_monthly++;
+              }
+              this->set_log_likelihood_helper(ts);
           }
-
-          for (int ts_gap = 0; ts_gap < this->modeling_timestep_gaps[ts]; ts_gap++) {
-              this->update_latent_state_with_generated_derivatives(
-                ts_monthly, ts_monthly + 1);
-              this->current_latent_state =
-                  this->A_original * this->current_latent_state;
-              ts_monthly++;
+      } else { /// HeadNodeModel::HNM_FOURIER
+          for (int ts = 0; ts < this->n_timesteps; ts++) {
+              this->set_log_likelihood_helper(ts);
+              this->current_latent_state = this->A_original * this->current_latent_state;
           }
-          set_log_likelihood_helper(ts);
       }
   }
 }
@@ -384,8 +419,14 @@ void AnalysisGraph::sample_from_proposal() {
     this->changed_derivative = 2 * concept + 1;
 
     if (this->head_nodes.find(concept) != this->head_nodes.end()) {
-      this->generated_concept = concept;
-      this->generate_head_node_latent_sequence(this->generated_concept, this->n_timesteps, true, 0);
+        if (this->head_node_model == HeadNodeModel::HNM_NAIVE) {
+            this->generated_concept = concept;
+            this->generate_head_node_latent_sequence(
+                this->generated_concept, this->n_timesteps, true, 0);
+        } else {
+            /// HeadNodeModel::HNM_FOURIER
+            // TODO: What should we do?
+        }
     }
     else {
       // to change the derivative

@@ -69,57 +69,63 @@ void AnalysisGraph::generate_latent_state_sequences(
       // matrices.
       MatrixXd A;
 
-      this->generate_head_node_latent_sequences(
-          samp, initial_prediction_step + this->pred_timesteps);
+      if (this->head_node_model == HeadNodeModel::HNM_NAIVE) {
+          this->generate_head_node_latent_sequences(
+                          samp, initial_prediction_step + this->pred_timesteps);
+      }
 
       if (this->continuous) {
-//          // Here A = Ac = this->transition_matrix_collection[samp] (continuous)
-//
-//          // Evolving the system till the initial_prediction_step
-//          A = (this->transition_matrix_collection[samp] *
-//                   initial_prediction_step).exp();
-//
-//          this->predicted_latent_state_sequences[samp][0] =
-//                               A * this->initial_latent_state_collection[samp];
-//
-//          // After jumping to time step ips - 1, we take one step of length Δt
-//          // at a time.
-//          // So compute the transition matrix for a single step.
-//          // Computing the matrix exponential for a Δt time step.
-//          // By default we are using Δt = 1
-//          // A = e^{Ac * Δt)
-//          A = (this->transition_matrix_collection[samp] * this->delta_t).exp();
+          if (this->head_node_model == HeadNodeModel::HNM_FOURIER) {
+              // Here A = Ac = this->transition_matrix_collection[samp] (continuous)
 
-          /////////////////
-          A = this->transition_matrix_collection[samp].exp();
+              // Evolving the system till the initial_prediction_step
+              A = (this->transition_matrix_collection[samp] *
+                                                 initial_prediction_step).exp();
 
-          // Evolving the system till the initial_prediction_step
-          this->current_latent_state = this->initial_latent_state_collection[samp];
+              //this->predicted_latent_state_sequences[samp][0] =
+              this->current_latent_state =
+                                A * this->initial_latent_state_collection[samp];
 
-          for (int ts = 0; ts < initial_prediction_step; ts++) {
-            this->update_latent_state_with_generated_derivatives(ts, ts + 1);
+              // After jumping to time step ips - 1, we take one step of length
+              // Δt at a time. So compute the transition matrix for a single
+              // step. Computing the matrix exponential for a Δt time step.
+              // By default we are using Δt = 1 A = e^{Ac * Δt)
+              A = (this->transition_matrix_collection[samp] * this->delta_t).exp();
+          } else {
+              ///////////////// HeadNodeModel::HNM_NAIVE
+              A = this->transition_matrix_collection[samp].exp();
 
-            // Set derivatives for frozen nodes
-            for (const auto & [ v, deriv_func ] : this->external_concepts) {
-              const Indicator& ind = this->graph[v].indicators[0];
-              this->current_latent_state[2 * v + 1] = deriv_func(ts, ind.mean);
-            }
+              // Evolving the system till the initial_prediction_step
+              this->current_latent_state =
+                                    this->initial_latent_state_collection[samp];
 
-            this->current_latent_state = A * this->current_latent_state;
+              for (int ts = 0; ts < initial_prediction_step; ts++) {
+                  this->update_latent_state_with_generated_derivatives(ts,
+                                                                        ts + 1);
+
+                  // Set derivatives for frozen nodes
+                  for (const auto& [v, deriv_func] : this->external_concepts) {
+                      const Indicator& ind = this->graph[v].indicators[0];
+                      this->current_latent_state[2 * v + 1] =
+                                                       deriv_func(ts, ind.mean);
+                  }
+
+                  this->current_latent_state = A * this->current_latent_state;
+              }
+              //this->update_latent_state_with_generated_derivatives(0, initial_prediction_step);
+              //this->current_latent_state = A * this->current_latent_state;
+
+              this->update_latent_state_with_generated_derivatives(
+                          initial_prediction_step, initial_prediction_step + 1);
+
+              // Set derivatives for frozen nodes
+              for (const auto& [v, deriv_func] : this->external_concepts) {
+                  const Indicator& ind = this->graph[v].indicators[0];
+                  this->current_latent_state[2 * v + 1] =
+                      deriv_func(initial_prediction_step, ind.mean);
+              }
+              /////////////////
           }
-          //this->update_latent_state_with_generated_derivatives(0, initial_prediction_step);
-          //this->current_latent_state = A * this->current_latent_state;
-
-          this->update_latent_state_with_generated_derivatives(
-              initial_prediction_step, initial_prediction_step + 1);
-
-          // Set derivatives for frozen nodes
-          for (const auto & [ v, deriv_func ] : this->external_concepts) {
-            const Indicator& ind = this->graph[v].indicators[0];
-            this->current_latent_state[2 * v + 1] =
-                deriv_func(initial_prediction_step, ind.mean);
-          }
-          /////////////////
       } else {
           // Here A = Ad = this->transition_matrix_collection[samp] (discrete)
           // This is the discrete transition matrix to take a single step of
@@ -127,28 +133,38 @@ void AnalysisGraph::generate_latent_state_sequences(
           A = this->transition_matrix_collection[samp];
 
           // Evolving the system till the initial_prediction_step
-          this->current_latent_state = this->initial_latent_state_collection[samp];
+          if (this->head_node_model == HeadNodeModel::HNM_FOURIER) {
+              //this->predicted_latent_state_sequences[samp][0] =
+              this->current_latent_state = A.pow(initial_prediction_step) *
+                                    this->initial_latent_state_collection[samp];
+          } else {
+              ///////////////// HeadNodeModel::HNM_NAIVE
+              this->current_latent_state =
+                  this->initial_latent_state_collection[samp];
 
-          for (int ts = 0; ts < initial_prediction_step; ts++) {
-            this->update_latent_state_with_generated_derivatives(ts, ts + 1);
+              for (int ts = 0; ts < initial_prediction_step; ts++) {
+                  this->update_latent_state_with_generated_derivatives(ts,
+                                                                        ts + 1);
 
-            // Set derivatives for frozen nodes
-            for (const auto & [ v, deriv_func ] : this->external_concepts) {
-              const Indicator& ind = this->graph[v].indicators[0];
-              this->current_latent_state[2 * v + 1] = deriv_func(ts, ind.mean);
-            }
+                  // Set derivatives for frozen nodes
+                  for (const auto& [v, deriv_func] : this->external_concepts) {
+                      const Indicator& ind = this->graph[v].indicators[0];
+                      this->current_latent_state[2 * v + 1] =
+                                                       deriv_func(ts, ind.mean);
+                  }
 
-            this->current_latent_state = A * this->current_latent_state;
-          }
+                  this->current_latent_state = A * this->current_latent_state;
+              }
 
-          this->update_latent_state_with_generated_derivatives(
-              initial_prediction_step, initial_prediction_step + 1);
+              this->update_latent_state_with_generated_derivatives(
+                          initial_prediction_step, initial_prediction_step + 1);
 
-          // Set derivatives for frozen nodes
-          for (const auto & [ v, deriv_func ] : this->external_concepts) {
-            const Indicator& ind = this->graph[v].indicators[0];
-            this->current_latent_state[2 * v + 1] =
-                                  deriv_func(initial_prediction_step, ind.mean);
+              // Set derivatives for frozen nodes
+              for (const auto& [v, deriv_func] : this->external_concepts) {
+                  const Indicator& ind = this->graph[v].indicators[0];
+                  this->current_latent_state[2 * v + 1] =
+                      deriv_func(initial_prediction_step, ind.mean);
+              }
           }
       }
 
@@ -175,7 +191,7 @@ void AnalysisGraph::generate_latent_state_sequences(
       // prediction data structures is the 0th index for the requested
       // prediction sequence. Hence, when we are at time step ts, we should
       // check whether there are any constconstraints
-        // time step index is 1
+      // time step index is 1
       for (int ts = 1; ts < this->pred_timesteps; ts++) {
           // When continuous: The standard matrix exponential equation is,
           //                        s_{t+Δt} = e^{Ac * Δt } * s_t
@@ -193,8 +209,13 @@ void AnalysisGraph::generate_latent_state_sequences(
           //                        s_t = e^{Ac * Δt } * s_{t-1}
           // When discrete  : s_t = Ad * s_{t-1}
           this->current_latent_state = A * this->predicted_latent_state_sequences[samp][ts - 1];
-          this->update_latent_state_with_generated_derivatives(
-              initial_prediction_step + ts, initial_prediction_step + ts + 1);
+
+          if (this->head_node_model == HeadNodeModel::HNM_NAIVE) {
+              this->update_latent_state_with_generated_derivatives(
+                  initial_prediction_step + ts,
+                  initial_prediction_step + ts + 1);
+          }
+
           this->check_bounds();
           this->predicted_latent_state_sequences[samp][ts] = this->current_latent_state;
 
@@ -223,7 +244,7 @@ void AnalysisGraph::generate_latent_state_sequences(
                               (2 * node_id + 1) =
                               this->initial_latent_state_collection[samp]
                               (2 * node_id + 1);
-                  }
+                    }
                   } else {
                       for (auto [node_id, value]: this->one_off_constraints.at(ts)) {
                           this->predicted_latent_state_sequences[samp][ts]

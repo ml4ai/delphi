@@ -34,15 +34,22 @@ void AnalysisGraph::initialize_parameters(int res,
     this->construct_theta_pdfs();
     this->init_betas_to(initial_beta);
     this->set_indicator_means_and_standard_deviations();
-    this->set_transition_matrix_from_betas();
+    this->assemble_base_LDS(initial_derivative);
+//    this->set_transition_matrix_from_betas();
     #ifdef MULTI_THREADING
         this->compute_multiple_matrix_exponentials_parallelly();
     #endif
-    this->derivative_prior_variance = 0.1;
-    this->set_default_initial_state(initial_derivative);
+//    this->derivative_prior_variance = 0.1;
+//    this->set_default_initial_state(initial_derivative);
     //this->generate_head_node_latent_sequences(-1, this->n_timesteps);
-    this->generate_head_node_latent_sequences(-1, accumulate(this->modeling_timestep_gaps.begin() + 1,
-                                                             this->modeling_timestep_gaps.end(), 0) + 1);
+    if (this->head_node_model == HeadNodeModel::HNM_NAIVE) {
+        this->generate_head_node_latent_sequences(
+            -1,
+            accumulate(this->modeling_timestep_gaps.begin() + 1,
+                       this->modeling_timestep_gaps.end(),
+                       0) +
+                1);
+    }
     this->set_log_likelihood();
     this->log_likelihood_MAP = -(DBL_MAX - 1);
 
@@ -275,7 +282,7 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
           }
 
           // TODO: Just for debugging delete
-          mean = 1;
+          //mean = 1;
 
           if (mean != 0) {
               ind.set_mean(mean);

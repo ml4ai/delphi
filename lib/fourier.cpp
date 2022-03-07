@@ -299,6 +299,10 @@ AnalysisGraph::compute_fourier_coefficients_from_least_square_optimization(
   *                      sinusoidals of higher frequencies. This method uses
   *                      only the lowest n_components frequencies to assemble
   *                      the complete system.
+  * @param n_concepts: The number of concepts being modeled by thi LDS. For the
+  *                    LDS to correctly include all the seasonal head nodes
+  *                    specified in hn_to_mat_row:
+  *                    n_concepts ≥ hn_to_mat_row.size()
   * @param hn_to_mat_row: A map that maps each head node being modeled to the
   *                       transition matrix rows and state vector rows.
   *                       Each concept is allocated to two consecutive rows.
@@ -310,11 +314,8 @@ AnalysisGraph::compute_fourier_coefficients_from_least_square_optimization(
   *                             odd  row) for first derivative and
   *                       This map indicates the even row numbers each concept
   *                       is assigned to.
-  * @param A_concept_base: Base transition matrix that models the relationships
-  *                        between concepts that are being modeled by the
-  *                        assembled LDS.
   * @return pair (base transition matrix, initial state) for the complete LDS
-  *         with the specified number of sinusoidal frequencies (n_components)
+  *         with the specified number of sinusoidal frequencies (n_components).
   *         0 radians is the initial angle.
   */
 pair<Eigen::MatrixXd, Eigen::VectorXd>
@@ -322,9 +323,9 @@ AnalysisGraph::assemble_head_node_modeling_LDS(
                                        const Eigen::MatrixXd &A_sin_base,
                                        const Eigen::VectorXd &s0_sin,
                                        int n_components,
+                                       int n_concepts,
                                        unordered_map<int, int> &hn_to_mat_row) {
 
-    int n_concepts = hn_to_mat_row.size(); // TODO: This will not work when we are assembling the LDS with body nodes as well. Have to pass n_concepts separately.
     int tot_concept_rows = 2 * n_concepts;
     int tot_sinusoidal_rows = 2 * n_components;
     int lds_size = tot_concept_rows + tot_sinusoidal_rows;
@@ -542,11 +543,34 @@ bool AnalysisGraph::determine_the_best_number_of_components(
  * Fourier decomposition based seasonal model for each head node.
  * @param fourier_frequency_set: A set of all the sinusoidal frequencies needed
  *                               to model all the seasonal head nodes.
- * @return The final LDS that models all the seasonal head nodes.
+ * @param n_concepts: The number of concepts being modeled by thi LDS. For the
+ *                    LDS to correctly include all the seasonal head nodes
+ *                    specified in hn_to_mat_row:
+ *                    n_concepts ≥ hn_to_mat_row.size()
+ * @param hn_to_mat_row: A map that maps each head node being modeled to the
+ *                       transition matrix rows and state vector rows.
+ *                       Each concept is allocated to two consecutive rows.
+ *                       In the transition matrix:
+ *                             even row) for first derivative
+ *                             odd  row) for second derivative
+ *                       In the state vector:
+ *                             even row) the value
+ *                             odd  row) for first derivative and
+ *                       This map indicates the even row numbers each concept
+ *                       is assigned to.
+ * @return The final LDS that models all the seasonal head nodes. Pairs of zero
+ *         rows are left where the LDS would be modeling body nodes. For the
+ *         transition matrix to be completed, the top left 2 * n_concepts by
+ *         2 * n_concepts square black of the returned transition matrix should
+ *         be filled according to the relationships specified by the CAG.
+ *         The respective rows of the initial state should also be filled
+ *         accordingly.
  */
 pair<Eigen::MatrixXd, Eigen::VectorXd>
 AnalysisGraph::assemble_all_seasonal_head_node_modeling_LDS(
-                                  unordered_set<double> fourier_frequency_set) {
+                                  unordered_set<double> fourier_frequency_set,
+                                  int n_concepts,
+                                  unordered_map<int, int> &hn_to_mat_row) {
 
     // Prepare all the sinusoidal frequencies needed to model all the
     // seasonal head nodes possibly with various periods.
@@ -560,28 +584,11 @@ AnalysisGraph::assemble_all_seasonal_head_node_modeling_LDS(
     auto [A_sin_all_base, s0_sin_all] =
                             this->assemble_sinusoidal_generating_LDS(all_freqs);
 
-    // Assign transition matrix rows to seasonal head nodes.
-    // NOTE: At this moment we do not need to reformat the head node vector
-    //       this way. We could just use the head node vector as it is and
-    //       compute the transition matrix row based on the index at which
-    //       each head node is at.
-    //       I am doing this to make assemble_head_node_modeling_LDS()
-    //       method more generalized so that I could reuse it to assemble
-    //       the final complete LDS with all the nodes (seasonal head nodes
-    //       with different periods and body nodes).
-    //       At the moment, in the complete system, head nodes does not
-    //       occupy a contiguous range of rows in the transition matrix.
-    unordered_map<int, int> hn_to_mat_row;
-    int row = 0;
-    for (int hn_id: this->head_nodes) {
-        hn_to_mat_row[hn_id] = row;
-        row += 2;
-    }
-
     auto [A_concept_full_base, s0_concept_full] =
                         this->assemble_head_node_modeling_LDS(A_sin_all_base,
                                                               s0_sin_all,
                                                               all_freqs.size(),
+                                                              n_concepts,
                                                               hn_to_mat_row);
 
     return make_pair(A_concept_full_base, s0_concept_full);
@@ -634,11 +641,24 @@ void AnalysisGraph::predictions_to_csv(const Eigen::MatrixXd &A_base,
 /**
  * The main driver method that fits the Fourier decomposition based seasonal
  * model to all the seasonal head nodes.
+ * @return The final LDS that models all the seasonal head nodes combining the
+ *         best Fourier decomposition based seasonal model for each head node.
+ *         Pairs of zero rows are left where the LDS would be modeling body
+ *         bodes. For the transition matrix to be completed, the top left
+ *         2 * n_concepts by 2 * n_concepts square black of the returned
+ *         transition matrix should be filled according to the relationships
+ *         specified by the CAG.
+ *         The respective rows of the initial state should also be filled
+ *         accordingly.
  */
-void AnalysisGraph::fit_seasonal_head_node_model_via_fourier_decomposition() {
+std::pair<Eigen::MatrixXd, Eigen::VectorXd>
+AnalysisGraph::fit_seasonal_head_node_model_via_fourier_decomposition() {
 
     // TODO: Just for debugging delete
-    this->set_indicator_means_and_standard_deviations();
+    for (int i = 0; i < this->num_vertices(); i++) {
+        Node& hn = (*this)[i];
+        cout << i << " - " << hn.name << " - " << hn.tot_observations << "\n";
+    }
 
     // Group seasonal head nodes according to their seasonality.
     unordered_map<int, vector<int>> period_to_head_nodes;
@@ -646,14 +666,6 @@ void AnalysisGraph::fit_seasonal_head_node_model_via_fourier_decomposition() {
     for (int head_node_id: this->head_nodes) {
         Node& hn = (*this)[head_node_id];
         period_to_head_nodes[hn.period].push_back(head_node_id);
-    }
-
-    // TODO: Just for debugging delete
-    for (auto [p, hn_ids]: period_to_head_nodes) {
-        for (auto hn_id: hn_ids) {
-            Node& hn = (*this)[hn_id];
-            cout << p << " - " << hn.name << " - " << hn.tot_observations << "\n";
-        }
     }
 
     std::unordered_set<double> fourier_frequency_set;
@@ -719,6 +731,7 @@ void AnalysisGraph::fit_seasonal_head_node_model_via_fourier_decomposition() {
                     this->assemble_head_node_modeling_LDS(A_sin_max_k_base,
                                                           s0_sin_max_k,
                                                           components,
+                                                          hn_to_mat_row.size(),
                                                           hn_to_mat_row);
 
             bool rmses_are_reducing = determine_the_best_number_of_components(
@@ -771,10 +784,29 @@ void AnalysisGraph::fit_seasonal_head_node_model_via_fourier_decomposition() {
                             period_freqs.begin() + max_n_components_for_period);
     }
 
-    auto [A_concept_full_base, s0_concept_full] =
-      this->assemble_all_seasonal_head_node_modeling_LDS(fourier_frequency_set);
+    // Assign transition matrix rows to seasonal head nodes.
+    unordered_map<int, int> hn_to_mat_row;
+    // Using only the seasonal head nodes
+    //int row = 0;
+    //for (int hn_id: this->head_nodes) {
+    //    hn_to_mat_row[hn_id] = row;
+    //    row += 2;
+    //}
+    //int n_concepts = this->head_nodes.size();
+    /////////////////////////////
+    // Using all the nodes
+    for (int hn_id: this->head_nodes) {
+        hn_to_mat_row[hn_id] = 2 * hn_id;
+    }
+    int n_concepts = this->num_vertices();
 
-    cout << A_concept_full_base << "\n";
+    std::pair<Eigen::MatrixXd, Eigen::VectorXd> seasonal_head_node_LDS =
+      this->assemble_all_seasonal_head_node_modeling_LDS(fourier_frequency_set,
+                                                         n_concepts,
+                                                         hn_to_mat_row);
 
-    this->predictions_to_csv(A_concept_full_base, s0_concept_full, 24);
+    //this->predictions_to_csv(seasonal_head_node_LDS.first,
+    //                         seasonal_head_node_LDS.second, 24);
+
+    return seasonal_head_node_LDS;
 }
