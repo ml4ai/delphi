@@ -24,8 +24,8 @@ class ExperimentStatus : public BaseStatus {
         string experiment_id,
         string model_id 
     ) : BaseStatus(
-      "experiment_status",
       "ExperimentStatus",
+      "experiment_status",
       experiment_id
     ), experiment_id(experiment_id), model_id(model_id){}
 
@@ -34,8 +34,8 @@ class ExperimentStatus : public BaseStatus {
         string model_id,
         Database* database
     ) : BaseStatus(
-      "experiment_status",
       "ExperimentStatus",
+      "experiment_status",
       experiment_id,
       database
     ), experiment_id(experiment_id), model_id(model_id){}

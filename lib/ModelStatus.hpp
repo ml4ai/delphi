@@ -24,18 +24,18 @@ class ModelStatus : public BaseStatus {
 
 
   public:
-    ModelStatus(string id) : BaseStatus(
-      "model_status",
+    ModelStatus(string model_id) : BaseStatus(
       "ModelStatus",
+      "model_status",
       model_id
-    ), model_id(id) {}
+    ), model_id(model_id) {}
 
-    ModelStatus(string id, Database* database) : BaseStatus(
-      "model_status",
+    ModelStatus(string model_id, Database* database) : BaseStatus(
       "ModelStatus",
+      "model_status",
       model_id,
       database
-    ), model_id(id) {}
+    ), model_id(model_id) {}
 
     ~ModelStatus(){}
 
