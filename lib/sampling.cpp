@@ -57,7 +57,6 @@ void AnalysisGraph::set_base_transition_matrix() {
    *        | 0  0  0  0  0  0 | 3
    *  var_3 | 0     0     0  1 | 4
    *        | 0  0  0  0  0  0 | 5
-   *
    */
 
   // A base transition matrix with the entries that does not change across
@@ -359,20 +358,12 @@ void AnalysisGraph::sample_from_proposal() {
 
   if (this->coin_flip < this->coin_flip_thresh) {
     // Randomly pick an edge ≡ θ
-//    boost::iterator_range edge_it = this->edges();
-//
-//    vector<EdgeDescriptor> e(1);
-//    sample(
-//        edge_it.begin(), edge_it.end(), e.begin(), 1, this->rand_num_generator);
     EdgeDescriptor ed = this->edge_sample_pool[this->uni_disc_dist_edge(this->rand_num_generator)];
 
     // Remember the previous θ and logpdf(θ)
-//    this->previous_theta = make_tuple(e[0], this->graph[e[0]].get_theta(), this->graph[e[0]].logpdf_theta);
     this->previous_theta = make_tuple(ed, this->graph[ed].get_theta(), this->graph[ed].logpdf_theta);
 
     // Perturb the θ and compute the new logpdf(θ)
-    // TODO: Check whether this perturbation is accurate
-//    this->graph[e[0]].set_theta(this->graph[e[0]].get_theta() + this->norm_dist(this->rand_num_generator));
     this->graph[ed].set_theta(this->graph[ed].get_theta() + this->norm_dist(this->rand_num_generator) / 10);
     {
       #ifdef TIME
@@ -382,7 +373,6 @@ void AnalysisGraph::sample_from_proposal() {
         this->mcmc_part_duration.second.push_back(this->num_edges());
         Timer t_part = Timer("KDE", this->mcmc_part_duration);
       #endif
-//      this->graph[e[0]].compute_logpdf_theta();
       this->graph[ed].compute_logpdf_theta();
     }
     #ifdef TIME
@@ -399,7 +389,6 @@ void AnalysisGraph::sample_from_proposal() {
         this->mcmc_part_duration.second.push_back(this->num_edges());
         Timer t_part = Timer("UPTM", this->mcmc_part_duration);
       #endif
-//      this->update_transition_matrix_cells(e[0]);
       this->update_transition_matrix_cells(ed);
     }
 
