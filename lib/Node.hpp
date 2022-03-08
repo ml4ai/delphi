@@ -148,5 +148,8 @@ class Node {
     }
     std::cout << std::endl;
   }
+
+  void compute_bin_centers_and_spreads(const std::vector<int> &ts_sequence,
+                                       const std::vector<double> &mean_sequence);
 };
 
