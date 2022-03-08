@@ -44,7 +44,8 @@ vector<json> ModelStatus::get_valid_rows() {
   vector<json> rows;
 
   // get all the IDs from the model table
-  vector<string> ids = get_ids();
+  string query = "SELECT id FROM " + MODEL_TABLE + ";";
+  vector<string> ids = read_column_text(query);
 
   for(string id : ids) {
     log_info("id: " + id);
