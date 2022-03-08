@@ -320,26 +320,12 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
                       [&](double obs_mean){return obs_mean / n.indicators[0].mean;});
 
               // Computing the midpoints
-              if (n.period > 1 &&
+              if (this->head_node_model == HNM_FOURIER && n.period > 1 &&
                   this->head_nodes.find(v) != this->head_nodes.end()) {
                   // Midpoints are only needed for head nodes with period > 1 to
                   // fit the Fourier decomposition based seasonal model.
-                  for (int mean_seq_idx = 0;
-                       mean_seq_idx < ts_sequence.size() - 1;
-                       mean_seq_idx++) {
-                      if (ts_sequence[mean_seq_idx] ==
-                          ts_sequence[mean_seq_idx + 1] - 1) {
-                          // We have two consecutive time points with
-                          // observations So, we could compute a between bin
-                          // midpoint. We place the midpoints between bin b and
-                          // bin (b+1) % period in midpoint bin b
-                          int partition = ts_sequence[mean_seq_idx] % n.period;
-                          n.between_bin_midpoints[partition].push_back(
-                              (mean_sequence[mean_seq_idx] +
-                               mean_sequence[mean_seq_idx + 1]) /
-                              2.0);
-                      }
-                  }
+                  this->linear_interpolate_between_bin_midpoints(v, ts_sequence,
+                                                                 mean_sequence);
               }
 
               /*

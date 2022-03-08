@@ -29,6 +29,38 @@ void AnalysisGraph::partition_data_according_to_period(int hn_id,
 }
 
 /**
+ * Linear interpolate between bin midpoints. Midpoints are calculated only when
+ * two consecutive modeling time steps has observations. Midpoints between bin b
+ * and bin (b + 1) % period are assigned to midpoint bin b.
+ * @param hn_id: ID of the head node where midpoints are being computed
+ * @param ts_sequence: Modeling time step sequence where there are observations.
+ * @param mean_sequence: Each modeling time step could have multiple
+ *                       observations. When computing midpoints, we first
+ *                       compute the average of multiple observations per
+ *                       modeling time step and create a mean observation
+ *                       sequence. We compute the midpoints between these
+ *                       means.
+ */
+void AnalysisGraph::linear_interpolate_between_bin_midpoints(int hn_id,
+                                           std::vector<int> &ts_sequence,
+                                           std::vector<double> &mean_sequence) {
+    Node &hn = (*this)[hn_id];
+
+    for (int mean_seq_idx = 0; mean_seq_idx < ts_sequence.size() - 1;
+                                                               mean_seq_idx++) {
+        if (ts_sequence[mean_seq_idx] == ts_sequence[mean_seq_idx + 1] - 1) {
+            // We have two consecutive time points with observations. So, we
+            // could compute a between bin midpoint. We place the midpoints
+            // between bin b and bin (b+1) % period in midpoint bin b.
+            int partition = ts_sequence[mean_seq_idx] % hn.period;
+            hn.between_bin_midpoints[partition].push_back(
+                                       (mean_sequence[mean_seq_idx] +
+                                        mean_sequence[mean_seq_idx + 1]) / 2.0);
+        }
+    }
+}
+
+/**
    * Generates a vector of all the effective frequencies for a particular period
    * @param n_components: The number of pure sinusoidal frequencies to generate
    * @param period: The period of the variable(s) being modeled by Fourier
