@@ -20,6 +20,8 @@ class ModelStatus : public BaseStatus {
 
   protected:
     void set_state(double progress, string status, bool busy);
+    vector<json> get_valid_rows();
+
 
   public:
     ModelStatus(string id) : BaseStatus(

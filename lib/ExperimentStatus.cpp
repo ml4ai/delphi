@@ -46,3 +46,11 @@ void ExperimentStatus::set_state(
   data[BUSY] = busy;
   write_data(data);
 }
+
+vector<json> ExperimentStatus::get_valid_rows() {
+  vector<json> rows;
+
+  // populate
+
+  return rows;
+}

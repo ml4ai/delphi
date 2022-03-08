@@ -32,6 +32,8 @@ class BaseStatus {
     bool write_data(json data);
     void log_info(string msg);
     void log_error(string msg);
+    virtual vector<json> get_valid_rows() = 0;
+
 
   public:
     BaseStatus(

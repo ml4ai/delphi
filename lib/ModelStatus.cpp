@@ -38,3 +38,13 @@ void ModelStatus::set_state(double progress, string status, bool busy) {
   data[BUSY] = busy;
   write_data(data);
 }
+
+vector<json> ModelStatus::get_valid_rows() {
+  vector<json> rows;
+
+  // populate
+
+  return rows;
+}
+
+

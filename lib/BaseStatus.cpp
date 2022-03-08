@@ -34,11 +34,11 @@ void BaseStatus::initialize() {
   log_info("BaseStatus::initialize");
 
   // get rows for from table
-  vector<string> ids = database->read_column_text_query(table_name, COL_ID);
-  vector<json> rows;
-  for(string id : ids) {
-    rows.push_back(database->select_row(table_name, id, COL_DATA));
-  }
+//  vector<string> ids = database->read_column_text_query(table_name, COL_ID);
+//  vector<json> rows;
+//  for(string id : ids) {
+//    rows.push_back(database->select_row(table_name, id, COL_DATA));
+//  }
 
   // drop existing table to remove obsolete table versions
   string query = "DROP TABLE " + table_name + ";";
@@ -57,6 +57,8 @@ void BaseStatus::initialize() {
   if(!insert_query(query)) {
     return;
   }
+
+  vector<json> rows = get_valid_rows();
 
   // add valid data to new table
   for(json row: rows) {
