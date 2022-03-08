@@ -50,4 +50,7 @@ class ModelStatus : public BaseStatus {
     const string MODEL_ID = "id"; // API
     const string NODES = "nodes"; // API
     const string EDGES = "edges"; // API
+
+    // delphi model table
+    const string MODEL_TABLE = "delphimodel";
 };

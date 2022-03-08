@@ -40,9 +40,16 @@ void ModelStatus::set_state(double progress, string status, bool busy) {
 }
 
 vector<json> ModelStatus::get_valid_rows() {
+  log_info("get_valid_rows()");
   vector<json> rows;
 
-  // populate
+  // get all the IDs from the model table
+  vector<string> ids = get_ids();
+
+  for(string id : ids) {
+    log_info("id: " + id);
+  }
+  
 
   return rows;
 }

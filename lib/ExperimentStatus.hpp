@@ -58,4 +58,6 @@ class ExperimentStatus : public BaseStatus {
     const string NUM_TIME_STEPS = "numTimesteps"; // API
     const string RESULTS = "results"; // API
     const string START_TIME = "startTime"; // API
+
+    const string EXPERIMENT_TABLE = "causemosasyncexperimentresult";
 };

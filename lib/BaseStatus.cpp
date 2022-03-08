@@ -28,6 +28,11 @@ bool BaseStatus::insert_query(string query) {
   return false;
 }
 
+// return primary keys in the table
+vector<string> BaseStatus::get_ids() {
+  return  database->read_column_text_query(table_name, COL_ID);
+}
+
 // Make a clean start with valid data
 void BaseStatus::initialize() {
 
