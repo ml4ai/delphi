@@ -1,7 +1,5 @@
 #include "AnalysisGraph.hpp"
 #include <range/v3/all.hpp>
-#include <sqlite3.h>
-#include <limits.h>
 
 using namespace std;
 using namespace delphi::utils;
@@ -35,13 +33,9 @@ void AnalysisGraph::initialize_parameters(int res,
     this->init_betas_to(initial_beta);
     this->set_indicator_means_and_standard_deviations();
     this->assemble_base_LDS(initial_derivative);
-//    this->set_transition_matrix_from_betas();
     #ifdef MULTI_THREADING
         this->compute_multiple_matrix_exponentials_parallelly();
     #endif
-//    this->derivative_prior_variance = 0.1;
-//    this->set_default_initial_state(initial_derivative);
-    //this->generate_head_node_latent_sequences(-1, this->n_timesteps);
     if (this->head_node_model == HeadNodeModel::HNM_NAIVE) {
         this->generate_head_node_latent_sequences(
             -1,
@@ -55,16 +49,9 @@ void AnalysisGraph::initialize_parameters(int res,
 
     this->transition_matrix_collection.clear();
     this->initial_latent_state_collection.clear();
-    //this->latent_mean_collection.clear();
-    //this->latent_std_collection.clear();
-    //this->latent_mean_std_collection.clear();
 
     this->transition_matrix_collection = vector<Eigen::MatrixXd>(this->res);
     this->initial_latent_state_collection = vector<Eigen::VectorXd>(this->res);
-    //this->latent_mean_collection = vector<vector<double>>(this->res);
-    //this->latent_std_collection = vector<vector<double>>(this->res);
-    //this->latent_mean_std_collection = vector<vector<
-    //                      unordered_map<int, pair<double, double>>>>(this->res);
 }
 
 void AnalysisGraph::init_betas_to(InitialBeta ib) {
@@ -171,7 +158,8 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
                   // There is an observation for indicator (v, i) at ts.
                   ts_sequence.push_back(ts);
                   mean_sequence.push_back(delphi::utils::mean(obs_at_ts));
-                  std_sequence.push_back(delphi::utils::standard_deviation(mean_sequence.back(), obs_at_ts));
+                  std_sequence.push_back(delphi::utils::standard_deviation(
+                                              mean_sequence.back(), obs_at_ts));
 
                   if (i == 0 && n.period > 1 &&
                       this->head_nodes.find(v) != this->head_nodes.end()) {
@@ -281,9 +269,6 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
               mean = delphi::utils::median(mean_sequence);
           }
 
-          // TODO: Just for debugging delete
-          //mean = 1;
-
           if (mean != 0) {
               ind.set_mean(mean);
           } else {
@@ -310,37 +295,27 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
               }
 
               for (auto& [parititon, obs_in_parititon]: n.partitioned_data) {
-                  transform(obs_in_parititon.second.begin(), obs_in_parititon.second.end(),
+                  transform(obs_in_parititon.second.begin(),
+                            obs_in_parititon.second.end(),
                             obs_in_parititon.second.begin(),
-                            [&](double obs){return obs / n.indicators[0].mean;});
+                            [&](double obs)
+                            {return obs / n.indicators[0].mean;});
               }
 
               transform(mean_sequence.begin(), mean_sequence.end(),
                         mean_sequence.begin(),
-                      [&](double obs_mean){return obs_mean / n.indicators[0].mean;});
+                      [&](double obs_mean)
+                        {return obs_mean / n.indicators[0].mean;});
 
               // Computing the midpoints
               if (this->head_node_model == HNM_FOURIER && n.period > 1 &&
                   this->head_nodes.find(v) != this->head_nodes.end()) {
                   // Midpoints are only needed for head nodes with period > 1 to
                   // fit the Fourier decomposition based seasonal model.
-                  this->linear_interpolate_between_bin_midpoints(v, ts_sequence,
+                  this->linear_interpolate_between_bin_midpoints(v,
+                                                                 ts_sequence,
                                                                  mean_sequence);
               }
-
-              /*
-              for (int ts = 0; ts < ts_sequence.size(); ts++) {
-                  // TODO: I feel that this partitioning is worng. Should be corrected as:
-                  // First we convert the observation time steps for an indicator into a
-                  // zero based contiguous sequence and then take the modules
-                  // int((ts_sequence[ts] - ts_sequence[0]) * n.period / 12) % n.period
-                  //int partition = ts_sequence[ts] % n.period;
-                  //int partition = int((ts_sequence[ts] - ts_sequence[0]) * n.period / 12) % n.period;
-                  int partition = this->observation_timesteps_sorted[ts] % n.period;
-                  n.partitioned_data[partition].first.push_back(ts_sequence[ts]);
-                  n.partitioned_data[partition].second.push_back(mean_sequence[ts]);
-              }
-              */
 
               if (this->head_node_model == HNM_NAIVE) {
                   n.compute_bin_centers_and_spreads(ts_sequence,
@@ -365,7 +340,8 @@ void AnalysisGraph::construct_theta_pdfs() {
   double sigma_Y = 1.0;
   AdjectiveResponseMap adjective_response_map =
       this->construct_adjective_response_map(
-          this->rand_num_generator, this->uni_dist, this->norm_dist, this->n_kde_kernels);
+                                this->rand_num_generator, this->uni_dist,
+                                     this->norm_dist, this->n_kde_kernels);
   vector<double> marginalized_responses;
   for (auto [adjective, responses] : adjective_response_map) {
     for (auto response : responses) {
@@ -395,13 +371,16 @@ void AnalysisGraph::construct_theta_pdfs() {
 
       auto subj_responses = lmap(
           [&](auto x) { return x * subject.polarity; },
-          get(adjective_response_map, subj_adjective, marginalized_responses));
+          get(adjective_response_map, subj_adjective,
+                                                       marginalized_responses));
 
       auto obj_responses = lmap(
           [&](auto x) { return x * object.polarity; },
-          get(adjective_response_map, obj_adjective, marginalized_responses));
+          get(adjective_response_map, obj_adjective,
+                                                       marginalized_responses));
 
-      for (auto [x, y] : ranges::views::cartesian_product(subj_responses, obj_responses)) {
+      for (auto [x, y] : ranges::views::cartesian_product(subj_responses,
+                                                               obj_responses)) {
           all_thetas.push_back(atan((sigma_Y * y) / (sigma_X * x)));
       }
     }
