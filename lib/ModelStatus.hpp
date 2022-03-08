@@ -22,18 +22,18 @@ class ModelStatus : public BaseStatus {
     void set_state(double progress, string status, bool busy);
 
   public:
-    ModelStatus(string id) : BaseStatus(
+    ModelStatus(string model_id) : BaseStatus(
       "model_status",
       "ModelStatus",
       model_id
-    ), model_id(id) {}
+    ), model_id(model_id) {}
 
-    ModelStatus(string id, Database* database) : BaseStatus(
+    ModelStatus(string model_id, Database* database) : BaseStatus(
       "model_status",
       "ModelStatus",
       model_id,
       database
-    ), model_id(id) {}
+    ), model_id(model_id) {}
 
     ~ModelStatus(){}
 
