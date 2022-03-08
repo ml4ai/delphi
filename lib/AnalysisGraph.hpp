@@ -1083,9 +1083,6 @@ class AnalysisGraph {
    ============================================================================
   */
 
-  void partition_data_according_to_period(int hn_id, std::vector<double> &mean_sequence,
-                                          std::vector<int> &ts_sequence);
-
   /**
    * Linear interpolate between bin midpoints. Midpoints are calculated only
    * when two consecutive modeling time steps has observations. Midpoints
