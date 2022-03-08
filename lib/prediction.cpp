@@ -112,8 +112,6 @@ void AnalysisGraph::generate_latent_state_sequences(
 
                   this->current_latent_state = A * this->current_latent_state;
               }
-              //this->update_latent_state_with_generated_derivatives(0, initial_prediction_step);
-              //this->current_latent_state = A * this->current_latent_state;
 
               this->update_latent_state_with_generated_derivatives(
                           initial_prediction_step, initial_prediction_step + 1);
@@ -134,7 +132,6 @@ void AnalysisGraph::generate_latent_state_sequences(
 
           // Evolving the system till the initial_prediction_step
           if (this->head_node_model == HeadNodeModel::HNM_FOURIER) {
-              //this->predicted_latent_state_sequences[samp][0] =
               this->current_latent_state = A.pow(initial_prediction_step) *
                                     this->initial_latent_state_collection[samp];
           } else {
