@@ -23,15 +23,27 @@ void AnalysisGraph::assemble_base_LDS(InitialDerivative id) {
     this->derivative_prior_variance = 0.1;
     this->set_default_initial_state(id);
 
-    if (this->continuous &&
-                          this->head_node_model == HeadNodeModel::HNM_FOURIER) {
+    if (this->head_node_model == HeadNodeModel::HNM_FOURIER) {
         auto [A_fourier_full_base, s0_fourier_full] =
                        fit_seasonal_head_node_model_via_fourier_decomposition();
 
         int n_verts = this->num_vertices();
         int n_concept_rows = 2 * n_verts;
-        A_fourier_full_base.topLeftCorner(n_concept_rows, n_concept_rows) =
+
+        if (this->continuous) {
+            A_fourier_full_base.topLeftCorner(n_concept_rows, n_concept_rows) =
                                                                this->A_original;
+        } else { /// Discrete
+            A_fourier_full_base = (A_fourier_full_base * this->delta_t).exp();
+
+            for (int bn_id: this->body_nodes) {
+                int bn_dot_row = 2 * bn_id;
+
+                A_fourier_full_base.block(bn_dot_row, 0, 2, n_concept_rows) =
+                                     this->A_original.middleRows(bn_dot_row, 2);
+            }
+        }
+
         this->A_original = A_fourier_full_base;
 
         for (int bn_id: this->body_nodes) {
@@ -91,14 +103,20 @@ void AnalysisGraph::set_base_transition_matrix() {
     // Discretized version
     // A_d = I + A_c × Δt
     // Fill the Δts
-    for (int vert = 0; vert < lds_size; vert++) {
-        // Filling the diagonal (Adding I)
-        this->A_original(vert, vert) = 1;
+    for (int vert = 0; vert < n_verts; vert++) {
+        if (this->head_node_model == HeadNodeModel::HNM_FOURIER &&
+            this->head_nodes.find(vert) != this->head_nodes.end())
+            continue;
 
-        if (vert % 2 == 0) {
-            // Fill the Δts
-            this->A_original(vert, vert + 1) = this->delta_t;
-        }
+        int dot_row = 2 * vert;
+        int dot_dot_row = dot_row + 1;
+
+        // Filling the diagonal (Adding I)
+        this->A_original(dot_row, dot_row) = 1;
+        this->A_original(dot_dot_row, dot_dot_row) = 1;
+
+        // Fill the Δts
+        this->A_original(dot_row, dot_dot_row) = this->delta_t;
     }
   }
 }
