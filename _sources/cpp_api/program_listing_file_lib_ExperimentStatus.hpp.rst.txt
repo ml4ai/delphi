@@ -35,8 +35,8 @@ Program Listing for File ExperimentStatus.hpp
            string experiment_id,
            string model_id 
        ) : BaseStatus(
-         "experiment_status",
          "ExperimentStatus",
+         "experiment_status",
          experiment_id
        ), experiment_id(experiment_id), model_id(model_id){}
    
@@ -45,8 +45,8 @@ Program Listing for File ExperimentStatus.hpp
            string model_id,
            Database* database
        ) : BaseStatus(
-         "experiment_status",
          "ExperimentStatus",
+         "experiment_status",
          experiment_id,
          database
        ), experiment_id(experiment_id), model_id(model_id){}
