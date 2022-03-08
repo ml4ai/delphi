@@ -9,7 +9,6 @@
 #include <boost/uuid/uuid_generators.hpp> // generators
 #include <boost/uuid/uuid_io.hpp>         // streaming operators etc.
 #include <boost/asio/ip/host_name.hpp>    // hostname
-#include <ctime>
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <range/v3/all.hpp>
@@ -70,19 +69,27 @@ class Experiment {
         double endTime = request_body["experimentParam"]["endTime"];
         int numTimesteps = request_body["experimentParam"]["numTimesteps"];
 
-
         FormattedProjectionResult causemos_experiment_result =
             G.run_causemos_projection_experiment_from_json_string(
                 request.body());
 
+        ExperimentStatus es(experiment_id, modelId, sqlite3DB);
+
         if (!trained) {
-            sqlite3DB->insert_into_delphimodel(
-                modelId, G.serialize_to_json_string(false));
+            if(!sqlite3DB->insert_into_delphimodel(
+                modelId, G.serialize_to_json_string(false))) {
+		es.enter_finished_state("Could not insert model into database");
+		return;
+	    }
         }
 
         json result =
             sqlite3DB->select_causemosasyncexperimentresult_row(experiment_id);
 
+	if(result.empty()) {
+            es.enter_finished_state("Could find experiment in database");
+	    return;  // experiment not found
+	}
         /*
             A rudimentary test to see if the projection failed. We check whether
             the number time steps is equal to the number of elements in the
@@ -116,14 +123,19 @@ class Experiment {
             }
         }
 
-        sqlite3DB->insert_into_causemosasyncexperimentresult(
+	if(!sqlite3DB->insert_into_causemosasyncexperimentresult(
             result["id"],
             result["status"],
             result["experimentType"],
-            result["results"].dump());
-
-        ExperimentStatus es(experiment_id, modelId, sqlite3DB);
-        es.enter_finished_state();
+            result["results"].dump()
+        )) {
+            es.enter_finished_state(
+                "Unable to insert experiment into database"
+            );
+	}
+	else {
+            es.enter_finished_state((string)result["status"]);
+	}
     }
 
     static void runExperiment(Database* sqlite3DB,
@@ -134,47 +146,50 @@ class Experiment {
         string experiment_type = request_body["experimentType"];
 
 	ModelStatus ms(modelId, sqlite3DB);
+	ExperimentStatus es(experiment_id, modelId, sqlite3DB);
 
         json query_result = sqlite3DB->select_delphimodel_row(modelId);
 
-        if (ms.get_data().empty()) {
+        if (ms.read_data().empty()) {
             // Model ID not in database.
             query_result = sqlite3DB->select_causemosasyncexperimentresult_row(
                 experiment_id);
-            sqlite3DB->insert_into_causemosasyncexperimentresult(
+            if(!sqlite3DB->insert_into_causemosasyncexperimentresult(
                 query_result["id"],
                 "failed",
                 query_result["experimentType"],
-                query_result["results"]);
-            return;
+                query_result["results"])
+             ) {
+                es.enter_finished_state(
+                    "Unable to insert experiment into database"
+                );
+		return;
+	    }
+
         }
 
-	ExperimentStatus es(experiment_id, modelId, sqlite3DB);
 	es.enter_reading_state();
 
         string model = query_result["model"];
         bool trained = nlohmann::json::parse(model)["trained"];
 
-
         AnalysisGraph G;
         G = G.deserialize_from_json_string(model, false);
 	G.experiment_id = experiment_id;
 
-        if (experiment_type == "PROJECTION")
+	if(experiment_type == "PROJECTION") {
             runProjectionExperiment(
-                sqlite3DB, request, modelId, experiment_id, G, trained);
-        else if (experiment_type == "GOAL_OPTIMIZATION")
-            ; // Not yet implemented
-        else if (experiment_type == "SENSITIVITY_ANALYSIS")
-            ; // Not yet implemented
-        else if (experiment_type == "MODEL_VALIDATION")
-            ; // Not yet implemented
-        else if (experiment_type == "BACKCASTING")
-            ; // Not yet implemented
-        else
-            ; // Unknown experiment type
-    }
+                sqlite3DB, request, modelId, experiment_id, G, trained
+            );
+	}
 
+        /* experiment types not implemented:
+        GOAL_OPTIMIZATION
+        SENSITIVITY_ANALYSIS
+        MODEL_VALIDATION
+        BACKCASTING
+        */
+    }
 };
 
 class Model {
@@ -192,11 +207,16 @@ class Model {
 	G.id = model_id;
         G.run_train_model(res, burn);
 	ms.enter_writing_state();
-        sqlite3DB->insert_into_delphimodel(
+        if(!sqlite3DB->insert_into_delphimodel(
             model_id,
             G.serialize_to_json_string(false)
-        );
-	ms.enter_finished_state();
+        )) {
+            ms.enter_finished_state(
+                "Error, unable to insert trained model into database"
+            );
+	    return;
+	} 
+	ms.enter_finished_state("Trained");
     }
 
     static size_t get_kde_kernels() {
@@ -245,40 +265,34 @@ class Model {
     }
 };
 
-
 // System runtime parameters returned by the 'status' endpoint
 std::string getSystemStatus() {
 
-    // report the host machine name
-    const auto host_name = boost::asio::ip::host_name(); 
+  // report the host machine name
+  const auto host_name = boost::asio::ip::host_name(); 
 
-    // report the run mode.  CI is used for debugging.
-    const auto run_mode = getenv("CI") ? "CI" : "normal";
+  // report the run mode.  CI is used for debugging.
+  const auto run_mode = getenv("CI") ? "CI" : "normal";
 
-    // report the start time
-    char timebuf[200];
-    time_t t;
-    struct tm *now;
-    const char* fmt = "%F %T";
-    t = time(NULL);
-    now = gmtime(&t);
-    if (now == NULL) {
-      perror("gmtime error");
-      exit(EXIT_FAILURE);
-    }
-    if (strftime(timebuf, sizeof(timebuf), fmt, now) == 0) {
-      fprintf(stderr, "strftime returned 0");
-      exit(EXIT_FAILURE);
-    }
+  // report the start time
+  timeval curTime;
+  gettimeofday(&curTime, NULL);
+  int milli = curTime.tv_usec / 1000;
 
-    std::string system_status = "The Delphi REST API was started on "
-      + host_name
-      + " in "
-      + run_mode
-      + " mode at UTC "
-      + timebuf;
+  char buffer [80];
+  strftime(buffer, 80, "%Y-%m-%d %H:%M:%S", localtime(&curTime.tv_sec));
 
-    return system_status;
+  char current_time[84] = "";
+  sprintf(current_time, "%s:%03d", buffer, milli);
+
+  std::string system_status = "The Delphi REST API was started on "
+    + host_name
+    + " in "
+    + run_mode
+    + " mode at UTC "
+    + current_time;
+
+  return system_status;
 }
 
 // the system status only has to be generated once.
@@ -315,8 +329,8 @@ int main(int argc, const char* argv[]) {
     // prepare the model and experiment databases for use
     ModelStatus ms("startup", sqlite3DB);
     ExperimentStatus es("startup", "startup", sqlite3DB);
-    ms.clean_db();
-    es.clean_db();
+    ms.initialize();
+    es.initialize();
 
     /* Allow users to check if the REST API is running */
     mux.handle("/status").get(
@@ -346,11 +360,11 @@ int main(int argc, const char* argv[]) {
 	    ModelStatus ms(modelId, sqlite3DB);
 
 	    // check for existence of record, add if needed.
-	    if(ms.get_data().empty()) {
+	    if(ms.read_data().empty()) {
               ms.enter_initial_state();
             }
 
-            json model_status_data = ms.get_data();
+            json model_status_data = ms.read_data();
 	    bool model_busy = model_status_data[ms.BUSY];
 
             // do not overwrite model if it is busy
@@ -377,10 +391,15 @@ int main(int argc, const char* argv[]) {
             G.set_n_kde_kernels(kde_kernels);
             G.from_causemos_json_dict(req_json, 0, 0);
 
-            sqlite3DB->insert_into_delphimodel(
+            if(!sqlite3DB->insert_into_delphimodel(
                 modelId, 
 		G.serialize_to_json_string(false)
-            );
+            )) {
+                json error;
+                error["status"] = "server error: unable to insert into delphimodel";
+                response << error.dump();
+                return error.dump();
+	    }
 
             auto response_json =
                 nlohmann::json::parse(G.generate_create_model_response());
@@ -433,7 +452,7 @@ int main(int argc, const char* argv[]) {
             ret[es.MODEL_ID] = modelId;
             ret[es.EXPERIMENT_ID] = experimentId;
 
-	    json es_data = es.get_data();
+	    json es_data = es.read_data();
 	    if(!es_data.empty()) {
 	      bool busy = es_data[es.BUSY];
 	      if(busy) {
@@ -482,7 +501,7 @@ int main(int argc, const char* argv[]) {
             ret["modelId"] = modelId;
 
 	    ModelStatus ms(modelId, sqlite3DB);
-	    json model_data = ms.get_data();
+	    json model_data = ms.read_data();
 
 	    // Model not found
 	    if(model_data.empty()) {
@@ -510,8 +529,15 @@ int main(int argc, const char* argv[]) {
 	    es.enter_initial_state();
 	    es.enter_reading_state();
 
-            sqlite3DB->insert_into_causemosasyncexperimentresult(
-                experiment_id, "in progress", experiment_type, "");
+            if(!sqlite3DB->insert_into_causemosasyncexperimentresult(
+                experiment_id, "in progress", experiment_type, "")
+            ) {
+                string report = "Unable to insert experiment into database";
+                es.enter_finished_state(report);
+                ret[es.STATUS] = report;
+                res << ret.dump();
+                return ret;
+	    }
 
             try {
                 thread executor_experiment(&Experiment::runExperiment,
@@ -523,6 +549,7 @@ int main(int argc, const char* argv[]) {
             }
             catch (std::exception& e) {
 		string report = "Error: unable to start experiment process";
+                es.enter_finished_state(report);
                 cout << report << endl;
                 ret[es.STATUS] = report;
                 res << ret.dump();
@@ -545,7 +572,7 @@ int main(int argc, const char* argv[]) {
         string modelId = req.params["modelId"];
 
         ModelStatus ms(modelId, sqlite3DB);
-	json model_data = ms.get_data();
+	json model_data = ms.read_data();
         json ret;
         ret[ms.MODEL_ID] = modelId;
 
@@ -595,7 +622,7 @@ int main(int argc, const char* argv[]) {
             string modelId = req.params["modelId"];
 
 	    ModelStatus ms(modelId, sqlite3DB);
-	    json model_data = ms.get_data();
+	    json model_data = ms.read_data();
 
             json ret;
             ret[ms.MODEL_ID] = modelId;
@@ -686,10 +713,13 @@ int main(int argc, const char* argv[]) {
 
             G.set_n_kde_kernels(kde_kernels);
 
-            sqlite3DB->insert_into_delphimodel(
+            if(!sqlite3DB->insert_into_delphimodel(
                 modelId,
                 G.serialize_to_json_string(false)
-            );
+            )) {
+                ret[ms.STATUS] = "server error: unable to insert into delphi model";
+                res << ret.dump();
+	    }
 
             try {
                 thread executor_create_model(&Model::train_model,
