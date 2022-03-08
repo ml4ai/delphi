@@ -1,1 +1,1 @@
-{"early_stopping_threshold":0.001,"model_status_table_name":"model_status","experiment_status_table_name":"experiment_status"}
+{"config_version":"1.0.0","tables":{"model_status":"model_status","experiment_status":"experiment_status"},"early_stopping":{"log_liklihood_delta":0.001,"n_samples":100}}
