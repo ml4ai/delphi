@@ -449,7 +449,6 @@ int main(int argc, const char* argv[]) {
             ExperimentStatus es(experimentId, modelId, sqlite3DB);
 
             json ret;
-            ret[es.MODEL_ID] = modelId;
             ret[es.EXPERIMENT_ID] = experimentId;
 
 	    json es_data = es.read_data();
@@ -478,7 +477,6 @@ int main(int argc, const char* argv[]) {
 	        double progress = es_data.value(es.PROGRESS, 0.0);
                 ret[es.EXPERIMENT_TYPE] = query_result[es.EXPERIMENT_TYPE];
                 ret[es.STATUS] = query_result[es.STATUS];
-                //ret[es.PROGRESS] = query_result[es.PROGRESS];
                 ret[es.PROGRESS] = progress;
                 ret[es.RESULTS] = results["data"];
             }

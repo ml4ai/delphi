@@ -39,20 +39,23 @@ void ModelStatus::set_state(double progress, string status, bool busy) {
   write_data(data);
 }
 
-vector<json> ModelStatus::get_valid_rows() {
-  log_info("get_valid_rows()");
-  vector<json> rows;
-
-  // get all the IDs from the model table
-  string query = "SELECT id FROM " + MODEL_TABLE + ";";
-  vector<string> ids = read_column_text(query);
-
+// load our table with ids of completed experiments
+void ModelStatus::populate_table() {
+  string query = "SELECT " + COL_ID + " FROM " + MODEL_TABLE + ";";
+  vector<string> ids = database->read_column_text(query);
   for(string id : ids) {
-    log_info("id: " + id);
+    json row = database->select_row(MODEL_TABLE, id, COL_MODEL);
+    json model = json::parse((string)row[COL_MODEL]);
+    if(!model.empty()) {
+      bool trained = model.value(TRAINED, false);
+      if(trained) {
+        json data;
+        data[MODEL_ID] = id;
+        data[PROGRESS] = 1.0;
+        data[STATUS] = TRAINED;
+        data[BUSY] = false;
+	insert_data(id, data);
+      }
+    }
   }
-  
-
-  return rows;
 }
-
-

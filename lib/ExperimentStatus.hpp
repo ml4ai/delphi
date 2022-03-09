@@ -17,7 +17,7 @@ class ExperimentStatus : public BaseStatus {
 
   protected:
     void set_state(double progress, string status, bool busy);
-    vector<json> get_valid_rows();
+    void populate_table();
 
   public:
     ExperimentStatus(
@@ -54,10 +54,11 @@ class ExperimentStatus : public BaseStatus {
     const string EXPERIMENT_ID = "experimentId"; // API
     const string EXPERIMENT_PARAM = "experimentParam"; // API
     const string EXPERIMENT_TYPE = "experimentType"; // API
-    const string MODEL_ID = "modelId"; // API
     const string NUM_TIME_STEPS = "numTimesteps"; // API
     const string RESULTS = "results"; // API
     const string START_TIME = "startTime"; // API
+    const string COMPLETED = "completed"; // API
 
     const string EXPERIMENT_TABLE = "causemosasyncexperimentresult";
+    const string COL_STATUS = "status";
 };

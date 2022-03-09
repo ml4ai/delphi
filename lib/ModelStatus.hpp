@@ -20,7 +20,7 @@ class ModelStatus : public BaseStatus {
 
   protected:
     void set_state(double progress, string status, bool busy);
-    vector<json> get_valid_rows();
+    void populate_table();
 
 
   public:
@@ -50,7 +50,9 @@ class ModelStatus : public BaseStatus {
     const string MODEL_ID = "id"; // API
     const string NODES = "nodes"; // API
     const string EDGES = "edges"; // API
+    const string TRAINED = "trained"; // API
 
     // delphi model table
     const string MODEL_TABLE = "delphimodel";
+    const string COL_MODEL = "model";
 };

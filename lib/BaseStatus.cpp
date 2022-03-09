@@ -28,22 +28,10 @@ bool BaseStatus::insert_query(string query) {
   return false;
 }
 
-vector<string> BaseStatus::read_column_text(string query){
-  return database->read_column_text(query);
-}
-
-
 // Make a clean start with valid data
 void BaseStatus::initialize() {
 
   log_info("BaseStatus::initialize");
-
-  // get rows for from table
-//  vector<string> ids = database->read_column_text_query(table_name, COL_ID);
-//  vector<json> rows;
-//  for(string id : ids) {
-//    rows.push_back(database->select_row(table_name, id, COL_DATA));
-//  }
 
   // drop existing table to remove obsolete table versions
   string query = "DROP TABLE " + table_name + ";";
@@ -63,33 +51,21 @@ void BaseStatus::initialize() {
     return;
   }
 
-  vector<json> rows = get_valid_rows();
+  // add data rows
+  populate_table();
+}
 
-  // add valid data to new table
-  for(json row: rows) {
-    string id = row.value(COL_ID,"");
-    string dataString = row.value(COL_DATA, "");
-    json data = json::parse(dataString);
-    if(!data.empty()) {
-      bool busy = data.value(BUSY, false);
-      double progress = data.value(PROGRESS, 0.0);
-      if(!busy && (progress == 1.0)) {
-        query = "INSERT INTO "
-          + table_name
-          + " VALUES ('"
-          + id
-          + "', '"
-          + dataString
-          +  "');";
-        if(!insert_query(query)) {
-          return;
-        }
-        log_info("keeping " + dataString);
-      } else {
-        log_info("pruning " + dataString);
-      }
-    }
-  }
+
+// add valid data to new table
+void BaseStatus::insert_data(string id, json data){
+  string query = "INSERT INTO "
+    + table_name
+    + " VALUES ('"
+    + id
+    + "', '"
+    + data.dump()
+    +  "');";
+  insert_query(query);
 }
 
 // Start the thread that writes the data to the table
