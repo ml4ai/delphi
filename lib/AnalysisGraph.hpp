@@ -314,6 +314,14 @@ class AnalysisGraph {
     std::vector<std::future<Eigen::MatrixXd>> matrix_exponential_futures;
   #endif
   std::unordered_map<double, Eigen::MatrixXd> e_A_ts;
+
+  // Computed matrix exponentials of A_fourier_base:
+  // e^(A_fourier_base * gap)
+  // for all the gaps we have to advance the system to evolve it to the time
+  // steps where there are observations.
+  // Access: [gap] --> e^(A_fourier_base * gap)
+  std::unordered_map<double, Eigen::MatrixXd> e_A_fourier_ts;
+
   long num_modeling_timesteps_per_one_observation_timestep = 1;
 
   std::unordered_map<int, std::function<double(unsigned int, double)>> external_concepts;
@@ -355,6 +363,9 @@ class AnalysisGraph {
   // I chose to name this A_original. After refactoring the code, we could
   // rename this to A.
   Eigen::MatrixXd A_original;
+
+  // Base transition matrix for the Fourier decomposition based head node model
+  Eigen::MatrixXd A_fourier_base;
 
   // Determines whether to use the continuous version or the discretized
   // version of the solution for the system of differential equations.

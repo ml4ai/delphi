@@ -68,6 +68,7 @@ void AnalysisGraph::generate_latent_state_sequences(
       // the exponentiation of the matrix exponential (continuous) transition
       // matrices.
       MatrixXd A;
+      MatrixXd &A_samp = this->transition_matrix_collection[samp];
 
       if (this->head_node_model == HeadNodeModel::HNM_NAIVE) {
           this->generate_head_node_latent_sequences(
@@ -78,9 +79,15 @@ void AnalysisGraph::generate_latent_state_sequences(
           if (this->head_node_model == HeadNodeModel::HNM_FOURIER) {
               // Here A = Ac = this->transition_matrix_collection[samp] (continuous)
 
+              // Merge sampled base transition matrix defining the relationships
+              // between concepts into the base Fourier decomposition based head
+              // node model transition matrix to get the complete transition
+              // matrix.
+              this->A_fourier_base.topLeftCorner(A_samp.rows(),
+                                                 A_samp.cols()) = A_samp;
+
               // Evolving the system till the initial_prediction_step
-              A = (this->transition_matrix_collection[samp] *
-                                                 initial_prediction_step).exp();
+              A = (this->A_fourier_base * initial_prediction_step).exp();
 
               //this->predicted_latent_state_sequences[samp][0] =
               this->current_latent_state =
@@ -90,10 +97,10 @@ void AnalysisGraph::generate_latent_state_sequences(
               // Δt at a time. So compute the transition matrix for a single
               // step. Computing the matrix exponential for a Δt time step.
               // By default we are using Δt = 1 A = e^{Ac * Δt)
-              A = (this->transition_matrix_collection[samp] * this->delta_t).exp();
+              A = (this->A_fourier_base * this->delta_t).exp();
           } else {
               ///////////////// HeadNodeModel::HNM_NAIVE
-              A = this->transition_matrix_collection[samp].exp();
+              A = A_samp.exp();
 
               // Evolving the system till the initial_prediction_step
               this->current_latent_state =
@@ -128,7 +135,7 @@ void AnalysisGraph::generate_latent_state_sequences(
           // Here A = Ad = this->transition_matrix_collection[samp] (discrete)
           // This is the discrete transition matrix to take a single step of
           // length Δt
-          A = this->transition_matrix_collection[samp];
+          A = A_samp;
 
           // Evolving the system till the initial_prediction_step
           if (this->head_node_model == HeadNodeModel::HNM_FOURIER) {

@@ -26,13 +26,30 @@ void AnalysisGraph::assemble_base_LDS(InitialDerivative id) {
     if (this->head_node_model == HeadNodeModel::HNM_FOURIER) {
         auto [A_fourier_full_base, s0_fourier_full] =
                        fit_seasonal_head_node_model_via_fourier_decomposition();
+        this->A_fourier_base = A_fourier_full_base;
+
+        cout << "\nBase\n\n";
+        cout << this->A_original << "\n\n";
+        cout << A_fourier_full_base << "\n\n";
+        cout << "\nExp\n\n";
+        cout << (this->A_original * 0.5).exp() << "\n\n";
+        cout << (A_fourier_full_base * 0.5).exp() << "\n\n";
 
         int n_verts = this->num_vertices();
         int n_concept_rows = 2 * n_verts;
 
         if (this->continuous) {
-            A_fourier_full_base.topLeftCorner(n_concept_rows, n_concept_rows) =
-                                                               this->A_original;
+            for (double gap : this->observation_timestep_unique_gaps) {
+                this->e_A_fourier_ts[gap] = (this->A_fourier_base * gap).exp();
+            }
+
+//            A_fourier_full_base.topLeftCorner(n_concept_rows, n_concept_rows) =
+//                                                               this->A_original;
+            cout << "\nCombined\n\n";
+            cout << A_fourier_full_base << "\n\n";
+            cout << "\nExp\n\n";
+            cout << (A_fourier_full_base * 0.5).exp() << "\n\n";
+
         } else { /// Discrete
             A_fourier_full_base = (A_fourier_full_base * this->delta_t).exp();
 
@@ -44,7 +61,7 @@ void AnalysisGraph::assemble_base_LDS(InitialDerivative id) {
             }
         }
 
-        this->A_original = A_fourier_full_base;
+        //this->A_original = A_fourier_full_base;
 
         for (int bn_id: this->body_nodes) {
             int bn_val_row = 2 * bn_id;
@@ -242,6 +259,18 @@ void AnalysisGraph::set_log_likelihood() {
                 this->e_A_ts[gap] = (this->A_original * gap).exp();
               }
           #endif
+
+          if (this->head_node_model == HeadNodeModel::HNM_FOURIER) {
+            // Merge exponentiated Fourier decomposition based head node model
+            // transition matrices with the exponentiated transition matrices
+            // defining the relationships between concepts.
+            for (double gap : this->observation_timestep_unique_gaps) {
+                this->e_A_fourier_ts[gap].topLeftCorner(
+                                  this->e_A_ts[gap].rows(),
+                                  this->e_A_ts[gap].cols()) = this->e_A_ts[gap];
+                this->e_A_ts[gap] = this->e_A_fourier_ts[gap];
+            }
+          }
         }
         #ifdef TIME
           this->mcmc_part_duration.second.push_back(11);
