@@ -139,6 +139,14 @@ void AnalysisGraph::generate_latent_state_sequences(
 
           // Evolving the system till the initial_prediction_step
           if (this->head_node_model == HeadNodeModel::HNM_FOURIER) {
+
+              // Merge sampled base transition matrix defining the relationships
+              // between concepts into the base Fourier decomposition based head
+              // node model transition matrix to get the complete transition
+              // matrix.
+              this->A_fourier_base.topLeftCorner(A_samp.rows(),
+                                                        A_samp.cols()) = A_samp;
+              A = this->A_fourier_base;
               this->current_latent_state = A.pow(initial_prediction_step) *
                                     this->initial_latent_state_collection[samp];
           } else {

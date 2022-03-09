@@ -28,40 +28,13 @@ void AnalysisGraph::assemble_base_LDS(InitialDerivative id) {
                        fit_seasonal_head_node_model_via_fourier_decomposition();
         this->A_fourier_base = A_fourier_full_base;
 
-        cout << "\nBase\n\n";
-        cout << this->A_original << "\n\n";
-        cout << A_fourier_full_base << "\n\n";
-        cout << "\nExp\n\n";
-        cout << (this->A_original * 0.5).exp() << "\n\n";
-        cout << (A_fourier_full_base * 0.5).exp() << "\n\n";
-
-        int n_verts = this->num_vertices();
-        int n_concept_rows = 2 * n_verts;
-
         if (this->continuous) {
             for (double gap : this->observation_timestep_unique_gaps) {
                 this->e_A_fourier_ts[gap] = (this->A_fourier_base * gap).exp();
             }
-
-//            A_fourier_full_base.topLeftCorner(n_concept_rows, n_concept_rows) =
-//                                                               this->A_original;
-            cout << "\nCombined\n\n";
-            cout << A_fourier_full_base << "\n\n";
-            cout << "\nExp\n\n";
-            cout << (A_fourier_full_base * 0.5).exp() << "\n\n";
-
         } else { /// Discrete
-            A_fourier_full_base = (A_fourier_full_base * this->delta_t).exp();
-
-            for (int bn_id: this->body_nodes) {
-                int bn_dot_row = 2 * bn_id;
-
-                A_fourier_full_base.block(bn_dot_row, 0, 2, n_concept_rows) =
-                                     this->A_original.middleRows(bn_dot_row, 2);
-            }
+            this->A_fourier_base = (this->A_fourier_base * this->delta_t).exp();
         }
-
-        //this->A_original = A_fourier_full_base;
 
         for (int bn_id: this->body_nodes) {
             int bn_val_row = 2 * bn_id;
@@ -121,16 +94,16 @@ void AnalysisGraph::set_base_transition_matrix() {
     // A_d = I + A_c × Δt
     // Fill the Δts
     for (int vert = 0; vert < n_verts; vert++) {
-        if (this->head_node_model == HeadNodeModel::HNM_FOURIER &&
-            this->head_nodes.find(vert) != this->head_nodes.end())
-            continue;
-
         int dot_row = 2 * vert;
         int dot_dot_row = dot_row + 1;
 
         // Filling the diagonal (Adding I)
         this->A_original(dot_row, dot_row) = 1;
         this->A_original(dot_dot_row, dot_dot_row) = 1;
+
+        if (this->head_node_model == HeadNodeModel::HNM_FOURIER &&
+            this->head_nodes.find(vert) != this->head_nodes.end())
+            continue;
 
         // Fill the Δts
         this->A_original(dot_row, dot_dot_row) = this->delta_t;
@@ -355,9 +328,13 @@ void AnalysisGraph::set_log_likelihood() {
               this->set_log_likelihood_helper(ts);
           }
       } else { /// HeadNodeModel::HNM_FOURIER
+          this->A_fourier_base.topLeftCorner(this->A_original.rows(),
+                                             this->A_original.cols()) =
+                                                               this->A_original;
           for (int ts = 0; ts < this->n_timesteps; ts++) {
               this->set_log_likelihood_helper(ts);
-              this->current_latent_state = this->A_original * this->current_latent_state;
+              this->current_latent_state = this->A_fourier_base *
+                                                     this->current_latent_state;
           }
       }
   }
