@@ -190,6 +190,7 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
         this->continuous = json_data["continuous"];
         this->data_heuristic = json_data["data_heuristic"];
         this->causemos_call = json_data["causemos_call"];
+        this->head_node_model = json_data["head_node_model"];
 
         int num_verts = this->num_vertices();
         int num_els_per_mat = num_verts * num_verts;
@@ -209,7 +210,7 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
                 //json_data["S0s"][samp * num_verts + row] = this->initial_latent_state_collection[samp](row * 2 + 1);
 
                 for (int col = 0; col < num_verts; col++) {
-                    this->A_original(row * 2, col * 2 + 1) = json_data["matrices"][samp * num_els_per_mat + row * num_verts + col]; 
+                    this->A_original(row * 2, col * 2 + 1) = json_data["matrices"][samp * num_els_per_mat + row * num_verts + col];
                     //json_data["matrices"][samp * num_els_per_mat + row * num_verts + col] = this->transition_matrix_collection[samp](row * 2, col * 2 + 1);
                 }
             }
@@ -218,8 +219,61 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
         }
         this->MAP_sample_number = json_data["MAP_sample_number"];
         this->log_likelihood_MAP = json_data["log_likelihood_MAP"];
+
+        if (this->head_node_model == HNM_FOURIER) {
+            // Look at the portion where the matrix is serialized in
+            // AnalysisGraph::serialize_to_json_string() methon (to_json.cpp)
+            // for detailed comments.
+            vector<int> head_node_ids_sorted = json_data["head_node_ids"]
+                                                            .get<vector<int>>();
+            int sinusoidal_rows = json_data["sinusoidal_rows"];
+            int n_verts = this->num_vertices();
+            int sinusoidal_start_idx = 2 * n_verts;
+
+            int lds_size = sinusoidal_start_idx + sinusoidal_rows;
+            this->A_fourier_base = Eigen::MatrixXd::Zero(lds_size, lds_size);
+
+            int fouri_val_idx = 0;
+
+            // Extract Fourier coefficients of seasonal head nodes
+            for (int hn_idx = 0; hn_idx < head_node_ids_sorted.size();
+                                                                     hn_idx++) {
+                int hn_id = head_node_ids_sorted[hn_idx];
+                int dot_row = 2 * hn_id;
+
+                // Extract coefficients for derivative row and second derivative
+                // row.
+                for (int row : {dot_row, dot_row + 1}) {
+                    // Extract coefficients for one row
+                    for (int col = 0; col < sinusoidal_rows; col++) {
+                        this->A_fourier_base(row, sinusoidal_start_idx + col) =
+                                   json_data["A_fourier_base"][fouri_val_idx++];
+                    }
+                }
+            }
+
+            // Extracting different frequency sinusoidal curves generating
+            // portions
+            for (int row = 0; row < sinusoidal_rows; row += 2) {
+                int dot_row = sinusoidal_start_idx + row;
+
+                if (this->continuous) {
+                    this->A_fourier_base(dot_row, dot_row + 1) = 1;
+                    this->A_fourier_base(dot_row + 1, dot_row) =
+                                   json_data["A_fourier_base"][fouri_val_idx++];
+                } else {
+                    for (int r = 0; r < 2; r++) {
+                        for (int c = 0; c < 2; c++) {
+                            this->A_fourier_base(dot_row + r, dot_row + c) =
+                                   json_data["A_fourier_base"][fouri_val_idx++];
+                        }
+                    }
+                }
+            }
+        }
     }
 }
+
 /*
  ============================================================================
  Public: Model serialization
