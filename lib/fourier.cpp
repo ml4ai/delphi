@@ -602,6 +602,39 @@ AnalysisGraph::assemble_all_seasonal_head_node_modeling_LDS(
 }
 
 /**
+ * Merges the LDS that defines relationships between concepts into the Fourier
+ * decomposition based seasonal head node model LDS.
+ * The transition matrix of the concept LDS is inserted as the first block along
+ * the diagonal of the seasonal head node model transition matrix.
+ * The initial states of the concept LDS and the seasonal head node models are
+ * merged such that the head node states are taken from the seasonal head node
+ * model initial state and the body node states are taken from the initial state
+ * of the concept LDS.
+ * The initial state merging math counts on that seasonal head node model
+ * initial state has zeros for body node state and the concept LDS initial state
+ * has zeros for head node state. This way, we could sum the two states to
+ * combine them.
+ * The merged LDS becomes available in the two member variables:
+ * A_fourier_base and current_latent_state.
+ * @param A_concept_base: The base transition matrix of the concept LDS
+ * @param s0_concept: The initial states of the concept LDS
+ */
+void AnalysisGraph::merge_concept_LDS_into_seasonal_head_node_modeling_LDS(
+                                          const Eigen::MatrixXd &A_concept_base,
+                                          const Eigen::VectorXd s0_concept) {
+    // Merge the initial state for concepts with the initial state for
+    // Fourier decomposition based seasonal head node model.
+    this->current_latent_state = this->s0_fourier;
+    this->current_latent_state.head(s0_concept.size()) += s0_concept;
+
+    // Merge the transition matrix for concepts with the transition matrix
+    // for Fourier decomposition based seasonal head node model.
+    this->A_fourier_base.topLeftCorner(A_concept_base.rows(),
+                                       A_concept_base.cols()) =
+                                                                 A_concept_base;
+}
+
+/**
  * Evolves the provided LDS (A_base and _s0) for n_time_steps modeling time
  * steps and outputs the prediction matrix to a csv file:
  *      col 2i   - Predictions for variable i in the system

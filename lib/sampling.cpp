@@ -342,16 +342,9 @@ void AnalysisGraph::set_log_likelihood() {
               this->set_log_likelihood_helper(ts);
           }
       } else { /// HeadNodeModel::HNM_FOURIER
-          // Merge the initial state for concepts with the initial state for
-          // Fourier decomposition based seasonal head node model.
-          this->current_latent_state = this->s0_fourier;
-          this->current_latent_state.head(this->s0.size()) += this->s0;
+          this->merge_concept_LDS_into_seasonal_head_node_modeling_LDS(
+                                                    this->A_original, this->s0);
 
-          // Merge the transition matrix for concepts with the transition matrix
-          // for Fourier decomposition based seasonal head node model.
-          this->A_fourier_base.topLeftCorner(this->A_original.rows(),
-                                             this->A_original.cols()) =
-                                                               this->A_original;
           for (int ts = 0; ts < this->n_timesteps; ts++) {
               this->set_log_likelihood_helper(ts);
               this->current_latent_state = this->A_fourier_base *

@@ -71,19 +71,8 @@ void AnalysisGraph::generate_latent_state_sequences(
       MatrixXd &A_samp = this->transition_matrix_collection[samp];
 
       if (this->head_node_model == HeadNodeModel::HNM_FOURIER) {
-          // Merge the initial state for concepts with the initial state for
-          // Fourier decomposition based seasonal head node model.
-          this->current_latent_state = this->s0_fourier;
-          this->current_latent_state.head(
-              this->initial_latent_state_collection[samp].size()) +=
-                                    this->initial_latent_state_collection[samp];
-
-          // Merge sampled base transition matrix defining the relationships
-          // between concepts into the base Fourier decomposition based head
-          // node model transition matrix to get the complete transition
-          // matrix.
-          this->A_fourier_base.topLeftCorner(A_samp.rows(),
-                                                        A_samp.cols()) = A_samp;
+          this->merge_concept_LDS_into_seasonal_head_node_modeling_LDS(
+                 A_samp, this->initial_latent_state_collection[samp]);
       } else {
           this->current_latent_state =
                                     this->initial_latent_state_collection[samp];
