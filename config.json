@@ -1,1 +1,7 @@
-{"config_version":"1.0.0","tables":{"model_status":"model_status","experiment_status":"experiment_status"},"early_stopping":{"log_liklihood_delta":0.001,"n_samples":100}}
+{
+  "config_version": "1.0.0",
+  "model_status": "model_status",
+  "experiment_status": "experiment_status",
+  "log_liklihood_delta": 0.001,
+  "n_samples": 100
+}
