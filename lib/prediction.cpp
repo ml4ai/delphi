@@ -70,28 +70,36 @@ void AnalysisGraph::generate_latent_state_sequences(
       MatrixXd A;
       MatrixXd &A_samp = this->transition_matrix_collection[samp];
 
-      if (this->head_node_model == HeadNodeModel::HNM_NAIVE) {
+      if (this->head_node_model == HeadNodeModel::HNM_FOURIER) {
+          // Merge the initial state for concepts with the initial state for
+          // Fourier decomposition based seasonal head node model.
+          this->current_latent_state = this->s0_fourier;
+          this->current_latent_state.head(
+              this->initial_latent_state_collection[samp].size()) +=
+                                    this->initial_latent_state_collection[samp];
+
+          // Merge sampled base transition matrix defining the relationships
+          // between concepts into the base Fourier decomposition based head
+          // node model transition matrix to get the complete transition
+          // matrix.
+          this->A_fourier_base.topLeftCorner(A_samp.rows(),
+                                                        A_samp.cols()) = A_samp;
+      } else {
+          this->current_latent_state =
+                                    this->initial_latent_state_collection[samp];
           this->generate_head_node_latent_sequences(
-                          samp, initial_prediction_step + this->pred_timesteps);
+              samp, initial_prediction_step + this->pred_timesteps);
       }
 
       if (this->continuous) {
           if (this->head_node_model == HeadNodeModel::HNM_FOURIER) {
               // Here A = Ac = this->transition_matrix_collection[samp] (continuous)
 
-              // Merge sampled base transition matrix defining the relationships
-              // between concepts into the base Fourier decomposition based head
-              // node model transition matrix to get the complete transition
-              // matrix.
-              this->A_fourier_base.topLeftCorner(A_samp.rows(),
-                                                 A_samp.cols()) = A_samp;
-
               // Evolving the system till the initial_prediction_step
               A = (this->A_fourier_base * initial_prediction_step).exp();
 
               //this->predicted_latent_state_sequences[samp][0] =
-              this->current_latent_state =
-                                A * this->initial_latent_state_collection[samp];
+              this->current_latent_state = A * this->current_latent_state;
 
               // After jumping to time step ips - 1, we take one step of length
               // Δt at a time. So compute the transition matrix for a single
@@ -103,9 +111,6 @@ void AnalysisGraph::generate_latent_state_sequences(
               A = A_samp.exp();
 
               // Evolving the system till the initial_prediction_step
-              this->current_latent_state =
-                                    this->initial_latent_state_collection[samp];
-
               for (int ts = 0; ts < initial_prediction_step; ts++) {
                   this->update_latent_state_with_generated_derivatives(ts,
                                                                         ts + 1);
@@ -135,24 +140,15 @@ void AnalysisGraph::generate_latent_state_sequences(
           // Here A = Ad = this->transition_matrix_collection[samp] (discrete)
           // This is the discrete transition matrix to take a single step of
           // length Δt
-          A = A_samp;
 
           // Evolving the system till the initial_prediction_step
           if (this->head_node_model == HeadNodeModel::HNM_FOURIER) {
-
-              // Merge sampled base transition matrix defining the relationships
-              // between concepts into the base Fourier decomposition based head
-              // node model transition matrix to get the complete transition
-              // matrix.
-              this->A_fourier_base.topLeftCorner(A_samp.rows(),
-                                                        A_samp.cols()) = A_samp;
               A = this->A_fourier_base;
               this->current_latent_state = A.pow(initial_prediction_step) *
-                                    this->initial_latent_state_collection[samp];
+                                                     this->current_latent_state;
           } else {
               ///////////////// HeadNodeModel::HNM_NAIVE
-              this->current_latent_state =
-                  this->initial_latent_state_collection[samp];
+              A = A_samp;
 
               for (int ts = 0; ts < initial_prediction_step; ts++) {
                   this->update_latent_state_with_generated_derivatives(ts,

@@ -366,6 +366,8 @@ class AnalysisGraph {
 
   // Base transition matrix for the Fourier decomposition based head node model
   Eigen::MatrixXd A_fourier_base;
+  // Initial state for the Fourier decomposition based head node model
+  Eigen::VectorXd s0_fourier;
 
   // Determines whether to use the continuous version or the discretized
   // version of the solution for the system of differential equations.

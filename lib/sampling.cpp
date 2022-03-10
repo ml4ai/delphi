@@ -27,6 +27,10 @@ void AnalysisGraph::assemble_base_LDS(InitialDerivative id) {
         auto [A_fourier_full_base, s0_fourier_full] =
                        fit_seasonal_head_node_model_via_fourier_decomposition();
         this->A_fourier_base = A_fourier_full_base;
+        this->s0_fourier = s0_fourier_full;
+        cout << "Base\n";
+        cout << s0_fourier_full << "\n\n";
+        cout << this->s0 << "\n\n";
 
         if (this->continuous) {
             for (double gap : this->observation_timestep_unique_gaps) {
@@ -41,7 +45,13 @@ void AnalysisGraph::assemble_base_LDS(InitialDerivative id) {
             s0_fourier_full(bn_val_row) = this->s0(bn_val_row);
             s0_fourier_full(bn_val_row + 1) = this->s0(bn_val_row + 1);
         }
-        this->s0 = s0_fourier_full;
+        this->current_latent_state = this->s0_fourier;
+        this->current_latent_state.head(this->s0.size()) += this->s0;
+        cout << "Combined\n";
+        cout << this->current_latent_state << "\n\n";
+
+        cout << "Combined\n";
+        cout << s0_fourier_full << "\n\n";
     }
 }
 
@@ -251,7 +261,6 @@ void AnalysisGraph::set_log_likelihood() {
                                  this->mcmc_part_duration.second.end());
         #endif
       }
-      this->current_latent_state = this->s0;
 
       {
         #ifdef TIME
@@ -262,6 +271,7 @@ void AnalysisGraph::set_log_likelihood() {
           Timer t_part = Timer("Log Likelihood", this->mcmc_part_duration);
         #endif
         if (this->head_node_model == HeadNodeModel::HNM_NAIVE) {
+          this->current_latent_state = this->s0;
           int ts_monthly = 0;
           for (int ts = 0; ts < this->n_timesteps; ts++) {
 
@@ -286,6 +296,11 @@ void AnalysisGraph::set_log_likelihood() {
             this->set_log_likelihood_helper(ts);
           }
         } else { /// HeadNodeModel::HNM_FOURIER
+          // Merge the initial state for concepts with the initial state for
+          // Fourier decomposition based seasonal head node model.
+          this->current_latent_state = this->s0_fourier;
+          this->current_latent_state.head(this->s0.size()) += this->s0;
+
           this->set_log_likelihood_helper(0);
 
           for (int ts = 1; ts < this->n_timesteps; ts++) {
@@ -303,9 +318,8 @@ void AnalysisGraph::set_log_likelihood() {
       #endif
   } else {
       // Discretized version
-      this->current_latent_state = this->s0;
-
       if (this->head_node_model == HeadNodeModel::HNM_NAIVE) {
+          this->current_latent_state = this->s0;
           int ts_monthly = 0;
 
           for (int ts = 0; ts < this->n_timesteps; ts++) {
@@ -328,6 +342,13 @@ void AnalysisGraph::set_log_likelihood() {
               this->set_log_likelihood_helper(ts);
           }
       } else { /// HeadNodeModel::HNM_FOURIER
+          // Merge the initial state for concepts with the initial state for
+          // Fourier decomposition based seasonal head node model.
+          this->current_latent_state = this->s0_fourier;
+          this->current_latent_state.head(this->s0.size()) += this->s0;
+
+          // Merge the transition matrix for concepts with the transition matrix
+          // for Fourier decomposition based seasonal head node model.
           this->A_fourier_base.topLeftCorner(this->A_original.rows(),
                                              this->A_original.cols()) =
                                                                this->A_original;
@@ -549,16 +570,21 @@ void AnalysisGraph::set_default_initial_state(InitialDerivative id) {
   //    indexes 2*v+1 keeps track of the state of ∂v/∂t
   int num_els = this->num_vertices() * 2;
 
-  this->s0 = VectorXd(num_els);
-  this->s0.setZero();
+  this->s0 = VectorXd::Zero(num_els);
 
   for (int i = 0; i < num_els; i += 2) {
+      if (this->head_node_model == HeadNodeModel::HNM_FOURIER &&
+                             this->head_nodes.find(i) != this->head_nodes.end())
+          continue;
     this->s0(i) = 1.0;
   }
 
   if (this->MAP_sample_number > -1) {
     // Warm start using the MAP estimate of the previous training run
     for (int i = 1; i < num_els; i += 2) {
+        if (this->head_node_model == HeadNodeModel::HNM_FOURIER &&
+                             this->head_nodes.find(i) != this->head_nodes.end())
+            continue;
       this->s0(i) = this->initial_latent_state_collection
                                                    [this->MAP_sample_number](i);
     }
@@ -566,6 +592,9 @@ void AnalysisGraph::set_default_initial_state(InitialDerivative id) {
   else if (id == InitialDerivative::DERI_PRIOR) {
     double derivative_prior_std = sqrt(this->derivative_prior_variance);
     for (int i = 1; i < num_els; i += 2) {
+        if (this->head_node_model == HeadNodeModel::HNM_FOURIER &&
+                             this->head_nodes.find(i) != this->head_nodes.end())
+            continue;
       this->s0(i) = derivative_prior_std *
                     this->norm_dist(this->rand_num_generator);
     }
