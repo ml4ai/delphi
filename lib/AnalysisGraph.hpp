@@ -927,7 +927,7 @@ class AnalysisGraph {
   void set_base_transition_matrix();
 
   #ifdef MULTI_THREADING
-    void compute_multiple_matrix_exponentials_parallelly();
+    void compute_multiple_matrix_exponentials_parallelly(const Eigen::MatrixXd & A);
   #endif
 
   // Sample elements of the stochastic transition matrix from the

@@ -34,7 +34,7 @@ void AnalysisGraph::initialize_parameters(int res,
     this->set_indicator_means_and_standard_deviations();
     this->assemble_base_LDS(initial_derivative);
     #ifdef MULTI_THREADING
-        this->compute_multiple_matrix_exponentials_parallelly();
+        this->compute_multiple_matrix_exponentials_parallelly(this->A_original);
     #endif
     if (this->head_node_model == HeadNodeModel::HNM_NAIVE) {
         this->generate_head_node_latent_sequences(
@@ -156,7 +156,7 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
 
               if (!obs_at_ts.empty()) {
                   // There is an observation for indicator (v, i) at ts.
-                  ts_sequence.push_back(ts);
+                  ts_sequence.push_back(this->observation_timesteps_sorted[ts]);
                   mean_sequence.push_back(delphi::utils::mean(obs_at_ts));
                   std_sequence.push_back(delphi::utils::standard_deviation(
                                               mean_sequence.back(), obs_at_ts));
@@ -168,12 +168,14 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
                       // head nodes with period > 1.
 
                       // For all the concepts ts = 0 is the start
-                      int partition = ts % n.period;
+                      int partition = this->observation_timesteps_sorted[ts]
+                                                                     % n.period;
 
                       // Note: if there are multiple observations for some
                       // time steps, the length of time step vector and the
                       // observation vector will be different.
-                      n.partitioned_data[partition].first.push_back(ts);
+                      n.partitioned_data[partition].first.push_back(
+                                        this->observation_timesteps_sorted[ts]);
 
                       // Partition the raw observations for now.
                       // Since we fit the seasonal Fourier model for the latent
