@@ -314,12 +314,9 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
                   this->head_nodes.find(v) != this->head_nodes.end()) {
                   // Midpoints are only needed for head nodes with period > 1 to
                   // fit the Fourier decomposition based seasonal model.
-                  this->linear_interpolate_between_bin_midpoints(v,
-                                                                 ts_sequence,
-                                                                 mean_sequence);
-              }
-
-              if (this->head_node_model == HNM_NAIVE) {
+                  n.linear_interpolate_between_bin_midpoints(ts_sequence,
+                                                             mean_sequence);
+              } else { /// head_node_model == HNM_NAIVE
                   n.compute_bin_centers_and_spreads(ts_sequence,
                                                     mean_sequence);
               }
