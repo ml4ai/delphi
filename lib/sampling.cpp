@@ -28,9 +28,6 @@ void AnalysisGraph::assemble_base_LDS(InitialDerivative id) {
                        fit_seasonal_head_node_model_via_fourier_decomposition();
         this->A_fourier_base = A_fourier_full_base;
         this->s0_fourier = s0_fourier_full;
-        cout << "Base\n";
-        cout << s0_fourier_full << "\n\n";
-        cout << this->s0 << "\n\n";
 
         if (this->continuous) {
             for (double gap : this->observation_timestep_unique_gaps) {
@@ -47,11 +44,6 @@ void AnalysisGraph::assemble_base_LDS(InitialDerivative id) {
         }
         this->current_latent_state = this->s0_fourier;
         this->current_latent_state.head(this->s0.size()) += this->s0;
-        cout << "Combined\n";
-        cout << this->current_latent_state << "\n\n";
-
-        cout << "Combined\n";
-        cout << s0_fourier_full << "\n\n";
     }
 }
 

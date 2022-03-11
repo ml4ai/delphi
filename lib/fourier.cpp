@@ -521,7 +521,7 @@ bool AnalysisGraph::determine_the_best_number_of_components(
             inner_product(errors.begin(), errors.end(), errors.begin(), 0.0)
                                                                / errors.size());
 
-        cout << n_components << " : " << rmse << endl;
+        // cout << n_components << " : " << rmse << endl;
         if (hn.rmse_is_reducing) {
             // RMSE for this head node got reduced for this head node for
             // n_components - 1 components.
@@ -693,13 +693,6 @@ void AnalysisGraph::predictions_to_csv(const Eigen::MatrixXd &A_base,
  */
 std::pair<Eigen::MatrixXd, Eigen::VectorXd>
 AnalysisGraph::fit_seasonal_head_node_model_via_fourier_decomposition() {
-
-    // TODO: Just for debugging delete
-    for (int i = 0; i < this->num_vertices(); i++) {
-        Node& hn = (*this)[i];
-        cout << i << " - " << hn.name << " - " << hn.tot_observations << "\n";
-    }
-
     // Group seasonal head nodes according to their seasonality.
     unordered_map<int, vector<int>> period_to_head_nodes;
 
@@ -786,8 +779,9 @@ AnalysisGraph::fit_seasonal_head_node_model_via_fourier_decomposition() {
             }
         }
 
-        Node& hn_dbg = (*this)[hn_ids[0]];  // TODO: Just for debugging delete
-        cout << "Best: " << hn_dbg.best_n_components << " : " << hn_dbg.best_rmse << endl;
+        // Node& hn_dbg = (*this)[hn_ids[0]];  // TODO: Just for debugging delete
+        // cout << "Best: " << hn_dbg.best_n_components << " : "
+        //                                          << hn_dbg.best_rmse << endl;
 
         // Accumulate all the fourier frequencies needed to model all the head
         // nodes with this period
