@@ -207,7 +207,6 @@ class Model {
     ) {
 	G.id = model_id;
         G.run_train_model(res, burn);
-	ms.enter_writing_state();
         if(!sqlite3DB->insert_into_delphimodel(
             model_id,
             G.serialize_to_json_string(false)
