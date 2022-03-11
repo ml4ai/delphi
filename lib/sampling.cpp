@@ -127,10 +127,13 @@ void AnalysisGraph::set_transition_matrix_from_betas() {
 
   if (this->continuous) {
     // Initialize matrix exponential pre-calculation related data structures.
-    unordered_set<double> gaps_set(this->modeling_timestep_gaps.begin() + 1,
-                                   this->modeling_timestep_gaps.end());
+    unordered_set<double> gaps_set;
+
     if (this->head_node_model == HeadNodeModel::HNM_NAIVE) {
         gaps_set.insert(1); // Due to the current head node model
+    } else { /// HeadNodeModel::HNM_FOURIER
+        gaps_set = unordered_set<double>(this->modeling_timestep_gaps.begin() + 1,
+                                         this->modeling_timestep_gaps.end());
     }
     this->observation_timestep_unique_gaps = vector<double>(gaps_set.begin(),
                                                             gaps_set.end());
