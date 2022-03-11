@@ -276,7 +276,6 @@ class AnalysisGraph {
   std::unordered_set<int> head_nodes = {};
   std::vector<double> generated_latent_sequence;
   int generated_concept;
-  HeadNodeModel head_node_model = HeadNodeModel::HNM_NAIVE;//HeadNodeModel::HNM_FOURIER;//
 
   /*
    ============================================================================
@@ -364,6 +363,7 @@ class AnalysisGraph {
   // rename this to A.
   Eigen::MatrixXd A_original;
 
+  HeadNodeModel head_node_model = HeadNodeModel::HNM_NAIVE;//HeadNodeModel::HNM_FOURIER;//
   // Base transition matrix for the Fourier decomposition based head node model
   Eigen::MatrixXd A_fourier_base;
   // Initial state for the Fourier decomposition based head node model
