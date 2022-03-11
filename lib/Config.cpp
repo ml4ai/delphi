@@ -6,22 +6,22 @@
 // This configuration class reads the config file each time
 // a variable is retrieved.
 
-// Return the max samples for early stopping
-int Config::get_early_stopping_n_samples() {
+// Return the max samples for training
+int Config::get_training_n_samples() {
   json config = read_config();
-  if(config.contains(EARLY_STOPPING_N_SAMPLES)){
-    return (int)config[EARLY_STOPPING_N_SAMPLES];
+  if(config.contains(TRAINING_N_SAMPLES)){
+    return (int)config[TRAINING_N_SAMPLES];
   }
-  return DEFAULT_EARLY_STOPPING_N_SAMPLES;
+  return DEFAULT_TRAINING_N_SAMPLES;
 }
 
-// Return the log liklihood delta for early stopping
-double Config::get_early_stopping_log_liklihood_delta() {
+// Return the minimum log liklihood delta for early stopping
+double Config::get_training_min_log_liklihood_delta() {
   json config = read_config();
-  if(config.contains(EARLY_STOPPING_LOG_LIKELIHOOD_DELTA)){
-    return (double)config[EARLY_STOPPING_LOG_LIKELIHOOD_DELTA];
+  if(config.contains(TRAINING_MIN_LOG_LIKELIHOOD_DELTA)){
+    return (double)config[TRAINING_MIN_LOG_LIKELIHOOD_DELTA];
   }
-  return DEFAULT_EARLY_STOPPING_LOG_LIKELIHOOD_DELTA;
+  return DEFAULT_TRAINING_MIN_LOG_LIKELIHOOD_DELTA;
 }
 
 // Return a JSON struct read from the config file

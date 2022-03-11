@@ -1,6 +1,7 @@
 #include "AnalysisGraph.hpp"
 #include "DatabaseHelper.hpp"
 #include "ModelStatus.hpp"
+#include "Config.hpp"
 #include "ExperimentStatus.hpp"
 #include <assert.h>
 #include <boost/graph/graph_traits.hpp>
@@ -261,7 +262,8 @@ class Model {
 	}
 
 	// If no specific environment is set, return a default value
-	return 10000;
+	Config config;
+	return config.get_training_n_samples();
     }
 };
 

@@ -20,13 +20,13 @@ class Config {
     Config(string filename):filename(filename){};
     ~Config(){}
 
-    int get_early_stopping_n_samples();
-    double get_early_stopping_log_liklihood_delta ();
+    int get_training_n_samples();
+    double get_training_min_log_liklihood_delta ();
 
     const string DEFAULT_FILENAME = "../config.json";
-    const int DEFAULT_EARLY_STOPPING_N_SAMPLES = 100;
-    const double DEFAULT_EARLY_STOPPING_LOG_LIKELIHOOD_DELTA = 0.0001;
+    const int DEFAULT_TRAINING_N_SAMPLES = 100;
+    const double DEFAULT_TRAINING_MIN_LOG_LIKELIHOOD_DELTA = 0.0001;
 
-    const string EARLY_STOPPING_LOG_LIKELIHOOD_DELTA = "log_liklihood_delta";
-    const string EARLY_STOPPING_N_SAMPLES = "n_samples";
+    const string TRAINING_MIN_LOG_LIKELIHOOD_DELTA = "log_liklihood_delta";
+    const string TRAINING_N_SAMPLES = "n_samples";
 };

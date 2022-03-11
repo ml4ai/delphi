@@ -323,6 +323,7 @@ void AnalysisGraph::run_train_model(int res,
     RNG::release_instance();
 }
 
+
 void AnalysisGraph::run_train_model_2(int res,
                                     int burn,
                                     InitialBeta initial_beta,
