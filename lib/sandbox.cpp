@@ -232,12 +232,13 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
 
             int lds_size = sinusoidal_start_idx + sinusoidal_rows;
             this->A_fourier_base = Eigen::MatrixXd::Zero(lds_size, lds_size);
+            this->s0_fourier = Eigen::VectorXd::Zero(lds_size);
 
+            int n_hn = head_node_ids_sorted.size();
             int fouri_val_idx = 0;
 
             // Extract Fourier coefficients of seasonal head nodes
-            for (int hn_idx = 0; hn_idx < head_node_ids_sorted.size();
-                                                                     hn_idx++) {
+            for (int hn_idx = 0; hn_idx < n_hn; hn_idx++) {
                 int hn_id = head_node_ids_sorted[hn_idx];
                 int dot_row = 2 * hn_id;
 
@@ -250,6 +251,14 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
                                    json_data["A_fourier_base"][fouri_val_idx++];
                     }
                 }
+
+                // Extracting initial value and derivative for head node hn_id
+                // For the state vector, dot_row is the value row and
+                // dot_dot_row is the dot row (We are just reusing the same
+                // indexes)
+                this->s0_fourier(dot_row) = json_data["s0_fourier"][2 * hn_idx];
+                this->s0_fourier(dot_row + 1) = json_data["s0_fourier"]
+                                                               [2 * hn_idx + 1];
             }
 
             // Extracting different frequency sinusoidal curves generating
@@ -269,6 +278,12 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
                         }
                     }
                 }
+
+                // Extracting the initial state for cosine curves
+                // For the state vector, dot_dot_row is the dot row (We are just
+                // reusing the same index)
+                this->s0_fourier(dot_row + 1) = json_data["s0_fourier"]
+                                                               [2 * n_hn + row];
             }
         }
     }

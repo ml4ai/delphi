@@ -266,6 +266,7 @@ string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
 
         if (this->head_node_model == HNM_FOURIER) {
             /*
+             * Transition matrix
              *      b ............ b 0 ............. 0
              *      b ............ b 0 ............. 0
              *
@@ -294,7 +295,7 @@ string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
              *
              *      # coefficient rows per head node  = 2
              *      # coefficients per head node      = 2 * sinusoidal_rows
-             *      # coefficients per all head nodes = 2 * sinusoidal_rows * # head nodes
+             *      # coefficients for all head nodes = 2 * sinusoidal_rows * # head nodes
              *
              *      max # non-zero values per sinusoidal row = 2
              *      max # non-zero sinusoidal values         = 2 * sinusoidal_rows
@@ -302,6 +303,20 @@ string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
              *      Total number of values to save
              *        = 2 * sinusoidal_rows * # head nodes + 2 * sinusoidal_rows
              *        = 2 * sinusoidal_rows * (# head nodes + 1)
+             *
+             * Initial state
+             *      # rows per head node  = 2
+             *      # for all head nodes = 2 * # head nodes
+             *
+             *      # non-zero values per frequency       = 1
+             *      # non-zero values for all frequencies = sinusoidal_rows / 2
+             *      (Since we are using 0 radians as the initial angle, the
+             *      initial state for sine curves = sin(0) = 0. So we do not
+             *      need to save that)
+             *
+             *      Total number of values to save
+             *                          = sinusoidal_rows / 2 + 2 * # head nodes
+             *
              */
             // The first diagonal block of sinusoidal_start_idx by
             // sinusoidal_start_idx contains the transition matrix portion that
@@ -321,6 +336,8 @@ string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
             // Set the last element with a dummy value to allocate memory
             j["A_fourier_base"][sinusoidal_rows * 2 *
                                     (this->head_nodes.size() + 1) - 1] = 111111;
+            j["s0_fourier"][sinusoidal_rows / 2 +
+                                      2 * this->head_nodes.size() - 1] = 111111;
             j["head_node_ids"] = head_node_ids_sorted;
             j["sinusoidal_rows"] = sinusoidal_rows;
 
@@ -331,16 +348,24 @@ string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
             for (int hn_idx = 0; hn_idx < n_hn; hn_idx++) {
                 int hn_id = head_node_ids_sorted[hn_idx];
                 int dot_row = 2 * hn_id;
+                int dot_dot_row = dot_row + 1;
 
                 // Save coefficients for derivative row and second derivative
                 // row.
-                for (int row: {dot_row, dot_row + 1}) {
+                for (int row: {dot_row, dot_dot_row}) {
                     // Save coefficients for one row
                     for (int col = 0; col < sinusoidal_rows; col++) {
                         j["A_fourier_base"][fouri_val_idx++] = this->A_fourier_base(row,
                                                  sinusoidal_start_idx + col);
                     }
                 }
+
+                // Saving initial value and derivative for head node hn_id
+                // For the state vector, dot_row is the value row and
+                // dot_dot_row is the dot row (We are just reusing the same
+                // indexes)
+                j["s0_fourier"][2 * hn_idx] = this->s0_fourier(dot_row);
+                j["s0_fourier"][2 * hn_idx + 1] = this->s0_fourier(dot_dot_row);
             }
 
             // Saving different frequency sinusoidal curves generating portions
@@ -363,6 +388,11 @@ string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
                         }
                     }
                 }
+
+                // Saving the initial state for cosine curves
+                // For the state vector, dot_dot_row is the dot row (We are just
+                // reusing the same index)
+                j["s0_fourier"][2 * n_hn + row] = this->s0_fourier(dot_row + 1);
             }
         }
     }
