@@ -236,12 +236,16 @@ string AnalysisGraph::serialize_to_json_string(bool verbose, bool compact) {
         // constant at 1.
 
         j["res"] = this->res;
+        j["kde_kernels"] = this->n_kde_kernels;
         j["continuous"] = this->continuous;
         j["data_heuristic"] = this->data_heuristic;
         j["causemos_call"] = this->causemos_call;
         j["MAP_sample_number"] = this->MAP_sample_number;
         j["log_likelihood_MAP"] = this->log_likelihood_MAP;
         j["head_node_model"] = this->head_node_model;
+
+        j["log_likelihoods"] = compact ? vector<double>()
+                                       : this->log_likelihoods;
 
         int num_verts = this->num_vertices();
         int num_els_per_mat = num_verts * num_verts;

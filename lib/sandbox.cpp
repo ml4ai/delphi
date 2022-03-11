@@ -187,10 +187,14 @@ void AnalysisGraph::from_delphi_json_dict(const nlohmann::json& json_data,
 
     if (this->trained) {
         this->res = json_data["res"];
+        this->n_kde_kernels = json_data["kde_kernels"];
         this->continuous = json_data["continuous"];
         this->data_heuristic = json_data["data_heuristic"];
         this->causemos_call = json_data["causemos_call"];
         this->head_node_model = json_data["head_node_model"];
+
+        this->log_likelihoods = json_data["log_likelihoods"].
+                                                          get<vector<double>>();
 
         int num_verts = this->num_vertices();
         int num_els_per_mat = num_verts * num_verts;
