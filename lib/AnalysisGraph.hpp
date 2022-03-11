@@ -1360,8 +1360,6 @@ class AnalysisGraph {
   void predictions_to_csv(const Eigen::MatrixXd &A_base,
                           const Eigen::VectorXd &_s0, int n_time_steps);
 
-  public:
-    // TODO: Should be private
   /**
    * The main driver method that fits the Fourier decomposition based seasonal
    * model to all the seasonal head nodes.
@@ -1377,6 +1375,8 @@ class AnalysisGraph {
    */
   std::pair<Eigen::MatrixXd, Eigen::VectorXd>
   fit_seasonal_head_node_model_via_fourier_decomposition();
+
+  public:
   AnalysisGraph() {
      one_off_constraints.clear();
      perpetual_constraints.clear();
