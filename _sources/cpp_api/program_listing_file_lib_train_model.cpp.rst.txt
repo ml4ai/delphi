@@ -335,6 +335,7 @@ Program Listing for File train_model.cpp
        RNG::release_instance();
    }
    
+   
    void AnalysisGraph::run_train_model_2(int res,
                                        int burn,
                                        InitialBeta initial_beta,

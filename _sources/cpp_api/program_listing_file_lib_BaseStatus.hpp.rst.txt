@@ -28,7 +28,6 @@ Program Listing for File BaseStatus.hpp
        string class_name = "N/A";  // extending class
        string table_name = "N/A";  // table of extending class
        string primary_key = "N/A"; // primary key of table
-       Database* database = nullptr; // connection to Delphi DB
        std::thread *pThread = nullptr; // for timed updates to database
        bool recording = false;  // true if timed updates are happening
        double progress = 0.0; // training of model or completion of projection
@@ -38,12 +37,15 @@ Program Listing for File BaseStatus.hpp
        string timestamp();
    
      protected:
+       Database* database = nullptr; // connection to Delphi DB
        void set_progress(double p){ progress = p;}
        void start_recording_progress();
        void stop_recording_progress();
        bool write_data(json data);
        void log_info(string msg);
        void log_error(string msg);
+       void insert_data(string id, json data);
+       virtual void populate_table() = 0;
    
      public:
        BaseStatus(

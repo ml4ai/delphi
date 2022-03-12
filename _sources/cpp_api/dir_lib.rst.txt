@@ -15,6 +15,8 @@ Files
 - :ref:`file_lib_BaseStatus.cpp`
 - :ref:`file_lib_BaseStatus.hpp`
 - :ref:`file_lib_causemos_integration.cpp`
+- :ref:`file_lib_Config.cpp`
+- :ref:`file_lib_Config.hpp`
 - :ref:`file_lib_constructors.cpp`
 - :ref:`file_lib_CSVWriter.hpp`
 - :ref:`file_lib_data.cpp`

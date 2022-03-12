@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Class Config &mdash; delphi  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Class CSVWriter" href="classCSVWriter.html" />
+    <link rel="prev" title="Class Concept" href="classConcept.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> delphi
+            <img src="../_static/delphi_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html">}</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="library_root.html">C++ API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="library_root.html#class-hierarchy">Class Hierarchy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library_root.html#file-hierarchy">File Hierarchy</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="library_root.html#full-api">Full API</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="library_root.html#namespaces">Namespaces</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="library_root.html#classes-and-structs">Classes and Structs</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="classAnalysisGraph.html">Class AnalysisGraph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classBadCausemosInputException.html">Class BadCausemosInputException</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classBaseStatus.html">Class BaseStatus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classConcept.html">Class Concept</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Class Config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classCSVWriter.html">Class CSVWriter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classDatabase.html">Class Database</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classEdge.html">Class Edge</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classEvent.html">Class Event</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classExperimentStatus.html">Class ExperimentStatus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classGraphData.html">Class GraphData</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classIndicator.html">Class Indicator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classIndicatorNotFoundException.html">Class IndicatorNotFoundException</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classKDE.html">Class KDE</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classLatentVar.html">Class LatentVar</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classModelStatus.html">Class ModelStatus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classNode.html">Class Node</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classPybindTester.html">Class PybindTester</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classQualitativeDelta.html">Class QualitativeDelta</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classRNG.html">Class RNG</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classRV.html">Class RV</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classStatement.html">Class Statement</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classTimer.html">Class Timer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classTran__Mat__Cell.html">Class Tran_Mat_Cell</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="library_root.html#enums">Enums</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library_root.html#functions">Functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library_root.html#variables">Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library_root.html#defines">Defines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library_root.html#typedefs">Typedefs</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">delphi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="library_root.html">C++ API</a> &raquo;</li>
+      <li>Class Config</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/cpp_api/classConfig.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="class-config">
+<span id="exhale-class-classconfig"></span><h1>Class Config<a class="headerlink" href="#class-config" title="Permalink to this headline"></a></h1>
+<ul class="simple">
+<li><p>Defined in <a class="reference internal" href="file_lib_Config.hpp.html#file-lib-config-hpp"><span class="std std-ref">File Config.hpp</span></a></p></li>
+</ul>
+<section id="class-documentation">
+<h2>Class Documentation<a class="headerlink" href="#class-documentation" title="Permalink to this headline"></a></h2>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv46Config">
+<span id="_CPPv36Config"></span><span id="_CPPv26Config"></span><span id="Config"></span><span class="target" id="classConfig"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Config</span></span></span><a class="headerlink" href="#_CPPv46Config" title="Permalink to this definition"></a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N6Config6ConfigEv">
+<span id="_CPPv3N6Config6ConfigEv"></span><span id="_CPPv2N6Config6ConfigEv"></span><span id="Config::Config"></span><span class="target" id="classConfig_1abd0c571c116924871e30444b192b792a"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Config</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6Config6ConfigEv" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N6Config6ConfigE6string">
+<span id="_CPPv3N6Config6ConfigE6string"></span><span id="_CPPv2N6Config6ConfigE6string"></span><span id="Config::Config__string"></span><span class="target" id="classConfig_1a400b10f33c097937034125f52137719b"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Config</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">filename</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6Config6ConfigE6string" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N6ConfigD0Ev">
+<span id="_CPPv3N6ConfigD0Ev"></span><span id="_CPPv2N6ConfigD0Ev"></span><span id="Config::~Config"></span><span class="target" id="classConfig_1a543dce59b66475c5108088ee4ce1cdfc"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">~Config</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6ConfigD0Ev" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N6Config22get_training_n_samplesEv">
+<span id="_CPPv3N6Config22get_training_n_samplesEv"></span><span id="_CPPv2N6Config22get_training_n_samplesEv"></span><span id="Config::get_training_n_samples"></span><span class="target" id="classConfig_1ad3e4a15ab6c4e5a25885ca5f4192cbb6"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_training_n_samples</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6Config22get_training_n_samplesEv" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N6Config36get_training_min_log_liklihood_deltaEv">
+<span id="_CPPv3N6Config36get_training_min_log_liklihood_deltaEv"></span><span id="_CPPv2N6Config36get_training_min_log_liklihood_deltaEv"></span><span id="Config::get_training_min_log_liklihood_delta"></span><span class="target" id="classConfig_1a56731099e9f5d592f3427801689c45e2"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_training_min_log_liklihood_delta</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6Config36get_training_min_log_liklihood_deltaEv" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N6Config16DEFAULT_FILENAMEE">
+<span id="_CPPv3N6Config16DEFAULT_FILENAMEE"></span><span id="_CPPv2N6Config16DEFAULT_FILENAMEE"></span><span id="Config::DEFAULT_FILENAME__stringC"></span><span class="target" id="classConfig_1ae5a8884a2eedea4a80f4dda2ec05b9a7"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DEFAULT_FILENAME</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="s"><span class="pre">&quot;../config.json&quot;</span></span><a class="headerlink" href="#_CPPv4N6Config16DEFAULT_FILENAMEE" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N6Config26DEFAULT_TRAINING_N_SAMPLESE">
+<span id="_CPPv3N6Config26DEFAULT_TRAINING_N_SAMPLESE"></span><span id="_CPPv2N6Config26DEFAULT_TRAINING_N_SAMPLESE"></span><span id="Config::DEFAULT_TRAINING_N_SAMPLES__iC"></span><span class="target" id="classConfig_1a2e523904451f82fb551f03404392a9cc"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DEFAULT_TRAINING_N_SAMPLES</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">100</span></span><a class="headerlink" href="#_CPPv4N6Config26DEFAULT_TRAINING_N_SAMPLESE" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N6Config41DEFAULT_TRAINING_MIN_LOG_LIKELIHOOD_DELTAE">
+<span id="_CPPv3N6Config41DEFAULT_TRAINING_MIN_LOG_LIKELIHOOD_DELTAE"></span><span id="_CPPv2N6Config41DEFAULT_TRAINING_MIN_LOG_LIKELIHOOD_DELTAE"></span><span id="Config::DEFAULT_TRAINING_MIN_LOG_LIKELIHOOD_DELTA__doubleC"></span><span class="target" id="classConfig_1a40f5b6b5431adbc7c708f11be59fe4bb"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DEFAULT_TRAINING_MIN_LOG_LIKELIHOOD_DELTA</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0.0001</span></span><a class="headerlink" href="#_CPPv4N6Config41DEFAULT_TRAINING_MIN_LOG_LIKELIHOOD_DELTAE" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N6Config33TRAINING_MIN_LOG_LIKELIHOOD_DELTAE">
+<span id="_CPPv3N6Config33TRAINING_MIN_LOG_LIKELIHOOD_DELTAE"></span><span id="_CPPv2N6Config33TRAINING_MIN_LOG_LIKELIHOOD_DELTAE"></span><span id="Config::TRAINING_MIN_LOG_LIKELIHOOD_DELTA__stringC"></span><span class="target" id="classConfig_1a1576a23318ee11693b5bb50a84542c78"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TRAINING_MIN_LOG_LIKELIHOOD_DELTA</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="s"><span class="pre">&quot;log_liklihood_delta&quot;</span></span><a class="headerlink" href="#_CPPv4N6Config33TRAINING_MIN_LOG_LIKELIHOOD_DELTAE" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N6Config18TRAINING_N_SAMPLESE">
+<span id="_CPPv3N6Config18TRAINING_N_SAMPLESE"></span><span id="_CPPv2N6Config18TRAINING_N_SAMPLESE"></span><span id="Config::TRAINING_N_SAMPLES__stringC"></span><span class="target" id="classConfig_1a0bb8003f05229cf6fd2d6801010b8e44"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TRAINING_N_SAMPLES</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="s"><span class="pre">&quot;n_samples&quot;</span></span><a class="headerlink" href="#_CPPv4N6Config18TRAINING_N_SAMPLESE" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="classConcept.html" class="btn btn-neutral float-left" title="Class Concept" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="classCSVWriter.html" class="btn btn-neutral float-right" title="Class CSVWriter" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Adarsh.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

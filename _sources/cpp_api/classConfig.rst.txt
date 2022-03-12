@@ -1,0 +1,17 @@
+.. _exhale_class_classConfig:
+
+Class Config
+============
+
+- Defined in :ref:`file_lib_Config.hpp`
+
+
+Class Documentation
+-------------------
+
+
+.. doxygenclass:: Config
+   :project: My Project
+   :members:
+   :protected-members:
+   :undoc-members:

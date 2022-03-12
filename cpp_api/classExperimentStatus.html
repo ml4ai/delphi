@@ -59,6 +59,7 @@
 <li class="toctree-l4"><a class="reference internal" href="classBadCausemosInputException.html">Class BadCausemosInputException</a></li>
 <li class="toctree-l4"><a class="reference internal" href="classBaseStatus.html">Class BaseStatus</a></li>
 <li class="toctree-l4"><a class="reference internal" href="classConcept.html">Class Concept</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classConfig.html">Class Config</a></li>
 <li class="toctree-l4"><a class="reference internal" href="classCSVWriter.html">Class CSVWriter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="classDatabase.html">Class Database</a></li>
 <li class="toctree-l4"><a class="reference internal" href="classEdge.html">Class Edge</a></li>
@@ -212,11 +213,6 @@
 <dd></dd></dl>
 
 <dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv4N16ExperimentStatus8MODEL_IDE">
-<span id="_CPPv3N16ExperimentStatus8MODEL_IDE"></span><span id="_CPPv2N16ExperimentStatus8MODEL_IDE"></span><span id="ExperimentStatus::MODEL_ID__stringC"></span><span class="target" id="classExperimentStatus_1a6321a999e3c8e980e0f6445495ab0682"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MODEL_ID</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="s"><span class="pre">&quot;modelId&quot;</span></span><a class="headerlink" href="#_CPPv4N16ExperimentStatus8MODEL_IDE" title="Permalink to this definition"></a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp var">
 <dt class="sig sig-object cpp" id="_CPPv4N16ExperimentStatus14NUM_TIME_STEPSE">
 <span id="_CPPv3N16ExperimentStatus14NUM_TIME_STEPSE"></span><span id="_CPPv2N16ExperimentStatus14NUM_TIME_STEPSE"></span><span id="ExperimentStatus::NUM_TIME_STEPS__stringC"></span><span class="target" id="classExperimentStatus_1a54ccce1186088ba647d6d6deafc169f2"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">NUM_TIME_STEPS</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="s"><span class="pre">&quot;numTimesteps&quot;</span></span><a class="headerlink" href="#_CPPv4N16ExperimentStatus14NUM_TIME_STEPSE" title="Permalink to this definition"></a><br /></dt>
 <dd></dd></dl>
@@ -231,12 +227,32 @@
 <span id="_CPPv3N16ExperimentStatus10START_TIMEE"></span><span id="_CPPv2N16ExperimentStatus10START_TIMEE"></span><span id="ExperimentStatus::START_TIME__stringC"></span><span class="target" id="classExperimentStatus_1a1c47190799e7fc472231e65db2166d8f"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">START_TIME</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="s"><span class="pre">&quot;startTime&quot;</span></span><a class="headerlink" href="#_CPPv4N16ExperimentStatus10START_TIMEE" title="Permalink to this definition"></a><br /></dt>
 <dd></dd></dl>
 
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N16ExperimentStatus9COMPLETEDE">
+<span id="_CPPv3N16ExperimentStatus9COMPLETEDE"></span><span id="_CPPv2N16ExperimentStatus9COMPLETEDE"></span><span id="ExperimentStatus::COMPLETED__stringC"></span><span class="target" id="classExperimentStatus_1af99c47709906212bef2f9c93e588b340"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">COMPLETED</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="s"><span class="pre">&quot;completed&quot;</span></span><a class="headerlink" href="#_CPPv4N16ExperimentStatus9COMPLETEDE" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N16ExperimentStatus16EXPERIMENT_TABLEE">
+<span id="_CPPv3N16ExperimentStatus16EXPERIMENT_TABLEE"></span><span id="_CPPv2N16ExperimentStatus16EXPERIMENT_TABLEE"></span><span id="ExperimentStatus::EXPERIMENT_TABLE__stringC"></span><span class="target" id="classExperimentStatus_1a4a772ace863c9c8b5cf55877a88da953"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">EXPERIMENT_TABLE</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="s"><span class="pre">&quot;causemosasyncexperimentresult&quot;</span></span><a class="headerlink" href="#_CPPv4N16ExperimentStatus16EXPERIMENT_TABLEE" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N16ExperimentStatus10COL_STATUSE">
+<span id="_CPPv3N16ExperimentStatus10COL_STATUSE"></span><span id="_CPPv2N16ExperimentStatus10COL_STATUSE"></span><span id="ExperimentStatus::COL_STATUS__stringC"></span><span class="target" id="classExperimentStatus_1ad90fe8f345fce38e5e98a49f5ad8050b"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">COL_STATUS</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="s"><span class="pre">&quot;status&quot;</span></span><a class="headerlink" href="#_CPPv4N16ExperimentStatus10COL_STATUSE" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
 </div>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-protected-functions">Protected Functions</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N16ExperimentStatus9set_stateEd6stringb">
 <span id="_CPPv3N16ExperimentStatus9set_stateEd6stringb"></span><span id="_CPPv2N16ExperimentStatus9set_stateEd6stringb"></span><span id="ExperimentStatus::set_state__double.string.b"></span><span class="target" id="classExperimentStatus_1a02f0504c30fc7e84b717c6dbb9851933"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_state</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">progress</span></span>, <span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">status</span></span>, <span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">busy</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N16ExperimentStatus9set_stateEd6stringb" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N16ExperimentStatus14populate_tableEv">
+<span id="_CPPv3N16ExperimentStatus14populate_tableEv"></span><span id="_CPPv2N16ExperimentStatus14populate_tableEv"></span><span id="ExperimentStatus::populate_table"></span><span class="target" id="classExperimentStatus_1aa5b4cef74b6045e650c8b1307ff7ebbe"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">populate_table</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N16ExperimentStatus14populate_tableEv" title="Permalink to this definition"></a><br /></dt>
 <dd></dd></dl>
 
 </div>

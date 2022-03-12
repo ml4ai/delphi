@@ -50,3 +50,24 @@ Program Listing for File ModelStatus.cpp
      data[BUSY] = busy;
      write_data(data);
    }
+   
+   // load our table with ids of completed experiments
+   void ModelStatus::populate_table() {
+     string query = "SELECT " + COL_ID + " FROM " + MODEL_TABLE + ";";
+     vector<string> ids = database->read_column_text(query);
+     for(string id : ids) {
+       json row = database->select_row(MODEL_TABLE, id, COL_MODEL);
+       json model = json::parse((string)row[COL_MODEL]);
+       if(!model.empty()) {
+         bool trained = model.value(TRAINED, false);
+         if(trained) {
+           json data;
+           data[MODEL_ID] = id;
+           data[PROGRESS] = 1.0;
+           data[STATUS] = TRAINED;
+           data[BUSY] = false;
+       insert_data(id, data);
+         }
+       }
+     }
+   }

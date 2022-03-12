@@ -40,6 +40,16 @@ Files
 .. toctree::
    :maxdepth: 5
 
+   file_lib_Config.cpp.rst
+
+.. toctree::
+   :maxdepth: 5
+
+   file_lib_Config.hpp.rst
+
+.. toctree::
+   :maxdepth: 5
+
    file_lib_constructors.cpp.rst
 
 .. toctree::
