@@ -19,13 +19,31 @@ using Eigen::VectorXd;
 */
 
 void AnalysisGraph::assemble_base_LDS(InitialDerivative id) {
-    this->set_transition_matrix_from_betas();
-    #ifdef MULTI_THREADING
-        this->compute_multiple_matrix_exponentials_parallelly(this->A_original,
-                                              this->matrix_exponential_futures);
-    #endif
+    if (this->continuous) {
+        // Initialize matrix exponential pre-calculation related data structures.
+        unordered_set<double> gaps_set;
+
+        if (this->head_node_model == HeadNodeModel::HNM_NAIVE) {
+            gaps_set.insert(1); // Due to the current head node model
+        } else { /// HeadNodeModel::HNM_FOURIER
+            gaps_set = unordered_set<double>(this->modeling_timestep_gaps.begin() + 1,
+                                             this->modeling_timestep_gaps.end());
+        }
+        this->observation_timestep_unique_gaps = vector<double>(gaps_set.begin(),
+                                                                gaps_set.end());
+        #ifdef MULTI_THREADING
+            this->matrix_exponential_futures = vector<future<Eigen::MatrixXd>>(
+                this->observation_timestep_unique_gaps.size());
+        #endif
+    }
+
     this->derivative_prior_variance = 0.1;
     this->set_default_initial_state(id);
+
+    #ifdef MULTI_THREADING
+        vector<future<Eigen::MatrixXd>> fourier_me_futures(
+                                 this->observation_timestep_unique_gaps.size());
+    #endif
 
     if (this->head_node_model == HeadNodeModel::HNM_FOURIER) {
         auto [A_fourier_full_base, s0_fourier_full] =
@@ -35,19 +53,8 @@ void AnalysisGraph::assemble_base_LDS(InitialDerivative id) {
 
         if (this->continuous) {
             #ifdef MULTI_THREADING
-                vector<future<Eigen::MatrixXd>> fourier_me_futures(
-                                 this->observation_timestep_unique_gaps.size());
-
                 this->compute_multiple_matrix_exponentials_parallelly(
                                       this->A_fourier_base, fourier_me_futures);
-
-                // Accumulate the precalculated exponentiated transition
-                // matrices from different threads
-                for (int i = 0;
-                       i < this->observation_timestep_unique_gaps.size(); i++) {
-                    double &gap = this->observation_timestep_unique_gaps[i];
-                    this->e_A_fourier_ts[gap] = fourier_me_futures[i].get();
-                }
             #else
                 for (double gap : this->observation_timestep_unique_gaps) {
                     this->e_A_fourier_ts[gap] =
@@ -61,6 +68,26 @@ void AnalysisGraph::assemble_base_LDS(InitialDerivative id) {
         this->current_latent_state = this->s0_fourier;
         this->current_latent_state.head(this->s0.size()) += this->s0;
     }
+
+    this->set_transition_matrix_from_betas();
+
+    #ifdef MULTI_THREADING
+        if (this->continuous) {
+            this->compute_multiple_matrix_exponentials_parallelly(
+                                              this->A_original,
+                                              this->matrix_exponential_futures);
+
+            if (this->head_node_model == HeadNodeModel::HNM_FOURIER) {
+                // Accumulate the precalculated exponentiated transition
+                // matrices from different threads
+                for (int i = 0;
+                     i < this->observation_timestep_unique_gaps.size(); i++) {
+                    double &gap = this->observation_timestep_unique_gaps[i];
+                    this->e_A_fourier_ts[gap] = fourier_me_futures[i].get();
+                }
+            }
+        }
+    #endif
 }
 
 void AnalysisGraph::set_base_transition_matrix() {
@@ -139,24 +166,6 @@ void AnalysisGraph::set_transition_matrix_from_betas() {
   for (auto& [row, col] : this->beta_dependent_cells) {
     this->A_original(row * 2, col * 2 + 1) =
         this->A_beta_factors[row][col]->compute_cell(this->graph);
-  }
-
-  if (this->continuous) {
-    // Initialize matrix exponential pre-calculation related data structures.
-    unordered_set<double> gaps_set;
-
-    if (this->head_node_model == HeadNodeModel::HNM_NAIVE) {
-        gaps_set.insert(1); // Due to the current head node model
-    } else { /// HeadNodeModel::HNM_FOURIER
-        gaps_set = unordered_set<double>(this->modeling_timestep_gaps.begin() + 1,
-                                         this->modeling_timestep_gaps.end());
-    }
-    this->observation_timestep_unique_gaps = vector<double>(gaps_set.begin(),
-                                                            gaps_set.end());
-    #ifdef MULTI_THREADING
-        this->matrix_exponential_futures = vector<future<Eigen::MatrixXd>>(
-            this->observation_timestep_unique_gaps.size());
-    #endif
   }
 }
 
@@ -260,10 +269,10 @@ void AnalysisGraph::set_log_likelihood() {
             // transition matrices with the exponentiated transition matrices
             // defining the relationships between concepts.
             for (double gap : this->observation_timestep_unique_gaps) {
-                this->e_A_fourier_ts[gap].topLeftCorner(
-                                  this->e_A_ts[gap].rows(),
-                                  this->e_A_ts[gap].cols()) = this->e_A_ts[gap];
-                this->e_A_ts[gap] = this->e_A_fourier_ts[gap];
+                this->e_A_fourier_ts.at(gap).topLeftCorner(
+                            this->e_A_ts.at(gap).rows(),
+                            this->e_A_ts.at(gap).cols()) = this->e_A_ts.at(gap);
+                this->e_A_ts[gap] = this->e_A_fourier_ts.at(gap);
             }
           }
         }
@@ -302,7 +311,7 @@ void AnalysisGraph::set_log_likelihood() {
               this->update_latent_state_with_generated_derivatives(ts_monthly,
                                                                 ts_monthly + 1);
               this->current_latent_state =
-                                   this->e_A_ts[1] * this->current_latent_state;
+                               this->e_A_ts.at(1) * this->current_latent_state;
               ts_monthly++;
             }
             this->set_log_likelihood_helper(ts);
@@ -317,7 +326,7 @@ void AnalysisGraph::set_log_likelihood() {
 
           for (int ts = 1; ts < this->n_timesteps; ts++) {
             this->current_latent_state =
-                    this->e_A_ts[this->modeling_timestep_gaps[ts]]
+                    this->e_A_ts.at(this->modeling_timestep_gaps[ts])
                                                    * this->current_latent_state;
             this->set_log_likelihood_helper(ts);
           }
