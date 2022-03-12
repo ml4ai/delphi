@@ -20,6 +20,10 @@ using Eigen::VectorXd;
 
 void AnalysisGraph::assemble_base_LDS(InitialDerivative id) {
     this->set_transition_matrix_from_betas();
+    #ifdef MULTI_THREADING
+        this->compute_multiple_matrix_exponentials_parallelly(this->A_original,
+                                              this->matrix_exponential_futures);
+    #endif
     this->derivative_prior_variance = 0.1;
     this->set_default_initial_state(id);
 
@@ -31,16 +35,18 @@ void AnalysisGraph::assemble_base_LDS(InitialDerivative id) {
 
         if (this->continuous) {
             #ifdef MULTI_THREADING
+                vector<future<Eigen::MatrixXd>> fourier_me_futures(
+                                 this->observation_timestep_unique_gaps.size());
+
                 this->compute_multiple_matrix_exponentials_parallelly(
-                                                          this->A_fourier_base);
+                                      this->A_fourier_base, fourier_me_futures);
 
                 // Accumulate the precalculated exponentiated transition
                 // matrices from different threads
                 for (int i = 0;
                        i < this->observation_timestep_unique_gaps.size(); i++) {
                     double &gap = this->observation_timestep_unique_gaps[i];
-                    this->e_A_fourier_ts[gap] =
-                                            matrix_exponential_futures[i].get();
+                    this->e_A_fourier_ts[gap] = fourier_me_futures[i].get();
                 }
             #else
                 for (double gap : this->observation_timestep_unique_gaps) {
@@ -52,11 +58,6 @@ void AnalysisGraph::assemble_base_LDS(InitialDerivative id) {
             this->A_fourier_base = (this->A_fourier_base * this->delta_t).exp();
         }
 
-        for (int bn_id: this->body_nodes) {
-            int bn_val_row = 2 * bn_id;
-            s0_fourier_full(bn_val_row) = this->s0(bn_val_row);
-            s0_fourier_full(bn_val_row + 1) = this->s0(bn_val_row + 1);
-        }
         this->current_latent_state = this->s0_fourier;
         this->current_latent_state.head(this->s0.size()) += this->s0;
     }
@@ -161,21 +162,22 @@ void AnalysisGraph::set_transition_matrix_from_betas() {
 
 
 #ifdef MULTI_THREADING
-    static Eigen::MatrixXd compute_matrix_exponential(const Eigen::Ref<const Eigen::MatrixXd> A,
-                                                      double gap) {
+    static Eigen::MatrixXd compute_matrix_exponential(
+                        const Eigen::Ref<const Eigen::MatrixXd> A, double gap) {
         return (A * gap).exp();
     }
 
 
-    void AnalysisGraph::compute_multiple_matrix_exponentials_parallelly(const Eigen::MatrixXd & A) {
+    void AnalysisGraph::compute_multiple_matrix_exponentials_parallelly(
+                                  const Eigen::MatrixXd & A,
+                                  vector<future<Eigen::MatrixXd>> &me_futures) {
         // Create threads to precalculate all the transition matrices required to
         // advance the system from one time step to the next by computing matrix
         // exponentials in parallel - e^(this->A_original * gap)
         for (int i = 0; i < this->observation_timestep_unique_gaps.size(); i++) {
             double &gap = this->observation_timestep_unique_gaps[i];
-            this->matrix_exponential_futures[i] = async(launch::async,
-                                                        compute_matrix_exponential,
-                                                        A, gap);
+            me_futures[i] = async(launch::async,
+                                  compute_matrix_exponential, A, gap);
         }
     }
 #endif
@@ -229,7 +231,7 @@ void AnalysisGraph::set_log_likelihood() {
               for (int i = 0; i < this->observation_timestep_unique_gaps.size();
                    i++) {
                   double &gap = this->observation_timestep_unique_gaps[i];
-                  this->e_A_ts[gap] = matrix_exponential_futures[i].get();
+                  this->e_A_ts[gap] = this->matrix_exponential_futures[i].get();
               }
           /*
           #ifdef _OPENMP
@@ -441,7 +443,8 @@ void AnalysisGraph::sample_from_proposal() {
     }
 
     #ifdef MULTI_THREADING
-        this->compute_multiple_matrix_exponentials_parallelly(this->A_original);
+        this->compute_multiple_matrix_exponentials_parallelly(this->A_original,
+                                              this->matrix_exponential_futures);
     #endif
 
     #ifdef TIME

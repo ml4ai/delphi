@@ -33,9 +33,7 @@ void AnalysisGraph::initialize_parameters(int res,
     this->init_betas_to(initial_beta);
     this->set_indicator_means_and_standard_deviations();
     this->assemble_base_LDS(initial_derivative);
-    #ifdef MULTI_THREADING
-        this->compute_multiple_matrix_exponentials_parallelly(this->A_original);
-    #endif
+
     if (this->head_node_model == HeadNodeModel::HNM_NAIVE) {
         this->generate_head_node_latent_sequences(
             -1,
