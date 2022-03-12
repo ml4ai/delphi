@@ -24,7 +24,7 @@ class Node {
   Eigen::VectorXd best_fourier_coefficients;
   std::vector<double> fourier_freqs;
   double best_rmse = std::numeric_limits<double>::infinity();
-  int n_components;
+  int n_components = 0;
   int best_n_components = 0;
   bool rmse_is_reducing = true;
   // Partition i refer to the midpoint between partitions i and (i+1) % period
@@ -148,6 +148,8 @@ class Node {
     }
     std::cout << std::endl;
   }
+
+  void clear_state();
 
   void compute_bin_centers_and_spreads(const std::vector<int> &ts_sequence,
                                        const std::vector<double> &mean_sequence);

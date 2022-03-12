@@ -2,6 +2,31 @@
 
 using namespace std;
 
+void Node::clear_state()
+{
+    this->generated_latent_sequence.clear();
+    this->tot_observations = 0;
+    this->fourier_coefficients.resize(0);
+    this->best_fourier_coefficients.resize(0);
+    this->fourier_freqs.clear();
+    this->best_rmse = std::numeric_limits<double>::infinity();
+    this->n_components = 0;
+    this->best_n_components = 0;
+    this->rmse_is_reducing = true;
+    this->between_bin_midpoints.clear();
+    this->partitioned_data.clear();
+    this->partitioned_absolute_change.clear();
+    this->partitioned_relative_change.clear();
+    this->partition_mean_std.clear();
+    this->absolute_change_medians.clear();
+    this->relative_change_medians.clear();
+    this->centers.clear();
+    this->spreads.clear();
+    this->changes.clear();
+    this->generated_latent_centers_for_a_period.clear();
+    this->generated_latent_spreads_for_a_period.clear();
+}
+
 void Node::compute_bin_centers_and_spreads(const vector<int> &ts_sequence,
                                            const vector<double> &mean_sequence) {
     double center;

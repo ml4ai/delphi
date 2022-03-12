@@ -42,6 +42,7 @@ void AnalysisGraph::initialize_parameters(int res,
                        0) +
                 1);
     }
+    this->log_likelihood = 0;
     this->set_log_likelihood();
     this->log_likelihood_MAP = -(DBL_MAX - 1);
 
@@ -130,6 +131,7 @@ void AnalysisGraph::set_indicator_means_and_standard_deviations() {
 
   for (int v = 0; v < num_verts; v++) {
       Node &n = (*this)[v];
+      n.clear_state();
 
       for (int i = 0; i < n.indicators.size(); i++) {
           Indicator &ind = n.indicators[i];
