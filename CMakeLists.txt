@@ -93,6 +93,7 @@ add_library(Delphi
   lib/BaseStatus.cpp
   lib/ModelStatus.cpp
   lib/ExperimentStatus.cpp
+  lib/Config.cpp
   lib/profiler.cpp
   lib/CSVWriter.hpp)
 

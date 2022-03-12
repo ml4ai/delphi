@@ -1,6 +1,7 @@
 #include "AnalysisGraph.hpp"
 #include "DatabaseHelper.hpp"
 #include "ModelStatus.hpp"
+#include "Config.hpp"
 #include "ExperimentStatus.hpp"
 #include <assert.h>
 #include <boost/graph/graph_traits.hpp>
@@ -206,7 +207,6 @@ class Model {
     ) {
 	G.id = model_id;
         G.run_train_model(res, burn);
-	ms.enter_writing_state();
         if(!sqlite3DB->insert_into_delphimodel(
             model_id,
             G.serialize_to_json_string(false)
@@ -261,7 +261,8 @@ class Model {
 	}
 
 	// If no specific environment is set, return a default value
-	return 10000;
+	Config config;
+	return config.get_training_n_samples();
     }
 };
 
@@ -449,7 +450,6 @@ int main(int argc, const char* argv[]) {
             ExperimentStatus es(experimentId, modelId, sqlite3DB);
 
             json ret;
-            ret[es.MODEL_ID] = modelId;
             ret[es.EXPERIMENT_ID] = experimentId;
 
 	    json es_data = es.read_data();
@@ -478,7 +478,6 @@ int main(int argc, const char* argv[]) {
 	        double progress = es_data.value(es.PROGRESS, 0.0);
                 ret[es.EXPERIMENT_TYPE] = query_result[es.EXPERIMENT_TYPE];
                 ret[es.STATUS] = query_result[es.STATUS];
-                //ret[es.PROGRESS] = query_result[es.PROGRESS];
                 ret[es.PROGRESS] = progress;
                 ret[es.RESULTS] = results["data"];
             }

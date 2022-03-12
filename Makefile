@@ -23,5 +23,5 @@ pypi_upload:
 
 clean:
 	rm -rf build dist
-	rm -f *.json *.pkl *.csv
+	rm -f *.pkl *.csv
 	mkdir build
