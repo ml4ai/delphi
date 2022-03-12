@@ -1,5 +1,5 @@
 import delphi.plotter as dp
-from delphi.cpp.DelphiPython import AnalysisGraph, InitialBeta, InitialDerivative
+from delphi.cpp.DelphiPython import AnalysisGraph, InitialBeta, InitialDerivative, HeadNodeModel
 import pandas as pd
 import numpy as np
 
@@ -160,8 +160,11 @@ if __name__ == "__main__":
 
     print('\nTraining Model')
     use_continuous = False if causemos_create_model == "synthetic" else True
+    hnm = HeadNodeModel.HNM_NAIVE#FOURIER#
+    file_name_prefix = 'naive' if hnm == HeadNodeModel.HNM_NAIVE else 'fouri'
     G.run_train_model(res=200,
                       burn=1000,
+                      head_node_model=hnm,
                       initial_beta=InitialBeta.ZERO,
                       initial_derivative=InitialDerivative.DERI_ZERO,
                       use_continuous=use_continuous)
@@ -187,4 +190,4 @@ if __name__ == "__main__":
     print(pred_range[1:])
 
     dp.delphi_plotter(model_state, num_bins=400, rotation=45,
-            out_dir='plots', file_name_prefix='db', save_csv=False)
+            out_dir='plots', file_name_prefix=file_name_prefix, save_csv=False)

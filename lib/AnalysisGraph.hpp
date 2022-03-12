@@ -1792,6 +1792,7 @@ class AnalysisGraph {
 
   void run_train_model(int res = 200,
                    int burn = 10000,
+                   HeadNodeModel head_node_model = HeadNodeModel::HNM_NAIVE,
                    InitialBeta initial_beta = InitialBeta::ZERO,
                    InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO,
                    bool use_heuristic = false,
