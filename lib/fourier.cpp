@@ -485,9 +485,12 @@ bool AnalysisGraph::determine_the_best_number_of_components(
             }
         }
 
-        double rmse = sqrt(
-            inner_product(errors.begin(), errors.end(), errors.begin(), 0.0)
-                                                               / errors.size());
+        double rmse = -1;
+
+        if (errors.size() > 0) {
+            rmse = sqrt(inner_product(errors.begin(), errors.end(),
+                                      errors.begin(), 0.0) / errors.size());
+        }
 
         // cout << n_components << " : " << rmse << endl;
         if (hn.rmse_is_reducing) {
