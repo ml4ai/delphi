@@ -583,34 +583,34 @@ void AnalysisGraph::set_default_initial_state(InitialDerivative id) {
   // Then,
   //    indexes 2*v keeps track of the state of each variable v
   //    indexes 2*v+1 keeps track of the state of ∂v/∂t
-  int num_els = this->num_vertices() * 2;
+  int n_verts = this->num_vertices();
 
-  this->s0 = VectorXd::Zero(num_els);
+  this->s0 = VectorXd::Zero(2 * n_verts);
 
-  for (int i = 0; i < num_els; i += 2) {
-      if (this->head_node_model == HeadNodeModel::HNM_FOURIER &&
+  for (int i = 0; i < n_verts; i++) {
+    if (this->head_node_model == HeadNodeModel::HNM_FOURIER &&
                              this->head_nodes.find(i) != this->head_nodes.end())
-          continue;
-    this->s0(i) = 1.0;
+        continue;
+    this->s0(2 * i) = 1.0;
   }
 
   if (this->MAP_sample_number > -1) {
     // Warm start using the MAP estimate of the previous training run
-    for (int i = 1; i < num_els; i += 2) {
+    for (int i = 0; i < n_verts; i++) {
         if (this->head_node_model == HeadNodeModel::HNM_FOURIER &&
                              this->head_nodes.find(i) != this->head_nodes.end())
             continue;
-      this->s0(i) = this->initial_latent_state_collection
-                                                   [this->MAP_sample_number](i);
+      this->s0(2 * i + 1) = this->initial_latent_state_collection
+                                     [this->MAP_sample_number](2 * i + 1);
     }
   }
   else if (id == InitialDerivative::DERI_PRIOR) {
     double derivative_prior_std = sqrt(this->derivative_prior_variance);
-    for (int i = 1; i < num_els; i += 2) {
+    for (int i = 0; i < n_verts; i++) {
         if (this->head_node_model == HeadNodeModel::HNM_FOURIER &&
                              this->head_nodes.find(i) != this->head_nodes.end())
             continue;
-      this->s0(i) = derivative_prior_std *
+      this->s0(2 * i + 1) = derivative_prior_std *
                     this->norm_dist(this->rand_num_generator);
     }
   }
