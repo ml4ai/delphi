@@ -587,31 +587,24 @@ void AnalysisGraph::set_default_initial_state(InitialDerivative id) {
 
   this->s0 = VectorXd::Zero(2 * n_verts);
 
-  for (int i = 0; i < n_verts; i++) {
+  for (int v = 0; v < n_verts; v++) {
     if (this->head_node_model == HeadNodeModel::HNM_FOURIER &&
-                             this->head_nodes.find(i) != this->head_nodes.end())
+                           this->head_nodes.find(v) != this->head_nodes.end()) {
         continue;
-    this->s0(2 * i) = 1.0;
-  }
-
-  if (this->MAP_sample_number > -1) {
-    // Warm start using the MAP estimate of the previous training run
-    for (int i = 0; i < n_verts; i++) {
-        if (this->head_node_model == HeadNodeModel::HNM_FOURIER &&
-                             this->head_nodes.find(i) != this->head_nodes.end())
-            continue;
-      this->s0(2 * i + 1) = this->initial_latent_state_collection
-                                     [this->MAP_sample_number](2 * i + 1);
     }
-  }
-  else if (id == InitialDerivative::DERI_PRIOR) {
-    double derivative_prior_std = sqrt(this->derivative_prior_variance);
-    for (int i = 0; i < n_verts; i++) {
-        if (this->head_node_model == HeadNodeModel::HNM_FOURIER &&
-                             this->head_nodes.find(i) != this->head_nodes.end())
-            continue;
-      this->s0(2 * i + 1) = derivative_prior_std *
-                    this->norm_dist(this->rand_num_generator);
+
+    int value_row = 2 * v;
+    this->s0(value_row) = 1.0;
+
+    if (this->MAP_sample_number > -1) {
+        // Warm start using the MAP estimate of the previous training run
+        this->s0(value_row + 1) = this->initial_latent_state_collection
+                                 [this->MAP_sample_number](value_row + 1);
+    }
+    else if (id == InitialDerivative::DERI_PRIOR) {
+        double derivative_prior_std = sqrt(this->derivative_prior_variance);
+        this->s0(value_row + 1) = derivative_prior_std *
+                                   this->norm_dist(this->rand_num_generator);
     }
   }
 }
