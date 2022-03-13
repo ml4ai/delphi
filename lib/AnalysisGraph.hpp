@@ -313,6 +313,7 @@ class AnalysisGraph {
     std::vector<std::future<Eigen::MatrixXd>> matrix_exponential_futures;
   #endif
   std::unordered_map<double, Eigen::MatrixXd> e_A_ts;
+  std::unordered_map<double, Eigen::MatrixXd> previous_e_A_ts;
 
   // Computed matrix exponentials of A_fourier_base:
   // e^(A_fourier_base * gap)
@@ -362,6 +363,7 @@ class AnalysisGraph {
   // I chose to name this A_original. After refactoring the code, we could
   // rename this to A.
   Eigen::MatrixXd A_original;
+  Eigen::MatrixXd previous_A_original;
 
   HeadNodeModel head_node_model = HeadNodeModel::HNM_NAIVE;//HeadNodeModel::HNM_FOURIER;//
   // Base transition matrix for the Fourier decomposition based head node model

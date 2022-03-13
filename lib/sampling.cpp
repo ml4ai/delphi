@@ -422,6 +422,21 @@ void AnalysisGraph::sample_from_proposal() {
     // Remember the previous θ and logpdf(θ)
     this->previous_theta = make_tuple(ed, this->graph[ed].get_theta(), this->graph[ed].logpdf_theta);
 
+    // Remember the previously calculated A_original for the previous edge
+    // weight before we update it to match the newly sampled edge. This way, if
+    // this sample gets rejected, we do not have to re-compete A_original, that
+    // involve computing the chain rule, which is an expensive operation for
+    // larger CAGs.
+    this->previous_A_original = this->A_original;
+
+    // Remember the previously calculated matrix exponentials for the previous
+    // transition matrix before we update e_A_ts with the matrix exponentials
+    // for the newly sampled transition matrix. This way, if this sample gets
+    // rejected, we do not have to re-compete the matrix exponentials for the
+    // previous transition matrix, which is as expensive operation.
+    this->previous_e_A_ts = this->e_A_ts;
+
+
     // Perturb the θ and compute the new logpdf(θ)
     this->graph[ed].set_theta(this->graph[ed].get_theta() + this->norm_dist(this->rand_num_generator) / 10);
     {
@@ -563,7 +578,8 @@ void AnalysisGraph::revert_back_to_previous_state() {
     // Reset the transition matrix cells that were changed
     // TODO: Can we change the transition matrix only when the sample is
     // accepted?
-    this->update_transition_matrix_cells(perturbed_edge);
+    this->A_original = this->previous_A_original;
+    this->e_A_ts = this->previous_e_A_ts;
   }
   else {
     // A derivative  has been sampled

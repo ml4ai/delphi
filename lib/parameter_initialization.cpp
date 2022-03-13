@@ -42,7 +42,18 @@ void AnalysisGraph::initialize_parameters(int res,
                        0) +
                 1);
     }
+
     this->log_likelihood = 0;
+    this->coin_flip = 0;
+
+    // This initializes the previous_log_likelihood to 0 and sets the
+    // log_likelihood for the current initialization of the parameters. Since
+    // we have initialized coin_flip = 0, log likelihood is computed as if a
+    // θ has been sampled. Therefore, this call also computes the matrix
+    // exponentials for the initial transition matrix that defines the
+    // relationships between concepts in turn initializing the e_A_ts map that
+    // holds computed matrix exponentials for different gaps we have to advance
+    // the system to reach all the modeling time steps where there is data.
     this->set_log_likelihood();
     this->log_likelihood_MAP = -(DBL_MAX - 1);
 
