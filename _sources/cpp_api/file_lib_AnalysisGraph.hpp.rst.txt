@@ -73,6 +73,8 @@ Included By
 
 - :ref:`file_lib_format_output.cpp`
 
+- :ref:`file_lib_fourier.cpp`
+
 - :ref:`file_lib_graph_building.cpp`
 
 - :ref:`file_lib_graph_modification.cpp`
@@ -118,6 +120,8 @@ Classes
 Enums
 -----
 
+
+- :ref:`exhale_enum_AnalysisGraph_8hpp_1a3c28e20e6aeae736c41b7ebb0e6e1c01`
 
 - :ref:`exhale_enum_AnalysisGraph_8hpp_1aa4ec7a08bda020624a88080a11bb9fc9`
 

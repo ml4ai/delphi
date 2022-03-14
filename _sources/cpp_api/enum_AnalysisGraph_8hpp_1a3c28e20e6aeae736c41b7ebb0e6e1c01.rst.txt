@@ -1,0 +1,14 @@
+.. _exhale_enum_AnalysisGraph_8hpp_1a3c28e20e6aeae736c41b7ebb0e6e1c01:
+
+Enum HeadNodeModel
+==================
+
+- Defined in :ref:`file_lib_AnalysisGraph.hpp`
+
+
+Enum Documentation
+------------------
+
+
+.. doxygenenum:: HeadNodeModel
+   :project: My Project

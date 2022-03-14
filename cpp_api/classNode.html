@@ -165,6 +165,31 @@
 <span id="_CPPv3N4Node16print_indicatorsEv"></span><span id="_CPPv2N4Node16print_indicatorsEv"></span><span id="Node::print_indicators"></span><span class="target" id="classNode_1ae767d335836edae06b85dd76e2b2f83f"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">print_indicators</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Node16print_indicatorsEv" title="Permalink to this definition"></a><br /></dt>
 <dd></dd></dl>
 
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Node11clear_stateEv">
+<span id="_CPPv3N4Node11clear_stateEv"></span><span id="_CPPv2N4Node11clear_stateEv"></span><span id="Node::clear_state"></span><span class="target" id="classNode_1a2c50f9b9061769e98f168c3b15d7a1ad"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">clear_state</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Node11clear_stateEv" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Node31compute_bin_centers_and_spreadsERKNSt6vectorIiEERKNSt6vectorIdEE">
+<span id="_CPPv3N4Node31compute_bin_centers_and_spreadsERKNSt6vectorIiEERKNSt6vectorIdEE"></span><span id="_CPPv2N4Node31compute_bin_centers_and_spreadsERKNSt6vectorIiEERKNSt6vectorIdEE"></span><span id="Node::compute_bin_centers_and_spreads__std::vector:i:CR.std::vector:double:CR"></span><span class="target" id="classNode_1aa3e6b9689a1f3644aa90d1fc8b9de3f1"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">compute_bin_centers_and_spreads</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N4NodeStE" title="Node::std"><span class="n"><span class="pre">std</span></span></a><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">ts_sequence</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N4NodeStE" title="Node::std"><span class="n"><span class="pre">std</span></span></a><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">mean_sequence</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Node31compute_bin_centers_and_spreadsERKNSt6vectorIiEERKNSt6vectorIdEE" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Node40linear_interpolate_between_bin_midpointsERNSt6vectorIiEERNSt6vectorIdEE">
+<span id="_CPPv3N4Node40linear_interpolate_between_bin_midpointsERNSt6vectorIiEERNSt6vectorIdEE"></span><span id="_CPPv2N4Node40linear_interpolate_between_bin_midpointsERNSt6vectorIiEERNSt6vectorIdEE"></span><span id="Node::linear_interpolate_between_bin_midpoints__std::vector:i:R.std::vector:double:R"></span><span class="target" id="classNode_1a9f20db14d48664531905cf48fb314386"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">linear_interpolate_between_bin_midpoints</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N4NodeStE" title="Node::std"><span class="n"><span class="pre">std</span></span></a><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">ts_sequence</span></span>, <a class="reference internal" href="#_CPPv4N4NodeStE" title="Node::std"><span class="n"><span class="pre">std</span></span></a><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">mean_sequence</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Node40linear_interpolate_between_bin_midpointsERNSt6vectorIiEERNSt6vectorIdEE" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Linear interpolate between bin midpoints. Midpoints are calculated only when two consecutive modeling time steps has observations. Midpoints between bin b and bin (b + 1) % period are assigned to midpoint bin b. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hn_id</strong> – ID of the head node where midpoints are being computed </p></li>
+<li><p><strong>ts_sequence</strong> – Modeling time step sequence where there are observations. </p></li>
+<li><p><strong>mean_sequence</strong> – Each modeling time step could have multiple observations. When computing midpoints, we first compute the average of multiple observations per modeling time step and create a mean observation sequence. We compute the midpoints between these means. </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
@@ -196,6 +221,51 @@
 <dl class="cpp var">
 <dt class="sig sig-object cpp" id="_CPPv4N4Node9agg_levelE">
 <span id="_CPPv3N4Node9agg_levelE"></span><span id="_CPPv2N4Node9agg_levelE"></span><span id="Node::agg_level__DataAggregationLevel"></span><span class="target" id="classNode_1a92608d9a4fe635b049c7c66b43aad31c"></span><a class="reference internal" href="enum_definitions_8h_1afa0b0a781acd33167168a555b01ac0b5.html#_CPPv420DataAggregationLevel" title="DataAggregationLevel"><span class="n"><span class="pre">DataAggregationLevel</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">agg_level</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="enum_definitions_8h_1afa0b0a781acd33167168a555b01ac0b5.html#_CPPv420DataAggregationLevel" title="DataAggregationLevel"><span class="n"><span class="pre">DataAggregationLevel</span></span></a><span class="p"><span class="pre">::</span></span><a class="reference internal" href="enum_definitions_8h_1afa0b0a781acd33167168a555b01ac0b5.html#_CPPv4N20DataAggregationLevel7MONTHLYE" title="DataAggregationLevel::MONTHLY"><span class="n"><span class="pre">MONTHLY</span></span></a><a class="headerlink" href="#_CPPv4N4Node9agg_levelE" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N4Node16tot_observationsE">
+<span id="_CPPv3N4Node16tot_observationsE"></span><span id="_CPPv2N4Node16tot_observationsE"></span><span id="Node::tot_observations__i"></span><span class="target" id="classNode_1a8a9d3bc725c057e765fa62b3789a57bf"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tot_observations</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N4Node16tot_observationsE" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N4Node20fourier_coefficientsE">
+<span id="_CPPv3N4Node20fourier_coefficientsE"></span><span id="_CPPv2N4Node20fourier_coefficientsE"></span><span id="Node::fourier_coefficients__Eigen::VectorXd"></span><span class="target" id="classNode_1ad656dbe3a91d6c336719f6f21161298c"></span><span class="n"><span class="pre">Eigen</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">VectorXd</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fourier_coefficients</span></span></span><a class="headerlink" href="#_CPPv4N4Node20fourier_coefficientsE" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N4Node25best_fourier_coefficientsE">
+<span id="_CPPv3N4Node25best_fourier_coefficientsE"></span><span id="_CPPv2N4Node25best_fourier_coefficientsE"></span><span id="Node::best_fourier_coefficients__Eigen::VectorXd"></span><span class="target" id="classNode_1a2ee35b1a18d9bf986ef680114acdc7d3"></span><span class="n"><span class="pre">Eigen</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">VectorXd</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">best_fourier_coefficients</span></span></span><a class="headerlink" href="#_CPPv4N4Node25best_fourier_coefficientsE" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N4Node13fourier_freqsE">
+<span id="_CPPv3N4Node13fourier_freqsE"></span><span id="_CPPv2N4Node13fourier_freqsE"></span><span id="Node::fourier_freqs__std::vector:double:"></span><span class="target" id="classNode_1aabc5fa92148e3d68749116f6c6b7c66d"></span><a class="reference internal" href="#_CPPv4N4NodeStE" title="Node::std"><span class="n"><span class="pre">std</span></span></a><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fourier_freqs</span></span></span><a class="headerlink" href="#_CPPv4N4Node13fourier_freqsE" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N4Node9best_rmseE">
+<span id="_CPPv3N4Node9best_rmseE"></span><span id="_CPPv2N4Node9best_rmseE"></span><span id="Node::best_rmse__double"></span><span class="target" id="classNode_1a76429c28e190041ad1f52d19b404a767"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">best_rmse</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N4NodeStE" title="Node::std"><span class="n"><span class="pre">std</span></span></a><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">numeric_limits</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">infinity</span></span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv4N4Node9best_rmseE" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N4Node12n_componentsE">
+<span id="_CPPv3N4Node12n_componentsE"></span><span id="_CPPv2N4Node12n_componentsE"></span><span id="Node::n_components__i"></span><span class="target" id="classNode_1ae2d2ad246ccfc0d9a0109da1b05c3a17"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">n_components</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N4Node12n_componentsE" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N4Node17best_n_componentsE">
+<span id="_CPPv3N4Node17best_n_componentsE"></span><span id="_CPPv2N4Node17best_n_componentsE"></span><span id="Node::best_n_components__i"></span><span class="target" id="classNode_1a152301dc7aad67ec35e5ebf05a98de7d"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">best_n_components</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N4Node17best_n_componentsE" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N4Node16rmse_is_reducingE">
+<span id="_CPPv3N4Node16rmse_is_reducingE"></span><span id="_CPPv2N4Node16rmse_is_reducingE"></span><span id="Node::rmse_is_reducing__b"></span><span class="target" id="classNode_1a37b7c7203cc0929256020e2325254122"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">rmse_is_reducing</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">true</span></span><a class="headerlink" href="#_CPPv4N4Node16rmse_is_reducingE" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N4Node21between_bin_midpointsE">
+<span id="_CPPv3N4Node21between_bin_midpointsE"></span><span id="_CPPv2N4Node21between_bin_midpointsE"></span><span id="Node::between_bin_midpoints__std::unordered_map:i.std::vector:double::"></span><span class="target" id="classNode_1a47f45d7e53124c8e2e29ae6da953e153"></span><a class="reference internal" href="#_CPPv4N4NodeStE" title="Node::std"><span class="n"><span class="pre">std</span></span></a><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">unordered_map</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">int</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N4NodeStE" title="Node::std"><span class="n"><span class="pre">std</span></span></a><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">between_bin_midpoints</span></span></span><a class="headerlink" href="#_CPPv4N4Node21between_bin_midpointsE" title="Permalink to this definition"></a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp var">

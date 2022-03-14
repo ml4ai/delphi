@@ -125,6 +125,11 @@ Files
 .. toctree::
    :maxdepth: 5
 
+   file_lib_fourier.cpp.rst
+
+.. toctree::
+   :maxdepth: 5
+
    file_lib_graph_building.cpp.rst
 
 .. toctree::
@@ -191,6 +196,11 @@ Files
    :maxdepth: 5
 
    file_lib_ModelStatus.hpp.rst
+
+.. toctree::
+   :maxdepth: 5
+
+   file_lib_Node.cpp.rst
 
 .. toctree::
    :maxdepth: 5

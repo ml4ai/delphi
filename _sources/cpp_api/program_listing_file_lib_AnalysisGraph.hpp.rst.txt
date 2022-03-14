@@ -43,6 +43,7 @@ Program Listing for File AnalysisGraph.hpp
    enum InitialBeta { ZERO, ONE, HALF, MEAN, MEDIAN, PRIOR, RANDOM };
    //enum class InitialBeta : char { ZERO, ONE, HALF, MEAN, MEDIAN, PRIOR, RANDOM };
    enum InitialDerivative { DERI_ZERO, DERI_PRIOR };
+   enum HeadNodeModel { HNM_NAIVE, HNM_FOURIER };
    
    typedef std::unordered_map<std::string, std::vector<double>>
        AdjectiveResponseMap;
@@ -321,6 +322,15 @@ Program Listing for File AnalysisGraph.hpp
        std::vector<std::future<Eigen::MatrixXd>> matrix_exponential_futures;
      #endif
      std::unordered_map<double, Eigen::MatrixXd> e_A_ts;
+     std::unordered_map<double, Eigen::MatrixXd> previous_e_A_ts;
+   
+     // Computed matrix exponentials of A_fourier_base:
+     // e^(A_fourier_base * gap)
+     // for all the gaps we have to advance the system to evolve it to the time
+     // steps where there are observations.
+     // Access: [gap] --> e^(A_fourier_base * gap)
+     std::unordered_map<double, Eigen::MatrixXd> e_A_fourier_ts;
+   
      long num_modeling_timesteps_per_one_observation_timestep = 1;
    
      std::unordered_map<int, std::function<double(unsigned int, double)>> external_concepts;
@@ -362,6 +372,13 @@ Program Listing for File AnalysisGraph.hpp
      // I chose to name this A_original. After refactoring the code, we could
      // rename this to A.
      Eigen::MatrixXd A_original;
+     Eigen::MatrixXd previous_A_original;
+   
+     HeadNodeModel head_node_model = HeadNodeModel::HNM_NAIVE;//HeadNodeModel::HNM_FOURIER;//
+     // Base transition matrix for the Fourier decomposition based head node model
+     Eigen::MatrixXd A_fourier_base;
+     // Initial state for the Fourier decomposition based head node model
+     Eigen::VectorXd s0_fourier;
    
      // Determines whether to use the continuous version or the discretized
      // version of the solution for the system of differential equations.
@@ -736,7 +753,9 @@ Program Listing for File AnalysisGraph.hpp
      void set_base_transition_matrix();
    
      #ifdef MULTI_THREADING
-       void compute_multiple_matrix_exponentials_parallelly();
+       void compute_multiple_matrix_exponentials_parallelly(
+                            const Eigen::MatrixXd & A,
+                            std::vector<std::future<Eigen::MatrixXd>> &me_futures);
      #endif
    
      // Sample elements of the stochastic transition matrix from the
@@ -845,6 +864,78 @@ Program Listing for File AnalysisGraph.hpp
              1, 
          std::string node_to_highlight = "",
          std::string rankdir = "TB");
+   
+     /*
+      ============================================================================
+      Private: Fourier decomposition based seasonal head node model (in fourier.cpp)
+      ============================================================================
+     */
+   
+     std::vector<double> generate_frequencies_for_period(int period,
+                                                         int n_components);
+   
+     Eigen::MatrixXd evolve_LDS(const Eigen::MatrixXd &A_base,
+                                const Eigen::VectorXd &_s0,
+                                int n_modeling_time_steps,
+                                double step_size = 1);
+   
+     std::pair<Eigen::MatrixXd, Eigen::VectorXd>
+       assemble_sinusoidal_generating_LDS(const std::vector<double> &freqs);
+   
+     /*
+     std::pair<Eigen::MatrixXd, Eigen::VectorXd>
+       assemble_sinusoidal_generating_LDS(unsigned short components,
+                                          unsigned short period);
+     */
+   
+     Eigen::MatrixXd generate_sinusoidal_values_for_bins(const Eigen::MatrixXd &A_sin_base,
+                                                         const Eigen::VectorXd &s0_sin,
+                                                         int period);
+   
+     // NOTE: This method could be made a method of the Node class. The best
+     //       architecture would be to make a subclass, HeadNode, of Node class and
+     //       include this method there. At the moment we incrementally create the
+     //       graph while identifying head nodes, we are using Node objects
+     //       everywhere. To follow the HeadNode subclass specialization route, we
+     //       either have to replace Node objects with HeadNode objects or do a
+     //       first pass through the input to identify head nodes and then create
+     //        the graph.
+     void compute_fourier_coefficients_from_least_square_optimization(
+                                               const Eigen::MatrixXd &sinusoidals,
+                                               int n_components,
+                                               std::vector<int> &head_node_ids);
+   
+     std::pair<Eigen::MatrixXd, Eigen::VectorXd>
+     assemble_head_node_modeling_LDS(const Eigen::MatrixXd &A_sin_base,
+                                     const Eigen::VectorXd &s0_sin,
+                                     int n_components,
+                                     int n_concepts,
+                                     std::unordered_map<int, int> &hn_to_mat_row);
+   
+     bool determine_the_best_number_of_components(
+                                      const Eigen::MatrixXd & A_hn_period_base,
+                                      const Eigen::VectorXd & s0_hn_period,
+                                      int period,
+                                      int n_components,
+                                      std::unordered_map<int, int> &hn_to_mat_row);
+   
+     std::pair<Eigen::MatrixXd, Eigen::VectorXd>
+         assemble_all_seasonal_head_node_modeling_LDS(
+                                  std::unordered_set<double> fourier_frequency_set,
+                                  int n_concepts,
+                                  std::unordered_map<int, int> &hn_to_mat_row);
+   
+     void assemble_base_LDS(InitialDerivative id);
+   
+     void merge_concept_LDS_into_seasonal_head_node_modeling_LDS(
+                                             const Eigen::MatrixXd &A_concept_base,
+                                             const Eigen::VectorXd s0_concept);
+   
+     void predictions_to_csv(const Eigen::MatrixXd &A_base,
+                             const Eigen::VectorXd &_s0, int n_time_steps);
+   
+     std::pair<Eigen::MatrixXd, Eigen::VectorXd>
+     fit_seasonal_head_node_model_via_fourier_decomposition();
    
      public:
      AnalysisGraph() {
@@ -1155,6 +1246,7 @@ Program Listing for File AnalysisGraph.hpp
    
      void run_train_model(int res = 200,
                       int burn = 10000,
+                      HeadNodeModel head_node_model = HeadNodeModel::HNM_NAIVE,
                       InitialBeta initial_beta = InitialBeta::ZERO,
                       InitialDerivative initial_derivative = InitialDerivative::DERI_ZERO,
                       bool use_heuristic = false,

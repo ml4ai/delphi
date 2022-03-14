@@ -32,6 +32,7 @@ Files
 - :ref:`file_lib_ExperimentStatus.cpp`
 - :ref:`file_lib_ExperimentStatus.hpp`
 - :ref:`file_lib_format_output.cpp`
+- :ref:`file_lib_fourier.cpp`
 - :ref:`file_lib_graph_building.cpp`
 - :ref:`file_lib_graph_modification.cpp`
 - :ref:`file_lib_graph_utils.cpp`
@@ -46,6 +47,7 @@ Files
 - :ref:`file_lib_KDE.hpp`
 - :ref:`file_lib_ModelStatus.cpp`
 - :ref:`file_lib_ModelStatus.hpp`
+- :ref:`file_lib_Node.cpp`
 - :ref:`file_lib_Node.hpp`
 - :ref:`file_lib_parameter_initialization.cpp`
 - :ref:`file_lib_prediction.cpp`

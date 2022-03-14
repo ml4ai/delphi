@@ -51,6 +51,8 @@ Included By
 -----------
 
 
+- :ref:`file_lib_fourier.cpp`
+
 - :ref:`file_lib_profiler.cpp`
 
 

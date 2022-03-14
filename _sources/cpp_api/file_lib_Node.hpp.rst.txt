@@ -29,6 +29,8 @@ Includes
 --------
 
 
+- ``Eigen/Dense``
+
 - ``Indicator.hpp`` (:ref:`file_lib_Indicator.hpp`)
 
 - ``definitions.h`` (:ref:`file_lib_definitions.h`)
@@ -52,6 +54,8 @@ Included By
 - :ref:`file_lib_DiGraph.hpp`
 
 - :ref:`file_lib_graphviz.cpp`
+
+- :ref:`file_lib_Node.cpp`
 
 - :ref:`file_lib_subgraphs.cpp`
 

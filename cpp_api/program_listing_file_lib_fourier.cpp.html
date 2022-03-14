@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Program Listing for File fourier.cpp &mdash; delphi  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> delphi
+            <img src="../_static/delphi_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html">}</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library_root.html">C++ API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">delphi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Program Listing for File fourier.cpp</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/cpp_api/program_listing_file_lib_fourier.cpp.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="program-listing-for-file-fourier-cpp">
+<span id="program-listing-file-lib-fourier-cpp"></span><h1>Program Listing for File fourier.cpp<a class="headerlink" href="#program-listing-for-file-fourier-cpp" title="Permalink to this headline"></a></h1>
+<p>↰ <a class="reference internal" href="file_lib_fourier.cpp.html#file-lib-fourier-cpp"><span class="std std-ref">Return to documentation for file</span></a> (<code class="docutils literal notranslate"><span class="pre">lib/fourier.cpp</span></code>)</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;AnalysisGraph.hpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;CSVWriter.hpp&quot;</span><span class="cp"></span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">std</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">generate_frequencies_for_period</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">period</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                              </span><span class="kt">int</span><span class="w"> </span><span class="n">n_components</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">freqs</span><span class="p">(</span><span class="n">n_components</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// λ is the amount we have to stretch/shrink pure sinusoidal curves to make</span>
+<span class="w">    </span><span class="c1">// one sine cycle = period radians</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">lambda</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.0</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">M_PI</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">period</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// ω is the frequency of each stretched/shrunk sinusoidal curve.</span>
+<span class="w">    </span><span class="c1">// With respect to trigonometric function differentiation, the effective</span>
+<span class="w">    </span><span class="c1">// frequency of pure sinusoidal curves is λω</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">omega</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">omega</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">n_components</span><span class="p">;</span><span class="w"> </span><span class="n">omega</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">freqs</span><span class="p">[</span><span class="n">omega</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lambda</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">omega</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">freqs</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="n">pair</span><span class="o">&lt;</span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="p">,</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="o">&gt;</span><span class="w"></span>
+<span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">assemble_sinusoidal_generating_LDS</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&amp;</span><span class="n">freqs</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">lds_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">freqs</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// For each effective frequency, there are two rows in the transition matrix:</span>
+<span class="w">    </span><span class="c1">//      1) for first derivative and</span>
+<span class="w">    </span><span class="c1">//      2) for second derivative</span>
+<span class="w">    </span><span class="c1">// In the state vector these rows are:</span>
+<span class="w">    </span><span class="c1">//      1) the value</span>
+<span class="w">    </span><span class="c1">//      2) the first derivative---</span>
+<span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="n">A_sin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="o">::</span><span class="n">Zero</span><span class="p">(</span><span class="n">lds_size</span><span class="p">,</span><span class="w"> </span><span class="n">lds_size</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="w"> </span><span class="n">s0_sin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="o">::</span><span class="n">Zero</span><span class="p">(</span><span class="n">lds_size</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">freqs</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">i2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w">     </span><span class="c1">// first derivative matrix row</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">i2p1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">  </span><span class="c1">// second derivative matrix row</span>
+
+<span class="w">        </span><span class="c1">// Assembling a block diagonal matrix</span>
+<span class="w">        </span><span class="c1">// with each 2 x 2 block having the format</span>
+<span class="w">        </span><span class="c1">// columns -&gt;   2i        2i+1</span>
+<span class="w">        </span><span class="c1">//            _________________</span>
+<span class="w">        </span><span class="c1">// row 2i    |   0          1 |</span>
+<span class="w">        </span><span class="c1">// row 2i+1  | -(λω)^2      0 |</span>
+<span class="w">        </span><span class="c1">// ω = i+1 &amp; λ = 2π/period</span>
+<span class="w">        </span><span class="n">A_sin</span><span class="p">(</span><span class="n">i2</span><span class="p">,</span><span class="w"> </span><span class="n">i2p1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">A_sin</span><span class="p">(</span><span class="n">i2p1</span><span class="p">,</span><span class="w"> </span><span class="n">i2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">freqs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">freqs</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
+
+<span class="w">        </span><span class="c1">// Considering t₀ = 0 radians, the initial state of the sinusoidal</span>
+<span class="w">        </span><span class="c1">// generating LDS is:</span>
+<span class="w">        </span><span class="c1">// row 2i    |    sin(λω 0) |  = |  0 |</span>
+<span class="w">        </span><span class="c1">// row 2i+1  | λω cos(λω 0) |    | λω |</span>
+<span class="w">        </span><span class="c1">// ω = i+1 &amp; λ = 2π/period</span>
+<span class="w">        </span><span class="n">s0_sin</span><span class="p">(</span><span class="n">i2p1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">freqs</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">make_pair</span><span class="p">(</span><span class="n">A_sin</span><span class="p">,</span><span class="w"> </span><span class="n">s0_sin</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="cm">/*</span>
+<span class="cm">// 1087</span>
+<span class="cm">pair&lt;Eigen::MatrixXd, Eigen::VectorXd&gt;</span>
+<span class="cm">AnalysisGraph::assemble_sinusoidal_generating_LDS(unsigned short components,</span>
+<span class="cm">                                                  unsigned short period) {</span>
+<span class="cm">    unsigned short comps_2 = components * 2;</span>
+<span class="cm">    Eigen::MatrixXd A_sin_k = Eigen::MatrixXd::Zero(comps_2, comps_2);</span>
+<span class="cm">    Eigen::VectorXd s0_sin_k = Eigen::VectorXd::Zero(comps_2);</span>
+
+<span class="cm">    // Assembling a block diagonal matrix</span>
+<span class="cm">    // with each 2 x 2 block having the format (ω = i + 1)</span>
+<span class="cm">    // colunms           2i               2i+1</span>
+<span class="cm">    //            _____________________________</span>
+<span class="cm">    // row 2i    |        0                 1 |</span>
+<span class="cm">    // row 2i+1  | -(2πω / period)^2        0 |</span>
+<span class="cm">    for (int i = 0; i &lt; components; i++) {</span>
+<span class="cm">        int i2 = i * 2;</span>
+<span class="cm">        int i2p1 = i2 + 1;</span>
+<span class="cm">        int ip1 = i + 1;</span>
+<span class="cm">        double combined_frequency = 2.0 * M_PI * ip1 / period;</span>
+<span class="cm">        A_sin_k(i2, i2p1) = 1;</span>
+<span class="cm">        A_sin_k(i2p1, i2) = -combined_frequency * combined_frequency;</span>
+
+<span class="cm">        // Considering t0 = 0 radians, the initial state of the sinusoidal</span>
+<span class="cm">        // generating LDS is:</span>
+<span class="cm">        // row 2i    |       sin(0)          |  = |       0        |</span>
+<span class="cm">        // row 2i+1  | (2πω / period) cos(0) |    | (2πω / period) |</span>
+<span class="cm">        // s0_sin_k(i2p1) = ip1 * cos(ip1 * M_PI); //#(-1)**(ip1)*ip1</span>
+<span class="cm">        s0_sin_k(i2p1) = combined_frequency;</span>
+<span class="cm">    }</span>
+
+<span class="cm">    return make_pair(A_sin_k, s0_sin_k);</span>
+<span class="cm">}</span>
+<span class="cm"> */</span><span class="w"></span>
+
+<span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">evolve_LDS</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="o">&amp;</span><span class="n">A_base</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                          </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="w"> </span><span class="o">&amp;</span><span class="n">_s0</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                          </span><span class="kt">int</span><span class="w"> </span><span class="n">n_modeling_time_steps</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                          </span><span class="kt">double</span><span class="w"> </span><span class="n">step_size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">tot_steps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">int</span><span class="p">(</span><span class="n">n_modeling_time_steps</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">step_size</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">lds_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_s0</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// Transition matrix to advance the system one step_size forward</span>
+<span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="n">A_step</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">A_base</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">step_size</span><span class="p">).</span><span class="n">exp</span><span class="p">();</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// A matrix to accumulate predictions of the system</span>
+<span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="n">preds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="o">::</span><span class="n">Zero</span><span class="p">(</span><span class="n">lds_size</span><span class="p">,</span><span class="w"> </span><span class="n">tot_steps</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">preds</span><span class="p">.</span><span class="n">col</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_s0</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// Evolve the LDS one step_size at a time for desired number of steps</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">col</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">col</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">tot_steps</span><span class="p">;</span><span class="w"> </span><span class="n">col</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">preds</span><span class="p">.</span><span class="n">col</span><span class="p">(</span><span class="n">col</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">A_step</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">preds</span><span class="p">.</span><span class="n">col</span><span class="p">(</span><span class="n">col</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">preds</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"></span>
+<span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">generate_sinusoidal_values_for_bins</span><span class="p">(</span><span class="w"></span>
+<span class="w">                                              </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="o">&amp;</span><span class="n">A_sin_base</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                              </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="w"> </span><span class="o">&amp;</span><span class="n">s0_sin</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                              </span><span class="kt">int</span><span class="w"> </span><span class="n">period</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// Evolve the sinusoidal generating LDS one step at a time for a whole</span>
+<span class="w">    </span><span class="c1">// period to generate all the sinusoidal values required for the Fourier</span>
+<span class="w">    </span><span class="c1">// reconstruction of the seasonal time series. Column t provides</span>
+<span class="w">    </span><span class="c1">// sinusoidal values required for bin t.</span>
+<span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="n">sinusoidals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">evolve_LDS</span><span class="p">(</span><span class="n">A_sin_base</span><span class="p">,</span><span class="w"> </span><span class="n">s0_sin</span><span class="p">,</span><span class="w"> </span><span class="n">period</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                                             </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// Transpose the sinusoidal matrix so that row t contains the sinusoidal</span>
+<span class="w">    </span><span class="c1">// values for bin t.</span>
+<span class="w">    </span><span class="n">sinusoidals</span><span class="p">.</span><span class="n">transposeInPlace</span><span class="p">();</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">sinusoidals</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="c1">// NOTE: This method could be made a method of the Node class. The best</span>
+<span class="c1">//       architecture would be to make a subclass, HeadNode, of Node class and</span>
+<span class="c1">//       include this method there. At the moment we incrementally create the</span>
+<span class="c1">//       graph while identifying head nodes, we are using Node objects</span>
+<span class="c1">//       everywhere. To follow the HeadNode subclass specialization route, we</span>
+<span class="c1">//       either have to replace Node objects with HeadNode objects or do a first</span>
+<span class="c1">//       pass through the input to identify head nodes and then create the graph.</span>
+<span class="kt">void</span><span class="w"></span>
+<span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">compute_fourier_coefficients_from_least_square_optimization</span><span class="p">(</span><span class="w"></span>
+<span class="w">                                           </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="o">&amp;</span><span class="n">sinusoidals</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                           </span><span class="kt">int</span><span class="w"> </span><span class="n">n_components</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                           </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&amp;</span><span class="n">head_node_ids</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">tot_sinusoidal_rows</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">n_components</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">hn_id</span><span class="o">:</span><span class="w"> </span><span class="n">head_node_ids</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">Node</span><span class="o">&amp;</span><span class="w"> </span><span class="n">hn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">hn_id</span><span class="p">];</span><span class="w"></span>
+
+<span class="w">        </span><span class="cm">/* Setting up the linear system Ux = y to solve for the</span>
+<span class="cm">         * Fourier coefficients using the least squares optimization */</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Adding one additional column for cos(0) term</span>
+<span class="w">        </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="n">U</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="o">::</span><span class="n">Zero</span><span class="p">(</span><span class="n">hn</span><span class="p">.</span><span class="n">tot_observations</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                  </span><span class="n">tot_sinusoidal_rows</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">        </span><span class="c1">// Setting the coefficient for cos(0) term (α₀). In the traditional</span>
+<span class="w">        </span><span class="c1">// Fourier decomposition this is 0.5 and when α₀ is used, we have to</span>
+<span class="w">        </span><span class="c1">// divide it by 2.</span>
+<span class="w">        </span><span class="c1">// To avoid this additional division, here we use 1 instead.</span>
+<span class="w">        </span><span class="n">U</span><span class="p">.</span><span class="n">col</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="o">::</span><span class="n">Ones</span><span class="p">(</span><span class="n">hn</span><span class="p">.</span><span class="n">tot_observations</span><span class="p">);</span><span class="w"> </span><span class="c1">// ≡ cos(0)</span>
+<span class="w">        </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="o">::</span><span class="n">Zero</span><span class="p">(</span><span class="n">hn</span><span class="p">.</span><span class="n">tot_observations</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">row</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">        </span><span class="c1">// Iterate through all the bins (partitions)</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="p">[</span><span class="n">bin</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">]</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">hn</span><span class="p">.</span><span class="n">partitioned_data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+
+<span class="w">            </span><span class="c1">// Iterate through all the observations in one bin</span>
+<span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">obs</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">second</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="c1">// Only the first tot_sinusoidal_rows columns of the</span>
+<span class="w">                </span><span class="c1">// sinusoidals are used.</span>
+<span class="w">                </span><span class="n">U</span><span class="p">.</span><span class="n">block</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">tot_sinusoidal_rows</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">                                      </span><span class="n">sinusoidals</span><span class="p">.</span><span class="n">block</span><span class="p">(</span><span class="n">bin</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                        </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">tot_sinusoidal_rows</span><span class="p">);</span><span class="w"></span>
+<span class="w">                </span><span class="n">y</span><span class="p">(</span><span class="n">row</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">obs</span><span class="p">;</span><span class="w"></span>
+<span class="w">                </span><span class="n">row</span><span class="o">++</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">hn</span><span class="p">.</span><span class="n">fourier_coefficients</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">            </span><span class="n">U</span><span class="p">.</span><span class="n">bdcSvd</span><span class="p">(</span><span class="n">Eigen</span><span class="o">::</span><span class="n">ComputeThinU</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">ComputeThinV</span><span class="p">).</span><span class="n">solve</span><span class="p">(</span><span class="n">y</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="n">pair</span><span class="o">&lt;</span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="p">,</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="o">&gt;</span><span class="w"></span>
+<span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">assemble_head_node_modeling_LDS</span><span class="p">(</span><span class="w"></span>
+<span class="w">                                       </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="o">&amp;</span><span class="n">A_sin_base</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                       </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="w"> </span><span class="o">&amp;</span><span class="n">s0_sin</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                       </span><span class="kt">int</span><span class="w"> </span><span class="n">n_components</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                       </span><span class="kt">int</span><span class="w"> </span><span class="n">n_concepts</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                       </span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&amp;</span><span class="n">hn_to_mat_row</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">tot_concept_rows</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">n_concepts</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">tot_sinusoidal_rows</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">n_components</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">lds_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tot_concept_rows</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">tot_sinusoidal_rows</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">double</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">frequency_to_idx</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">tot_sinusoidal_rows</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Since we are using t₀ = 0 radians as the initial time point, the</span>
+<span class="w">        </span><span class="c1">// odd rows of the initial state of the sinusoidal generating LDS,</span>
+<span class="w">        </span><span class="c1">// s0_sin, contains all the effective frequencies (λω) used to generate</span>
+<span class="w">        </span><span class="c1">// the sinusoidal curves of different effective frequencies. Here we</span>
+<span class="w">        </span><span class="c1">// are extracting those and assign them to the rows of the complete LDS.</span>
+<span class="w">        </span><span class="c1">// The first tot_concept_rows of the system are used to model the actual</span>
+<span class="w">        </span><span class="c1">// concepts. The latter tot_sinusoidal_rows are used to generate the</span>
+<span class="w">        </span><span class="c1">// sinusoidal curves of all the effective frequencies used to model the</span>
+<span class="w">        </span><span class="c1">// seasonal head nodes.</span>
+<span class="w">        </span><span class="n">frequency_to_idx</span><span class="p">[</span><span class="n">s0_sin</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tot_concept_rows</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="n">A_complete_base</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="o">::</span><span class="n">Zero</span><span class="p">(</span><span class="n">lds_size</span><span class="p">,</span><span class="w"> </span><span class="n">lds_size</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// TODO: We do not have to do this within this method, when assembling the</span>
+<span class="w">    </span><span class="c1">// final LDS, we cold do this to the matrix and initial state returned by</span>
+<span class="w">    </span><span class="c1">// this method.</span>
+<span class="w">    </span><span class="c1">//A_complete_base.topLeftCorner(tot_concept_rows, tot_concept_rows) =</span>
+<span class="w">    </span><span class="c1">//                                                             A_concept_base;</span>
+
+<span class="w">    </span><span class="n">A_complete_base</span><span class="p">.</span><span class="n">bottomRightCorner</span><span class="p">(</span><span class="n">tot_sinusoidal_rows</span><span class="p">,</span><span class="w"> </span><span class="n">tot_sinusoidal_rows</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="o">=</span><span class="w"> </span><span class="n">A_sin_base</span><span class="p">.</span><span class="n">topLeftCorner</span><span class="p">(</span><span class="n">tot_sinusoidal_rows</span><span class="p">,</span><span class="w"> </span><span class="n">tot_sinusoidal_rows</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="w"> </span><span class="n">s0_complete</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="o">::</span><span class="n">Zero</span><span class="p">(</span><span class="n">lds_size</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">s0_complete</span><span class="p">.</span><span class="n">tail</span><span class="p">(</span><span class="n">tot_sinusoidal_rows</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s0_sin</span><span class="p">.</span><span class="n">head</span><span class="p">(</span><span class="n">tot_sinusoidal_rows</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="p">[</span><span class="n">hn_id</span><span class="p">,</span><span class="w"> </span><span class="n">dot_row</span><span class="p">]</span><span class="o">:</span><span class="w"> </span><span class="n">hn_to_mat_row</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">Node</span><span class="o">&amp;</span><span class="w"> </span><span class="n">hn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">hn_id</span><span class="p">];</span><span class="w"></span>
+
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">dot_dot_row</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dot_row</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">        </span><span class="c1">// Sinusoidal coefficient vector to calculate initial value for concept v</span>
+<span class="w">        </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="w"> </span><span class="n">v0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="o">::</span><span class="n">Zero</span><span class="p">(</span><span class="n">hn</span><span class="p">.</span><span class="n">fourier_coefficients</span><span class="p">.</span><span class="n">size</span><span class="p">());</span><span class="w"></span>
+
+<span class="w">        </span><span class="c1">// Coefficient for cos(0) term (α₀). In the traditional Fourier</span>
+<span class="w">        </span><span class="c1">// decomposition this is 0.5. When we compute α₀ we include this factor</span>
+<span class="w">        </span><span class="c1">// into α₀ (Instead of computing α₀ as in the traditional Fourier series,</span>
+<span class="w">        </span><span class="c1">// we compute α₀/2 straightaway).</span>
+<span class="w">        </span><span class="n">v0</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">concept_freq_idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">concept_freq_idx</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">hn</span><span class="p">.</span><span class="n">n_components</span><span class="p">;</span><span class="w"></span>
+<span class="w">             </span><span class="n">concept_freq_idx</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+
+<span class="w">            </span><span class="kt">double</span><span class="w"> </span><span class="n">concept_freq</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hn</span><span class="p">.</span><span class="n">fourier_freqs</span><span class="p">[</span><span class="n">concept_freq_idx</span><span class="p">];</span><span class="w"> </span><span class="c1">// λω</span>
+<span class="w">            </span><span class="kt">double</span><span class="w"> </span><span class="n">concept_freq_squared</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">concept_freq</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">concept_freq</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">concept_freq_idx_2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">concept_freq_idx</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">beta_omega_idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">concept_freq_idx_2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">alpha_omega_idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">concept_freq_idx_2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">            </span><span class="c1">// Coefficient for sin(λω t) terms ≡ β_ω</span>
+<span class="w">            </span><span class="kt">double</span><span class="w"> </span><span class="n">beta_omega</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hn</span><span class="p">.</span><span class="n">fourier_coefficients</span><span class="p">[</span><span class="n">beta_omega_idx</span><span class="p">];</span><span class="w"></span>
+<span class="w">            </span><span class="c1">// Coefficient for λω cos(λω t) terms ≡ α_ω</span>
+<span class="w">            </span><span class="kt">double</span><span class="w"> </span><span class="n">alpha_omega</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hn</span><span class="p">.</span><span class="n">fourier_coefficients</span><span class="p">[</span><span class="n">alpha_omega_idx</span><span class="p">];</span><span class="w"></span>
+
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">sin_idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">frequency_to_idx</span><span class="p">[</span><span class="n">concept_freq</span><span class="p">];</span><span class="w"></span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">cos_idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sin_idx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">            </span><span class="c1">// Setting coefficients of the first derivative of the head node</span>
+<span class="w">            </span><span class="c1">// hn_id. They are in row 2 * hn_id in the transition matrix.</span>
+
+<span class="w">            </span><span class="c1">// Setting coefficients for sin terms: -freq^2 * cos_coefficient</span>
+<span class="w">            </span><span class="n">A_complete_base</span><span class="p">(</span><span class="n">dot_row</span><span class="p">,</span><span class="w"> </span><span class="n">sin_idx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">concept_freq_squared</span><span class="w"> </span><span class="o">*</span><span class="w"></span>
+<span class="w">                                                 </span><span class="n">alpha_omega</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">            </span><span class="c1">// Setting coefficients for cos terms: sin_coefficient</span>
+<span class="w">            </span><span class="n">A_complete_base</span><span class="p">(</span><span class="n">dot_row</span><span class="p">,</span><span class="w"> </span><span class="n">cos_idx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beta_omega</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">            </span><span class="c1">// Setting coefficients of the second derivative of the head node</span>
+<span class="w">            </span><span class="c1">// hn_id. They are in row 2 * hn_id + 1 in the transition matrix.</span>
+
+<span class="w">            </span><span class="c1">// Setting coefficients for sin terms: -freq^2 * sin_coefficient</span>
+<span class="w">            </span><span class="n">A_complete_base</span><span class="p">(</span><span class="n">dot_dot_row</span><span class="p">,</span><span class="w"> </span><span class="n">sin_idx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">concept_freq_squared</span><span class="w"> </span><span class="o">*</span><span class="w"></span>
+<span class="w">                                                     </span><span class="n">beta_omega</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">            </span><span class="c1">// Setting coefficients for cos terms: -freq^2 * cos_coefficient</span>
+<span class="w">            </span><span class="n">A_complete_base</span><span class="p">(</span><span class="n">dot_dot_row</span><span class="p">,</span><span class="w"> </span><span class="n">cos_idx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">concept_freq_squared</span><span class="w"> </span><span class="o">*</span><span class="w"></span>
+<span class="w">                                                     </span><span class="n">alpha_omega</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">            </span><span class="c1">// Populating the sinusoidal coefficient vector to compute the</span>
+<span class="w">            </span><span class="c1">// initial value for the head node hn_id.</span>
+<span class="w">            </span><span class="n">v0</span><span class="p">(</span><span class="n">beta_omega_idx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s0_complete</span><span class="p">(</span><span class="n">sin_idx</span><span class="p">);</span><span class="w"></span>
+<span class="w">            </span><span class="n">v0</span><span class="p">(</span><span class="n">alpha_omega_idx</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s0_complete</span><span class="p">(</span><span class="n">cos_idx</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">        </span><span class="c1">// Setting the initial value for head node hn_id.</span>
+<span class="w">        </span><span class="n">s0_complete</span><span class="p">(</span><span class="n">dot_row</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hn</span><span class="p">.</span><span class="n">fourier_coefficients</span><span class="p">.</span><span class="n">dot</span><span class="p">(</span><span class="n">v0</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">        </span><span class="c1">// Setting the initial derivative for head node hn_id.</span>
+<span class="w">        </span><span class="n">s0_complete</span><span class="p">(</span><span class="n">dot_dot_row</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">A_complete_base</span><span class="p">.</span><span class="n">row</span><span class="p">(</span><span class="n">dot_row</span><span class="p">).</span><span class="n">dot</span><span class="p">(</span><span class="n">s0_complete</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">make_pair</span><span class="p">(</span><span class="n">A_complete_base</span><span class="p">,</span><span class="w"> </span><span class="n">s0_complete</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="kt">bool</span><span class="w"> </span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">determine_the_best_number_of_components</span><span class="p">(</span><span class="w"></span>
+<span class="w">                                   </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">A_hn_period_base</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                   </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">s0_hn_period</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                   </span><span class="kt">int</span><span class="w"> </span><span class="n">period</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                   </span><span class="kt">int</span><span class="w"> </span><span class="n">n_components</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                   </span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&amp;</span><span class="n">hn_to_mat_row</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="n">A_till_first_midpoint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">A_hn_period_base</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.5</span><span class="p">).</span><span class="n">exp</span><span class="p">();</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// Evolve the system for 1 period of time steps at between bin midpoints.</span>
+<span class="w">    </span><span class="c1">// Column b of preds contain the predictions for the midpoint between bin</span>
+<span class="w">    </span><span class="c1">// b and bin (b + 1) % period.</span>
+<span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="n">preds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">evolve_LDS</span><span class="p">(</span><span class="n">A_hn_period_base</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                             </span><span class="n">A_till_first_midpoint</span><span class="w"> </span><span class="o">*</span><span class="w"></span>
+<span class="w">                                                                   </span><span class="n">s0_hn_period</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                             </span><span class="n">period</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// Track whether the rmse for at least one head node got reduced for this</span>
+<span class="w">    </span><span class="c1">// number of components. This means we have to check the rmse for</span>
+<span class="w">    </span><span class="c1">// n_components + 1. Monitoring this allows us to stop training when rmses</span>
+<span class="w">    </span><span class="c1">// are not reducing for all the head nodes with the specified period.</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">rmses_are_reducing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="p">[</span><span class="n">hn_id</span><span class="p">,</span><span class="w"> </span><span class="n">hn_preds_row</span><span class="p">]</span><span class="o">:</span><span class="w"> </span><span class="n">hn_to_mat_row</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// NOTE: This for loop could be made a method of the Node class. The</span>
+<span class="w">        </span><span class="c1">//       best architecture would be to make a subclass, HeadNode, of</span>
+<span class="w">        </span><span class="c1">//       Node class and include this for loop as a method there. At the</span>
+<span class="w">        </span><span class="c1">//       moment we incrementally create the graph while identifying head</span>
+<span class="w">        </span><span class="c1">//       nodes, we are using Node objects everywhere. To follow the</span>
+<span class="w">        </span><span class="c1">//       HeadNode subclass specialization route, we either have to</span>
+<span class="w">        </span><span class="c1">//       replace Node objects with HeadNode objects or do a first pass</span>
+<span class="w">        </span><span class="c1">//       through the input to identify head nodes and then create the</span>
+<span class="w">        </span><span class="c1">//       graph.</span>
+<span class="w">        </span><span class="n">Node</span><span class="o">&amp;</span><span class="w"> </span><span class="n">hn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">hn_id</span><span class="p">];</span><span class="w"></span>
+<span class="w">        </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">errors</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">        </span><span class="c1">// TODO: Just for debugging delete</span>
+<span class="w">        </span><span class="c1">//for (auto [midpoint, vals] : hn.partitioned_data) {</span>
+<span class="w">            </span><span class="c1">//for (double val : vals.second) {</span>
+
+<span class="w">        </span><span class="c1">// Iterate through all the midpoint bins</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="p">[</span><span class="n">midpoint</span><span class="p">,</span><span class="w"> </span><span class="n">vals</span><span class="p">]</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">hn</span><span class="p">.</span><span class="n">between_bin_midpoints</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="c1">// Iterate through all the linear interpolated midpoints in the</span>
+<span class="w">            </span><span class="c1">// current midpoint bin.</span>
+<span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">val</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">vals</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="n">errors</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">val</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">preds</span><span class="p">(</span><span class="n">hn_preds_row</span><span class="p">,</span><span class="w"> </span><span class="n">midpoint</span><span class="p">));</span><span class="w"></span>
+<span class="w">            </span><span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">rmse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">errors</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">rmse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sqrt</span><span class="p">(</span><span class="n">inner_product</span><span class="p">(</span><span class="n">errors</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">errors</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="w"></span>
+<span class="w">                                      </span><span class="n">errors</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="mf">0.0</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">errors</span><span class="p">.</span><span class="n">size</span><span class="p">());</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">        </span><span class="c1">// cout &lt;&lt; n_components &lt;&lt; &quot; : &quot; &lt;&lt; rmse &lt;&lt; endl;</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">hn</span><span class="p">.</span><span class="n">rmse_is_reducing</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="c1">// RMSE for this head node got reduced for this head node for</span>
+<span class="w">            </span><span class="c1">// n_components - 1 components.</span>
+<span class="w">            </span><span class="n">hn</span><span class="p">.</span><span class="n">rmse_is_reducing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">rmse</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">hn</span><span class="p">.</span><span class="n">best_rmse</span><span class="p">);</span><span class="w"></span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">hn</span><span class="p">.</span><span class="n">rmse_is_reducing</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="c1">// RMSE for this head node got reduced this time as well for</span>
+<span class="w">                </span><span class="c1">// n_components components.</span>
+
+<span class="w">                </span><span class="c1">// Remember that rmse for at least one head node got reduced</span>
+<span class="w">                </span><span class="c1">// during this run. So, we need to check again for</span>
+<span class="w">                </span><span class="c1">// n_components + 1 components.</span>
+<span class="w">                </span><span class="n">rmses_are_reducing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">                </span><span class="c1">// Remember the best model we have so far.</span>
+<span class="w">                </span><span class="n">hn</span><span class="p">.</span><span class="n">best_rmse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rmse</span><span class="p">;</span><span class="w"></span>
+<span class="w">                </span><span class="n">hn</span><span class="p">.</span><span class="n">best_n_components</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n_components</span><span class="p">;</span><span class="w"></span>
+<span class="w">                </span><span class="n">hn</span><span class="p">.</span><span class="n">best_fourier_coefficients</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hn</span><span class="p">.</span><span class="n">fourier_coefficients</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">rmses_are_reducing</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="n">pair</span><span class="o">&lt;</span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="p">,</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="o">&gt;</span><span class="w"></span>
+<span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">assemble_all_seasonal_head_node_modeling_LDS</span><span class="p">(</span><span class="w"></span>
+<span class="w">                                  </span><span class="n">unordered_set</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">fourier_frequency_set</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                  </span><span class="kt">int</span><span class="w"> </span><span class="n">n_concepts</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                  </span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&amp;</span><span class="n">hn_to_mat_row</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// Prepare all the sinusoidal frequencies needed to model all the</span>
+<span class="w">    </span><span class="c1">// seasonal head nodes possibly with various periods.</span>
+<span class="w">    </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">all_freqs</span><span class="p">(</span><span class="n">fourier_frequency_set</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"></span>
+<span class="w">                             </span><span class="n">fourier_frequency_set</span><span class="p">.</span><span class="n">end</span><span class="p">());</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// This is not as essential step. But it makes the transition matrix more</span>
+<span class="w">    </span><span class="c1">// ordered, easily inspectable and helps debugging.</span>
+<span class="w">    </span><span class="n">sort</span><span class="p">(</span><span class="n">all_freqs</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">all_freqs</span><span class="p">.</span><span class="n">end</span><span class="p">());</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="p">[</span><span class="n">A_sin_all_base</span><span class="p">,</span><span class="w"> </span><span class="n">s0_sin_all</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">                            </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">assemble_sinusoidal_generating_LDS</span><span class="p">(</span><span class="n">all_freqs</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="p">[</span><span class="n">A_concept_full_base</span><span class="p">,</span><span class="w"> </span><span class="n">s0_concept_full</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">                        </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">assemble_head_node_modeling_LDS</span><span class="p">(</span><span class="n">A_sin_all_base</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                              </span><span class="n">s0_sin_all</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                              </span><span class="n">all_freqs</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span><span class="w"></span>
+<span class="w">                                                              </span><span class="n">n_concepts</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                              </span><span class="n">hn_to_mat_row</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">make_pair</span><span class="p">(</span><span class="n">A_concept_full_base</span><span class="p">,</span><span class="w"> </span><span class="n">s0_concept_full</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">merge_concept_LDS_into_seasonal_head_node_modeling_LDS</span><span class="p">(</span><span class="w"></span>
+<span class="w">                                          </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="o">&amp;</span><span class="n">A_concept_base</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                          </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="w"> </span><span class="n">s0_concept</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// Merge the initial state for concepts with the initial state for</span>
+<span class="w">    </span><span class="c1">// Fourier decomposition based seasonal head node model.</span>
+<span class="w">    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">current_latent_state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">s0_fourier</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">current_latent_state</span><span class="p">.</span><span class="n">head</span><span class="p">(</span><span class="n">s0_concept</span><span class="p">.</span><span class="n">size</span><span class="p">())</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">s0_concept</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// Merge the transition matrix for concepts with the transition matrix</span>
+<span class="w">    </span><span class="c1">// for Fourier decomposition based seasonal head node model.</span>
+<span class="w">    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">A_fourier_base</span><span class="p">.</span><span class="n">topLeftCorner</span><span class="p">(</span><span class="n">A_concept_base</span><span class="p">.</span><span class="n">rows</span><span class="p">(),</span><span class="w"></span>
+<span class="w">                                       </span><span class="n">A_concept_base</span><span class="p">.</span><span class="n">cols</span><span class="p">())</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">                                                                 </span><span class="n">A_concept_base</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">predictions_to_csv</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="o">&amp;</span><span class="n">A_base</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                       </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="w"> </span><span class="o">&amp;</span><span class="n">_s0</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                       </span><span class="kt">int</span><span class="w"> </span><span class="n">n_time_steps</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">CSVWriter</span><span class="w"> </span><span class="nf">writer</span><span class="p">(</span><span class="s">&quot;head_node_predictions_&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"></span>
+<span class="w">                     </span><span class="n">to_string</span><span class="p">(</span><span class="n">_s0</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;.csv&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">lds_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_s0</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// Evolve the LDS one step_size at a time for desired number of steps</span>
+<span class="w">    </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="n">preds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">evolve_LDS</span><span class="p">(</span><span class="n">A_base</span><span class="p">,</span><span class="w"> </span><span class="n">_s0</span><span class="p">,</span><span class="w"> </span><span class="n">n_time_steps</span><span class="p">,</span><span class="w"> </span><span class="mf">0.25</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">tot_steps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">preds</span><span class="p">.</span><span class="n">cols</span><span class="p">();</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// Transpose the prediction matrix so that</span>
+<span class="w">    </span><span class="c1">//      col 2i   - Predictions for variable i in the system</span>
+<span class="w">    </span><span class="c1">//      col 2i+1 - Derivatives for variable i in the system</span>
+<span class="w">    </span><span class="c1">// Each row is a time step</span>
+<span class="w">    </span><span class="c1">// This has tot_step rows and lds_size columns.</span>
+<span class="w">    </span><span class="n">preds</span><span class="p">.</span><span class="n">transposeInPlace</span><span class="p">();</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// Output the whole prediction matrix, including derivatives, into a csv</span>
+<span class="w">    </span><span class="c1">// file.</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">step</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">step</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">tot_steps</span><span class="p">;</span><span class="w"> </span><span class="n">step</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">preds_at_step</span><span class="p">(</span><span class="n">lds_size</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="o">::</span><span class="n">Map</span><span class="p">(</span><span class="o">&amp;</span><span class="n">preds_at_step</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">lds_size</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">preds</span><span class="p">.</span><span class="n">row</span><span class="p">(</span><span class="n">step</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">writer</span><span class="p">.</span><span class="n">write_row</span><span class="p">(</span><span class="n">preds_at_step</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">preds_at_step</span><span class="p">.</span><span class="n">end</span><span class="p">());</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="p">,</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="o">&gt;</span><span class="w"></span>
+<span class="n">AnalysisGraph</span><span class="o">::</span><span class="n">fit_seasonal_head_node_model_via_fourier_decomposition</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// Group seasonal head nodes according to their seasonality.</span>
+<span class="w">    </span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">period_to_head_nodes</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">head_node_id</span><span class="o">:</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">head_nodes</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">Node</span><span class="o">&amp;</span><span class="w"> </span><span class="n">hn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">head_node_id</span><span class="p">];</span><span class="w"></span>
+<span class="w">        </span><span class="n">period_to_head_nodes</span><span class="p">[</span><span class="n">hn</span><span class="p">.</span><span class="n">period</span><span class="p">].</span><span class="n">push_back</span><span class="p">(</span><span class="n">head_node_id</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">unordered_set</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">fourier_frequency_set</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="p">[</span><span class="n">period</span><span class="p">,</span><span class="w"> </span><span class="n">hn_ids</span><span class="p">]</span><span class="o">:</span><span class="w"> </span><span class="n">period_to_head_nodes</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// The maximum number of components we are going to evaluate in search</span>
+<span class="w">        </span><span class="c1">// of the best number of components to be used.</span>
+<span class="w">        </span><span class="c1">// max_k &lt; period / 2 (Nyquist theorem)</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">max_k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">period</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">        </span><span class="c1">// Generate the maximum number of sinusoidal frequencies needed for the</span>
+<span class="w">        </span><span class="c1">// period. By the Nyquist theorem this number is floor(period / 2)</span>
+<span class="w">        </span><span class="c1">// The actual number of frequencies used to model a concept could be</span>
+<span class="w">        </span><span class="c1">// less than this, which is decided by computing the root mean squared</span>
+<span class="w">        </span><span class="c1">// error of the predictions for each number of components</span>
+<span class="w">        </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">period_freqs</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">                           </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">generate_frequencies_for_period</span><span class="p">(</span><span class="n">period</span><span class="p">,</span><span class="w"> </span><span class="n">max_k</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">        </span><span class="c1">// Assemble the sinusoidal generating LDS with the maximum number of</span>
+<span class="w">        </span><span class="c1">// components. This includes all the sinusoidals needed for every lesser</span>
+<span class="w">        </span><span class="c1">// number of components we are going to try out.</span>
+<span class="w">        </span><span class="k">auto</span><span class="w"> </span><span class="p">[</span><span class="n">A_sin_max_k_base</span><span class="p">,</span><span class="w"> </span><span class="n">s0_sin_max_k</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">                         </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">assemble_sinusoidal_generating_LDS</span><span class="p">(</span><span class="n">period_freqs</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="n">sinusoidals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">generate_sinusoidal_values_for_bins</span><span class="p">(</span><span class="w"></span>
+<span class="w">                                        </span><span class="n">A_sin_max_k_base</span><span class="p">,</span><span class="w"> </span><span class="n">s0_sin_max_k</span><span class="p">,</span><span class="w"> </span><span class="n">period</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">        </span><span class="c1">// Assign transition matrix rows to head nodes with this period.</span>
+<span class="w">        </span><span class="c1">// NOTE: At this moment we do not need to reformat the head node vector</span>
+<span class="w">        </span><span class="c1">//       this way. We could just use the head node vector as it is and</span>
+<span class="w">        </span><span class="c1">//       compute the transition matrix row based on the index at which</span>
+<span class="w">        </span><span class="c1">//       each head node is at.</span>
+<span class="w">        </span><span class="c1">//       I am doing this to make assemble_head_node_modeling_LDS()</span>
+<span class="w">        </span><span class="c1">//       method more generalized so that I could reuse it to assemble</span>
+<span class="w">        </span><span class="c1">//       the final complete LDS with all the nodes (seasonal head nodes</span>
+<span class="w">        </span><span class="c1">//       with different periods and body nodes).</span>
+<span class="w">        </span><span class="c1">//       At the moment, in the complete system, head nodes does not</span>
+<span class="w">        </span><span class="c1">//       occupy a contiguous range of rows in the transition matrix.</span>
+<span class="w">        </span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">hn_to_mat_row</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">hn_ids</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="w"> </span><span class="n">v</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">hn_to_mat_row</span><span class="p">[</span><span class="n">hn_ids</span><span class="p">[</span><span class="n">v</span><span class="p">]]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">v</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">            </span><span class="c1">// Again in the light of reusing the LDS assembly code to assemble</span>
+<span class="w">            </span><span class="c1">// the complete LDS</span>
+<span class="w">            </span><span class="n">Node</span><span class="o">&amp;</span><span class="w"> </span><span class="n">hn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">hn_ids</span><span class="p">[</span><span class="n">v</span><span class="p">]];</span><span class="w"></span>
+<span class="w">            </span><span class="n">hn</span><span class="p">.</span><span class="n">fourier_freqs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">period_freqs</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">components</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">components</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">max_k</span><span class="p">;</span><span class="w"> </span><span class="n">components</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">hn_id</span><span class="o">:</span><span class="w"> </span><span class="n">hn_ids</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="c1">// Again in the light of reusing the LDS assembly code to assemble</span>
+<span class="w">                </span><span class="c1">// the complete LDS</span>
+<span class="w">                </span><span class="n">Node</span><span class="o">&amp;</span><span class="w"> </span><span class="n">hn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">hn_id</span><span class="p">];</span><span class="w"></span>
+<span class="w">                </span><span class="n">hn</span><span class="p">.</span><span class="n">n_components</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">components</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">compute_fourier_coefficients_from_least_square_optimization</span><span class="p">(</span><span class="w"></span>
+<span class="w">                                            </span><span class="n">sinusoidals</span><span class="p">,</span><span class="w"> </span><span class="n">components</span><span class="p">,</span><span class="w"> </span><span class="n">hn_ids</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">            </span><span class="c1">// Assemble the LDS that generates the head nodes with this</span>
+<span class="w">            </span><span class="c1">// period using this number of components.</span>
+<span class="w">            </span><span class="k">auto</span><span class="w"> </span><span class="p">[</span><span class="n">A_concept_period_base</span><span class="p">,</span><span class="w"> </span><span class="n">s0_concept_period</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">                    </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">assemble_head_node_modeling_LDS</span><span class="p">(</span><span class="n">A_sin_max_k_base</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                          </span><span class="n">s0_sin_max_k</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                          </span><span class="n">components</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                          </span><span class="n">hn_to_mat_row</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span><span class="w"></span>
+<span class="w">                                                          </span><span class="n">hn_to_mat_row</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">            </span><span class="kt">bool</span><span class="w"> </span><span class="n">rmses_are_reducing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">determine_the_best_number_of_components</span><span class="p">(</span><span class="w"></span>
+<span class="w">                                                          </span><span class="n">A_concept_period_base</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                          </span><span class="n">s0_concept_period</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                          </span><span class="n">period</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                          </span><span class="n">components</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                          </span><span class="n">hn_to_mat_row</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">rmses_are_reducing</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">        </span><span class="c1">// Node&amp; hn_dbg = (*this)[hn_ids[0]];  // TODO: Just for debugging delete</span>
+<span class="w">        </span><span class="c1">// cout &lt;&lt; &quot;Best: &quot; &lt;&lt; hn_dbg.best_n_components &lt;&lt; &quot; : &quot;</span>
+<span class="w">        </span><span class="c1">//                                          &lt;&lt; hn_dbg.best_rmse &lt;&lt; endl;</span>
+
+<span class="w">        </span><span class="c1">// Accumulate all the fourier frequencies needed to model all the head</span>
+<span class="w">        </span><span class="c1">// nodes with this period</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">max_n_components_for_period</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">hn_id</span><span class="o">:</span><span class="w"> </span><span class="n">hn_ids</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">Node</span><span class="o">&amp;</span><span class="w"> </span><span class="n">hn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)[</span><span class="n">hn_id</span><span class="p">];</span><span class="w"></span>
+
+<span class="w">            </span><span class="c1">// In the assemble_head_node_modeling_LDS() method</span>
+<span class="w">            </span><span class="c1">// Node object members: n_components and fourier_coefficients are</span>
+<span class="w">            </span><span class="c1">// accessed.</span>
+<span class="w">            </span><span class="c1">// When we assemble the final transition matrix with all the fitted</span>
+<span class="w">            </span><span class="c1">// seasonal head nodes and all the body nodes, we have to use Node</span>
+<span class="w">            </span><span class="c1">// object members: best_n_components and best_fourier_coefficients,</span>
+<span class="w">            </span><span class="c1">// for the final system to utilize the fitted seasonal models.</span>
+<span class="w">            </span><span class="c1">// Therefore, we reassign best_n_components and</span>
+<span class="w">            </span><span class="c1">// best_fourier_coefficient to n_components and</span>
+<span class="w">            </span><span class="c1">// fourier_coefficients members so that we could reuse the</span>
+<span class="w">            </span><span class="c1">// assemble_head_node_modeling_LDS() method</span>
+<span class="w">            </span><span class="c1">// seamlessly without any change or state checking at the time of</span>
+<span class="w">            </span><span class="c1">// assembling the transition matrix for the final complete system.</span>
+<span class="w">            </span><span class="n">hn</span><span class="p">.</span><span class="n">n_components</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hn</span><span class="p">.</span><span class="n">best_n_components</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="n">hn</span><span class="p">.</span><span class="n">fourier_coefficients</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hn</span><span class="p">.</span><span class="n">best_fourier_coefficients</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="n">hn</span><span class="p">.</span><span class="n">best_fourier_coefficients</span><span class="p">.</span><span class="n">resize</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w">  </span><span class="c1">// To save some memory</span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">hn</span><span class="p">.</span><span class="n">best_n_components</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">max_n_components_for_period</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="n">max_n_components_for_period</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hn</span><span class="p">.</span><span class="n">best_n_components</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">        </span><span class="c1">// Remember all the sinusoidal frequencies needed to fit the best</span>
+<span class="w">        </span><span class="c1">// Fourier decomposition based seasonal model each of the</span>
+<span class="w">        </span><span class="c1">// seasonal head nodes with this period.</span>
+<span class="w">        </span><span class="n">fourier_frequency_set</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">period_freqs</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"></span>
+<span class="w">                            </span><span class="n">period_freqs</span><span class="p">.</span><span class="n">begin</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">max_n_components_for_period</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// Assign transition matrix rows to seasonal head nodes.</span>
+<span class="w">    </span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">hn_to_mat_row</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// Using only the seasonal head nodes</span>
+<span class="w">    </span><span class="c1">//int row = 0;</span>
+<span class="w">    </span><span class="c1">//for (int hn_id: this-&gt;head_nodes) {</span>
+<span class="w">    </span><span class="c1">//    hn_to_mat_row[hn_id] = row;</span>
+<span class="w">    </span><span class="c1">//    row += 2;</span>
+<span class="w">    </span><span class="c1">//}</span>
+<span class="w">    </span><span class="c1">//int n_concepts = this-&gt;head_nodes.size();</span>
+<span class="w">    </span><span class="c1">// Using all the nodes</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">hn_id</span><span class="o">:</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">head_nodes</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">hn_to_mat_row</span><span class="p">[</span><span class="n">hn_id</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">hn_id</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">n_concepts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">num_vertices</span><span class="p">();</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="p">,</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="o">&gt;</span><span class="w"> </span><span class="n">seasonal_head_node_LDS</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">      </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">assemble_all_seasonal_head_node_modeling_LDS</span><span class="p">(</span><span class="n">fourier_frequency_set</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                         </span><span class="n">n_concepts</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                         </span><span class="n">hn_to_mat_row</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">//this-&gt;predictions_to_csv(seasonal_head_node_LDS.first,</span>
+<span class="w">    </span><span class="c1">//                         seasonal_head_node_LDS.second, 24);</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">seasonal_head_node_LDS</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Adarsh.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -316,11 +316,16 @@
 <span class="w">        </span><span class="c1">// constant at 1.</span>
 
 <span class="w">        </span><span class="n">j</span><span class="p">[</span><span class="s">&quot;res&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">res</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">j</span><span class="p">[</span><span class="s">&quot;kde_kernels&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">n_kde_kernels</span><span class="p">;</span><span class="w"></span>
 <span class="w">        </span><span class="n">j</span><span class="p">[</span><span class="s">&quot;continuous&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">continuous</span><span class="p">;</span><span class="w"></span>
 <span class="w">        </span><span class="n">j</span><span class="p">[</span><span class="s">&quot;data_heuristic&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">data_heuristic</span><span class="p">;</span><span class="w"></span>
 <span class="w">        </span><span class="n">j</span><span class="p">[</span><span class="s">&quot;causemos_call&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">causemos_call</span><span class="p">;</span><span class="w"></span>
 <span class="w">        </span><span class="n">j</span><span class="p">[</span><span class="s">&quot;MAP_sample_number&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">MAP_sample_number</span><span class="p">;</span><span class="w"></span>
 <span class="w">        </span><span class="n">j</span><span class="p">[</span><span class="s">&quot;log_likelihood_MAP&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">log_likelihood_MAP</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">j</span><span class="p">[</span><span class="s">&quot;head_node_model&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">head_node_model</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">j</span><span class="p">[</span><span class="s">&quot;log_likelihoods&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">compact</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">()</span><span class="w"></span>
+<span class="w">                                       </span><span class="o">:</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">log_likelihoods</span><span class="p">;</span><span class="w"></span>
 
 <span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">num_verts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">num_vertices</span><span class="p">();</span><span class="w"></span>
 <span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">num_els_per_mat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">num_verts</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">num_verts</span><span class="p">;</span><span class="w"></span>
@@ -340,6 +345,138 @@
 <span class="w">                </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">col</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">col</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">num_verts</span><span class="p">;</span><span class="w"> </span><span class="n">col</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">                    </span><span class="n">j</span><span class="p">[</span><span class="s">&quot;matrices&quot;</span><span class="p">][</span><span class="n">samp</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">num_els_per_mat</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">row</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">num_verts</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">col</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">transition_matrix_collection</span><span class="p">[</span><span class="n">samp</span><span class="p">](</span><span class="n">row</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
 <span class="w">                </span><span class="p">}</span><span class="w"></span>
+<span class="w">            </span><span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">head_node_model</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">HNM_FOURIER</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="cm">/*</span>
+<span class="cm">             * Transition matrix</span>
+<span class="cm">             *      b ............ b 0 ............. 0</span>
+<span class="cm">             *      b ............ b 0 ............. 0</span>
+<span class="cm">             *</span>
+<span class="cm">             *      h ............ h c ............. c</span>
+<span class="cm">             *      h ............ h c ............. c</span>
+<span class="cm">             *      0 ............ 0 s s 0 ......... 0</span>
+<span class="cm">             *      0 ............ 0 s s 0 ......... 0</span>
+<span class="cm">             *      0 ................ 0 s s 0 ..... 0</span>
+<span class="cm">             *      0 ................ 0 s s 0 ..... 0</span>
+<span class="cm">             *</span>
+<span class="cm">             *      0 .......................... 0 s s</span>
+<span class="cm">             *      0 .......................... 0 s s</span>
+<span class="cm">             *</span>
+<span class="cm">             *      b - Body node rows</span>
+<span class="cm">             *      h - Seasonal head node rows</span>
+<span class="cm">             *      c - Fourier coefficient rows</span>
+<span class="cm">             *      s - Sinusoidal generating rows</span>
+<span class="cm">             *</span>
+<span class="cm">             *      Rows come in pairs: first and second derivative rows.</span>
+<span class="cm">             *</span>
+<span class="cm">             *      Here we are not saving the block of b and h values. Those</span>
+<span class="cm">             *      are the sampled transition matrices.</span>
+<span class="cm">             *</span>
+<span class="cm">             *      sinusoidal_rows = # sinusoidal generating rows</span>
+<span class="cm">             *                                   = # Fourier coefficient columns</span>
+<span class="cm">             *</span>
+<span class="cm">             *      # coefficient rows per head node  = 2</span>
+<span class="cm">             *      # coefficients per head node      = 2 * sinusoidal_rows</span>
+<span class="cm">             *      # coefficients for all head nodes = 2 * sinusoidal_rows * # head nodes</span>
+<span class="cm">             *</span>
+<span class="cm">             *      max # non-zero values per sinusoidal row = 2</span>
+<span class="cm">             *      max # non-zero sinusoidal values         = 2 * sinusoidal_rows</span>
+<span class="cm">             *</span>
+<span class="cm">             *      Total number of values to save</span>
+<span class="cm">             *        = 2 * sinusoidal_rows * # head nodes + 2 * sinusoidal_rows</span>
+<span class="cm">             *        = 2 * sinusoidal_rows * (# head nodes + 1)</span>
+<span class="cm">             *</span>
+<span class="cm">             * Initial state</span>
+<span class="cm">             *      # rows per head node  = 2</span>
+<span class="cm">             *      # for all head nodes = 2 * # head nodes</span>
+<span class="cm">             *</span>
+<span class="cm">             *      # non-zero values per frequency       = 1</span>
+<span class="cm">             *      # non-zero values for all frequencies = sinusoidal_rows / 2</span>
+<span class="cm">             *      (Since we are using 0 radians as the initial angle, the</span>
+<span class="cm">             *      initial state for sine curves = sin(0) = 0. So we do not</span>
+<span class="cm">             *      need to save that)</span>
+<span class="cm">             *</span>
+<span class="cm">             *      Total number of values to save</span>
+<span class="cm">             *                          = sinusoidal_rows / 2 + 2 * # head nodes</span>
+<span class="cm">             *</span>
+<span class="cm">             */</span><span class="w"></span>
+<span class="w">            </span><span class="c1">// The first diagonal block of sinusoidal_start_idx by</span>
+<span class="w">            </span><span class="c1">// sinusoidal_start_idx contains the transition matrix portion that</span>
+<span class="w">            </span><span class="c1">// describes the relationships between concepts.</span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">sinusoidal_start_idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">num_verts</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">            </span><span class="c1">// The next diagonal block of sinusoidal_rows by sinusoidal_rows</span>
+<span class="w">            </span><span class="c1">// contains the transition matrix part that generates sinusoidals</span>
+<span class="w">            </span><span class="c1">// of different frequencies.</span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">sinusoidal_rows</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">A_fourier_base</span><span class="p">.</span><span class="n">rows</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"></span>
+<span class="w">                                                           </span><span class="n">sinusoidal_start_idx</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">head_node_ids_sorted</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">head_nodes</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"></span>
+<span class="w">                                             </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">head_nodes</span><span class="p">.</span><span class="n">end</span><span class="p">());</span><span class="w"></span>
+<span class="w">            </span><span class="n">sort</span><span class="p">(</span><span class="n">head_node_ids_sorted</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">head_node_ids_sorted</span><span class="p">.</span><span class="n">end</span><span class="p">());</span><span class="w"></span>
+
+<span class="w">            </span><span class="c1">// Set the last element with a dummy value to allocate memory</span>
+<span class="w">            </span><span class="n">j</span><span class="p">[</span><span class="s">&quot;A_fourier_base&quot;</span><span class="p">][</span><span class="n">sinusoidal_rows</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"></span>
+<span class="w">                                    </span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">head_nodes</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">111111</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="n">j</span><span class="p">[</span><span class="s">&quot;s0_fourier&quot;</span><span class="p">][</span><span class="n">sinusoidal_rows</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">+</span><span class="w"></span>
+<span class="w">                                      </span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">head_nodes</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">111111</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="n">j</span><span class="p">[</span><span class="s">&quot;head_node_ids&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">head_node_ids_sorted</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="n">j</span><span class="p">[</span><span class="s">&quot;sinusoidal_rows&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sinusoidal_rows</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">n_hn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">head_node_ids_sorted</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="w"></span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">fouri_val_idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="c1">// To keep track of the next index to insert</span>
+
+<span class="w">            </span><span class="c1">// Save Fourier coefficients of seasonal head nodes</span>
+<span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">hn_idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">hn_idx</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n_hn</span><span class="p">;</span><span class="w"> </span><span class="n">hn_idx</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="kt">int</span><span class="w"> </span><span class="n">hn_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">head_node_ids_sorted</span><span class="p">[</span><span class="n">hn_idx</span><span class="p">];</span><span class="w"></span>
+<span class="w">                </span><span class="kt">int</span><span class="w"> </span><span class="n">dot_row</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">hn_id</span><span class="p">;</span><span class="w"></span>
+<span class="w">                </span><span class="kt">int</span><span class="w"> </span><span class="n">dot_dot_row</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dot_row</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">                </span><span class="c1">// Save coefficients for derivative row and second derivative</span>
+<span class="w">                </span><span class="c1">// row.</span>
+<span class="w">                </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">row</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="n">dot_row</span><span class="p">,</span><span class="w"> </span><span class="n">dot_dot_row</span><span class="p">})</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                    </span><span class="c1">// Save coefficients for one row</span>
+<span class="w">                    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">col</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">col</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">sinusoidal_rows</span><span class="p">;</span><span class="w"> </span><span class="n">col</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                        </span><span class="n">j</span><span class="p">[</span><span class="s">&quot;A_fourier_base&quot;</span><span class="p">][</span><span class="n">fouri_val_idx</span><span class="o">++</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">A_fourier_base</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                 </span><span class="n">sinusoidal_start_idx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">col</span><span class="p">);</span><span class="w"></span>
+<span class="w">                    </span><span class="p">}</span><span class="w"></span>
+<span class="w">                </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">                </span><span class="c1">// Saving initial value and derivative for head node hn_id</span>
+<span class="w">                </span><span class="c1">// For the state vector, dot_row is the value row and</span>
+<span class="w">                </span><span class="c1">// dot_dot_row is the dot row (We are just reusing the same</span>
+<span class="w">                </span><span class="c1">// indexes)</span>
+<span class="w">                </span><span class="n">j</span><span class="p">[</span><span class="s">&quot;s0_fourier&quot;</span><span class="p">][</span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">hn_idx</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">s0_fourier</span><span class="p">(</span><span class="n">dot_row</span><span class="p">);</span><span class="w"></span>
+<span class="w">                </span><span class="n">j</span><span class="p">[</span><span class="s">&quot;s0_fourier&quot;</span><span class="p">][</span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">hn_idx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">s0_fourier</span><span class="p">(</span><span class="n">dot_dot_row</span><span class="p">);</span><span class="w"></span>
+<span class="w">            </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">            </span><span class="c1">// Saving different frequency sinusoidal curves generating portions</span>
+<span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">row</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">row</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">sinusoidal_rows</span><span class="p">;</span><span class="w"> </span><span class="n">row</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="kt">int</span><span class="w"> </span><span class="n">dot_row</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sinusoidal_start_idx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">row</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">continuous</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                    </span><span class="c1">// There is only two non-zero values for a pair of rows.</span>
+<span class="w">                    </span><span class="c1">// this-&gt;A_fourier_base(dot_row, dot_row + 1) is always 1,</span>
+<span class="w">                    </span><span class="c1">// and so we do not need to save it.</span>
+<span class="w">                    </span><span class="n">j</span><span class="p">[</span><span class="s">&quot;A_fourier_base&quot;</span><span class="p">][</span><span class="n">fouri_val_idx</span><span class="o">++</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">                                </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">A_fourier_base</span><span class="p">(</span><span class="n">dot_row</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">dot_row</span><span class="p">);</span><span class="w"></span>
+<span class="w">                </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                    </span><span class="c1">// Extract a 2 x 2 block of non-zero values.</span>
+<span class="w">                    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="n">r</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="n">c</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                            </span><span class="n">j</span><span class="p">[</span><span class="s">&quot;A_fourier_base&quot;</span><span class="p">][</span><span class="n">fouri_val_idx</span><span class="o">++</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">                                          </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">A_fourier_base</span><span class="p">(</span><span class="n">dot_row</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">r</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                                   </span><span class="n">dot_row</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">c</span><span class="p">);</span><span class="w"></span>
+<span class="w">                        </span><span class="p">}</span><span class="w"></span>
+<span class="w">                    </span><span class="p">}</span><span class="w"></span>
+<span class="w">                </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">                </span><span class="c1">// Saving the initial state for cosine curves</span>
+<span class="w">                </span><span class="c1">// For the state vector, dot_dot_row is the dot row (We are just</span>
+<span class="w">                </span><span class="c1">// reusing the same index)</span>
+<span class="w">                </span><span class="n">j</span><span class="p">[</span><span class="s">&quot;s0_fourier&quot;</span><span class="p">][</span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">n_hn</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">row</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="o">-&gt;</span><span class="n">s0_fourier</span><span class="p">(</span><span class="n">dot_row</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
 <span class="w">            </span><span class="p">}</span><span class="w"></span>
 <span class="w">        </span><span class="p">}</span><span class="w"></span>
 <span class="w">    </span><span class="p">}</span><span class="w"></span>

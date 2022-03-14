@@ -111,6 +111,7 @@
 <span class="k">enum</span><span class="w"> </span><span class="nc">InitialBeta</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">ZERO</span><span class="p">,</span><span class="w"> </span><span class="n">ONE</span><span class="p">,</span><span class="w"> </span><span class="n">HALF</span><span class="p">,</span><span class="w"> </span><span class="n">MEAN</span><span class="p">,</span><span class="w"> </span><span class="n">MEDIAN</span><span class="p">,</span><span class="w"> </span><span class="n">PRIOR</span><span class="p">,</span><span class="w"> </span><span class="n">RANDOM</span><span class="w"> </span><span class="p">};</span><span class="w"></span>
 <span class="c1">//enum class InitialBeta : char { ZERO, ONE, HALF, MEAN, MEDIAN, PRIOR, RANDOM };</span>
 <span class="k">enum</span><span class="w"> </span><span class="nc">InitialDerivative</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">DERI_ZERO</span><span class="p">,</span><span class="w"> </span><span class="n">DERI_PRIOR</span><span class="w"> </span><span class="p">};</span><span class="w"></span>
+<span class="k">enum</span><span class="w"> </span><span class="nc">HeadNodeModel</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">HNM_NAIVE</span><span class="p">,</span><span class="w"> </span><span class="n">HNM_FOURIER</span><span class="w"> </span><span class="p">};</span><span class="w"></span>
 
 <span class="k">typedef</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span><span class="w"></span>
 <span class="w">    </span><span class="n">AdjectiveResponseMap</span><span class="p">;</span><span class="w"></span>
@@ -389,6 +390,15 @@
 <span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">future</span><span class="o">&lt;</span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">matrix_exponential_futures</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="cp">#endif</span>
 <span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">double</span><span class="p">,</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="o">&gt;</span><span class="w"> </span><span class="n">e_A_ts</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">double</span><span class="p">,</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="o">&gt;</span><span class="w"> </span><span class="n">previous_e_A_ts</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">  </span><span class="c1">// Computed matrix exponentials of A_fourier_base:</span>
+<span class="w">  </span><span class="c1">// e^(A_fourier_base * gap)</span>
+<span class="w">  </span><span class="c1">// for all the gaps we have to advance the system to evolve it to the time</span>
+<span class="w">  </span><span class="c1">// steps where there are observations.</span>
+<span class="w">  </span><span class="c1">// Access: [gap] --&gt; e^(A_fourier_base * gap)</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">double</span><span class="p">,</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="o">&gt;</span><span class="w"> </span><span class="n">e_A_fourier_ts</span><span class="p">;</span><span class="w"></span>
+
 <span class="w">  </span><span class="kt">long</span><span class="w"> </span><span class="n">num_modeling_timesteps_per_one_observation_timestep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
 
 <span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">double</span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="p">)</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">external_concepts</span><span class="p">;</span><span class="w"></span>
@@ -430,6 +440,13 @@
 <span class="w">  </span><span class="c1">// I chose to name this A_original. After refactoring the code, we could</span>
 <span class="w">  </span><span class="c1">// rename this to A.</span>
 <span class="w">  </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="n">A_original</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="n">previous_A_original</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">  </span><span class="n">HeadNodeModel</span><span class="w"> </span><span class="n">head_node_model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HeadNodeModel</span><span class="o">::</span><span class="n">HNM_NAIVE</span><span class="p">;</span><span class="c1">//HeadNodeModel::HNM_FOURIER;//</span>
+<span class="w">  </span><span class="c1">// Base transition matrix for the Fourier decomposition based head node model</span>
+<span class="w">  </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="n">A_fourier_base</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="c1">// Initial state for the Fourier decomposition based head node model</span>
+<span class="w">  </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="w"> </span><span class="n">s0_fourier</span><span class="p">;</span><span class="w"></span>
 
 <span class="w">  </span><span class="c1">// Determines whether to use the continuous version or the discretized</span>
 <span class="w">  </span><span class="c1">// version of the solution for the system of differential equations.</span>
@@ -804,7 +821,9 @@
 <span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">set_base_transition_matrix</span><span class="p">();</span><span class="w"></span>
 
 <span class="w">  </span><span class="cp">#ifdef MULTI_THREADING</span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">compute_multiple_matrix_exponentials_parallelly</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">compute_multiple_matrix_exponentials_parallelly</span><span class="p">(</span><span class="w"></span>
+<span class="w">                         </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"></span>
+<span class="w">                         </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">future</span><span class="o">&lt;</span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="o">&amp;</span><span class="n">me_futures</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="cp">#endif</span>
 
 <span class="w">  </span><span class="c1">// Sample elements of the stochastic transition matrix from the</span>
@@ -913,6 +932,78 @@
 <span class="w">          </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
 <span class="w">      </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">node_to_highlight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">      </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">rankdir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;TB&quot;</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">  </span><span class="cm">/*</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">   Private: Fourier decomposition based seasonal head node model (in fourier.cpp)</span>
+<span class="cm">   ============================================================================</span>
+<span class="cm">  */</span><span class="w"></span>
+
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">generate_frequencies_for_period</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">period</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                      </span><span class="kt">int</span><span class="w"> </span><span class="n">n_components</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">  </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="nf">evolve_LDS</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="o">&amp;</span><span class="n">A_base</span><span class="p">,</span><span class="w"></span>
+<span class="w">                             </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="w"> </span><span class="o">&amp;</span><span class="n">_s0</span><span class="p">,</span><span class="w"></span>
+<span class="w">                             </span><span class="kt">int</span><span class="w"> </span><span class="n">n_modeling_time_steps</span><span class="p">,</span><span class="w"></span>
+<span class="w">                             </span><span class="kt">double</span><span class="w"> </span><span class="n">step_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="p">,</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="o">&gt;</span><span class="w"></span>
+<span class="w">    </span><span class="n">assemble_sinusoidal_generating_LDS</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&amp;</span><span class="n">freqs</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">  </span><span class="cm">/*</span>
+<span class="cm">  std::pair&lt;Eigen::MatrixXd, Eigen::VectorXd&gt;</span>
+<span class="cm">    assemble_sinusoidal_generating_LDS(unsigned short components,</span>
+<span class="cm">                                       unsigned short period);</span>
+<span class="cm">  */</span><span class="w"></span>
+
+<span class="w">  </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="nf">generate_sinusoidal_values_for_bins</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="o">&amp;</span><span class="n">A_sin_base</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                      </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="w"> </span><span class="o">&amp;</span><span class="n">s0_sin</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                                      </span><span class="kt">int</span><span class="w"> </span><span class="n">period</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">  </span><span class="c1">// NOTE: This method could be made a method of the Node class. The best</span>
+<span class="w">  </span><span class="c1">//       architecture would be to make a subclass, HeadNode, of Node class and</span>
+<span class="w">  </span><span class="c1">//       include this method there. At the moment we incrementally create the</span>
+<span class="w">  </span><span class="c1">//       graph while identifying head nodes, we are using Node objects</span>
+<span class="w">  </span><span class="c1">//       everywhere. To follow the HeadNode subclass specialization route, we</span>
+<span class="w">  </span><span class="c1">//       either have to replace Node objects with HeadNode objects or do a</span>
+<span class="w">  </span><span class="c1">//       first pass through the input to identify head nodes and then create</span>
+<span class="w">  </span><span class="c1">//        the graph.</span>
+<span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">compute_fourier_coefficients_from_least_square_optimization</span><span class="p">(</span><span class="w"></span>
+<span class="w">                                            </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="o">&amp;</span><span class="n">sinusoidals</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                            </span><span class="kt">int</span><span class="w"> </span><span class="n">n_components</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                            </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&amp;</span><span class="n">head_node_ids</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="p">,</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="o">&gt;</span><span class="w"></span>
+<span class="w">  </span><span class="n">assemble_head_node_modeling_LDS</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="o">&amp;</span><span class="n">A_sin_base</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                  </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="w"> </span><span class="o">&amp;</span><span class="n">s0_sin</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                  </span><span class="kt">int</span><span class="w"> </span><span class="n">n_components</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                  </span><span class="kt">int</span><span class="w"> </span><span class="n">n_concepts</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                  </span><span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&amp;</span><span class="n">hn_to_mat_row</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="nf">determine_the_best_number_of_components</span><span class="p">(</span><span class="w"></span>
+<span class="w">                                   </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">A_hn_period_base</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                   </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">s0_hn_period</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                   </span><span class="kt">int</span><span class="w"> </span><span class="n">period</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                   </span><span class="kt">int</span><span class="w"> </span><span class="n">n_components</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                   </span><span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&amp;</span><span class="n">hn_to_mat_row</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="p">,</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="o">&gt;</span><span class="w"></span>
+<span class="w">      </span><span class="n">assemble_all_seasonal_head_node_modeling_LDS</span><span class="p">(</span><span class="w"></span>
+<span class="w">                               </span><span class="n">std</span><span class="o">::</span><span class="n">unordered_set</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">fourier_frequency_set</span><span class="p">,</span><span class="w"></span>
+<span class="w">                               </span><span class="kt">int</span><span class="w"> </span><span class="n">n_concepts</span><span class="p">,</span><span class="w"></span>
+<span class="w">                               </span><span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&amp;</span><span class="n">hn_to_mat_row</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">assemble_base_LDS</span><span class="p">(</span><span class="n">InitialDerivative</span><span class="w"> </span><span class="n">id</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">merge_concept_LDS_into_seasonal_head_node_modeling_LDS</span><span class="p">(</span><span class="w"></span>
+<span class="w">                                          </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="o">&amp;</span><span class="n">A_concept_base</span><span class="p">,</span><span class="w"></span>
+<span class="w">                                          </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="w"> </span><span class="n">s0_concept</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">predictions_to_csv</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="w"> </span><span class="o">&amp;</span><span class="n">A_base</span><span class="p">,</span><span class="w"></span>
+<span class="w">                          </span><span class="k">const</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="w"> </span><span class="o">&amp;</span><span class="n">_s0</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n_time_steps</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">Eigen</span><span class="o">::</span><span class="n">MatrixXd</span><span class="p">,</span><span class="w"> </span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="o">&gt;</span><span class="w"></span>
+<span class="w">  </span><span class="n">fit_seasonal_head_node_model_via_fourier_decomposition</span><span class="p">();</span><span class="w"></span>
 
 <span class="w">  </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
 <span class="w">  </span><span class="n">AnalysisGraph</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -1223,6 +1314,7 @@
 
 <span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">run_train_model</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w"></span>
 <span class="w">                   </span><span class="kt">int</span><span class="w"> </span><span class="n">burn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10000</span><span class="p">,</span><span class="w"></span>
+<span class="w">                   </span><span class="n">HeadNodeModel</span><span class="w"> </span><span class="n">head_node_model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HeadNodeModel</span><span class="o">::</span><span class="n">HNM_NAIVE</span><span class="p">,</span><span class="w"></span>
 <span class="w">                   </span><span class="n">InitialBeta</span><span class="w"> </span><span class="n">initial_beta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">InitialBeta</span><span class="o">::</span><span class="n">ZERO</span><span class="p">,</span><span class="w"></span>
 <span class="w">                   </span><span class="n">InitialDerivative</span><span class="w"> </span><span class="n">initial_derivative</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">InitialDerivative</span><span class="o">::</span><span class="n">DERI_ZERO</span><span class="p">,</span><span class="w"></span>
 <span class="w">                   </span><span class="kt">bool</span><span class="w"> </span><span class="n">use_heuristic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span><span class="w"></span>
