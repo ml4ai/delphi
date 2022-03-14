@@ -29,6 +29,10 @@ PYBIND11_MODULE(DelphiPython, m) {
       .value("DERI_ZERO", InitialDerivative::DERI_ZERO)
       .value("DERI_PRIOR", InitialDerivative::DERI_PRIOR);
 
+  py::enum_<HeadNodeModel>(m, "HeadNodeModel")
+      .value("HNM_NAIVE", HeadNodeModel::HNM_NAIVE)
+      .value("HNM_FOURIER", HeadNodeModel::HNM_FOURIER);
+
   py::class_<AnalysisGraph>(m, "AnalysisGraph")
       .def(py::init())
       .def_readwrite("id", &AnalysisGraph::id)
@@ -183,6 +187,7 @@ PYBIND11_MODULE(DelphiPython, m) {
            &AnalysisGraph::run_train_model,
            "res"_a = 200,
            "burn"_a = 10000,
+           "head_node_model"_a = HeadNodeModel::HNM_NAIVE,
            "initial_beta"_a = InitialBeta::ZERO,
            "initial_derivative"_a = InitialDerivative::DERI_ZERO,
            "use_heuristic"_a = false,

@@ -99,7 +99,10 @@ def delphi_plotter(model_state, num_bins=400, rotation=45, out_dir='plots', file
         g = sns.barplot(x=df_theta_samples_grp['Theta'],
                 y=df_theta_samples_grp['# of Samples'],
                 color=(0.9375, 0.5, 0.5), ax=ax1)
-        sns.lineplot(x=np.round(np.linspace(0, np.pi, num=num_bins, endpoint=False), 3), y=thetas[2], color='blue', ax=ax2)
+
+        if (len(thetas[2]) > 0):
+            bin_probs = [math.exp(log_bin_val) for log_bin_val in thetas[2]]
+            sns.lineplot(x=np.round(np.linspace(-np.pi / 2, np.pi / 2, num=num_bins, endpoint=False), 3), y=bin_probs, color='blue', ax=ax2, marker='o')
 
         source = edges[idx][0].split('/')[-1]
         target = edges[idx][1].split('/')[-1]

@@ -1,5 +1,5 @@
 import delphi.plotter as dp
-from delphi.cpp.DelphiPython import AnalysisGraph, InitialBeta, InitialDerivative
+from delphi.cpp.DelphiPython import AnalysisGraph, InitialBeta, InitialDerivative, HeadNodeModel
 import pandas as pd
 import numpy as np
 
@@ -138,10 +138,12 @@ if __name__ == "__main__":
         ["../tests/data/delphi/model_food_security_12_nodes_month.json",    # 18. food security 12 node month
          "../tests/data/delphi/experiment_food_security_month.json"],
         ["../tests/data/delphi/create_model_seasonal_test.json",         # 19. nino34 2 node is May2021 format
-         "../tests/data/delphi/experiments_seasonal_test.json"]
+         "../tests/data/delphi/experiments_seasonal_test.json"],
+        ["../tests/data/delphi/create_model_rain--temperature_fourier_test.json",         # 20. Fourier test
+         "../tests/data/delphi/experiments_fourier_test.json"]
     ]
 
-    input_idx = 9
+    input_idx = 10
     causemos_create_model = json_inputs[input_idx][0]
     causemos_create_experiment = json_inputs[input_idx][1]
 
@@ -158,11 +160,16 @@ if __name__ == "__main__":
 
     print('\nTraining Model')
     use_continuous = False if causemos_create_model == "synthetic" else True
+    hnm = HeadNodeModel.HNM_NAIVE#FOURIER#
+    file_name_prefix = 'naive' if hnm == HeadNodeModel.HNM_NAIVE else 'fouri'
     G.run_train_model(res=200,
                       burn=1000,
+                      head_node_model=hnm,
                       initial_beta=InitialBeta.ZERO,
                       initial_derivative=InitialDerivative.DERI_ZERO,
                       use_continuous=use_continuous)
+
+    G = AnalysisGraph.deserialize_from_json_string(G.serialize_to_json_string(False, True), False)
 
     if causemos_create_model == "synthetic":
         G.generate_prediction(1, 24)
@@ -183,4 +190,4 @@ if __name__ == "__main__":
     print(pred_range[1:])
 
     dp.delphi_plotter(model_state, num_bins=400, rotation=45,
-            out_dir='plots', file_name_prefix='db', save_csv=False)
+            out_dir='plots', file_name_prefix=file_name_prefix, save_csv=False)

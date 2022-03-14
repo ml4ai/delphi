@@ -7,6 +7,7 @@
 #include "exceptions.hpp"
 #include <limits.h>
 #include "definitions.h"
+#include <Eigen/Dense>
 
 class Node {
   public:
@@ -16,6 +17,20 @@ class Node {
   std::vector<double> generated_latent_sequence = {};
   int period = 1;
   DataAggregationLevel agg_level = DataAggregationLevel::MONTHLY;
+
+  // Utilized only for head nodes with period > 1
+  int tot_observations = 0;
+  Eigen::VectorXd fourier_coefficients;
+  Eigen::VectorXd best_fourier_coefficients;
+  std::vector<double> fourier_freqs;
+  double best_rmse = std::numeric_limits<double>::infinity();
+  int n_components = 0;
+  int best_n_components = 0;
+  bool rmse_is_reducing = true;
+  // Partition i refer to the midpoint between partitions i and (i+1) % period
+  // Access:
+  //  {partition --> [data value]}
+  std::unordered_map<int, std::vector<double>> between_bin_midpoints;
   // Access:
   //  {partition --> ([time step], [data value])}
   std::unordered_map<int, std::pair<std::vector<int>, std::vector<double>>> partitioned_data = {};
@@ -133,5 +148,26 @@ class Node {
     }
     std::cout << std::endl;
   }
+
+  void clear_state();
+
+  void compute_bin_centers_and_spreads(const std::vector<int> &ts_sequence,
+                                       const std::vector<double> &mean_sequence);
+
+/**
+ * Linear interpolate between bin midpoints. Midpoints are calculated only when
+ * two consecutive modeling time steps has observations. Midpoints between bin b
+ * and bin (b + 1) % period are assigned to midpoint bin b.
+ * @param hn_id: ID of the head node where midpoints are being computed
+ * @param ts_sequence: Modeling time step sequence where there are observations.
+ * @param mean_sequence: Each modeling time step could have multiple
+ *                       observations. When computing midpoints, we first
+ *                       compute the average of multiple observations per
+ *                       modeling time step and create a mean observation
+ *                       sequence. We compute the midpoints between these
+ *                       means.
+ */
+  void linear_interpolate_between_bin_midpoints(std::vector<int> &ts_sequence,
+                                            std::vector<double> &mean_sequence);
 };
 

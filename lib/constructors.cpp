@@ -250,6 +250,7 @@ AnalysisGraph::AnalysisGraph(const AnalysisGraph& rhs) {
   this->model_data_agg_level = rhs.model_data_agg_level;
 
   this->e_A_ts = rhs.e_A_ts;
+  this->e_A_fourier_ts = rhs.e_A_fourier_ts;
   this->num_modeling_timesteps_per_one_observation_timestep = rhs.num_modeling_timesteps_per_one_observation_timestep;
 
   this->external_concepts = rhs.external_concepts;
@@ -277,6 +278,10 @@ AnalysisGraph::AnalysisGraph(const AnalysisGraph& rhs) {
   this->derivative_prior_variance = rhs.derivative_prior_variance;
 
   this->A_original = rhs.A_original;
+
+  this->head_node_model = rhs.head_node_model;
+  this->A_fourier_base = rhs.A_fourier_base;
+  this->s0_fourier = rhs.s0_fourier;
 
   this->continuous = rhs.continuous;
 
@@ -398,6 +403,7 @@ AnalysisGraph& AnalysisGraph::operator=(AnalysisGraph rhs) {
     swap(model_data_agg_level, rhs.model_data_agg_level);
 
     swap(e_A_ts, rhs.e_A_ts);
+    swap(e_A_fourier_ts, rhs.e_A_fourier_ts);
     swap(num_modeling_timesteps_per_one_observation_timestep, rhs.num_modeling_timesteps_per_one_observation_timestep);
 
     swap(external_concepts, rhs.external_concepts);
@@ -425,6 +431,10 @@ AnalysisGraph& AnalysisGraph::operator=(AnalysisGraph rhs) {
     swap(derivative_prior_variance, rhs.derivative_prior_variance);
 
     swap(A_original, rhs.A_original);
+
+    swap(head_node_model, rhs.head_node_model);
+    swap(A_fourier_base, rhs.A_fourier_base);
+    swap(s0_fourier, rhs.s0_fourier);
 
     swap(continuous, rhs.continuous);
 

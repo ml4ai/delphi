@@ -95,7 +95,9 @@ add_library(Delphi
   lib/ExperimentStatus.cpp
   lib/Config.cpp
   lib/profiler.cpp
-  lib/CSVWriter.hpp)
+  lib/CSVWriter.hpp
+  lib/fourier.cpp
+  lib/Node.cpp)
 
 target_link_libraries(Delphi
                       PRIVATE ${Boost_LIBRARIES}

@@ -53,14 +53,15 @@ void AnalysisGraph::train_model(int start_year,
           this->set_observed_state_sequence_from_data(country, state, county);
       }
 
-      this->run_train_model(res, burn, initial_beta, initial_derivative,
-                            use_heuristic, use_continuous);
+      this->run_train_model(res, burn, HeadNodeModel::HNM_NAIVE, initial_beta,
+                            initial_derivative, use_heuristic, use_continuous);
   }
 }
 
 
 void AnalysisGraph::run_train_model(int res,
                                 int burn,
+                                HeadNodeModel head_node_model,
                                 InitialBeta initial_beta,
                                 InitialDerivative initial_derivative,
                                 bool use_heuristic,
@@ -161,9 +162,10 @@ void AnalysisGraph::run_train_model(int res,
       }
     }
 
+    this->head_node_model = head_node_model;
+
     this->concept_sample_pool.clear();
-//    this->concept_sample_pool = vector<unsigned int>(train_vertices.begin(),
-//                                                     train_vertices.end());
+
     for (int vert : train_vertices) {
       Node& n = (*this)[vert];
       if (this->head_nodes.find(vert) == this->head_nodes.end()) {
@@ -244,8 +246,6 @@ void AnalysisGraph::run_train_model(int res,
           this->MAP_sample_number = this->res - 1;
       }
     }
-
-    //int num_verts = this->num_vertices();
 
     cout << "\nSampling " << this->res << " samples from posterior..." << endl;
     for (int i : trange(this->res - 1)) {
