@@ -3,25 +3,35 @@
 #include <iostream>
 #include <fstream>
 
-// This configuration class reads the config file each time
-// a variable is retrieved.
+Config::Config() {
+  init();
+}
+
+Config::Config(string filename):filename(filename){
+  init();
+}
+
+void Config::init() {
+  json config = read_config();
+
+  if(config.contains(TRAINING_MIN_LOG_LIKELIHOOD_DELTA)){
+    training_min_log_liklihood_delta = 
+      config[TRAINING_MIN_LOG_LIKELIHOOD_DELTA];
+  }
+
+  if(config.contains(TRAINING_N_SAMPLES)){
+    training_n_samples = config[TRAINING_N_SAMPLES];
+  }
+}
 
 // Return the max samples for training
 int Config::get_training_n_samples() {
-  json config = read_config();
-  if(config.contains(TRAINING_N_SAMPLES)){
-    return (int)config[TRAINING_N_SAMPLES];
-  }
-  return DEFAULT_TRAINING_N_SAMPLES;
+  return training_n_samples;
 }
 
 // Return the minimum log liklihood delta for early stopping
 double Config::get_training_min_log_liklihood_delta() {
-  json config = read_config();
-  if(config.contains(TRAINING_MIN_LOG_LIKELIHOOD_DELTA)){
-    return (double)config[TRAINING_MIN_LOG_LIKELIHOOD_DELTA];
-  }
-  return DEFAULT_TRAINING_MIN_LOG_LIKELIHOOD_DELTA;
+  return training_min_log_liklihood_delta;
 }
 
 // Return a JSON struct read from the config file
