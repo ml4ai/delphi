@@ -2,6 +2,6 @@
   "config_version": "1.0.0",
   "model_status": "model_status",
   "experiment_status": "experiment_status",
-  "log_liklihood_delta": 0.001,
-  "n_samples": 100
+  "early_stopping_min_log_likelihood_delta": 0.0,
+  "early_stopping_n_samples": 200
 }
