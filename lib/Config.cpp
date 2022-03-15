@@ -14,24 +14,33 @@ Config::Config(string filename):filename(filename){
 void Config::init() {
   json config = read_config();
 
-  if(config.contains(TRAINING_MIN_LOG_LIKELIHOOD_DELTA)){
-    training_min_log_liklihood_delta = 
-      config[TRAINING_MIN_LOG_LIKELIHOOD_DELTA];
+  if(config.contains(JSON_TRAINING_STOPPING_MIN_LOG_LIKELIHOOD_DELTA)){
+    training_stopping_min_log_liklihood_delta = 
+      config[JSON_TRAINING_STOPPING_MIN_LOG_LIKELIHOOD_DELTA];
   }
 
-  if(config.contains(TRAINING_N_SAMPLES)){
-    training_n_samples = config[TRAINING_N_SAMPLES];
+  if(config.contains(JSON_TRAINING_STOPPING_SAMPLE_INTERVAL)){
+    training_stopping_sample_interval = config[JSON_TRAINING_STOPPING_SAMPLE_INTERVAL];
+  }
+
+  if(config.contains(JSON_TRAINING_BURN)){
+    training_burn = config[JSON_TRAINING_BURN];
   }
 }
 
-// Return the max samples for training
-int Config::get_training_n_samples() {
-  return training_n_samples;
+// How many samples to generate
+int Config::get_training_burn() {
+  return training_burn;
 }
 
-// Return the minimum log liklihood delta for early stopping
-double Config::get_training_min_log_liklihood_delta() {
-  return training_min_log_liklihood_delta;
+// Sample interval over which to check for variance in log likelihood
+int Config::get_training_stopping_sample_interval() {
+  return training_stopping_sample_interval;
+}
+
+// Minimum log liklihood delta for early stopping
+double Config::get_training_stopping_min_log_liklihood_delta() {
+  return training_stopping_min_log_liklihood_delta;
 }
 
 // Return a JSON struct read from the config file
@@ -54,4 +63,3 @@ json Config::read_config() {
   }
   return config;
 }
-
