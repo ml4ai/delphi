@@ -94,6 +94,7 @@ add_library(Delphi
   lib/ModelStatus.cpp
   lib/ExperimentStatus.cpp
   lib/Config.cpp
+  lib/TrainingStopper.cpp
   lib/profiler.cpp
   lib/CSVWriter.hpp
   lib/fourier.cpp
