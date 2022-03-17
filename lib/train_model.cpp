@@ -1,6 +1,7 @@
 #include "AnalysisGraph.hpp"
 #include "ModelStatus.hpp"
 #include "data.hpp"
+#include "Config.hpp"
 #include <tqdm.hpp>
 #include <range/v3/all.hpp>
 #include <nlohmann/json.hpp>
