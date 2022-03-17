@@ -213,6 +213,21 @@ void AnalysisGraph::run_train_model(int res,
 //      cout << filename << endl;
     #endif
 
+
+
+
+    // Stop training if the log likelihood does not change by the
+    // minimum delta within the stopping sample interval
+    Config config;
+    int stopping_sample_interval =
+      config.get_training_stopping_sample_interval();
+    double stopping_min_log_likelihood_delta =
+      config.get_training_stopping_min_log_likelihood_delta();
+
+    double stopping_log_likelihood_hi = 0.0;
+    double stopping_log_likelihood_lo = 0.0;
+    int stopping_samples_tested = 0;
+
     cout << "\nBurning " << burn << " samples out..." << endl;
     for (int i : trange(burn)) {
       ms.increment_progress(training_step);
@@ -237,6 +252,25 @@ void AnalysisGraph::run_train_model(int res,
       #endif
 
       this->log_likelihoods[i] = this->log_likelihood;
+
+      stopping_samples_tested++;
+
+      // if we find a log_likelihood outside of the stopping band,
+      // reset the stopping parameters 
+      if((this->log_likelihood < stopping_log_likelihood_lo) ||
+        (this->log_likelihood > stopping_log_likelihood_hi)) {
+        stopping_log_likelihood_lo = 
+          this->log_likelihood - stopping_min_log_likelihood_delta;
+        stopping_log_likelihood_hi = 
+          this->log_likelihood + stopping_min_log_likelihood_delta;
+	stopping_samples_tested = 0;
+      }
+
+      // stop burning if the log_likelihood has been within the stopping
+      // test band for the entire stopping test interval.
+      if(stopping_samples_tested > stopping_sample_interval) {
+        break;  // stop early
+      }
 
       if (this->log_likelihood > this->log_likelihood_MAP) {
           this->log_likelihood_MAP = this->log_likelihood;

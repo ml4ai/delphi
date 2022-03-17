@@ -16,7 +16,7 @@ class Config {
     json read_config();
     int training_stopping_sample_interval = DEFAULT_TRAINING_STOPPING_SAMPLE_INTERVAL;
     int training_burn = DEFAULT_TRAINING_BURN;
-    double training_stopping_min_log_liklihood_delta = 
+    double training_stopping_min_log_likelihood_delta = 
       DEFAULT_TRAINING_STOPPING_MIN_LOG_LIKELIHOOD_DELTA;
 
   public:
@@ -26,7 +26,7 @@ class Config {
 
     int get_training_stopping_sample_interval();
     int get_training_burn();
-    double get_training_stopping_min_log_liklihood_delta ();
+    double get_training_stopping_min_log_likelihood_delta ();
 
     const string DEFAULT_FILENAME = "../config.json";
     const int DEFAULT_TRAINING_STOPPING_SAMPLE_INTERVAL = 200;

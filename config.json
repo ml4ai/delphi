@@ -2,7 +2,7 @@
   "config_version": "1.0.0",
   "model_status": "model_status",
   "experiment_status": "experiment_status",
-  "training_stopping_min_log_likelihood_delta": 0.0,
+  "training_stopping_min_log_likelihood_delta": 0.1,
   "training_stopping_sample_interval": 200,
   "training_burn": 1000
 }

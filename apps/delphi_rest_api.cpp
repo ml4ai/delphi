@@ -262,7 +262,7 @@ class Model {
 
 	// If no specific environment is set, return a default value
 	Config config;
-	return config.get_training_n_samples();
+	return config.get_training_burn();
     }
 };
 

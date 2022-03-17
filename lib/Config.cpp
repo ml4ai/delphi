@@ -15,7 +15,7 @@ void Config::init() {
   json config = read_config();
 
   if(config.contains(JSON_TRAINING_STOPPING_MIN_LOG_LIKELIHOOD_DELTA)){
-    training_stopping_min_log_liklihood_delta = 
+    training_stopping_min_log_likelihood_delta = 
       config[JSON_TRAINING_STOPPING_MIN_LOG_LIKELIHOOD_DELTA];
   }
 
@@ -38,9 +38,9 @@ int Config::get_training_stopping_sample_interval() {
   return training_stopping_sample_interval;
 }
 
-// Minimum log liklihood delta for early stopping
-double Config::get_training_stopping_min_log_liklihood_delta() {
-  return training_stopping_min_log_liklihood_delta;
+// Minimum log likelihood delta for early stopping
+double Config::get_training_stopping_min_log_likelihood_delta() {
+  return training_stopping_min_log_likelihood_delta;
 }
 
 // Return a JSON struct read from the config file
