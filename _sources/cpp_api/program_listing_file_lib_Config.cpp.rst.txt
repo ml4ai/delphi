@@ -15,34 +15,31 @@ Program Listing for File Config.cpp
    #include <iostream>
    #include <fstream>
    
-   // This configuration class reads the config file each time
-   // a variable is retrieved.
-   
-   // Return the max samples for training
-   int Config::get_training_n_samples() {
-     json config = read_config();
-     if(config.contains(TRAINING_N_SAMPLES)){
-       return (int)config[TRAINING_N_SAMPLES];
-     }
-     return DEFAULT_TRAINING_N_SAMPLES;
+   Config::Config() {
+     read_config();
    }
    
-   // Return the minimum log liklihood delta for early stopping
-   double Config::get_training_min_log_liklihood_delta() {
-     json config = read_config();
-     if(config.contains(TRAINING_MIN_LOG_LIKELIHOOD_DELTA)){
-       return (double)config[TRAINING_MIN_LOG_LIKELIHOOD_DELTA];
-     }
-     return DEFAULT_TRAINING_MIN_LOG_LIKELIHOOD_DELTA;
+   // get an int val
+   int Config::get_int(string field, int fallback) {
+     return config.contains(field) ? (int)config[field] : fallback;
+   }
+   
+   // get a string val
+   string Config::get_string(string field, string fallback) {
+     return config.contains(field) ? (string)config[field] : fallback;
+   }
+   
+   // get a double val
+   double Config::get_double(string field, double fallback) {
+     return config.contains(field) ? (double)config[field] : fallback;
    }
    
    // Return a JSON struct read from the config file
-   json Config::read_config() {
+   void Config::read_config() {
      ifstream file;
      file.open(filename);
      string jsonString;
      string line;
-     json config;
      if ( file.is_open() ) {
        while ( file ) { 
          getline (file, line);
@@ -54,6 +51,4 @@ Program Listing for File Config.cpp
      else {
        cerr << "Couldn't open config file at '" << filename << "'" << endl;
      }
-     return config;
    }
-   

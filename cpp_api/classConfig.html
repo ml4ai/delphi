@@ -70,6 +70,7 @@
 <li class="toctree-l4"><a class="reference internal" href="classIndicatorNotFoundException.html">Class IndicatorNotFoundException</a></li>
 <li class="toctree-l4"><a class="reference internal" href="classKDE.html">Class KDE</a></li>
 <li class="toctree-l4"><a class="reference internal" href="classLatentVar.html">Class LatentVar</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classLogger.html">Class Logger</a></li>
 <li class="toctree-l4"><a class="reference internal" href="classModelStatus.html">Class ModelStatus</a></li>
 <li class="toctree-l4"><a class="reference internal" href="classNode.html">Class Node</a></li>
 <li class="toctree-l4"><a class="reference internal" href="classPybindTester.html">Class PybindTester</a></li>
@@ -78,13 +79,13 @@
 <li class="toctree-l4"><a class="reference internal" href="classRV.html">Class RV</a></li>
 <li class="toctree-l4"><a class="reference internal" href="classStatement.html">Class Statement</a></li>
 <li class="toctree-l4"><a class="reference internal" href="classTimer.html">Class Timer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classTrainingStopper.html">Class TrainingStopper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="classTran__Mat__Cell.html">Class Tran_Mat_Cell</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="library_root.html#enums">Enums</a></li>
 <li class="toctree-l3"><a class="reference internal" href="library_root.html#functions">Functions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="library_root.html#variables">Variables</a></li>
-<li class="toctree-l3"><a class="reference internal" href="library_root.html#defines">Defines</a></li>
 <li class="toctree-l3"><a class="reference internal" href="library_root.html#typedefs">Typedefs</a></li>
 </ul>
 </li>
@@ -132,12 +133,7 @@
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N6Config6ConfigEv">
-<span id="_CPPv3N6Config6ConfigEv"></span><span id="_CPPv2N6Config6ConfigEv"></span><span id="Config::Config"></span><span class="target" id="classConfig_1abd0c571c116924871e30444b192b792a"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Config</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6Config6ConfigEv" title="Permalink to this definition"></a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N6Config6ConfigE6string">
-<span id="_CPPv3N6Config6ConfigE6string"></span><span id="_CPPv2N6Config6ConfigE6string"></span><span id="Config::Config__string"></span><span class="target" id="classConfig_1a400b10f33c097937034125f52137719b"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Config</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">filename</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6Config6ConfigE6string" title="Permalink to this definition"></a><br /></dt>
+<span id="_CPPv3N6Config6ConfigEv"></span><span id="_CPPv2N6Config6ConfigEv"></span><span id="Config::Config"></span><span class="target" id="classConfig_1abd0c571c116924871e30444b192b792a"></span><span class="sig-name descname"><span class="n"><span class="pre">Config</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6Config6ConfigEv" title="Permalink to this definition"></a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
@@ -146,41 +142,18 @@
 <dd></dd></dl>
 
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N6Config22get_training_n_samplesEv">
-<span id="_CPPv3N6Config22get_training_n_samplesEv"></span><span id="_CPPv2N6Config22get_training_n_samplesEv"></span><span id="Config::get_training_n_samples"></span><span class="target" id="classConfig_1ad3e4a15ab6c4e5a25885ca5f4192cbb6"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_training_n_samples</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6Config22get_training_n_samplesEv" title="Permalink to this definition"></a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6Config7get_intE6stringi">
+<span id="_CPPv3N6Config7get_intE6stringi"></span><span id="_CPPv2N6Config7get_intE6stringi"></span><span id="Config::get_int__string.i"></span><span class="target" id="classConfig_1aba4d8fe70dc425209ef8581c3d605a30"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_int</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">field</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">fallback</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6Config7get_intE6stringi" title="Permalink to this definition"></a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N6Config36get_training_min_log_liklihood_deltaEv">
-<span id="_CPPv3N6Config36get_training_min_log_liklihood_deltaEv"></span><span id="_CPPv2N6Config36get_training_min_log_liklihood_deltaEv"></span><span id="Config::get_training_min_log_liklihood_delta"></span><span class="target" id="classConfig_1a56731099e9f5d592f3427801689c45e2"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_training_min_log_liklihood_delta</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6Config36get_training_min_log_liklihood_deltaEv" title="Permalink to this definition"></a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N6Config10get_stringE6string6string">
+<span id="_CPPv3N6Config10get_stringE6string6string"></span><span id="_CPPv2N6Config10get_stringE6string6string"></span><span id="Config::get_string__string.string"></span><span class="target" id="classConfig_1a0d1a6bd46edbcd04f23467eaa634bcda"></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_string</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">field</span></span>, <span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">fallback</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6Config10get_stringE6string6string" title="Permalink to this definition"></a><br /></dt>
 <dd></dd></dl>
 
-</div>
-<div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv4N6Config16DEFAULT_FILENAMEE">
-<span id="_CPPv3N6Config16DEFAULT_FILENAMEE"></span><span id="_CPPv2N6Config16DEFAULT_FILENAMEE"></span><span id="Config::DEFAULT_FILENAME__stringC"></span><span class="target" id="classConfig_1ae5a8884a2eedea4a80f4dda2ec05b9a7"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DEFAULT_FILENAME</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="s"><span class="pre">&quot;../config.json&quot;</span></span><a class="headerlink" href="#_CPPv4N6Config16DEFAULT_FILENAMEE" title="Permalink to this definition"></a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv4N6Config26DEFAULT_TRAINING_N_SAMPLESE">
-<span id="_CPPv3N6Config26DEFAULT_TRAINING_N_SAMPLESE"></span><span id="_CPPv2N6Config26DEFAULT_TRAINING_N_SAMPLESE"></span><span id="Config::DEFAULT_TRAINING_N_SAMPLES__iC"></span><span class="target" id="classConfig_1a2e523904451f82fb551f03404392a9cc"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DEFAULT_TRAINING_N_SAMPLES</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">100</span></span><a class="headerlink" href="#_CPPv4N6Config26DEFAULT_TRAINING_N_SAMPLESE" title="Permalink to this definition"></a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv4N6Config41DEFAULT_TRAINING_MIN_LOG_LIKELIHOOD_DELTAE">
-<span id="_CPPv3N6Config41DEFAULT_TRAINING_MIN_LOG_LIKELIHOOD_DELTAE"></span><span id="_CPPv2N6Config41DEFAULT_TRAINING_MIN_LOG_LIKELIHOOD_DELTAE"></span><span id="Config::DEFAULT_TRAINING_MIN_LOG_LIKELIHOOD_DELTA__doubleC"></span><span class="target" id="classConfig_1a40f5b6b5431adbc7c708f11be59fe4bb"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DEFAULT_TRAINING_MIN_LOG_LIKELIHOOD_DELTA</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0.0001</span></span><a class="headerlink" href="#_CPPv4N6Config41DEFAULT_TRAINING_MIN_LOG_LIKELIHOOD_DELTAE" title="Permalink to this definition"></a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv4N6Config33TRAINING_MIN_LOG_LIKELIHOOD_DELTAE">
-<span id="_CPPv3N6Config33TRAINING_MIN_LOG_LIKELIHOOD_DELTAE"></span><span id="_CPPv2N6Config33TRAINING_MIN_LOG_LIKELIHOOD_DELTAE"></span><span id="Config::TRAINING_MIN_LOG_LIKELIHOOD_DELTA__stringC"></span><span class="target" id="classConfig_1a1576a23318ee11693b5bb50a84542c78"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TRAINING_MIN_LOG_LIKELIHOOD_DELTA</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="s"><span class="pre">&quot;log_liklihood_delta&quot;</span></span><a class="headerlink" href="#_CPPv4N6Config33TRAINING_MIN_LOG_LIKELIHOOD_DELTAE" title="Permalink to this definition"></a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv4N6Config18TRAINING_N_SAMPLESE">
-<span id="_CPPv3N6Config18TRAINING_N_SAMPLESE"></span><span id="_CPPv2N6Config18TRAINING_N_SAMPLESE"></span><span id="Config::TRAINING_N_SAMPLES__stringC"></span><span class="target" id="classConfig_1a0bb8003f05229cf6fd2d6801010b8e44"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TRAINING_N_SAMPLES</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="s"><span class="pre">&quot;n_samples&quot;</span></span><a class="headerlink" href="#_CPPv4N6Config18TRAINING_N_SAMPLESE" title="Permalink to this definition"></a><br /></dt>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N6Config10get_doubleE6stringd">
+<span id="_CPPv3N6Config10get_doubleE6stringd"></span><span id="_CPPv2N6Config10get_doubleE6stringd"></span><span id="Config::get_double__string.double"></span><span class="target" id="classConfig_1a7648c6a8894492dfa4dd823466c9bac2"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get_double</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">field</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">fallback</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N6Config10get_doubleE6stringd" title="Permalink to this definition"></a><br /></dt>
 <dd></dd></dl>
 
 </div>

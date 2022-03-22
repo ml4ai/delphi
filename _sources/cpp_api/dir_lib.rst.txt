@@ -45,6 +45,8 @@ Files
 - :ref:`file_lib_indicator_manipulation.cpp`
 - :ref:`file_lib_KDE.cpp`
 - :ref:`file_lib_KDE.hpp`
+- :ref:`file_lib_Logger.cpp`
+- :ref:`file_lib_Logger.hpp`
 - :ref:`file_lib_ModelStatus.cpp`
 - :ref:`file_lib_ModelStatus.hpp`
 - :ref:`file_lib_Node.cpp`
@@ -65,6 +67,8 @@ Files
 - :ref:`file_lib_Timer.hpp`
 - :ref:`file_lib_to_json.cpp`
 - :ref:`file_lib_train_model.cpp`
+- :ref:`file_lib_TrainingStopper.cpp`
+- :ref:`file_lib_TrainingStopper.hpp`
 - :ref:`file_lib_Tran_Mat_Cell.cpp`
 - :ref:`file_lib_Tran_Mat_Cell.hpp`
 - :ref:`file_lib_utils.cpp`

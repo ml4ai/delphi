@@ -1,0 +1,41 @@
+
+.. _file_lib_TrainingStopper.cpp:
+
+File TrainingStopper.cpp
+========================
+
+|exhale_lsh| :ref:`Parent directory <dir_lib>` (``lib``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. contents:: Contents
+   :local:
+   :backlinks: none
+
+Definition (``lib/TrainingStopper.cpp``)
+----------------------------------------
+
+
+.. toctree::
+   :maxdepth: 1
+
+   program_listing_file_lib_TrainingStopper.cpp.rst
+
+
+
+
+
+Includes
+--------
+
+
+- ``Config.hpp`` (:ref:`file_lib_Config.hpp`)
+
+- ``TrainingStopper.hpp`` (:ref:`file_lib_TrainingStopper.hpp`)
+
+- ``math.h``
+
+
+
+
+

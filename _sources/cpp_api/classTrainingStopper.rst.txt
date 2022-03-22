@@ -1,0 +1,17 @@
+.. _exhale_class_classTrainingStopper:
+
+Class TrainingStopper
+=====================
+
+- Defined in :ref:`file_lib_TrainingStopper.hpp`
+
+
+Class Documentation
+-------------------
+
+
+.. doxygenclass:: TrainingStopper
+   :project: My Project
+   :members:
+   :protected-members:
+   :undoc-members:

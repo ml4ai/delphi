@@ -87,9 +87,6 @@
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sys/time.h&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;chrono&gt;</span><span class="cp"></span>
 
-<span class="cp">#define SHOW_INFO_LOGS   </span><span class="c1">// define for cout debug messages</span>
-<span class="cp">#define SHOW_ERROR_LOGS  </span><span class="c1">// define for cout debug messages</span>
-
 <span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">std</span><span class="p">;</span><span class="w"></span>
 <span class="k">using</span><span class="w"> </span><span class="n">json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="p">;</span><span class="w"></span>
 
@@ -224,32 +221,6 @@
 <span class="w">    </span><span class="o">+</span><span class="w">  </span><span class="s">&quot;&#39;);&quot;</span><span class="p">;</span><span class="w"></span>
 
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">insert_query</span><span class="p">(</span><span class="n">query</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-
-<span class="c1">// return current time like this:  2022-02-17 14:33:52:016</span>
-<span class="n">string</span><span class="w"> </span><span class="n">BaseStatus</span><span class="o">::</span><span class="n">timestamp</span><span class="p">(){</span><span class="w"></span>
-<span class="w">  </span><span class="n">timeval</span><span class="w"> </span><span class="n">curTime</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="n">gettimeofday</span><span class="p">(</span><span class="o">&amp;</span><span class="n">curTime</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span><span class="w"></span>
-<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">milli</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">curTime</span><span class="p">.</span><span class="n">tv_usec</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1000</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="kt">char</span><span class="w"> </span><span class="n">buffer</span><span class="w"> </span><span class="p">[</span><span class="mi">80</span><span class="p">];</span><span class="w"></span>
-<span class="w">  </span><span class="n">strftime</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="mi">80</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%Y-%m-%d %H:%M:%S&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">localtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">curTime</span><span class="p">.</span><span class="n">tv_sec</span><span class="p">));</span><span class="w"></span>
-<span class="w">  </span><span class="kt">char</span><span class="w"> </span><span class="n">currentTime</span><span class="p">[</span><span class="mi">84</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="n">sprintf</span><span class="p">(</span><span class="n">currentTime</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%s:%03d&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">milli</span><span class="p">);</span><span class="w"></span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">string</span><span class="p">(</span><span class="n">currentTime</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-
-<span class="c1">// Report a message to cout</span>
-<span class="kt">void</span><span class="w"> </span><span class="n">BaseStatus</span><span class="o">::</span><span class="n">log_info</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">msg</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="cp">#ifdef SHOW_INFO_LOGS</span>
-<span class="w">  </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">timestamp</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">class_name</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; INFO: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">msg</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
-<span class="cp">#endif</span>
-<span class="p">}</span><span class="w"></span>
-
-<span class="c1">// Report an error to cerr</span>
-<span class="kt">void</span><span class="w"> </span><span class="n">BaseStatus</span><span class="o">::</span><span class="n">log_error</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">msg</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="cp">#ifdef SHOW_ERROR_LOGS</span>
-<span class="w">  </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">timestamp</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">class_name</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; ERROR: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">msg</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
-<span class="cp">#endif</span>
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>

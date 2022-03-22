@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Class TrainingStopper &mdash; delphi  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Class Tran_Mat_Cell" href="classTran__Mat__Cell.html" />
+    <link rel="prev" title="Class Timer" href="classTimer.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> delphi
+            <img src="../_static/delphi_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GrFN_API.html">GroundedFunctionNetwork API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html">}</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTING.html">Contributing</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="library_root.html">C++ API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="library_root.html#class-hierarchy">Class Hierarchy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library_root.html#file-hierarchy">File Hierarchy</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="library_root.html#full-api">Full API</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="library_root.html#namespaces">Namespaces</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="library_root.html#classes-and-structs">Classes and Structs</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="classAnalysisGraph.html">Class AnalysisGraph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classBadCausemosInputException.html">Class BadCausemosInputException</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classBaseStatus.html">Class BaseStatus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classConcept.html">Class Concept</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classConfig.html">Class Config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classCSVWriter.html">Class CSVWriter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classDatabase.html">Class Database</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classEdge.html">Class Edge</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classEvent.html">Class Event</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classExperimentStatus.html">Class ExperimentStatus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classGraphData.html">Class GraphData</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classIndicator.html">Class Indicator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classIndicatorNotFoundException.html">Class IndicatorNotFoundException</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classKDE.html">Class KDE</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classLatentVar.html">Class LatentVar</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classLogger.html">Class Logger</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classModelStatus.html">Class ModelStatus</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classNode.html">Class Node</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classPybindTester.html">Class PybindTester</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classQualitativeDelta.html">Class QualitativeDelta</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classRNG.html">Class RNG</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classRV.html">Class RV</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classStatement.html">Class Statement</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classTimer.html">Class Timer</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Class TrainingStopper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classTran__Mat__Cell.html">Class Tran_Mat_Cell</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="library_root.html#enums">Enums</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library_root.html#functions">Functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library_root.html#variables">Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library_root.html#typedefs">Typedefs</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../grfn_openapi.html">GrFN OpenAPI Specification</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">delphi</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="library_root.html">C++ API</a> &raquo;</li>
+      <li>Class TrainingStopper</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/cpp_api/classTrainingStopper.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="class-trainingstopper">
+<span id="exhale-class-classtrainingstopper"></span><h1>Class TrainingStopper<a class="headerlink" href="#class-trainingstopper" title="Permalink to this headline"></a></h1>
+<ul class="simple">
+<li><p>Defined in <a class="reference internal" href="file_lib_TrainingStopper.hpp.html#file-lib-trainingstopper-hpp"><span class="std std-ref">File TrainingStopper.hpp</span></a></p></li>
+</ul>
+<section id="class-documentation">
+<h2>Class Documentation<a class="headerlink" href="#class-documentation" title="Permalink to this headline"></a></h2>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv415TrainingStopper">
+<span id="_CPPv315TrainingStopper"></span><span id="_CPPv215TrainingStopper"></span><span id="TrainingStopper"></span><span class="target" id="classTrainingStopper"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TrainingStopper</span></span></span><a class="headerlink" href="#_CPPv415TrainingStopper" title="Permalink to this definition"></a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N15TrainingStopper15TrainingStopperEv">
+<span id="_CPPv3N15TrainingStopper15TrainingStopperEv"></span><span id="_CPPv2N15TrainingStopper15TrainingStopperEv"></span><span id="TrainingStopper::TrainingStopper"></span><span class="target" id="classTrainingStopper_1a19decff08a34eddc8928ce747113d46f"></span><span class="sig-name descname"><span class="n"><span class="pre">TrainingStopper</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N15TrainingStopper15TrainingStopperEv" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N15TrainingStopperD0Ev">
+<span id="_CPPv3N15TrainingStopperD0Ev"></span><span id="_CPPv2N15TrainingStopperD0Ev"></span><span id="TrainingStopper::~TrainingStopper"></span><span class="target" id="classTrainingStopper_1a78040e5cce74c5e945c5957c5d10eaf8"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">~TrainingStopper</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N15TrainingStopperD0Ev" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N15TrainingStopper13stop_trainingENSt6vectorIdEEi">
+<span id="_CPPv3N15TrainingStopper13stop_trainingENSt6vectorIdEEi"></span><span id="_CPPv2N15TrainingStopper13stop_trainingENSt6vectorIdEEi"></span><span id="TrainingStopper::stop_training__std::vector:double:.i"></span><span class="target" id="classTrainingStopper_1ab23e92ccbd2ba7055bea09f49771cd49"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">stop_training</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">log_likelihoods</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sample_idx</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N15TrainingStopper13stop_trainingENSt6vectorIdEEi" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="classTimer.html" class="btn btn-neutral float-left" title="Class Timer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="classTran__Mat__Cell.html" class="btn btn-neutral float-right" title="Class Tran_Mat_Cell" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Adarsh.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

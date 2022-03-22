@@ -1,0 +1,47 @@
+
+.. _file_lib_Logger.cpp:
+
+File Logger.cpp
+===============
+
+|exhale_lsh| :ref:`Parent directory <dir_lib>` (``lib``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. contents:: Contents
+   :local:
+   :backlinks: none
+
+Definition (``lib/Logger.cpp``)
+-------------------------------
+
+
+.. toctree::
+   :maxdepth: 1
+
+   program_listing_file_lib_Logger.cpp.rst
+
+
+
+
+
+Includes
+--------
+
+
+- ``Config.hpp`` (:ref:`file_lib_Config.hpp`)
+
+- ``Logger.hpp`` (:ref:`file_lib_Logger.hpp`)
+
+- ``chrono``
+
+- ``fstream``
+
+- ``iostream``
+
+- ``sys/time.h``
+
+
+
+
+

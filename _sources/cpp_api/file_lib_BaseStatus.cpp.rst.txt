@@ -57,15 +57,6 @@ Namespaces
 - :ref:`namespace_std`
 
 
-Defines
--------
-
-
-- :ref:`exhale_define_BaseStatus_8cpp_1ac597396b8b15727f3566d30854a60aa7`
-
-- :ref:`exhale_define_BaseStatus_8cpp_1a9ec3b851adf82bbddae9a21991bb4fdd`
-
-
 Typedefs
 --------
 

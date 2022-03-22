@@ -190,6 +190,16 @@ Files
 .. toctree::
    :maxdepth: 5
 
+   file_lib_Logger.cpp.rst
+
+.. toctree::
+   :maxdepth: 5
+
+   file_lib_Logger.hpp.rst
+
+.. toctree::
+   :maxdepth: 5
+
    file_lib_ModelStatus.cpp.rst
 
 .. toctree::
@@ -286,6 +296,16 @@ Files
    :maxdepth: 5
 
    file_lib_train_model.cpp.rst
+
+.. toctree::
+   :maxdepth: 5
+
+   file_lib_TrainingStopper.cpp.rst
+
+.. toctree::
+   :maxdepth: 5
+
+   file_lib_TrainingStopper.hpp.rst
 
 .. toctree::
    :maxdepth: 5

@@ -83,34 +83,31 @@
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;fstream&gt;</span><span class="cp"></span>
 
-<span class="c1">// This configuration class reads the config file each time</span>
-<span class="c1">// a variable is retrieved.</span>
-
-<span class="c1">// Return the max samples for training</span>
-<span class="kt">int</span><span class="w"> </span><span class="nf">Config::get_training_n_samples</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="n">json</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">read_config</span><span class="p">();</span><span class="w"></span>
-<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">config</span><span class="p">.</span><span class="n">contains</span><span class="p">(</span><span class="n">TRAINING_N_SAMPLES</span><span class="p">)){</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">config</span><span class="p">[</span><span class="n">TRAINING_N_SAMPLES</span><span class="p">];</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">DEFAULT_TRAINING_N_SAMPLES</span><span class="p">;</span><span class="w"></span>
+<span class="n">Config</span><span class="o">::</span><span class="n">Config</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">read_config</span><span class="p">();</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
-<span class="c1">// Return the minimum log liklihood delta for early stopping</span>
-<span class="kt">double</span><span class="w"> </span><span class="nf">Config::get_training_min_log_liklihood_delta</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="n">json</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">read_config</span><span class="p">();</span><span class="w"></span>
-<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">config</span><span class="p">.</span><span class="n">contains</span><span class="p">(</span><span class="n">TRAINING_MIN_LOG_LIKELIHOOD_DELTA</span><span class="p">)){</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="p">)</span><span class="n">config</span><span class="p">[</span><span class="n">TRAINING_MIN_LOG_LIKELIHOOD_DELTA</span><span class="p">];</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">DEFAULT_TRAINING_MIN_LOG_LIKELIHOOD_DELTA</span><span class="p">;</span><span class="w"></span>
+<span class="c1">// get an int val</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">Config</span><span class="o">::</span><span class="n">get_int</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">fallback</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">config</span><span class="p">.</span><span class="n">contains</span><span class="p">(</span><span class="n">field</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">config</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">fallback</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="c1">// get a string val</span>
+<span class="n">string</span><span class="w"> </span><span class="n">Config</span><span class="o">::</span><span class="n">get_string</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="n">fallback</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">config</span><span class="p">.</span><span class="n">contains</span><span class="p">(</span><span class="n">field</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="p">(</span><span class="n">string</span><span class="p">)</span><span class="n">config</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">fallback</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="c1">// get a double val</span>
+<span class="kt">double</span><span class="w"> </span><span class="n">Config</span><span class="o">::</span><span class="n">get_double</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">fallback</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">config</span><span class="p">.</span><span class="n">contains</span><span class="p">(</span><span class="n">field</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="p">)</span><span class="n">config</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">fallback</span><span class="p">;</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
 <span class="c1">// Return a JSON struct read from the config file</span>
-<span class="n">json</span><span class="w"> </span><span class="nf">Config::read_config</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="n">Config</span><span class="o">::</span><span class="n">read_config</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">  </span><span class="n">ifstream</span><span class="w"> </span><span class="n">file</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="n">file</span><span class="p">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="n">string</span><span class="w"> </span><span class="n">jsonString</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="n">string</span><span class="w"> </span><span class="n">line</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="n">json</span><span class="w"> </span><span class="n">config</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">file</span><span class="p">.</span><span class="n">is_open</span><span class="p">()</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">      </span><span class="n">getline</span><span class="w"> </span><span class="p">(</span><span class="n">file</span><span class="p">,</span><span class="w"> </span><span class="n">line</span><span class="p">);</span><span class="w"></span>
@@ -122,7 +119,6 @@
 <span class="w">  </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Couldn&#39;t open config file at &#39;&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">filename</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;&#39;&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="p">}</span><span class="w"></span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">config</span><span class="p">;</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>

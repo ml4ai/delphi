@@ -1,0 +1,56 @@
+
+.. _file_lib_Logger.hpp:
+
+File Logger.hpp
+===============
+
+|exhale_lsh| :ref:`Parent directory <dir_lib>` (``lib``)
+
+.. |exhale_lsh| unicode:: U+021B0 .. UPWARDS ARROW WITH TIP LEFTWARDS
+
+.. contents:: Contents
+   :local:
+   :backlinks: none
+
+Definition (``lib/Logger.hpp``)
+-------------------------------
+
+
+.. toctree::
+   :maxdepth: 1
+
+   program_listing_file_lib_Logger.hpp.rst
+
+
+
+
+
+Includes
+--------
+
+
+- ``iostream``
+
+- ``string``
+
+
+
+Included By
+-----------
+
+
+- :ref:`file_lib_BaseStatus.hpp`
+
+- :ref:`file_lib_Logger.cpp`
+
+- :ref:`file_lib_train_model.cpp`
+
+
+
+
+Classes
+-------
+
+
+- :ref:`exhale_class_classLogger`
+

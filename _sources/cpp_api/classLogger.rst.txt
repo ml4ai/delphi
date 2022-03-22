@@ -1,0 +1,17 @@
+.. _exhale_class_classLogger:
+
+Class Logger
+============
+
+- Defined in :ref:`file_lib_Logger.hpp`
+
+
+Class Documentation
+-------------------
+
+
+.. doxygenclass:: Logger
+   :project: My Project
+   :members:
+   :protected-members:
+   :undoc-members:

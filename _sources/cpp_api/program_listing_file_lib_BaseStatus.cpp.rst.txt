@@ -19,9 +19,6 @@ Program Listing for File BaseStatus.cpp
    #include <sys/time.h>
    #include <chrono>
    
-   #define SHOW_INFO_LOGS   // define for cout debug messages
-   #define SHOW_ERROR_LOGS  // define for cout debug messages
-   
    using namespace std;
    using json = nlohmann::json;
    
@@ -156,30 +153,4 @@ Program Listing for File BaseStatus.cpp
        +  "');";
    
      return insert_query(query);
-   }
-   
-   // return current time like this:  2022-02-17 14:33:52:016
-   string BaseStatus::timestamp(){
-     timeval curTime;
-     gettimeofday(&curTime, NULL);
-     int milli = curTime.tv_usec / 1000;
-     char buffer [80];
-     strftime(buffer, 80, "%Y-%m-%d %H:%M:%S", localtime(&curTime.tv_sec));
-     char currentTime[84] = "";
-     sprintf(currentTime, "%s:%03d", buffer, milli);
-     return string(currentTime);
-   }
-   
-   // Report a message to cout
-   void BaseStatus::log_info(string msg) {
-   #ifdef SHOW_INFO_LOGS
-     cout << timestamp() << " " << class_name << " INFO: " << msg << endl;
-   #endif
-   }
-   
-   // Report an error to cerr
-   void BaseStatus::log_error(string msg) {
-   #ifdef SHOW_ERROR_LOGS
-     cout << timestamp() << " " << class_name << " ERROR: " << msg << endl;
-   #endif
    }

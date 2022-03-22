@@ -70,6 +70,7 @@
 <li class="toctree-l4"><a class="reference internal" href="classIndicatorNotFoundException.html">Class IndicatorNotFoundException</a></li>
 <li class="toctree-l4"><a class="reference internal" href="classKDE.html">Class KDE</a></li>
 <li class="toctree-l4"><a class="reference internal" href="classLatentVar.html">Class LatentVar</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classLogger.html">Class Logger</a></li>
 <li class="toctree-l4"><a class="reference internal" href="classModelStatus.html">Class ModelStatus</a></li>
 <li class="toctree-l4"><a class="reference internal" href="classNode.html">Class Node</a></li>
 <li class="toctree-l4"><a class="reference internal" href="classPybindTester.html">Class PybindTester</a></li>
@@ -78,13 +79,13 @@
 <li class="toctree-l4"><a class="reference internal" href="classRV.html">Class RV</a></li>
 <li class="toctree-l4"><a class="reference internal" href="classStatement.html">Class Statement</a></li>
 <li class="toctree-l4"><a class="reference internal" href="classTimer.html">Class Timer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="classTrainingStopper.html">Class TrainingStopper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="classTran__Mat__Cell.html">Class Tran_Mat_Cell</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="library_root.html#enums">Enums</a></li>
 <li class="toctree-l3"><a class="reference internal" href="library_root.html#functions">Functions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="library_root.html#variables">Variables</a></li>
-<li class="toctree-l3"><a class="reference internal" href="library_root.html#defines">Defines</a></li>
 <li class="toctree-l3"><a class="reference internal" href="library_root.html#typedefs">Typedefs</a></li>
 </ul>
 </li>
@@ -223,16 +224,6 @@
 <dd></dd></dl>
 
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N10BaseStatus8log_infoE6string">
-<span id="_CPPv3N10BaseStatus8log_infoE6string"></span><span id="_CPPv2N10BaseStatus8log_infoE6string"></span><span id="BaseStatus::log_info__string"></span><span class="target" id="classBaseStatus_1a91bd922e08e05363fe87f2c4aba213e9"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">log_info</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">msg</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N10BaseStatus8log_infoE6string" title="Permalink to this definition"></a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N10BaseStatus9log_errorE6string">
-<span id="_CPPv3N10BaseStatus9log_errorE6string"></span><span id="_CPPv2N10BaseStatus9log_errorE6string"></span><span id="BaseStatus::log_error__string"></span><span class="target" id="classBaseStatus_1af0e9457c6ae0e70c632e01160c6c8d5b"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">log_error</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">msg</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N10BaseStatus9log_errorE6string" title="Permalink to this definition"></a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N10BaseStatus11insert_dataE6string4json">
 <span id="_CPPv3N10BaseStatus11insert_dataE6string4json"></span><span id="_CPPv2N10BaseStatus11insert_dataE6string4json"></span><span id="BaseStatus::insert_data__string.json"></span><span class="target" id="classBaseStatus_1af44c997b8a07cc2e79b05b237c328adb"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">insert_data</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">id</span></span>, <a class="reference internal" href="typedef_BaseStatus_8cpp_1ab701e3ac61a85b337ec5c1abaad6742d.html#_CPPv44json" title="json"><span class="n"><span class="pre">json</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">data</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N10BaseStatus11insert_dataE6string4json" title="Permalink to this definition"></a><br /></dt>
 <dd></dd></dl>
@@ -240,6 +231,16 @@
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N10BaseStatus14populate_tableEv">
 <span id="_CPPv3N10BaseStatus14populate_tableEv"></span><span id="_CPPv2N10BaseStatus14populate_tableEv"></span><span id="BaseStatus::populate_table"></span><span class="target" id="classBaseStatus_1a394e141f1bbdf1f3dafad441cc1e6b37"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">populate_table</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N10BaseStatus14populate_tableEv" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N10BaseStatus8log_infoE6string">
+<span id="_CPPv3N10BaseStatus8log_infoE6string"></span><span id="_CPPv2N10BaseStatus8log_infoE6string"></span><span id="BaseStatus::log_info__string"></span><span class="target" id="classBaseStatus_1a91bd922e08e05363fe87f2c4aba213e9"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">log_info</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">msg</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N10BaseStatus8log_infoE6string" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N10BaseStatus9log_errorE6string">
+<span id="_CPPv3N10BaseStatus9log_errorE6string"></span><span id="_CPPv2N10BaseStatus9log_errorE6string"></span><span id="BaseStatus::log_error__string"></span><span class="target" id="classBaseStatus_1af0e9457c6ae0e70c632e01160c6c8d5b"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">log_error</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">msg</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N10BaseStatus9log_errorE6string" title="Permalink to this definition"></a><br /></dt>
 <dd></dd></dl>
 
 </div>

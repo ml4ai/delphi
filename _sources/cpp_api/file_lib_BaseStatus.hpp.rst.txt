@@ -33,6 +33,8 @@ Includes
 
 - ``DatabaseHelper.hpp`` (:ref:`file_lib_DatabaseHelper.hpp`)
 
+- ``Logger.hpp`` (:ref:`file_lib_Logger.hpp`)
+
 - ``nlohmann/json.hpp``
 
 - ``sqlite3.h``
