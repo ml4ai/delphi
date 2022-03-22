@@ -1,6 +1,8 @@
 #include "AnalysisGraph.hpp"
 #include "ModelStatus.hpp"
 #include "data.hpp"
+#include "TrainingStopper.hpp"
+#include "Logger.hpp"
 #include <tqdm.hpp>
 #include <range/v3/all.hpp>
 #include <nlohmann/json.hpp>
@@ -76,6 +78,11 @@ void AnalysisGraph::run_train_model(int res,
                                 unordered_map<string, function<double(unsigned int, double)>> ext_concepts) {
 
     double training_step = 0.99 / (res + burn);
+
+    TrainingStopper training_stopper;
+
+    Logger logger;
+    string logger_label = "AnalysisGraph::run_train_model";
 
     ModelStatus ms(this->id);
 
@@ -213,11 +220,13 @@ void AnalysisGraph::run_train_model(int res,
 //      cout << filename << endl;
     #endif
 
-    cout << "\nBurning " << burn << " samples out..." << endl;
+    string text = "Burning " + to_string(burn) + " samples out...";
+    logger.log_info(logger_label, text);
+    logger.log_info(logger_label, "#    log_likelihood");
+//    cout << "\n" << text << endl;
     for (int i : trange(burn)) {
       ms.increment_progress(training_step);
-
-       {
+      {
           #ifdef TIME
 //            durations.first.clear();
             durations.second.clear();
@@ -237,6 +246,10 @@ void AnalysisGraph::run_train_model(int res,
       #endif
 
       this->log_likelihoods[i] = this->log_likelihood;
+      char buf[200];
+      sprintf(buf, "%4d %.10f", i, this->log_likelihood);
+      logger.log_info(logger_label, buf);
+ //     cout << buf << endl;
 
       if (this->log_likelihood > this->log_likelihood_MAP) {
           this->log_likelihood_MAP = this->log_likelihood;
@@ -244,6 +257,13 @@ void AnalysisGraph::run_train_model(int res,
           this->initial_latent_state_collection[this->res - 1] = this->s0;
           this->log_likelihoods[burn + this->res - 1] = this->log_likelihood;
           this->MAP_sample_number = this->res - 1;
+      }
+
+      if(training_stopper.stop_training(this->log_likelihoods, i)) {
+	string text = "Model training stopped early at sample " + to_string(i);
+	logger.log_info(logger_label, text);
+        cout << text << endl;
+        break;
       }
     }
 
