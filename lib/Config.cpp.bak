@@ -1,0 +1,71 @@
+#include "Config.hpp"
+#include <nlohmann/json.hpp>
+#include <iostream>
+#include <fstream>
+
+Config::Config() {
+  init();
+}
+
+void Config::init() {
+  json config = read_config();
+
+  if(config.contains(JSON_TRAINING_STOPPING_MIN_LOG_LIKELIHOOD_DELTA)){
+    training_stopping_min_log_likelihood_delta = 
+      config[JSON_TRAINING_STOPPING_MIN_LOG_LIKELIHOOD_DELTA];
+  }
+
+  if(config.contains(JSON_TRAINING_STOPPING_SAMPLE_INTERVAL)){
+    training_stopping_sample_interval = config[JSON_TRAINING_STOPPING_SAMPLE_INTERVAL];
+  }
+
+  if(config.contains(JSON_TRAINING_BURN)){
+    training_burn = config[JSON_TRAINING_BURN];
+  }
+
+  if(config.contains(JSON_LOG_FILENAME)){
+    log_filename = config[JSON_LOG_FILENAME];
+  }
+}
+
+// How many samples to generate
+int Config::get_training_burn() {
+  return training_burn;
+}
+
+// Sample interval over which to check for variance in log likelihood
+int Config::get_training_stopping_sample_interval() {
+  return training_stopping_sample_interval;
+}
+
+// Minimum log likelihood delta for early stopping
+double Config::get_training_stopping_min_log_likelihood_delta() {
+  return training_stopping_min_log_likelihood_delta;
+}
+
+// write logfile here
+string Config::get_log_filename() {
+  return log_filename;
+}
+
+
+// Return a JSON struct read from the config file
+json Config::read_config() {
+  ifstream file;
+  file.open(filename);
+  string jsonString;
+  string line;
+  json config;
+  if ( file.is_open() ) {
+    while ( file ) { 
+      getline (file, line);
+      jsonString += line;
+    }
+    file.close();
+    config = json::parse(jsonString);
+  }
+  else {
+    cerr << "Couldn't open config file at '" << filename << "'" << endl;
+  }
+  return config;
+}

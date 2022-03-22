@@ -1,6 +1,7 @@
 #include "AnalysisGraph.hpp"
 #include "DatabaseHelper.hpp"
 #include "ModelStatus.hpp"
+#include "Logger.hpp"
 #include "Config.hpp"
 #include "ExperimentStatus.hpp"
 #include <assert.h>
@@ -262,7 +263,7 @@ class Model {
 
 	// If no specific environment is set, return a default value
 	Config config;
-	return config.get_training_burn();
+	return config.get_int("training_burn", 1000);
     }
 };
 
@@ -320,6 +321,10 @@ int main(int argc, const char* argv[]) {
         return 1;
     }
 
+    // start new logfile on startup
+    Logger logger;
+    logger.overwrite_logfile(systemStatus);
+
     // report status on startup
     cout << systemStatus << endl;
 
@@ -337,16 +342,25 @@ int main(int argc, const char* argv[]) {
     mux.handle("/status").get(
         [&sqlite3DB](served::response& res, const served::request& req) {
 	    // report status on request
+	    Logger logger;
+	    string label = "delphi_rest_api::status";
+	    logger.log_info(label, systemStatus);
 	    res << systemStatus;
         });
 
     /* openApi 3.0.0
      * Post a new Delphi model.
      */
-    mux.handle("create-model")
+    mux.handle("/create-model")
         .post([&sqlite3DB](served::response& response,
                            const served::request& req) {
             nlohmann::json req_json = nlohmann::json::parse(req.body());
+
+	    Logger logger;
+
+	    string label = "delphi_rest_api::create-model";
+
+	    logger.log_info("delphi_rest_api::create-model", req_json.dump());
 
 	    // input must have a model ID field, which is "id" per the API
 	    if(!req_json.contains("id")) {
@@ -376,9 +390,10 @@ int main(int argc, const char* argv[]) {
                 ret[ms.STATUS] = "Model is busy (" 
                     + (string)model_status_data[ms.STATUS] 
 		    + "), please wait until it before overwriting.";
-                string dumpStr = ret.dump();
-                response << dumpStr; 
-                return dumpStr; 
+                string dump = ret.dump();
+                response << dump; 
+	        logger.log_warning("delphi_rest_api::create-model response", dump);
+                return dump; 
             }
 	    
 	    // create the model on the database
@@ -398,8 +413,10 @@ int main(int argc, const char* argv[]) {
             )) {
                 json error;
                 error["status"] = "server error: unable to insert into delphimodel";
-                response << error.dump();
-                return error.dump();
+		string dump = error.dump();
+	        logger.log_error("delphi_rest_api::create-model response", dump);
+                response << dump;
+                return dump;
 	    }
 
             auto response_json =
@@ -419,13 +436,16 @@ int main(int argc, const char* argv[]) {
                 cout << "Error: unable to start training process" << endl;
                 json error;
                 error["status"] = "server error: training";
-                response << error.dump();
-                return error.dump();
+		string dump = error.dump();
+	        logger.log_error("delphi_rest_api::create-model response", dump);
+                response << dump;
+                return dump;
             }
 
-            string strresult = response_json.dump();
-            response << strresult;
-            return strresult;
+            string dump = response_json.dump();
+	    logger.log_info("delphi_rest_api::create-model response", dump);
+            response << dump;
+            return dump;
         });
 
     /* openApi 3.0.0
@@ -447,6 +467,12 @@ int main(int argc, const char* argv[]) {
             string modelId = req.params["modelId"];
             string experimentId = req.params["experimentId"];
 
+	    Logger logger;
+	    string label = "delphi_rest_api::/models/" 
+	        + modelId 
+		+ "/experiments/"
+	       	+ experimentId;
+
             ExperimentStatus es(experimentId, modelId, sqlite3DB);
 
             json ret;
@@ -459,7 +485,9 @@ int main(int argc, const char* argv[]) {
 	        ret[es.PROGRESS] = es_data[es.PROGRESS];
 	        ret[es.STATUS] = 
 		  "Experiment is busy, please wait for it to finish.";
-                res << ret.dump();
+		string dump = ret.dump();
+	        logger.log_warning(label, dump);
+                res << dump;
                 return ret;
               }
             }
@@ -472,17 +500,23 @@ int main(int argc, const char* argv[]) {
 	    if (query_result.empty()) { // bad modelId or experimentId
                 ret[es.STATUS] = "invalid experiment id";
                 ret[es.RESULTS] = "Not found";
-            } else {
-                string resultstr = query_result[es.RESULTS];
-                json results = json::parse(resultstr);
-	        double progress = es_data.value(es.PROGRESS, 0.0);
-                ret[es.EXPERIMENT_TYPE] = query_result[es.EXPERIMENT_TYPE];
-                ret[es.STATUS] = query_result[es.STATUS];
-                ret[es.PROGRESS] = progress;
-                ret[es.RESULTS] = results["data"];
-            }
+                string dump = ret.dump();
+                logger.log_warning(label, dump);
+                res << dump;
+                return ret;
+            } 
 
-            res << ret.dump();
+            string resultstr = query_result[es.RESULTS];
+            json results = json::parse(resultstr);
+            double progress = es_data.value(es.PROGRESS, 0.0);
+            ret[es.EXPERIMENT_TYPE] = query_result[es.EXPERIMENT_TYPE];
+            ret[es.STATUS] = query_result[es.STATUS];
+            ret[es.PROGRESS] = progress;
+            ret[es.RESULTS] = results["data"];
+	    
+            string dump = ret.dump();
+            logger.log_info(label, dump);
+            res << dump;
             return ret;
         });
 
@@ -499,13 +533,21 @@ int main(int argc, const char* argv[]) {
             json ret;
             ret["modelId"] = modelId;
 
+	    Logger logger;
+
+	    string label = "delphi_rest_api::/models/" 
+	        + modelId 
+		+ "/experiments";
+
 	    ModelStatus ms(modelId, sqlite3DB);
 	    json model_data = ms.read_data();
 
 	    // Model not found
 	    if(model_data.empty()) {
                 ret[ms.STATUS] = "Invalid model ID";
-                res << ret.dump();
+		string dump = ret.dump();
+		logger.log_error(label, dump);
+                res << dump;
                 return ret;
 	    }
 
@@ -516,7 +558,9 @@ int main(int argc, const char* argv[]) {
                 ret[ms.STATUS] = "Model is busy(" 
                     + (string)model_data[ms.STATUS] 
                     + "), please wait until it finishes before overwriting.";
-                res << ret.dump();
+		string dump = ret.dump();
+		logger.log_warning(label, dump);
+                res << dump;
                 return ret;
             }
 
@@ -534,7 +578,9 @@ int main(int argc, const char* argv[]) {
                 string report = "Unable to insert experiment into database";
                 es.enter_finished_state(report);
                 ret[es.STATUS] = report;
-                res << ret.dump();
+		string dump = ret.dump();
+		logger.log_error(label, dump);
+                res << dump;
                 return ret;
 	    }
 
@@ -551,13 +597,16 @@ int main(int argc, const char* argv[]) {
                 es.enter_finished_state(report);
                 cout << report << endl;
                 ret[es.STATUS] = report;
-                res << ret.dump();
+		string dump = ret.dump();
+		logger.log_error(label, dump);
+                res << dump;
                 return ret;
             }
 
             ret[es.EXPERIMENT_ID] = experiment_id;
-
-            res << ret.dump();
+            string dump = ret.dump();
+            logger.log_info(label, dump);
+            res << dump;
             return ret;
         });
 
@@ -570,6 +619,11 @@ int main(int argc, const char* argv[]) {
     ){
         string modelId = req.params["modelId"];
 
+        Logger logger;
+        string label = "delphi_rest_api::/models/" 
+            + modelId 
+            + "/training-progress";
+
         ModelStatus ms(modelId, sqlite3DB);
 	json model_data = ms.read_data();
         json ret;
@@ -577,13 +631,17 @@ int main(int argc, const char* argv[]) {
 
 	if(model_data.empty()) {
             ret[ms.STATUS] = "Model ID not found";
-            res << ret.dump();
+            string dump = ret.dump();
+            logger.log_error(label, dump);
+            res << dump;
 	    return;
         }
 
         ret[ms.PROGRESS] = model_data[ms.PROGRESS];
         ret[ms.STATUS] = model_data[ms.STATUS];
-        res << ret.dump();
+        string dump = ret.dump();
+        logger.log_info(label, dump);
+        res << dump;
     });
 
     /* openApi 3.0.0
@@ -599,14 +657,25 @@ int main(int argc, const char* argv[]) {
                 "change in the future, but for now, the way to update an "
                 "existing model is to use the create-model API endpoint.";
 
-            string modelId = req.params["modelId"]; 
-	    ModelStatus ms(modelId, sqlite3DB);
+        string modelId = req.params["modelId"]; 
+        auto request_body = nlohmann::json::parse(req.body());
 
-            json ret;
-            ret[ms.MODEL_ID] = modelId;
-            ret[ms.STATUS] = message;
-            res << ret.dump();
-        });
+        Logger logger;
+        string label = "delphi_rest_api::/models/" 
+            + modelId 
+            + "/edit-indicators";
+        logger.log_info(label, request_body.dump());
+
+        ModelStatus ms(modelId, sqlite3DB);
+
+        json ret;
+        ret[ms.MODEL_ID] = modelId;
+        ret[ms.STATUS] = message;
+
+        string dump = ret.dump();
+        logger.log_info(label, dump);
+        res << dump;
+    });
 
     /* openApi 3.0.0
      * Post edge edits for this model
@@ -618,7 +687,13 @@ int main(int argc, const char* argv[]) {
 
         nlohmann::json req_json = nlohmann::json::parse(req.body());
 
-            string modelId = req.params["modelId"];
+        string modelId = req.params["modelId"];
+        Logger logger;
+        string label = "delphi_rest_api::/models/" 
+            + modelId 
+            + "/edit-edges";
+        logger.log_info(label, req_json.dump());
+
 
 	    ModelStatus ms(modelId, sqlite3DB);
 	    json model_data = ms.read_data();
@@ -629,7 +704,9 @@ int main(int argc, const char* argv[]) {
             // Model not found
             if(model_data.empty()) {
                 ret[ms.STATUS] = "Model does not exist.";
-                res << ret.dump();
+                string dump = ret.dump();
+		logger.log_error(label, dump);
+                res << dump;
                 return ret;
             }   
 
@@ -638,7 +715,9 @@ int main(int argc, const char* argv[]) {
 	    // Edges not found
             if(relations.empty()) {
                 ret[ms.STATUS] = "Edges not found in input";
-                res << ret.dump();
+                string dump = ret.dump();
+		logger.log_error(label, dump);
+                res << dump;
                 return ret;
             }
 
@@ -649,7 +728,9 @@ int main(int argc, const char* argv[]) {
                 ret[ms.STATUS] = "Model is busy(" 
                     + (string)model_data[ms.STATUS] 
 		    + "), please wait until it finishes before editing.";
-                res << ret.dump();
+                string dump = ret.dump();
+		logger.log_warning(label, dump);
+                res << dump;
                 return ret;
             }  
 
@@ -700,7 +781,9 @@ int main(int argc, const char* argv[]) {
                         default: 
                         break;
                     }
-                    res << ret.dump();
+                    string dump = ret.dump();
+                    logger.log_error(label, dump);
+                    res << dump;
                     return ret;
 		}
 	    }
@@ -717,7 +800,10 @@ int main(int argc, const char* argv[]) {
                 G.serialize_to_json_string(false)
             )) {
                 ret[ms.STATUS] = "server error: unable to insert into delphi model";
-                res << ret.dump();
+                string dump = ret.dump();
+                logger.log_error(label, dump);
+                res << dump;
+                return ret;
 	    }
 
             try {
@@ -733,17 +819,20 @@ int main(int argc, const char* argv[]) {
             }
             catch (std::exception& e) {
                 cout << "Error: unable to start training process" << endl;
-                json error;
-                error["status"] = "server error: edged-edges training";
-                res << error.dump();
-                return error;
+                ret["status"] = "server error: edit-edges training";
+                string dump = ret.dump();
+                logger.log_error(label, dump);
+                res << dump;
+                return ret;
             }
 	   
 	    // report success 
 	    ret[ms.STATUS] = "Edges frozen: "
               + to_string(relations.size())
               + ". Model is in training.";
-            res << ret.dump();
+            string dump = ret.dump();
+            logger.log_info(label, dump);
+            res << dump;
             return ret;
         });
 
@@ -754,7 +843,12 @@ int main(int argc, const char* argv[]) {
     mux.handle("/models/{modelId}")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
 
-            string modelId = req.params["modelId"];
+        string modelId = req.params["modelId"];
+	ModelStatus ms(modelId, sqlite3DB);
+        json ret;
+        ret[ms.MODEL_ID] = modelId;
+        Logger logger;
+        string label = "delphi_rest_api::/models/" + modelId;
 
             #ifdef TIME
                 CSVWriter writer = CSVWriter(string("timing") + "_" +
@@ -781,10 +875,10 @@ int main(int argc, const char* argv[]) {
             }
 
             if (query_result.empty()) {
-                json ret_exp;
-                ret_exp["status"] = "Invalid model ID";
-                res << ret_exp.dump();
-                return;
+                ret["status"] = "Invalid model ID";
+                string dump = ret.dump();
+                logger.log_error(label, dump);
+                res << dump;
             }
 
             string model = query_result["model"];
@@ -804,7 +898,9 @@ int main(int argc, const char* argv[]) {
                 auto response =
                     nlohmann::json::parse(G.generate_create_model_response());
 
-                res << response.dump();
+                string dump = response.dump();
+                logger.log_info(label, dump);
+                res << dump;
             }
             #ifdef TIME
                 writer.write_row(durations.second.begin(), durations.second.end());

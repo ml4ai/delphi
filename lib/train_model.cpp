@@ -1,7 +1,8 @@
 #include "AnalysisGraph.hpp"
 #include "ModelStatus.hpp"
 #include "data.hpp"
-#include "Config.hpp"
+#include "TrainingStopper.hpp"
+#include "Logger.hpp"
 #include <tqdm.hpp>
 #include <range/v3/all.hpp>
 #include <nlohmann/json.hpp>
@@ -77,6 +78,11 @@ void AnalysisGraph::run_train_model(int res,
                                 unordered_map<string, function<double(unsigned int, double)>> ext_concepts) {
 
     double training_step = 0.99 / (res + burn);
+
+    TrainingStopper training_stopper;
+
+    Logger logger;
+    string logger_label = "AnalysisGraph::run_train_model";
 
     ModelStatus ms(this->id);
 
@@ -214,26 +220,13 @@ void AnalysisGraph::run_train_model(int res,
 //      cout << filename << endl;
     #endif
 
-
-
-
-    // Stop training if the log likelihood does not change by the
-    // minimum delta within the stopping sample interval
-    Config config;
-    int stopping_sample_interval =
-      config.get_training_stopping_sample_interval();
-    double stopping_min_log_likelihood_delta =
-      config.get_training_stopping_min_log_likelihood_delta();
-
-    double stopping_log_likelihood_hi = 0.0;
-    double stopping_log_likelihood_lo = 0.0;
-    int stopping_samples_tested = 0;
-
-    cout << "\nBurning " << burn << " samples out..." << endl;
+    string text = "Burning " + to_string(burn) + " samples out...";
+    logger.log_info(logger_label, text);
+    logger.log_info(logger_label, "#    log_likelihood");
+//    cout << "\n" << text << endl;
     for (int i : trange(burn)) {
       ms.increment_progress(training_step);
-
-       {
+      {
           #ifdef TIME
 //            durations.first.clear();
             durations.second.clear();
@@ -253,25 +246,10 @@ void AnalysisGraph::run_train_model(int res,
       #endif
 
       this->log_likelihoods[i] = this->log_likelihood;
-
-      stopping_samples_tested++;
-
-      // if we find a log_likelihood outside of the stopping band,
-      // reset the stopping parameters 
-      if((this->log_likelihood < stopping_log_likelihood_lo) ||
-        (this->log_likelihood > stopping_log_likelihood_hi)) {
-        stopping_log_likelihood_lo = 
-          this->log_likelihood - stopping_min_log_likelihood_delta;
-        stopping_log_likelihood_hi = 
-          this->log_likelihood + stopping_min_log_likelihood_delta;
-	stopping_samples_tested = 0;
-      }
-
-      // stop burning if the log_likelihood has been within the stopping
-      // test band for the entire stopping test interval.
-      if(stopping_samples_tested > stopping_sample_interval) {
-        break;  // stop early
-      }
+      char buf[200];
+      sprintf(buf, "%4d %.10f", i, this->log_likelihood);
+      logger.log_info(logger_label, buf);
+ //     cout << buf << endl;
 
       if (this->log_likelihood > this->log_likelihood_MAP) {
           this->log_likelihood_MAP = this->log_likelihood;
@@ -279,6 +257,13 @@ void AnalysisGraph::run_train_model(int res,
           this->initial_latent_state_collection[this->res - 1] = this->s0;
           this->log_likelihoods[burn + this->res - 1] = this->log_likelihood;
           this->MAP_sample_number = this->res - 1;
+      }
+
+      if(training_stopper.stop_training(this->log_likelihoods, i)) {
+	string text = "Model training stopped early at sample " + to_string(i);
+	logger.log_info(logger_label, text);
+        cout << text << endl;
+        break;
       }
     }
 

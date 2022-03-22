@@ -4,52 +4,30 @@
 #include <fstream>
 
 Config::Config() {
-  init();
+  read_config();
 }
 
-Config::Config(string filename):filename(filename){
-  init();
+// get an int val
+int Config::get_int(string field, int fallback) {
+  return config.contains(field) ? (int)config[field] : fallback;
 }
 
-void Config::init() {
-  json config = read_config();
-
-  if(config.contains(JSON_TRAINING_STOPPING_MIN_LOG_LIKELIHOOD_DELTA)){
-    training_stopping_min_log_likelihood_delta = 
-      config[JSON_TRAINING_STOPPING_MIN_LOG_LIKELIHOOD_DELTA];
-  }
-
-  if(config.contains(JSON_TRAINING_STOPPING_SAMPLE_INTERVAL)){
-    training_stopping_sample_interval = config[JSON_TRAINING_STOPPING_SAMPLE_INTERVAL];
-  }
-
-  if(config.contains(JSON_TRAINING_BURN)){
-    training_burn = config[JSON_TRAINING_BURN];
-  }
+// get a string val
+string Config::get_string(string field, string fallback) {
+  return config.contains(field) ? (string)config[field] : fallback;
 }
 
-// How many samples to generate
-int Config::get_training_burn() {
-  return training_burn;
-}
-
-// Sample interval over which to check for variance in log likelihood
-int Config::get_training_stopping_sample_interval() {
-  return training_stopping_sample_interval;
-}
-
-// Minimum log likelihood delta for early stopping
-double Config::get_training_stopping_min_log_likelihood_delta() {
-  return training_stopping_min_log_likelihood_delta;
+// get a double val
+double Config::get_double(string field, double fallback) {
+  return config.contains(field) ? (double)config[field] : fallback;
 }
 
 // Return a JSON struct read from the config file
-json Config::read_config() {
+void Config::read_config() {
   ifstream file;
   file.open(filename);
   string jsonString;
   string line;
-  json config;
   if ( file.is_open() ) {
     while ( file ) { 
       getline (file, line);
@@ -61,5 +39,4 @@ json Config::read_config() {
   else {
     cerr << "Couldn't open config file at '" << filename << "'" << endl;
   }
-  return config;
 }
