@@ -94,7 +94,7 @@ class Node {
       this->nameToIndexMap.clear();
       this->indicators.erase(this->indicators.begin() + ind_index);
       // The values of the map object have to align with the vecter indexes.
-      for (int i = 0; i < this->indicators.size(); i++) {
+      for (unsigned long int i = 0; i < this->indicators.size(); i++) {
         this->nameToIndexMap.at(this->indicators[i].get_name()) = i;
       }
     }
