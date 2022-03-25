@@ -28,8 +28,10 @@ T select_random_element(std::vector<T> v,
 
     // Convert random double between [0, 1] into
     // an integer between [0, v.size() - 1
-    int idx = trunc(rand_val * v.size());
-    idx = (idx == v.size() ? idx-- : idx);
+    unsigned long int idx = trunc(rand_val * v.size());
+    if(idx == v.size()) {
+      idx--;
+    }
 
     element = v[idx];
   }

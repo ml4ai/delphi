@@ -14,10 +14,9 @@ class Config {
     int get_int(string field, int fallback);
     string get_string(string field, string fallback);
     double get_double(string field, double fallback); 
+    string get_config_file_path();
 
   private:
     json config;
-    // this path presumes delphi running from the build directory.
-    string filename = "../config.json";
-    void read_config();
+    void read_config(string filename);
 };

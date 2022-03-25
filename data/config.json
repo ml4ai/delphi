@@ -1,0 +1,6 @@
+{
+  "config_version": "1.0.0",
+  "training_stopping_min_delta": 0.1,
+  "training_stopping_n_samples": 200,
+  "training_burn": 1000
+}

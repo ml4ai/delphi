@@ -321,12 +321,28 @@ int main(int argc, const char* argv[]) {
         return 1;
     }
 
+    // report status on startup
+    cout << systemStatus << endl;
+
     // start new logfile on startup
     Logger logger;
     logger.overwrite_logfile(systemStatus);
 
-    // report status on startup
-    cout << systemStatus << endl;
+    // report location of config file
+    Config config;
+    string fallback = "not_found";
+    string label = "delphi_rest_api";
+    string config_version = config.get_string("config_version", fallback);
+    if(config_version == fallback) {
+      string path = config.get_config_file_path();
+      string report = "Could not locate configuration file '" + path + "'";
+      cerr << report << endl;
+      logger.log_error(label, report);
+    } else {
+      string report = "Using configuration version " + config_version;
+      cout << report << endl;
+      logger.log_info(label, report);
+    }
 
     Database* sqlite3DB = new Database();
     Experiment* experiment = new Experiment();

@@ -28,15 +28,21 @@ bool BaseStatus::insert_query(string query) {
 // Make a clean start with valid data
 void BaseStatus::initialize() {
 
-  log_info("BaseStatus::initialize");
-
-  // drop existing table to remove obsolete table versions
-  string query = "DROP TABLE " + table_name + ";";
-  if(!insert_query(query)) {
-    return;
+  // Drop our table if it exists
+  string query = "SELECT name FROM sqlite_master WHERE type='table' AND name='"
+    + table_name
+    + "';";
+  vector<string> results = database->read_column_text(query);
+  for(string result : results) {
+    query = "DROP TABLE " + result + ";";
+    if(!insert_query(query)) {
+      log_error("Could not initialize " + table_name);
+      log_error("Query failed: " + query);
+      return;
+    }
   }
- 
-  // create new table with latest definition
+
+  // create new table 
   query = "CREATE TABLE "
     + table_name
     + " ("
@@ -45,11 +51,15 @@ void BaseStatus::initialize() {
     + COL_DATA
     + " VARCHAR NOT NULL);";
   if(!insert_query(query)) {
+    log_error("Could not initialize " + table_name);
+    log_error("Query failed: " + query);
     return;
   }
 
-  // add data rows
+  // add rows
   populate_table();
+
+  log_info("Initialized " + table_name);
 }
 
 

@@ -25,8 +25,8 @@ void Tran_Mat_Cell::allocate_datastructures() {
   this->products = vector<double>(paths.size(), 0);
   this->beta2product.clear();
 
-  for (int p = 0; p < this->paths.size(); p++) {
-    for (int v = 0; v < this->paths[p].size() - 1; v++) {
+  for (unsigned long int p = 0; p < this->paths.size(); p++) {
+    for (unsigned long int v = 0; v < this->paths[p].size() - 1; v++) {
       // Each β along this path is a factor of the product of this path.
       this->beta2product.insert(
           make_pair(make_pair(paths[p][v], paths[p][v + 1]), &products[p]));
@@ -50,10 +50,10 @@ void Tran_Mat_Cell::allocate_datastructures() {
 // vertex s and ending at vertex t. If s and t are the indices of the
 // respective vertexes, this cell is A[2 × t][2 × s + 1]
 double Tran_Mat_Cell::compute_cell(const DiGraph& CAG) {
-  for (int p = 0; p < this->paths.size(); p++) {
+  for (unsigned long int p = 0; p < this->paths.size(); p++) {
     this->products[p] = 1; // 0;
 
-    for (int v = 0; v < this->paths[p].size() - 1; v++) {
+    for (unsigned long int v = 0; v < this->paths[p].size() - 1; v++) {
       auto edg = edge(paths[p][v], paths[p][v + 1], CAG);
       // β = tan(θ)
       double beta = tan(CAG[edg.first].get_theta());
