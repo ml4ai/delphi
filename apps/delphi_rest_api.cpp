@@ -355,12 +355,10 @@ int main(int argc, const char* argv[]) {
     es.initialize();
 
     /* Allow users to check if the REST API is running */
-    mux.handle("/status").get(
-        [&sqlite3DB](served::response& res, const served::request& req) {
-	    // report status on request
+    mux.handle("/status")
+        .get([&sqlite3DB](served::response& res, const served::request& req) {
 	    Logger logger;
-	    string label = "delphi_rest_api::status";
-	    logger.log_info(label, systemStatus);
+	    logger.log_info("delphi_rest_api::status", systemStatus);
 	    res << systemStatus;
         });
 
@@ -370,13 +368,25 @@ int main(int argc, const char* argv[]) {
     mux.handle("/create-model")
         .post([&sqlite3DB](served::response& response,
                            const served::request& req) {
-            nlohmann::json req_json = nlohmann::json::parse(req.body());
-
+			
 	    Logger logger;
-
 	    string label = "delphi_rest_api::create-model";
 
-	    logger.log_info("delphi_rest_api::create-model", req_json.dump());
+	    json ret;
+
+            // no file uploaded
+            if(req.body().empty()) {
+                string error = "Error: No model data was received";
+                ret["status"] = error;
+                logger.log_error(label, ret.dump());
+                string dump = ret.dump();
+                logger.log_error(label, dump);
+                response << dump;
+                return ret.dump();
+            }
+
+            nlohmann::json req_json = nlohmann::json::parse(req.body());
+	    logger.log_info(label, req_json.dump());
 
 	    // input must have a model ID field, which is "id" per the API
 	    if(!req_json.contains("id")) {
@@ -395,16 +405,16 @@ int main(int argc, const char* argv[]) {
               ms.enter_initial_state();
             }
 
-            json model_status_data = ms.read_data();
-	    bool model_busy = model_status_data[ms.BUSY];
+            json model_status_json = ms.read_data();
+	    bool model_busy = model_status_json[ms.BUSY];
 
             // do not overwrite model if it is busy
             if (model_busy) {
                 json ret;
                 ret[ms.MODEL_ID] = modelId;
-                ret[ms.PROGRESS] = model_status_data[ms.PROGRESS];
+                ret[ms.PROGRESS] = model_status_json[ms.PROGRESS];
                 ret[ms.STATUS] = "Model is busy (" 
-                    + (string)model_status_data[ms.STATUS] 
+                    + (string)model_status_json[ms.STATUS] 
 		    + "), please wait until it before overwriting.";
                 string dump = ret.dump();
                 response << dump; 
@@ -543,23 +553,35 @@ int main(int argc, const char* argv[]) {
     */
     mux.handle("/models/{modelId}/experiments")
         .post([&sqlite3DB](served::response& res, const served::request& req) {
-            auto request_body = nlohmann::json::parse(req.body());
+
             string modelId = req.params["modelId"]; 
 
             json ret;
             ret["modelId"] = modelId;
 
 	    Logger logger;
-
 	    string label = "delphi_rest_api::/models/" 
 	        + modelId 
 		+ "/experiments";
-
+			
 	    ModelStatus ms(modelId, sqlite3DB);
-	    json model_data = ms.read_data();
+
+            // no file uploaded
+            if(req.body().empty()) {
+                string error = "Error: No experiment data was received";
+                ret[ms.STATUS] = error;
+                logger.log_error(label, ret.dump());
+                string dump = ret.dump();
+                logger.log_error(label, dump);
+                res << dump;
+                return ret;
+            }
+
+            auto request_body = nlohmann::json::parse(req.body());
 
 	    // Model not found
-	    if(model_data.empty()) {
+	    json model_status_json = ms.read_data();
+	    if(model_status_json.empty()) {
                 ret[ms.STATUS] = "Invalid model ID";
 		string dump = ret.dump();
 		logger.log_error(label, dump);
@@ -568,11 +590,11 @@ int main(int argc, const char* argv[]) {
 	    }
 
             // Model busy
-	    bool model_busy = model_data[ms.BUSY];
+	    bool model_busy = model_status_json[ms.BUSY];
 	    if(model_busy) {
-                ret[ms.PROGRESS] = model_data[ms.PROGRESS];
+                ret[ms.PROGRESS] = model_status_json[ms.PROGRESS];
                 ret[ms.STATUS] = "Model is busy(" 
-                    + (string)model_data[ms.STATUS] 
+                    + (string)model_status_json[ms.STATUS] 
                     + "), please wait until it finishes before overwriting.";
 		string dump = ret.dump();
 		logger.log_warning(label, dump);
@@ -629,36 +651,34 @@ int main(int argc, const char* argv[]) {
     /* openApi 3.0.0
      * Query the training progress for a model.
      */
-    mux.handle("/models/{modelId}/training-progress").get([&sqlite3DB](
-        served::response& res,
-        const served::request& req
-    ){
-        string modelId = req.params["modelId"];
+    mux.handle("/models/{modelId}/training-progress")
+        .get([&sqlite3DB](served::response& res, const served::request& req){
+            string modelId = req.params["modelId"];
 
-        Logger logger;
-        string label = "delphi_rest_api::/models/" 
-            + modelId 
-            + "/training-progress";
+            Logger logger;
+            string label = "delphi_rest_api::/models/" 
+                + modelId 
+                + "/training-progress";
 
-        ModelStatus ms(modelId, sqlite3DB);
-	json model_data = ms.read_data();
-        json ret;
-        ret[ms.MODEL_ID] = modelId;
+            ModelStatus ms(modelId, sqlite3DB);
+            json model_status_json = ms.read_data();
+            json ret;
+            ret[ms.MODEL_ID] = modelId;
 
-	if(model_data.empty()) {
-            ret[ms.STATUS] = "Model ID not found";
+            if(model_status_json.empty()) {
+                ret[ms.STATUS] = "Model ID not found";
+                string dump = ret.dump();
+                logger.log_error(label, dump);
+                res << dump;
+                return;
+            }
+
+            ret[ms.PROGRESS] = model_status_json[ms.PROGRESS];
+            ret[ms.STATUS] = model_status_json[ms.STATUS];
             string dump = ret.dump();
-            logger.log_error(label, dump);
+            logger.log_info(label, dump);
             res << dump;
-	    return;
-        }
-
-        ret[ms.PROGRESS] = model_data[ms.PROGRESS];
-        ret[ms.STATUS] = model_data[ms.STATUS];
-        string dump = ret.dump();
-        logger.log_info(label, dump);
-        res << dump;
-    });
+        });
 
     /* openApi 3.0.0
      * Post edge indicators for this model
@@ -673,52 +693,70 @@ int main(int argc, const char* argv[]) {
                 "change in the future, but for now, the way to update an "
                 "existing model is to use the create-model API endpoint.";
 
-        string modelId = req.params["modelId"]; 
-        auto request_body = nlohmann::json::parse(req.body());
+            string modelId = req.params["modelId"]; 
 
-        Logger logger;
-        string label = "delphi_rest_api::/models/" 
-            + modelId 
-            + "/edit-indicators";
-        logger.log_info(label, request_body.dump());
+            ModelStatus ms(modelId, sqlite3DB);
 
-        ModelStatus ms(modelId, sqlite3DB);
+            Logger logger;
+            string label = "delphi_rest_api::/models/" 
+                + modelId 
+                + "/edit-indicators";
 
-        json ret;
-        ret[ms.MODEL_ID] = modelId;
-        ret[ms.STATUS] = message;
+            json ret;
+            ret[ms.MODEL_ID] = modelId;
 
-        string dump = ret.dump();
-        logger.log_info(label, dump);
-        res << dump;
-    });
+            if(req.body().empty()) {
+                string error = "Error: No indicators data was received";
+                ret[ms.STATUS] = error;
+                logger.log_error(label, ret.dump());
+            }
+            else {
+                ret[ms.STATUS] = message;
+                logger.log_warning(label, ret.dump());
+            }
+
+            string dump = ret.dump();
+            logger.log_info(label, dump);
+            res << dump;
+        });
 
     /* openApi 3.0.0
      * Post edge edits for this model
      * TODO This needs to be implemented
      */
     mux.handle("/models/{modelId}/edit-edges")
-
         .post([&sqlite3DB](served::response& res, const served::request& req) {
 
-        nlohmann::json req_json = nlohmann::json::parse(req.body());
+            string modelId = req.params["modelId"];
 
-        string modelId = req.params["modelId"];
-        Logger logger;
-        string label = "delphi_rest_api::/models/" 
-            + modelId 
-            + "/edit-edges";
-        logger.log_info(label, req_json.dump());
+            ModelStatus ms(modelId, sqlite3DB);
 
-
-	    ModelStatus ms(modelId, sqlite3DB);
-	    json model_data = ms.read_data();
+            Logger logger;
+            string label = "delphi_rest_api::/models/" 
+                + modelId 
+                + "/edit-edges";
 
             json ret;
             ret[ms.MODEL_ID] = modelId;
 
+            // no file uploaded
+            if(req.body().empty()) {
+                string error = "Error: No edges data was received";
+                ret[ms.STATUS] = error;
+                logger.log_error(label, ret.dump());
+                string dump = ret.dump();
+                logger.log_error(label, dump);
+                res << dump;
+                return ret;
+            }
+
+            nlohmann::json req_json = nlohmann::json::parse(req.body());
+            logger.log_info(label, req_json.dump());
+
+            json model_status_json = ms.read_data();
+
             // Model not found
-            if(model_data.empty()) {
+            if(model_status_json.empty()) {
                 ret[ms.STATUS] = "Model does not exist.";
                 string dump = ret.dump();
 		logger.log_error(label, dump);
@@ -738,11 +776,11 @@ int main(int argc, const char* argv[]) {
             }
 
             // See if this model is available for training
-	    bool busy = model_data[ms.BUSY];
+	    bool busy = model_status_json[ms.BUSY];
 	    if(busy) {
-                ret[ms.PROGRESS] = model_data[ms.PROGRESS];
+                ret[ms.PROGRESS] = model_status_json[ms.PROGRESS];
                 ret[ms.STATUS] = "Model is busy(" 
-                    + (string)model_data[ms.STATUS] 
+                    + (string)model_status_json[ms.STATUS] 
 		    + "), please wait until it finishes before editing.";
                 string dump = ret.dump();
 		logger.log_warning(label, dump);
@@ -859,12 +897,12 @@ int main(int argc, const char* argv[]) {
     mux.handle("/models/{modelId}")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
 
-        string modelId = req.params["modelId"];
-	ModelStatus ms(modelId, sqlite3DB);
-        json ret;
-        ret[ms.MODEL_ID] = modelId;
-        Logger logger;
-        string label = "delphi_rest_api::/models/" + modelId;
+            string modelId = req.params["modelId"];
+            ModelStatus ms(modelId, sqlite3DB);
+            json ret;
+            ret[ms.MODEL_ID] = modelId;
+            Logger logger;
+            string label = "delphi_rest_api::/models/" + modelId;
 
             #ifdef TIME
                 CSVWriter writer = CSVWriter(string("timing") + "_" +

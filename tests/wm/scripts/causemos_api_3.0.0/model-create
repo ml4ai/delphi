@@ -21,23 +21,6 @@ if [[ $inputFile == "" ]]; then
     exit 1
 fi
 
-# make sure the input is a regular file and it exists
-if test -f "$inputFile"; then
-    echo "Reading input file $inputFile"
-else
-    echo "Could not read input file $inputFile"
-    exit 1
-fi
-
-# make sure file has an "id" JSON field
-id=$('jq' -r '.id' < $inputFile)
-
-if [[ $id == "null" ]]; then
-    echo "please specify an input file with a valid 'id' field"
-    exit 1
-fi
-
-echo "Creating model id: $id"
 login="-u me:ivilab4fun"
 url=$(./get_delphi_url)
 endpoint="/create-model"
