@@ -11,18 +11,39 @@ Program Listing for File Logger.cpp
 .. code-block:: cpp
 
    #include "Logger.hpp"
-   #include "Config.hpp"
    #include <sys/time.h>
    #include <chrono>
    #include <iostream>
    #include <fstream>
+   #include <filesystem>
+   
    
    using namespace std;
    
    Logger::Logger() {
-     Config config;
-     filename = config.get_string("log_filename", "../logfile.txt");
+     filename = get_log_file_path();
    } 
+   
+   // Determine log filename for our runtime environment
+   string Logger::get_log_file_path() {
+   
+     // find the name of our current directory
+     filesystem::path current_path = filesystem::current_path();
+     filesystem::path current_path_filename = current_path.filename();
+   
+     // running in delphi/build (Linux or MAC OS)
+     if(current_path_filename == "build") {
+       return "../data/logfile.txt";
+     }
+   
+     // running in delphi (Docker container)
+     if(current_path_filename == "delphi") {
+       return "./data/logfile.txt";
+     }
+   
+     // if all else fails, write to the current path
+     return filename;
+   }
    
    // return current time like this:  2022-02-17 14:33:52:016
    string Logger::timestamp(){

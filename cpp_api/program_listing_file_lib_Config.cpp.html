@@ -44,6 +44,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config.html">}</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../GrFN_API.html">GroundedFunctionNetwork API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html">}</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTING.html">Contributing</a></li>
@@ -82,9 +83,12 @@
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;nlohmann/json.hpp&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;fstream&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;filesystem&gt;</span><span class="cp"></span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">std</span><span class="p">;</span><span class="w"></span>
 
 <span class="n">Config</span><span class="o">::</span><span class="n">Config</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="n">read_config</span><span class="p">();</span><span class="w"></span>
+<span class="w">  </span><span class="n">read_config</span><span class="p">(</span><span class="n">get_config_file_path</span><span class="p">());</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
 <span class="c1">// get an int val</span>
@@ -102,8 +106,35 @@
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">config</span><span class="p">.</span><span class="n">contains</span><span class="p">(</span><span class="n">field</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="p">)</span><span class="n">config</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">fallback</span><span class="p">;</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
+<span class="c1">// Determine config filename for our runtime environment</span>
+<span class="n">string</span><span class="w"> </span><span class="n">Config</span><span class="o">::</span><span class="n">get_config_file_path</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+
+<span class="w">  </span><span class="c1">// find the name of our current directory</span>
+<span class="w">  </span><span class="n">filesystem</span><span class="o">::</span><span class="n">path</span><span class="w"> </span><span class="n">current_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">filesystem</span><span class="o">::</span><span class="n">current_path</span><span class="p">();</span><span class="w"></span>
+<span class="w">  </span><span class="n">filesystem</span><span class="o">::</span><span class="n">path</span><span class="w"> </span><span class="n">current_path_filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_path</span><span class="p">.</span><span class="n">filename</span><span class="p">();</span><span class="w"></span>
+
+<span class="w">  </span><span class="c1">// running in delphi/build (Linux or MAC OS)</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">current_path_filename</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;build&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;../data/config.json&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">  </span><span class="c1">// running in delphi (Docker container)</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">current_path_filename</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;delphi&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;./data/config.json&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+
+<span class="w">  </span><span class="c1">// unrecognized directory for delphi execution</span>
+<span class="w">  </span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Could not locate config file &#39;config.json&#39;.  &quot;</span><span class="w"></span>
+<span class="w">  </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Delphi should be run in the &#39;delphi/build&#39; directory &quot;</span><span class="w"></span>
+<span class="w">  </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;on a Linux or MAC operating system, or in the &#39;delphi&#39; directory &quot;</span><span class="w"></span>
+<span class="w">  </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;in a Docker container.&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">  </span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
 <span class="c1">// Return a JSON struct read from the config file</span>
-<span class="kt">void</span><span class="w"> </span><span class="n">Config</span><span class="o">::</span><span class="n">read_config</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="n">Config</span><span class="o">::</span><span class="n">read_config</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">filename</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">  </span><span class="n">ifstream</span><span class="w"> </span><span class="n">file</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="n">file</span><span class="p">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="n">string</span><span class="w"> </span><span class="n">jsonString</span><span class="p">;</span><span class="w"></span>
@@ -118,6 +149,7 @@
 <span class="w">  </span><span class="p">}</span><span class="w"></span>
 <span class="w">  </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Couldn&#39;t open config file at &#39;&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">filename</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;&#39;&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="p">}</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 </pre></div>

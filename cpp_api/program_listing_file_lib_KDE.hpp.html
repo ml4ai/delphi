@@ -44,6 +44,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config.html">}</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../GrFN_API.html">GroundedFunctionNetwork API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html">}</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTING.html">Contributing</a></li>
@@ -105,8 +106,10 @@
 
 <span class="w">    </span><span class="c1">// Convert random double between [0, 1] into</span>
 <span class="w">    </span><span class="c1">// an integer between [0, v.size() - 1</span>
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">trunc</span><span class="p">(</span><span class="n">rand_val</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">v</span><span class="p">.</span><span class="n">size</span><span class="p">());</span><span class="w"></span>
-<span class="w">    </span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">idx</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">v</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">idx</span><span class="o">--</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">idx</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">trunc</span><span class="p">(</span><span class="n">rand_val</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">v</span><span class="p">.</span><span class="n">size</span><span class="p">());</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">idx</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">v</span><span class="p">.</span><span class="n">size</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="n">idx</span><span class="o">--</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
 
 <span class="w">    </span><span class="n">element</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">v</span><span class="p">[</span><span class="n">idx</span><span class="p">];</span><span class="w"></span>
 <span class="w">  </span><span class="p">}</span><span class="w"></span>

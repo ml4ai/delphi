@@ -44,6 +44,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../model.html">The Delphi model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config.html">}</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../GrFN_API.html">GroundedFunctionNetwork API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../grfn_spec.html">}</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTING.html">Contributing</a></li>
@@ -88,12 +89,6 @@
 
 <span class="c1">// Basic logfile writing</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Logger</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-
-<span class="w">  </span><span class="k">private</span><span class="o">:</span><span class="w"></span>
-<span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">timestamp</span><span class="p">();</span><span class="w"></span>
-<span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;../logfile.txt&quot;</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">write_to_logfile</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">ios_base</span><span class="o">::</span><span class="n">openmode</span><span class="w"> </span><span class="n">mode</span><span class="p">);</span><span class="w"></span>
-
 <span class="w">  </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
 <span class="w">    </span><span class="n">Logger</span><span class="p">();</span><span class="w"></span>
 <span class="w">    </span><span class="o">~</span><span class="n">Logger</span><span class="p">(){}</span><span class="w"></span>
@@ -102,6 +97,12 @@
 <span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">log_info</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">label</span><span class="p">,</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="n">text</span><span class="p">);</span><span class="w"></span>
 <span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">log_warning</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">label</span><span class="p">,</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="n">text</span><span class="p">);</span><span class="w"></span>
 <span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">log_error</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">label</span><span class="p">,</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="n">text</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="nf">get_log_file_path</span><span class="p">();</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">private</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">timestamp</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;logfile.txt&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">write_to_logfile</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">ios_base</span><span class="o">::</span><span class="n">openmode</span><span class="w"> </span><span class="n">mode</span><span class="p">);</span><span class="w"></span>
 <span class="p">};</span><span class="w"></span>
 </pre></div>
 </div>

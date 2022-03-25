@@ -39,8 +39,6 @@ Included By
 
 - :ref:`file_lib_Config.cpp`
 
-- :ref:`file_lib_Logger.cpp`
-
 - :ref:`file_lib_TrainingStopper.cpp`
 
 

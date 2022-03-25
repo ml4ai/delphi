@@ -103,6 +103,7 @@ Delphi is also part of the
   installation
   usage
   model
+  config
   AnalysisGraph_API
   GrFN_API
   grfn_spec

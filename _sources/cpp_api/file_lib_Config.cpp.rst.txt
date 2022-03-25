@@ -31,6 +31,8 @@ Includes
 
 - ``Config.hpp`` (:ref:`file_lib_Config.hpp`)
 
+- ``filesystem``
+
 - ``fstream``
 
 - ``iostream``
