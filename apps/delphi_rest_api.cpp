@@ -344,9 +344,23 @@ int main(int argc, const char* argv[]) {
       logger.log_info(label, report);
     }
 
+    // initialize Delphi database and REST API endpoints
     Database* sqlite3DB = new Database();
     Experiment* experiment = new Experiment();
     served::multiplexer mux;
+
+    // check database tables
+    string query = "select name from sqlite_master where type='table';";
+    vector<string> results = sqlite3DB->read_column_text(query);
+    cout << "Database tables:" << endl;
+    if(results.empty()) {
+      cout << "  (empty)" << endl;
+    } else {
+      for(string result : results) {
+        cout << "  " << result << endl;
+      }
+    }
+
 
     // prepare the model and experiment databases for use
     ModelStatus ms("startup", sqlite3DB);
@@ -373,6 +387,7 @@ int main(int argc, const char* argv[]) {
 	    string label = "delphi_rest_api::create-model";
 
 	    json ret;
+
 
             // no file uploaded
             if(req.body().empty()) {
