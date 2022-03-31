@@ -4,6 +4,7 @@
 #include <fstream>
 #include <unistd.h>
 #include <limits.h>
+#include <string.h>
 
 using namespace std;
 
@@ -34,26 +35,29 @@ bool Config::get_bool(string field, bool fallback) {
 // Determine config filename for our runtime environment
 string Config::get_config_file_path() {
 
-  // find the name of our current directory
+  // find the full path of our current working directory
   char cwd[PATH_MAX + 1];
-  if (getcwd(cwd, sizeof(cwd)) != NULL) {
-    printf("Current working dir: %s\n", cwd);
-  } else {
-    perror("getcwd() error");
-  }
-  /*
-  filesystem::path current_path = filesystem::current_path();
-  filesystem::path current_path_filename = current_path.filename();
+  getcwd(cwd, sizeof(cwd));
 
-  // running in delphi/build (Linux or MAC OS)
-  if(current_path_filename == "build") {
-    return "../data/config.json";
+  char* dirname = strrchr(cwd, '/');
+  
+  char filename[PATH_MAX + 100];  
+
+  // find the path to the config file based on OS
+  if(strcmp(dirname,"/delphi") == 0) {
+    // Docker 
+    sprintf(filename,"%s/data/%s", cwd, FILENAME.c_str());
+  } else if(strcmp(dirname,"/build") == 0) {
+    // Anything else
+    sprintf(filename,"%s/../data/%s", cwd, FILENAME.c_str());
   }
 
-  // running in delphi (Docker container)
-  if(current_path_filename == "delphi") {
-    return "./data/config.json";
-  }
+  // check that the file actually exists
+  if( access(filename, F_OK ) == 0 ) {
+    // file exists
+    cout << "Using config file: " << filename << endl;
+    return string(filename);
+  } 
 
   // unrecognized directory for delphi execution
   cerr << "Could not locate config file 'config.json'.  "
@@ -61,9 +65,7 @@ string Config::get_config_file_path() {
   << "on a Linux or MAC operating system, or in the 'delphi' directory "
   << "in a Docker container."
   << endl;
-  */
 
-  if(true)
   exit(1);
 }
 
