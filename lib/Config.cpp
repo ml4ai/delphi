@@ -2,7 +2,8 @@
 #include <nlohmann/json.hpp>
 #include <iostream>
 #include <fstream>
-#include <filesystem>
+#include <unistd.h>
+#include <limits.h>
 
 using namespace std;
 
@@ -25,10 +26,22 @@ double Config::get_double(string field, double fallback) {
   return config.contains(field) ? (double)config[field] : fallback;
 }
 
+// get a boolean val
+bool Config::get_bool(string field, bool fallback) {
+  return config.contains(field) ? (bool)config[field] : fallback;
+}
+
 // Determine config filename for our runtime environment
 string Config::get_config_file_path() {
 
   // find the name of our current directory
+  char cwd[PATH_MAX + 1];
+  if (getcwd(cwd, sizeof(cwd)) != NULL) {
+    printf("Current working dir: %s\n", cwd);
+  } else {
+    perror("getcwd() error");
+  }
+  /*
   filesystem::path current_path = filesystem::current_path();
   filesystem::path current_path_filename = current_path.filename();
 
@@ -48,7 +61,9 @@ string Config::get_config_file_path() {
   << "on a Linux or MAC operating system, or in the 'delphi' directory "
   << "in a Docker container."
   << endl;
+  */
 
+  if(true)
   exit(1);
 }
 

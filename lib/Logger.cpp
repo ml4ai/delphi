@@ -3,7 +3,7 @@
 #include <chrono>
 #include <iostream>
 #include <fstream>
-#include <filesystem>
+#include <unistd.h>
 
 
 using namespace std;
@@ -15,6 +15,7 @@ Logger::Logger() {
 // Determine log filename for our runtime environment
 string Logger::get_log_file_path() {
 
+	/*
   // find the name of our current directory
   filesystem::path current_path = filesystem::current_path();
   filesystem::path current_path_filename = current_path.filename();
@@ -31,6 +32,8 @@ string Logger::get_log_file_path() {
 
   // if all else fails, write to the current path
   return filename;
+  */
+return "cat";
 }
 
 // return current time like this:  2022-02-17 14:33:52:016
