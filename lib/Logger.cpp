@@ -1,4 +1,5 @@
 #include "Logger.hpp"
+#include "utils.hpp"
 #include <sys/time.h>
 #include <chrono>
 #include <iostream>
@@ -13,6 +14,7 @@ using namespace std;
 
 Logger::Logger() {
   filename = get_log_file_path();
+  cout << "Writing logfile to: " << filename << endl;
 } 
 
 // Determine log filename for our runtime environment
@@ -36,13 +38,14 @@ string Logger::get_log_file_path() {
   // Anything else
   if(strcmp(dirname,"/build") == 0) {
     sprintf(full_path,"%s/../data/%s", cwd, filename.c_str());
+    return string(full_path);
   } 
 
   // just drop it wherever
   return filename;
 }
 
-// return current time like this:  2022-02-17 14:33:52:016
+// return current time with milliseconds like this:  2022-02-17 14:33:52:016
 string Logger::timestamp(){
   timeval curTime;
   gettimeofday(&curTime, NULL);
