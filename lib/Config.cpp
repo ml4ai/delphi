@@ -55,7 +55,6 @@ string Config::get_config_file_path() {
   // check that the file actually exists
   if( access(filename, F_OK ) == 0 ) {
     // file exists
-    cout << "Using config file: " << filename << endl;
     return string(filename);
   } 
 

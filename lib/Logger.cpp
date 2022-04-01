@@ -14,7 +14,6 @@ using namespace std;
 
 Logger::Logger() {
   filename = get_log_file_path();
-  cout << "Writing logfile to: " << filename << endl;
 } 
 
 // Determine log filename for our runtime environment
@@ -28,20 +27,18 @@ string Logger::get_log_file_path() {
   
   char full_path[PATH_MAX + 100];  
 
-  // find the path to the config file based on OS
-
   // Docker 
   if(strcmp(dirname,"/delphi") == 0) {
     sprintf(full_path,"%s/data/%s", cwd, filename.c_str());
     return string(full_path);
   } 
-  // Anything else
+  // Linux, MacOS cases
   if(strcmp(dirname,"/build") == 0) {
     sprintf(full_path,"%s/../data/%s", cwd, filename.c_str());
     return string(full_path);
   } 
 
-  // just drop it wherever
+  // Anything else use local directory
   return filename;
 }
 

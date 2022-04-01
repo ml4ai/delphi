@@ -321,6 +321,15 @@ int main(int argc, const char* argv[]) {
         return 1;
     }
 
+    // check database tables.  Showstopper if none are found.
+    Database* sqlite3DB = new Database();
+    string query = "select name from sqlite_master where type='table';";
+    vector<string> results = sqlite3DB->read_column_text(query);
+    if(results.empty()) {
+      cerr << "Could not find Delphi database" << endl;
+      return 1;
+    } 
+
     // report status on startup
     cout << systemStatus << endl;
 
@@ -345,22 +354,8 @@ int main(int argc, const char* argv[]) {
     }
 
     // initialize Delphi database and REST API endpoints
-    Database* sqlite3DB = new Database();
     Experiment* experiment = new Experiment();
     served::multiplexer mux;
-
-    // check database tables
-    string query = "select name from sqlite_master where type='table';";
-    vector<string> results = sqlite3DB->read_column_text(query);
-    cout << "Database tables:" << endl;
-    if(results.empty()) {
-      cout << "  (empty)" << endl;
-    } else {
-      for(string result : results) {
-        cout << "  " << result << endl;
-      }
-    }
-
 
     // prepare the model and experiment databases for use
     ModelStatus ms("startup", sqlite3DB);

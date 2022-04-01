@@ -9,5 +9,5 @@ services:
         - ./data:/delphi/data
     working_dir: /delphi
     ports:
-      - "8123:8123"
+      - "5000:8123"
     entrypoint: ./build/delphi_rest_api --host 0.0.0.0
