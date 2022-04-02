@@ -65,6 +65,8 @@ Included By
 
 - :ref:`file_lib_data.cpp`
 
+- :ref:`file_lib_Logger.cpp`
+
 - :ref:`file_lib_ModelStatus.hpp`
 
 - :ref:`file_lib_profiler.cpp`

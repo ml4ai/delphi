@@ -88,6 +88,7 @@
 
 <span class="c1">// Read config file for user-set parameters</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Config</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+
 <span class="w">  </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
 <span class="w">    </span><span class="n">Config</span><span class="p">();</span><span class="w"></span>
 <span class="w">    </span><span class="o">~</span><span class="n">Config</span><span class="p">(){}</span><span class="w"></span>
@@ -95,7 +96,10 @@
 <span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">get_int</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">fallback</span><span class="p">);</span><span class="w"></span>
 <span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="nf">get_string</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="n">fallback</span><span class="p">);</span><span class="w"></span>
 <span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="nf">get_double</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">fallback</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="nf">get_bool</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">fallback</span><span class="p">);</span><span class="w"></span>
 <span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="nf">get_config_file_path</span><span class="p">();</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="n">FILENAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;config.json&quot;</span><span class="p">;</span><span class="w"></span>
 
 <span class="w">  </span><span class="k">private</span><span class="o">:</span><span class="w"></span>
 <span class="w">    </span><span class="n">json</span><span class="w"> </span><span class="n">config</span><span class="p">;</span><span class="w"></span>
