@@ -1,9 +1,13 @@
 #include "Logger.hpp"
+#include "utils.hpp"
 #include <sys/time.h>
 #include <chrono>
 #include <iostream>
 #include <fstream>
-#include <filesystem>
+#include <unistd.h>
+#include <limits.h>
+#include <string.h>
+
 
 
 using namespace std;
@@ -15,25 +19,30 @@ Logger::Logger() {
 // Determine log filename for our runtime environment
 string Logger::get_log_file_path() {
 
-  // find the name of our current directory
-  filesystem::path current_path = filesystem::current_path();
-  filesystem::path current_path_filename = current_path.filename();
+  // find the full path of our current working directory
+  char cwd[PATH_MAX + 1]; 
+  getcwd(cwd, sizeof(cwd));
 
-  // running in delphi/build (Linux or MAC OS)
-  if(current_path_filename == "build") {
-    return "../data/logfile.txt";
-  }
+  char* dirname = strrchr(cwd, '/');
+  
+  char full_path[PATH_MAX + 100];  
 
-  // running in delphi (Docker container)
-  if(current_path_filename == "delphi") {
-    return "./data/logfile.txt";
-  }
+  // Docker 
+  if(strcmp(dirname,"/delphi") == 0) {
+    sprintf(full_path,"%s/data/%s", cwd, filename.c_str());
+    return string(full_path);
+  } 
+  // Linux, MacOS cases
+  if(strcmp(dirname,"/build") == 0) {
+    sprintf(full_path,"%s/../data/%s", cwd, filename.c_str());
+    return string(full_path);
+  } 
 
-  // if all else fails, write to the current path
+  // Anything else use local directory
   return filename;
 }
 
-// return current time like this:  2022-02-17 14:33:52:016
+// return current time with milliseconds like this:  2022-02-17 14:33:52:016
 string Logger::timestamp(){
   timeval curTime;
   gettimeofday(&curTime, NULL);

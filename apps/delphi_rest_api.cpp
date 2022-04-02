@@ -321,8 +321,19 @@ int main(int argc, const char* argv[]) {
         return 1;
     }
 
+    // check database tables.  Showstopper if none are found.
+    Database* sqlite3DB = new Database();
+    string query = "select name from sqlite_master where type='table';";
+    vector<string> results = sqlite3DB->read_column_text(query);
+    char *db_path = getenv ("DELPHI_DB");
+    if(results.empty()) {
+      cerr << "Could not find Delphi database at " << db_path << endl;
+      return 1;
+    } 
+
     // report status on startup
     cout << systemStatus << endl;
+    cout << "Using Delphi database at " << db_path << endl;
 
     // start new logfile on startup
     Logger logger;
@@ -344,7 +355,7 @@ int main(int argc, const char* argv[]) {
       logger.log_info(label, report);
     }
 
-    Database* sqlite3DB = new Database();
+    // initialize Delphi database and REST API endpoints
     Experiment* experiment = new Experiment();
     served::multiplexer mux;
 
@@ -373,6 +384,7 @@ int main(int argc, const char* argv[]) {
 	    string label = "delphi_rest_api::create-model";
 
 	    json ret;
+
 
             // no file uploaded
             if(req.body().empty()) {

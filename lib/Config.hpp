@@ -7,6 +7,7 @@ using json = nlohmann::json;
 
 // Read config file for user-set parameters
 class Config {
+  
   public:
     Config();
     ~Config(){}
@@ -14,7 +15,10 @@ class Config {
     int get_int(string field, int fallback);
     string get_string(string field, string fallback);
     double get_double(string field, double fallback); 
+    bool get_bool(string field, bool fallback);
     string get_config_file_path();
+
+    const string FILENAME = "config.json";
 
   private:
     json config;
