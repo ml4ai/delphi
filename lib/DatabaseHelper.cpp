@@ -84,7 +84,7 @@ vector<string> Database::read_column_text_query_where(string table_name,
 }
 
 /*
-    Select/read all column and 1 rows of delphimodel table
+    Select the primary key and the model from the delphimodel table
 */
 json Database::select_delphimodel_row(string modelId) {
     json matches;
