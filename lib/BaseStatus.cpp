@@ -56,9 +56,6 @@ void BaseStatus::initialize() {
     return;
   }
 
-  // add rows
-  populate_table();
-
   log_info("Initialized " + table_name);
 }
 

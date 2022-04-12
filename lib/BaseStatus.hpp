@@ -32,7 +32,6 @@ class BaseStatus {
     void stop_recording_progress();
     bool write_data(json data);
     void insert_data(string id, json data);
-    virtual void populate_table() = 0;
     void log_info(string msg){logger.log_info(class_name, msg);}
     void log_error(string msg){logger.log_error(class_name, msg);}
 

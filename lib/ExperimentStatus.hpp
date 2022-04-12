@@ -17,7 +17,6 @@ class ExperimentStatus : public BaseStatus {
 
   protected:
     void set_state(double progress, string status, bool busy);
-    void populate_table();
 
   public:
     ExperimentStatus(

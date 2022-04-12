@@ -45,22 +45,3 @@ void ExperimentStatus::set_state(
   data[BUSY] = busy;
   write_data(data);
 }
-
-void ExperimentStatus::populate_table() {
-  string query = "SELECT " + COL_ID + " FROM " + EXPERIMENT_TABLE + ";";
-  vector<string> ids = database->read_column_text(query);
-  for(string id : ids) {
-    json row = database->select_row(EXPERIMENT_TABLE, id, COL_STATUS);
-    if(row.contains(COL_STATUS)) {
-      string status = row[COL_STATUS];
-      if(status == COMPLETED) {
-        json data;
-        data[EXPERIMENT_ID] = id;
-        data[PROGRESS] = 1.0;
-        data[STATUS] = "complete";
-        data[BUSY] = false;
-        insert_data(id, data);
-      }
-    }
-  }
-}
