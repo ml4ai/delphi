@@ -60,8 +60,8 @@ class BaseStatus {
     void increment_progress(double i) { progress += i;}
 
     // database table columns
-    const string COL_ID = "id"; // database column, not exported
-    const string COL_DATA = "data"; // database column, not exported
+    const string COL_ID = "id"; // table column, primary key
+    const string COL_DATA = "progress"; // table column where we store our JSON
 
     // serialized JSON fields
     const string PROGRESS = "progressPercentage"; // double [0,1]
