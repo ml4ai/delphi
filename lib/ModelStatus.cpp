@@ -8,7 +8,7 @@ sqlite> pragma table_info (delphimodel);
 2|progress|VARCHAR|0||0
 */
 
-// set our data to the start state
+// Check that the database table contains our row
 void ModelStatus::enter_initial_state() {
   set_state(0.0, "Empty", false);
 }
@@ -38,11 +38,14 @@ void ModelStatus::enter_finished_state(string status) {
 // set the complete data for the database row
 void ModelStatus::set_state(double progress, string status, bool busy) {
   set_progress(progress);
-  nlohmann::json data;
-  data[MODEL_ID] = model_id;
-  data[PROGRESS] = progress;
-  data[STATUS] = status;
-  data[BUSY] = busy;
-  write_data(data);
+  nlohmann::json state;
+  state[MODEL_ID] = model_id;
+  state[PROGRESS] = progress;
+  state[STATUS] = status;
+  state[BUSY] = busy;
+  logger.info("ModelStatus set_state(,,)");
+  logger.info("ModelStatus state = " + state.dump());
+
+  write_data(state);
 }
 

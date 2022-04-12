@@ -23,7 +23,6 @@ class BaseStatus {
     bool delete_database = false; // true if we created a new database
     void scheduler();
     bool insert_query(string query);
-    Logger logger;
 
   protected:
     Database* database = nullptr; // connection to Delphi DB
@@ -32,6 +31,7 @@ class BaseStatus {
     void stop_recording_progress();
     bool write_data(json data);
     void insert_data(string id, json data);
+    Logger logger;
 
   public:
     BaseStatus(
