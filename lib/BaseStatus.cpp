@@ -28,7 +28,6 @@ bool BaseStatus::insert_query(string query) {
 // Make a clean start with valid data
 void BaseStatus::initialize() {
   logger.info("BaseStatus::initialize()");
-  logger.info(" (did nothing)" + table_name);
 }
 
 
@@ -78,39 +77,41 @@ void BaseStatus::stop_recording_progress(){
 
 // return the data JSON for the primary key
 json BaseStatus::read_data() {
+  string label = "BaseStatus read_data() ";
+  logger.info(label);
 
-  // get the entire database row 
-  json row = database -> select_row(
-    table_name,
-    primary_key,
-    COL_DATA
-  );
+  // get the progress column from the database row
+  string query = "SELECT "
+    + COL_DATA
+    + " FROM " 
+    + table_name 
+    + " WHERE "
+    + COL_ID
+    + " = '"
+    + primary_key
+    + "';";
 
-  // If a row is returned by the query, return whatever data it has
-  if(!row.empty() && row.contains(COL_DATA)) {
-    string dataString = row.value(COL_DATA, "");
-    json data = json::parse(dataString);
+  logger.info("BaseStatus query: " + query);
 
-    if(data.contains(BUSY) 
-      && data.contains(PROGRESS)
-      && data.contains(STATUS)
-    ) {
-      return data;
-    }
+  vector<string> results = database->read_column_text(query);
+
+  json data;
+
+  for(string result: results) {
+    data = json::parse(result);
   }
 
-  // otherwise report error and do not populate JSON
-  logger.error("read_data failed");
+  logger.info("BaseStatus read: " + data.dump());
 
-  json ret;
-  return ret;
+  return data;
 }
 
 // write data at the primary key row, return true if successful.
 bool BaseStatus::write_data(json data) {
+  string label = "BaseStatus write_data(json data) ";
   string data_string = data.dump();
-  logger.info("BaseStatus::write_data(json data)");
-  logger.info(" data = " + data_string);
+  logger.info(label);
+  logger.info("BaseStatus json data: " + data_string);
 
   string query = "UPDATE "
     + table_name
@@ -118,11 +119,13 @@ bool BaseStatus::write_data(json data) {
     + COL_DATA
     + " = '"
     + data_string
-    +  "') WHERE "
+    +  "' WHERE "
     + COL_ID 
     + " = '"
     + primary_key
-    +  "');";
+    +  "';";
+
+  logger.info("BaseStatus query: " + query);
 
   return insert_query(query);
 }
