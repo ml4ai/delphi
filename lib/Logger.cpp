@@ -8,8 +8,6 @@
 #include <limits.h>
 #include <string.h>
 
-
-
 using namespace std;
 
 Logger::Logger() {
@@ -73,16 +71,16 @@ void Logger::overwrite_logfile(string text){
 }
 
 // append this text to the logfile
-void Logger::log_info(string label, string text){
-  write_to_logfile(label + " INFO: " + text, ios_base::app);
+void Logger::info(string text){
+  write_to_logfile("INFO: " + text, ios_base::app);
 }
 
 // append this text to the logfile
-void Logger::log_warning(string label, string text){
-  write_to_logfile(label + " WARNING: " + text, ios_base::app);
+void Logger::warning(string text){
+  write_to_logfile("WARNING: " + text, ios_base::app);
 }
 
 // append this text to the logfile
-void Logger::log_error(string label, string text){
-  write_to_logfile(label + " ERROR: " + text, ios_base::app);
+void Logger::error(string text){
+  write_to_logfile("ERROR: " + text, ios_base::app);
 }

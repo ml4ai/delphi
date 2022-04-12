@@ -348,11 +348,11 @@ int main(int argc, const char* argv[]) {
       string path = config.get_config_file_path();
       string report = "Could not locate configuration file '" + path + "'";
       cerr << report << endl;
-      logger.log_error(label, report);
+      logger.error(report);
     } else {
       string report = "Using configuration version " + config_version;
       cout << report << endl;
-      logger.log_info(label, report);
+      logger.info(report);
     }
 
     // initialize Delphi database and REST API endpoints
@@ -369,7 +369,9 @@ int main(int argc, const char* argv[]) {
     mux.handle("/status")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
 	    Logger logger;
-	    logger.log_info("delphi_rest_api::status", systemStatus);
+	    logger.info("");
+            logger.info("### DELPHI ENDPOINT: status");
+	    logger.info(" " + systemStatus);
 	    res << systemStatus;
         });
 
@@ -381,7 +383,8 @@ int main(int argc, const char* argv[]) {
                            const served::request& req) {
 			
 	    Logger logger;
-	    string label = "delphi_rest_api::create-model";
+	    logger.info("");
+            logger.info("### DELPHI ENDPOINT: create-model");
 
 	    json ret;
 
@@ -390,23 +393,23 @@ int main(int argc, const char* argv[]) {
             if(req.body().empty()) {
                 string error = "Error: No model data was received";
                 ret["status"] = error;
-                logger.log_error(label, ret.dump());
                 string dump = ret.dump();
-                logger.log_error(label, dump);
+                logger.error(" " + dump);
                 response << dump;
                 return ret.dump();
             }
 
             nlohmann::json req_json = nlohmann::json::parse(req.body());
-	    logger.log_info(label, req_json.dump());
 
 	    // input must have a model ID field, which is "id" per the API
 	    if(!req_json.contains("id")) {
                 json ret;
 		ret["id"] = "Not found";
                 ret["status"] = "Model input must contain an 'id' field";
-                response << ret.dump();
-                return ret.dump();
+		string dump = ret.dump();
+                logger.error(" " + dump);
+                response << dump;
+                return dump;
             }
 
 	    string modelId = req_json["id"];
@@ -430,7 +433,7 @@ int main(int argc, const char* argv[]) {
 		    + "), please wait until it before overwriting.";
                 string dump = ret.dump();
                 response << dump; 
-	        logger.log_warning("delphi_rest_api::create-model response", dump);
+	        logger.warning(" " + dump);
                 return dump; 
             }
 	    
@@ -452,7 +455,7 @@ int main(int argc, const char* argv[]) {
                 json error;
                 error["status"] = "server error: unable to insert into delphimodel";
 		string dump = error.dump();
-	        logger.log_error("delphi_rest_api::create-model response", dump);
+	        logger.error(" " + dump);
                 response << dump;
                 return dump;
 	    }
@@ -475,13 +478,13 @@ int main(int argc, const char* argv[]) {
                 json error;
                 error["status"] = "server error: training";
 		string dump = error.dump();
-	        logger.log_error("delphi_rest_api::create-model response", dump);
+	        logger.error(" " + dump);
                 response << dump;
                 return dump;
             }
 
             string dump = response_json.dump();
-	    logger.log_info("delphi_rest_api::create-model response", dump);
+	    logger.info(" " + dump);
             response << dump;
             return dump;
         });
@@ -506,10 +509,11 @@ int main(int argc, const char* argv[]) {
             string experimentId = req.params["experimentId"];
 
 	    Logger logger;
-	    string label = "delphi_rest_api::/models/" 
+	    logger.info("");
+	    logger.info("### DELPHI ENDPOINT: models/" 
 	        + modelId 
 		+ "/experiments/"
-	       	+ experimentId;
+	       	+ experimentId);
 
             ExperimentStatus es(experimentId, modelId, sqlite3DB);
 
@@ -524,7 +528,7 @@ int main(int argc, const char* argv[]) {
 	        ret[es.STATUS] = 
 		  "Experiment is busy, please wait for it to finish.";
 		string dump = ret.dump();
-	        logger.log_warning(label, dump);
+	        logger.warning(" " + dump);
                 res << dump;
                 return ret;
               }
@@ -539,7 +543,7 @@ int main(int argc, const char* argv[]) {
                 ret[es.STATUS] = "invalid experiment id";
                 ret[es.RESULTS] = "Not found";
                 string dump = ret.dump();
-                logger.log_warning(label, dump);
+                logger.warning(" " + dump);
                 res << dump;
                 return ret;
             } 
@@ -553,7 +557,7 @@ int main(int argc, const char* argv[]) {
             ret[es.RESULTS] = results["data"];
 	    
             string dump = ret.dump();
-            logger.log_info(label, dump);
+            logger.info(" " + dump);
             res << dump;
             return ret;
         });
@@ -572,9 +576,10 @@ int main(int argc, const char* argv[]) {
             ret["modelId"] = modelId;
 
 	    Logger logger;
-	    string label = "delphi_rest_api::/models/" 
+            logger.info("");
+            logger.info("### DELPHI ENDPOINT: models/" 
 	        + modelId 
-		+ "/experiments";
+		+ "/experiments");
 			
 	    ModelStatus ms(modelId, sqlite3DB);
 
@@ -582,9 +587,8 @@ int main(int argc, const char* argv[]) {
             if(req.body().empty()) {
                 string error = "Error: No experiment data was received";
                 ret[ms.STATUS] = error;
-                logger.log_error(label, ret.dump());
                 string dump = ret.dump();
-                logger.log_error(label, dump);
+                logger.error(" " + dump);
                 res << dump;
                 return ret;
             }
@@ -596,7 +600,7 @@ int main(int argc, const char* argv[]) {
 	    if(model_status_json.empty()) {
                 ret[ms.STATUS] = "Invalid model ID";
 		string dump = ret.dump();
-		logger.log_error(label, dump);
+		logger.error(" " + dump);
                 res << dump;
                 return ret;
 	    }
@@ -609,7 +613,7 @@ int main(int argc, const char* argv[]) {
                     + (string)model_status_json[ms.STATUS] 
                     + "), please wait until it finishes before overwriting.";
 		string dump = ret.dump();
-		logger.log_warning(label, dump);
+		logger.warning(" " + dump);
                 res << dump;
                 return ret;
             }
@@ -629,7 +633,7 @@ int main(int argc, const char* argv[]) {
                 es.enter_finished_state(report);
                 ret[es.STATUS] = report;
 		string dump = ret.dump();
-		logger.log_error(label, dump);
+		logger.error(" " + dump);
                 res << dump;
                 return ret;
 	    }
@@ -648,14 +652,14 @@ int main(int argc, const char* argv[]) {
                 cout << report << endl;
                 ret[es.STATUS] = report;
 		string dump = ret.dump();
-		logger.log_error(label, dump);
+		logger.error(" " + dump);
                 res << dump;
                 return ret;
             }
 
             ret[es.EXPERIMENT_ID] = experiment_id;
             string dump = ret.dump();
-            logger.log_info(label, dump);
+            logger.info(" " + dump);
             res << dump;
             return ret;
         });
@@ -668,9 +672,10 @@ int main(int argc, const char* argv[]) {
             string modelId = req.params["modelId"];
 
             Logger logger;
-            string label = "delphi_rest_api::/models/" 
+	    logger.info("");
+            logger.info("### DELPHI ENDPOINT: models/" 
                 + modelId 
-                + "/training-progress";
+                + "/training-progress");
 
             ModelStatus ms(modelId, sqlite3DB);
             json model_status_json = ms.read_data();
@@ -680,7 +685,7 @@ int main(int argc, const char* argv[]) {
             if(model_status_json.empty()) {
                 ret[ms.STATUS] = "Model ID not found";
                 string dump = ret.dump();
-                logger.log_error(label, dump);
+                logger.error(" " + dump);
                 res << dump;
                 return;
             }
@@ -688,7 +693,7 @@ int main(int argc, const char* argv[]) {
             ret[ms.PROGRESS] = model_status_json[ms.PROGRESS];
             ret[ms.STATUS] = model_status_json[ms.STATUS];
             string dump = ret.dump();
-            logger.log_info(label, dump);
+            logger.info(" " + dump);
             res << dump;
         });
 
@@ -710,9 +715,10 @@ int main(int argc, const char* argv[]) {
             ModelStatus ms(modelId, sqlite3DB);
 
             Logger logger;
-            string label = "delphi_rest_api::/models/" 
+            logger.info("");
+            logger.info("### DELPHI ENDPOINT: models/" 
                 + modelId 
-                + "/edit-indicators";
+                + "/edit-indicators");
 
             json ret;
             ret[ms.MODEL_ID] = modelId;
@@ -720,15 +726,14 @@ int main(int argc, const char* argv[]) {
             if(req.body().empty()) {
                 string error = "Error: No indicators data was received";
                 ret[ms.STATUS] = error;
-                logger.log_error(label, ret.dump());
+                logger.error(" " + ret.dump());
             }
             else {
                 ret[ms.STATUS] = message;
-                logger.log_warning(label, ret.dump());
+                logger.warning(" " + ret.dump());
             }
-
             string dump = ret.dump();
-            logger.log_info(label, dump);
+            logger.info(" " + dump);
             res << dump;
         });
 
@@ -744,9 +749,10 @@ int main(int argc, const char* argv[]) {
             ModelStatus ms(modelId, sqlite3DB);
 
             Logger logger;
-            string label = "delphi_rest_api::/models/" 
+            logger.info("");
+            logger.info("### DELPHI ENDPOINT: models/" 
                 + modelId 
-                + "/edit-edges";
+                + "/edit-edges");
 
             json ret;
             ret[ms.MODEL_ID] = modelId;
@@ -755,15 +761,14 @@ int main(int argc, const char* argv[]) {
             if(req.body().empty()) {
                 string error = "Error: No edges data was received";
                 ret[ms.STATUS] = error;
-                logger.log_error(label, ret.dump());
                 string dump = ret.dump();
-                logger.log_error(label, dump);
+                logger.error(" " + dump);
                 res << dump;
                 return ret;
             }
 
             nlohmann::json req_json = nlohmann::json::parse(req.body());
-            logger.log_info(label, req_json.dump());
+            logger.info(" " + req_json.dump());
 
             json model_status_json = ms.read_data();
 
@@ -771,7 +776,7 @@ int main(int argc, const char* argv[]) {
             if(model_status_json.empty()) {
                 ret[ms.STATUS] = "Model does not exist.";
                 string dump = ret.dump();
-		logger.log_error(label, dump);
+		logger.error(" " + dump);
                 res << dump;
                 return ret;
             }   
@@ -782,7 +787,7 @@ int main(int argc, const char* argv[]) {
             if(relations.empty()) {
                 ret[ms.STATUS] = "Edges not found in input";
                 string dump = ret.dump();
-		logger.log_error(label, dump);
+		logger.error(" " + dump);
                 res << dump;
                 return ret;
             }
@@ -795,7 +800,7 @@ int main(int argc, const char* argv[]) {
                     + (string)model_status_json[ms.STATUS] 
 		    + "), please wait until it finishes before editing.";
                 string dump = ret.dump();
-		logger.log_warning(label, dump);
+		logger.warning(" " + dump);
                 res << dump;
                 return ret;
             }  
@@ -848,7 +853,7 @@ int main(int argc, const char* argv[]) {
                         break;
                     }
                     string dump = ret.dump();
-                    logger.log_error(label, dump);
+		    logger.error(" " + dump);
                     res << dump;
                     return ret;
 		}
@@ -867,7 +872,7 @@ int main(int argc, const char* argv[]) {
             )) {
                 ret[ms.STATUS] = "server error: unable to insert into delphi model";
                 string dump = ret.dump();
-                logger.log_error(label, dump);
+		logger.error(" " + dump);
                 res << dump;
                 return ret;
 	    }
@@ -887,7 +892,7 @@ int main(int argc, const char* argv[]) {
                 cout << "Error: unable to start training process" << endl;
                 ret["status"] = "server error: edit-edges training";
                 string dump = ret.dump();
-                logger.log_error(label, dump);
+		logger.error(" " + dump);
                 res << dump;
                 return ret;
             }
@@ -897,7 +902,7 @@ int main(int argc, const char* argv[]) {
               + to_string(relations.size())
               + ". Model is in training.";
             string dump = ret.dump();
-            logger.log_info(label, dump);
+            logger.info(" " + dump);
             res << dump;
             return ret;
         });
@@ -914,7 +919,8 @@ int main(int argc, const char* argv[]) {
             json ret;
             ret[ms.MODEL_ID] = modelId;
             Logger logger;
-            string label = "delphi_rest_api::/models/" + modelId;
+            logger.info("");
+            logger.info("### DELPHI ENDPOINT: models/" + modelId);
 
             #ifdef TIME
                 CSVWriter writer = CSVWriter(string("timing") + "_" +
@@ -943,7 +949,7 @@ int main(int argc, const char* argv[]) {
             if (query_result.empty()) {
                 ret["status"] = "Invalid model ID";
                 string dump = ret.dump();
-                logger.log_error(label, dump);
+                logger.error(" " + dump);
                 res << dump;
             }
 
@@ -965,7 +971,7 @@ int main(int argc, const char* argv[]) {
                     nlohmann::json::parse(G.generate_create_model_response());
 
                 string dump = response.dump();
-                logger.log_info(label, dump);
+                logger.info(" " + dump);
                 res << dump;
             }
             #ifdef TIME

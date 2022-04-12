@@ -21,42 +21,14 @@ bool BaseStatus::insert_query(string query) {
   if(database->insert(query)) {
     return true;
   }
-  log_error("Could not insert query: " + query);
+  logger.error("Could not insert query: " + query);
   return false;
 }
 
 // Make a clean start with valid data
 void BaseStatus::initialize() {
-
-  // Drop our table if it exists
-  string query = "SELECT name FROM sqlite_master WHERE type='table' AND name='"
-    + table_name
-    + "';";
-  vector<string> results = database->read_column_text(query);
-  for(string result : results) {
-    query = "DROP TABLE " + result + ";";
-    if(!insert_query(query)) {
-      log_error("Could not initialize " + table_name);
-      log_error("Query failed: " + query);
-      return;
-    }
-  }
-
-  // create new table 
-  query = "CREATE TABLE "
-    + table_name
-    + " ("
-    + COL_ID
-    + " VARCHAR PRIMARY KEY, "
-    + COL_DATA
-    + " VARCHAR NOT NULL);";
-  if(!insert_query(query)) {
-    log_error("Could not initialize " + table_name);
-    log_error("Query failed: " + query);
-    return;
-  }
-
-  log_info("Initialized " + table_name);
+  logger.info("BaseStatus::initialize()");
+  logger.info(" (did nothing)" + table_name);
 }
 
 
@@ -128,7 +100,7 @@ json BaseStatus::read_data() {
   }
 
   // otherwise report error and do not populate JSON
-  log_error("read_data failed");
+  logger.error("read_data failed");
 
   json ret;
   return ret;
@@ -136,15 +108,20 @@ json BaseStatus::read_data() {
 
 // write data at the primary key row, return true if successful.
 bool BaseStatus::write_data(json data) {
-  string dataString = data.dump();
-  log_info("write_data, " + dataString);
+  string data_string = data.dump();
+  logger.info("BaseStatus::write_data(json data)");
+  logger.info(" data = " + data_string);
 
-  string query = "INSERT OR REPLACE INTO "
+  string query = "UPDATE "
     + table_name
-    + " VALUES ('"
+    + " SET "
+    + COL_DATA
+    + " = '"
+    + data_string
+    +  "') WHERE "
+    + COL_ID 
+    + " = '"
     + primary_key
-    + "', '"
-    + dataString
     +  "');";
 
   return insert_query(query);

@@ -5,6 +5,15 @@ using namespace std;
 using namespace delphi::utils;
 using json = nlohmann::json;
 
+/*
+sqlite> pragma table_info (causemosasyncexperimentresult);
+0|id|VARCHAR|1||1
+1|status|VARCHAR|0||0
+2|experimentType|VARCHAR|0||0
+3|results|TEXT|0||0
+4|progress|VARCHAR|0||0
+*/
+
 // set our data to the start state
 void ExperimentStatus::enter_initial_state() {
   set_state(0.0, "Empty", false);

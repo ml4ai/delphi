@@ -1,6 +1,13 @@
 #include "ModelStatus.hpp"
 #include <nlohmann/json.hpp>
 
+/*
+sqlite> pragma table_info (delphimodel);
+0|id|VARCHAR|1||1
+1|model|VARCHAR|0||0
+2|progress|VARCHAR|0||0
+*/
+
 // set our data to the start state
 void ModelStatus::enter_initial_state() {
   set_state(0.0, "Empty", false);
