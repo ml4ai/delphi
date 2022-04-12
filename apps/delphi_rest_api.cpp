@@ -388,7 +388,6 @@ int main(int argc, const char* argv[]) {
 
 	    json ret;
 
-
             // no file uploaded
             if(req.body().empty()) {
                 string error = "Error: No model data was received";
@@ -415,18 +414,37 @@ int main(int argc, const char* argv[]) {
 	    string modelId = req_json["id"];
 	    ModelStatus ms(modelId, sqlite3DB);
 
-	    // check for existence of record, add if needed.
-	    if(ms.read_data().empty()) {
-              ms.enter_initial_state();
-            }
+	    logger.info("model id = " + modelId);
+           
+	    ret[ms.MODEL_ID] = modelId;
+
+	    // check for existence of row
+	    json row = sqlite3DB->select_delphimodel_row(modelId);
+	    if(row.empty()) {
+		logger.info("Row not found for " + modelId + ", creating it...");
+		// create it if needed
+                string query = 
+                    "INSERT into delphimodel ('id', 'model', 'progress') VALUES ('"
+		    + modelId 
+		    + "', 'empty', 'empty');";
+		logger.info("Query = " + query);
+		if(!sqlite3DB->insert(query)) {
+                    ret[ms.STATUS] = "Model row could not be created ";
+                    string dump = ret.dump();
+                    response << dump; 
+	            logger.error(" " + dump);
+                    return dump; 
+                }
+                ms.enter_initial_state();
+            } else {
+               logger.info("Row exists for " +  modelId);
+	    }
 
             json model_status_json = ms.read_data();
 	    bool model_busy = model_status_json[ms.BUSY];
 
             // do not overwrite model if it is busy
             if (model_busy) {
-                json ret;
-                ret[ms.MODEL_ID] = modelId;
                 ret[ms.PROGRESS] = model_status_json[ms.PROGRESS];
                 ret[ms.STATUS] = "Model is busy (" 
                     + (string)model_status_json[ms.STATUS] 
