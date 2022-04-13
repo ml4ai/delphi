@@ -321,23 +321,29 @@ int main(int argc, const char* argv[]) {
         return 1;
     }
 
+    // start new logfile on startup
+    Logger logger;
+
+    // report status
+    logger.overwrite_logfile(systemStatus);
+    cout << systemStatus << endl;
+
     // check database tables.  Showstopper if none are found.
     Database* sqlite3DB = new Database();
     string query = "select name from sqlite_master where type='table';";
     vector<string> results = sqlite3DB->read_column_text(query);
     char *db_path = getenv ("DELPHI_DB");
     if(results.empty()) {
-      cerr << "Could not find Delphi database at " << db_path << endl;
-      return 1;
+        string db_report = "Could not find Delphi database at "
+            + string(db_path);
+        logger.error(db_report);
+        cerr << db_report << endl;
+        return 1;
     } 
-
-    // report status on startup
-    cout << systemStatus << endl;
-    cout << "Using Delphi database at " << db_path << endl;
-
-    // start new logfile on startup
-    Logger logger;
-    logger.overwrite_logfile(systemStatus);
+    string db_report = "Using Delphi database at "
+        + string(db_path);
+    logger.info(db_report);
+    cout << db_report << endl;
 
     // report location of config file
     Config config;
