@@ -23,11 +23,10 @@ Program Listing for File Logger.hpp
      public:
        Logger();
        ~Logger(){}
-   
        void overwrite_logfile(string text);
-       void log_info(string label, string text);
-       void log_warning(string label, string text);
-       void log_error(string label, string text);
+       void info(string text);
+       void warning(string text);
+       void error(string text);
        string get_log_file_path();
    
      private:

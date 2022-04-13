@@ -92,11 +92,10 @@
 <span class="w">  </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
 <span class="w">    </span><span class="n">Logger</span><span class="p">();</span><span class="w"></span>
 <span class="w">    </span><span class="o">~</span><span class="n">Logger</span><span class="p">(){}</span><span class="w"></span>
-
 <span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">overwrite_logfile</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">text</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">log_info</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">label</span><span class="p">,</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="n">text</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">log_warning</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">label</span><span class="p">,</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="n">text</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">log_error</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">label</span><span class="p">,</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="n">text</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">info</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">text</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">warning</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">text</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">error</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">text</span><span class="p">);</span><span class="w"></span>
 <span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="nf">get_log_file_path</span><span class="p">();</span><span class="w"></span>
 
 <span class="w">  </span><span class="k">private</span><span class="o">:</span><span class="w"></span>

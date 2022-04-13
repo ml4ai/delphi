@@ -33,45 +33,13 @@ Program Listing for File BaseStatus.cpp
      if(database->insert(query)) {
        return true;
      }
-     log_error("Could not insert query: " + query);
+     logger.error("Could not insert query: " + query);
      return false;
    }
    
    // Make a clean start with valid data
    void BaseStatus::initialize() {
-   
-     // Drop our table if it exists
-     string query = "SELECT name FROM sqlite_master WHERE type='table' AND name='"
-       + table_name
-       + "';";
-     vector<string> results = database->read_column_text(query);
-     for(string result : results) {
-       query = "DROP TABLE " + result + ";";
-       if(!insert_query(query)) {
-         log_error("Could not initialize " + table_name);
-         log_error("Query failed: " + query);
-         return;
-       }
-     }
-   
-     // create new table 
-     query = "CREATE TABLE "
-       + table_name
-       + " ("
-       + COL_ID
-       + " VARCHAR PRIMARY KEY, "
-       + COL_DATA
-       + " VARCHAR NOT NULL);";
-     if(!insert_query(query)) {
-       log_error("Could not initialize " + table_name);
-       log_error("Query failed: " + query);
-       return;
-     }
-   
-     // add rows
-     populate_table();
-   
-     log_info("Initialized " + table_name);
+     logger.info("BaseStatus::initialize()");
    }
    
    
@@ -121,46 +89,55 @@ Program Listing for File BaseStatus.cpp
    
    // return the data JSON for the primary key
    json BaseStatus::read_data() {
+     string label = "BaseStatus read_data() ";
+     logger.info(label);
    
-     // get the entire database row 
-     json row = database -> select_row(
-       table_name,
-       primary_key,
-       COL_DATA
-     );
+     // get the progress column from the database row
+     string query = "SELECT "
+       + COL_DATA
+       + " FROM " 
+       + table_name 
+       + " WHERE "
+       + COL_ID
+       + " = '"
+       + primary_key
+       + "';";
    
-     // If a row is returned by the query, return whatever data it has
-     if(!row.empty() && row.contains(COL_DATA)) {
-       string dataString = row.value(COL_DATA, "");
-       json data = json::parse(dataString);
+     logger.info("BaseStatus query: " + query);
    
-       if(data.contains(BUSY) 
-         && data.contains(PROGRESS)
-         && data.contains(STATUS)
-       ) {
-         return data;
-       }
+     vector<string> results = database->read_column_text(query);
+   
+     json data;
+   
+     for(string result: results) {
+       data = json::parse(result);
      }
    
-     // otherwise report error and do not populate JSON
-     log_error("read_data failed");
+     logger.info("BaseStatus read: " + data.dump());
    
-     json ret;
-     return ret;
+     return data;
    }
    
    // write data at the primary key row, return true if successful.
    bool BaseStatus::write_data(json data) {
-     string dataString = data.dump();
-     log_info("write_data, " + dataString);
+     string label = "BaseStatus write_data(json data) ";
+     string data_string = data.dump();
+     logger.info(label);
+     logger.info("BaseStatus json data: " + data_string);
    
-     string query = "INSERT OR REPLACE INTO "
+     string query = "UPDATE "
        + table_name
-       + " VALUES ('"
+       + " SET "
+       + COL_DATA
+       + " = '"
+       + data_string
+       +  "' WHERE "
+       + COL_ID 
+       + " = '"
        + primary_key
-       + "', '"
-       + dataString
-       +  "');";
+       +  "';";
+   
+     logger.info("BaseStatus query: " + query);
    
      return insert_query(query);
    }

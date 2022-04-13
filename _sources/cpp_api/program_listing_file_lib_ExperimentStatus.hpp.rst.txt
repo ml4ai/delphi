@@ -29,7 +29,6 @@ Program Listing for File ExperimentStatus.hpp
    
      protected:
        void set_state(double progress, string status, bool busy);
-       void populate_table();
    
      public:
        ExperimentStatus(
@@ -37,7 +36,7 @@ Program Listing for File ExperimentStatus.hpp
            string model_id 
        ) : BaseStatus(
          "ExperimentStatus",
-         "experiment_status",
+         "causemosasyncexperimentresult",
          experiment_id
        ), experiment_id(experiment_id), model_id(model_id){}
    
@@ -47,7 +46,7 @@ Program Listing for File ExperimentStatus.hpp
            Database* database
        ) : BaseStatus(
          "ExperimentStatus",
-         "experiment_status",
+         "causemosasyncexperimentresult",
          experiment_id,
          database
        ), experiment_id(experiment_id), model_id(model_id){}
